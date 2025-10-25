@@ -1,0 +1,152 @@
+{
+  "common": {
+    "toggleTheme": "Theme wechseln",
+    "darkMode": "Dunkler Modus",
+    "lightMode": "Heller Modus"
+  },
+  "navigation": {
+    "tools": "Tools",
+    "about": "Über Uns",
+    "contact": "Kontakt",
+    "privacy": "Datenschutz",
+    "terms": "AGB",
+    "imprint": "Impressum",
+    "toolsMenu": {
+      "mp3Converter": "MP3 Konverter",
+      "audioEqualizer": "Interaktiver Audio Equalizer",
+      "modernPlayer": "Moderner Musikplayer",
+      "ultimatePlayer": "Ultimativer Musikplayer",
+      "playlistGenerator": "Audioplaylist Generator",
+      "alarmTool": "Alarmtool",
+      "audioNormalizer": "Audio Normalizer",
+      "visualizer": "Visualizer",
+      "equalizer19": "19 Band Equalizer",
+      "audioConverter": "Audiokonverter",
+      "imageConverter": "Bildkonverter",
+      "batchImageEditor": "Bildserie Bearbeiten"
+    }
+  },
+  "hero": {
+    "title": "Kostenlose Online-Tools für Audio & Bild",
+    "subtitle": "Sichere Bearbeitung - Im Browser oder auf unseren Servern - Keine Installation, keine Anmeldung",
+    "cta": "Jetzt starten",
+    "features": {
+      "free": "100% Kostenlos",
+      "privacy": "Datenschutz",
+      "browserBased": "Browser-basiert",
+      "serverBased": "Server-basiert",
+      "multiLanguage": "Mehrsprachig",
+      "noInstall": "Keine Installation"
+    }
+  },
+  "tools": {
+    "sectionTitle": "🎵 Audio Tools",
+    "sectionDescription": "Bearbeiten Sie Ihre Audiodateien sicher - einige Tools laufen im Browser, andere auf unseren Hostinger-Servern",
+    "processingBadge": {
+      "browser": "Browser",
+      "server": "Server"
+    },
+    "audioConverter": {
+      "title": "Audio Konverter",
+      "description": "Konvertieren Sie Audio zwischen MP3, WAV, OGG, FLAC, AAC und M4A. Stapelverarbeitung mit Qualitätsauswahl.",
+      "badge": "Batch",
+      "processing": "server",
+      "link": "https://kodinitools.com/audiokonverter/"
+    },
+    "audioEqualizer": {
+      "title": "19-Band EQ Pro",
+      "description": "19-Band Equalizer mit Dynamic Compressor, Presets und Aufnahme-Funktion.",
+      "badge": "PRO",
+      "processing": "browser",
+      "link": "https://kodinitools.com/equaliser19/"
+    },
+    "musicPlayer": {
+      "title": "Musikplayer",
+      "description": "Minimalistischer Audioplayer mit Playlist, Shuffle, Repeat und Visualizer-Funktion.",
+      "badge": "Neu",
+      "processing": "browser",
+      "link": "https://kodinitools.com/ultimativermusikplayer/"
+    },
+    "audioVisualizer": {
+      "title": "Audio Visualizer",
+      "description": "Erstellen Sie beeindruckende MP4-Videos für TikTok, Instagram und YouTube mit Audio-Visualisierungen.",
+      "badge": "Video",
+      "processing": "browser",
+      "link": "https://kodinitools.com/visualizer/"
+    },
+    "mp3Converter": {
+      "title": "MP3 Konverter",
+      "description": "Konvertieren Sie Audiodateien schnell und einfach in das MP3-Format. Optimiert für Podcasts und Musik.",
+      "badge": "MP3",
+      "processing": "server",
+      "link": "https://kodinitools.com/mp3konverter/"
+    },
+    "interactiveEqualizer": {
+      "title": "Interaktiver Audio Equalizer",
+      "description": "Bearbeiten Sie Ihre Audiodateien mit einem intuitiven grafischen Equalizer. Echtzeit-Vorschau und Export.",
+      "badge": "Interaktiv",
+      "processing": "browser",
+      "link": "https://kodinitools.com/audioequalizer/"
+    },
+    "modernPlayer": {
+      "title": "Moderner Musikplayer",
+      "description": "Schlanker und moderner Audio-Player mit allen wichtigen Funktionen. Unterstützt viele Formate.",
+      "badge": "Modern",
+      "processing": "browser",
+      "link": "https://kodinitools.com/modernermusikplayer/"
+    },
+    "playlistGenerator": {
+      "title": "Audioplaylist Generator",
+      "description": "Erstellen Sie automatisch Playlists aus Ihren Audiodateien. Mit Sortier- und Filterfunktionen.",
+      "badge": "Playlist",
+      "processing": "browser",
+      "link": "https://kodinitools.com/playlist_generator/"
+    },
+    "alarmTool": {
+      "title": "Alarmtool",
+      "description": "Zuverlässiges Alarm-Tool für Erinnerungen und Wecker. Mit individuellen Audio-Dateien.",
+      "badge": "Alarm",
+      "processing": "browser",
+      "link": "https://kodinitools.com/alarmtool/"
+    },
+    "audioNormalizer": {
+      "title": "Audio Normalizer",
+      "description": "Normalisieren Sie die Lautstärke Ihrer Audiodateien automatisch. Perfekt für Podcasts und Hörbücher.",
+      "badge": "Normalizer",
+      "processing": "server",
+      "link": "https://kodinitools.com/audionormalisierer/"
+    }
+  },
+  "imageTools": {
+    "sectionTitle": "📷 Bild Tools",
+    "sectionDescription": "Konvertieren und bearbeiten Sie Ihre Bilder sicher - einige Tools laufen im Browser, andere auf unseren Hostinger-Servern",
+    "imageConverter": {
+      "title": "Bildkonverter",
+      "description": "Konvertieren Sie Bilder zwischen JPG, PNG, WebP, AVIF, GIF und BMP. Mit Qualitätsauswahl.",
+      "badge": "Multi",
+      "processing": "server",
+      "link": "https://kodinitools.com/bildkonverter/"
+    },
+    "batchImageEditor": {
+      "title": "Batch Bildbearbeitung",
+      "description": "Bearbeiten Sie 100+ Bilder gleichzeitig: Größe ändern, umbenennen, als ZIP oder PDF exportieren.",
+      "badge": "Batch",
+      "processing": "browser",
+      "link": "https://kodinitools.com/bilderseriebearbeiten/"
+    }
+  },
+  "promotions": {
+    "sectionTitle": "⭐ Unsere Top-Features",
+    "sectionDescription": "Entdecken Sie die leistungsstärksten Tools für sichere Multimedia-Bearbeitung"
+  },
+  "developer": {
+    "sectionTitle": "👨‍💻 Über Entwickler",
+    "text": "Entwickler hinter",
+    "description": "Ich programmiere aus Leidenschaft und habe eine Sammlung von kostenlosen Online-Tools geschaffen, die direkt im Browser funktionieren",
+    "more": "mehr"
+  },
+  "footer": {
+    "company": "KodiniTools",
+    "tagline": "Kostenlose Online-Tools für Audio & Bild"
+  }
+}
