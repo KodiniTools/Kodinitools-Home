@@ -295,12 +295,16 @@
         </a>
       </div>
     </section>
+
+    <!-- PayPal Donate Button -->
+    <DonateButton />
   </div>
 </template>
 
 <script setup lang="ts">
 import LanguageSwitcher from './components/LanguageSwitcher.vue'
 import ThemeToggle from './components/ThemeToggle.vue'
+import DonateButton from './components/DonateButton.vue'
 </script>
 
 <style>
