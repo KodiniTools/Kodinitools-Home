@@ -253,6 +253,21 @@
             <p>{{ $t('tools.audioNormalizer.description') }}</p>
           </div>
         </a>
+
+        <!-- Playlist zu WebM Konverter -->
+        <a :href="$t('tools.playlistToWebm.link')" class="tool-card-link">
+          <div class="tool-card">
+            <div class="tool-icon">📼</div>
+            <div class="badge-container">
+              <span class="tool-badge">{{ $t('tools.playlistToWebm.badge') }}</span>
+              <span :class="['processing-badge', $t('tools.playlistToWebm.processing')]">
+                {{ $t('tools.processingBadge.' + $t('tools.playlistToWebm.processing')) }}
+              </span>
+            </div>
+            <h3>{{ $t('tools.playlistToWebm.title') }}</h3>
+            <p>{{ $t('tools.playlistToWebm.description') }}</p>
+          </div>
+        </a>
       </div>
     </section>
 
