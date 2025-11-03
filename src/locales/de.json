@@ -115,6 +115,13 @@
       "badge": "Normalizer",
       "processing": "server",
       "link": "https://kodinitools.com/audionormalisierer/"
+    },
+    "playlistToWebm": {
+      "title": "Playlist zu WebM Konverter",
+      "description": "Bis zu 50 Audio-Tracks in eine WebM-Datei konvertieren",
+      "badge": "WebM",
+      "processing": "server",
+      "link": "https://kodinitools.com/playlistkonverter/"
     }
   },
   "imageTools": {
