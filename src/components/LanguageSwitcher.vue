@@ -27,8 +27,12 @@ const currentLocale = computed(() => locale.value)
 
 const setLocale = (newLocale: 'de' | 'en') => {
   locale.value = newLocale
-  localStorage.setItem('locale', newLocale)
-  document.documentElement.setAttribute('lang', newLocale)
+
+  // SSR-safe localStorage and document access
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('locale', newLocale)
+    document.documentElement.setAttribute('lang', newLocale)
+  }
 }
 </script>
 
