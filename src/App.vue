@@ -316,6 +316,34 @@
 
     <!-- PayPal Donate Button -->
     <DonateButton />
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-container">
+        <div class="footer-content">
+          <div class="footer-brand">
+            <h3>{{ $t('footer.company') }}</h3>
+            <p>{{ $t('footer.tagline') }}</p>
+          </div>
+
+          <div class="footer-links">
+            <a href="https://kodinitools.com/impressum/" class="footer-link">
+              {{ $t('navigation.imprint') }}
+            </a>
+            <a href="https://kodinitools.com/datenschutz/" class="footer-link">
+              {{ $t('navigation.privacy') }}
+            </a>
+            <a href="https://kodinitools.com/agb/" class="footer-link">
+              {{ $t('navigation.terms') }}
+            </a>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <p>&copy; {{ new Date().getFullYear() }} {{ $t('footer.company') }}. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
   </div>
 </template>
 
@@ -978,5 +1006,156 @@ button:focus {
 * {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Footer */
+.footer {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  border-top: 2px solid var(--border-color);
+  margin-top: 5rem;
+  padding: 3rem 0 1.5rem;
+  animation: fadeIn 0.8s ease;
+}
+
+[data-theme="dark"] .footer {
+  background: linear-gradient(135deg, rgba(76, 29, 149, 0.1) 0%, rgba(91, 33, 182, 0.1) 100%);
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border-color);
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+.footer-brand h3 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  background: var(--gradient-1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+}
+
+.footer-brand p {
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+[data-theme="dark"] .footer-brand p {
+  color: #94a3b8;
+}
+
+.footer-links {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.footer-link {
+  color: var(--text-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  position: relative;
+  padding: 0.5rem 0;
+}
+
+.footer-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 0;
+  left: 50%;
+  background: var(--gradient-1);
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.footer-link:hover {
+  color: #667eea;
+}
+
+.footer-link:hover::after {
+  width: 100%;
+}
+
+.footer-bottom {
+  padding-top: 1.5rem;
+  text-align: center;
+}
+
+.footer-bottom p {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+[data-theme="dark"] .footer-bottom p {
+  color: #94a3b8;
+}
+
+/* Footer Responsive */
+@media (max-width: 768px) {
+  .footer {
+    padding: 2rem 0 1rem;
+    margin-top: 3rem;
+  }
+
+  .footer-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 1.5rem;
+  }
+
+  .footer-brand {
+    width: 100%;
+  }
+
+  .footer-links {
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .footer-link {
+    display: block;
+  }
+
+  .footer-bottom {
+    padding-top: 1rem;
+  }
+
+  .footer-bottom p {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer {
+    margin-top: 2rem;
+  }
+
+  .footer-container {
+    padding: 0 1rem;
+  }
+
+  .footer-brand h3 {
+    font-size: 1.25rem;
+  }
+
+  .footer-brand p {
+    font-size: 0.85rem;
+  }
 }
 </style>
