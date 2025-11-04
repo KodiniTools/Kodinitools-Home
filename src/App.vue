@@ -27,6 +27,9 @@
               <a href="https://kodinitools.com/playlist_generator/" class="dropdown-item">
                 {{ $t('navigation.toolsMenu.playlistGenerator') }}
               </a>
+              <a href="https://kodinitools.com/playlistkonverter/" class="dropdown-item">
+                {{ $t('navigation.toolsMenu.playlistConverter') }}
+              </a>
               <a href="https://kodinitools.com/alarmtool/" class="dropdown-item">
                 {{ $t('navigation.toolsMenu.alarmTool') }}
               </a>
