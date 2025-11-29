@@ -17,6 +17,7 @@ const getDefaultLocale = () => {
 
 export const i18n = createI18n({
   legacy: false, // Use Composition API
+  globalInjection: true, // Enable global $t
   locale: getDefaultLocale(),
   fallbackLocale: 'de',
   messages: {
