@@ -6,54 +6,66 @@
         <div class="logo">{{ $t('footer.company') }}</div>
         
         <div class="nav-links">
-          <!-- Tools Dropdown -->
+          <!-- Audio Tools Dropdown -->
           <div class="nav-dropdown">
             <a href="#" class="nav-link">
-              {{ $t('navigation.tools') }} ▾
+              {{ $t('navigation.audioTools') }} ▾
             </a>
             <div class="dropdown-menu">
+              <a href="https://kodinitools.com/audiokonverter/" class="dropdown-item">
+                {{ $t('navigation.audioToolsMenu.audioConverter') }}
+              </a>
               <a href="https://kodinitools.com/mp3konverter/" class="dropdown-item">
-                {{ $t('navigation.toolsMenu.mp3Converter') }}
-              </a>
-              <a href="https://kodinitools.com/audioequalizer/" class="dropdown-item">
-                {{ $t('navigation.toolsMenu.audioEqualizer') }}
-              </a>
-              <a href="https://kodinitools.com/modernermusikplayer/" class="dropdown-item">
-                {{ $t('navigation.toolsMenu.modernPlayer') }}
-              </a>
-              <a href="https://kodinitools.com/ultimativermusikplayer/" class="dropdown-item">
-                {{ $t('navigation.toolsMenu.ultimatePlayer') }}
-              </a>
-              <a href="https://kodinitools.com/playlist_generator/" class="dropdown-item">
-                {{ $t('navigation.toolsMenu.playlistGenerator') }}
-              </a>
-              <a href="https://kodinitools.com/playlistkonverter/" class="dropdown-item">
-                {{ $t('navigation.toolsMenu.playlistConverter') }}
-              </a>
-              <a href="https://kodinitools.com/alarmtool/" class="dropdown-item">
-                {{ $t('navigation.toolsMenu.alarmTool') }}
-              </a>
-              <a href="https://kodinitools.com/audionormalisierer/" class="dropdown-item">
-                {{ $t('navigation.toolsMenu.audioNormalizer') }}
-              </a>
-              <a href="https://kodinitools.com/visualizer/" class="dropdown-item">
-                {{ $t('navigation.toolsMenu.visualizer') }}
+                {{ $t('navigation.audioToolsMenu.mp3Converter') }}
               </a>
               <a href="https://kodinitools.com/equaliser19/" class="dropdown-item">
-                {{ $t('navigation.toolsMenu.equalizer19') }}
+                {{ $t('navigation.audioToolsMenu.equalizer19') }}
               </a>
-              <a href="https://kodinitools.com/audiokonverter/" class="dropdown-item">
-                {{ $t('navigation.toolsMenu.audioConverter') }}
+              <a href="https://kodinitools.com/audioequalizer/" class="dropdown-item">
+                {{ $t('navigation.audioToolsMenu.audioEqualizer') }}
               </a>
-              <a href="https://kodinitools.com/bildkonverter/" class="dropdown-item">
-                {{ $t('navigation.toolsMenu.imageConverter') }}
+              <a href="https://kodinitools.com/audionormalisierer/" class="dropdown-item">
+                {{ $t('navigation.audioToolsMenu.audioNormalizer') }}
               </a>
-              <a href="https://kodinitools.com/bilderseriebearbeiten/" class="dropdown-item">
-                {{ $t('navigation.toolsMenu.batchImageEditor') }}
+              <a href="https://kodinitools.com/modernermusikplayer/" class="dropdown-item">
+                {{ $t('navigation.audioToolsMenu.modernPlayer') }}
+              </a>
+              <a href="https://kodinitools.com/ultimativermusikplayer/" class="dropdown-item">
+                {{ $t('navigation.audioToolsMenu.ultimatePlayer') }}
+              </a>
+              <a href="https://kodinitools.com/playlist_generator/" class="dropdown-item">
+                {{ $t('navigation.audioToolsMenu.playlistGenerator') }}
+              </a>
+              <a href="https://kodinitools.com/playlistkonverter/" class="dropdown-item">
+                {{ $t('navigation.audioToolsMenu.playlistConverter') }}
+              </a>
+              <a href="https://kodinitools.com/visualizer/" class="dropdown-item">
+                {{ $t('navigation.audioToolsMenu.visualizer') }}
+              </a>
+              <a href="https://kodinitools.com/alarmtool/" class="dropdown-item">
+                {{ $t('navigation.audioToolsMenu.alarmTool') }}
               </a>
             </div>
           </div>
-          
+
+          <!-- Image Tools Dropdown -->
+          <div class="nav-dropdown">
+            <a href="#" class="nav-link">
+              {{ $t('navigation.imageTools') }} ▾
+            </a>
+            <div class="dropdown-menu">
+              <a href="https://kodinitools.com/bildkonverter/" class="dropdown-item">
+                {{ $t('navigation.imageToolsMenu.imageConverter') }}
+              </a>
+              <a href="https://kodinitools.com/bilderseriebearbeiten/" class="dropdown-item">
+                {{ $t('navigation.imageToolsMenu.batchImageEditor') }}
+              </a>
+              <a href="https://kodinitools.com/fotocollage/" class="dropdown-item">
+                {{ $t('navigation.imageToolsMenu.photoCollage') }}
+              </a>
+            </div>
+          </div>
+
           <a href="https://kodinitools.com/ueberuns/" class="nav-link">{{ $t('navigation.about') }}</a>
           <a href="https://kodinitools.com/kontaktformular/" class="nav-link">{{ $t('navigation.contact') }}</a>
         </div>
@@ -309,6 +321,21 @@
             </div>
             <h3>{{ $t('imageTools.batchImageEditor.title') }}</h3>
             <p>{{ $t('imageTools.batchImageEditor.description') }}</p>
+          </div>
+        </a>
+
+        <!-- Fotocollage -->
+        <a :href="$t('imageTools.photoCollage.link')" class="tool-card-link">
+          <div class="tool-card">
+            <div class="tool-icon">🎨</div>
+            <div class="badge-container">
+              <span class="tool-badge">{{ $t('imageTools.photoCollage.badge') }}</span>
+              <span :class="['processing-badge', $t('imageTools.photoCollage.processing')]">
+                {{ $t('tools.processingBadge.' + $t('imageTools.photoCollage.processing')) }}
+              </span>
+            </div>
+            <h3>{{ $t('imageTools.photoCollage.title') }}</h3>
+            <p>{{ $t('imageTools.photoCollage.description') }}</p>
           </div>
         </a>
       </div>

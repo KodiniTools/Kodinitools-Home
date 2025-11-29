@@ -5,26 +5,30 @@
     "lightMode": "Light mode"
   },
   "navigation": {
-    "tools": "Tools",
-    "about": "About Us",
-    "contact": "Contact",
-    "privacy": "Privacy",
-    "terms": "Terms",
-    "imprint": "Imprint",
-    "toolsMenu": {
-      "mp3Converter": "MP3 Converter",
-      "audioEqualizer": "Interactive Audio Equalizer",
-      "modernPlayer": "Modern Music Player",
-      "ultimatePlayer": "Ultimate Music Player",
-      "playlistGenerator": "Audio Playlist Generator",
-      "playlistConverter": "Playlist to WebM Converter",
-      "alarmTool": "Alarm Tool",
-      "audioNormalizer": "Audio Normalizer",
-      "visualizer": "Visualizer",
-      "equalizer19": "19 Band Equalizer",
-      "audioConverter": "Audio Converter",
-      "imageConverter": "Image Converter",
-      "batchImageEditor": "Batch Image Editor"
+    "audioTools": "audio tools",
+    "imageTools": "image tools",
+    "about": "about us",
+    "contact": "contact",
+    "privacy": "privacy",
+    "terms": "terms",
+    "imprint": "imprint",
+    "audioToolsMenu": {
+      "audioConverter": "audio converter",
+      "mp3Converter": "mp3 converter",
+      "equalizer19": "19 band equalizer",
+      "audioEqualizer": "interactive audio equalizer",
+      "audioNormalizer": "audio normalizer",
+      "modernPlayer": "modern music player",
+      "ultimatePlayer": "ultimate music player",
+      "playlistGenerator": "audio playlist generator",
+      "playlistConverter": "playlist to webm converter",
+      "visualizer": "visualizer",
+      "alarmTool": "alarm tool"
+    },
+    "imageToolsMenu": {
+      "imageConverter": "image converter",
+      "batchImageEditor": "batch image editor",
+      "photoCollage": "photo collage"
     }
   },
   "hero": {
@@ -141,6 +145,13 @@
       "badge": "Batch",
       "processing": "browser",
       "link": "https://kodinitools.com/bilderseriebearbeiten/"
+    },
+    "photoCollage": {
+      "title": "Photo Collage",
+      "description": "Create creative photo collages from your images. Various layouts and templates available.",
+      "badge": "Creative",
+      "processing": "browser",
+      "link": "https://kodinitools.com/fotocollage/"
     }
   },
   "promotions": {
