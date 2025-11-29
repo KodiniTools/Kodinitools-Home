@@ -30,7 +30,7 @@ const toggleTheme = () => {
 <style scoped>
 .theme-toggle {
   padding: 0.5rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-color);
   border-radius: 0.5rem;
   background: transparent;
   cursor: pointer;
@@ -38,7 +38,12 @@ const toggleTheme = () => {
 }
 
 .theme-toggle:hover {
-  background: #f3f4f6;
+  background: var(--bg-secondary);
+  border-color: var(--primary-color);
+}
+
+[data-theme="dark"] .theme-toggle:hover {
+  background: var(--bg-secondary);
 }
 
 .theme-icon {
