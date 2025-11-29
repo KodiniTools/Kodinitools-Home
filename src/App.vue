@@ -66,7 +66,6 @@
             </div>
           </div>
 
-          <a href="https://kodinitools.com/ueberuns/" class="nav-link">{{ $t('navigation.about') }}</a>
           <a href="https://kodinitools.com/kontaktformular/" class="nav-link">{{ $t('navigation.contact') }}</a>
         </div>
         
@@ -554,6 +553,10 @@ body {
   display: inline-block;
 }
 
+.nav-dropdown > .nav-link {
+  padding-bottom: 1rem;
+}
+
 .dropdown-menu {
   display: none;
   position: absolute;
@@ -565,19 +568,26 @@ body {
   border: 1px solid var(--border-color);
   border-radius: 0.75rem;
   box-shadow: var(--shadow-xl);
-  min-width: 250px;
+  min-width: 220px;
   z-index: 1000;
-  margin-top: 0.5rem;
   padding: 0.5rem;
-  animation: fadeInUp 0.3s ease;
+  animation: fadeInUp 0.2s ease;
+}
+
+.dropdown-menu::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 0;
+  right: 0;
+  height: 10px;
 }
 
 [data-theme="dark"] .dropdown-menu {
   background: rgba(22, 22, 28, 0.98);
 }
 
-.nav-dropdown:hover .dropdown-menu,
-.dropdown-menu:hover {
+.nav-dropdown:hover .dropdown-menu {
   display: block;
 }
 
