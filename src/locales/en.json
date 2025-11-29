@@ -7,11 +7,16 @@
   "navigation": {
     "audioTools": "audio tools",
     "imageTools": "image tools",
+    "tools": "tools",
     "about": "about us",
     "contact": "contact",
     "privacy": "privacy",
     "terms": "terms",
     "imprint": "imprint",
+    "toolsMenu": {
+      "colorExtractor": "kodini color extractor",
+      "videoConverter": "video converter"
+    },
     "audioToolsMenu": {
       "audioConverter": "audio converter",
       "mp3Converter": "mp3 converter",

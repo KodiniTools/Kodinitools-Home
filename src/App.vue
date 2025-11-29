@@ -66,6 +66,21 @@
             </div>
           </div>
 
+          <!-- Tools Dropdown -->
+          <div class="nav-dropdown">
+            <a href="#" class="nav-link">
+              {{ $t('navigation.tools') }} ▾
+            </a>
+            <div class="dropdown-menu">
+              <a href="https://kodinitools.com/kodini-color-extractor/" class="dropdown-item">
+                {{ $t('navigation.toolsMenu.colorExtractor') }}
+              </a>
+              <a href="https://kodinitools.com/videokonverter/" class="dropdown-item">
+                {{ $t('navigation.toolsMenu.videoConverter') }}
+              </a>
+            </div>
+          </div>
+
           <a href="https://kodinitools.com/kontaktformular/" class="nav-link">{{ $t('navigation.contact') }}</a>
         </div>
         
