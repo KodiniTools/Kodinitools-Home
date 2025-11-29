@@ -40,7 +40,7 @@ const setLocale = (newLocale: 'de' | 'en') => {
 .language-switcher {
   display: flex;
   gap: 0.5rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-color);
   border-radius: 0.5rem;
   padding: 0.25rem;
 }
@@ -53,14 +53,25 @@ const setLocale = (newLocale: 'de' | 'en') => {
   cursor: pointer;
   transition: all 0.2s;
   font-weight: 500;
+  color: var(--text-color);
+  text-transform: lowercase;
 }
 
 .locale-btn:hover {
-  background: #f3f4f6;
+  background: var(--bg-secondary);
+}
+
+[data-theme="dark"] .locale-btn:hover {
+  background: var(--bg-secondary);
 }
 
 .locale-btn.active {
-  background: #3b82f6;
+  background: var(--gradient-1);
   color: white;
+}
+
+[data-theme="dark"] .locale-btn.active {
+  background: var(--gradient-1);
+  color: #0C0C10;
 }
 </style>

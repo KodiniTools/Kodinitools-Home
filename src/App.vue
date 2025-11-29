@@ -361,31 +361,53 @@ import DonateButton from './components/DonateButton.vue'
 }
 
 :root {
-  --bg-color: #ffffff;
-  --text-color: #1f2937;
-  --border-color: #e5e7eb;
-  --primary-color: #3b82f6;
-  --primary-dark: #2563eb;
-  --primary-light: #60a5fa;
-  --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  --gradient-hero: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  /* New Color Palette */
+  --color-gold: #F2E28E;
+  --color-mauve: #A28680;
+  --color-slate: #5E5F69;
+  --color-silver: #AEAFB7;
+  --color-dark: #0C0C10;
+
+  /* Light Theme */
+  --bg-color: #fafafa;
+  --bg-secondary: #ffffff;
+  --text-color: #0C0C10;
+  --text-secondary: #5E5F69;
+  --text-muted: #AEAFB7;
+  --border-color: #AEAFB7;
+  --primary-color: #A28680;
+  --primary-dark: #8a706b;
+  --primary-light: #b89d97;
+  --accent-color: #F2E28E;
+  --gradient-1: linear-gradient(135deg, #A28680 0%, #5E5F69 100%);
+  --gradient-2: linear-gradient(135deg, #F2E28E 0%, #A28680 100%);
+  --gradient-3: linear-gradient(135deg, #5E5F69 0%, #0C0C10 100%);
+  --gradient-hero: linear-gradient(135deg, #A28680 0%, #5E5F69 50%, #0C0C10 100%);
+  --shadow-sm: 0 1px 2px 0 rgba(12, 12, 16, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(12, 12, 16, 0.08);
+  --shadow-lg: 0 10px 15px -3px rgba(12, 12, 16, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(12, 12, 16, 0.12);
 }
 
 [data-theme="dark"] {
-  --bg-color: #0f172a;
-  --text-color: #f1f5f9;
-  --border-color: #334155;
-  --gradient-hero: linear-gradient(135deg, #4c1d95 0%, #5b21b6 50%, #7c3aed 100%);
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+  --bg-color: #0C0C10;
+  --bg-secondary: #16161c;
+  --text-color: #fafafa;
+  --text-secondary: #AEAFB7;
+  --text-muted: #5E5F69;
+  --border-color: #5E5F69;
+  --primary-color: #F2E28E;
+  --primary-dark: #d9cb7f;
+  --primary-light: #f5e9a8;
+  --accent-color: #A28680;
+  --gradient-1: linear-gradient(135deg, #F2E28E 0%, #A28680 100%);
+  --gradient-2: linear-gradient(135deg, #A28680 0%, #5E5F69 100%);
+  --gradient-3: linear-gradient(135deg, #5E5F69 0%, #AEAFB7 100%);
+  --gradient-hero: linear-gradient(135deg, #0C0C10 0%, #5E5F69 50%, #A28680 100%);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.7);
 }
 
 @keyframes fadeInUp {
@@ -457,7 +479,7 @@ body {
 }
 
 [data-theme="dark"] .header {
-  background: rgba(15, 23, 42, 0.8);
+  background: rgba(12, 12, 16, 0.9);
 }
 
 .nav-container {
@@ -472,12 +494,14 @@ body {
 .logo {
   font-size: 1.5rem;
   font-weight: 800;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--gradient-1);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   transition: transform 0.3s ease;
   cursor: pointer;
+  text-transform: lowercase;
+  letter-spacing: 0.02em;
 }
 
 .logo:hover {
@@ -512,8 +536,12 @@ body {
   transform: translateX(-50%);
 }
 
+.nav-link {
+  text-transform: lowercase;
+}
+
 .nav-link:hover {
-  color: #667eea;
+  color: var(--primary-color);
 }
 
 .nav-link:hover::after {
@@ -545,7 +573,7 @@ body {
 }
 
 [data-theme="dark"] .dropdown-menu {
-  background: rgba(15, 23, 42, 0.95);
+  background: rgba(22, 22, 28, 0.98);
 }
 
 .nav-dropdown:hover .dropdown-menu,
@@ -564,9 +592,13 @@ body {
   font-weight: 500;
 }
 
+.dropdown-item {
+  text-transform: lowercase;
+}
+
 .dropdown-item:hover {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-  color: #667eea;
+  background: linear-gradient(135deg, rgba(162, 134, 128, 0.15) 0%, rgba(94, 95, 105, 0.15) 100%);
+  color: var(--primary-color);
   transform: translateX(5px);
 }
 
@@ -615,10 +647,12 @@ body {
   margin-bottom: 1.5rem;
   font-weight: 800;
   color: #ffffff;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
   animation: fadeInUp 0.8s ease;
   position: relative;
   z-index: 1;
+  text-transform: lowercase;
+  letter-spacing: 0.01em;
 }
 
 .hero-subtitle {
@@ -629,6 +663,7 @@ body {
   position: relative;
   z-index: 1;
   font-weight: 400;
+  text-transform: lowercase;
 }
 
 .features-grid {
@@ -676,6 +711,7 @@ body {
   font-weight: 600;
   color: #ffffff;
   font-size: 0.95rem;
+  text-transform: lowercase;
 }
 
 /* Tools Section */
@@ -702,13 +738,18 @@ body {
   background-clip: text;
 }
 
+.section-header h2 {
+  text-transform: lowercase;
+}
+
 .section-header p {
   font-size: 1.25rem;
-  color: #6b7280;
+  color: var(--text-secondary);
+  text-transform: lowercase;
 }
 
 [data-theme="dark"] .section-header p {
-  color: #94a3b8;
+  color: var(--text-secondary);
 }
 
 .tools-grid {
@@ -725,7 +766,7 @@ body {
 
 .tool-card {
   position: relative;
-  background: var(--bg-color);
+  background: var(--bg-secondary);
   border: 2px solid var(--border-color);
   padding: 2rem;
   border-radius: 1.25rem;
@@ -783,7 +824,7 @@ body {
 
 .tool-badge {
   display: inline-block;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--gradient-1);
   color: #ffffff;
   padding: 0.4rem 0.8rem;
   border-radius: 0.5rem;
@@ -791,6 +832,7 @@ body {
   font-weight: 600;
   box-shadow: var(--shadow-sm);
   transition: all 0.3s ease;
+  text-transform: lowercase;
 }
 
 .tool-card-link:hover .tool-badge {
@@ -807,16 +849,17 @@ body {
   font-weight: 600;
   box-shadow: var(--shadow-sm);
   transition: all 0.3s ease;
+  text-transform: lowercase;
 }
 
 .processing-badge.browser {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: #ffffff;
+  background: linear-gradient(135deg, #5E5F69 0%, #0C0C10 100%);
+  color: #F2E28E;
 }
 
 .processing-badge.server {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  color: #ffffff;
+  background: linear-gradient(135deg, #F2E28E 0%, #A28680 100%);
+  color: #0C0C10;
 }
 
 .tool-card-link:hover .processing-badge {
@@ -831,21 +874,23 @@ body {
   position: relative;
   z-index: 1;
   transition: color 0.3s ease;
+  text-transform: lowercase;
 }
 
 .tool-card-link:hover .tool-card h3 {
-  color: #667eea;
+  color: var(--primary-color);
 }
 
 .tool-card p {
-  color: #6b7280;
+  color: var(--text-secondary);
   line-height: 1.7;
   position: relative;
   z-index: 1;
+  text-transform: lowercase;
 }
 
 [data-theme="dark"] .tool-card p {
-  color: #94a3b8;
+  color: var(--text-secondary);
 }
 
 /* Responsive Design */
@@ -998,7 +1043,7 @@ html {
 /* Better focus styles for accessibility */
 a:focus,
 button:focus {
-  outline: 2px solid #667eea;
+  outline: 2px solid var(--primary-color);
   outline-offset: 2px;
 }
 
@@ -1010,7 +1055,7 @@ button:focus {
 
 /* Footer */
 .footer {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  background: linear-gradient(135deg, rgba(162, 134, 128, 0.08) 0%, rgba(94, 95, 105, 0.08) 100%);
   border-top: 2px solid var(--border-color);
   margin-top: 5rem;
   padding: 3rem 0 1.5rem;
@@ -1018,7 +1063,7 @@ button:focus {
 }
 
 [data-theme="dark"] .footer {
-  background: linear-gradient(135deg, rgba(76, 29, 149, 0.1) 0%, rgba(91, 33, 182, 0.1) 100%);
+  background: linear-gradient(135deg, rgba(94, 95, 105, 0.15) 0%, rgba(12, 12, 16, 0.15) 100%);
 }
 
 .footer-container {
@@ -1045,15 +1090,17 @@ button:focus {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   margin-bottom: 0.5rem;
+  text-transform: lowercase;
 }
 
 .footer-brand p {
-  color: #6b7280;
+  color: var(--text-secondary);
   font-size: 0.95rem;
+  text-transform: lowercase;
 }
 
 [data-theme="dark"] .footer-brand p {
-  color: #94a3b8;
+  color: var(--text-secondary);
 }
 
 .footer-links {
@@ -1083,8 +1130,12 @@ button:focus {
   transform: translateX(-50%);
 }
 
+.footer-link {
+  text-transform: lowercase;
+}
+
 .footer-link:hover {
-  color: #667eea;
+  color: var(--primary-color);
 }
 
 .footer-link:hover::after {
@@ -1097,12 +1148,13 @@ button:focus {
 }
 
 .footer-bottom p {
-  color: #6b7280;
+  color: var(--text-secondary);
   font-size: 0.9rem;
+  text-transform: lowercase;
 }
 
 [data-theme="dark"] .footer-bottom p {
-  color: #94a3b8;
+  color: var(--text-secondary);
 }
 
 /* Footer Responsive */
