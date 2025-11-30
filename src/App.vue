@@ -60,7 +60,7 @@
               <a href="https://kodinitools.com/bilderseriebearbeiten/" class="dropdown-item">
                 {{ $t('navigation.imageToolsMenu.batchImageEditor') }}
               </a>
-              <a href="https://kodinitools.com/fotocollage/" class="dropdown-item">
+              <a href="https://kodinitools.com/collagemaker" class="dropdown-item">
                 {{ $t('navigation.imageToolsMenu.photoCollage') }}
               </a>
             </div>
