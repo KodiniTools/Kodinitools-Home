@@ -673,12 +673,25 @@ body {
   margin: 0 auto;
   padding: 3.5rem 2rem;
   text-align: center;
-  background: var(--gradient-hero);
-  background-size: 200% 200%;
-  animation: gradientShift 15s ease infinite;
+  background: #ffffff;
   border-radius: 0 0 1.5rem 1.5rem;
   margin-bottom: 2.5rem;
   overflow: hidden;
+  border: 1px solid rgba(162, 134, 128, 0.2);
+  box-shadow: 0 4px 20px rgba(162, 134, 128, 0.1),
+              0 8px 40px rgba(94, 95, 105, 0.05);
+  animation: lightGlowPulse 4s ease-in-out infinite;
+}
+
+@keyframes lightGlowPulse {
+  0%, 100% {
+    box-shadow: 0 4px 20px rgba(162, 134, 128, 0.1),
+                0 8px 40px rgba(94, 95, 105, 0.05);
+  }
+  50% {
+    box-shadow: 0 4px 30px rgba(162, 134, 128, 0.2),
+                0 8px 50px rgba(94, 95, 105, 0.1);
+  }
 }
 
 .hero::before {
@@ -688,7 +701,25 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  background: radial-gradient(circle at 20% 30%, rgba(162, 134, 128, 0.08) 0%, transparent 40%),
+              radial-gradient(circle at 80% 70%, rgba(94, 95, 105, 0.06) 0%, transparent 40%);
+  pointer-events: none;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(162, 134, 128, 0.08),
+    transparent
+  );
+  animation: shimmer 8s ease-in-out infinite;
   pointer-events: none;
 }
 
@@ -722,6 +753,10 @@ body {
 }
 
 [data-theme="dark"] .hero-title {
+  background: none;
+  -webkit-background-clip: unset;
+  -webkit-text-fill-color: #F2E28E;
+  background-clip: unset;
   color: #F2E28E;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
@@ -734,8 +769,10 @@ body {
   font-size: 2rem;
   margin-bottom: 0.75rem;
   font-weight: 700;
-  color: #ffffff;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(135deg, #5E5F69 0%, #0C0C10 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   animation: fadeInUp 0.8s ease;
   position: relative;
   z-index: 1;
@@ -744,12 +781,12 @@ body {
 
 .hero-subtitle {
   font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.9);
+  color: #5E5F69;
   margin-bottom: 1.5rem;
   animation: fadeInUp 1s ease;
   position: relative;
   z-index: 1;
-  font-weight: 400;
+  font-weight: 500;
 }
 
 .features-grid {
@@ -762,10 +799,10 @@ body {
 }
 
 .feature-card {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(162, 134, 128, 0.08);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(162, 134, 128, 0.15);
   padding: 0.85rem;
   border-radius: 0.65rem;
   text-align: center;
@@ -782,9 +819,10 @@ body {
 .feature-card:nth-child(6) { animation-delay: 0.6s; }
 
 .feature-card:hover {
-  transform: translateY(-5px);
-  background: rgba(255, 255, 255, 0.25);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-5px) scale(1.02);
+  background: rgba(162, 134, 128, 0.15);
+  border-color: rgba(162, 134, 128, 0.3);
+  box-shadow: 0 8px 25px rgba(162, 134, 128, 0.2);
 }
 
 [data-theme="dark"] .feature-card {
@@ -812,7 +850,7 @@ body {
 
 .feature-text {
   font-weight: 500;
-  color: #ffffff;
+  color: #5E5F69;
   font-size: 0.7rem;
 }
 
