@@ -464,6 +464,37 @@ import DonateButton from './components/DonateButton.vue'
   }
 }
 
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(242, 226, 142, 0.15),
+                0 0 40px rgba(242, 226, 142, 0.1),
+                0 0 60px rgba(242, 226, 142, 0.05);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(242, 226, 142, 0.25),
+                0 0 60px rgba(242, 226, 142, 0.15),
+                0 0 90px rgba(242, 226, 142, 0.1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(200%) rotate(45deg);
+  }
+}
+
+@keyframes borderGlow {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
   background: var(--bg-color);
@@ -663,7 +694,31 @@ body {
 
 [data-theme="dark"] .hero {
   background: #201e22;
+  animation: glowPulse 4s ease-in-out infinite;
+  border: 1px solid rgba(242, 226, 142, 0.2);
+}
+
+[data-theme="dark"] .hero::before {
+  background: radial-gradient(circle at 20% 30%, rgba(242, 226, 142, 0.08) 0%, transparent 40%),
+              radial-gradient(circle at 80% 70%, rgba(162, 134, 128, 0.08) 0%, transparent 40%);
   animation: none;
+}
+
+[data-theme="dark"] .hero::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(242, 226, 142, 0.05),
+    transparent
+  );
+  animation: shimmer 8s ease-in-out infinite;
+  pointer-events: none;
 }
 
 [data-theme="dark"] .hero-title {
@@ -730,6 +785,23 @@ body {
   transform: translateY(-5px);
   background: rgba(255, 255, 255, 0.25);
   box-shadow: var(--shadow-lg);
+}
+
+[data-theme="dark"] .feature-card {
+  background: rgba(242, 226, 142, 0.05);
+  border: 1px solid rgba(242, 226, 142, 0.15);
+  transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .feature-card:hover {
+  background: rgba(242, 226, 142, 0.12);
+  border-color: rgba(242, 226, 142, 0.3);
+  box-shadow: 0 0 20px rgba(242, 226, 142, 0.15);
+  transform: translateY(-5px) scale(1.02);
+}
+
+[data-theme="dark"] .feature-text {
+  color: #f5e9a8;
 }
 
 .feature-icon {
