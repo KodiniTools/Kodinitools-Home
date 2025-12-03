@@ -661,6 +661,20 @@ body {
   pointer-events: none;
 }
 
+[data-theme="dark"] .hero {
+  background: #201e22;
+  animation: none;
+}
+
+[data-theme="dark"] .hero-title {
+  color: #F2E28E;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .hero-subtitle {
+  color: #f5e9a8;
+}
+
 .hero-title {
   font-size: 2rem;
   margin-bottom: 0.75rem;
