@@ -513,7 +513,6 @@ body {
   background-clip: text;
   transition: transform 0.3s ease;
   cursor: pointer;
-  text-transform: lowercase;
   letter-spacing: 0.02em;
 }
 
@@ -550,9 +549,6 @@ body {
   transform: translateX(-50%);
 }
 
-.nav-link {
-  text-transform: lowercase;
-}
 
 .nav-link:hover {
   color: var(--primary-color);
@@ -618,9 +614,6 @@ body {
   font-size: 0.8rem;
 }
 
-.dropdown-item {
-  text-transform: lowercase;
-}
 
 .dropdown-item:hover {
   background: linear-gradient(135deg, rgba(162, 134, 128, 0.15) 0%, rgba(94, 95, 105, 0.15) 100%);
@@ -677,7 +670,6 @@ body {
   animation: fadeInUp 0.8s ease;
   position: relative;
   z-index: 1;
-  text-transform: lowercase;
   letter-spacing: 0.01em;
 }
 
@@ -689,7 +681,6 @@ body {
   position: relative;
   z-index: 1;
   font-weight: 400;
-  text-transform: lowercase;
 }
 
 .features-grid {
@@ -737,7 +728,6 @@ body {
   font-weight: 500;
   color: #ffffff;
   font-size: 0.7rem;
-  text-transform: lowercase;
 }
 
 /* Tools Section */
@@ -762,13 +752,11 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-transform: lowercase;
 }
 
 .section-header p {
   font-size: 0.85rem;
   color: var(--text-secondary);
-  text-transform: lowercase;
 }
 
 [data-theme="dark"] .section-header p {
@@ -854,7 +842,6 @@ body {
   font-weight: 600;
   box-shadow: var(--shadow-sm);
   transition: all 0.3s ease;
-  text-transform: lowercase;
 }
 
 .tool-card-link:hover .tool-badge {
@@ -871,7 +858,6 @@ body {
   font-weight: 600;
   box-shadow: var(--shadow-sm);
   transition: all 0.3s ease;
-  text-transform: lowercase;
 }
 
 .processing-badge.browser {
@@ -896,7 +882,6 @@ body {
   position: relative;
   z-index: 1;
   transition: color 0.3s ease;
-  text-transform: lowercase;
 }
 
 .tool-card-link:hover .tool-card h3 {
@@ -909,7 +894,6 @@ body {
   font-size: 0.75rem;
   position: relative;
   z-index: 1;
-  text-transform: lowercase;
 }
 
 [data-theme="dark"] .tool-card p {
