@@ -54,7 +54,6 @@ const setLocale = (newLocale: 'de' | 'en') => {
   transition: all 0.2s;
   font-weight: 500;
   color: var(--text-color);
-  text-transform: lowercase;
 }
 
 .locale-btn:hover {

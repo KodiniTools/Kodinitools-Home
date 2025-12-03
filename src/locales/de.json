@@ -5,35 +5,35 @@
     "lightMode": "Heller Modus"
   },
   "navigation": {
-    "audioTools": "audiotools",
-    "imageTools": "bildtools",
-    "tools": "tools",
-    "about": "über uns",
-    "contact": "kontakt",
-    "privacy": "datenschutz",
-    "terms": "agb",
-    "imprint": "impressum",
+    "audioTools": "Audiotools",
+    "imageTools": "Bildtools",
+    "tools": "Tools",
+    "about": "Über uns",
+    "contact": "Kontakt",
+    "privacy": "Datenschutz",
+    "terms": "AGB",
+    "imprint": "Impressum",
     "toolsMenu": {
-      "colorExtractor": "kodini farbextraktor",
-      "videoConverter": "videokonverter"
+      "colorExtractor": "Kodini Farbextraktor",
+      "videoConverter": "Videokonverter"
     },
     "audioToolsMenu": {
-      "audioConverter": "audiokonverter",
-      "mp3Converter": "mp3 konverter",
-      "equalizer19": "19 band equalizer",
-      "audioEqualizer": "interaktiver audio equalizer",
-      "audioNormalizer": "audio normalizer",
-      "modernPlayer": "moderner musikplayer",
-      "ultimatePlayer": "ultimativer musikplayer",
-      "playlistGenerator": "audioplaylist generator",
-      "playlistConverter": "playlist zu webm konverter",
-      "visualizer": "visualizer",
-      "alarmTool": "alarmtool"
+      "audioConverter": "Audiokonverter",
+      "mp3Converter": "MP3 Konverter",
+      "equalizer19": "19-Band Equalizer",
+      "audioEqualizer": "Interaktiver Audio Equalizer",
+      "audioNormalizer": "Audio Normalizer",
+      "modernPlayer": "Moderner Musikplayer",
+      "ultimatePlayer": "Ultimativer Musikplayer",
+      "playlistGenerator": "Audioplaylist Generator",
+      "playlistConverter": "Playlist zu WebM Konverter",
+      "visualizer": "Visualizer",
+      "alarmTool": "Alarmtool"
     },
     "imageToolsMenu": {
-      "imageConverter": "bildkonverter",
-      "batchImageEditor": "bildserie bearbeiten",
-      "photoCollage": "fotocollage"
+      "imageConverter": "Bildkonverter",
+      "batchImageEditor": "Bildserie bearbeiten",
+      "photoCollage": "Fotocollage"
     }
   },
   "hero": {
