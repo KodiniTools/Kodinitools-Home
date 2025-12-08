@@ -111,20 +111,44 @@
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
   <script>
-    window.addEventListener('CookieConsentDeclaration', function() {
-      if (CookieConsent.consentedTo('statistics')) {
-        // Google Analytics Skript nach Zustimmung einfügen
-        var script = document.createElement('script');
-        script.src = "https://www.googletagmanager.com/gtag/js?id=G-XRB3KB1549";
-        script.async = true;
-        document.head.appendChild(script);
+    // GA4 laden wenn Consent gegeben wird
+    function loadGA4() {
+      if (window.ga4Loaded) return;
+      window.ga4Loaded = true;
 
-        script.onload = function() {
-          window.dataLayer = window.dataLayer || [];
-          function gtag() { dataLayer.push(arguments); }
-          gtag('js', new Date());
-          gtag('config', 'G-XRB3KB1549');
-        };
+      var script = document.createElement('script');
+      script.src = "https://www.googletagmanager.com/gtag/js?id=G-XRB3KB1549";
+      script.async = true;
+      document.head.appendChild(script);
+
+      script.onload = function() {
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        window.gtag = gtag;
+        gtag('js', new Date());
+        gtag('config', 'G-XRB3KB1549');
+        console.log('GA4 geladen');
+      };
+    }
+
+    // CookieYes Event-Listener (korrekter Event-Name)
+    document.addEventListener('cookieyes_consent_update', function(event) {
+      var consent = event.detail;
+      if (consent && consent.accepted && consent.accepted.includes('analytics')) {
+        loadGA4();
+      }
+    });
+
+    // Prüfe auch beim Laden ob bereits Consent gegeben wurde
+    window.addEventListener('load', function() {
+      var ckyConsent = document.cookie.match(/cookieyes-consent=([^;]+)/);
+      if (ckyConsent) {
+        try {
+          var consent = decodeURIComponent(ckyConsent[1]);
+          if (consent.includes('analytics:yes')) {
+            loadGA4();
+          }
+        } catch(e) {}
       }
     });
   </script>
