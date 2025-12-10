@@ -134,6 +134,24 @@
       "link": "https://kodinitools.com/playlistkonverter/"
     }
   },
+  "diverseTools": {
+    "sectionTitle": "🛠️ Diverse Tools",
+    "sectionDescription": "Weitere nützliche Werkzeuge für Ihre Multimedia-Projekte",
+    "colorExtractor": {
+      "title": "Kodini Farbextraktor",
+      "description": "Extrahieren Sie dominante Farben aus Bildern. Ideal für Designer und Kreative zur Farbpaletten-Erstellung.",
+      "badge": "Farben",
+      "processing": "browser",
+      "link": "https://kodinitools.com/kodini-color-extractor/"
+    },
+    "videoConverter": {
+      "title": "Videokonverter",
+      "description": "Konvertieren Sie Videos in verschiedene Formate. Unterstützt MP4, WebM, AVI und weitere gängige Formate.",
+      "badge": "Video",
+      "processing": "server",
+      "link": "https://kodinitools.com/videokonverter/"
+    }
+  },
   "imageTools": {
     "sectionTitle": "📷 Bild Tools",
     "sectionDescription": "Konvertieren und bearbeiten Sie Ihre Bilder sicher - einige Tools laufen im Browser, andere auf unseren Hostinger-Servern",

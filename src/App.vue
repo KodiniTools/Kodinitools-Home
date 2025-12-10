@@ -355,6 +355,46 @@
       </div>
     </section>
 
+    <!-- Diverse Tools Section -->
+    <section class="tools-section">
+      <div class="section-header">
+        <h2>{{ $t('diverseTools.sectionTitle') }}</h2>
+        <p>{{ $t('diverseTools.sectionDescription') }}</p>
+      </div>
+
+      <div class="tools-grid">
+        <!-- Kodini Color Extractor -->
+        <a :href="$t('diverseTools.colorExtractor.link')" class="tool-card-link">
+          <div class="tool-card">
+            <div class="tool-icon">🎨</div>
+            <div class="badge-container">
+              <span class="tool-badge">{{ $t('diverseTools.colorExtractor.badge') }}</span>
+              <span :class="['processing-badge', $t('diverseTools.colorExtractor.processing')]">
+                {{ $t('tools.processingBadge.' + $t('diverseTools.colorExtractor.processing')) }}
+              </span>
+            </div>
+            <h3>{{ $t('diverseTools.colorExtractor.title') }}</h3>
+            <p>{{ $t('diverseTools.colorExtractor.description') }}</p>
+          </div>
+        </a>
+
+        <!-- Videokonverter -->
+        <a :href="$t('diverseTools.videoConverter.link')" class="tool-card-link">
+          <div class="tool-card">
+            <div class="tool-icon">🎬</div>
+            <div class="badge-container">
+              <span class="tool-badge">{{ $t('diverseTools.videoConverter.badge') }}</span>
+              <span :class="['processing-badge', $t('diverseTools.videoConverter.processing')]">
+                {{ $t('tools.processingBadge.' + $t('diverseTools.videoConverter.processing')) }}
+              </span>
+            </div>
+            <h3>{{ $t('diverseTools.videoConverter.title') }}</h3>
+            <p>{{ $t('diverseTools.videoConverter.description') }}</p>
+          </div>
+        </a>
+      </div>
+    </section>
+
     <!-- PayPal Donate Button -->
     <DonateButton />
   </div>
