@@ -190,5 +190,13 @@
   "footer": {
     "company": "KodiniTools",
     "tagline": "Free Online Tools for Audio & Images"
+  },
+  "search": {
+    "placeholder": "Search tools...",
+    "clear": "Clear search",
+    "resultsTitle": "Search Results",
+    "resultsFound": "tools found",
+    "noResults": "No tools found. Try a different search term.",
+    "scrollTop": "Scroll to top"
   }
 }
