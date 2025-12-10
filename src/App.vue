@@ -93,9 +93,17 @@
 
     <!-- Hero Section -->
     <section class="hero">
-      <h1 class="hero-title">{{ $t('hero.title') }}</h1>
-      <p class="hero-subtitle">{{ $t('hero.subtitle') }}</p>
-      
+      <!-- Promo Section with Logo -->
+      <div class="hero-promo">
+        <div class="hero-logo">
+          <img src="https://kodinitools.com/images/logo.svg" alt="KodiniTools Logo" />
+        </div>
+        <div class="hero-content">
+          <h1 class="hero-title">{{ $t('hero.title') }}</h1>
+          <p class="hero-subtitle">{{ $t('hero.subtitle') }}</p>
+        </div>
+      </div>
+
       <!-- Features -->
       <div class="features-grid">
         <div class="feature-card">
@@ -972,11 +980,71 @@ body {
 .hero-subtitle {
   font-size: 0.95rem;
   color: #5E5F69;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0;
   animation: fadeInUp 1s ease;
   position: relative;
   z-index: 1;
   font-weight: 500;
+}
+
+/* Hero Promo Section with Logo */
+.hero-promo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-logo {
+  flex-shrink: 0;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(162, 134, 128, 0.08);
+  border-radius: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(162, 134, 128, 0.15);
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.6s ease;
+}
+
+.hero-logo:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 25px rgba(162, 134, 128, 0.2);
+}
+
+.hero-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+[data-theme="dark"] .hero-logo {
+  background: rgba(242, 226, 142, 0.08);
+  border-color: rgba(242, 226, 142, 0.2);
+}
+
+[data-theme="dark"] .hero-logo:hover {
+  box-shadow: 0 8px 25px rgba(242, 226, 142, 0.2);
+}
+
+.hero-content {
+  text-align: left;
+  flex: 1;
+  max-width: 600px;
+}
+
+.hero-content .hero-title {
+  text-align: left;
+}
+
+.hero-content .hero-subtitle {
+  text-align: left;
 }
 
 .features-grid {
@@ -1263,6 +1331,27 @@ body {
     border-radius: 0 0 1rem 1rem;
   }
 
+  .hero-promo {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .hero-logo {
+    width: 100px;
+    height: 100px;
+    padding: 0.75rem;
+  }
+
+  .hero-content {
+    text-align: center;
+  }
+
+  .hero-content .hero-title,
+  .hero-content .hero-subtitle {
+    text-align: center;
+  }
+
   .hero-title {
     font-size: 1.5rem;
   }
@@ -1321,6 +1410,13 @@ body {
 
   .hero {
     padding: 2rem 0.85rem;
+  }
+
+  .hero-logo {
+    width: 80px;
+    height: 80px;
+    padding: 0.5rem;
+    border-radius: 0.75rem;
   }
 
   .hero-title {
