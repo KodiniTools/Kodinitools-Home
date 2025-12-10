@@ -190,5 +190,13 @@
   "footer": {
     "company": "KodiniTools",
     "tagline": "Kostenlose Online-Tools für Audio & Bild"
+  },
+  "search": {
+    "placeholder": "Tools durchsuchen...",
+    "clear": "Suche löschen",
+    "resultsTitle": "Suchergebnisse",
+    "resultsFound": "Tools gefunden",
+    "noResults": "Keine Tools gefunden. Versuchen Sie einen anderen Suchbegriff.",
+    "scrollTop": "Nach oben scrollen"
   }
 }

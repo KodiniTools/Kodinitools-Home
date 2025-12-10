@@ -123,6 +123,55 @@
           <div class="feature-text">{{ $t('hero.features.noInstall') }}</div>
         </div>
       </div>
+
+      <!-- Search Box -->
+      <div class="search-container">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input
+            v-model="searchQuery"
+            type="text"
+            :placeholder="$t('search.placeholder')"
+            class="search-input"
+          />
+          <button
+            v-if="searchQuery"
+            @click="searchQuery = ''"
+            class="search-clear"
+            :aria-label="$t('search.clear')"
+          >✕</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Search Results Section -->
+    <section v-if="hasSearchResults" class="tools-section search-results-section">
+      <div class="section-header">
+        <h2>{{ $t('search.resultsTitle') }}</h2>
+        <p v-if="!showNoResults">{{ filteredTools.length }} {{ $t('search.resultsFound') }}</p>
+        <p v-else class="no-results">{{ $t('search.noResults') }}</p>
+      </div>
+
+      <div v-if="!showNoResults" class="tools-grid">
+        <a
+          v-for="tool in filteredTools"
+          :key="tool.key"
+          :href="$t(`${tool.key}.link`)"
+          class="tool-card-link"
+        >
+          <div class="tool-card">
+            <div class="tool-icon">{{ tool.icon }}</div>
+            <div class="badge-container">
+              <span class="tool-badge">{{ $t(`${tool.key}.badge`) }}</span>
+              <span :class="['processing-badge', $t(`${tool.key}.processing`)]">
+                {{ $t('tools.processingBadge.' + $t(`${tool.key}.processing`)) }}
+              </span>
+            </div>
+            <h3>{{ $t(`${tool.key}.title`) }}</h3>
+            <p>{{ $t(`${tool.key}.description`) }}</p>
+          </div>
+        </a>
+      </div>
     </section>
 
     <!-- Audio Tools Section -->
@@ -395,15 +444,116 @@
       </div>
     </section>
 
+    <!-- Scroll to Top Button -->
+    <Transition name="fade-slide">
+      <button
+        v-if="showScrollTop"
+        @click="scrollToTop"
+        class="scroll-to-top"
+        :aria-label="$t('search.scrollTop')"
+      >
+        ↑
+      </button>
+    </Transition>
+
     <!-- PayPal Donate Button -->
     <DonateButton />
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import LanguageSwitcher from './components/LanguageSwitcher.vue'
 import ThemeToggle from './components/ThemeToggle.vue'
 import DonateButton from './components/DonateButton.vue'
+
+const { t } = useI18n()
+
+// Search functionality
+const searchQuery = ref('')
+
+// All tools data for filtering
+const allTools = computed(() => [
+  // Audio Tools
+  { key: 'tools.audioConverter', section: 'audio', icon: '🎵' },
+  { key: 'tools.audioEqualizer', section: 'audio', icon: '🎚️' },
+  { key: 'tools.musicPlayer', section: 'audio', icon: '🎧' },
+  { key: 'tools.audioVisualizer', section: 'audio', icon: '🎬' },
+  { key: 'tools.mp3Converter', section: 'audio', icon: '🎼' },
+  { key: 'tools.interactiveEqualizer', section: 'audio', icon: '🎛️' },
+  { key: 'tools.modernPlayer', section: 'audio', icon: '🎶' },
+  { key: 'tools.playlistGenerator', section: 'audio', icon: '📃' },
+  { key: 'tools.alarmTool', section: 'audio', icon: '⏰' },
+  { key: 'tools.audioNormalizer', section: 'audio', icon: '📊' },
+  { key: 'tools.playlistToWebm', section: 'audio', icon: '📼' },
+  // Image Tools
+  { key: 'imageTools.imageConverter', section: 'image', icon: '🖼️' },
+  { key: 'imageTools.batchImageEditor', section: 'image', icon: '📸' },
+  { key: 'imageTools.photoCollage', section: 'image', icon: '🎨' },
+  // Diverse Tools
+  { key: 'diverseTools.colorExtractor', section: 'diverse', icon: '🎨' },
+  { key: 'diverseTools.videoConverter', section: 'diverse', icon: '🎬' },
+])
+
+const filteredTools = computed(() => {
+  if (!searchQuery.value.trim()) return null
+  const query = searchQuery.value.toLowerCase()
+  return allTools.value.filter(tool => {
+    const title = t(`${tool.key}.title`).toLowerCase()
+    const description = t(`${tool.key}.description`).toLowerCase()
+    return title.includes(query) || description.includes(query)
+  })
+})
+
+const hasSearchResults = computed(() => filteredTools.value !== null)
+const showNoResults = computed(() => filteredTools.value !== null && filteredTools.value.length === 0)
+
+// Scroll to top functionality
+const showScrollTop = ref(false)
+
+const handleScroll = () => {
+  showScrollTop.value = window.scrollY > 400
+}
+
+const scrollToTop = () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+// Intersection Observer for scroll animations
+const observeElements = () => {
+  if (typeof window === 'undefined') return
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible')
+        }
+      })
+    },
+    { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+  )
+
+  document.querySelectorAll('.tools-section, .tool-card-link').forEach((el) => {
+    el.classList.add('scroll-reveal')
+    observer.observe(el)
+  })
+}
+
+onMounted(() => {
+  if (typeof window !== 'undefined') {
+    window.addEventListener('scroll', handleScroll)
+    // Delay observer setup to ensure DOM is ready
+    setTimeout(observeElements, 100)
+  }
+})
+
+onUnmounted(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('scroll', handleScroll)
+  }
+})
 </script>
 
 <style>
@@ -1247,6 +1397,221 @@ button:focus {
 * {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Search Box Styles */
+.search-container {
+  margin-top: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  max-width: 400px;
+  margin: 0 auto;
+  background: rgba(162, 134, 128, 0.08);
+  border: 1px solid rgba(162, 134, 128, 0.2);
+  border-radius: 2rem;
+  padding: 0.5rem 1rem;
+  transition: all 0.3s ease;
+}
+
+.search-box:focus-within {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(162, 134, 128, 0.15);
+  background: rgba(162, 134, 128, 0.12);
+}
+
+[data-theme="dark"] .search-box {
+  background: rgba(242, 226, 142, 0.05);
+  border-color: rgba(242, 226, 142, 0.2);
+}
+
+[data-theme="dark"] .search-box:focus-within {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(242, 226, 142, 0.15);
+  background: rgba(242, 226, 142, 0.1);
+}
+
+.search-icon {
+  font-size: 1rem;
+  margin-right: 0.5rem;
+  opacity: 0.7;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--text-color);
+  font-size: 0.9rem;
+  outline: none;
+  padding: 0.3rem 0;
+}
+
+.search-input::placeholder {
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.search-clear {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.search-clear:hover {
+  color: var(--text-color);
+  background: rgba(162, 134, 128, 0.15);
+}
+
+[data-theme="dark"] .search-clear:hover {
+  background: rgba(242, 226, 142, 0.15);
+}
+
+/* Search Results Section */
+.search-results-section {
+  border: 2px dashed var(--primary-color);
+  border-radius: 1rem;
+  margin: 1rem auto;
+  padding: 1.5rem !important;
+  background: rgba(162, 134, 128, 0.03);
+}
+
+[data-theme="dark"] .search-results-section {
+  background: rgba(242, 226, 142, 0.03);
+}
+
+.no-results {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Scroll to Top Button */
+.scroll-to-top {
+  position: fixed;
+  bottom: 6rem;
+  right: 1.5rem;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  border: none;
+  background: var(--gradient-1);
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: var(--shadow-lg);
+  transition: all 0.3s ease;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scroll-to-top:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: var(--shadow-xl);
+}
+
+.scroll-to-top:active {
+  transform: translateY(0) scale(0.98);
+}
+
+[data-theme="dark"] .scroll-to-top {
+  box-shadow: 0 4px 15px rgba(242, 226, 142, 0.3);
+}
+
+[data-theme="dark"] .scroll-to-top:hover {
+  box-shadow: 0 6px 20px rgba(242, 226, 142, 0.4);
+}
+
+/* Vue Transition for Scroll to Top */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.3s ease;
+}
+
+.fade-slide-enter-from,
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+/* Scroll Reveal Animations */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.scroll-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Staggered animation for tool cards */
+.tools-grid .scroll-reveal:nth-child(1) { transition-delay: 0.05s; }
+.tools-grid .scroll-reveal:nth-child(2) { transition-delay: 0.1s; }
+.tools-grid .scroll-reveal:nth-child(3) { transition-delay: 0.15s; }
+.tools-grid .scroll-reveal:nth-child(4) { transition-delay: 0.2s; }
+.tools-grid .scroll-reveal:nth-child(5) { transition-delay: 0.25s; }
+.tools-grid .scroll-reveal:nth-child(6) { transition-delay: 0.3s; }
+.tools-grid .scroll-reveal:nth-child(7) { transition-delay: 0.35s; }
+.tools-grid .scroll-reveal:nth-child(8) { transition-delay: 0.4s; }
+.tools-grid .scroll-reveal:nth-child(9) { transition-delay: 0.45s; }
+.tools-grid .scroll-reveal:nth-child(10) { transition-delay: 0.5s; }
+.tools-grid .scroll-reveal:nth-child(11) { transition-delay: 0.55s; }
+.tools-grid .scroll-reveal:nth-child(12) { transition-delay: 0.6s; }
+
+/* Mobile adjustments for new features */
+@media (max-width: 768px) {
+  .search-box {
+    max-width: 100%;
+  }
+
+  .scroll-to-top {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1rem;
+    bottom: 5rem;
+    right: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-container {
+    margin-top: 1.5rem;
+  }
+
+  .search-box {
+    padding: 0.4rem 0.8rem;
+  }
+
+  .search-input {
+    font-size: 0.8rem;
+  }
+
+  .search-icon {
+    font-size: 0.9rem;
+  }
+
+  .scroll-to-top {
+    width: 2.25rem;
+    height: 2.25rem;
+    font-size: 0.9rem;
+    bottom: 4.5rem;
+  }
 }
 
 </style>
