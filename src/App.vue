@@ -98,10 +98,8 @@
         <div class="hero-logo">
           <img src="https://kodinitools.com/images/logo.svg" alt="KodiniTools Logo" />
         </div>
-        <div class="hero-content">
-          <h1 class="hero-title">{{ $t('hero.title') }}</h1>
-          <p class="hero-subtitle">{{ $t('hero.subtitle') }}</p>
-        </div>
+        <h1 class="hero-title">{{ $t('hero.title') }}</h1>
+        <p class="hero-subtitle">{{ $t('hero.subtitle') }}</p>
       </div>
 
       <!-- Features -->
@@ -990,27 +988,29 @@ body {
 /* Hero Promo Section with Logo */
 .hero-promo {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2rem;
+  gap: 1rem;
   margin-bottom: 1.5rem;
   position: relative;
   z-index: 1;
+  text-align: center;
 }
 
 .hero-logo {
-  flex-shrink: 0;
-  width: 120px;
-  height: 120px;
+  width: 100px;
+  height: 100px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: rgba(162, 134, 128, 0.08);
   border-radius: 1rem;
-  padding: 1rem;
+  padding: 0.75rem;
   border: 1px solid rgba(162, 134, 128, 0.15);
   transition: all 0.3s ease;
   animation: fadeInUp 0.6s ease;
+  margin-bottom: 0.5rem;
 }
 
 .hero-logo:hover {
@@ -1033,18 +1033,13 @@ body {
   box-shadow: 0 8px 25px rgba(242, 226, 142, 0.2);
 }
 
-.hero-content {
-  text-align: left;
-  flex: 1;
+.hero-promo .hero-title {
+  margin-bottom: 0.5rem;
+}
+
+.hero-promo .hero-subtitle {
   max-width: 600px;
-}
-
-.hero-content .hero-title {
-  text-align: left;
-}
-
-.hero-content .hero-subtitle {
-  text-align: left;
+  margin: 0 auto;
 }
 
 .features-grid {
@@ -1331,25 +1326,10 @@ body {
     border-radius: 0 0 1rem 1rem;
   }
 
-  .hero-promo {
-    flex-direction: column;
-    gap: 1rem;
-    text-align: center;
-  }
-
   .hero-logo {
-    width: 100px;
-    height: 100px;
-    padding: 0.75rem;
-  }
-
-  .hero-content {
-    text-align: center;
-  }
-
-  .hero-content .hero-title,
-  .hero-content .hero-subtitle {
-    text-align: center;
+    width: 80px;
+    height: 80px;
+    padding: 0.6rem;
   }
 
   .hero-title {
@@ -1413,18 +1393,18 @@ body {
   }
 
   .hero-logo {
-    width: 80px;
-    height: 80px;
+    width: 70px;
+    height: 70px;
     padding: 0.5rem;
     border-radius: 0.75rem;
   }
 
   .hero-title {
-    font-size: 1.25rem;
+    font-size: 1.15rem;
   }
 
   .hero-subtitle {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
   }
 
   .features-grid {
