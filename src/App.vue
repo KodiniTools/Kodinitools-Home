@@ -86,6 +86,7 @@
         
         <div class="nav-controls">
           <ThemeToggle />
+          <LanguageSwitcher />
         </div>
       </nav>
     </header>
@@ -475,6 +476,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import LanguageSwitcher from './components/LanguageSwitcher.vue'
 import ThemeToggle from './components/ThemeToggle.vue'
 import DonateButton from './components/DonateButton.vue'
 import CookieBanner from './components/CookieBanner.vue'
