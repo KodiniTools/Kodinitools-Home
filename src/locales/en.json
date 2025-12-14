@@ -198,5 +198,31 @@
     "resultsFound": "tools found",
     "noResults": "No tools found. Try a different search term.",
     "scrollTop": "Scroll to top"
+  },
+  "cookies": {
+    "bannerTitle": "Cookie Settings",
+    "bannerText": "We use cookies to improve your experience and analyze website traffic. You decide which cookies you allow.",
+    "moreInfo": "Learn more",
+    "acceptAll": "Accept all",
+    "rejectAll": "Reject all",
+    "settings": "Settings",
+    "settingsTitle": "Cookie Settings",
+    "settingsIntro": "Here you can customize your cookie settings. Essential cookies are always active as they are required for the basic functions of the website.",
+    "saveSettings": "Save settings",
+    "close": "Close",
+    "alwaysActive": "Always active",
+    "cookieSettings": "Cookie settings",
+    "essential": {
+      "title": "Essential Cookies",
+      "description": "These cookies are required for the basic functions of the website (e.g., language setting, theme preference). They cannot be disabled."
+    },
+    "analytics": {
+      "title": "Analytics Cookies",
+      "description": "These cookies help us understand how visitors interact with the website. All data is collected anonymously (Google Analytics)."
+    },
+    "marketing": {
+      "title": "Marketing Cookies",
+      "description": "These cookies are used to make advertising more relevant to you. They also enable measuring the effectiveness of advertising campaigns."
+    }
   }
 }

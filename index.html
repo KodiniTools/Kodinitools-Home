@@ -1,7 +1,50 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <!-- Google Tag Manager -->
+    <!-- Google Consent Mode v2 - DSGVO/GDPR Compliant -->
+    <script>
+    // Initialize dataLayer and set default consent to denied
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+
+    // Set default consent state - all denied until user accepts
+    gtag('consent', 'default', {
+      'ad_storage': 'denied',
+      'ad_user_data': 'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage': 'denied',
+      'functionality_storage': 'denied',
+      'personalization_storage': 'denied',
+      'security_storage': 'granted', // Always needed for security
+      'wait_for_update': 500
+    });
+
+    // Load saved consent from localStorage
+    (function() {
+      try {
+        var savedConsent = localStorage.getItem('cookieConsent');
+        if (savedConsent) {
+          var consent = JSON.parse(savedConsent);
+          if (consent.analytics) {
+            gtag('consent', 'update', {
+              'analytics_storage': 'granted',
+              'functionality_storage': 'granted',
+              'personalization_storage': 'granted'
+            });
+          }
+          if (consent.marketing) {
+            gtag('consent', 'update', {
+              'ad_storage': 'granted',
+              'ad_user_data': 'granted',
+              'ad_personalization': 'granted'
+            });
+          }
+        }
+      } catch(e) {}
+    })();
+    </script>
+
+    <!-- Google Tag Manager - loads after consent mode is configured -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
     j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
