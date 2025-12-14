@@ -470,7 +470,7 @@
       <div class="footer-content">
         <div class="footer-links">
           <a href="https://kodinitools.com/datenschutz/" class="footer-link">{{ $t('navigation.privacy') }}</a>
-          <a href="https://kodinitools.com/impressum/" class="footer-link">{{ $t('navigation.imprint') }}</a>
+          <a href="https://kodinitools.com/kontaktformular/" class="footer-link">{{ $t('navigation.contact') }}</a>
           <button @click="openCookieSettings" class="footer-link footer-link-btn">{{ $t('cookies.cookieSettings') }}</button>
         </div>
         <p class="footer-copyright">&copy; {{ new Date().getFullYear() }} {{ $t('footer.company') }}</p>
