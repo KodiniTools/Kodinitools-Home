@@ -585,50 +585,40 @@ html:not(.custom-nav-page) {
         const langBtns = document.querySelectorAll('.global-nav-lang-btn');
         if (!langBtns.length) return;
 
-        // Aktuelle Sprache ermitteln (aus URL oder localStorage)
-        const currentPath = window.location.pathname;
-        const isEnglish = currentPath.startsWith('/en/') || currentPath === '/en';
-        const currentLang = isEnglish ? 'en' : 'de';
-
-        // Speichere in localStorage für Konsistenz
-        localStorage.setItem('locale', currentLang);
+        // Aktuelle Sprache aus localStorage lesen (Standard: 'de')
+        const currentLang = localStorage.getItem('locale') || 'de';
         document.documentElement.setAttribute('lang', currentLang);
 
         // Aktiven Button markieren
-        langBtns.forEach(btn => {
-            const btnLang = btn.getAttribute('data-lang');
-            if (btnLang === currentLang) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
+        function updateActiveButton(lang) {
+            langBtns.forEach(btn => {
+                const btnLang = btn.getAttribute('data-lang');
+                if (btnLang === lang) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
 
-            // Click Handler
+        updateActiveButton(currentLang);
+
+        // Click Handler
+        langBtns.forEach(btn => {
             btn.addEventListener('click', function() {
                 const targetLang = this.getAttribute('data-lang');
-                if (targetLang === currentLang) return;
+                const storedLang = localStorage.getItem('locale') || 'de';
+                if (targetLang === storedLang) return;
 
-                // URL umwandeln
-                let newPath;
-                if (targetLang === 'en') {
-                    // Deutsch -> Englisch: /foo/ -> /en/foo/
-                    if (currentPath === '/' || currentPath === '') {
-                        newPath = '/en/';
-                    } else {
-                        newPath = '/en' + currentPath;
-                    }
-                } else {
-                    // Englisch -> Deutsch: /en/foo/ -> /foo/
-                    if (currentPath === '/en/' || currentPath === '/en') {
-                        newPath = '/';
-                    } else {
-                        newPath = currentPath.replace(/^\/en/, '');
-                    }
-                }
-
-                // Sprache speichern und navigieren
+                // Sprache in localStorage speichern
                 localStorage.setItem('locale', targetLang);
-                window.location.href = newPath;
+                document.documentElement.setAttribute('lang', targetLang);
+
+                // Button-Status aktualisieren
+                updateActiveButton(targetLang);
+
+                // Seite neu laden, damit Vue-i18n die neue Sprache übernimmt
+                window.location.reload();
             });
         });
     }
