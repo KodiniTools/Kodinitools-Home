@@ -1,5 +1,5 @@
 <template>
-  <Teleport to="body">
+  <div v-if="isClient">
     <!-- Cookie Banner -->
     <Transition name="cookie-banner">
       <div v-if="showBanner" class="cookie-banner" role="dialog" aria-modal="true" :aria-label="$t('cookies.bannerTitle')">
@@ -106,7 +106,7 @@
         </div>
       </div>
     </Transition>
-  </Teleport>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -118,6 +118,8 @@ interface ConsentState {
   timestamp?: string
 }
 
+// Start with false to avoid SSR hydration mismatch, then check on client
+const isClient = ref(false)
 const showBanner = ref(false)
 const showDetails = ref(false)
 
@@ -126,22 +128,23 @@ const consent = reactive<ConsentState>({
   marketing: false
 })
 
-// Check for existing consent on mount
+// Check for existing consent on mount (client-side only)
 onMounted(() => {
-  if (typeof window !== 'undefined') {
-    const savedConsent = localStorage.getItem('cookieConsent')
-    if (savedConsent) {
-      try {
-        const parsed = JSON.parse(savedConsent) as ConsentState
-        consent.analytics = parsed.analytics
-        consent.marketing = parsed.marketing
-        showBanner.value = false
-      } catch {
-        showBanner.value = true
-      }
-    } else {
+  isClient.value = true
+
+  const savedConsent = localStorage.getItem('cookieConsent')
+  if (savedConsent) {
+    try {
+      const parsed = JSON.parse(savedConsent) as ConsentState
+      consent.analytics = parsed.analytics
+      consent.marketing = parsed.marketing
+      showBanner.value = false
+    } catch {
       showBanner.value = true
     }
+  } else {
+    // No saved consent - show banner
+    showBanner.value = true
   }
 })
 
