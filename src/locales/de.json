@@ -8,6 +8,7 @@
     "audioTools": "Audiotools",
     "imageTools": "Bildtools",
     "tools": "Tools",
+    "premium": "Premium",
     "about": "Über uns",
     "contact": "Kontakt",
     "privacy": "Datenschutz",
@@ -198,6 +199,25 @@
     "resultsFound": "Tools gefunden",
     "noResults": "Keine Tools gefunden. Versuchen Sie einen anderen Suchbegriff.",
     "scrollTop": "Nach oben scrollen"
+  },
+  "premium": {
+    "sectionTitle": "Premium Tools",
+    "sectionDescription": "Exklusive Premium-Tools für angemeldete Benutzer",
+    "title": "Premium Zugang",
+    "description": "Melden Sie sich an, um Zugang zu exklusiven Premium-Tools und Funktionen zu erhalten.",
+    "signInWithGoogle": "Mit Google anmelden",
+    "signingIn": "Anmeldung läuft...",
+    "signOut": "Abmelden",
+    "user": "Benutzer",
+    "authNote": "Mit der Anmeldung stimmen Sie unseren Nutzungsbedingungen und Datenschutzrichtlinien zu.",
+    "comingSoon": "Demnächst verfügbar",
+    "comingSoonDescription": "Hier werden bald exklusive Premium-Tools hinzugefügt. Bleiben Sie dran!",
+    "features": {
+      "exclusive": "Exklusive Premium-Tools",
+      "priority": "Prioritäts-Verarbeitung",
+      "noAds": "Werbefreies Erlebnis",
+      "support": "Premium Support"
+    }
   },
   "cookies": {
     "bannerTitle": "Cookie-Einstellungen",
