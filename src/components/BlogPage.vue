@@ -619,8 +619,7 @@ const handleGoHome = () => {
   max-width: 900px;
   margin: 0 auto;
   padding: 2rem 1rem;
-  color: var(--text-color, #333);
-  background: var(--bg-color, #fff);
+  color: var(--text-color);
   min-height: 100vh;
 }
 
@@ -628,7 +627,7 @@ const handleGoHome = () => {
 .blog-header {
   text-align: center;
   padding: 3rem 1rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--gradient-1, linear-gradient(135deg, #A28680 0%, #5E5F69 100%));
   border-radius: 16px;
   margin-bottom: 2rem;
   color: white;
@@ -668,11 +667,11 @@ const handleGoHome = () => {
 
 /* Table of Contents */
 .blog-toc {
-  background: var(--card-bg, #f8f9fa);
+  background: var(--bg-secondary);
   border-radius: 12px;
   padding: 1.5rem;
   margin-bottom: 2rem;
-  border: 1px solid var(--border-color, #e9ecef);
+  border: 1px solid var(--border-color);
 }
 
 .toc-title {
@@ -691,7 +690,7 @@ const handleGoHome = () => {
 }
 
 .toc-list a {
-  color: var(--primary-color, #667eea);
+  color: var(--primary-color);
   text-decoration: none;
   padding: 0.5rem;
   display: block;
@@ -700,7 +699,7 @@ const handleGoHome = () => {
 }
 
 .toc-list a:hover {
-  background: var(--hover-bg, rgba(102, 126, 234, 0.1));
+  background: rgba(162, 134, 128, 0.1);
 }
 
 /* Blog Content */
@@ -711,7 +710,7 @@ const handleGoHome = () => {
 .blog-section {
   margin-bottom: 3rem;
   padding-bottom: 2rem;
-  border-bottom: 1px solid var(--border-color, #e9ecef);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .blog-section:last-child {
@@ -722,12 +721,12 @@ const handleGoHome = () => {
   font-size: 2rem;
   font-weight: 700;
   margin: 0 0 1.5rem 0;
-  color: var(--heading-color, #1a1a2e);
+  color: var(--text-color);
 }
 
 .section-intro {
   font-size: 1.125rem;
-  color: var(--text-muted, #6c757d);
+  color: var(--text-secondary);
   margin-bottom: 2rem;
 }
 
@@ -737,11 +736,11 @@ const handleGoHome = () => {
 
 /* Highlight Box */
 .highlight-box {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  background: linear-gradient(135deg, rgba(162, 134, 128, 0.1) 0%, rgba(94, 95, 105, 0.1) 100%);
   border-radius: 12px;
   padding: 1.5rem;
   margin: 1.5rem 0;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid var(--primary-color);
 }
 
 .highlight-box h3 {
@@ -762,20 +761,20 @@ const handleGoHome = () => {
 .blog-quote {
   font-style: italic;
   font-size: 1.25rem;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid var(--primary-color);
   padding: 1rem 1.5rem;
   margin: 1.5rem 0;
-  background: var(--card-bg, #f8f9fa);
+  background: var(--bg-secondary);
   border-radius: 0 8px 8px 0;
 }
 
 /* Tool Cards */
 .tool-card {
-  background: var(--card-bg, #f8f9fa);
+  background: var(--bg-secondary);
   border-radius: 12px;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
-  border: 1px solid var(--border-color, #e9ecef);
+  border: 1px solid var(--border-color);
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
@@ -844,7 +843,7 @@ const handleGoHome = () => {
 .tool-description {
   font-size: 1.125rem;
   margin-bottom: 1rem;
-  color: var(--text-color, #333);
+  color: var(--text-color);
 }
 
 .tool-features h4,
@@ -852,7 +851,7 @@ const handleGoHome = () => {
   font-size: 1rem;
   font-weight: 600;
   margin: 0 0 0.5rem 0;
-  color: var(--heading-color, #1a1a2e);
+  color: var(--text-color);
 }
 
 .tool-features ul {
@@ -865,7 +864,7 @@ const handleGoHome = () => {
 }
 
 .tool-usecase {
-  background: rgba(102, 126, 234, 0.05);
+  background: rgba(162, 134, 128, 0.08);
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 1rem;
@@ -878,14 +877,21 @@ const handleGoHome = () => {
 
 .tool-link {
   display: inline-block;
-  color: #667eea;
+  color: var(--primary-color);
   font-weight: 600;
   text-decoration: none;
-  transition: color 0.2s;
+  transition: all 0.2s;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  background: rgba(162, 134, 128, 0.15);
+  border-radius: 6px;
+  margin-top: 0.5rem;
 }
 
 .tool-link:hover {
-  color: #764ba2;
+  color: #fff;
+  background: var(--primary-color);
+  text-decoration: none;
 }
 
 /* Processing Comparison */
@@ -928,7 +934,7 @@ const handleGoHome = () => {
 
 .processing-tools {
   font-size: 0.875rem;
-  color: var(--text-muted, #6c757d);
+  color: var(--text-secondary);
 }
 
 /* Privacy Features */
@@ -942,7 +948,7 @@ const handleGoHome = () => {
 .privacy-item {
   text-align: center;
   padding: 1.5rem;
-  background: var(--card-bg, #f8f9fa);
+  background: var(--bg-secondary);
   border-radius: 12px;
 }
 
@@ -959,7 +965,7 @@ const handleGoHome = () => {
 .privacy-item p {
   margin: 0;
   font-size: 0.875rem;
-  color: var(--text-muted, #6c757d);
+  color: var(--text-secondary);
 }
 
 /* Premium Features */
@@ -975,7 +981,7 @@ const handleGoHome = () => {
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  background: var(--card-bg, #f8f9fa);
+  background: var(--bg-secondary);
   border-radius: 8px;
 }
 
@@ -987,7 +993,7 @@ const handleGoHome = () => {
 .cta-box {
   text-align: center;
   padding: 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--gradient-1, linear-gradient(135deg, #A28680 0%, #5E5F69 100%));
   border-radius: 16px;
   color: white;
   margin-top: 2rem;
@@ -1006,7 +1012,7 @@ const handleGoHome = () => {
 .cta-button {
   display: inline-block;
   background: white;
-  color: #667eea;
+  color: #5E5F69;
   padding: 0.75rem 2rem;
   border-radius: 30px;
   font-weight: 600;
@@ -1017,6 +1023,7 @@ const handleGoHome = () => {
 .cta-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  background: var(--accent-color, #F2E28E);
 }
 
 /* Blog Footer */
@@ -1027,25 +1034,50 @@ const handleGoHome = () => {
 }
 
 .back-link {
-  color: #667eea;
+  color: var(--primary-color);
   text-decoration: none;
   font-weight: 600;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  background: rgba(162, 134, 128, 0.15);
+  border-radius: 6px;
+  display: inline-block;
+  transition: all 0.2s;
 }
 
 .back-link:hover {
-  text-decoration: underline;
+  text-decoration: none;
+  color: #fff;
+  background: var(--primary-color);
 }
 
 /* Dark Mode Support */
-:root.dark .blog-page,
-.dark .blog-page {
-  --text-color: #e0e0e0;
-  --heading-color: #fff;
-  --card-bg: #2d2d44;
-  --border-color: #3d3d5c;
-  --text-muted: #a0a0a0;
-  --bg-color: #1a1a2e;
-  --hover-bg: rgba(102, 126, 234, 0.2);
+[data-theme="dark"] .tool-usecase {
+  background: rgba(242, 226, 142, 0.08);
+}
+
+[data-theme="dark"] .toc-list a:hover {
+  background: rgba(242, 226, 142, 0.1);
+}
+
+[data-theme="dark"] .tool-link {
+  background: rgba(242, 226, 142, 0.1);
+}
+
+[data-theme="dark"] .tool-link:hover {
+  color: #0C0C10;
+}
+
+[data-theme="dark"] .back-link {
+  background: rgba(242, 226, 142, 0.1);
+}
+
+[data-theme="dark"] .back-link:hover {
+  color: #0C0C10;
+}
+
+[data-theme="dark"] .tool-card:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
 /* Responsive */
