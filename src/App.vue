@@ -3,7 +3,7 @@
     <!-- Header -->
     <header class="header">
       <nav class="nav-container">
-        <div class="logo">{{ $t('footer.company') }}</div>
+        <div class="logo" @click="goHome" style="cursor: pointer;">{{ $t('footer.company') }}</div>
         
         <div class="nav-links">
           <!-- Audio Tools Dropdown -->
@@ -82,6 +82,7 @@
           </div>
 
           <a href="https://kodinitools.com/kontaktformular/" class="nav-link">{{ $t('navigation.contact') }}</a>
+          <a @click.prevent="toggleBlog" href="#blog" class="nav-link blog-link">{{ $t('navigation.blog') }}</a>
           <a href="#premium" class="nav-link premium-link">{{ $t('navigation.premium') }}</a>
         </div>
         
@@ -92,6 +93,11 @@
       </nav>
     </header>
 
+    <!-- Blog Page -->
+    <BlogPage v-if="showBlog" @goHome="goHome" />
+
+    <!-- Main Content -->
+    <template v-else>
     <!-- Hero Section -->
     <section class="hero">
       <!-- Promo Section with Logo -->
@@ -459,6 +465,7 @@
       </div>
       <PremiumAuth />
     </section>
+    </template>
 
     <!-- Scroll to Top Button -->
     <Transition name="fade-slide">
@@ -492,8 +499,24 @@ import DonateButton from './components/DonateButton.vue'
 import CookieBanner from './components/CookieBanner.vue'
 import AppFooter from './components/AppFooter.vue'
 import PremiumAuth from './components/PremiumAuth.vue'
+import BlogPage from './components/BlogPage.vue'
 
 const { t } = useI18n()
+
+// Blog page toggle
+const showBlog = ref(false)
+
+const toggleBlog = () => {
+  showBlog.value = !showBlog.value
+  if (showBlog.value) {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+}
+
+const goHome = () => {
+  showBlog.value = false
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
 
 // Cookie Banner ref
 const cookieBannerRef = ref<InstanceType<typeof CookieBanner> | null>(null)

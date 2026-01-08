@@ -9,6 +9,7 @@
     "imageTools": "image tools",
     "tools": "tools",
     "premium": "premium",
+    "blog": "Blog",
     "about": "about us",
     "contact": "contact",
     "privacy": "privacy",
@@ -243,6 +244,256 @@
     "marketing": {
       "title": "Marketing Cookies",
       "description": "These cookies are used to make advertising more relevant to you. They also enable measuring the effectiveness of advertising campaigns."
+    }
+  },
+  "blog": {
+    "badge": "Official Guide",
+    "title": "KodiniTools: The Complete Overview of All Free Multimedia Tools",
+    "subtitle": "Discover 16 powerful tools for audio and image editing – 100% free, secure, and no installation required",
+    "author": "KodiniTools Team",
+    "date": "January 2025",
+    "readingTime": "15 min read",
+    "backToHome": "Back to Home",
+    "tryTool": "Try this tool",
+    "toolFeatures": "Features:",
+    "useCases": "Use case:",
+    "new": "New",
+    "toc": {
+      "title": "Table of Contents",
+      "intro": "Introduction",
+      "philosophy": "Our Philosophy",
+      "audioTools": "Audio Tools",
+      "imageTools": "Image Tools",
+      "diverseTools": "More Tools",
+      "processing": "Processing Types",
+      "privacy": "Privacy",
+      "premium": "Premium Section",
+      "conclusion": "Conclusion"
+    },
+    "sections": {
+      "intro": {
+        "title": "Welcome to KodiniTools",
+        "p1": "In today's digital world, we constantly need tools for editing multimedia files. Whether you're a podcast creator looking to optimize your audio files, a social media manager who needs impressive visualizations, or a designer searching for the perfect colors – KodiniTools offers you exactly the right tools.",
+        "p2": "KodiniTools is a comprehensive collection of 16 professional online tools for audio and image editing. What makes it special: All tools are completely free, require no installation, and respect your privacy. The platform was developed with passion to give everyone access to professional multimedia tools.",
+        "p3": "Whether you're a beginner or a pro – our intuitively designed tools are easy to use and deliver professional results. In this comprehensive guide, we'll introduce you to each individual tool in detail.",
+        "highlightTitle": "What makes KodiniTools special:",
+        "feature1": "100% free – No hidden costs or subscriptions",
+        "feature2": "Privacy first – GDPR compliant",
+        "feature3": "Browser-based and server-based – You choose",
+        "feature4": "Multi-language – German and English available",
+        "feature5": "No installation required – Get started immediately",
+        "feature6": "No registration needed – For most tools"
+      },
+      "philosophy": {
+        "title": "Our Philosophy: Quality for Everyone",
+        "p1": "The vision behind KodiniTools is simple: Everyone should have access to professional multimedia tools – regardless of budget or technical knowledge. Too often, good tools are hidden behind paywalls or require complicated software installations.",
+        "p2": "That's why we've created a platform that works directly in your browser. Simply open the website, choose your tool, and start working. No downloads, no account creation, no waiting. Your files are either processed directly in your browser – guaranteeing maximum privacy – or on our secure servers, where they are automatically deleted after processing.",
+        "p3": "We believe that technology should empower people, not hinder them. That's why all our tools have been developed with a focus on user-friendliness and accessibility.",
+        "quote": "Good tools should be accessible to everyone – not just those who can afford them."
+      },
+      "audioTools": {
+        "title": "Audio Tools: The Complete Collection",
+        "intro": "With 11 specialized audio tools, KodiniTools covers almost every need – from simple format conversion to professional sound optimization with 19-band equalizers.",
+        "audioConverter": {
+          "title": "Audio Converter",
+          "description": "The Audio Converter is your Swiss Army knife for audio formats. Whether you want to unify your music collection, optimize files for different devices, or simply save storage space – this tool makes it possible. With batch processing, you can convert multiple files simultaneously while choosing the desired quality level.",
+          "feature1": "Supports MP3, WAV, OGG, FLAC, AAC, and M4A",
+          "feature2": "Batch processing for multiple files at once",
+          "feature3": "Adjustable quality levels for optimal results",
+          "feature4": "Server-based processing for best performance",
+          "usecase": "Perfect for musicians who need their recordings in different formats, or for anyone who wants to organize their music collection."
+        },
+        "eq19": {
+          "title": "19-Band EQ Pro",
+          "description": "For anyone seeking the perfect sound, the 19-Band EQ Pro is the ultimate tool. With 19 precise frequency bands, you have full control over every aspect of your audio. The integrated dynamic compressor ensures balanced sound, while the recording function directly saves your optimized tracks.",
+          "feature1": "19 frequency bands for precise sound control",
+          "feature2": "Integrated dynamic compressor",
+          "feature3": "Predefined presets for various music genres",
+          "feature4": "Real-time preview of all changes",
+          "feature5": "Direct recording and export",
+          "usecase": "Ideal for music producers, podcasters, and audiophiles who want to take their sound to the next level."
+        },
+        "musicPlayer": {
+          "title": "Ultimate Music Player",
+          "description": "Sometimes you don't need a complicated player – just one that works and looks good. The Ultimate Music Player offers exactly that: A minimalist design combined with all the important features. The integrated visualizer function turns listening to music into a visual experience.",
+          "feature1": "Clear playlist management",
+          "feature2": "Shuffle and repeat functions",
+          "feature3": "Integrated audio visualizer",
+          "feature4": "Support for all common audio formats",
+          "usecase": "The perfect companion for anyone who wants to elegantly play their local music collection."
+        },
+        "visualizer": {
+          "title": "Audio Visualizer",
+          "description": "In the world of TikTok, Instagram Reels, and YouTube Shorts, visual content is king. The Audio Visualizer transforms your music into impressive MP4 videos with dynamic visualizations. Perfectly optimized for all popular social media platforms, you can create content-worthy videos in no time.",
+          "feature1": "Creates MP4 videos from audio files",
+          "feature2": "Optimized for TikTok, Instagram, and YouTube",
+          "feature3": "Various visualization styles available",
+          "feature4": "Easy operation without prior knowledge",
+          "usecase": "Essential for musicians, DJs, and content creators who want to visually present their music."
+        },
+        "mp3Converter": {
+          "title": "MP3 Converter",
+          "description": "Sometimes you just need MP3. Our specialized MP3 Converter is optimized for speed and simplicity. Upload your file, choose the quality, and get your MP3 file in no time. Specially developed for podcasters and music enthusiasts.",
+          "feature1": "Fast conversion to MP3",
+          "feature2": "Optimized quality for podcasts and music",
+          "feature3": "Simple one-click operation",
+          "usecase": "Perfect for podcasters who want to publish their episodes, or for anyone who needs universally compatible audio files."
+        },
+        "interactiveEq": {
+          "title": "Interactive Audio Equalizer",
+          "description": "The Interactive Audio Equalizer makes sound editing a breeze. With its intuitive graphical interface, you can see your changes and hear them in real-time. Ideal for anyone looking for an easy introduction to the world of audio editing.",
+          "feature1": "Intuitive graphical user interface",
+          "feature2": "Real-time preview of all changes",
+          "feature3": "Easy export of edited files",
+          "usecase": "Ideal for beginners taking their first steps in audio editing without being overwhelmed by complex interfaces."
+        },
+        "modernPlayer": {
+          "title": "Modern Music Player",
+          "description": "Design meets function: The Modern Music Player impresses with its elegant, contemporary design while supporting all major audio formats. The sleek interface offers all essential functions without unnecessary clutter.",
+          "feature1": "Elegant, modern user interface",
+          "feature2": "Support for many audio formats",
+          "feature3": "Smooth animations and transitions",
+          "usecase": "For anyone who values aesthetics and is looking for a stylish player for their music collection."
+        },
+        "playlistGenerator": {
+          "title": "Audio Playlist Generator",
+          "description": "Organize your music collection automatically! The Audio Playlist Generator analyzes your audio files and creates intelligently sorted playlists. With extensive sorting and filtering functions, you have full control over your music organization.",
+          "feature1": "Automatic playlist creation",
+          "feature2": "Various sorting options",
+          "feature3": "Filter functions by different criteria",
+          "usecase": "Essential for DJs, fitness studios, or anyone with large music collections who wants to quickly put together the perfect playlist."
+        },
+        "alarmTool": {
+          "title": "Alarm Tool",
+          "description": "Forget boring standard alarms! With the Alarm Tool, you create individual reminders with your own audio files. Whether as an alarm clock with your favorite song or as a reminder for important appointments – this tool makes the difference.",
+          "feature1": "Custom alarm sounds with your own audio files",
+          "feature2": "Flexible timer settings",
+          "feature3": "Manage multiple alarms simultaneously",
+          "usecase": "Perfect for anyone who wants to create personalized reminders with their favorite songs or own recordings."
+        },
+        "audioNormalizer": {
+          "title": "Audio Normalizer",
+          "description": "Do you know the problem: One track is too quiet, the next too loud? The Audio Normalizer automatically equalizes the volume of your audio files. Especially important for podcasts and audiobooks, where consistent volume ensures a pleasant listening experience.",
+          "feature1": "Automatic volume normalization",
+          "feature2": "Intelligent peak detection",
+          "feature3": "Batch processing for multiple files",
+          "usecase": "A must-have for podcasters, audiobook creators, and anyone who needs consistent volume across multiple files."
+        },
+        "playlistWebm": {
+          "title": "Playlist to WebM Converter",
+          "description": "A unique tool for special requirements: Convert up to 50 audio tracks into a single WebM file. Ideal for creating background music compilations or long audio collections in a web-safe format.",
+          "feature1": "Up to 50 tracks in one file",
+          "feature2": "WebM format for maximum web compatibility",
+          "feature3": "Simple batch selection",
+          "usecase": "Perfect for web developers who want to embed background music, or for anyone creating long audio compilations."
+        }
+      },
+      "imageTools": {
+        "title": "Image Tools: Creativity Without Limits",
+        "intro": "KodiniTools' image editing tools cover all basic needs – from format conversion to mass editing to creative collage creation.",
+        "imageConverter": {
+          "title": "Image Converter",
+          "description": "The Image Converter is your reliable partner for all image format conversions. All common formats are supported, including modern formats like WebP and AVIF, which are known for their excellent compression while maintaining quality.",
+          "feature1": "Supports JPG, PNG, WebP, AVIF, GIF, and BMP",
+          "feature2": "Adjustable quality levels",
+          "feature3": "Modern formats for optimal web performance",
+          "feature4": "Server-based processing for large files",
+          "usecase": "Essential for web designers who want to optimize their images for optimal loading times, or for anyone who needs to convert images between formats."
+        },
+        "batchEditor": {
+          "title": "Batch Image Editor",
+          "description": "Time is precious – especially when you need to edit hundreds of images. The Batch Image Editor allows you to edit over 100 images simultaneously. Resize, rename, and export as ZIP or even PDF – all in one step.",
+          "feature1": "Edit 100+ images simultaneously",
+          "feature2": "Resize with custom dimensions",
+          "feature3": "Mass renaming with templates",
+          "feature4": "Export as ZIP archive or PDF document",
+          "usecase": "A lifesaver for photographers, e-commerce merchants, or anyone who regularly needs to process large quantities of images."
+        },
+        "photoCollage": {
+          "title": "Photo Collage",
+          "description": "Creativity made easy: With the Photo Collage tool, you create impressive collages from your photos. Choose from various layouts and templates and create unique image compositions for social media, greeting cards, or personal projects.",
+          "feature1": "Diverse layout templates",
+          "feature2": "Drag-and-drop image placement",
+          "feature3": "Customizable frames and spacing",
+          "usecase": "Ideal for social media enthusiasts, bloggers, or anyone who wants to creatively present their most beautiful moments."
+        }
+      },
+      "diverseTools": {
+        "title": "More Tools: Specialized Helpers",
+        "intro": "In addition to audio and image, KodiniTools offers two more specialized tools that cover special needs.",
+        "colorExtractor": {
+          "title": "Kodini Color Extractor",
+          "description": "Colors are the soul of design. The Kodini Color Extractor analyzes your images and extracts the dominant colors. Perfect for designers creating color palettes, or for anyone who wants to know the exact color codes of an image.",
+          "feature1": "Extraction of dominant colors from any image",
+          "feature2": "Color codes in various formats (HEX, RGB)",
+          "feature3": "Automatic palette creation",
+          "usecase": "An indispensable tool for designers, brand managers, and anyone who wants to create harmonious color schemes from reference images."
+        },
+        "videoConverter": {
+          "title": "Video Converter",
+          "description": "Videos in different formats? No problem! The Video Converter supports all common video formats and enables fast, high-quality conversions. Whether for mobile devices, web, or archiving – the right format is just a click away.",
+          "feature1": "Supports MP4, WebM, AVI, and more",
+          "feature2": "Optimized quality settings",
+          "feature3": "Server-based processing for large video files",
+          "usecase": "Perfect for content creators who need to optimize their videos for different platforms, or for anyone who wants to solve video compatibility problems."
+        }
+      },
+      "processing": {
+        "title": "How Your Files Are Processed",
+        "intro": "At KodiniTools, we place great value on transparency. That's why we clearly indicate how your files are processed for each tool. You always have the choice:",
+        "examples": "Examples:",
+        "browser": {
+          "title": "Browser-based Processing",
+          "description": "With browser-based processing, your files never leave your computer. All calculations take place directly in your browser – maximum privacy guaranteed.",
+          "pro1": "Maximum privacy – files stay local",
+          "pro2": "No upload waiting times",
+          "pro3": "Works offline too",
+          "examples": "Equalizers, music players, batch image editor, collages"
+        },
+        "server": {
+          "title": "Server-based Processing",
+          "description": "For computationally intensive tasks, we use our secure Hostinger servers. Your files are automatically deleted after processing.",
+          "pro1": "Faster processing of complex tasks",
+          "pro2": "Less strain on your device",
+          "pro3": "Ideal for large files",
+          "examples": "Audio Converter, MP3 Converter, Video Converter, Image Converter"
+        }
+      },
+      "privacy": {
+        "title": "Privacy: Your Security First",
+        "p1": "In times of increasing privacy concerns, it's especially important to us to be transparent about how we handle your data. KodiniTools is fully GDPR compliant and respects your privacy.",
+        "p2": "With browser-based tools, your files never leave your computer. With server-based tools, your files are transmitted encrypted and automatically deleted after processing. We don't store copies of your files.",
+        "gdpr": {
+          "title": "GDPR Compliance",
+          "description": "Full compliance with the European General Data Protection Regulation (GDPR)."
+        },
+        "cookies": {
+          "title": "Transparent Cookie Settings",
+          "description": "You decide which cookies you allow. Detailed control over essential, analytics, and marketing cookies."
+        },
+        "deletion": {
+          "title": "Automatic Deletion",
+          "description": "For server-processed files, automatic deletion occurs after processing. No long-term storage."
+        }
+      },
+      "premium": {
+        "title": "Premium Section: More Possibilities",
+        "p1": "While all basic tools remain free, we're working on a premium section for users who want more. With a simple Google sign-in, you get access to exclusive features.",
+        "p2": "The premium section is currently under development. Registered users will be the first to learn about new premium features.",
+        "feature1": "Exclusive Premium Tools",
+        "feature2": "Priority Processing",
+        "feature3": "Ad-Free Experience",
+        "feature4": "Premium Support"
+      },
+      "conclusion": {
+        "title": "Conclusion: KodiniTools – Your Multimedia Partner",
+        "p1": "KodiniTools has set itself the goal of making professional multimedia editing accessible to everyone. With 16 specialized tools for audio, image, and video, we offer a comprehensive solution for all basic multimedia needs.",
+        "p2": "What sets us apart from others is our commitment to quality, user-friendliness, and privacy – and all of this for free. No hidden costs, no mandatory registration, no complicated installations.",
+        "p3": "We invite you to try our tools and experience for yourself how easy professional multimedia editing can be. Do you have feedback or wishes for new tools? We look forward to hearing from you!",
+        "ctaTitle": "Ready to get started?",
+        "ctaText": "Discover all KodiniTools now and take your multimedia projects to the next level.",
+        "ctaButton": "Discover all tools"
+      }
     }
   }
 }
