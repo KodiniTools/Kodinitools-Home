@@ -93,7 +93,7 @@
             <h4>{{ $t('blog.useCases') }}</h4>
             <p>{{ $t('blog.sections.audioTools.audioConverter.usecase') }}</p>
           </div>
-          <a href="https://kodinitools.com/audiokonverter/" target="_blank" class="tool-link">
+          <a href="https://kodinitools.com/audiokonverter/" target="_blank" rel="noopener noreferrer" class="tool-link">
             {{ $t('blog.tryTool') }} →
           </a>
         </div>
@@ -121,7 +121,7 @@
             <h4>{{ $t('blog.useCases') }}</h4>
             <p>{{ $t('blog.sections.audioTools.eq19.usecase') }}</p>
           </div>
-          <a href="https://kodinitools.com/equaliser19/" target="_blank" class="tool-link">
+          <a href="https://kodinitools.com/equaliser19/" target="_blank" rel="noopener noreferrer" class="tool-link">
             {{ $t('blog.tryTool') }} →
           </a>
         </div>
@@ -148,7 +148,7 @@
             <h4>{{ $t('blog.useCases') }}</h4>
             <p>{{ $t('blog.sections.audioTools.musicPlayer.usecase') }}</p>
           </div>
-          <a href="https://kodinitools.com/ultimativermusikplayer/" target="_blank" class="tool-link">
+          <a href="https://kodinitools.com/ultimativermusikplayer/" target="_blank" rel="noopener noreferrer" class="tool-link">
             {{ $t('blog.tryTool') }} →
           </a>
         </div>
@@ -175,7 +175,7 @@
             <h4>{{ $t('blog.useCases') }}</h4>
             <p>{{ $t('blog.sections.audioTools.visualizer.usecase') }}</p>
           </div>
-          <a href="https://kodinitools.com/visualizer/" target="_blank" class="tool-link">
+          <a href="https://kodinitools.com/visualizer/" target="_blank" rel="noopener noreferrer" class="tool-link">
             {{ $t('blog.tryTool') }} →
           </a>
         </div>
@@ -200,7 +200,7 @@
             <h4>{{ $t('blog.useCases') }}</h4>
             <p>{{ $t('blog.sections.audioTools.mp3Converter.usecase') }}</p>
           </div>
-          <a href="https://kodinitools.com/mp3konverter/" target="_blank" class="tool-link">
+          <a href="https://kodinitools.com/mp3konverter/" target="_blank" rel="noopener noreferrer" class="tool-link">
             {{ $t('blog.tryTool') }} →
           </a>
         </div>
@@ -225,7 +225,7 @@
             <h4>{{ $t('blog.useCases') }}</h4>
             <p>{{ $t('blog.sections.audioTools.interactiveEq.usecase') }}</p>
           </div>
-          <a href="https://kodinitools.com/audioequalizer/" target="_blank" class="tool-link">
+          <a href="https://kodinitools.com/audioequalizer/" target="_blank" rel="noopener noreferrer" class="tool-link">
             {{ $t('blog.tryTool') }} →
           </a>
         </div>
@@ -250,7 +250,7 @@
             <h4>{{ $t('blog.useCases') }}</h4>
             <p>{{ $t('blog.sections.audioTools.modernPlayer.usecase') }}</p>
           </div>
-          <a href="https://kodinitools.com/modernermusikplayer/" target="_blank" class="tool-link">
+          <a href="https://kodinitools.com/modernermusikplayer/" target="_blank" rel="noopener noreferrer" class="tool-link">
             {{ $t('blog.tryTool') }} →
           </a>
         </div>
@@ -275,7 +275,7 @@
             <h4>{{ $t('blog.useCases') }}</h4>
             <p>{{ $t('blog.sections.audioTools.playlistGenerator.usecase') }}</p>
           </div>
-          <a href="https://kodinitools.com/playlist_generator/" target="_blank" class="tool-link">
+          <a href="https://kodinitools.com/playlist_generator/" target="_blank" rel="noopener noreferrer" class="tool-link">
             {{ $t('blog.tryTool') }} →
           </a>
         </div>
@@ -300,7 +300,7 @@
             <h4>{{ $t('blog.useCases') }}</h4>
             <p>{{ $t('blog.sections.audioTools.alarmTool.usecase') }}</p>
           </div>
-          <a href="https://kodinitools.com/alarmtool/" target="_blank" class="tool-link">
+          <a href="https://kodinitools.com/alarmtool/" target="_blank" rel="noopener noreferrer" class="tool-link">
             {{ $t('blog.tryTool') }} →
           </a>
         </div>
@@ -325,7 +325,7 @@
             <h4>{{ $t('blog.useCases') }}</h4>
             <p>{{ $t('blog.sections.audioTools.audioNormalizer.usecase') }}</p>
           </div>
-          <a href="https://kodinitools.com/audionormalisierer/" target="_blank" class="tool-link">
+          <a href="https://kodinitools.com/audionormalisierer/" target="_blank" rel="noopener noreferrer" class="tool-link">
             {{ $t('blog.tryTool') }} →
           </a>
         </div>
@@ -350,7 +350,7 @@
             <h4>{{ $t('blog.useCases') }}</h4>
             <p>{{ $t('blog.sections.audioTools.playlistWebm.usecase') }}</p>
           </div>
-          <a href="https://kodinitools.com/playlistkonverter/" target="_blank" class="tool-link">
+          <a href="https://kodinitools.com/playlistkonverter/" target="_blank" rel="noopener noreferrer" class="tool-link">
             {{ $t('blog.tryTool') }} →
           </a>
         </div>
@@ -382,7 +382,7 @@
             <h4>{{ $t('blog.useCases') }}</h4>
             <p>{{ $t('blog.sections.imageTools.imageConverter.usecase') }}</p>
           </div>
-          <a href="https://kodinitools.com/bildkonverter/" target="_blank" class="tool-link">
+          <a href="https://kodinitools.com/bildkonverter/" target="_blank" rel="noopener noreferrer" class="tool-link">
             {{ $t('blog.tryTool') }} →
           </a>
         </div>
@@ -409,7 +409,7 @@
             <h4>{{ $t('blog.useCases') }}</h4>
             <p>{{ $t('blog.sections.imageTools.batchEditor.usecase') }}</p>
           </div>
-          <a href="https://kodinitools.com/bilderseriebearbeiten/" target="_blank" class="tool-link">
+          <a href="https://kodinitools.com/bilderseriebearbeiten/" target="_blank" rel="noopener noreferrer" class="tool-link">
             {{ $t('blog.tryTool') }} →
           </a>
         </div>
@@ -434,7 +434,7 @@
             <h4>{{ $t('blog.useCases') }}</h4>
             <p>{{ $t('blog.sections.imageTools.photoCollage.usecase') }}</p>
           </div>
-          <a href="https://kodinitools.com/collagemaker" target="_blank" class="tool-link">
+          <a href="https://kodinitools.com/collagemaker" target="_blank" rel="noopener noreferrer" class="tool-link">
             {{ $t('blog.tryTool') }} →
           </a>
         </div>
@@ -465,7 +465,7 @@
             <h4>{{ $t('blog.useCases') }}</h4>
             <p>{{ $t('blog.sections.diverseTools.colorExtractor.usecase') }}</p>
           </div>
-          <a href="https://kodinitools.com/kodini-color-extractor/" target="_blank" class="tool-link">
+          <a href="https://kodinitools.com/kodini-color-extractor/" target="_blank" rel="noopener noreferrer" class="tool-link">
             {{ $t('blog.tryTool') }} →
           </a>
         </div>
@@ -490,7 +490,7 @@
             <h4>{{ $t('blog.useCases') }}</h4>
             <p>{{ $t('blog.sections.diverseTools.videoConverter.usecase') }}</p>
           </div>
-          <a href="https://kodinitools.com/videokonverter/" target="_blank" class="tool-link">
+          <a href="https://kodinitools.com/videokonverter/" target="_blank" rel="noopener noreferrer" class="tool-link">
             {{ $t('blog.tryTool') }} →
           </a>
         </div>
@@ -776,11 +776,16 @@ const handleGoHome = () => {
   margin-bottom: 1.5rem;
   border: 1px solid var(--border-color);
   transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
 }
 
 .tool-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.tool-card a {
+  pointer-events: auto;
 }
 
 .tool-header {
@@ -886,12 +891,18 @@ const handleGoHome = () => {
   background: rgba(162, 134, 128, 0.15);
   border-radius: 6px;
   margin-top: 0.5rem;
+  position: relative;
+  z-index: 10;
 }
 
 .tool-link:hover {
   color: #fff;
   background: var(--primary-color);
   text-decoration: none;
+}
+
+.tool-link:active {
+  transform: scale(0.98);
 }
 
 /* Processing Comparison */
