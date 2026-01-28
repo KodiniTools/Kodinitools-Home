@@ -83,7 +83,6 @@
 
           <a href="https://kodinitools.com/kontaktformular/" class="nav-link">{{ $t('navigation.contact') }}</a>
           <a @click.prevent="toggleBlog" href="#blog" class="nav-link blog-link">{{ $t('navigation.blog') }}</a>
-          <a href="#premium" class="nav-link premium-link">{{ $t('navigation.premium') }}</a>
         </div>
         
         <div class="nav-controls">
@@ -456,15 +455,6 @@
         </a>
       </div>
     </section>
-
-    <!-- Premium Tools Section -->
-    <section id="premium" class="tools-section premium-section">
-      <div class="section-header">
-        <h2>{{ $t('premium.sectionTitle') }}</h2>
-        <p>{{ $t('premium.sectionDescription') }}</p>
-      </div>
-      <PremiumAuth />
-    </section>
     </template>
 
     <!-- Scroll to Top Button -->
@@ -498,7 +488,6 @@ import ThemeToggle from './components/ThemeToggle.vue'
 import DonateButton from './components/DonateButton.vue'
 import CookieBanner from './components/CookieBanner.vue'
 import AppFooter from './components/AppFooter.vue'
-import PremiumAuth from './components/PremiumAuth.vue'
 import BlogPage from './components/BlogPage.vue'
 
 const { t } = useI18n()
@@ -1620,48 +1609,6 @@ button:focus {
 .no-results {
   color: var(--text-muted);
   font-style: italic;
-}
-
-/* Premium Link in Navigation */
-.premium-link {
-  background: var(--gradient-2);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-weight: 600 !important;
-  position: relative;
-}
-
-.premium-link::before {
-  content: '⭐';
-  margin-right: 0.25rem;
-  -webkit-text-fill-color: initial;
-}
-
-/* Premium Section */
-.premium-section {
-  position: relative;
-  background: linear-gradient(135deg, rgba(242, 226, 142, 0.05) 0%, rgba(162, 134, 128, 0.05) 100%);
-  border-radius: 1rem;
-  margin: 1rem auto;
-  border: 1px solid rgba(242, 226, 142, 0.2);
-}
-
-[data-theme="dark"] .premium-section {
-  background: linear-gradient(135deg, rgba(242, 226, 142, 0.03) 0%, rgba(162, 134, 128, 0.03) 100%);
-  border-color: rgba(242, 226, 142, 0.15);
-}
-
-.premium-section .section-header h2 {
-  background: var(--gradient-2);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.premium-section .section-header h2::before {
-  content: '⭐ ';
-  -webkit-text-fill-color: initial;
 }
 
 /* Scroll to Top Button */
