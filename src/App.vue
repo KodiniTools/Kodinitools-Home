@@ -111,27 +111,21 @@
       <!-- Features -->
       <div class="features-grid">
         <div class="feature-card">
-          <div class="feature-icon">✓</div>
           <div class="feature-text">{{ $t('hero.features.free') }}</div>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">🔒</div>
           <div class="feature-text">{{ $t('hero.features.privacy') }}</div>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">🌐</div>
           <div class="feature-text">{{ $t('hero.features.browserBased') }}</div>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">🖥️</div>
           <div class="feature-text">{{ $t('hero.features.serverBased') }}</div>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">🌍</div>
           <div class="feature-text">{{ $t('hero.features.multiLanguage') }}</div>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">📦</div>
           <div class="feature-text">{{ $t('hero.features.noInstall') }}</div>
         </div>
       </div>
@@ -1133,12 +1127,6 @@ body {
   color: #f5e9a8;
 }
 
-.feature-icon {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-  display: inline-block;
-}
-
 .feature-text {
   font-weight: 500;
   color: #5E5F69;
@@ -1387,10 +1375,6 @@ body {
     padding: 0.65rem;
   }
 
-  .feature-icon {
-    font-size: 1.75rem;
-  }
-
   .tools-section {
     padding: 1.5rem 1rem;
   }
@@ -1452,10 +1436,6 @@ body {
 
   .feature-card {
     padding: 0.5rem;
-  }
-
-  .feature-icon {
-    font-size: 1.5rem;
   }
 
   .feature-text {
