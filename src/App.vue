@@ -1134,9 +1134,9 @@ body {
 }
 
 .feature-icon {
-  font-size: 1.5rem;
-  margin-bottom: 0.3rem;
-  animation: float 3s ease-in-out infinite;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  display: inline-block;
 }
 
 .feature-text {
@@ -1388,7 +1388,7 @@ body {
   }
 
   .feature-icon {
-    font-size: 1.25rem;
+    font-size: 1.75rem;
   }
 
   .tools-section {
@@ -1455,7 +1455,7 @@ body {
   }
 
   .feature-icon {
-    font-size: 1rem;
+    font-size: 1.5rem;
   }
 
   .feature-text {
