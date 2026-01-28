@@ -8,7 +8,6 @@
     "audioTools": "Audiotools",
     "imageTools": "Bildtools",
     "tools": "Tools",
-    "premium": "Premium",
     "blog": "Blog",
     "about": "Über uns",
     "contact": "Kontakt",
@@ -201,25 +200,6 @@
     "noResults": "Keine Tools gefunden. Versuchen Sie einen anderen Suchbegriff.",
     "scrollTop": "Nach oben scrollen"
   },
-  "premium": {
-    "sectionTitle": "Premium Tools",
-    "sectionDescription": "Exklusive Premium-Tools für angemeldete Benutzer",
-    "title": "Premium Zugang",
-    "description": "Melden Sie sich an, um Zugang zu exklusiven Premium-Tools und Funktionen zu erhalten.",
-    "signInWithGoogle": "Mit Google anmelden",
-    "signingIn": "Anmeldung läuft...",
-    "signOut": "Abmelden",
-    "user": "Benutzer",
-    "authNote": "Mit der Anmeldung stimmen Sie unseren Nutzungsbedingungen und Datenschutzrichtlinien zu.",
-    "comingSoon": "Demnächst verfügbar",
-    "comingSoonDescription": "Hier werden bald exklusive Premium-Tools hinzugefügt. Bleiben Sie dran!",
-    "features": {
-      "exclusive": "Exklusive Premium-Tools",
-      "priority": "Prioritäts-Verarbeitung",
-      "noAds": "Werbefreies Erlebnis",
-      "support": "Premium Support"
-    }
-  },
   "cookies": {
     "bannerTitle": "Cookie-Einstellungen",
     "bannerText": "Wir verwenden Cookies, um Ihre Erfahrung zu verbessern und den Website-Traffic zu analysieren. Sie entscheiden, welche Cookies Sie zulassen.",
@@ -267,7 +247,6 @@
       "diverseTools": "Weitere Tools",
       "processing": "Verarbeitungsarten",
       "privacy": "Datenschutz",
-      "premium": "Premium-Bereich",
       "conclusion": "Fazit"
     },
     "sections": {
@@ -475,15 +454,6 @@
           "title": "Automatische Löschung",
           "description": "Bei Server-verarbeiteten Dateien erfolgt die automatische Löschung nach der Verarbeitung. Keine Langzeitspeicherung."
         }
-      },
-      "premium": {
-        "title": "Premium-Bereich: Mehr Möglichkeiten",
-        "p1": "Während alle grundlegenden Tools kostenlos bleiben, arbeiten wir an einem Premium-Bereich für Nutzer, die noch mehr möchten. Mit einer einfachen Anmeldung über Google erhalten Sie Zugang zu exklusiven Funktionen.",
-        "p2": "Der Premium-Bereich befindet sich derzeit in der Entwicklung. Registrierte Nutzer werden die Ersten sein, die von neuen Premium-Features erfahren.",
-        "feature1": "Exklusive Premium-Tools",
-        "feature2": "Prioritäts-Verarbeitung",
-        "feature3": "Werbefreies Erlebnis",
-        "feature4": "Premium Support"
       },
       "conclusion": {
         "title": "Fazit: KodiniTools – Ihr Multimedia-Partner",

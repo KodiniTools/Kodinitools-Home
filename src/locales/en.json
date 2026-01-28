@@ -8,7 +8,6 @@
     "audioTools": "audio tools",
     "imageTools": "image tools",
     "tools": "tools",
-    "premium": "premium",
     "blog": "Blog",
     "about": "about us",
     "contact": "contact",
@@ -201,25 +200,6 @@
     "noResults": "No tools found. Try a different search term.",
     "scrollTop": "Scroll to top"
   },
-  "premium": {
-    "sectionTitle": "Premium Tools",
-    "sectionDescription": "Exclusive premium tools for registered users",
-    "title": "Premium Access",
-    "description": "Sign in to get access to exclusive premium tools and features.",
-    "signInWithGoogle": "Sign in with Google",
-    "signingIn": "Signing in...",
-    "signOut": "Sign Out",
-    "user": "User",
-    "authNote": "By signing in, you agree to our Terms of Service and Privacy Policy.",
-    "comingSoon": "Coming Soon",
-    "comingSoonDescription": "Exclusive premium tools will be added here soon. Stay tuned!",
-    "features": {
-      "exclusive": "Exclusive Premium Tools",
-      "priority": "Priority Processing",
-      "noAds": "Ad-Free Experience",
-      "support": "Premium Support"
-    }
-  },
   "cookies": {
     "bannerTitle": "Cookie Settings",
     "bannerText": "We use cookies to improve your experience and analyze website traffic. You decide which cookies you allow.",
@@ -267,7 +247,6 @@
       "diverseTools": "More Tools",
       "processing": "Processing Types",
       "privacy": "Privacy",
-      "premium": "Premium Section",
       "conclusion": "Conclusion"
     },
     "sections": {
@@ -475,15 +454,6 @@
           "title": "Automatic Deletion",
           "description": "For server-processed files, automatic deletion occurs after processing. No long-term storage."
         }
-      },
-      "premium": {
-        "title": "Premium Section: More Possibilities",
-        "p1": "While all basic tools remain free, we're working on a premium section for users who want more. With a simple Google sign-in, you get access to exclusive features.",
-        "p2": "The premium section is currently under development. Registered users will be the first to learn about new premium features.",
-        "feature1": "Exclusive Premium Tools",
-        "feature2": "Priority Processing",
-        "feature3": "Ad-Free Experience",
-        "feature4": "Premium Support"
       },
       "conclusion": {
         "title": "Conclusion: KodiniTools – Your Multimedia Partner",
