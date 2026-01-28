@@ -904,7 +904,7 @@ body {
 .hero {
   position: relative;
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 2rem auto 0;
   padding: 3.5rem 2rem;
   text-align: center;
   background: #ffffff;
