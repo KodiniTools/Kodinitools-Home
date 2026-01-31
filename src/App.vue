@@ -1,13 +1,15 @@
 <template>
-  <div id="app">
+  <div id="app" @mousemove="handleMouseMove">
     <!-- Global Background Effects -->
     <div class="global-background">
       <div class="global-gradient"></div>
       <div class="global-noise"></div>
+      <!-- Mouse-following spotlight -->
+      <div class="mouse-spotlight" :style="spotlightStyle"></div>
     </div>
 
     <!-- Global Floating Tool Icons Background -->
-    <div class="floating-icons-global">
+    <div class="floating-icons-global" ref="floatingIcons">
       <!-- Audio Waveform -->
       <div class="floating-icon icon-1">
         <svg viewBox="0 0 80 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -670,6 +672,34 @@ const openCookieSettings = () => {
   cookieBannerRef.value?.openSettings()
 }
 
+// Mouse-following spotlight effect
+const mouseX = ref(50)
+const mouseY = ref(50)
+const floatingIcons = ref<HTMLElement | null>(null)
+
+const spotlightStyle = computed(() => ({
+  background: `radial-gradient(800px circle at ${mouseX.value}% ${mouseY.value}%, rgba(162, 134, 128, 0.12), transparent 40%)`
+}))
+
+const handleMouseMove = (e: MouseEvent) => {
+  if (typeof window === 'undefined') return
+
+  // Update spotlight position (percentage of viewport)
+  mouseX.value = (e.clientX / window.innerWidth) * 100
+  mouseY.value = (e.clientY / window.innerHeight) * 100
+
+  // Parallax effect for floating icons
+  if (floatingIcons.value) {
+    const icons = floatingIcons.value.querySelectorAll('.floating-icon')
+    icons.forEach((icon, index) => {
+      const speed = 0.02 + (index * 0.005) // Different speed for each icon
+      const x = (e.clientX - window.innerWidth / 2) * speed
+      const y = (e.clientY - window.innerHeight / 2) * speed
+      ;(icon as HTMLElement).style.transform = `translate(${x}px, ${y}px)`
+    })
+  }
+}
+
 // Search functionality
 const searchQuery = ref('')
 
@@ -714,6 +744,17 @@ const showScrollTop = ref(false)
 
 const handleScroll = () => {
   showScrollTop.value = window.scrollY > 400
+
+  // Scroll parallax for floating icons
+  if (floatingIcons.value && typeof window !== 'undefined') {
+    const scrollY = window.scrollY
+    const icons = floatingIcons.value.querySelectorAll('.floating-icon')
+    icons.forEach((icon, index) => {
+      const speed = 0.03 + (index * 0.01)
+      const yOffset = scrollY * speed
+      ;(icon as HTMLElement).style.setProperty('--scroll-y', `${yOffset}px`)
+    })
+  }
 }
 
 const scrollToTop = () => {
@@ -1006,6 +1047,21 @@ body {
 
 [data-theme="dark"] .global-noise {
   opacity: 0.04;
+}
+
+/* Mouse-following spotlight */
+.mouse-spotlight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  transition: background 0.3s ease;
+}
+
+[data-theme="dark"] .mouse-spotlight {
+  background: radial-gradient(800px circle at 50% 50%, rgba(242, 226, 142, 0.08), transparent 40%) !important;
 }
 
 /* Header */
@@ -1318,6 +1374,9 @@ body {
   color: var(--color-mauve);
   opacity: 0.12;
   animation: float 20s ease-in-out infinite;
+  --scroll-y: 0px;
+  transition: transform 0.15s ease-out;
+  will-change: transform;
 }
 
 [data-theme="dark"] .floating-icon {
