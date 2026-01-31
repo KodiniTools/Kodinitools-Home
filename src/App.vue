@@ -97,55 +97,86 @@
 
     <!-- Main Content -->
     <template v-else>
-    <!-- Hero Section -->
+    <!-- Hero Section with Animated Mesh Gradient -->
     <section class="hero">
-      <!-- Promo Section with Logo -->
-      <div class="hero-promo">
-        <div class="hero-logo">
-          <img src="https://kodinitools.com/images/logo.svg" alt="KodiniTools Logo" />
-        </div>
-        <h1 class="hero-title">{{ $t('hero.title') }}</h1>
-        <p class="hero-subtitle">{{ $t('hero.subtitle') }}</p>
+      <!-- Animated Mesh Gradient Background -->
+      <div class="mesh-gradient-container">
+        <div class="mesh-blob mesh-blob-1"></div>
+        <div class="mesh-blob mesh-blob-2"></div>
+        <div class="mesh-blob mesh-blob-3"></div>
+        <div class="mesh-blob mesh-blob-4"></div>
       </div>
 
-      <!-- Features -->
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-text">{{ $t('hero.features.free') }}</div>
-        </div>
-        <div class="feature-card">
-          <div class="feature-text">{{ $t('hero.features.privacy') }}</div>
-        </div>
-        <div class="feature-card">
-          <div class="feature-text">{{ $t('hero.features.browserBased') }}</div>
-        </div>
-        <div class="feature-card">
-          <div class="feature-text">{{ $t('hero.features.serverBased') }}</div>
-        </div>
-        <div class="feature-card">
-          <div class="feature-text">{{ $t('hero.features.multiLanguage') }}</div>
-        </div>
-        <div class="feature-card">
-          <div class="feature-text">{{ $t('hero.features.noInstall') }}</div>
-        </div>
-      </div>
+      <!-- Noise Texture Overlay -->
+      <div class="noise-overlay"></div>
 
-      <!-- Search Box -->
-      <div class="search-container">
-        <div class="search-box">
-          <span class="search-icon">🔍</span>
-          <input
-            v-model="searchQuery"
-            type="text"
-            :placeholder="$t('search.placeholder')"
-            class="search-input"
-          />
-          <button
-            v-if="searchQuery"
-            @click="searchQuery = ''"
-            class="search-clear"
-            :aria-label="$t('search.clear')"
-          >✕</button>
+      <!-- Hero Content -->
+      <div class="hero-content">
+        <!-- Promo Section with Logo -->
+        <div class="hero-promo">
+          <div class="hero-logo">
+            <img src="https://kodinitools.com/images/logo.svg" alt="KodiniTools Logo" />
+          </div>
+          <h1 class="hero-title">
+            <span class="title-word" v-for="(word, index) in $t('hero.title').split(' ')" :key="index" :style="{ animationDelay: `${index * 0.1}s` }">{{ word }}&nbsp;</span>
+          </h1>
+          <p class="hero-subtitle">{{ $t('hero.subtitle') }}</p>
+        </div>
+
+        <!-- Features Bento Grid -->
+        <div class="features-bento">
+          <div class="feature-card feature-highlight">
+            <div class="feature-icon">✨</div>
+            <div class="feature-text">{{ $t('hero.features.free') }}</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🔒</div>
+            <div class="feature-text">{{ $t('hero.features.privacy') }}</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🌐</div>
+            <div class="feature-text">{{ $t('hero.features.browserBased') }}</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <div class="feature-text">{{ $t('hero.features.serverBased') }}</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🌍</div>
+            <div class="feature-text">{{ $t('hero.features.multiLanguage') }}</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📦</div>
+            <div class="feature-text">{{ $t('hero.features.noInstall') }}</div>
+          </div>
+        </div>
+
+        <!-- Spotlight Search Box -->
+        <div class="search-container">
+          <div class="search-box spotlight-search">
+            <svg class="search-icon-svg" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <input
+              v-model="searchQuery"
+              type="text"
+              :placeholder="$t('search.placeholder')"
+              class="search-input"
+            />
+            <kbd class="search-kbd" v-if="!searchQuery">⌘K</kbd>
+            <button
+              v-if="searchQuery"
+              @click="searchQuery = ''"
+              class="search-clear"
+              :aria-label="$t('search.clear')"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 6 6 18"></path>
+                <path d="m6 6 12 12"></path>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </section>
@@ -180,17 +211,18 @@
       </div>
     </section>
 
-    <!-- Audio Tools Section -->
+    <!-- Audio Tools Section with Bento Grid -->
     <section class="tools-section">
       <div class="section-header">
         <h2>{{ $t('tools.sectionTitle') }}</h2>
         <p>{{ $t('tools.sectionDescription') }}</p>
       </div>
-      
-      <div class="tools-grid">
-        <!-- Audio Konverter -->
-        <a :href="$t('tools.audioConverter.link')" class="tool-card-link">
+
+      <div class="bento-grid">
+        <!-- Audio Konverter - Featured (Large) -->
+        <a :href="$t('tools.audioConverter.link')" class="tool-card-link bento-featured">
           <div class="tool-card">
+            <div class="card-glow"></div>
             <div class="tool-icon">🎵</div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('tools.audioConverter.badge') }}</span>
@@ -200,12 +232,14 @@
             </div>
             <h3>{{ $t('tools.audioConverter.title') }}</h3>
             <p>{{ $t('tools.audioConverter.description') }}</p>
+            <div class="card-arrow">→</div>
           </div>
         </a>
-        
+
         <!-- 19-Band EQ Pro -->
         <a :href="$t('tools.audioEqualizer.link')" class="tool-card-link">
           <div class="tool-card">
+            <div class="card-glow"></div>
             <div class="tool-icon">🎚️</div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('tools.audioEqualizer.badge') }}</span>
@@ -217,10 +251,11 @@
             <p>{{ $t('tools.audioEqualizer.description') }}</p>
           </div>
         </a>
-        
+
         <!-- Musikplayer -->
         <a :href="$t('tools.musicPlayer.link')" class="tool-card-link">
           <div class="tool-card">
+            <div class="card-glow"></div>
             <div class="tool-icon">🎧</div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('tools.musicPlayer.badge') }}</span>
@@ -232,10 +267,11 @@
             <p>{{ $t('tools.musicPlayer.description') }}</p>
           </div>
         </a>
-        
-        <!-- Audio Visualizer -->
-        <a :href="$t('tools.audioVisualizer.link')" class="tool-card-link">
+
+        <!-- Audio Visualizer - Wide -->
+        <a :href="$t('tools.audioVisualizer.link')" class="tool-card-link bento-wide">
           <div class="tool-card">
+            <div class="card-glow"></div>
             <div class="tool-icon">🎬</div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('tools.audioVisualizer.badge') }}</span>
@@ -251,6 +287,7 @@
         <!-- MP3 Konverter -->
         <a :href="$t('tools.mp3Converter.link')" class="tool-card-link">
           <div class="tool-card">
+            <div class="card-glow"></div>
             <div class="tool-icon">🎼</div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('tools.mp3Converter.badge') }}</span>
@@ -266,6 +303,7 @@
         <!-- Interaktiver Audio Equalizer -->
         <a :href="$t('tools.interactiveEqualizer.link')" class="tool-card-link">
           <div class="tool-card">
+            <div class="card-glow"></div>
             <div class="tool-icon">🎛️</div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('tools.interactiveEqualizer.badge') }}</span>
@@ -278,9 +316,10 @@
           </div>
         </a>
 
-        <!-- Moderner Musikplayer -->
-        <a :href="$t('tools.modernPlayer.link')" class="tool-card-link">
+        <!-- Moderner Musikplayer - Wide -->
+        <a :href="$t('tools.modernPlayer.link')" class="tool-card-link bento-wide">
           <div class="tool-card">
+            <div class="card-glow"></div>
             <div class="tool-icon">🎶</div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('tools.modernPlayer.badge') }}</span>
@@ -296,6 +335,7 @@
         <!-- Audioplaylist Generator -->
         <a :href="$t('tools.playlistGenerator.link')" class="tool-card-link">
           <div class="tool-card">
+            <div class="card-glow"></div>
             <div class="tool-icon">📃</div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('tools.playlistGenerator.badge') }}</span>
@@ -311,6 +351,7 @@
         <!-- Alarmtool -->
         <a :href="$t('tools.alarmTool.link')" class="tool-card-link">
           <div class="tool-card">
+            <div class="card-glow"></div>
             <div class="tool-icon">⏰</div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('tools.alarmTool.badge') }}</span>
@@ -326,6 +367,7 @@
         <!-- Audio Normalizer -->
         <a :href="$t('tools.audioNormalizer.link')" class="tool-card-link">
           <div class="tool-card">
+            <div class="card-glow"></div>
             <div class="tool-icon">📊</div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('tools.audioNormalizer.badge') }}</span>
@@ -341,6 +383,7 @@
         <!-- Playlist zu WebM Konverter -->
         <a :href="$t('tools.playlistToWebm.link')" class="tool-card-link">
           <div class="tool-card">
+            <div class="card-glow"></div>
             <div class="tool-icon">📼</div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('tools.playlistToWebm.badge') }}</span>
@@ -355,17 +398,18 @@
       </div>
     </section>
 
-    <!-- Image Tools Section -->
+    <!-- Image Tools Section with Bento Grid -->
     <section class="tools-section">
       <div class="section-header">
         <h2>{{ $t('imageTools.sectionTitle') }}</h2>
         <p>{{ $t('imageTools.sectionDescription') }}</p>
       </div>
-      
-      <div class="tools-grid">
-        <!-- Bildkonverter -->
-        <a :href="$t('imageTools.imageConverter.link')" class="tool-card-link">
+
+      <div class="bento-grid bento-small">
+        <!-- Bildkonverter - Featured -->
+        <a :href="$t('imageTools.imageConverter.link')" class="tool-card-link bento-featured">
           <div class="tool-card">
+            <div class="card-glow"></div>
             <div class="tool-icon">🖼️</div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('imageTools.imageConverter.badge') }}</span>
@@ -375,12 +419,14 @@
             </div>
             <h3>{{ $t('imageTools.imageConverter.title') }}</h3>
             <p>{{ $t('imageTools.imageConverter.description') }}</p>
+            <div class="card-arrow">→</div>
           </div>
         </a>
-        
+
         <!-- Batch Bildbearbeitung -->
         <a :href="$t('imageTools.batchImageEditor.link')" class="tool-card-link">
           <div class="tool-card">
+            <div class="card-glow"></div>
             <div class="tool-icon">📸</div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('imageTools.batchImageEditor.badge') }}</span>
@@ -396,6 +442,7 @@
         <!-- Fotocollage -->
         <a :href="$t('imageTools.photoCollage.link')" class="tool-card-link">
           <div class="tool-card">
+            <div class="card-glow"></div>
             <div class="tool-icon">🎨</div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('imageTools.photoCollage.badge') }}</span>
@@ -410,17 +457,18 @@
       </div>
     </section>
 
-    <!-- Diverse Tools Section -->
+    <!-- Diverse Tools Section with Bento Grid -->
     <section class="tools-section">
       <div class="section-header">
         <h2>{{ $t('diverseTools.sectionTitle') }}</h2>
         <p>{{ $t('diverseTools.sectionDescription') }}</p>
       </div>
 
-      <div class="tools-grid">
+      <div class="bento-grid bento-small">
         <!-- Kodini Color Extractor -->
-        <a :href="$t('diverseTools.colorExtractor.link')" class="tool-card-link">
+        <a :href="$t('diverseTools.colorExtractor.link')" class="tool-card-link bento-wide">
           <div class="tool-card">
+            <div class="card-glow"></div>
             <div class="tool-icon">🎨</div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('diverseTools.colorExtractor.badge') }}</span>
@@ -434,8 +482,9 @@
         </a>
 
         <!-- Videokonverter -->
-        <a :href="$t('diverseTools.videoConverter.link')" class="tool-card-link">
+        <a :href="$t('diverseTools.videoConverter.link')" class="tool-card-link bento-wide">
           <div class="tool-card">
+            <div class="card-glow"></div>
             <div class="tool-icon">🎬</div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('diverseTools.videoConverter.badge') }}</span>
@@ -894,127 +943,196 @@ body {
   align-items: center;
 }
 
-/* Hero */
+/* Hero with Animated Mesh Gradient */
 .hero {
   position: relative;
   max-width: 1200px;
   margin: 2rem auto 0;
-  padding: 3.5rem 2rem;
+  padding: 4rem 2rem;
   text-align: center;
-  background: #ffffff;
-  border-radius: 0 0 1.5rem 1.5rem;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 2rem;
   margin-bottom: 2.5rem;
   overflow: hidden;
-  border: 1px solid rgba(162, 134, 128, 0.2);
-  box-shadow: 0 4px 20px rgba(162, 134, 128, 0.1),
-              0 8px 40px rgba(94, 95, 105, 0.05);
-  animation: lightGlowPulse 4s ease-in-out infinite;
+  border: 1px solid rgba(162, 134, 128, 0.15);
+  box-shadow: 0 8px 32px rgba(162, 134, 128, 0.1),
+              0 0 0 1px rgba(255, 255, 255, 0.5) inset;
 }
 
-@keyframes lightGlowPulse {
-  0%, 100% {
-    box-shadow: 0 4px 20px rgba(162, 134, 128, 0.1),
-                0 8px 40px rgba(94, 95, 105, 0.05);
-  }
-  50% {
-    box-shadow: 0 4px 30px rgba(162, 134, 128, 0.2),
-                0 8px 50px rgba(94, 95, 105, 0.1);
-  }
+[data-theme="dark"] .hero {
+  background: rgba(22, 22, 28, 0.8);
+  border: 1px solid rgba(242, 226, 142, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+              0 0 0 1px rgba(242, 226, 142, 0.1) inset;
 }
 
-.hero::before {
-  content: '';
+/* Animated Mesh Gradient Background */
+.mesh-gradient-container {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: radial-gradient(circle at 20% 30%, rgba(162, 134, 128, 0.08) 0%, transparent 40%),
-              radial-gradient(circle at 80% 70%, rgba(94, 95, 105, 0.06) 0%, transparent 40%);
-  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
 }
 
-.hero::after {
-  content: '';
+.mesh-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.6;
+  animation: meshFloat 20s ease-in-out infinite;
+}
+
+.mesh-blob-1 {
+  width: 400px;
+  height: 400px;
+  background: linear-gradient(135deg, #A28680 0%, #d4b8b3 100%);
+  top: -100px;
+  left: -100px;
+  animation-delay: 0s;
+}
+
+.mesh-blob-2 {
+  width: 350px;
+  height: 350px;
+  background: linear-gradient(135deg, #F2E28E 0%, #f7ebb8 100%);
+  top: -50px;
+  right: -80px;
+  animation-delay: -5s;
+  animation-duration: 25s;
+}
+
+.mesh-blob-3 {
+  width: 300px;
+  height: 300px;
+  background: linear-gradient(135deg, #5E5F69 0%, #8a8b94 100%);
+  bottom: -100px;
+  left: 30%;
+  animation-delay: -10s;
+  animation-duration: 22s;
+}
+
+.mesh-blob-4 {
+  width: 250px;
+  height: 250px;
+  background: linear-gradient(135deg, #AEAFB7 0%, #d1d2d8 100%);
+  bottom: -80px;
+  right: 10%;
+  animation-delay: -15s;
+  animation-duration: 18s;
+}
+
+@keyframes meshFloat {
+  0%, 100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  25% {
+    transform: translate(30px, -30px) scale(1.1) rotate(5deg);
+  }
+  50% {
+    transform: translate(-20px, 20px) scale(0.95) rotate(-5deg);
+  }
+  75% {
+    transform: translate(20px, 10px) scale(1.05) rotate(3deg);
+  }
+}
+
+[data-theme="dark"] .mesh-blob-1 {
+  background: linear-gradient(135deg, #F2E28E 0%, #d9cb7f 100%);
+  opacity: 0.4;
+}
+
+[data-theme="dark"] .mesh-blob-2 {
+  background: linear-gradient(135deg, #A28680 0%, #c4a9a3 100%);
+  opacity: 0.35;
+}
+
+[data-theme="dark"] .mesh-blob-3 {
+  background: linear-gradient(135deg, #F2E28E 0%, #b8a96a 100%);
+  opacity: 0.3;
+}
+
+[data-theme="dark"] .mesh-blob-4 {
+  background: linear-gradient(135deg, #5E5F69 0%, #3d3e45 100%);
+  opacity: 0.4;
+}
+
+/* Noise Texture Overlay */
+.noise-overlay {
   position: absolute;
   top: 0;
-  left: -100%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(162, 134, 128, 0.08),
-    transparent
-  );
-  animation: shimmer 8s ease-in-out infinite;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.03;
   pointer-events: none;
+  z-index: 1;
 }
 
-[data-theme="dark"] .hero {
-  background: #201e22;
-  animation: glowPulse 4s ease-in-out infinite;
-  border: 1px solid rgba(242, 226, 142, 0.2);
+[data-theme="dark"] .noise-overlay {
+  opacity: 0.05;
 }
 
-[data-theme="dark"] .hero::before {
-  background: radial-gradient(circle at 20% 30%, rgba(242, 226, 142, 0.08) 0%, transparent 40%),
-              radial-gradient(circle at 80% 70%, rgba(162, 134, 128, 0.08) 0%, transparent 40%);
-  animation: none;
+/* Hero Content */
+.hero-content {
+  position: relative;
+  z-index: 2;
 }
 
-[data-theme="dark"] .hero::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(242, 226, 142, 0.05),
-    transparent
-  );
-  animation: shimmer 8s ease-in-out infinite;
-  pointer-events: none;
-}
-
-[data-theme="dark"] .hero-title {
-  background: none;
-  -webkit-background-clip: unset;
-  -webkit-text-fill-color: #F2E28E;
-  background-clip: unset;
-  color: #F2E28E;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-}
-
-[data-theme="dark"] .hero-subtitle {
-  color: #f5e9a8;
-}
-
+/* Hero Title with Word Animation */
 .hero-title {
-  font-size: 2rem;
+  font-size: 2.5rem;
   margin-bottom: 0.75rem;
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.title-word {
+  display: inline-block;
   background: linear-gradient(135deg, #5E5F69 0%, #0C0C10 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: fadeInUp 0.8s ease;
-  position: relative;
-  z-index: 1;
-  letter-spacing: 0.01em;
+  animation: wordReveal 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+@keyframes wordReveal {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+[data-theme="dark"] .title-word {
+  background: linear-gradient(135deg, #F2E28E 0%, #f5e9a8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
 }
 
 .hero-subtitle {
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   color: #5E5F69;
   margin-bottom: 0;
-  animation: fadeInUp 1s ease;
-  position: relative;
-  z-index: 1;
+  animation: fadeInUp 1s ease 0.3s forwards;
+  opacity: 0;
   font-weight: 500;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+[data-theme="dark"] .hero-subtitle {
+  color: #AEAFB7;
 }
 
 /* Hero Promo Section with Logo */
@@ -1024,30 +1142,37 @@ body {
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  margin-bottom: 1.5rem;
-  position: relative;
-  z-index: 1;
-  text-align: center;
+  margin-bottom: 2rem;
 }
 
 .hero-logo {
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(162, 134, 128, 0.08);
-  border-radius: 1rem;
-  padding: 0.75rem;
-  border: 1px solid rgba(162, 134, 128, 0.15);
-  transition: all 0.3s ease;
-  animation: fadeInUp 0.6s ease;
-  margin-bottom: 0.5rem;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 1.5rem;
+  padding: 1rem;
+  border: 1px solid rgba(162, 134, 128, 0.2);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: logoFloat 3s ease-in-out infinite;
+  box-shadow: 0 10px 40px rgba(162, 134, 128, 0.15),
+              0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+}
+
+@keyframes logoFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
 }
 
 .hero-logo:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 25px rgba(162, 134, 128, 0.2);
+  transform: scale(1.08) rotate(3deg);
+  box-shadow: 0 20px 60px rgba(162, 134, 128, 0.25);
 }
 
 .hero-logo img {
@@ -1057,70 +1182,80 @@ body {
 }
 
 [data-theme="dark"] .hero-logo {
-  background: rgba(242, 226, 142, 0.08);
+  background: rgba(22, 22, 28, 0.9);
   border-color: rgba(242, 226, 142, 0.2);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3),
+              0 0 0 1px rgba(242, 226, 142, 0.1) inset;
 }
 
 [data-theme="dark"] .hero-logo:hover {
-  box-shadow: 0 8px 25px rgba(242, 226, 142, 0.2);
+  box-shadow: 0 20px 60px rgba(242, 226, 142, 0.15);
 }
 
-.hero-promo .hero-title {
-  margin-bottom: 0.5rem;
-}
-
-.hero-promo .hero-subtitle {
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.features-grid {
+/* Features Bento Grid */
+.features-bento {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-  gap: 0.6rem;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.75rem;
   margin-top: 2rem;
-  position: relative;
-  z-index: 1;
 }
 
 .feature-card {
-  background: rgba(162, 134, 128, 0.08);
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(162, 134, 128, 0.15);
-  padding: 0.85rem;
-  border-radius: 0.65rem;
+  padding: 1rem;
+  border-radius: 1rem;
   text-align: center;
-  transition: all 0.3s ease;
-  animation: fadeInUp 1.2s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeInUp 0.8s ease forwards;
   animation-fill-mode: both;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .feature-card:nth-child(1) { animation-delay: 0.1s; }
-.feature-card:nth-child(2) { animation-delay: 0.2s; }
-.feature-card:nth-child(3) { animation-delay: 0.3s; }
-.feature-card:nth-child(4) { animation-delay: 0.4s; }
-.feature-card:nth-child(5) { animation-delay: 0.5s; }
-.feature-card:nth-child(6) { animation-delay: 0.6s; }
+.feature-card:nth-child(2) { animation-delay: 0.15s; }
+.feature-card:nth-child(3) { animation-delay: 0.2s; }
+.feature-card:nth-child(4) { animation-delay: 0.25s; }
+.feature-card:nth-child(5) { animation-delay: 0.3s; }
+.feature-card:nth-child(6) { animation-delay: 0.35s; }
+
+.feature-highlight {
+  background: linear-gradient(135deg, rgba(162, 134, 128, 0.15) 0%, rgba(242, 226, 142, 0.1) 100%);
+  border-color: rgba(162, 134, 128, 0.25);
+}
+
+.feature-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
 
 .feature-card:hover {
   transform: translateY(-5px) scale(1.02);
-  background: rgba(162, 134, 128, 0.15);
+  background: rgba(255, 255, 255, 0.95);
   border-color: rgba(162, 134, 128, 0.3);
-  box-shadow: 0 8px 25px rgba(162, 134, 128, 0.2);
+  box-shadow: 0 12px 30px rgba(162, 134, 128, 0.15);
 }
 
 [data-theme="dark"] .feature-card {
-  background: rgba(242, 226, 142, 0.05);
-  border: 1px solid rgba(242, 226, 142, 0.15);
-  transition: all 0.3s ease;
+  background: rgba(22, 22, 28, 0.8);
+  border: 1px solid rgba(242, 226, 142, 0.1);
+}
+
+[data-theme="dark"] .feature-highlight {
+  background: linear-gradient(135deg, rgba(242, 226, 142, 0.1) 0%, rgba(162, 134, 128, 0.08) 100%);
+  border-color: rgba(242, 226, 142, 0.2);
 }
 
 [data-theme="dark"] .feature-card:hover {
-  background: rgba(242, 226, 142, 0.12);
+  background: rgba(30, 30, 38, 0.95);
   border-color: rgba(242, 226, 142, 0.3);
-  box-shadow: 0 0 20px rgba(242, 226, 142, 0.15);
-  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4),
+              0 0 20px rgba(242, 226, 142, 0.1);
 }
 
 [data-theme="dark"] .feature-text {
@@ -1128,9 +1263,117 @@ body {
 }
 
 .feature-text {
-  font-weight: 500;
+  font-weight: 600;
   color: #5E5F69;
+  font-size: 0.75rem;
+}
+
+/* Spotlight Search Box */
+.search-container {
+  margin-top: 2.5rem;
+}
+
+.spotlight-search {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 0.85rem 1.25rem;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(162, 134, 128, 0.2);
+  border-radius: 1rem;
+  box-shadow: 0 4px 20px rgba(162, 134, 128, 0.1),
+              0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.spotlight-search:focus-within {
+  border-color: rgba(162, 134, 128, 0.4);
+  box-shadow: 0 8px 30px rgba(162, 134, 128, 0.15),
+              0 0 0 3px rgba(162, 134, 128, 0.1);
+  transform: scale(1.02);
+}
+
+[data-theme="dark"] .spotlight-search {
+  background: rgba(22, 22, 28, 0.95);
+  border-color: rgba(242, 226, 142, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .spotlight-search:focus-within {
+  border-color: rgba(242, 226, 142, 0.4);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4),
+              0 0 0 3px rgba(242, 226, 142, 0.1);
+}
+
+.search-icon-svg {
+  color: #A28680;
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] .search-icon-svg {
+  color: #F2E28E;
+}
+
+.spotlight-search .search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  color: var(--text-color);
+  outline: none;
+}
+
+.spotlight-search .search-input::placeholder {
+  color: #AEAFB7;
+}
+
+.search-kbd {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.5rem;
+  background: rgba(162, 134, 128, 0.1);
+  border: 1px solid rgba(162, 134, 128, 0.2);
+  border-radius: 0.4rem;
   font-size: 0.7rem;
+  font-weight: 600;
+  color: #5E5F69;
+  font-family: inherit;
+}
+
+[data-theme="dark"] .search-kbd {
+  background: rgba(242, 226, 142, 0.1);
+  border-color: rgba(242, 226, 142, 0.2);
+  color: #F2E28E;
+}
+
+.spotlight-search .search-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  background: rgba(162, 134, 128, 0.1);
+  border: none;
+  border-radius: 0.4rem;
+  color: #5E5F69;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.spotlight-search .search-clear:hover {
+  background: rgba(162, 134, 128, 0.2);
+  color: #A28680;
+}
+
+[data-theme="dark"] .spotlight-search .search-clear {
+  background: rgba(242, 226, 142, 0.1);
+  color: #F2E28E;
+}
+
+[data-theme="dark"] .spotlight-search .search-clear:hover {
+  background: rgba(242, 226, 142, 0.2);
 }
 
 /* Tools Section */
@@ -1166,6 +1409,32 @@ body {
   color: var(--text-secondary);
 }
 
+/* Bento Grid Layout */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: minmax(180px, auto);
+  gap: 1rem;
+}
+
+.bento-small {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.bento-featured {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+.bento-wide {
+  grid-column: span 2;
+}
+
+.bento-tall {
+  grid-row: span 2;
+}
+
+/* Legacy tools-grid for search results */
 .tools-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -1176,40 +1445,132 @@ body {
   text-decoration: none;
   color: inherit;
   display: block;
+  perspective: 1000px;
 }
 
 .tool-card {
   position: relative;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  padding: 1.1rem;
-  border-radius: 0.75rem;
+  padding: 1.25rem;
+  border-radius: 1rem;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   height: 100%;
   overflow: hidden;
+  transform-style: preserve-3d;
 }
 
-.tool-card::before {
-  content: '';
+/* Card Glow Effect */
+.card-glow {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: var(--gradient-1);
+  background: radial-gradient(
+    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(162, 134, 128, 0.15) 0%,
+    transparent 50%
+  );
   opacity: 0;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
   z-index: 0;
 }
 
-.tool-card-link:hover .tool-card {
-  transform: translateY(-4px) scale(1.01);
-  box-shadow: var(--shadow-lg);
-  border-color: transparent;
+[data-theme="dark"] .card-glow {
+  background: radial-gradient(
+    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(242, 226, 142, 0.15) 0%,
+    transparent 50%
+  );
 }
 
-.tool-card-link:hover .tool-card::before {
-  opacity: 0.05;
+.tool-card-link:hover .card-glow {
+  opacity: 1;
+}
+
+/* Card Arrow for Featured Cards */
+.card-arrow {
+  position: absolute;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.3s ease;
+}
+
+.tool-card-link:hover .card-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* 3D Tilt Effect on Hover */
+.tool-card-link:hover .tool-card {
+  transform: translateY(-8px) rotateX(2deg) rotateY(-2deg);
+  box-shadow:
+    0 20px 40px rgba(162, 134, 128, 0.15),
+    0 0 0 1px rgba(162, 134, 128, 0.1);
+  border-color: rgba(162, 134, 128, 0.2);
+}
+
+[data-theme="dark"] .tool-card-link:hover .tool-card {
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.4),
+    0 0 30px rgba(242, 226, 142, 0.1);
+  border-color: rgba(242, 226, 142, 0.2);
+}
+
+/* Featured Card Styles */
+.bento-featured .tool-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(162, 134, 128, 0.05) 0%, rgba(242, 226, 142, 0.03) 100%);
+}
+
+[data-theme="dark"] .bento-featured .tool-card {
+  background: linear-gradient(135deg, rgba(242, 226, 142, 0.05) 0%, rgba(162, 134, 128, 0.03) 100%);
+}
+
+.bento-featured .tool-icon {
+  font-size: 3rem;
+}
+
+.bento-featured h3 {
+  font-size: 1.25rem;
+}
+
+.bento-featured p {
+  font-size: 0.9rem;
+  max-width: 280px;
+}
+
+/* Wide Card Styles */
+.bento-wide .tool-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+}
+
+.bento-wide .tool-icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+.bento-wide .badge-container {
+  margin-bottom: 0.25rem;
+}
+
+.bento-wide h3 {
+  font-size: 1rem;
+}
+
+.bento-wide p {
+  font-size: 0.8rem;
 }
 
 .tool-icon {
@@ -1306,20 +1667,54 @@ body {
 /* Responsive Design */
 @media (max-width: 1024px) {
   .hero-title {
-    font-size: 1.75rem;
+    font-size: 2rem;
+  }
+
+  .title-word {
+    font-size: 2rem;
   }
 
   .hero-subtitle {
-    font-size: 0.9rem;
+    font-size: 1rem;
   }
 
   .section-header h2 {
     font-size: 1.25rem;
   }
 
+  /* Bento Grid Tablet */
+  .bento-grid {
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: minmax(160px, auto);
+  }
+
+  .bento-small {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .bento-featured {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+
+  .bento-wide {
+    grid-column: span 2;
+  }
+
   .tools-grid {
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 0.85rem;
+  }
+
+  /* Mesh blobs smaller on tablet */
+  .mesh-blob-1 { width: 300px; height: 300px; }
+  .mesh-blob-2 { width: 250px; height: 250px; }
+  .mesh-blob-3 { width: 220px; height: 220px; }
+  .mesh-blob-4 { width: 180px; height: 180px; }
+
+  .features-bento {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
   }
 }
 
@@ -1348,31 +1743,88 @@ body {
   }
 
   .hero {
-    padding: 2.5rem 1.25rem;
-    border-radius: 0 0 1rem 1rem;
+    padding: 3rem 1.25rem;
+    border-radius: 1.5rem;
+    margin: 1rem;
+    margin-bottom: 2rem;
   }
 
   .hero-logo {
-    width: 80px;
-    height: 80px;
-    padding: 0.6rem;
+    width: 90px;
+    height: 90px;
+    padding: 0.75rem;
   }
 
   .hero-title {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
+  }
+
+  .title-word {
+    font-size: 1.75rem;
   }
 
   .hero-subtitle {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
   }
 
-  .features-grid {
-    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  /* Features Bento Mobile */
+  .features-bento {
+    grid-template-columns: repeat(2, 1fr);
     gap: 0.5rem;
   }
 
   .feature-card {
-    padding: 0.65rem;
+    padding: 0.75rem;
+  }
+
+  .feature-icon {
+    font-size: 1.25rem;
+  }
+
+  .feature-text {
+    font-size: 0.65rem;
+  }
+
+  /* Bento Grid Mobile */
+  .bento-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: minmax(140px, auto);
+    gap: 0.75rem;
+  }
+
+  .bento-small {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .bento-featured {
+    grid-column: span 2;
+    grid-row: span 1;
+  }
+
+  .bento-featured .tool-icon {
+    font-size: 2.5rem;
+  }
+
+  .bento-featured h3 {
+    font-size: 1rem;
+  }
+
+  .bento-featured p {
+    font-size: 0.8rem;
+  }
+
+  .bento-wide {
+    grid-column: span 2;
+  }
+
+  .bento-wide .tool-card {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .bento-wide .tool-icon {
+    font-size: 2rem;
   }
 
   .tools-section {
@@ -1393,12 +1845,27 @@ body {
   }
 
   .tool-card {
-    padding: 0.85rem;
+    padding: 1rem;
   }
 
   .tool-icon {
     font-size: 1.75rem;
   }
+
+  /* Spotlight Search Mobile */
+  .spotlight-search {
+    padding: 0.75rem 1rem;
+  }
+
+  .search-kbd {
+    display: none;
+  }
+
+  /* Mesh blobs smaller on mobile */
+  .mesh-blob-1 { width: 200px; height: 200px; top: -50px; left: -50px; }
+  .mesh-blob-2 { width: 180px; height: 180px; }
+  .mesh-blob-3 { width: 150px; height: 150px; }
+  .mesh-blob-4 { width: 120px; height: 120px; }
 }
 
 @media (max-width: 480px) {
@@ -1411,35 +1878,96 @@ body {
   }
 
   .hero {
-    padding: 2rem 0.85rem;
+    padding: 2rem 1rem;
+    margin: 0.75rem;
+    border-radius: 1.25rem;
   }
 
   .hero-logo {
-    width: 70px;
-    height: 70px;
-    padding: 0.5rem;
-    border-radius: 0.75rem;
+    width: 80px;
+    height: 80px;
+    padding: 0.6rem;
+    border-radius: 1rem;
+  }
+
+  @keyframes logoFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
   }
 
   .hero-title {
-    font-size: 1.15rem;
+    font-size: 1.35rem;
+  }
+
+  .title-word {
+    font-size: 1.35rem;
   }
 
   .hero-subtitle {
-    font-size: 0.7rem;
+    font-size: 0.8rem;
   }
 
-  .features-grid {
+  /* Features Bento Small Mobile */
+  .features-bento {
     grid-template-columns: repeat(3, 1fr);
     gap: 0.4rem;
   }
 
   .feature-card {
-    padding: 0.5rem;
+    padding: 0.6rem 0.4rem;
+  }
+
+  .feature-icon {
+    font-size: 1rem;
   }
 
   .feature-text {
     font-size: 0.55rem;
+  }
+
+  /* Bento Grid Small Mobile */
+  .bento-grid {
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+    gap: 0.6rem;
+  }
+
+  .bento-small {
+    grid-template-columns: 1fr;
+  }
+
+  .bento-featured,
+  .bento-wide {
+    grid-column: span 1;
+    grid-row: span 1;
+  }
+
+  .bento-featured .tool-card,
+  .bento-wide .tool-card {
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .bento-featured .tool-icon,
+  .bento-wide .tool-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+  }
+
+  .bento-featured h3,
+  .bento-wide h3 {
+    font-size: 0.9rem;
+  }
+
+  .bento-featured p,
+  .bento-wide p {
+    font-size: 0.7rem;
+  }
+
+  .card-arrow {
+    display: none;
   }
 
   .tools-section {
@@ -1447,24 +1975,30 @@ body {
   }
 
   .tools-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
     gap: 0.5rem;
   }
 
   .tool-card {
-    padding: 0.65rem;
+    padding: 0.85rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
   }
 
   .tool-icon {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
+    margin-bottom: 0;
+    flex-shrink: 0;
   }
 
   .tool-card h3 {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
   }
 
   .tool-card p {
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     line-height: 1.4;
   }
 
@@ -1473,6 +2007,35 @@ body {
     font-size: 0.5rem;
     padding: 0.15rem 0.35rem;
   }
+
+  .badge-container {
+    margin-bottom: 0.25rem;
+  }
+
+  /* Spotlight Search Small Mobile */
+  .spotlight-search {
+    padding: 0.65rem 0.85rem;
+    border-radius: 0.75rem;
+  }
+
+  .search-icon-svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .spotlight-search .search-input {
+    font-size: 0.9rem;
+  }
+
+  /* Mesh blobs minimal on small mobile */
+  .mesh-blob {
+    filter: blur(40px);
+    opacity: 0.4;
+  }
+  .mesh-blob-1 { width: 150px; height: 150px; }
+  .mesh-blob-2 { width: 120px; height: 120px; }
+  .mesh-blob-3 { width: 100px; height: 100px; }
+  .mesh-blob-4 { display: none; }
 }
 
 /* Smooth scrolling */
