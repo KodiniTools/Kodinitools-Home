@@ -1898,12 +1898,12 @@ body {
 
 /* Featured Card Styles */
 .bento-featured .tool-card {
-  background: linear-gradient(135deg, rgba(162, 134, 128, 0.05) 0%, rgba(242, 226, 142, 0.03) 100%);
+  background: var(--bg-secondary);
   padding: 1.5rem;
 }
 
 [data-theme="dark"] .bento-featured .tool-card {
-  background: linear-gradient(135deg, rgba(242, 226, 142, 0.05) 0%, rgba(162, 134, 128, 0.03) 100%);
+  background: var(--bg-secondary);
 }
 
 .bento-featured .tool-icon {
