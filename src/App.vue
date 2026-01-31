@@ -123,30 +123,24 @@
           <p class="hero-subtitle">{{ $t('hero.subtitle') }}</p>
         </div>
 
-        <!-- Features Bento Grid -->
-        <div class="features-bento">
-          <div class="feature-card feature-highlight">
-            <div class="feature-icon">✨</div>
+        <!-- Features Grid -->
+        <div class="features-grid">
+          <div class="feature-card">
             <div class="feature-text">{{ $t('hero.features.free') }}</div>
           </div>
           <div class="feature-card">
-            <div class="feature-icon">🔒</div>
             <div class="feature-text">{{ $t('hero.features.privacy') }}</div>
           </div>
           <div class="feature-card">
-            <div class="feature-icon">🌐</div>
             <div class="feature-text">{{ $t('hero.features.browserBased') }}</div>
           </div>
           <div class="feature-card">
-            <div class="feature-icon">⚡</div>
             <div class="feature-text">{{ $t('hero.features.serverBased') }}</div>
           </div>
           <div class="feature-card">
-            <div class="feature-icon">🌍</div>
             <div class="feature-text">{{ $t('hero.features.multiLanguage') }}</div>
           </div>
           <div class="feature-card">
-            <div class="feature-icon">📦</div>
             <div class="feature-text">{{ $t('hero.features.noInstall') }}</div>
           </div>
         </div>
@@ -1192,11 +1186,11 @@ body {
   box-shadow: 0 20px 60px rgba(242, 226, 142, 0.15);
 }
 
-/* Features Bento Grid */
-.features-bento {
+/* Features Grid */
+.features-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 0.75rem;
+  gap: 0.6rem;
   margin-top: 2rem;
 }
 
@@ -1205,16 +1199,12 @@ body {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(162, 134, 128, 0.15);
-  padding: 1rem;
-  border-radius: 1rem;
+  padding: 0.85rem 0.5rem;
+  border-radius: 0.75rem;
   text-align: center;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s ease;
   animation: fadeInUp 0.8s ease forwards;
   animation-fill-mode: both;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .feature-card:nth-child(1) { animation-delay: 0.1s; }
@@ -1224,21 +1214,11 @@ body {
 .feature-card:nth-child(5) { animation-delay: 0.3s; }
 .feature-card:nth-child(6) { animation-delay: 0.35s; }
 
-.feature-highlight {
-  background: linear-gradient(135deg, rgba(162, 134, 128, 0.15) 0%, rgba(242, 226, 142, 0.1) 100%);
-  border-color: rgba(162, 134, 128, 0.25);
-}
-
-.feature-icon {
-  font-size: 1.5rem;
-  line-height: 1;
-}
-
 .feature-card:hover {
-  transform: translateY(-5px) scale(1.02);
+  transform: translateY(-3px);
   background: rgba(255, 255, 255, 0.95);
   border-color: rgba(162, 134, 128, 0.3);
-  box-shadow: 0 12px 30px rgba(162, 134, 128, 0.15);
+  box-shadow: 0 8px 20px rgba(162, 134, 128, 0.12);
 }
 
 [data-theme="dark"] .feature-card {
@@ -1246,16 +1226,10 @@ body {
   border: 1px solid rgba(242, 226, 142, 0.1);
 }
 
-[data-theme="dark"] .feature-highlight {
-  background: linear-gradient(135deg, rgba(242, 226, 142, 0.1) 0%, rgba(162, 134, 128, 0.08) 100%);
-  border-color: rgba(242, 226, 142, 0.2);
-}
-
 [data-theme="dark"] .feature-card:hover {
   background: rgba(30, 30, 38, 0.95);
   border-color: rgba(242, 226, 142, 0.3);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4),
-              0 0 20px rgba(242, 226, 142, 0.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
 [data-theme="dark"] .feature-text {
@@ -1265,7 +1239,7 @@ body {
 .feature-text {
   font-weight: 600;
   color: #5E5F69;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
 }
 
 /* Spotlight Search Box */
@@ -1412,26 +1386,40 @@ body {
 /* Bento Grid Layout */
 .bento-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: minmax(180px, auto);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1rem;
 }
 
 .bento-small {
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
 .bento-featured {
-  grid-column: span 2;
-  grid-row: span 2;
+  /* Featured card - slightly larger on desktop */
 }
 
 .bento-wide {
-  grid-column: span 2;
+  /* Wide card */
 }
 
-.bento-tall {
-  grid-row: span 2;
+@media (min-width: 768px) {
+  .bento-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .bento-featured {
+    grid-column: span 2;
+  }
+
+  .bento-wide {
+    grid-column: span 2;
+  }
+}
+
+@media (min-width: 1024px) {
+  .bento-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 /* Legacy tools-grid for search results */
@@ -1525,10 +1513,8 @@ body {
 
 /* Featured Card Styles */
 .bento-featured .tool-card {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
   background: linear-gradient(135deg, rgba(162, 134, 128, 0.05) 0%, rgba(242, 226, 142, 0.03) 100%);
+  padding: 1.5rem;
 }
 
 [data-theme="dark"] .bento-featured .tool-card {
@@ -1536,37 +1522,30 @@ body {
 }
 
 .bento-featured .tool-icon {
-  font-size: 3rem;
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .bento-featured h3 {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
 }
 
 .bento-featured p {
-  font-size: 0.9rem;
-  max-width: 280px;
+  font-size: 0.85rem;
 }
 
 /* Wide Card Styles */
 .bento-wide .tool-card {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 1rem;
+  padding: 1.25rem;
 }
 
 .bento-wide .tool-icon {
-  font-size: 2.5rem;
-  flex-shrink: 0;
-}
-
-.bento-wide .badge-container {
-  margin-bottom: 0.25rem;
+  font-size: 2rem;
 }
 
 .bento-wide h3 {
-  font-size: 1rem;
+  font-size: 0.95rem;
 }
 
 .bento-wide p {
@@ -1712,9 +1691,9 @@ body {
   .mesh-blob-3 { width: 220px; height: 220px; }
   .mesh-blob-4 { width: 180px; height: 180px; }
 
-  .features-bento {
+  .features-grid {
     grid-template-columns: repeat(3, 1fr);
-    gap: 0.6rem;
+    gap: 0.5rem;
   }
 }
 
@@ -1767,22 +1746,18 @@ body {
     font-size: 0.9rem;
   }
 
-  /* Features Bento Mobile */
-  .features-bento {
+  /* Features Grid Mobile */
+  .features-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 0.5rem;
   }
 
   .feature-card {
-    padding: 0.75rem;
-  }
-
-  .feature-icon {
-    font-size: 1.25rem;
+    padding: 0.65rem 0.4rem;
   }
 
   .feature-text {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
   }
 
   /* Bento Grid Mobile */
@@ -1907,22 +1882,18 @@ body {
     font-size: 0.8rem;
   }
 
-  /* Features Bento Small Mobile */
-  .features-bento {
+  /* Features Grid Small Mobile */
+  .features-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 0.4rem;
   }
 
   .feature-card {
-    padding: 0.6rem 0.4rem;
-  }
-
-  .feature-icon {
-    font-size: 1rem;
+    padding: 0.5rem 0.3rem;
   }
 
   .feature-text {
-    font-size: 0.55rem;
+    font-size: 0.5rem;
   }
 
   /* Bento Grid Small Mobile */
