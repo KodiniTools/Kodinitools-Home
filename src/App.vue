@@ -1908,12 +1908,20 @@ body {
   border: none;
   background: transparent;
   font-size: 1rem;
-  color: var(--text-color);
+  color: #2a2a2f;
   outline: none;
 }
 
 .spotlight-search .search-input::placeholder {
-  color: #AEAFB7;
+  color: #6B6C75;
+}
+
+[data-theme="dark"] .spotlight-search .search-input {
+  color: #f0f0f2;
+}
+
+[data-theme="dark"] .spotlight-search .search-input::placeholder {
+  color: #9B9CA5;
 }
 
 .search-kbd {
