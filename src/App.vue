@@ -639,7 +639,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import LanguageSwitcher from './components/LanguageSwitcher.vue'
 import ThemeToggle from './components/ThemeToggle.vue'
@@ -648,7 +648,7 @@ import CookieBanner from './components/CookieBanner.vue'
 import AppFooter from './components/AppFooter.vue'
 import BlogPage from './components/BlogPage.vue'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 // Blog page toggle
 const showBlog = ref(false)
@@ -694,6 +694,16 @@ const startTypingAnimation = () => {
   // Start typing after a small delay
   typingTimeout = setTimeout(typeNextChar, 500)
 }
+
+// Restart typing animation when language changes
+watch(locale, () => {
+  // Clear any existing timeout
+  if (typingTimeout) {
+    clearTimeout(typingTimeout)
+  }
+  // Restart the typing animation with the new language
+  startTypingAnimation()
+})
 
 // Mouse-following spotlight effect
 const mouseX = ref(50)
