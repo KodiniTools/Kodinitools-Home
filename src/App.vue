@@ -206,8 +206,8 @@
           <div class="hero-logo">
             <img src="https://kodinitools.com/images/logo.svg" alt="KodiniTools Logo" />
           </div>
-          <h1 class="hero-title">
-            <span class="title-word" v-for="(word, index) in $t('hero.title').split(' ')" :key="index" :style="{ animationDelay: `${index * 0.1}s` }">{{ word }}&nbsp;</span>
+          <h1 class="hero-title typing-title">
+            <span class="typed-text">{{ typedTitle }}</span><span class="typing-cursor" :class="{ 'blink': isTypingComplete, 'hidden': !showCursor }">|</span>
           </h1>
           <p class="hero-subtitle" v-html="$t('hero.subtitle')"></p>
         </div>
@@ -672,6 +672,39 @@ const openCookieSettings = () => {
   cookieBannerRef.value?.openSettings()
 }
 
+// Typing animation for hero title
+const typedTitle = ref('')
+const showCursor = ref(true)
+const isTypingComplete = ref(false)
+let typingTimeout: ReturnType<typeof setTimeout> | null = null
+
+const startTypingAnimation = () => {
+  const fullTitle = t('hero.title')
+  let currentIndex = 0
+  typedTitle.value = ''
+  isTypingComplete.value = false
+  showCursor.value = true
+
+  const typeNextChar = () => {
+    if (currentIndex < fullTitle.length) {
+      typedTitle.value += fullTitle[currentIndex]
+      currentIndex++
+      // Variable typing speed for more natural feel
+      const delay = Math.random() * 50 + 50 // 50-100ms per character
+      typingTimeout = setTimeout(typeNextChar, delay)
+    } else {
+      isTypingComplete.value = true
+      // Keep cursor blinking for a moment, then hide
+      setTimeout(() => {
+        showCursor.value = false
+      }, 2000)
+    }
+  }
+
+  // Start typing after a small delay
+  typingTimeout = setTimeout(typeNextChar, 500)
+}
+
 // Mouse-following spotlight effect
 const mouseX = ref(50)
 const mouseY = ref(50)
@@ -681,9 +714,14 @@ const floatingIcons = ref<HTMLElement | null>(null)
 const iconMouseOffsets = ref<{x: number, y: number}[]>([])
 const iconScrollOffsets = ref<number[]>([])
 
-const spotlightStyle = computed(() => ({
-  background: `radial-gradient(1200px circle at ${mouseX.value}% ${mouseY.value}%, rgba(162, 134, 128, 0.25), transparent 45%)`
-}))
+const spotlightStyle = computed(() => {
+  // Check current theme for appropriate spotlight color
+  const isDark = typeof document !== 'undefined' && document.documentElement.getAttribute('data-theme') === 'dark'
+  const spotlightColor = isDark ? 'rgba(242, 226, 142, 0.18)' : 'rgba(162, 134, 128, 0.25)'
+  return {
+    background: `radial-gradient(1200px circle at ${mouseX.value}% ${mouseY.value}%, ${spotlightColor}, transparent 45%)`
+  }
+})
 
 // Update icon transforms combining mouse + scroll
 const updateIconTransforms = () => {
@@ -842,6 +880,59 @@ const initTiltEffect = () => {
   })
 }
 
+// 3D Tilt Effect for Feature Cards in Hero Section
+const initFeatureCardTilt = () => {
+  if (typeof window === 'undefined') return
+
+  const featuresGrid = document.querySelector('.features-grid')
+  if (!featuresGrid) return
+
+  featuresGrid.addEventListener('mousemove', (e: Event) => {
+    const mouseEvent = e as MouseEvent
+    const target = mouseEvent.target as HTMLElement
+    const card = target.closest('.feature-card') as HTMLElement
+    if (!card) return
+
+    const rect = card.getBoundingClientRect()
+    const x = mouseEvent.clientX - rect.left
+    const y = mouseEvent.clientY - rect.top
+    const centerX = rect.width / 2
+    const centerY = rect.height / 2
+
+    // Subtle 3D tilt effect
+    const rotateX = (y - centerY) / 12
+    const rotateY = (centerX - x) / 12
+
+    card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-5px) scale(1.02)`
+
+    // Update glow position
+    const glowX = (x / rect.width) * 100
+    const glowY = (y / rect.height) * 100
+    card.style.setProperty('--feature-mouse-x', `${glowX}%`)
+    card.style.setProperty('--feature-mouse-y', `${glowY}%`)
+  })
+
+  featuresGrid.addEventListener('mouseleave', () => {
+    const cards = featuresGrid.querySelectorAll('.feature-card') as NodeListOf<HTMLElement>
+    cards.forEach(card => {
+      card.style.transform = ''
+      card.style.setProperty('--feature-mouse-x', '50%')
+      card.style.setProperty('--feature-mouse-y', '50%')
+    })
+  })
+
+  // Handle individual card mouse leave
+  const cards = featuresGrid.querySelectorAll('.feature-card')
+  cards.forEach(card => {
+    card.addEventListener('mouseleave', () => {
+      const htmlCard = card as HTMLElement
+      htmlCard.style.transform = ''
+      htmlCard.style.setProperty('--feature-mouse-x', '50%')
+      htmlCard.style.setProperty('--feature-mouse-y', '50%')
+    })
+  })
+}
+
 // Intersection Observer for scroll animations with stagger
 const observeElements = () => {
   if (typeof window === 'undefined') return
@@ -874,10 +965,13 @@ const observeElements = () => {
 onMounted(() => {
   if (typeof window !== 'undefined') {
     window.addEventListener('scroll', handleScroll, { passive: true })
+    // Start typing animation
+    startTypingAnimation()
     // Delay setup to ensure DOM is ready
     setTimeout(() => {
       observeElements()
       initTiltEffect()
+      initFeatureCardTilt()
       // Initialize scroll parallax on page load
       handleScroll()
     }, 100)
@@ -887,6 +981,10 @@ onMounted(() => {
 onUnmounted(() => {
   if (typeof window !== 'undefined') {
     window.removeEventListener('scroll', handleScroll)
+    // Clear typing animation timeout
+    if (typingTimeout) {
+      clearTimeout(typingTimeout)
+    }
   }
 })
 </script>
@@ -1091,9 +1189,7 @@ body {
   transition: background 0.3s ease;
 }
 
-[data-theme="dark"] .mouse-spotlight {
-  background: radial-gradient(1200px circle at 50% 50%, rgba(242, 226, 142, 0.18), transparent 45%) !important;
-}
+/* Dark theme spotlight color is handled by spotlightStyle computed property */
 
 /* Header */
 .header {
@@ -1568,6 +1664,58 @@ body {
   transform: translateY(20px);
 }
 
+/* Typing Animation Styles */
+.typing-title {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.2em;
+}
+
+.typed-text {
+  background: linear-gradient(135deg, #5E5F69 0%, #0C0C10 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+[data-theme="dark"] .typed-text {
+  background: linear-gradient(135deg, #F2E28E 0%, #AEAFB7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.typing-cursor {
+  display: inline-block;
+  background: linear-gradient(135deg, #5E5F69 0%, #0C0C10 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-left: 2px;
+  font-weight: 400;
+}
+
+[data-theme="dark"] .typing-cursor {
+  background: linear-gradient(135deg, #F2E28E 0%, #AEAFB7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.typing-cursor.blink {
+  animation: cursorBlink 1s infinite;
+}
+
+.typing-cursor.hidden {
+  opacity: 0;
+}
+
+@keyframes cursorBlink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
 @keyframes wordReveal {
   to {
     opacity: 1;
@@ -1662,6 +1810,9 @@ body {
 }
 
 .feature-card {
+  --feature-mouse-x: 50%;
+  --feature-mouse-y: 50%;
+  position: relative;
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -1669,9 +1820,35 @@ body {
   padding: 0.85rem 0.5rem;
   border-radius: 0.75rem;
   text-align: center;
-  transition: all 0.3s ease;
+  transition: transform 0.15s ease, box-shadow 0.3s ease, background 0.3s ease, border-color 0.3s ease;
   animation: fadeInUp 0.8s ease forwards;
   animation-fill-mode: both;
+  transform-style: preserve-3d;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+/* Feature card glow effect on hover */
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    circle at var(--feature-mouse-x) var(--feature-mouse-y),
+    rgba(162, 134, 128, 0.15) 0%,
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.feature-card:hover::before {
+  opacity: 1;
 }
 
 .feature-card:nth-child(1) { animation-delay: 0.1s; }
@@ -1682,10 +1859,9 @@ body {
 .feature-card:nth-child(6) { animation-delay: 0.35s; }
 
 .feature-card:hover {
-  transform: translateY(-3px);
   background: rgba(255, 255, 255, 0.95);
   border-color: rgba(162, 134, 128, 0.3);
-  box-shadow: 0 8px 20px rgba(162, 134, 128, 0.12);
+  box-shadow: 0 15px 35px rgba(162, 134, 128, 0.2), 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 [data-theme="dark"] .feature-card {
@@ -1693,10 +1869,18 @@ body {
   border: 1px solid rgba(242, 226, 142, 0.1);
 }
 
+[data-theme="dark"] .feature-card::before {
+  background: radial-gradient(
+    circle at var(--feature-mouse-x) var(--feature-mouse-y),
+    rgba(242, 226, 142, 0.12) 0%,
+    transparent 60%
+  );
+}
+
 [data-theme="dark"] .feature-card:hover {
   background: rgba(30, 30, 38, 0.95);
   border-color: rgba(242, 226, 142, 0.3);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 5px 15px rgba(242, 226, 142, 0.1);
 }
 
 [data-theme="dark"] .feature-text {
@@ -1704,6 +1888,8 @@ body {
 }
 
 .feature-text {
+  position: relative;
+  z-index: 1;
   font-weight: 600;
   color: #5E5F69;
   font-size: 0.7rem;
