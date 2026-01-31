@@ -759,22 +759,30 @@ const showNoResults = computed(() => filteredTools.value !== null && filteredToo
 
 // Scroll to top functionality
 const showScrollTop = ref(false)
+let scrollTicking = false
 
 const handleScroll = () => {
   showScrollTop.value = window.scrollY > 400
 
-  // Scroll parallax for floating icons
-  if (floatingIcons.value && typeof window !== 'undefined') {
-    const scrollY = window.scrollY
-    const icons = floatingIcons.value.querySelectorAll('.floating-icon')
-    const newScrollOffsets: number[] = []
-    icons.forEach((_, index) => {
-      const speed = 0.08 + (index * 0.025)
-      const yOffset = scrollY * speed
-      newScrollOffsets.push(yOffset)
+  // Use requestAnimationFrame for smooth scroll parallax
+  if (!scrollTicking) {
+    requestAnimationFrame(() => {
+      // Scroll parallax for floating icons
+      if (floatingIcons.value && typeof window !== 'undefined') {
+        const scrollY = window.scrollY
+        const icons = floatingIcons.value.querySelectorAll('.floating-icon')
+        const newScrollOffsets: number[] = []
+        icons.forEach((_, index) => {
+          const speed = 0.08 + (index * 0.025)
+          const yOffset = scrollY * speed
+          newScrollOffsets.push(yOffset)
+        })
+        iconScrollOffsets.value = newScrollOffsets
+        updateIconTransforms()
+      }
+      scrollTicking = false
     })
-    iconScrollOffsets.value = newScrollOffsets
-    updateIconTransforms()
+    scrollTicking = true
   }
 }
 
@@ -865,11 +873,13 @@ const observeElements = () => {
 
 onMounted(() => {
   if (typeof window !== 'undefined') {
-    window.addEventListener('scroll', handleScroll)
+    window.addEventListener('scroll', handleScroll, { passive: true })
     // Delay setup to ensure DOM is ready
     setTimeout(() => {
       observeElements()
       initTiltEffect()
+      // Initialize scroll parallax on page load
+      handleScroll()
     }, 100)
   }
 })
