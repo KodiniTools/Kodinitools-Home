@@ -120,7 +120,7 @@
           <h1 class="hero-title">
             <span class="title-word" v-for="(word, index) in $t('hero.title').split(' ')" :key="index" :style="{ animationDelay: `${index * 0.1}s` }">{{ word }}&nbsp;</span>
           </h1>
-          <p class="hero-subtitle">{{ $t('hero.subtitle') }}</p>
+          <p class="hero-subtitle" v-html="$t('hero.subtitle')"></p>
         </div>
 
         <!-- Features Grid -->
