@@ -1239,21 +1239,21 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  overflow: hidden;
+  overflow: visible;
   pointer-events: none;
-  z-index: 1;
+  z-index: 2;
 }
 
 .floating-icon {
   position: absolute;
   color: var(--color-mauve);
-  opacity: 0.08;
+  opacity: 0.18;
   animation: float 20s ease-in-out infinite;
 }
 
 [data-theme="dark"] .floating-icon {
   color: var(--color-gold);
-  opacity: 0.06;
+  opacity: 0.15;
 }
 
 .floating-icon svg {
@@ -1363,7 +1363,7 @@ body {
 /* Hero Content */
 .hero-content {
   position: relative;
-  z-index: 2;
+  z-index: 3;
 }
 
 /* Hero Title with Word Animation */
