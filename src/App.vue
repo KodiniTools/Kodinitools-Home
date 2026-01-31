@@ -677,9 +677,24 @@ const mouseX = ref(50)
 const mouseY = ref(50)
 const floatingIcons = ref<HTMLElement | null>(null)
 
+// Store mouse offsets for each icon
+const iconMouseOffsets = ref<{x: number, y: number}[]>([])
+const iconScrollOffsets = ref<number[]>([])
+
 const spotlightStyle = computed(() => ({
   background: `radial-gradient(1200px circle at ${mouseX.value}% ${mouseY.value}%, rgba(162, 134, 128, 0.25), transparent 45%)`
 }))
+
+// Update icon transforms combining mouse + scroll
+const updateIconTransforms = () => {
+  if (!floatingIcons.value) return
+  const icons = floatingIcons.value.querySelectorAll('.floating-icon')
+  icons.forEach((icon, index) => {
+    const mouseOffset = iconMouseOffsets.value[index] || { x: 0, y: 0 }
+    const scrollOffset = iconScrollOffsets.value[index] || 0
+    ;(icon as HTMLElement).style.transform = `translate(${mouseOffset.x}px, ${mouseOffset.y + scrollOffset}px)`
+  })
+}
 
 const handleMouseMove = (e: MouseEvent) => {
   if (typeof window === 'undefined') return
@@ -688,15 +703,18 @@ const handleMouseMove = (e: MouseEvent) => {
   mouseX.value = (e.clientX / window.innerWidth) * 100
   mouseY.value = (e.clientY / window.innerHeight) * 100
 
-  // Parallax effect for floating icons - stronger movement
+  // Calculate mouse parallax offsets for floating icons
   if (floatingIcons.value) {
     const icons = floatingIcons.value.querySelectorAll('.floating-icon')
-    icons.forEach((icon, index) => {
-      const speed = 0.08 + (index * 0.015) // Much stronger parallax
+    const newOffsets: {x: number, y: number}[] = []
+    icons.forEach((_, index) => {
+      const speed = 0.08 + (index * 0.015)
       const x = (e.clientX - window.innerWidth / 2) * speed
       const y = (e.clientY - window.innerHeight / 2) * speed
-      ;(icon as HTMLElement).style.transform = `translate(${x}px, ${y}px)`
+      newOffsets.push({ x, y })
     })
+    iconMouseOffsets.value = newOffsets
+    updateIconTransforms()
   }
 }
 
@@ -749,11 +767,14 @@ const handleScroll = () => {
   if (floatingIcons.value && typeof window !== 'undefined') {
     const scrollY = window.scrollY
     const icons = floatingIcons.value.querySelectorAll('.floating-icon')
-    icons.forEach((icon, index) => {
-      const speed = 0.08 + (index * 0.025) // Stronger scroll parallax
+    const newScrollOffsets: number[] = []
+    icons.forEach((_, index) => {
+      const speed = 0.08 + (index * 0.025)
       const yOffset = scrollY * speed
-      ;(icon as HTMLElement).style.setProperty('--scroll-y', `${yOffset}px`)
+      newScrollOffsets.push(yOffset)
     })
+    iconScrollOffsets.value = newScrollOffsets
+    updateIconTransforms()
   }
 }
 
