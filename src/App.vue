@@ -633,39 +633,55 @@ const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
-// 3D Tilt Effect for Cards
+// 3D Tilt Effect for Cards - Using Event Delegation for reliability
 const initTiltEffect = () => {
   if (typeof window === 'undefined') return
 
-  const cards = document.querySelectorAll('.tool-card')
+  // Use event delegation on document for better reliability
+  document.addEventListener('mousemove', (e: MouseEvent) => {
+    const target = e.target as HTMLElement
+    const card = target.closest('.tool-card') as HTMLElement
+    if (!card) return
 
-  cards.forEach((card) => {
-    const cardElement = card as HTMLElement
+    const rect = card.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    const centerX = rect.width / 2
+    const centerY = rect.height / 2
 
-    cardElement.addEventListener('mousemove', (e: MouseEvent) => {
-      const rect = cardElement.getBoundingClientRect()
-      const x = e.clientX - rect.left
-      const y = e.clientY - rect.top
-      const centerX = rect.width / 2
-      const centerY = rect.height / 2
+    const rotateX = (y - centerY) / 15
+    const rotateY = (centerX - x) / 15
 
-      const rotateX = (y - centerY) / 20
-      const rotateY = (centerX - x) / 20
+    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-8px)`
 
-      cardElement.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-8px)`
+    // Update glow position
+    const glowX = (x / rect.width) * 100
+    const glowY = (y / rect.height) * 100
+    card.style.setProperty('--mouse-x', `${glowX}%`)
+    card.style.setProperty('--mouse-y', `${glowY}%`)
+  })
 
-      // Update glow position
-      const glowX = (x / rect.width) * 100
-      const glowY = (y / rect.height) * 100
-      cardElement.style.setProperty('--mouse-x', `${glowX}%`)
-      cardElement.style.setProperty('--mouse-y', `${glowY}%`)
-    })
+  document.addEventListener('mouseleave', (e: MouseEvent) => {
+    const target = e.target as HTMLElement
+    const card = target.closest('.tool-card') as HTMLElement
+    if (!card) return
 
-    cardElement.addEventListener('mouseleave', () => {
-      cardElement.style.transform = ''
-      cardElement.style.setProperty('--mouse-x', '50%')
-      cardElement.style.setProperty('--mouse-y', '50%')
-    })
+    card.style.transform = ''
+    card.style.setProperty('--mouse-x', '50%')
+    card.style.setProperty('--mouse-y', '50%')
+  }, true)
+
+  // Also handle when mouse leaves a card
+  document.addEventListener('mouseout', (e: MouseEvent) => {
+    const target = e.target as HTMLElement
+    const relatedTarget = e.relatedTarget as HTMLElement
+
+    if (target.classList.contains('tool-card') &&
+        (!relatedTarget || !target.contains(relatedTarget))) {
+      target.style.transform = ''
+      target.style.setProperty('--mouse-x', '50%')
+      target.style.setProperty('--mouse-y', '50%')
+    }
   })
 }
 
