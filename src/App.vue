@@ -22,14 +22,6 @@
           <circle cx="18" cy="16" r="3"/>
         </svg>
       </div>
-      <!-- Image/Photo -->
-      <div class="floating-icon icon-3">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="3" y="3" width="18" height="18" rx="2"/>
-          <circle cx="8.5" cy="8.5" r="1.5"/>
-          <path d="M21 15l-5-5L5 21"/>
-        </svg>
-      </div>
       <!-- Equalizer Bars -->
       <div class="floating-icon icon-4">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -44,14 +36,6 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
           <circle cx="12" cy="12" r="3"/>
           <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
-        </svg>
-      </div>
-      <!-- Convert Arrows -->
-      <div class="floating-icon icon-6">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M7 16l-4-4 4-4"/>
-          <path d="M17 8l4 4-4 4"/>
-          <line x1="3" y1="12" x2="21" y2="12"/>
         </svg>
       </div>
       <!-- Speaker/Volume -->
@@ -1366,15 +1350,6 @@ body {
   filter: blur(1px);
 }
 
-.icon-3 {
-  width: 60px;
-  height: 60px;
-  top: 35%;
-  left: 5%;
-  animation-delay: -7s;
-  animation-duration: 28s;
-}
-
 .icon-4 {
   width: 45px;
   height: 45px;
@@ -1392,16 +1367,6 @@ body {
   right: 5%;
   animation-delay: -10s;
   animation-duration: 24s;
-}
-
-.icon-6 {
-  width: 65px;
-  height: 65px;
-  top: 28%;
-  left: 20%;
-  animation-delay: -2s;
-  animation-duration: 26s;
-  filter: blur(1px);
 }
 
 .icon-7 {
