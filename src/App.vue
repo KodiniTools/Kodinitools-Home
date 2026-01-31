@@ -207,7 +207,7 @@
             <img src="https://kodinitools.com/images/logo.svg" alt="KodiniTools Logo" />
           </div>
           <h1 class="hero-title typing-title">
-            <span class="typed-text">{{ typedTitle }}</span><span class="typing-cursor" :class="{ 'blink': isTypingComplete, 'hidden': !showCursor }">|</span>
+            <span class="typed-text">{{ typedTitle }}</span>
           </h1>
           <p class="hero-subtitle" v-html="$t('hero.subtitle')"></p>
         </div>
@@ -674,16 +674,12 @@ const openCookieSettings = () => {
 
 // Typing animation for hero title
 const typedTitle = ref('')
-const showCursor = ref(true)
-const isTypingComplete = ref(false)
 let typingTimeout: ReturnType<typeof setTimeout> | null = null
 
 const startTypingAnimation = () => {
   const fullTitle = t('hero.title')
   let currentIndex = 0
   typedTitle.value = ''
-  isTypingComplete.value = false
-  showCursor.value = true
 
   const typeNextChar = () => {
     if (currentIndex < fullTitle.length) {
@@ -692,12 +688,6 @@ const startTypingAnimation = () => {
       // Variable typing speed for more natural feel
       const delay = Math.random() * 50 + 50 // 50-100ms per character
       typingTimeout = setTimeout(typeNextChar, delay)
-    } else {
-      isTypingComplete.value = true
-      // Keep cursor blinking for a moment, then hide
-      setTimeout(() => {
-        showCursor.value = false
-      }, 2000)
     }
   }
 
@@ -1684,36 +1674,6 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-}
-
-.typing-cursor {
-  display: inline-block;
-  background: linear-gradient(135deg, #5E5F69 0%, #0C0C10 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-left: 2px;
-  font-weight: 400;
-}
-
-[data-theme="dark"] .typing-cursor {
-  background: linear-gradient(135deg, #F2E28E 0%, #AEAFB7 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.typing-cursor.blink {
-  animation: cursorBlink 1s infinite;
-}
-
-.typing-cursor.hidden {
-  opacity: 0;
-}
-
-@keyframes cursorBlink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
 }
 
 @keyframes wordReveal {
