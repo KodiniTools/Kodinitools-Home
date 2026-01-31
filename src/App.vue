@@ -678,7 +678,7 @@ const mouseY = ref(50)
 const floatingIcons = ref<HTMLElement | null>(null)
 
 const spotlightStyle = computed(() => ({
-  background: `radial-gradient(800px circle at ${mouseX.value}% ${mouseY.value}%, rgba(162, 134, 128, 0.12), transparent 40%)`
+  background: `radial-gradient(1200px circle at ${mouseX.value}% ${mouseY.value}%, rgba(162, 134, 128, 0.25), transparent 45%)`
 }))
 
 const handleMouseMove = (e: MouseEvent) => {
@@ -688,11 +688,11 @@ const handleMouseMove = (e: MouseEvent) => {
   mouseX.value = (e.clientX / window.innerWidth) * 100
   mouseY.value = (e.clientY / window.innerHeight) * 100
 
-  // Parallax effect for floating icons
+  // Parallax effect for floating icons - stronger movement
   if (floatingIcons.value) {
     const icons = floatingIcons.value.querySelectorAll('.floating-icon')
     icons.forEach((icon, index) => {
-      const speed = 0.02 + (index * 0.005) // Different speed for each icon
+      const speed = 0.08 + (index * 0.015) // Much stronger parallax
       const x = (e.clientX - window.innerWidth / 2) * speed
       const y = (e.clientY - window.innerHeight / 2) * speed
       ;(icon as HTMLElement).style.transform = `translate(${x}px, ${y}px)`
@@ -750,7 +750,7 @@ const handleScroll = () => {
     const scrollY = window.scrollY
     const icons = floatingIcons.value.querySelectorAll('.floating-icon')
     icons.forEach((icon, index) => {
-      const speed = 0.03 + (index * 0.01)
+      const speed = 0.08 + (index * 0.025) // Stronger scroll parallax
       const yOffset = scrollY * speed
       ;(icon as HTMLElement).style.setProperty('--scroll-y', `${yOffset}px`)
     })
@@ -1061,7 +1061,7 @@ body {
 }
 
 [data-theme="dark"] .mouse-spotlight {
-  background: radial-gradient(800px circle at 50% 50%, rgba(242, 226, 142, 0.08), transparent 40%) !important;
+  background: radial-gradient(1200px circle at 50% 50%, rgba(242, 226, 142, 0.18), transparent 45%) !important;
 }
 
 /* Header */
