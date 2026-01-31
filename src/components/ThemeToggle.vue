@@ -14,7 +14,7 @@ onMounted(() => {
   const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
   const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light')
-  
+
   theme.value = initialTheme
   document.documentElement.setAttribute('data-theme', initialTheme)
 })
@@ -29,25 +29,26 @@ const toggleTheme = () => {
 
 <style scoped>
 .theme-toggle {
-  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.5rem;
   border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  background: transparent;
+  border-radius: 6px;
+  background: var(--bg-secondary);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(8px);
 }
 
 .theme-toggle:hover {
-  background: var(--bg-secondary);
   border-color: var(--primary-color);
-}
-
-[data-theme="dark"] .theme-toggle:hover {
-  background: var(--bg-secondary);
+  box-shadow: 0 0 0 2px rgba(var(--primary-rgb, 99, 102, 241), 0.1);
 }
 
 .theme-icon {
-  font-size: 1.25rem;
+  font-size: 0.85rem;
+  line-height: 1;
   display: block;
 }
 </style>
