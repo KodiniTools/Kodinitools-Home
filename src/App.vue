@@ -110,6 +110,71 @@
       <!-- Noise Texture Overlay -->
       <div class="noise-overlay"></div>
 
+      <!-- Floating Tool Icons Background -->
+      <div class="floating-icons">
+        <!-- Audio Waveform -->
+        <div class="floating-icon icon-1">
+          <svg viewBox="0 0 80 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M5 20h5v-10h5v20h5v-15h5v10h5v-5h5v10h5v-15h5v20h5v-10h5v5h5v-8h5"/>
+          </svg>
+        </div>
+        <!-- Music Note -->
+        <div class="floating-icon icon-2">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M9 18V5l12-2v13"/>
+            <circle cx="6" cy="18" r="3"/>
+            <circle cx="18" cy="16" r="3"/>
+          </svg>
+        </div>
+        <!-- Image/Photo -->
+        <div class="floating-icon icon-3">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <path d="M21 15l-5-5L5 21"/>
+          </svg>
+        </div>
+        <!-- Equalizer Bars -->
+        <div class="floating-icon icon-4">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="4" y1="21" x2="4" y2="14"/>
+            <line x1="9" y1="21" x2="9" y2="8"/>
+            <line x1="14" y1="21" x2="14" y2="12"/>
+            <line x1="19" y1="21" x2="19" y2="5"/>
+          </svg>
+        </div>
+        <!-- Gear/Settings -->
+        <div class="floating-icon icon-5">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+          </svg>
+        </div>
+        <!-- Convert Arrows -->
+        <div class="floating-icon icon-6">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M7 16l-4-4 4-4"/>
+            <path d="M17 8l4 4-4 4"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+          </svg>
+        </div>
+        <!-- Speaker/Volume -->
+        <div class="floating-icon icon-7">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path d="M15.54 8.46a5 5 0 010 7.07"/>
+            <path d="M19.07 4.93a10 10 0 010 14.14"/>
+          </svg>
+        </div>
+        <!-- Crop/Edit -->
+        <div class="floating-icon icon-8">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M6 2v4h12v12h4"/>
+            <path d="M18 22v-4H6V6H2"/>
+          </svg>
+        </div>
+      </div>
+
       <!-- Hero Content -->
       <div class="hero-content">
         <!-- Promo Section with Logo -->
@@ -1165,6 +1230,134 @@ body {
 
 [data-theme="dark"] .noise-overlay {
   opacity: 0.05;
+}
+
+/* Floating Tool Icons */
+.floating-icons {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.floating-icon {
+  position: absolute;
+  color: var(--color-mauve);
+  opacity: 0.08;
+  animation: float 20s ease-in-out infinite;
+}
+
+[data-theme="dark"] .floating-icon {
+  color: var(--color-gold);
+  opacity: 0.06;
+}
+
+.floating-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Individual icon positions, sizes and animation delays */
+.icon-1 {
+  width: 120px;
+  height: 60px;
+  top: 15%;
+  left: 5%;
+  animation-delay: 0s;
+  animation-duration: 25s;
+}
+
+.icon-2 {
+  width: 45px;
+  height: 45px;
+  top: 25%;
+  right: 10%;
+  animation-delay: -3s;
+  animation-duration: 22s;
+  filter: blur(1px);
+}
+
+.icon-3 {
+  width: 55px;
+  height: 55px;
+  top: 60%;
+  left: 8%;
+  animation-delay: -7s;
+  animation-duration: 28s;
+}
+
+.icon-4 {
+  width: 40px;
+  height: 40px;
+  top: 10%;
+  right: 25%;
+  animation-delay: -5s;
+  animation-duration: 20s;
+  filter: blur(0.5px);
+}
+
+.icon-5 {
+  width: 50px;
+  height: 50px;
+  top: 70%;
+  right: 15%;
+  animation-delay: -10s;
+  animation-duration: 24s;
+}
+
+.icon-6 {
+  width: 60px;
+  height: 60px;
+  top: 45%;
+  left: 15%;
+  animation-delay: -2s;
+  animation-duration: 26s;
+  filter: blur(1px);
+}
+
+.icon-7 {
+  width: 35px;
+  height: 35px;
+  top: 80%;
+  left: 30%;
+  animation-delay: -8s;
+  animation-duration: 21s;
+}
+
+.icon-8 {
+  width: 42px;
+  height: 42px;
+  top: 35%;
+  right: 5%;
+  animation-delay: -12s;
+  animation-duration: 23s;
+  filter: blur(0.5px);
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-15px) rotate(3deg);
+  }
+  50% {
+    transform: translateY(-5px) rotate(-2deg);
+  }
+  75% {
+    transform: translateY(-20px) rotate(2deg);
+  }
+}
+
+/* Hide floating icons on mobile for performance */
+@media (max-width: 768px) {
+  .floating-icons {
+    display: none;
+  }
 }
 
 /* Hero Content */
