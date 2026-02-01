@@ -93,8 +93,15 @@
     <header class="header">
       <nav class="nav-container">
         <div class="logo" @click="goHome" style="cursor: pointer;">{{ $t('footer.company') }}</div>
-        
-        <div class="nav-links">
+
+        <!-- Hamburger Button for Mobile -->
+        <button class="hamburger-btn" @click="toggleMobileMenu" :class="{ 'is-active': mobileMenuOpen }" aria-label="Toggle menu">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </button>
+
+        <div class="nav-links" :class="{ 'is-open': mobileMenuOpen }">
           <!-- Audio Tools Dropdown -->
           <div class="nav-dropdown">
             <a href="#" class="nav-link">
@@ -170,11 +177,17 @@
             </div>
           </div>
 
-          <a href="https://kodinitools.com/kontaktformular/" class="nav-link">{{ $t('navigation.contact') }}</a>
-          <a @click.prevent="toggleBlog" href="#blog" class="nav-link blog-link">{{ $t('navigation.blog') }}</a>
+          <a href="https://kodinitools.com/kontaktformular/" class="nav-link" @click="closeMobileMenu">{{ $t('navigation.contact') }}</a>
+          <a @click.prevent="toggleBlog(); closeMobileMenu()" href="#blog" class="nav-link blog-link">{{ $t('navigation.blog') }}</a>
+
+          <!-- Mobile: Controls inside menu -->
+          <div class="nav-controls-mobile">
+            <ThemeToggle />
+            <LanguageSwitcher />
+          </div>
         </div>
-        
-        <div class="nav-controls">
+
+        <div class="nav-controls nav-controls-desktop">
           <ThemeToggle />
           <LanguageSwitcher />
         </div>
@@ -649,6 +662,17 @@ import AppFooter from './components/AppFooter.vue'
 import BlogPage from './components/BlogPage.vue'
 
 const { t, locale } = useI18n()
+
+// Mobile menu toggle
+const mobileMenuOpen = ref(false)
+
+const toggleMobileMenu = () => {
+  mobileMenuOpen.value = !mobileMenuOpen.value
+}
+
+const closeMobileMenu = () => {
+  mobileMenuOpen.value = false
+}
 
 // Blog page toggle
 const showBlog = ref(false)
@@ -1350,6 +1374,49 @@ body {
   display: flex;
   gap: 1rem;
   align-items: center;
+}
+
+/* Hide mobile controls in nav-links on desktop */
+.nav-controls-mobile {
+  display: none;
+}
+
+/* Hamburger Button */
+.hamburger-btn {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 28px;
+  height: 20px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1001;
+}
+
+.hamburger-line {
+  width: 100%;
+  height: 3px;
+  background: #4A4B55;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .hamburger-line {
+  background: #E8E9EC;
+}
+
+.hamburger-btn.is-active .hamburger-line:nth-child(1) {
+  transform: translateY(8.5px) rotate(45deg);
+}
+
+.hamburger-btn.is-active .hamburger-line:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger-btn.is-active .hamburger-line:nth-child(3) {
+  transform: translateY(-8.5px) rotate(-45deg);
 }
 
 /* Hero with Animated Mesh Gradient */
@@ -2361,17 +2428,60 @@ body {
 }
 
 @media (max-width: 768px) {
+  /* Mobile Navigation */
   .nav-container {
-    flex-direction: column;
-    gap: 0.75rem;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
     padding: 0 1rem;
+    position: relative;
+  }
+
+  .hamburger-btn {
+    display: flex;
+    order: 2;
+  }
+
+  .nav-controls-desktop {
+    display: none;
+  }
+
+  .nav-controls-mobile {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    padding-top: 1rem;
+    margin-top: 0.5rem;
+    border-top: 1px solid rgba(162, 134, 128, 0.15);
   }
 
   .nav-links {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.25rem;
     width: 100%;
     text-align: center;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 1rem;
+    border-radius: 0 0 1rem 1rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  [data-theme="dark"] .nav-links {
+    background: rgba(35, 36, 44, 0.98);
+  }
+
+  .nav-links.is-open {
+    display: flex;
   }
 
   .nav-dropdown {
@@ -2382,6 +2492,22 @@ body {
     position: relative;
     width: 100%;
     margin-top: 0.25rem;
+    box-shadow: none;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 0.5rem;
+  }
+
+  [data-theme="dark"] .dropdown-menu {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .nav-link {
+    padding: 0.75rem 1rem;
+    display: block;
+  }
+
+  .dropdown-item {
+    padding: 0.6rem 1rem;
   }
 
   .hero {
