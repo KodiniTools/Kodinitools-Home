@@ -835,6 +835,7 @@ const initTiltEffect = () => {
   // Use event delegation on document for better reliability
   document.addEventListener('mousemove', (e: MouseEvent) => {
     const target = e.target as HTMLElement
+    if (!target || typeof target.closest !== 'function') return
     const card = target.closest('.tool-card') as HTMLElement
     if (!card) return
 
@@ -858,6 +859,7 @@ const initTiltEffect = () => {
 
   document.addEventListener('mouseleave', (e: MouseEvent) => {
     const target = e.target as HTMLElement
+    if (!target || typeof target.closest !== 'function') return
     const card = target.closest('.tool-card') as HTMLElement
     if (!card) return
 
@@ -890,6 +892,7 @@ const initFeatureCardTilt = () => {
   featuresGrid.addEventListener('mousemove', (e: Event) => {
     const mouseEvent = e as MouseEvent
     const target = mouseEvent.target as HTMLElement
+    if (!target || typeof target.closest !== 'function') return
     const card = target.closest('.feature-card') as HTMLElement
     if (!card) return
 
