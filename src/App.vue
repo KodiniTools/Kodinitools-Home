@@ -209,7 +209,7 @@
           <h1 class="hero-title typing-title">
             <span class="typed-text">{{ typedTitle }}</span>
           </h1>
-          <p class="hero-subtitle" v-html="$t('hero.subtitle')"></p>
+          <p class="hero-subtitle">{{ $t('hero.subtitle') }}</p>
         </div>
 
         <!-- Features Grid -->
@@ -1711,6 +1711,7 @@ body {
   font-weight: 500;
   max-width: 600px;
   margin: 0 auto;
+  white-space: pre-line;
 }
 
 [data-theme="dark"] .hero-subtitle {
