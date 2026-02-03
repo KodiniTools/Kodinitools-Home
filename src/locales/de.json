@@ -465,5 +465,52 @@
         "ctaButton": "Alle Tools entdecken"
       }
     }
+  },
+  "faq": {
+    "title": "Häufig gestellte Fragen",
+    "subtitle": "Antworten auf die wichtigsten Fragen zu KodiniTools",
+    "backToHome": "Zurück zur Startseite",
+    "questions": {
+      "q1": {
+        "question": "Ist KodiniTools wirklich kostenlos?",
+        "answer": "Ja, alle Tools auf KodiniTools sind 100% kostenlos. Es gibt keine versteckten Kosten, keine Premium-Versionen und keine Abonnements. Wir finanzieren uns durch minimale, nicht-invasive Werbung."
+      },
+      "q2": {
+        "question": "Werden meine Dateien gespeichert oder weitergegeben?",
+        "answer": "Nein. Bei Browser-basierten Tools verlassen Ihre Dateien niemals Ihren Computer – die Verarbeitung erfolgt komplett lokal. Bei Server-basierten Tools werden Ihre Dateien verschlüsselt übertragen und sofort nach der Verarbeitung automatisch gelöscht. Wir speichern keine Kopien Ihrer Dateien."
+      },
+      "q3": {
+        "question": "Welche Dateiformate werden unterstützt?",
+        "answer": "Unsere Audio-Tools unterstützen MP3, WAV, OGG, FLAC, AAC und M4A. Die Bild-Tools arbeiten mit JPG, PNG, WebP, AVIF, GIF und BMP. Der Videokonverter unterstützt MP4, WebM, AVI und weitere gängige Formate."
+      },
+      "q4": {
+        "question": "Was ist der Unterschied zwischen Browser- und Server-Verarbeitung?",
+        "answer": "Browser-basierte Tools verarbeiten Ihre Dateien direkt auf Ihrem Gerät – maximale Privatsphäre, keine Upload-Wartezeiten, funktioniert auch offline. Server-basierte Tools nutzen unsere leistungsstarken Server für rechenintensive Aufgaben – schnellere Verarbeitung großer Dateien, weniger Belastung für Ihr Gerät."
+      },
+      "q5": {
+        "question": "Muss ich mich registrieren, um die Tools zu nutzen?",
+        "answer": "Nein, für die Nutzung unserer Tools ist keine Registrierung erforderlich. Sie können sofort loslegen – einfach Tool auswählen, Datei hochladen und bearbeiten."
+      },
+      "q6": {
+        "question": "Gibt es eine Größenbeschränkung für Dateien?",
+        "answer": "Bei Browser-basierten Tools hängt die maximale Dateigröße von Ihrem Gerätespeicher ab. Bei Server-basierten Tools gibt es je nach Tool unterschiedliche Limits – der Videokonverter unterstützt beispielsweise Dateien bis zu 50 GB."
+      },
+      "q7": {
+        "question": "Funktionieren die Tools auf mobilen Geräten?",
+        "answer": "Ja, alle KodiniTools sind vollständig responsive und funktionieren auf Smartphones und Tablets. Die Benutzeroberfläche passt sich automatisch an Ihre Bildschirmgröße an."
+      },
+      "q8": {
+        "question": "In welchen Sprachen ist KodiniTools verfügbar?",
+        "answer": "KodiniTools ist derzeit in Deutsch und Englisch verfügbar. Sie können die Sprache jederzeit über den Sprachumschalter oben rechts ändern. Ihre Spracheinstellung wird gespeichert."
+      },
+      "q9": {
+        "question": "Wie kann ich Feedback geben oder neue Tools vorschlagen?",
+        "answer": "Wir freuen uns über Ihr Feedback! Nutzen Sie unser Kontaktformular, um uns Ihre Vorschläge, Wünsche oder Verbesserungsideen mitzuteilen. Wir lesen jede Nachricht und arbeiten ständig daran, KodiniTools zu verbessern."
+      },
+      "q10": {
+        "question": "Ist KodiniTools DSGVO-konform?",
+        "answer": "Ja, KodiniTools ist vollständig DSGVO-konform. Wir verwenden Google Consent Mode v2, bieten transparente Cookie-Einstellungen und speichern keine personenbezogenen Daten ohne Ihre Einwilligung. Detaillierte Informationen finden Sie in unserer Datenschutzerklärung."
+      }
+    }
   }
 }
