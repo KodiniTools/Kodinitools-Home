@@ -3,68 +3,59 @@
 <head>
     <!-- Google Consent Mode v2 - GDPR Compliant -->
     <script>
-    // Initialize dataLayer and set default consent to denied
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
-
-    // Set default consent state - all denied until user accepts
     gtag('consent', 'default', {
-      'ad_storage': 'denied',
-      'ad_user_data': 'denied',
-      'ad_personalization': 'denied',
-      'analytics_storage': 'denied',
-      'functionality_storage': 'denied',
-      'personalization_storage': 'denied',
-      'security_storage': 'granted', // Always needed for security
-      'wait_for_update': 500
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+        functionality_storage: 'denied',
+        personalization_storage: 'denied',
+        security_storage: 'granted',
+        wait_for_update: 500
     });
-
-    // Load saved consent from localStorage
-    (function() {
-      try {
-        var savedConsent = localStorage.getItem('cookieConsent');
-        if (savedConsent) {
-          var consent = JSON.parse(savedConsent);
-          if (consent.analytics) {
-            gtag('consent', 'update', {
-              'analytics_storage': 'granted',
-              'functionality_storage': 'granted',
-              'personalization_storage': 'granted'
-            });
-          }
-          if (consent.marketing) {
-            gtag('consent', 'update', {
-              'ad_storage': 'granted',
-              'ad_user_data': 'granted',
-              'ad_personalization': 'granted'
-            });
-          }
-        }
-      } catch(e) {}
+    (function(){
+        try {
+            var savedConsent = localStorage.getItem('cookieConsent');
+            if (savedConsent) {
+                var consent = JSON.parse(savedConsent);
+                if (consent.analytics) {
+                    gtag('consent', 'update', {
+                        analytics_storage: 'granted',
+                        functionality_storage: 'granted',
+                        personalization_storage: 'granted'
+                    });
+                }
+                if (consent.marketing) {
+                    gtag('consent', 'update', {
+                        ad_storage: 'granted',
+                        ad_user_data: 'granted',
+                        ad_personalization: 'granted'
+                    });
+                }
+            }
+        } catch(e) {}
     })();
     </script>
+    <!-- Google Tag Manager -->
+    <script>
+    !function(e,t,a,n){e[n]=e[n]||[],e[n].push({'gtm.start':(new Date).getTime(),event:'gtm.js'});var g=t.getElementsByTagName(a)[0],m=t.createElement(a);m.async=!0,m.src='https://www.googletagmanager.com/gtm.js?id=GTM-T7NS656K',g.parentNode.insertBefore(m,g)}(window,document,'script','dataLayer')
+    </script>
 
-    <!-- Google Tag Manager - loads after consent mode is configured -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-T7NS656K');</script>
-    <!-- End Google Tag Manager -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Primary Meta Tags -->
+    <!-- Primary Meta Tags - ENGLISH -->
     <title>KodiniTools - Free Online Audio & Image Tools</title>
     <meta name="title" content="KodiniTools - Free Online Audio & Image Tools">
-    <meta name="description" content="Professional audio and image editing tools free in your browser. MP3 Converter, Audio Equalizer, Image Converter and more. No installation required, 100% private.">
+    <meta name="description" content="Professional audio and image editing tools free in your browser. MP3 Converter, Audio Equalizer, Image Converter and more. No installation required.">
     <meta name="keywords" content="Audio Tools, Image Editing, MP3 Converter, Audio Equalizer, Image Converter, Online Tools, free, Browser Tools, audio editor, image editor">
     <meta name="author" content="Dinko Ramic">
     <meta name="robots" content="index, follow">
     <meta name="language" content="en">
 
-    <!-- Open Graph / Facebook -->
+    <!-- Open Graph / Facebook - ENGLISH -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://kodinitools.com/en/">
     <meta property="og:title" content="KodiniTools - Free Online Audio & Image Tools">
@@ -76,7 +67,7 @@
     <meta property="og:locale:alternate" content="de_DE">
     <meta property="og:site_name" content="KodiniTools">
 
-    <!-- Twitter -->
+    <!-- Twitter - ENGLISH -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://kodinitools.com/en/">
     <meta property="twitter:title" content="KodiniTools - Free Online Audio & Image Tools">
@@ -94,42 +85,22 @@
     <meta name="geo.position" content="47.3467;8.7208">
     <meta name="ICBM" content="47.3467, 8.7208">
 
-    <!-- Structured Data - English Version -->
+    <!-- Structured Data - ENGLISH -->
     <script type="application/ld+json">
-        {
-            "@context": "https://schema.org",
-            "@type": "WebApplication",
-            "name": "KodiniTools",
-            "url": "https://kodinitools.com/en/",
-            "description": "Free online tools for audio and image editing directly in the browser",
-            "applicationCategory": "MultimediaApplication",
-            "operatingSystem": "Web Browser",
-            "inLanguage": "en",
-            "offers": {"@type":"Offer","price":"0","priceCurrency":"USD"},
-            "author": {"@type":"Person","name":"Dinko Ramic","url":"https://kodinitools.com/uebermich"},
-            "publisher": {"@type":"Organization","name":"KodiniTools","url":"https://kodinitools.com"},
-            "featureList": ["MP3 Converter","Audio Equalizer","Music Player","Audio Visualizer","Image Converter","Batch Image Editor"]
-        }
-    </script>
-
-    <!-- Organization Schema -->
-    <script type="application/ld+json">
-        {
-            "@context": "https://schema.org",
-            "@type": "Organization",
-            "name": "KodiniTools",
-            "url": "https://kodinitools.com",
-            "logo": "https://kodinitools.com/images/logo.svg",
-            "sameAs": [
-                "https://www.facebook.com/kodinitools"
-            ],
-            "contactPoint": {
-                "@type": "ContactPoint",
-                "contactType": "customer service",
-                "url": "https://kodinitools.com/kontaktformular/",
-                "availableLanguage": ["German", "English"]
-            }
-        }
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "KodiniTools",
+        "url": "https://kodinitools.com/en/",
+        "description": "Free online tools for audio and image editing directly in the browser",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Web Browser",
+        "inLanguage": "en",
+        "offers": {"@type":"Offer","price":"0","priceCurrency":"USD"},
+        "author": {"@type":"Person","name":"Dinko Ramic","url":"https://kodinitools.com/uebermich"},
+        "publisher": {"@type":"Organization","name":"KodiniTools","url":"https://kodinitools.com"},
+        "featureList": ["MP3 Converter","Audio Equalizer","Music Player","Audio Visualizer","Image Converter","Batch Image Editor"]
+    }
     </script>
 
     <!-- Links -->
@@ -148,31 +119,27 @@
     <!-- Stylesheets -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
-    <!-- Preconnect for performance -->
+    <!-- Preconnect -->
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link rel="dns-prefetch" href="https://www.googletagmanager.com">
-
-    <!-- Google Fonts - Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Set English as default language -->
+    <!-- Vue App Assets (same as German version) -->
+    <script type="module" async crossorigin src="/assets/app-D1LqZnAg.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/app-xUZUJSPP.css">
+
+    <!-- Set English language on page load -->
     <script>
-        // Set language to English for this page
-        localStorage.setItem('language', 'en');
+    localStorage.setItem('language', 'en');
     </script>
 </head>
 <body>
-  <!-- Google Tag Manager (noscript) -->
-  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T7NS656K"
-  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-  <!-- End Google Tag Manager (noscript) -->
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T7NS656K" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
-  <!-- Vue App mounted here -->
-  <div id="app"></div>
-
-  <!-- Vite Entry Point for Vue + TypeScript -->
-  <script type="module" src="/src/main.ts"></script>
+    <!-- Vue App -->
+    <div id="app"></div>
 </body>
 </html>
