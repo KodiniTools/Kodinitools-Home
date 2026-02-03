@@ -493,7 +493,7 @@
       },
       "q6": {
         "question": "Gibt es eine Größenbeschränkung für Dateien?",
-        "answer": "Bei Browser-basierten Tools hängt die maximale Dateigröße von Ihrem Gerätespeicher ab. Bei Server-basierten Tools gibt es je nach Tool unterschiedliche Limits – der Videokonverter unterstützt beispielsweise Dateien bis zu 50 GB."
+        "answer": "Bei Browser-basierten Tools hängt die maximale Dateigröße von Ihrem Gerätespeicher ab. Bei Server-basierten Tools gibt es je nach Tool unterschiedliche Limits – der Videokonverter unterstützt beispielsweise Dateien bis zu 5 GB."
       },
       "q7": {
         "question": "Funktionieren die Tools auf mobilen Geräten?",

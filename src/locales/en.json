@@ -493,7 +493,7 @@
       },
       "q6": {
         "question": "Is there a file size limit?",
-        "answer": "For browser-based tools, the maximum file size depends on your device memory. For server-based tools, there are different limits depending on the tool – the video converter, for example, supports files up to 50 GB."
+        "answer": "For browser-based tools, the maximum file size depends on your device memory. For server-based tools, there are different limits depending on the tool – the video converter, for example, supports files up to 5 GB."
       },
       "q7": {
         "question": "Do the tools work on mobile devices?",
