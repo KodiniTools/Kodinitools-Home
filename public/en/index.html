@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google Consent Mode v2 - GDPR Compliant -->
+    <script>
+    // Initialize dataLayer and set default consent to denied
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+
+    // Set default consent state - all denied until user accepts
+    gtag('consent', 'default', {
+      'ad_storage': 'denied',
+      'ad_user_data': 'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage': 'denied',
+      'functionality_storage': 'denied',
+      'personalization_storage': 'denied',
+      'security_storage': 'granted', // Always needed for security
+      'wait_for_update': 500
+    });
+
+    // Load saved consent from localStorage
+    (function() {
+      try {
+        var savedConsent = localStorage.getItem('cookieConsent');
+        if (savedConsent) {
+          var consent = JSON.parse(savedConsent);
+          if (consent.analytics) {
+            gtag('consent', 'update', {
+              'analytics_storage': 'granted',
+              'functionality_storage': 'granted',
+              'personalization_storage': 'granted'
+            });
+          }
+          if (consent.marketing) {
+            gtag('consent', 'update', {
+              'ad_storage': 'granted',
+              'ad_user_data': 'granted',
+              'ad_personalization': 'granted'
+            });
+          }
+        }
+      } catch(e) {}
+    })();
+    </script>
+
+    <!-- Google Tag Manager - loads after consent mode is configured -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T7NS656K');</script>
+    <!-- End Google Tag Manager -->
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Primary Meta Tags -->
+    <title>KodiniTools - Free Online Audio & Image Tools</title>
+    <meta name="title" content="KodiniTools - Free Online Audio & Image Tools">
+    <meta name="description" content="Professional audio and image editing tools free in your browser. MP3 Converter, Audio Equalizer, Image Converter and more. No installation required, 100% private.">
+    <meta name="keywords" content="Audio Tools, Image Editing, MP3 Converter, Audio Equalizer, Image Converter, Online Tools, free, Browser Tools, audio editor, image editor">
+    <meta name="author" content="Dinko Ramic">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="en">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kodinitools.com/en/">
+    <meta property="og:title" content="KodiniTools - Free Online Audio & Image Tools">
+    <meta property="og:description" content="Professional audio and image editing tools free in your browser. MP3 Converter, Audio Equalizer, Image Converter and more.">
+    <meta property="og:image" content="https://kodinitools.com/images/kodinitools-og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="de_DE">
+    <meta property="og:site_name" content="KodiniTools">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://kodinitools.com/en/">
+    <meta property="twitter:title" content="KodiniTools - Free Online Audio & Image Tools">
+    <meta property="twitter:description" content="Professional audio and image editing tools free in your browser. MP3 Converter, Audio Equalizer, Image Converter and more.">
+    <meta property="twitter:image" content="https://kodinitools.com/images/kodinitools-twitter-image.jpg">
+    <meta property="twitter:creator" content="@kodinitools">
+
+    <!-- Additional SEO Meta Tags -->
+    <meta name="theme-color" content="#005cda">
+    <meta name="msapplication-TileColor" content="#005cda">
+    <meta name="msapplication-config" content="/browserconfig.xml">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="geo.region" content="CH-ZH">
+    <meta name="geo.placename" content="Uster">
+    <meta name="geo.position" content="47.3467;8.7208">
+    <meta name="ICBM" content="47.3467, 8.7208">
+
+    <!-- Structured Data - English Version -->
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            "name": "KodiniTools",
+            "url": "https://kodinitools.com/en/",
+            "description": "Free online tools for audio and image editing directly in the browser",
+            "applicationCategory": "MultimediaApplication",
+            "operatingSystem": "Web Browser",
+            "inLanguage": "en",
+            "offers": {"@type":"Offer","price":"0","priceCurrency":"USD"},
+            "author": {"@type":"Person","name":"Dinko Ramic","url":"https://kodinitools.com/uebermich"},
+            "publisher": {"@type":"Organization","name":"KodiniTools","url":"https://kodinitools.com"},
+            "featureList": ["MP3 Converter","Audio Equalizer","Music Player","Audio Visualizer","Image Converter","Batch Image Editor"]
+        }
+    </script>
+
+    <!-- Organization Schema -->
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "KodiniTools",
+            "url": "https://kodinitools.com",
+            "logo": "https://kodinitools.com/images/logo.svg",
+            "sameAs": [
+                "https://www.facebook.com/kodinitools"
+            ],
+            "contactPoint": {
+                "@type": "ContactPoint",
+                "contactType": "customer service",
+                "url": "https://kodinitools.com/kontaktformular/",
+                "availableLanguage": ["German", "English"]
+            }
+        }
+    </script>
+
+    <!-- Links -->
+    <link rel="canonical" href="https://kodinitools.com/en/">
+    <link rel="alternate" hreflang="de" href="https://kodinitools.com/">
+    <link rel="alternate" hreflang="en" href="https://kodinitools.com/en/">
+    <link rel="alternate" hreflang="x-default" href="https://kodinitools.com/">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <!-- Stylesheets -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Set English as default language -->
+    <script>
+        // Set language to English for this page
+        localStorage.setItem('language', 'en');
+    </script>
+</head>
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T7NS656K"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <!-- Vue App mounted here -->
+  <div id="app"></div>
+
+  <!-- Vite Entry Point for Vue + TypeScript -->
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
