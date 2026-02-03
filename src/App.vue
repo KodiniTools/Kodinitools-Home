@@ -178,6 +178,7 @@
           </div>
 
           <a href="https://kodinitools.com/kontaktformular/" class="nav-link" @click="closeMobileMenu">{{ $t('navigation.contact') }}</a>
+          <a @click.prevent="toggleFaq(); closeMobileMenu()" href="#faq" class="nav-link faq-link">FAQ</a>
           <a @click.prevent="toggleBlog(); closeMobileMenu()" href="#blog" class="nav-link blog-link">{{ $t('navigation.blog') }}</a>
 
           <!-- Mobile: Controls inside menu -->
@@ -197,8 +198,11 @@
     <!-- Blog Page -->
     <BlogPage v-if="showBlog" @goHome="goHome" />
 
+    <!-- FAQ Page -->
+    <FaqPage v-if="showFaq" @goHome="goHome" />
+
     <!-- Main Content -->
-    <template v-else>
+    <template v-else-if="!showFaq">
     <!-- Hero Section with Animated Mesh Gradient -->
     <section class="hero">
       <!-- Animated Mesh Gradient Background -->
@@ -660,6 +664,7 @@ import DonateButton from './components/DonateButton.vue'
 import CookieBanner from './components/CookieBanner.vue'
 import AppFooter from './components/AppFooter.vue'
 import BlogPage from './components/BlogPage.vue'
+import FaqPage from './components/FaqPage.vue'
 
 const { t, locale } = useI18n()
 
@@ -679,13 +684,26 @@ const showBlog = ref(false)
 
 const toggleBlog = () => {
   showBlog.value = !showBlog.value
+  showFaq.value = false
   if (showBlog.value) {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+}
+
+// FAQ page toggle
+const showFaq = ref(false)
+
+const toggleFaq = () => {
+  showFaq.value = !showFaq.value
+  showBlog.value = false
+  if (showFaq.value) {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 }
 
 const goHome = () => {
   showBlog.value = false
+  showFaq.value = false
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
