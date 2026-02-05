@@ -1819,14 +1819,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 1.5rem;
-  padding: 1rem;
-  border: 1px solid rgba(162, 134, 128, 0.2);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   animation: logoFloat 3s ease-in-out infinite;
-  box-shadow: 0 10px 40px rgba(162, 134, 128, 0.15),
-              0 0 0 1px rgba(255, 255, 255, 0.5) inset;
 }
 
 @keyframes logoFloat {
@@ -1840,7 +1834,6 @@ body {
 
 .hero-logo:hover {
   transform: scale(1.08) rotate(3deg);
-  box-shadow: 0 20px 60px rgba(162, 134, 128, 0.25);
 }
 
 .hero-logo img {
@@ -1849,16 +1842,6 @@ body {
   object-fit: contain;
 }
 
-[data-theme="dark"] .hero-logo {
-  background: rgba(22, 22, 28, 0.9);
-  border-color: rgba(242, 226, 142, 0.2);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3),
-              0 0 0 1px rgba(242, 226, 142, 0.1) inset;
-}
-
-[data-theme="dark"] .hero-logo:hover {
-  box-shadow: 0 20px 60px rgba(242, 226, 142, 0.15);
-}
 
 /* Features Grid */
 .features-grid {
@@ -2538,7 +2521,6 @@ body {
   .hero-logo {
     width: 90px;
     height: 90px;
-    padding: 0.75rem;
   }
 
   .hero-title {
@@ -2668,8 +2650,6 @@ body {
   .hero-logo {
     width: 80px;
     height: 80px;
-    padding: 0.6rem;
-    border-radius: 1rem;
   }
 
   @keyframes logoFloat {
