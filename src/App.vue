@@ -1862,10 +1862,10 @@ body {
   --feature-mouse-x: 50%;
   --feature-mouse-y: 50%;
   position: relative;
-  background: rgba(255, 255, 255, 0.8);
+  background: linear-gradient(135deg, #014f99 0%, #003971 100%);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(1, 79, 153, 0.12);
+  border: 1px solid rgba(201, 152, 77, 0.2);
   padding: 0.85rem 0.5rem;
   border-radius: 0.75rem;
   text-align: center;
@@ -1887,7 +1887,7 @@ body {
   bottom: 0;
   background: radial-gradient(
     circle at var(--feature-mouse-x) var(--feature-mouse-y),
-    rgba(1, 79, 153, 0.12) 0%,
+    rgba(201, 152, 77, 0.2) 0%,
     transparent 60%
   );
   opacity: 0;
@@ -1908,9 +1908,10 @@ body {
 .feature-card:nth-child(6) { animation-delay: 0.35s; }
 
 .feature-card:hover {
-  background: rgba(255, 255, 255, 0.95);
-  border-color: rgba(1, 79, 153, 0.25);
-  box-shadow: 0 15px 35px rgba(0, 57, 113, 0.15), 0 5px 15px rgba(0, 0, 0, 0.08);
+  background: linear-gradient(135deg, #0160b8 0%, #014f99 100%);
+  border-color: rgba(201, 152, 77, 0.5);
+  box-shadow: 0 10px 30px rgba(0, 57, 113, 0.3), 0 0 15px rgba(201, 152, 77, 0.15);
+  transform: translateY(-2px);
 }
 
 [data-theme="dark"] .feature-card {
@@ -1940,8 +1941,9 @@ body {
   position: relative;
   z-index: 1;
   font-weight: 600;
-  color: #003971;
+  color: #c9984d;
   font-size: 0.7rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 }
 
 /* Spotlight Search Box */
