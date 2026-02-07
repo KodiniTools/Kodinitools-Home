@@ -616,9 +616,9 @@ const handleGoHome = () => {
 
 <style scoped>
 .blog-page {
-  max-width: 900px;
+  max-width: 820px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 1.5rem 1rem;
   color: var(--text-color);
   min-height: 100vh;
 }
@@ -626,58 +626,60 @@ const handleGoHome = () => {
 /* Blog Header */
 .blog-header {
   text-align: center;
-  padding: 3rem 1rem;
-  background: var(--gradient-1, linear-gradient(135deg, #A28680 0%, #5E5F69 100%));
-  border-radius: 16px;
-  margin-bottom: 2rem;
+  padding: 2rem 1.5rem;
+  background: var(--gradient-1);
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
   color: white;
 }
 
 .blog-badge {
   display: inline-block;
   background: rgba(255, 255, 255, 0.2);
-  padding: 0.5rem 1rem;
+  padding: 0.35rem 0.85rem;
   border-radius: 20px;
-  font-size: 0.875rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
+  letter-spacing: 0.03em;
 }
 
 .blog-title {
-  font-size: 2.5rem;
+  font-size: 1.75rem;
   font-weight: 800;
-  margin: 0 0 1rem 0;
-  line-height: 1.2;
+  margin: 0 0 0.6rem 0;
+  line-height: 1.25;
 }
 
 .blog-subtitle {
-  font-size: 1.25rem;
+  font-size: 0.9rem;
   opacity: 0.9;
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 1rem 0;
+  line-height: 1.5;
 }
 
 .blog-meta {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   opacity: 0.8;
 }
 
 .blog-separator {
-  margin: 0 0.5rem;
+  margin: 0 0.4rem;
 }
 
 /* Table of Contents */
 .blog-toc {
   background: var(--bg-secondary);
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
   border: 1px solid var(--border-color);
 }
 
 .toc-title {
-  font-size: 1.25rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  margin: 0 0 1rem 0;
+  margin: 0 0 0.75rem 0;
 }
 
 .toc-list {
@@ -685,31 +687,33 @@ const handleGoHome = () => {
   padding: 0;
   margin: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 0.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.3rem;
 }
 
 .toc-list a {
   color: var(--primary-color);
   text-decoration: none;
-  padding: 0.5rem;
+  padding: 0.35rem 0.5rem;
   display: block;
   border-radius: 6px;
   transition: background 0.2s;
+  font-size: 0.8rem;
 }
 
 .toc-list a:hover {
-  background: rgba(162, 134, 128, 0.1);
+  background: rgba(1, 79, 153, 0.08);
 }
 
 /* Blog Content */
 .blog-content {
-  line-height: 1.8;
+  line-height: 1.65;
+  font-size: 0.85rem;
 }
 
 .blog-section {
-  margin-bottom: 3rem;
-  padding-bottom: 2rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -718,62 +722,64 @@ const handleGoHome = () => {
 }
 
 .section-title {
-  font-size: 2rem;
+  font-size: 1.3rem;
   font-weight: 700;
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 1rem 0;
   color: var(--text-color);
 }
 
 .section-intro {
-  font-size: 1.125rem;
+  font-size: 0.85rem;
   color: var(--text-secondary);
-  margin-bottom: 2rem;
+  margin-bottom: 1.25rem;
 }
 
 .section-text {
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 /* Highlight Box */
 .highlight-box {
-  background: linear-gradient(135deg, rgba(162, 134, 128, 0.1) 0%, rgba(94, 95, 105, 0.1) 100%);
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin: 1.5rem 0;
-  border-left: 4px solid var(--primary-color);
+  background: linear-gradient(135deg, rgba(1, 79, 153, 0.06) 0%, rgba(0, 57, 113, 0.06) 100%);
+  border-radius: 10px;
+  padding: 1.15rem;
+  margin: 1rem 0;
+  border-left: 3px solid var(--primary-color);
 }
 
 .highlight-box h3 {
-  margin: 0 0 1rem 0;
-  font-size: 1.125rem;
+  margin: 0 0 0.6rem 0;
+  font-size: 0.9rem;
 }
 
 .feature-list {
   margin: 0;
-  padding-left: 1.5rem;
+  padding-left: 1.25rem;
 }
 
 .feature-list li {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.3rem;
+  font-size: 0.83rem;
 }
 
 /* Quote */
 .blog-quote {
   font-style: italic;
-  font-size: 1.25rem;
-  border-left: 4px solid var(--primary-color);
-  padding: 1rem 1.5rem;
-  margin: 1.5rem 0;
+  font-size: 0.9rem;
+  border-left: 3px solid var(--primary-color);
+  padding: 0.85rem 1.15rem;
+  margin: 1rem 0;
   background: var(--bg-secondary);
   border-radius: 0 8px 8px 0;
+  line-height: 1.6;
 }
 
 /* Tool Cards */
 .tool-card {
   background: var(--bg-secondary);
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
+  border-radius: 10px;
+  padding: 1.15rem;
+  margin-bottom: 1rem;
   border: 1px solid var(--border-color);
   transition: transform 0.2s, box-shadow 0.2s;
   position: relative;
@@ -781,7 +787,7 @@ const handleGoHome = () => {
 
 .tool-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 20px rgba(0, 57, 113, 0.1);
 }
 
 .tool-card a {
@@ -792,27 +798,28 @@ const handleGoHome = () => {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .tool-icon {
-  font-size: 2rem;
+  font-size: 1.4rem;
 }
 
 .tool-name {
-  font-size: 1.5rem;
+  font-size: 1.05rem;
   font-weight: 700;
   margin: 0;
   flex: 1;
 }
 
 .tool-badge {
-  padding: 0.25rem 0.75rem;
+  padding: 0.2rem 0.55rem;
   border-radius: 20px;
-  font-size: 0.75rem;
+  font-size: 0.6rem;
   font-weight: 600;
   text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .tool-badge.server {
@@ -846,38 +853,41 @@ const handleGoHome = () => {
 }
 
 .tool-description {
-  font-size: 1.125rem;
-  margin-bottom: 1rem;
+  font-size: 0.83rem;
+  margin-bottom: 0.75rem;
   color: var(--text-color);
+  line-height: 1.55;
 }
 
 .tool-features h4,
 .tool-usecase h4 {
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.35rem 0;
   color: var(--text-color);
 }
 
 .tool-features ul {
-  margin: 0 0 1rem 0;
-  padding-left: 1.5rem;
+  margin: 0 0 0.75rem 0;
+  padding-left: 1.25rem;
 }
 
 .tool-features li {
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.2rem;
+  font-size: 0.8rem;
 }
 
 .tool-usecase {
-  background: rgba(162, 134, 128, 0.08);
-  padding: 1rem;
+  background: rgba(1, 79, 153, 0.05);
+  padding: 0.75rem;
   border-radius: 8px;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .tool-usecase p {
   margin: 0;
   font-style: italic;
+  font-size: 0.8rem;
 }
 
 .tool-link {
@@ -887,12 +897,13 @@ const handleGoHome = () => {
   text-decoration: none;
   transition: all 0.2s;
   cursor: pointer;
-  padding: 0.5rem 1rem;
-  background: rgba(162, 134, 128, 0.15);
+  padding: 0.4rem 0.85rem;
+  background: rgba(1, 79, 153, 0.08);
   border-radius: 6px;
-  margin-top: 0.5rem;
+  margin-top: 0.35rem;
   position: relative;
   z-index: 10;
+  font-size: 0.8rem;
 }
 
 .tool-link:hover {
@@ -908,14 +919,14 @@ const handleGoHome = () => {
 /* Processing Comparison */
 .processing-comparison {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin-top: 1.5rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 .processing-card {
-  padding: 1.5rem;
-  border-radius: 12px;
+  padding: 1.15rem;
+  border-radius: 10px;
   border: 2px solid;
 }
 
@@ -930,103 +941,108 @@ const handleGoHome = () => {
 }
 
 .processing-card h3 {
-  margin: 0 0 1rem 0;
-  font-size: 1.25rem;
+  margin: 0 0 0.6rem 0;
+  font-size: 1rem;
 }
 
 .processing-description {
-  margin-bottom: 1rem;
+  margin-bottom: 0.6rem;
+  font-size: 0.83rem;
 }
 
 .processing-card ul {
-  margin: 0 0 1rem 0;
-  padding-left: 1.5rem;
+  margin: 0 0 0.6rem 0;
+  padding-left: 1.25rem;
+  font-size: 0.8rem;
 }
 
 .processing-tools {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: var(--text-secondary);
 }
 
 /* Privacy Features */
 .privacy-features {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-top: 1.5rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 .privacy-item {
   text-align: center;
-  padding: 1.5rem;
+  padding: 1.15rem;
   background: var(--bg-secondary);
-  border-radius: 12px;
+  border-radius: 10px;
 }
 
 .privacy-icon {
-  font-size: 2.5rem;
+  font-size: 1.75rem;
   display: block;
-  margin-bottom: 1rem;
+  margin-bottom: 0.6rem;
 }
 
 .privacy-item h4 {
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.35rem 0;
+  font-size: 0.85rem;
 }
 
 .privacy-item p {
   margin: 0;
-  font-size: 0.875rem;
+  font-size: 0.78rem;
   color: var(--text-secondary);
 }
 
 /* Premium Features */
 .premium-features {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-top: 1.5rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-top: 1rem;
 }
 
 .premium-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
+  gap: 0.6rem;
+  padding: 0.75rem;
   background: var(--bg-secondary);
   border-radius: 8px;
 }
 
 .premium-icon {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
 }
 
 /* CTA Box */
 .cta-box {
   text-align: center;
-  padding: 2rem;
-  background: var(--gradient-1, linear-gradient(135deg, #A28680 0%, #5E5F69 100%));
-  border-radius: 16px;
+  padding: 1.5rem;
+  background: var(--gradient-1);
+  border-radius: 12px;
   color: white;
-  margin-top: 2rem;
+  margin-top: 1.5rem;
 }
 
 .cta-box h3 {
-  margin: 0 0 1rem 0;
-  font-size: 1.5rem;
+  margin: 0 0 0.6rem 0;
+  font-size: 1.1rem;
 }
 
 .cta-box p {
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 1rem 0;
   opacity: 0.9;
+  font-size: 0.83rem;
 }
 
 .cta-button {
   display: inline-block;
   background: white;
-  color: #5E5F69;
-  padding: 0.75rem 2rem;
+  color: #003971;
+  padding: 0.55rem 1.5rem;
   border-radius: 30px;
   font-weight: 600;
+  font-size: 0.8rem;
   text-decoration: none;
   transition: transform 0.2s, box-shadow 0.2s;
 }
@@ -1034,14 +1050,15 @@ const handleGoHome = () => {
 .cta-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  background: var(--accent-color, #F2E28E);
+  background: var(--accent-color);
+  color: #003971;
 }
 
 /* Blog Footer */
 .blog-footer {
   text-align: center;
-  padding: 2rem;
-  margin-top: 2rem;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
 }
 
 .back-link {
@@ -1049,11 +1066,12 @@ const handleGoHome = () => {
   text-decoration: none;
   font-weight: 600;
   cursor: pointer;
-  padding: 0.5rem 1rem;
-  background: rgba(162, 134, 128, 0.15);
+  padding: 0.4rem 0.85rem;
+  background: rgba(1, 79, 153, 0.08);
   border-radius: 6px;
   display: inline-block;
   transition: all 0.2s;
+  font-size: 0.8rem;
 }
 
 .back-link:hover {
@@ -1064,15 +1082,15 @@ const handleGoHome = () => {
 
 /* Dark Mode Support */
 [data-theme="dark"] .tool-usecase {
-  background: rgba(242, 226, 142, 0.08);
+  background: rgba(242, 226, 142, 0.06);
 }
 
 [data-theme="dark"] .toc-list a:hover {
-  background: rgba(242, 226, 142, 0.1);
+  background: rgba(242, 226, 142, 0.08);
 }
 
 [data-theme="dark"] .tool-link {
-  background: rgba(242, 226, 142, 0.1);
+  background: rgba(242, 226, 142, 0.08);
 }
 
 [data-theme="dark"] .tool-link:hover {
@@ -1080,7 +1098,7 @@ const handleGoHome = () => {
 }
 
 [data-theme="dark"] .back-link {
-  background: rgba(242, 226, 142, 0.1);
+  background: rgba(242, 226, 142, 0.08);
 }
 
 [data-theme="dark"] .back-link:hover {
@@ -1088,17 +1106,25 @@ const handleGoHome = () => {
 }
 
 [data-theme="dark"] .tool-card:hover {
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
 /* Responsive */
 @media (max-width: 768px) {
+  .blog-page {
+    padding: 1rem 0.75rem;
+  }
+
   .blog-title {
-    font-size: 1.75rem;
+    font-size: 1.35rem;
+  }
+
+  .blog-subtitle {
+    font-size: 0.8rem;
   }
 
   .section-title {
-    font-size: 1.5rem;
+    font-size: 1.1rem;
   }
 
   .tool-header {
@@ -1107,10 +1133,22 @@ const handleGoHome = () => {
   }
 
   .tool-name {
-    font-size: 1.25rem;
+    font-size: 0.95rem;
   }
 
   .toc-list {
+    grid-template-columns: 1fr;
+  }
+
+  .privacy-features {
+    grid-template-columns: 1fr;
+  }
+
+  .premium-features {
+    grid-template-columns: 1fr;
+  }
+
+  .processing-comparison {
     grid-template-columns: 1fr;
   }
 }
