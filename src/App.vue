@@ -1941,7 +1941,7 @@ body {
   position: relative;
   z-index: 1;
   font-weight: 600;
-  color: #c9984d;
+  color: #F5F4D6;
   font-size: 0.7rem;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 }
