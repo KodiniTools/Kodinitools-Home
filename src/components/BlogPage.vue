@@ -27,7 +27,6 @@
         <li><a href="#diverse-tools">{{ $t('blog.toc.diverseTools') }}</a></li>
         <li><a href="#processing">{{ $t('blog.toc.processing') }}</a></li>
         <li><a href="#privacy">{{ $t('blog.toc.privacy') }}</a></li>
-        <li><a href="#premium">{{ $t('blog.toc.premium') }}</a></li>
         <li><a href="#conclusion">{{ $t('blog.toc.conclusion') }}</a></li>
       </ul>
     </nav>
@@ -551,32 +550,6 @@
         </div>
       </section>
 
-      <!-- Premium -->
-      <section id="premium" class="blog-section">
-        <h2 class="section-title">{{ $t('blog.sections.premium.title') }}</h2>
-        <p class="section-text">{{ $t('blog.sections.premium.p1') }}</p>
-        <p class="section-text">{{ $t('blog.sections.premium.p2') }}</p>
-
-        <div class="premium-features">
-          <div class="premium-item">
-            <span class="premium-icon">⭐</span>
-            <span>{{ $t('blog.sections.premium.feature1') }}</span>
-          </div>
-          <div class="premium-item">
-            <span class="premium-icon">🚀</span>
-            <span>{{ $t('blog.sections.premium.feature2') }}</span>
-          </div>
-          <div class="premium-item">
-            <span class="premium-icon">🚫</span>
-            <span>{{ $t('blog.sections.premium.feature3') }}</span>
-          </div>
-          <div class="premium-item">
-            <span class="premium-icon">💬</span>
-            <span>{{ $t('blog.sections.premium.feature4') }}</span>
-          </div>
-        </div>
-      </section>
-
       <!-- Conclusion -->
       <section id="conclusion" class="blog-section">
         <h2 class="section-title">{{ $t('blog.sections.conclusion.title') }}</h2>
@@ -993,27 +966,6 @@ const handleGoHome = () => {
   color: var(--text-secondary);
 }
 
-/* Premium Features */
-.premium-features {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.75rem;
-  margin-top: 1rem;
-}
-
-.premium-item {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.75rem;
-  background: var(--bg-secondary);
-  border-radius: 8px;
-}
-
-.premium-icon {
-  font-size: 1.2rem;
-}
-
 /* CTA Box */
 .cta-box {
   text-align: center;
@@ -1141,10 +1093,6 @@ const handleGoHome = () => {
   }
 
   .privacy-features {
-    grid-template-columns: 1fr;
-  }
-
-  .premium-features {
     grid-template-columns: 1fr;
   }
 
