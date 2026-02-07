@@ -18,16 +18,16 @@ html {
 
 /* CSS-Variablen für automatische Theme-Anpassung */
 .global-nav {
-    --nav-bg: rgba(255, 255, 255, 0.9);
-    --nav-text: #2d3748;
-    --nav-text-hover: #1a202c;
-    --nav-bg-hover: rgba(0, 0, 0, 0.05);
-    --nav-border: rgba(0, 0, 0, 0.1);
-    --nav-shadow: rgba(0, 0, 0, 0.1);
-    --dropdown-bg: rgba(255, 255, 255, 0.95);
-    --dropdown-border: rgba(0, 0, 0, 0.08);
-    --dropdown-shadow: rgba(0, 0, 0, 0.15);
-    --accent-color: #4f46e5;
+    --nav-bg: rgba(249, 242, 213, 0.9);
+    --nav-text: #003971;
+    --nav-text-hover: #001d3d;
+    --nav-bg-hover: rgba(1, 79, 153, 0.06);
+    --nav-border: rgba(1, 79, 153, 0.1);
+    --nav-shadow: rgba(0, 57, 113, 0.08);
+    --dropdown-bg: rgba(255, 255, 255, 0.97);
+    --dropdown-border: rgba(1, 79, 153, 0.08);
+    --dropdown-shadow: rgba(0, 57, 113, 0.12);
+    --accent-color: #014f99;
 }
 
 /* Dark Theme Support */
@@ -273,7 +273,7 @@ html {
 @supports not (backdrop-filter: blur(20px)) {
     .global-nav {
         background: var(--nav-bg);
-        background: rgba(255, 255, 255, 0.95);
+        background: rgba(249, 242, 213, 0.97);
     }
 
     @media (prefers-color-scheme: dark) {
