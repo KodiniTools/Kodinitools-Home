@@ -199,10 +199,10 @@
     <BlogPage v-if="showBlog" @goHome="goHome" />
 
     <!-- FAQ Page -->
-    <FaqPage v-if="showFaq" @goHome="goHome" />
+    <FaqPage v-else-if="showFaq" @goHome="goHome" />
 
     <!-- Main Content -->
-    <template v-else-if="!showFaq">
+    <template v-else>
     <!-- Hero Section with Animated Mesh Gradient -->
     <section class="hero">
       <!-- Animated Mesh Gradient Background -->
