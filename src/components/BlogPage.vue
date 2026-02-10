@@ -1034,27 +1034,27 @@ const handleGoHome = () => {
 
 /* Dark Mode Support */
 [data-theme="dark"] .tool-usecase {
-  background: rgba(242, 226, 142, 0.06);
+  background: rgba(201, 152, 77, 0.06);
 }
 
 [data-theme="dark"] .toc-list a:hover {
-  background: rgba(242, 226, 142, 0.08);
+  background: rgba(201, 152, 77, 0.08);
 }
 
 [data-theme="dark"] .tool-link {
-  background: rgba(242, 226, 142, 0.08);
+  background: rgba(201, 152, 77, 0.08);
 }
 
 [data-theme="dark"] .tool-link:hover {
-  color: #0C0C10;
+  color: #091428;
 }
 
 [data-theme="dark"] .back-link {
-  background: rgba(242, 226, 142, 0.08);
+  background: rgba(201, 152, 77, 0.08);
 }
 
 [data-theme="dark"] .back-link:hover {
-  color: #0C0C10;
+  color: #091428;
 }
 
 [data-theme="dark"] .tool-card:hover {

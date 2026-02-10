@@ -75,7 +75,7 @@ const setLocale = (newLocale: 'de' | 'en') => {
 }
 
 [data-theme="dark"] .locale-btn.active {
-  color: #0C0C10;
+  color: #091428;
 }
 
 /* Animated slider background */
