@@ -302,11 +302,11 @@ watch(locale, () => {
 }
 
 [data-theme="dark"] .back-home-btn {
-  background: rgba(242, 226, 142, 0.08);
+  background: rgba(201, 152, 77, 0.08);
 }
 
 [data-theme="dark"] .back-home-btn:hover {
-  color: #0C0C10;
+  color: #091428;
 }
 
 /* Responsive */

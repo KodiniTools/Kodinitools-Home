@@ -230,8 +230,8 @@ defineExpose({ openSettings })
 }
 
 [data-theme="dark"] .cookie-banner {
-  background: #1a1a1f;
-  border-top-color: rgba(242, 226, 142, 0.2);
+  background: #0E1C32;
+  border-top-color: rgba(201, 152, 77, 0.2);
 }
 
 .cookie-content {
@@ -301,7 +301,7 @@ defineExpose({ openSettings })
 
 .cookie-btn-accept:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(162, 134, 128, 0.3);
+  box-shadow: 0 4px 12px rgba(1, 79, 153, 0.3);
 }
 
 /* Reject button - equally prominent as accept */
@@ -330,12 +330,12 @@ defineExpose({ openSettings })
 
 .cookie-btn-save {
   background: var(--gradient-2);
-  color: #0C0C10;
+  color: #f9f2d5;
 }
 
 .cookie-btn-save:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(242, 226, 142, 0.3);
+  box-shadow: 0 4px 12px rgba(201, 152, 77, 0.3);
 }
 
 /* Modal Styles */
@@ -366,8 +366,8 @@ defineExpose({ openSettings })
 }
 
 [data-theme="dark"] .cookie-modal {
-  background: #1a1a1f;
-  border: 1px solid rgba(242, 226, 142, 0.2);
+  background: #0E1C32;
+  border: 1px solid rgba(201, 152, 77, 0.2);
 }
 
 .cookie-modal-header {
@@ -504,11 +504,11 @@ defineExpose({ openSettings })
 }
 
 .cookie-toggle input[type="checkbox"]:focus + .toggle-switch::before {
-  box-shadow: 0 0 0 3px rgba(162, 134, 128, 0.3);
+  box-shadow: 0 0 0 3px rgba(1, 79, 153, 0.3);
 }
 
 [data-theme="dark"] .cookie-toggle input[type="checkbox"]:focus + .toggle-switch::before {
-  box-shadow: 0 0 0 3px rgba(242, 226, 142, 0.3);
+  box-shadow: 0 0 0 3px rgba(201, 152, 77, 0.3);
 }
 
 .cookie-modal-footer {
