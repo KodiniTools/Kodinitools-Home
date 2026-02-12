@@ -870,9 +870,16 @@ const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
+// Check if device supports touch (disable tilt on touch devices)
+const isTouchDevice = () => {
+  if (typeof window === 'undefined') return false
+  return 'ontouchstart' in window || navigator.maxTouchPoints > 0
+}
+
 // 3D Tilt Effect for Cards - Using Event Delegation for reliability
 const initTiltEffect = () => {
   if (typeof window === 'undefined') return
+  if (isTouchDevice()) return // Skip tilt on touch devices
 
   // Use event delegation on document for better reliability
   document.addEventListener('mousemove', (e: MouseEvent) => {
@@ -927,6 +934,7 @@ const initTiltEffect = () => {
 // 3D Tilt Effect for Feature Cards in Hero Section
 const initFeatureCardTilt = () => {
   if (typeof window === 'undefined') return
+  if (isTouchDevice()) return // Skip tilt on touch devices
 
   const featuresGrid = document.querySelector('.features-grid')
   if (!featuresGrid) return
@@ -2460,6 +2468,10 @@ body {
   .hamburger-btn {
     display: flex;
     order: 2;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
   }
 
   .nav-controls-desktop {
@@ -2509,25 +2521,45 @@ body {
   }
 
   .dropdown-menu {
+    display: block; /* Always visible in mobile menu */
     position: relative;
     width: 100%;
     margin-top: 0.25rem;
     box-shadow: none;
     background: rgba(0, 0, 0, 0.03);
     border-radius: 0.5rem;
+    border: none;
+    animation: none;
+  }
+
+  .dropdown-menu::before {
+    display: none;
   }
 
   [data-theme="dark"] .dropdown-menu {
     background: rgba(255, 255, 255, 0.05);
   }
 
+  .nav-dropdown > .nav-link {
+    padding-bottom: 0.5rem;
+    font-weight: 600;
+    pointer-events: none; /* Disable parent link click on mobile */
+  }
+
   .nav-link {
     padding: 0.75rem 1rem;
     display: block;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .dropdown-item {
-    padding: 0.6rem 1rem;
+    padding: 0.6rem 1rem 0.6rem 1.5rem;
+    min-height: 44px; /* Minimum touch target size */
+    display: flex;
+    align-items: center;
   }
 
   .hero {
@@ -2562,6 +2594,10 @@ body {
 
   .feature-card {
     padding: 0.65rem 0.4rem;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .feature-text {
@@ -2640,6 +2676,10 @@ body {
     padding: 0.75rem 1rem;
   }
 
+  .spotlight-search .search-input {
+    font-size: 16px; /* Prevents iOS auto-zoom on focus */
+  }
+
   .search-kbd {
     display: none;
   }
@@ -2690,16 +2730,16 @@ body {
 
   /* Features Grid Small Mobile */
   .features-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 0.4rem;
   }
 
   .feature-card {
-    padding: 0.5rem 0.3rem;
+    padding: 0.55rem 0.4rem;
   }
 
   .feature-text {
-    font-size: 0.5rem;
+    font-size: 0.55rem;
   }
 
   /* Bento Grid Small Mobile */
@@ -2818,6 +2858,11 @@ body {
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body {
+  overflow-x: hidden;
 }
 
 /* Better focus styles for accessibility */
@@ -2831,6 +2876,58 @@ button:focus {
 * {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Disable 3D tilt and hover effects on touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .tool-card {
+    transform: none !important;
+  }
+
+  .feature-card {
+    transform: none !important;
+  }
+
+  .tool-card-link:hover .tool-icon,
+  .tool-card-link:hover h3,
+  .tool-card-link:hover .badge-container {
+    transform: none;
+  }
+
+  .card-glow {
+    display: none;
+  }
+
+  .feature-card::before {
+    display: none;
+  }
+
+  .mouse-spotlight {
+    display: none;
+  }
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .mesh-blob,
+  .floating-icon,
+  .hero-logo {
+    animation: none !important;
+  }
+
+  .scroll-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
 
 /* Search Box Styles */
@@ -3014,11 +3111,25 @@ button:focus {
     max-width: 100%;
   }
 
+  .search-results-section {
+    margin: 0.75rem 1rem;
+    padding: 1rem !important;
+    border-radius: 0.75rem;
+  }
+
+  .search-results-section .section-header h2 {
+    font-size: 1rem;
+  }
+
+  .search-results-section .section-header p {
+    font-size: 0.75rem;
+  }
+
   .scroll-to-top {
     width: 2.5rem;
     height: 2.5rem;
     font-size: 1rem;
-    bottom: 5rem;
+    bottom: 5.5rem;
     right: 1rem;
   }
 }
@@ -3040,11 +3151,17 @@ button:focus {
     font-size: 0.9rem;
   }
 
+  .search-results-section {
+    margin: 0.5rem 0.75rem;
+    padding: 0.75rem !important;
+  }
+
   .scroll-to-top {
     width: 2.25rem;
     height: 2.25rem;
     font-size: 0.9rem;
-    bottom: 4.5rem;
+    bottom: 5rem;
+    right: 0.75rem;
   }
 }
 

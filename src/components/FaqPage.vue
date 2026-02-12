@@ -339,4 +339,59 @@ watch(locale, () => {
     font-size: 0.8rem;
   }
 }
+
+@media (max-width: 480px) {
+  .faq-page {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .faq-header {
+    padding: 1.25rem 1rem;
+    border-radius: 10px;
+  }
+
+  .faq-title {
+    font-size: 1.15rem;
+  }
+
+  .faq-subtitle {
+    font-size: 0.75rem;
+  }
+
+  .faq-question {
+    padding: 0.75rem 0.85rem;
+    min-height: 44px;
+  }
+
+  .question-text {
+    font-size: 0.78rem;
+  }
+
+  .question-icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .question-icon svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .faq-answer {
+    padding: 0 0.85rem 0.85rem;
+  }
+
+  .faq-answer p {
+    font-size: 0.75rem;
+  }
+
+  .faq-footer {
+    padding: 1rem;
+  }
+
+  .back-home-btn {
+    font-size: 0.75rem;
+    min-height: 44px;
+  }
+}
 </style>

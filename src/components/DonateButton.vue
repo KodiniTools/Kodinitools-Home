@@ -52,6 +52,17 @@ onMounted(() => {
   .donate-floating-button {
     bottom: 1rem;
     right: 1rem;
+    transform: scale(0.9);
+    transform-origin: bottom right;
+  }
+}
+
+@media (max-width: 480px) {
+  .donate-floating-button {
+    bottom: 0.75rem;
+    right: 0.75rem;
+    transform: scale(0.85);
+    transform-origin: bottom right;
   }
 }
 </style>

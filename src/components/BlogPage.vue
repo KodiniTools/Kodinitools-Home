@@ -1100,4 +1100,161 @@ const handleGoHome = () => {
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 480px) {
+  .blog-page {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .blog-header {
+    padding: 1.25rem 1rem;
+    border-radius: 10px;
+  }
+
+  .blog-title {
+    font-size: 1.15rem;
+  }
+
+  .blog-subtitle {
+    font-size: 0.75rem;
+  }
+
+  .blog-meta {
+    font-size: 0.65rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.15rem;
+  }
+
+  .blog-badge {
+    font-size: 0.6rem;
+    padding: 0.25rem 0.65rem;
+  }
+
+  .blog-toc {
+    padding: 1rem;
+  }
+
+  .toc-title {
+    font-size: 0.85rem;
+  }
+
+  .toc-list a {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.5rem;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
+  .section-title {
+    font-size: 1rem;
+  }
+
+  .blog-content {
+    font-size: 0.8rem;
+  }
+
+  .highlight-box {
+    padding: 0.85rem;
+  }
+
+  .highlight-box h3 {
+    font-size: 0.83rem;
+  }
+
+  .feature-list li {
+    font-size: 0.78rem;
+  }
+
+  .blog-quote {
+    font-size: 0.8rem;
+    padding: 0.65rem 0.85rem;
+  }
+
+  .tool-card {
+    padding: 0.85rem;
+    border-radius: 8px;
+  }
+
+  .tool-icon {
+    font-size: 1.25rem;
+  }
+
+  .tool-name {
+    font-size: 0.85rem;
+  }
+
+  .tool-description {
+    font-size: 0.78rem;
+  }
+
+  .tool-features li {
+    font-size: 0.75rem;
+  }
+
+  .tool-usecase p {
+    font-size: 0.75rem;
+  }
+
+  .tool-link {
+    font-size: 0.75rem;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .cta-box {
+    padding: 1rem;
+    border-radius: 10px;
+  }
+
+  .cta-box h3 {
+    font-size: 0.95rem;
+  }
+
+  .cta-box p {
+    font-size: 0.78rem;
+  }
+
+  .cta-button {
+    font-size: 0.75rem;
+    padding: 0.5rem 1.25rem;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .processing-card {
+    padding: 0.85rem;
+  }
+
+  .processing-card h3 {
+    font-size: 0.9rem;
+  }
+
+  .privacy-item {
+    padding: 0.85rem;
+  }
+
+  .privacy-icon {
+    font-size: 1.5rem;
+  }
+
+  .privacy-item h4 {
+    font-size: 0.8rem;
+  }
+
+  .privacy-item p {
+    font-size: 0.72rem;
+  }
+
+  .back-link {
+    font-size: 0.75rem;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
 </style>
