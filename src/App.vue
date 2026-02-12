@@ -2468,10 +2468,9 @@ body {
   .hamburger-btn {
     display: flex;
     order: 2;
-    min-width: 44px;
-    min-height: 44px;
-    align-items: center;
-    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 12px 8px;
   }
 
   .nav-controls-desktop {
