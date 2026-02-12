@@ -225,11 +225,65 @@ html {
     padding-left: 24px;
 }
 
+/* Hamburger Button - hidden on desktop */
+.global-nav-hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 44px;
+    height: 44px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 1001;
+    position: relative;
+}
+
+.global-nav-hamburger-line {
+    display: block;
+    width: 24px;
+    height: 3px;
+    background: var(--nav-text);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+    position: absolute;
+}
+
+.global-nav-hamburger-line:nth-child(1) {
+    top: 13px;
+}
+
+.global-nav-hamburger-line:nth-child(2) {
+    top: 20px;
+}
+
+.global-nav-hamburger-line:nth-child(3) {
+    top: 27px;
+}
+
+/* Hamburger -> X animation */
+.global-nav-hamburger.is-active .global-nav-hamburger-line:nth-child(1) {
+    top: 20px;
+    transform: rotate(45deg);
+}
+
+.global-nav-hamburger.is-active .global-nav-hamburger-line:nth-child(2) {
+    opacity: 0;
+}
+
+.global-nav-hamburger.is-active .global-nav-hamburger-line:nth-child(3) {
+    top: 20px;
+    transform: rotate(-45deg);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .global-nav-container {
         padding: 0 16px;
         height: 60px;
+        position: relative;
     }
 
     .global-nav-brand {
@@ -241,31 +295,114 @@ html {
         width: 22px;
     }
 
+    /* Show hamburger on mobile */
+    .global-nav-hamburger {
+        display: flex;
+    }
+
+    /* Hide nav links by default on mobile */
     .global-nav-links {
-        gap: 4px;
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        gap: 0.25rem;
+        width: 100%;
+        text-align: center;
+        background: var(--nav-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        padding: 1rem;
+        border-radius: 0 0 1rem 1rem;
+        box-shadow: 0 10px 40px var(--nav-shadow);
+        z-index: 1000;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    /* Show nav links when menu is open */
+    .global-nav-links.is-open {
+        display: flex;
+    }
+
+    .global-nav-item {
+        width: 100%;
     }
 
     .global-nav-link,
     .global-nav-dropdown-toggle {
-        padding: 8px 12px;
-        font-size: 0.9rem;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
     }
 
-    .global-nav-dropdown-menu {
-        min-width: 240px;
+    /* Dropdowns always expanded in mobile */
+    .global-nav-dropdown .global-nav-dropdown-menu {
+        display: block;
+        position: relative;
+        top: 0;
+        left: 0;
+        width: 100%;
+        min-width: unset;
+        margin-top: 0.25rem;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        box-shadow: none;
+        background: rgba(0, 0, 0, 0.03);
+        border-radius: 0.5rem;
+        border: none;
+        animation: none;
+        max-height: none;
     }
-}
 
-@media (max-width: 600px) {
-    .global-nav-links {
-        flex-wrap: wrap;
-        justify-content: flex-end;
+    [data-theme="dark"] .global-nav-dropdown .global-nav-dropdown-menu {
+        background: rgba(255, 255, 255, 0.05);
     }
 
-    .global-nav-dropdown-menu {
-        left: auto;
-        right: 0;
-        min-width: 200px;
+    @media (prefers-color-scheme: dark) {
+        .global-nav-dropdown .global-nav-dropdown-menu {
+            background: rgba(255, 255, 255, 0.05);
+        }
+    }
+
+    /* Hide dropdown toggle arrow on mobile */
+    .global-nav-dropdown-arrow {
+        display: none;
+    }
+
+    /* Dropdown toggle acts as label on mobile */
+    .global-nav-dropdown-toggle {
+        pointer-events: none;
+        font-weight: 600;
+    }
+
+    .global-nav-dropdown-item {
+        padding: 0.6rem 1rem 0.6rem 1.5rem;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-left: none;
+    }
+
+    .global-nav-dropdown-item:hover {
+        padding-left: 1.5rem;
+    }
+
+    /* Language switcher centered in mobile menu */
+    .global-nav-lang-switcher {
+        justify-content: center;
+        margin: 0.5rem auto 0;
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--nav-border);
+        margin-left: 0;
     }
 }
 
@@ -356,10 +493,6 @@ html:not(.custom-nav-page) {
 }
 
 @media (max-width: 768px) {
-    .global-nav-lang-switcher {
-        margin-left: 0.25rem;
-    }
-
     .global-nav-lang-btn {
         padding: 0.3rem 0.5rem;
         font-size: 0.8rem;
@@ -373,6 +506,13 @@ html:not(.custom-nav-page) {
             <img src="/android-chrome-192x192.png" alt="KodiniTools Logo" class="brand-logo-icon">
             <span>KodiniTools</span>
         </a>
+
+        <!-- Hamburger Button for Mobile -->
+        <button class="global-nav-hamburger" type="button" aria-label="Menü öffnen" aria-expanded="false">
+            <span class="global-nav-hamburger-line"></span>
+            <span class="global-nav-hamburger-line"></span>
+            <span class="global-nav-hamburger-line"></span>
+        </button>
 
         <div class="global-nav-links">
             <!-- Audiotools Dropdown -->
@@ -453,6 +593,9 @@ html:not(.custom-nav-page) {
 
         // Language Switcher Initialization
         initLanguageSwitcher();
+
+        // Mobile Hamburger Menu
+        initMobileMenu();
 
         const dropdowns = document.querySelectorAll('.global-nav-dropdown');
 
@@ -577,6 +720,49 @@ html:not(.custom-nav-page) {
                     dropdown.classList.remove('active');
                     dropdown.querySelector('.global-nav-dropdown-toggle').setAttribute('aria-expanded', 'false');
                 });
+                // Also close mobile menu on ESC
+                var hamburger = document.querySelector('.global-nav-hamburger');
+                var navLinks = document.querySelector('.global-nav-links');
+                if (hamburger && navLinks) {
+                    navLinks.classList.remove('is-open');
+                    hamburger.classList.remove('is-active');
+                    hamburger.setAttribute('aria-expanded', 'false');
+                    hamburger.setAttribute('aria-label', 'Menü öffnen');
+                }
+            }
+        });
+    }
+
+    function initMobileMenu() {
+        const hamburger = document.querySelector('.global-nav-hamburger');
+        const navLinks = document.querySelector('.global-nav-links');
+        if (!hamburger || !navLinks) return;
+
+        hamburger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isOpen = navLinks.classList.toggle('is-open');
+            hamburger.classList.toggle('is-active', isOpen);
+            hamburger.setAttribute('aria-expanded', isOpen);
+            hamburger.setAttribute('aria-label', isOpen ? 'Menü schließen' : 'Menü öffnen');
+        });
+
+        // Close mobile menu when clicking a nav link
+        navLinks.querySelectorAll('.global-nav-link, .global-nav-dropdown-item').forEach(function(link) {
+            link.addEventListener('click', function() {
+                navLinks.classList.remove('is-open');
+                hamburger.classList.remove('is-active');
+                hamburger.setAttribute('aria-expanded', 'false');
+                hamburger.setAttribute('aria-label', 'Menü öffnen');
+            });
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!navLinks.contains(e.target) && !hamburger.contains(e.target)) {
+                navLinks.classList.remove('is-open');
+                hamburger.classList.remove('is-active');
+                hamburger.setAttribute('aria-expanded', 'false');
+                hamburger.setAttribute('aria-label', 'Menü öffnen');
             }
         });
     }
