@@ -5,12 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Schriftarten Vergleich - KodiniTools</title>
 
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-
     <style>
+        @font-face {
+            font-family: 'Supreme';
+            src: url('/fonts/Supreme-Regular.woff2') format('woff2');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -21,12 +24,12 @@
             background: linear-gradient(135deg, #f9f2d5 0%, #f8e1a9 100%);
             min-height: 100vh;
             padding: 2rem;
+            font-family: 'Supreme', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
         }
 
         h1 {
             text-align: center;
             margin-bottom: 2rem;
-            font-family: system-ui;
             color: #003971;
         }
 
@@ -52,7 +55,6 @@
             letter-spacing: 0.1em;
             color: #4f6f8e;
             margin-bottom: 1rem;
-            font-family: system-ui;
         }
 
         .font-demo h2 {
@@ -80,35 +82,12 @@
             color: #4f6f8e;
         }
 
-        .font-demo .weights {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid #eee;
-        }
-
-        .font-demo .weights span {
-            font-size: 0.85rem;
-            color: #003971;
-        }
-
-        /* Font Families */
-        .inter { font-family: 'Inter', sans-serif; }
-        .jakarta { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .space { font-family: 'Space Grotesk', sans-serif; }
-        .outfit { font-family: 'Outfit', sans-serif; }
-        .manrope { font-family: 'Manrope', sans-serif; }
-        .dm-sans { font-family: 'DM Sans', sans-serif; }
-
         .recommendation {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 0.25rem 0.6rem;
             border-radius: 4px;
             font-size: 0.65rem;
-            font-family: system-ui;
             margin-left: 0.5rem;
             vertical-align: middle;
         }
@@ -118,105 +97,14 @@
     <h1>Schriftarten Vergleich</h1>
 
     <div class="font-grid">
-        <!-- Inter -->
+        <!-- Supreme -->
         <div class="font-card">
-            <div class="font-name">Inter <span class="recommendation">Empfohlen</span></div>
-            <div class="font-demo inter">
+            <div class="font-name">Supreme <span class="recommendation">Aktiv</span></div>
+            <div class="font-demo">
                 <h2>KodiniTools</h2>
                 <h3>Kostenlose Audio & Bild Tools</h3>
                 <p>Professionelle Audio- und Bildbearbeitungstools kostenlos im Browser. MP3 Konverter, Audio Equalizer, Bildkonverter und mehr.</p>
                 <p class="small">Keine Installation erforderlich - direkt im Browser nutzen.</p>
-                <div class="weights">
-                    <span style="font-weight: 400">Regular 400</span>
-                    <span style="font-weight: 500">Medium 500</span>
-                    <span style="font-weight: 600">SemiBold 600</span>
-                    <span style="font-weight: 700">Bold 700</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Plus Jakarta Sans -->
-        <div class="font-card">
-            <div class="font-name">Plus Jakarta Sans</div>
-            <div class="font-demo jakarta">
-                <h2>KodiniTools</h2>
-                <h3>Kostenlose Audio & Bild Tools</h3>
-                <p>Professionelle Audio- und Bildbearbeitungstools kostenlos im Browser. MP3 Konverter, Audio Equalizer, Bildkonverter und mehr.</p>
-                <p class="small">Keine Installation erforderlich - direkt im Browser nutzen.</p>
-                <div class="weights">
-                    <span style="font-weight: 400">Regular 400</span>
-                    <span style="font-weight: 500">Medium 500</span>
-                    <span style="font-weight: 600">SemiBold 600</span>
-                    <span style="font-weight: 700">Bold 700</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Space Grotesk -->
-        <div class="font-card">
-            <div class="font-name">Space Grotesk</div>
-            <div class="font-demo space">
-                <h2>KodiniTools</h2>
-                <h3>Kostenlose Audio & Bild Tools</h3>
-                <p>Professionelle Audio- und Bildbearbeitungstools kostenlos im Browser. MP3 Konverter, Audio Equalizer, Bildkonverter und mehr.</p>
-                <p class="small">Keine Installation erforderlich - direkt im Browser nutzen.</p>
-                <div class="weights">
-                    <span style="font-weight: 400">Regular 400</span>
-                    <span style="font-weight: 500">Medium 500</span>
-                    <span style="font-weight: 600">SemiBold 600</span>
-                    <span style="font-weight: 700">Bold 700</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Outfit -->
-        <div class="font-card">
-            <div class="font-name">Outfit</div>
-            <div class="font-demo outfit">
-                <h2>KodiniTools</h2>
-                <h3>Kostenlose Audio & Bild Tools</h3>
-                <p>Professionelle Audio- und Bildbearbeitungstools kostenlos im Browser. MP3 Konverter, Audio Equalizer, Bildkonverter und mehr.</p>
-                <p class="small">Keine Installation erforderlich - direkt im Browser nutzen.</p>
-                <div class="weights">
-                    <span style="font-weight: 400">Regular 400</span>
-                    <span style="font-weight: 500">Medium 500</span>
-                    <span style="font-weight: 600">SemiBold 600</span>
-                    <span style="font-weight: 700">Bold 700</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Manrope -->
-        <div class="font-card">
-            <div class="font-name">Manrope</div>
-            <div class="font-demo manrope">
-                <h2>KodiniTools</h2>
-                <h3>Kostenlose Audio & Bild Tools</h3>
-                <p>Professionelle Audio- und Bildbearbeitungstools kostenlos im Browser. MP3 Konverter, Audio Equalizer, Bildkonverter und mehr.</p>
-                <p class="small">Keine Installation erforderlich - direkt im Browser nutzen.</p>
-                <div class="weights">
-                    <span style="font-weight: 400">Regular 400</span>
-                    <span style="font-weight: 500">Medium 500</span>
-                    <span style="font-weight: 600">SemiBold 600</span>
-                    <span style="font-weight: 700">Bold 700</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- DM Sans -->
-        <div class="font-card">
-            <div class="font-name">DM Sans</div>
-            <div class="font-demo dm-sans">
-                <h2>KodiniTools</h2>
-                <h3>Kostenlose Audio & Bild Tools</h3>
-                <p>Professionelle Audio- und Bildbearbeitungstools kostenlos im Browser. MP3 Konverter, Audio Equalizer, Bildkonverter und mehr.</p>
-                <p class="small">Keine Installation erforderlich - direkt im Browser nutzen.</p>
-                <div class="weights">
-                    <span style="font-weight: 400">Regular 400</span>
-                    <span style="font-weight: 500">Medium 500</span>
-                    <span style="font-weight: 600">SemiBold 600</span>
-                    <span style="font-weight: 700">Bold 700</span>
-                </div>
             </div>
         </div>
     </div>
