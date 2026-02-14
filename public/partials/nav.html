@@ -111,6 +111,13 @@ html {
     transition: transform 0.3s ease;
 }
 
+.brand-flag-icon {
+    height: 20px;
+    width: 20px;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
 .global-nav-brand:hover {
     color: var(--accent-color);
     transform: scale(1.05);
@@ -293,6 +300,11 @@ html {
     .brand-logo-icon {
         height: 22px;
         width: 22px;
+    }
+
+    .brand-flag-icon {
+        height: 18px;
+        width: 18px;
     }
 
     /* Show hamburger on mobile */
@@ -505,6 +517,7 @@ html:not(.custom-nav-page) {
         <a href="https://kodinitools.com/" class="global-nav-brand">
             <img src="/android-chrome-192x192.png" alt="KodiniTools Logo" class="brand-logo-icon">
             <span>KodiniTools</span>
+            <img src="/images/schweiz-192x192.png" alt="Made in Switzerland" class="brand-flag-icon">
         </a>
 
         <!-- Hamburger Button for Mobile -->

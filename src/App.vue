@@ -92,7 +92,11 @@
     <!-- Header -->
     <header class="header">
       <nav class="nav-container">
-        <div class="logo" @click="goHome" style="cursor: pointer;">{{ $t('footer.company') }}</div>
+        <div class="logo" @click="goHome" style="cursor: pointer;">
+          <img src="/android-chrome-192x192.png" alt="KodiniTools Logo" class="logo-icon">
+          <span>{{ $t('footer.company') }}</span>
+          <img src="/images/schweiz-192x192.png" alt="Made in Switzerland" class="logo-flag-icon">
+        </div>
 
         <!-- Hamburger Button for Mobile -->
         <button class="hamburger-btn" @click="toggleMobileMenu" :class="{ 'is-active': mobileMenuOpen }" aria-label="Toggle menu">
@@ -1298,6 +1302,21 @@ body {
   transition: transform 0.3s ease;
   cursor: pointer;
   letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.logo-icon {
+  height: 24px;
+  width: 24px;
+  object-fit: contain;
+}
+
+.logo-flag-icon {
+  height: 20px;
+  width: 20px;
+  object-fit: contain;
 }
 
 .logo:hover {
@@ -2697,6 +2716,16 @@ body {
 
   .logo {
     font-size: 0.95rem;
+  }
+
+  .logo-icon {
+    height: 20px;
+    width: 20px;
+  }
+
+  .logo-flag-icon {
+    height: 16px;
+    width: 16px;
   }
 
   .hero {
