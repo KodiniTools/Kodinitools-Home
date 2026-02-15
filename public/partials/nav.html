@@ -1006,8 +1006,8 @@ html:not(.custom-nav-page) {
                 // Nav-Texte sofort übersetzen
                 applyTranslations(targetLang);
 
-                // Seite neu laden, damit Vue-i18n die neue Sprache übernimmt
-                window.location.reload();
+                // Custom Event für alle i18n-Listener (Footer, Cookie-Banner, Page Content)
+                window.dispatchEvent(new CustomEvent('locale-changed', { detail: { locale: targetLang } }));
             });
         });
     }
