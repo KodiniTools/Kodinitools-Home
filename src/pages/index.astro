@@ -586,40 +586,56 @@ const features = [
       }
     };
 
-    var pageLang = localStorage.getItem('locale') || 'de';
-    var pageT = PAGE_I18N[pageLang] || PAGE_I18N['de'];
+    // Wiederverwendbare Übersetzungsfunktion
+    var pageT; // wird von applyPageTranslations gesetzt
+    function applyPageTranslations() {
+      var pageLang = localStorage.getItem('locale') || 'de';
+      pageT = PAGE_I18N[pageLang] || PAGE_I18N['de'];
 
-    // Apply text translations
-    document.querySelectorAll('#app [data-i18n]').forEach(function(el) {
-      var key = el.getAttribute('data-i18n');
-      if (pageT[key]) {
-        if (key === 'hero.subtitle') {
-          el.innerHTML = pageT[key].replace(/\n/g, '<br/>');
-        } else {
-          el.textContent = pageT[key];
+      // Apply text translations
+      document.querySelectorAll('#app [data-i18n]').forEach(function(el) {
+        var key = el.getAttribute('data-i18n');
+        if (pageT[key]) {
+          if (key === 'hero.subtitle') {
+            el.innerHTML = pageT[key].replace(/\n/g, '<br/>');
+          } else {
+            el.textContent = pageT[key];
+          }
         }
+      });
+
+      // Apply placeholder translations
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el) {
+        var key = el.getAttribute('data-i18n-placeholder');
+        if (pageT[key]) el.placeholder = pageT[key];
+      });
+
+      // Apply aria-label translations
+      document.querySelectorAll('#app [data-i18n-aria]').forEach(function(el) {
+        var key = el.getAttribute('data-i18n-aria');
+        if (pageT[key]) el.setAttribute('aria-label', pageT[key]);
+      });
+
+      // Update data-title/data-description on tool cards for search
+      document.querySelectorAll('.tool-card-link[data-title]').forEach(function(card) {
+        var h3 = card.querySelector('h3[data-i18n]');
+        var p = card.querySelector('p[data-i18n]');
+        if (h3) card.setAttribute('data-title', h3.textContent);
+        if (p) card.setAttribute('data-description', p.textContent);
+      });
+
+      // Typing-Text aktualisieren (sofort, ohne Animation bei Sprachwechsel)
+      var typedEl = document.getElementById('typedText');
+      if (typedEl && typedEl.textContent.length > 0) {
+        typedEl.textContent = pageT['hero.title'] || '';
       }
-    });
+    }
 
-    // Apply placeholder translations
-    document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el) {
-      var key = el.getAttribute('data-i18n-placeholder');
-      if (pageT[key]) el.placeholder = pageT[key];
-    });
+    // Initial anwenden
+    applyPageTranslations();
 
-    // Apply aria-label translations
-    document.querySelectorAll('#app [data-i18n-aria]').forEach(function(el) {
-      var key = el.getAttribute('data-i18n-aria');
-      if (pageT[key]) el.setAttribute('aria-label', pageT[key]);
-    });
-
-    // Update data-title/data-description on tool cards for search
-    document.querySelectorAll('.tool-card-link[data-title]').forEach(function(card) {
-      var h3 = card.querySelector('h3[data-i18n]');
-      var p = card.querySelector('p[data-i18n]');
-      if (h3) card.setAttribute('data-title', h3.textContent);
-      if (p) card.setAttribute('data-description', p.textContent);
-    });
+    // Live-Update bei Sprachwechsel (ohne Reload)
+    window.addEventListener('locale-changed', applyPageTranslations);
 
     // --- Typing Animation ---
     var typedTextEl = document.getElementById('typedText');

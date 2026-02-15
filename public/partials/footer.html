@@ -152,5 +152,8 @@
   } else {
     applyFooterTranslations();
   }
+
+  // Live-Update bei Sprachwechsel (ohne Reload)
+  window.addEventListener('locale-changed', applyFooterTranslations);
 })();
 </script>

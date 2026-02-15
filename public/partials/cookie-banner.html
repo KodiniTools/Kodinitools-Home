@@ -573,6 +573,9 @@ var CookieConsent = (function() {
     init();
   }
 
+  // Live-Update bei Sprachwechsel (ohne Reload)
+  window.addEventListener('locale-changed', applyCookieTranslations);
+
   return {
     showBanner: showBanner,
     hideBanner: hideBanner,
