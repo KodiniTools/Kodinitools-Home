@@ -1,0 +1,636 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { readFileSync } from 'fs'
+import { resolve } from 'path'
+
+// Read SSI partials at build time
+const navHtml = readFileSync(resolve('public/partials/nav.html'), 'utf-8')
+const footerHtml = readFileSync(resolve('public/partials/footer.html'), 'utf-8')
+const cookieBannerHtml = readFileSync(resolve('public/partials/cookie-banner.html'), 'utf-8')
+
+// Tool data for static rendering
+const audioTools = [
+  {
+    title: 'Audio Konverter',
+    description: 'Konvertieren Sie Audio zwischen MP3, WAV, OGG, FLAC, AAC und M4A. Stapelverarbeitung mit Qualitätsauswahl.',
+    badge: 'Batch',
+    processing: 'server',
+    link: 'https://kodinitools.com/audiokonverter/',
+    featured: true,
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`
+  },
+  {
+    title: '19-Band EQ Pro',
+    description: '19-Band Equalizer mit Dynamic Compressor, Presets und Aufnahme-Funktion.',
+    badge: 'PRO',
+    processing: 'browser',
+    link: 'https://kodinitools.com/equaliser19/',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="4" y1="21" y2="14"/><line x1="4" x2="4" y1="10" y2="3"/><line x1="12" x2="12" y1="21" y2="12"/><line x1="12" x2="12" y1="8" y2="3"/><line x1="20" x2="20" y1="21" y2="16"/><line x1="20" x2="20" y1="12" y2="3"/><line x1="2" x2="6" y1="14" y2="14"/><line x1="10" x2="14" y1="8" y2="8"/><line x1="18" x2="22" y1="16" y2="16"/></svg>`
+  },
+  {
+    title: 'Musikplayer',
+    description: 'Minimalistischer Audioplayer mit Playlist, Shuffle, Repeat und Visualizer-Funktion.',
+    badge: 'Neu',
+    processing: 'browser',
+    link: 'https://kodinitools.com/ultimativermusikplayer/',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>`
+  },
+  {
+    title: 'Audio Visualizer',
+    description: 'Erstellen Sie beeindruckende MP4-Videos für TikTok, Instagram und YouTube mit Audio-Visualisierungen.',
+    badge: 'Video',
+    processing: 'browser',
+    link: 'https://kodinitools.com/visualizer/',
+    wide: true,
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>`
+  },
+  {
+    title: 'MP3 Konverter',
+    description: 'Konvertieren Sie Audiodateien schnell und einfach in das MP3-Format. Optimiert für Podcasts und Musik.',
+    badge: 'MP3',
+    processing: 'server',
+    link: 'https://kodinitools.com/mp3konverter/',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15V6"/><path d="M18.5 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/><path d="M12 12H3"/><path d="M16 6H3"/><path d="M12 18H3"/></svg>`
+  },
+  {
+    title: 'Interaktiver Audio Equalizer',
+    description: 'Bearbeiten Sie Ihre Audiodateien mit einem intuitiven grafischen Equalizer. Echtzeit-Vorschau und Export.',
+    badge: 'Interaktiv',
+    processing: 'browser',
+    link: 'https://kodinitools.com/audioequalizer/',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="6" height="14" x="4" y="5" rx="2"/><rect width="6" height="10" x="14" y="7" rx="2"/><path d="M17 22v-5"/><path d="M7 22v-3"/><path d="M17 2v3"/><path d="M7 2v1"/></svg>`
+  },
+  {
+    title: 'Moderner Musikplayer',
+    description: 'Schlanker und moderner Audio-Player mit allen wichtigen Funktionen. Unterstützt viele Formate.',
+    badge: 'Modern',
+    processing: 'browser',
+    link: 'https://kodinitools.com/modernermusikplayer/',
+    wide: true,
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>`
+  },
+  {
+    title: 'Audioplaylist Generator',
+    description: 'Erstellen Sie automatisch Playlists aus Ihren Audiodateien. Mit Sortier- und Filterfunktionen.',
+    badge: 'Playlist',
+    processing: 'browser',
+    link: 'https://kodinitools.com/playlist_generator/',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>`
+  },
+  {
+    title: 'Alarmtool',
+    description: 'Zuverlässiges Alarm-Tool für Erinnerungen und Wecker. Mit individuellen Audio-Dateien.',
+    badge: 'Alarm',
+    processing: 'browser',
+    link: 'https://kodinitools.com/alarmtool/',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3 2 6"/><path d="m22 6-3-3"/><path d="M6.38 18.7 4 21"/><path d="M17.64 18.67 20 21"/></svg>`
+  },
+  {
+    title: 'Audio Normalizer',
+    description: 'Normalisieren Sie die Lautstärke Ihrer Audiodateien automatisch. Perfekt für Podcasts und Hörbücher.',
+    badge: 'Normalizer',
+    processing: 'server',
+    link: 'https://kodinitools.com/audionormalisierer/',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg>`
+  },
+  {
+    title: 'Playlist zu WebM Konverter',
+    description: 'Bis zu 50 Audio-Tracks in eine WebM-Datei konvertieren',
+    badge: 'WebM',
+    processing: 'server',
+    link: 'https://kodinitools.com/playlistkonverter/',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2" ry="2"/></svg>`
+  }
+]
+
+const imageTools = [
+  {
+    title: 'Bildkonverter',
+    description: 'Konvertieren Sie Bilder zwischen JPG, PNG, WebP, AVIF, GIF und BMP. Mit Qualitätsauswahl.',
+    badge: 'Multi',
+    processing: 'server',
+    link: 'https://kodinitools.com/bildkonverter/',
+    featured: true,
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>`
+  },
+  {
+    title: 'Batch Bildbearbeitung',
+    description: 'Bearbeiten Sie 100+ Bilder gleichzeitig: Größe ändern, umbenennen, als ZIP oder PDF exportieren.',
+    badge: 'Batch',
+    processing: 'browser',
+    link: 'https://kodinitools.com/bilderseriebearbeiten/',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>`
+  },
+  {
+    title: 'Fotocollage',
+    description: 'Erstellen Sie kreative Fotocollagen aus Ihren Bildern. Verschiedene Layouts und Vorlagen verfügbar.',
+    badge: 'Kreativ',
+    processing: 'browser',
+    link: 'https://kodinitools.com/collagemaker',
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>`
+  }
+]
+
+const diverseTools = [
+  {
+    title: 'Kodini Farbextraktor',
+    description: 'Extrahieren Sie dominante Farben aus Bildern. Ideal für Designer und Kreative zur Farbpaletten-Erstellung.',
+    badge: 'Farben',
+    processing: 'browser',
+    link: 'https://kodinitools.com/kodini-color-extractor/',
+    wide: true,
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="0.5" fill="currentColor"/><circle cx="17.5" cy="10.5" r="0.5" fill="currentColor"/><circle cx="8.5" cy="7.5" r="0.5" fill="currentColor"/><circle cx="6.5" cy="12.5" r="0.5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.555C21.965 6.012 17.461 2 12 2z"/></svg>`
+  },
+  {
+    title: 'Videokonverter',
+    description: 'Konvertieren Sie Videos in verschiedene Formate. Unterstützt MP4, WebM, AVI und weitere gängige Formate.',
+    badge: 'Video',
+    processing: 'server',
+    link: 'https://kodinitools.com/videokonverter/',
+    wide: true,
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>`
+  }
+]
+
+const features = [
+  '100% Kostenlos',
+  'Datenschutz',
+  'Browser-basiert',
+  'Server-basiert',
+  'Mehrsprachig',
+  'Keine Installation'
+]
+---
+
+<BaseLayout>
+  <div id="app">
+    <!-- Global Background Effects -->
+    <div class="global-background">
+      <div class="global-gradient"></div>
+      <div class="global-noise"></div>
+      <div class="mouse-spotlight" id="mouseSpotlight"></div>
+    </div>
+
+    <!-- Global Floating Tool Icons Background -->
+    <div class="floating-icons-global" id="floatingIcons">
+      <div class="floating-icon icon-1">
+        <svg viewBox="0 0 80 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M5 20h5v-10h5v20h5v-15h5v10h5v-5h5v10h5v-15h5v20h5v-10h5v5h5v-8h5"/>
+        </svg>
+      </div>
+      <div class="floating-icon icon-2">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M9 18V5l12-2v13"/>
+          <circle cx="6" cy="18" r="3"/>
+          <circle cx="18" cy="16" r="3"/>
+        </svg>
+      </div>
+      <div class="floating-icon icon-4">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="4" y1="21" x2="4" y2="14"/>
+          <line x1="9" y1="21" x2="9" y2="8"/>
+          <line x1="14" y1="21" x2="14" y2="12"/>
+          <line x1="19" y1="21" x2="19" y2="5"/>
+        </svg>
+      </div>
+      <div class="floating-icon icon-5">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+        </svg>
+      </div>
+      <div class="floating-icon icon-7">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+          <path d="M15.54 8.46a5 5 0 010 7.07"/>
+          <path d="M19.07 4.93a10 10 0 010 14.14"/>
+        </svg>
+      </div>
+      <div class="floating-icon icon-8">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M6 2v4h12v12h4"/>
+          <path d="M18 22v-4H6V6H2"/>
+        </svg>
+      </div>
+      <div class="floating-icon icon-9">
+        <svg viewBox="0 0 80 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M5 20h5v-10h5v20h5v-15h5v10h5v-5h5v10h5v-15h5v20h5v-10h5v5h5v-8h5"/>
+        </svg>
+      </div>
+      <div class="floating-icon icon-10">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M9 18V5l12-2v13"/>
+          <circle cx="6" cy="18" r="3"/>
+          <circle cx="18" cy="16" r="3"/>
+        </svg>
+      </div>
+      <div class="floating-icon icon-11">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <circle cx="8.5" cy="8.5" r="1.5"/>
+          <path d="M21 15l-5-5L5 21"/>
+        </svg>
+      </div>
+      <div class="floating-icon icon-12">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="4" y1="21" x2="4" y2="14"/>
+          <line x1="9" y1="21" x2="9" y2="8"/>
+          <line x1="14" y1="21" x2="14" y2="12"/>
+          <line x1="19" y1="21" x2="19" y2="5"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Navigation (SSI Partial) -->
+    <Fragment set:html={navHtml} />
+
+    <!-- Hero Section with Animated Mesh Gradient -->
+    <section class="hero">
+      <div class="mesh-gradient-container">
+        <div class="mesh-blob mesh-blob-1"></div>
+        <div class="mesh-blob mesh-blob-2"></div>
+        <div class="mesh-blob mesh-blob-3"></div>
+        <div class="mesh-blob mesh-blob-4"></div>
+      </div>
+      <div class="noise-overlay"></div>
+
+      <div class="hero-content">
+        <div class="hero-promo">
+          <div class="hero-logo">
+            <img src="https://kodinitools.com/images/logo.svg" alt="KodiniTools Logo" />
+          </div>
+          <h1 class="hero-title typing-title">
+            <span class="typed-text" id="typedText"></span>
+          </h1>
+          <p class="hero-subtitle">Sichere Bearbeitung - Im Browser oder auf unseren Servern<br/>Keine Installation, keine Anmeldung</p>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="features-grid">
+          {features.map((feature) => (
+            <div class="feature-card">
+              <div class="feature-text">{feature}</div>
+            </div>
+          ))}
+        </div>
+
+        <!-- Spotlight Search Box -->
+        <div class="search-container">
+          <div class="search-box spotlight-search">
+            <svg class="search-icon-svg" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Tools durchsuchen..."
+              class="search-input"
+            />
+            <kbd class="search-kbd" id="searchKbd">&#x2318;K</kbd>
+            <button
+              id="searchClear"
+              class="search-clear"
+              aria-label="Suche löschen"
+              style="display: none;"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 6 6 18"></path>
+                <path d="m6 6 12 12"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Search Results Section (hidden by default, shown via JS) -->
+    <section id="searchResults" class="tools-section search-results-section" style="display: none;">
+      <div class="section-header">
+        <h2>Suchergebnisse</h2>
+        <p id="searchResultsCount"></p>
+      </div>
+      <div id="searchResultsGrid" class="tools-grid"></div>
+    </section>
+
+    <!-- Audio Tools Section with Bento Grid -->
+    <section class="tools-section">
+      <div class="section-header">
+        <h2>&#127925; Audio Tools</h2>
+        <p>Bearbeiten Sie Ihre Audiodateien sicher - einige Tools laufen im Browser, andere auf unseren Hostinger-Servern</p>
+      </div>
+
+      <div class="bento-grid">
+        {audioTools.map((tool) => (
+          <a href={tool.link} class={`tool-card-link ${tool.featured ? 'bento-featured' : ''} ${tool.wide ? 'bento-wide' : ''}`}
+             data-title={tool.title} data-description={tool.description}>
+            <div class="tool-card">
+              <div class="card-glow"></div>
+              <div class="tool-icon" set:html={tool.icon} />
+              <div class="badge-container">
+                <span class="tool-badge">{tool.badge}</span>
+                <span class={`processing-badge ${tool.processing}`}>
+                  {tool.processing === 'browser' ? 'Browser' : 'Server'}
+                </span>
+              </div>
+              <h3>{tool.title}</h3>
+              <p>{tool.description}</p>
+              {tool.featured && <div class="card-arrow">&rarr;</div>}
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <!-- Image Tools Section with Bento Grid -->
+    <section class="tools-section">
+      <div class="section-header">
+        <h2>&#128247; Bild Tools</h2>
+        <p>Konvertieren und bearbeiten Sie Ihre Bilder sicher - einige Tools laufen im Browser, andere auf unseren Hostinger-Servern</p>
+      </div>
+
+      <div class="bento-grid bento-small">
+        {imageTools.map((tool) => (
+          <a href={tool.link} class={`tool-card-link ${tool.featured ? 'bento-featured' : ''} ${tool.wide ? 'bento-wide' : ''}`}
+             data-title={tool.title} data-description={tool.description}>
+            <div class="tool-card">
+              <div class="card-glow"></div>
+              <div class="tool-icon" set:html={tool.icon} />
+              <div class="badge-container">
+                <span class="tool-badge">{tool.badge}</span>
+                <span class={`processing-badge ${tool.processing}`}>
+                  {tool.processing === 'browser' ? 'Browser' : 'Server'}
+                </span>
+              </div>
+              <h3>{tool.title}</h3>
+              <p>{tool.description}</p>
+              {tool.featured && <div class="card-arrow">&rarr;</div>}
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <!-- Diverse Tools Section with Bento Grid -->
+    <section class="tools-section">
+      <div class="section-header">
+        <h2>&#128736;&#65039; Diverse Tools</h2>
+        <p>Weitere nützliche Werkzeuge für Ihre Multimedia-Projekte</p>
+      </div>
+
+      <div class="bento-grid bento-small">
+        {diverseTools.map((tool) => (
+          <a href={tool.link} class={`tool-card-link ${tool.wide ? 'bento-wide' : ''}`}
+             data-title={tool.title} data-description={tool.description}>
+            <div class="tool-card">
+              <div class="card-glow"></div>
+              <div class="tool-icon" set:html={tool.icon} />
+              <div class="badge-container">
+                <span class="tool-badge">{tool.badge}</span>
+                <span class={`processing-badge ${tool.processing}`}>
+                  {tool.processing === 'browser' ? 'Browser' : 'Server'}
+                </span>
+              </div>
+              <h3>{tool.title}</h3>
+              <p>{tool.description}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <!-- Scroll to Top Button -->
+    <button
+      id="scrollToTop"
+      class="scroll-to-top"
+      aria-label="Nach oben scrollen"
+      style="display: none;"
+    >
+      &uarr;
+    </button>
+
+    <!-- Footer (SSI Partial) -->
+    <Fragment set:html={footerHtml} />
+
+    <!-- Cookie Banner (SSI Partial) -->
+    <Fragment set:html={cookieBannerHtml} />
+  </div>
+
+  <!-- Minimal Vanilla JS for interactivity -->
+  <script is:inline>
+  document.addEventListener('DOMContentLoaded', function() {
+    // --- Typing Animation ---
+    const typedTextEl = document.getElementById('typedText');
+    if (typedTextEl) {
+      const fullTitle = 'Kostenlose Online-Tools für Audio & Bild';
+      let currentIndex = 0;
+      function typeNextChar() {
+        if (currentIndex < fullTitle.length) {
+          typedTextEl.textContent += fullTitle[currentIndex];
+          currentIndex++;
+          setTimeout(typeNextChar, Math.random() * 50 + 50);
+        }
+      }
+      setTimeout(typeNextChar, 500);
+    }
+
+    // --- Mouse Spotlight ---
+    const spotlight = document.getElementById('mouseSpotlight');
+    const floatingIcons = document.getElementById('floatingIcons');
+    if (spotlight) {
+      document.addEventListener('mousemove', function(e) {
+        const xPct = (e.clientX / window.innerWidth) * 100;
+        const yPct = (e.clientY / window.innerHeight) * 100;
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const color = isDark ? 'rgba(201, 152, 77, 0.15)' : 'rgba(1, 79, 153, 0.20)';
+        spotlight.style.background = 'radial-gradient(1200px circle at ' + xPct + '% ' + yPct + '%, ' + color + ', transparent 45%)';
+
+        // Parallax floating icons
+        if (floatingIcons) {
+          var icons = floatingIcons.querySelectorAll('.floating-icon');
+          icons.forEach(function(icon, index) {
+            var speed = 0.08 + (index * 0.015);
+            var x = (e.clientX - window.innerWidth / 2) * speed;
+            var y = (e.clientY - window.innerHeight / 2) * speed;
+            var scrollY = window.scrollY * (0.08 + index * 0.025);
+            icon.style.transform = 'translate(' + x + 'px, ' + (y + scrollY) + 'px)';
+          });
+        }
+      });
+    }
+
+    // --- Search Functionality ---
+    var searchInput = document.getElementById('searchInput');
+    var searchKbd = document.getElementById('searchKbd');
+    var searchClear = document.getElementById('searchClear');
+    var searchResults = document.getElementById('searchResults');
+    var searchResultsCount = document.getElementById('searchResultsCount');
+    var searchResultsGrid = document.getElementById('searchResultsGrid');
+
+    var allToolCards = document.querySelectorAll('.tool-card-link[data-title]');
+
+    if (searchInput) {
+      searchInput.addEventListener('input', function() {
+        var query = searchInput.value.toLowerCase().trim();
+
+        if (searchKbd) searchKbd.style.display = query ? 'none' : 'flex';
+        if (searchClear) searchClear.style.display = query ? 'flex' : 'none';
+
+        if (!query) {
+          if (searchResults) searchResults.style.display = 'none';
+          return;
+        }
+
+        var matches = [];
+        allToolCards.forEach(function(card) {
+          var title = (card.getAttribute('data-title') || '').toLowerCase();
+          var desc = (card.getAttribute('data-description') || '').toLowerCase();
+          if (title.includes(query) || desc.includes(query)) {
+            matches.push(card);
+          }
+        });
+
+        if (searchResults && searchResultsCount && searchResultsGrid) {
+          searchResults.style.display = 'block';
+          if (matches.length === 0) {
+            searchResultsCount.textContent = 'Keine Tools gefunden. Versuchen Sie einen anderen Suchbegriff.';
+            searchResultsCount.className = 'no-results';
+            searchResultsGrid.innerHTML = '';
+          } else {
+            searchResultsCount.textContent = matches.length + ' Tools gefunden';
+            searchResultsCount.className = '';
+            searchResultsGrid.innerHTML = '';
+            matches.forEach(function(card) {
+              var clone = card.cloneNode(true);
+              clone.className = 'tool-card-link';
+              searchResultsGrid.appendChild(clone);
+            });
+          }
+        }
+      });
+
+      if (searchClear) {
+        searchClear.addEventListener('click', function() {
+          searchInput.value = '';
+          searchInput.dispatchEvent(new Event('input'));
+        });
+      }
+    }
+
+    // --- Scroll to Top ---
+    var scrollBtn = document.getElementById('scrollToTop');
+    if (scrollBtn) {
+      window.addEventListener('scroll', function() {
+        scrollBtn.style.display = window.scrollY > 400 ? 'flex' : 'none';
+
+        // Scroll parallax for floating icons
+        if (floatingIcons) {
+          var icons = floatingIcons.querySelectorAll('.floating-icon');
+          icons.forEach(function(icon, index) {
+            var speed = 0.08 + (index * 0.025);
+            var yOffset = window.scrollY * speed;
+            var current = icon.style.transform || '';
+            // Only update if no mouse transform is applied
+            if (!current.includes('translate')) {
+              icon.style.transform = 'translateY(' + yOffset + 'px)';
+            }
+          });
+        }
+      }, { passive: true });
+
+      scrollBtn.addEventListener('click', function() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+
+    // --- 3D Tilt Effect for Tool Cards ---
+    var isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    if (!isTouchDevice) {
+      document.addEventListener('mousemove', function(e) {
+        var target = e.target;
+        if (!target || typeof target.closest !== 'function') return;
+        var card = target.closest('.tool-card');
+        if (!card) return;
+
+        var rect = card.getBoundingClientRect();
+        var x = e.clientX - rect.left;
+        var y = e.clientY - rect.top;
+        var centerX = rect.width / 2;
+        var centerY = rect.height / 2;
+        var rotateX = (y - centerY) / 15;
+        var rotateY = (centerX - x) / 15;
+
+        card.style.transform = 'perspective(1000px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) translateY(-8px)';
+        card.style.setProperty('--mouse-x', (x / rect.width * 100) + '%');
+        card.style.setProperty('--mouse-y', (y / rect.height * 100) + '%');
+      });
+
+      document.addEventListener('mouseout', function(e) {
+        var target = e.target;
+        var relatedTarget = e.relatedTarget;
+        if (target && target.classList && target.classList.contains('tool-card') &&
+            (!relatedTarget || !target.contains(relatedTarget))) {
+          target.style.transform = '';
+          target.style.setProperty('--mouse-x', '50%');
+          target.style.setProperty('--mouse-y', '50%');
+        }
+      });
+    }
+
+    // --- Intersection Observer for Scroll Animations ---
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          var parent = entry.target.parentElement;
+          if (parent) {
+            var siblings = Array.from(parent.children);
+            var index = siblings.indexOf(entry.target);
+            entry.target.style.transitionDelay = (index * 0.08) + 's';
+          }
+          entry.target.classList.add('is-visible');
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+    document.querySelectorAll('.tools-section, .tool-card-link').forEach(function(el) {
+      el.classList.add('scroll-reveal');
+      observer.observe(el);
+    });
+
+    // --- Feature Card 3D Tilt ---
+    if (!isTouchDevice) {
+      var featuresGrid = document.querySelector('.features-grid');
+      if (featuresGrid) {
+        featuresGrid.addEventListener('mousemove', function(e) {
+          var card = e.target.closest('.feature-card');
+          if (!card) return;
+          var rect = card.getBoundingClientRect();
+          var x = e.clientX - rect.left;
+          var y = e.clientY - rect.top;
+          var rotateX = (y - rect.height / 2) / 12;
+          var rotateY = (rect.width / 2 - x) / 12;
+          card.style.transform = 'perspective(800px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) translateY(-5px) scale(1.02)';
+          card.style.setProperty('--feature-mouse-x', (x / rect.width * 100) + '%');
+          card.style.setProperty('--feature-mouse-y', (y / rect.height * 100) + '%');
+        });
+
+        featuresGrid.addEventListener('mouseleave', function() {
+          featuresGrid.querySelectorAll('.feature-card').forEach(function(card) {
+            card.style.transform = '';
+            card.style.setProperty('--feature-mouse-x', '50%');
+            card.style.setProperty('--feature-mouse-y', '50%');
+          });
+        });
+
+        featuresGrid.querySelectorAll('.feature-card').forEach(function(card) {
+          card.addEventListener('mouseleave', function() {
+            card.style.transform = '';
+            card.style.setProperty('--feature-mouse-x', '50%');
+            card.style.setProperty('--feature-mouse-y', '50%');
+          });
+        });
+      }
+    }
+  });
+  </script>
+</BaseLayout>
