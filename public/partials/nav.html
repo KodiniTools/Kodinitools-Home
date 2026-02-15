@@ -1,5 +1,5 @@
 <!-- Global Navigation für SSI Include -->
-<!-- Einbinden am Anfang des <body>, vor dem Hauptinhalt -->
+<!-- Mit Theme-Switcher und i18n Synchronisation -->
 
 <style>
 /* Reset und Schutz vor bestehenden Styles */
@@ -408,13 +408,12 @@ html {
         padding-left: 1.5rem;
     }
 
-    /* Language switcher centered in mobile menu */
-    .global-nav-lang-switcher {
+    /* Controls (theme + lang) centered in mobile menu */
+    .global-nav-controls {
         justify-content: center;
         margin: 0.5rem auto 0;
         padding-top: 0.75rem;
         border-top: 1px solid var(--nav-border);
-        margin-left: 0;
     }
 }
 
@@ -468,6 +467,49 @@ html:not(.custom-nav-page) {
     color: var(--accent-color);
 }
 
+/* Nav Controls: Theme Toggle + Language Switcher */
+.global-nav-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: 0.5rem;
+}
+
+/* Theme Toggle Button */
+.global-nav-theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid var(--nav-border);
+    border-radius: 0.5rem;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--nav-text);
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.global-nav-theme-toggle:hover {
+    background: var(--nav-bg-hover);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+}
+
+.global-nav-theme-toggle:focus {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+.global-nav-theme-icon {
+    display: block;
+    font-size: 0.95rem;
+    line-height: 1;
+}
+
 /* Language Switcher Styles */
 .global-nav-lang-switcher {
     display: flex;
@@ -475,7 +517,6 @@ html:not(.custom-nav-page) {
     border: 1px solid var(--nav-border);
     border-radius: 0.5rem;
     padding: 0.25rem;
-    margin-left: 0.5rem;
 }
 
 .global-nav-lang-btn {
@@ -531,66 +572,134 @@ html:not(.custom-nav-page) {
             <!-- Audiotools Dropdown -->
             <div class="global-nav-item global-nav-dropdown">
                 <button class="global-nav-dropdown-toggle" type="button" aria-haspopup="true" aria-expanded="false">
-                    Audiotools
-                    <span class="global-nav-dropdown-arrow">▼</span>
+                    <span data-i18n="nav.audioTools">Audiotools</span>
+                    <span class="global-nav-dropdown-arrow">&#9660;</span>
                 </button>
                 <div class="global-nav-dropdown-menu" role="menu">
-                    <a href="https://kodinitools.com/mp3konverter/" class="global-nav-dropdown-item" role="menuitem">MP3 Konverter</a>
-                    <a href="https://kodinitools.com/audioequalizer/" class="global-nav-dropdown-item" role="menuitem">Interactive Audio Equalizer</a>
-                    <a href="https://kodinitools.com/modernermusikplayer/" class="global-nav-dropdown-item" role="menuitem">Moderner Musikplayer</a>
-                    <a href="https://kodinitools.com/ultimativermusikplayer/" class="global-nav-dropdown-item" role="menuitem">Ultimativer Musikplayer</a>
-                    <a href="https://kodinitools.com/playlist_generator/" class="global-nav-dropdown-item" role="menuitem">Audio Playlist Generator</a>
-                    <a href="https://kodinitools.com/playlistkonverter/" class="global-nav-dropdown-item" role="menuitem">Playlist Konverter</a>
-                    <a href="https://kodinitools.com/alarmtool/" class="global-nav-dropdown-item" role="menuitem">Modernes Alarmtool</a>
-                    <a href="https://kodinitools.com/audionormalisierer/" class="global-nav-dropdown-item" role="menuitem">Audio Normalizer</a>
-                    <a href="https://kodinitools.com/visualizer/" class="global-nav-dropdown-item" role="menuitem">Audio Visualizer</a>
-                    <a href="https://kodinitools.com/equaliser19/" class="global-nav-dropdown-item" role="menuitem">Equalizer 19 Band</a>
-                    <a href="https://kodinitools.com/audiokonverter/" class="global-nav-dropdown-item" role="menuitem">Audio Konverter</a>
+                    <a href="https://kodinitools.com/mp3konverter/" class="global-nav-dropdown-item" role="menuitem" data-i18n="nav.mp3Converter">MP3 Konverter</a>
+                    <a href="https://kodinitools.com/audioequalizer/" class="global-nav-dropdown-item" role="menuitem" data-i18n="nav.audioEqualizer">Interaktiver Audio Equalizer</a>
+                    <a href="https://kodinitools.com/modernermusikplayer/" class="global-nav-dropdown-item" role="menuitem" data-i18n="nav.modernPlayer">Moderner Musikplayer</a>
+                    <a href="https://kodinitools.com/ultimativermusikplayer/" class="global-nav-dropdown-item" role="menuitem" data-i18n="nav.ultimatePlayer">Ultimativer Musikplayer</a>
+                    <a href="https://kodinitools.com/playlist_generator/" class="global-nav-dropdown-item" role="menuitem" data-i18n="nav.playlistGenerator">Audioplaylist Generator</a>
+                    <a href="https://kodinitools.com/playlistkonverter/" class="global-nav-dropdown-item" role="menuitem" data-i18n="nav.playlistConverter">Playlist zu WebM Konverter</a>
+                    <a href="https://kodinitools.com/alarmtool/" class="global-nav-dropdown-item" role="menuitem" data-i18n="nav.alarmTool">Alarmtool</a>
+                    <a href="https://kodinitools.com/audionormalisierer/" class="global-nav-dropdown-item" role="menuitem" data-i18n="nav.audioNormalizer">Audio Normalizer</a>
+                    <a href="https://kodinitools.com/visualizer/" class="global-nav-dropdown-item" role="menuitem" data-i18n="nav.visualizer">Visualizer</a>
+                    <a href="https://kodinitools.com/equaliser19/" class="global-nav-dropdown-item" role="menuitem" data-i18n="nav.equalizer19">19-Band Equalizer</a>
+                    <a href="https://kodinitools.com/audiokonverter/" class="global-nav-dropdown-item" role="menuitem" data-i18n="nav.audioConverter">Audio Konverter</a>
                 </div>
             </div>
 
             <!-- Bildtools Dropdown -->
             <div class="global-nav-item global-nav-dropdown">
                 <button class="global-nav-dropdown-toggle" type="button" aria-haspopup="true" aria-expanded="false">
-                    Bildtools
-                    <span class="global-nav-dropdown-arrow">▼</span>
+                    <span data-i18n="nav.imageTools">Bildtools</span>
+                    <span class="global-nav-dropdown-arrow">&#9660;</span>
                 </button>
                 <div class="global-nav-dropdown-menu" role="menu">
-                    <a href="https://kodinitools.com/bildkonverter/" class="global-nav-dropdown-item" role="menuitem">Bildkonverter</a>
-                    <a href="https://kodinitools.com/bilderseriebearbeiten/" class="global-nav-dropdown-item" role="menuitem">Bildserie bearbeiten</a>
-                    <a href="https://kodinitools.com/collagemaker/" class="global-nav-dropdown-item" role="menuitem">Fotocollage</a>
+                    <a href="https://kodinitools.com/bildkonverter/" class="global-nav-dropdown-item" role="menuitem" data-i18n="nav.imageConverter">Bildkonverter</a>
+                    <a href="https://kodinitools.com/bilderseriebearbeiten/" class="global-nav-dropdown-item" role="menuitem" data-i18n="nav.batchImageEditor">Bildserie bearbeiten</a>
+                    <a href="https://kodinitools.com/collagemaker/" class="global-nav-dropdown-item" role="menuitem" data-i18n="nav.photoCollage">Fotocollage</a>
                 </div>
             </div>
 
             <!-- Tools Dropdown -->
             <div class="global-nav-item global-nav-dropdown">
                 <button class="global-nav-dropdown-toggle" type="button" aria-haspopup="true" aria-expanded="false">
-                    Tools
-                    <span class="global-nav-dropdown-arrow">▼</span>
+                    <span data-i18n="nav.tools">Tools</span>
+                    <span class="global-nav-dropdown-arrow">&#9660;</span>
                 </button>
                 <div class="global-nav-dropdown-menu" role="menu">
-                    <a href="https://kodinitools.com/kodini-color-extractor/" class="global-nav-dropdown-item" role="menuitem">Kodini Farbextraktor</a>
-                    <a href="https://kodinitools.com/videokonverter/" class="global-nav-dropdown-item" role="menuitem">Videokonverter</a>
+                    <a href="https://kodinitools.com/kodini-color-extractor/" class="global-nav-dropdown-item" role="menuitem" data-i18n="nav.colorExtractor">Kodini Farbextraktor</a>
+                    <a href="https://kodinitools.com/videokonverter/" class="global-nav-dropdown-item" role="menuitem" data-i18n="nav.videoConverter">Videokonverter</a>
                 </div>
             </div>
 
             <div class="global-nav-item">
-                <a href="https://kodinitools.com/kontaktformular/" class="global-nav-link">Kontakt</a>
+                <a href="https://kodinitools.com/kontaktformular/" class="global-nav-link" data-i18n="nav.contact">Kontakt</a>
             </div>
 
-            <!-- Language Switcher -->
-            <div class="global-nav-lang-switcher" role="group" aria-label="Sprache wählen">
-                <button class="global-nav-lang-btn" data-lang="de" type="button">DE</button>
-                <button class="global-nav-lang-btn" data-lang="en" type="button">EN</button>
+            <!-- Controls: Theme Toggle + Language Switcher -->
+            <div class="global-nav-controls">
+                <!-- Theme Toggle -->
+                <button class="global-nav-theme-toggle" type="button" aria-label="Theme wechseln" data-i18n-aria="aria.toggleTheme">
+                    <span class="global-nav-theme-icon" id="globalNavThemeIcon"></span>
+                </button>
+
+                <!-- Language Switcher -->
+                <div class="global-nav-lang-switcher" role="group" aria-label="Sprache wählen" data-i18n-aria="aria.selectLanguage">
+                    <button class="global-nav-lang-btn" data-lang="de" type="button">DE</button>
+                    <button class="global-nav-lang-btn" data-lang="en" type="button">EN</button>
+                </div>
             </div>
         </div>
     </div>
 </nav>
 
 <script>
-// Global Navigation JavaScript
+// Global Navigation JavaScript mit i18n und Theme-Switcher
 (function() {
     'use strict';
+
+    // ==========================================
+    // i18n Übersetzungen (synchron mit locales/de.json & en.json)
+    // ==========================================
+    var NAV_TRANSLATIONS = {
+        de: {
+            'nav.audioTools': 'Audiotools',
+            'nav.imageTools': 'Bildtools',
+            'nav.tools': 'Tools',
+            'nav.contact': 'Kontakt',
+            'nav.mp3Converter': 'MP3 Konverter',
+            'nav.audioEqualizer': 'Interaktiver Audio Equalizer',
+            'nav.modernPlayer': 'Moderner Musikplayer',
+            'nav.ultimatePlayer': 'Ultimativer Musikplayer',
+            'nav.playlistGenerator': 'Audioplaylist Generator',
+            'nav.playlistConverter': 'Playlist zu WebM Konverter',
+            'nav.alarmTool': 'Alarmtool',
+            'nav.audioNormalizer': 'Audio Normalizer',
+            'nav.visualizer': 'Visualizer',
+            'nav.equalizer19': '19-Band Equalizer',
+            'nav.audioConverter': 'Audio Konverter',
+            'nav.imageConverter': 'Bildkonverter',
+            'nav.batchImageEditor': 'Bildserie bearbeiten',
+            'nav.photoCollage': 'Fotocollage',
+            'nav.colorExtractor': 'Kodini Farbextraktor',
+            'nav.videoConverter': 'Videokonverter',
+            'aria.toggleTheme': 'Theme wechseln',
+            'aria.selectLanguage': 'Sprache wählen',
+            'aria.menuOpen': 'Menü öffnen',
+            'aria.menuClose': 'Menü schliessen',
+            'aria.mainNav': 'Hauptnavigation'
+        },
+        en: {
+            'nav.audioTools': 'Audio Tools',
+            'nav.imageTools': 'Image Tools',
+            'nav.tools': 'Tools',
+            'nav.contact': 'Contact',
+            'nav.mp3Converter': 'MP3 Converter',
+            'nav.audioEqualizer': 'Interactive Audio Equalizer',
+            'nav.modernPlayer': 'Modern Music Player',
+            'nav.ultimatePlayer': 'Ultimate Music Player',
+            'nav.playlistGenerator': 'Audio Playlist Generator',
+            'nav.playlistConverter': 'Playlist to WebM Converter',
+            'nav.alarmTool': 'Alarm Tool',
+            'nav.audioNormalizer': 'Audio Normalizer',
+            'nav.visualizer': 'Visualizer',
+            'nav.equalizer19': '19-Band Equalizer',
+            'nav.audioConverter': 'Audio Converter',
+            'nav.imageConverter': 'Image Converter',
+            'nav.batchImageEditor': 'Batch Image Editor',
+            'nav.photoCollage': 'Photo Collage',
+            'nav.colorExtractor': 'Kodini Color Extractor',
+            'nav.videoConverter': 'Video Converter',
+            'aria.toggleTheme': 'Toggle theme',
+            'aria.selectLanguage': 'Select language',
+            'aria.menuOpen': 'Open menu',
+            'aria.menuClose': 'Close menu',
+            'aria.mainNav': 'Main navigation'
+        }
+    };
 
     // Warten auf DOM Load
     if (document.readyState === 'loading') {
@@ -604,24 +713,31 @@ html:not(.custom-nav-page) {
         document.body.style.paddingTop = '0';
         document.documentElement.style.scrollPaddingTop = '0';
 
+        // Theme Switcher Initialization
+        initThemeSwitcher();
+
         // Language Switcher Initialization
         initLanguageSwitcher();
 
         // Mobile Hamburger Menu
         initMobileMenu();
 
-        const dropdowns = document.querySelectorAll('.global-nav-dropdown');
+        // Apply translations on init
+        var currentLang = localStorage.getItem('locale') || 'de';
+        applyTranslations(currentLang);
 
-        dropdowns.forEach(dropdown => {
-            const toggle = dropdown.querySelector('.global-nav-dropdown-toggle');
-            const menu = dropdown.querySelector('.global-nav-dropdown-menu');
+        var dropdowns = document.querySelectorAll('.global-nav-dropdown');
+
+        dropdowns.forEach(function(dropdown) {
+            var toggle = dropdown.querySelector('.global-nav-dropdown-toggle');
+            var menu = dropdown.querySelector('.global-nav-dropdown-menu');
 
             // Smart Positioning für Dropdowns
             function positionDropdown() {
-                const rect = dropdown.getBoundingClientRect();
-                const menuRect = menu.getBoundingClientRect();
-                const viewportHeight = window.innerHeight;
-                const viewportWidth = window.innerWidth;
+                var rect = dropdown.getBoundingClientRect();
+                var menuRect = menu.getBoundingClientRect();
+                var viewportHeight = window.innerHeight;
+                var viewportWidth = window.innerWidth;
 
                 // Reset classes
                 dropdown.classList.remove('flip-up', 'flip-right');
@@ -642,7 +758,7 @@ html:not(.custom-nav-page) {
                 e.stopPropagation();
 
                 // Andere Dropdowns schließen
-                dropdowns.forEach(other => {
+                dropdowns.forEach(function(other) {
                     if (other !== dropdown) {
                         other.classList.remove('active');
                         other.querySelector('.global-nav-dropdown-toggle').setAttribute('aria-expanded', 'false');
@@ -655,7 +771,7 @@ html:not(.custom-nav-page) {
                 }
 
                 // Aktuelles Dropdown togglen
-                const isActive = dropdown.classList.toggle('active');
+                var isActive = dropdown.classList.toggle('active');
                 toggle.setAttribute('aria-expanded', isActive);
             });
 
@@ -669,23 +785,23 @@ html:not(.custom-nav-page) {
                     e.preventDefault();
                     dropdown.classList.add('active');
                     toggle.setAttribute('aria-expanded', 'true');
-                    const firstItem = menu.querySelector('.global-nav-dropdown-item');
+                    var firstItem = menu.querySelector('.global-nav-dropdown-item');
                     if (firstItem) firstItem.focus();
                 }
             });
 
             // Menu Item Navigation
-            const items = menu.querySelectorAll('.global-nav-dropdown-item');
-            items.forEach((item, index) => {
+            var items = menu.querySelectorAll('.global-nav-dropdown-item');
+            items.forEach(function(item, index) {
                 item.addEventListener('keydown', function(e) {
                     if (e.key === 'ArrowDown') {
                         e.preventDefault();
-                        const nextItem = items[index + 1] || items[0];
+                        var nextItem = items[index + 1] || items[0];
                         nextItem.focus();
                     }
                     if (e.key === 'ArrowUp') {
                         e.preventDefault();
-                        const prevItem = items[index - 1] || items[items.length - 1];
+                        var prevItem = items[index - 1] || items[items.length - 1];
                         prevItem.focus();
                     }
                     if (e.key === 'Escape') {
@@ -699,7 +815,7 @@ html:not(.custom-nav-page) {
 
         // Resize Handler für Dropdown Repositioning
         window.addEventListener('resize', function() {
-            dropdowns.forEach(dropdown => {
+            dropdowns.forEach(function(dropdown) {
                 if (dropdown.classList.contains('active')) {
                     dropdown.classList.remove('flip-up', 'flip-right');
                 }
@@ -707,11 +823,11 @@ html:not(.custom-nav-page) {
         });
 
         // Scroll Handler für Dropdown-Schließung bei Scroll
-        let scrollTimeout;
+        var scrollTimeout;
         window.addEventListener('scroll', function() {
             clearTimeout(scrollTimeout);
             scrollTimeout = setTimeout(function() {
-                dropdowns.forEach(dropdown => {
+                dropdowns.forEach(function(dropdown) {
                     dropdown.classList.remove('active');
                     dropdown.querySelector('.global-nav-dropdown-toggle').setAttribute('aria-expanded', 'false');
                 });
@@ -720,7 +836,7 @@ html:not(.custom-nav-page) {
 
         // Dropdowns schließen beim Klick außerhalb
         document.addEventListener('click', function() {
-            dropdowns.forEach(dropdown => {
+            dropdowns.forEach(function(dropdown) {
                 dropdown.classList.remove('active');
                 dropdown.querySelector('.global-nav-dropdown-toggle').setAttribute('aria-expanded', 'false');
             });
@@ -729,7 +845,7 @@ html:not(.custom-nav-page) {
         // ESC-Taste Handler
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                dropdowns.forEach(dropdown => {
+                dropdowns.forEach(function(dropdown) {
                     dropdown.classList.remove('active');
                     dropdown.querySelector('.global-nav-dropdown-toggle').setAttribute('aria-expanded', 'false');
                 });
@@ -740,23 +856,89 @@ html:not(.custom-nav-page) {
                     navLinks.classList.remove('is-open');
                     hamburger.classList.remove('is-active');
                     hamburger.setAttribute('aria-expanded', 'false');
-                    hamburger.setAttribute('aria-label', 'Menü öffnen');
+                    var lang = localStorage.getItem('locale') || 'de';
+                    hamburger.setAttribute('aria-label', NAV_TRANSLATIONS[lang]['aria.menuOpen']);
                 }
             }
         });
     }
 
+    // ==========================================
+    // Theme Switcher
+    // ==========================================
+    function initThemeSwitcher() {
+        var themeBtn = document.querySelector('.global-nav-theme-toggle');
+        var themeIcon = document.getElementById('globalNavThemeIcon');
+        if (!themeBtn || !themeIcon) return;
+
+        // Aktuelles Theme ermitteln
+        var savedTheme = localStorage.getItem('theme');
+        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var currentTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+
+        // Theme anwenden
+        applyTheme(currentTheme);
+
+        // Click Handler
+        themeBtn.addEventListener('click', function() {
+            var current = document.documentElement.getAttribute('data-theme') || 'light';
+            var newTheme = current === 'light' ? 'dark' : 'light';
+            applyTheme(newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            // Icon: Mond für Light-Mode (klick -> dark), Sonne für Dark-Mode (klick -> light)
+            themeIcon.textContent = theme === 'light' ? '\uD83C\uDF19' : '\u2600\uFE0F';
+        }
+    }
+
+    // ==========================================
+    // i18n Übersetzungen anwenden
+    // ==========================================
+    function applyTranslations(lang) {
+        var translations = NAV_TRANSLATIONS[lang] || NAV_TRANSLATIONS['de'];
+
+        // Textinhalte übersetzen
+        document.querySelectorAll('[data-i18n]').forEach(function(el) {
+            var key = el.getAttribute('data-i18n');
+            if (translations[key]) {
+                el.textContent = translations[key];
+            }
+        });
+
+        // aria-label Übersetzungen
+        document.querySelectorAll('[data-i18n-aria]').forEach(function(el) {
+            var key = el.getAttribute('data-i18n-aria');
+            if (translations[key]) {
+                el.setAttribute('aria-label', translations[key]);
+            }
+        });
+
+        // Nav aria-label aktualisieren
+        var nav = document.querySelector('.global-nav');
+        if (nav) {
+            nav.setAttribute('aria-label', translations['aria.mainNav']);
+        }
+    }
+
+    // ==========================================
+    // Mobile Menu
+    // ==========================================
     function initMobileMenu() {
-        const hamburger = document.querySelector('.global-nav-hamburger');
-        const navLinks = document.querySelector('.global-nav-links');
+        var hamburger = document.querySelector('.global-nav-hamburger');
+        var navLinks = document.querySelector('.global-nav-links');
         if (!hamburger || !navLinks) return;
 
         hamburger.addEventListener('click', function(e) {
             e.stopPropagation();
-            const isOpen = navLinks.classList.toggle('is-open');
+            var isOpen = navLinks.classList.toggle('is-open');
             hamburger.classList.toggle('is-active', isOpen);
             hamburger.setAttribute('aria-expanded', isOpen);
-            hamburger.setAttribute('aria-label', isOpen ? 'Menü schließen' : 'Menü öffnen');
+            var lang = localStorage.getItem('locale') || 'de';
+            var translations = NAV_TRANSLATIONS[lang] || NAV_TRANSLATIONS['de'];
+            hamburger.setAttribute('aria-label', isOpen ? translations['aria.menuClose'] : translations['aria.menuOpen']);
         });
 
         // Close mobile menu when clicking a nav link
@@ -765,7 +947,8 @@ html:not(.custom-nav-page) {
                 navLinks.classList.remove('is-open');
                 hamburger.classList.remove('is-active');
                 hamburger.setAttribute('aria-expanded', 'false');
-                hamburger.setAttribute('aria-label', 'Menü öffnen');
+                var lang = localStorage.getItem('locale') || 'de';
+                hamburger.setAttribute('aria-label', NAV_TRANSLATIONS[lang]['aria.menuOpen']);
             });
         });
 
@@ -775,23 +958,27 @@ html:not(.custom-nav-page) {
                 navLinks.classList.remove('is-open');
                 hamburger.classList.remove('is-active');
                 hamburger.setAttribute('aria-expanded', 'false');
-                hamburger.setAttribute('aria-label', 'Menü öffnen');
+                var lang = localStorage.getItem('locale') || 'de';
+                hamburger.setAttribute('aria-label', NAV_TRANSLATIONS[lang]['aria.menuOpen']);
             }
         });
     }
 
+    // ==========================================
+    // Language Switcher
+    // ==========================================
     function initLanguageSwitcher() {
-        const langBtns = document.querySelectorAll('.global-nav-lang-btn');
+        var langBtns = document.querySelectorAll('.global-nav-lang-btn');
         if (!langBtns.length) return;
 
         // Aktuelle Sprache aus localStorage lesen (Standard: 'de')
-        const currentLang = localStorage.getItem('locale') || 'de';
+        var currentLang = localStorage.getItem('locale') || 'de';
         document.documentElement.setAttribute('lang', currentLang);
 
         // Aktiven Button markieren
         function updateActiveButton(lang) {
-            langBtns.forEach(btn => {
-                const btnLang = btn.getAttribute('data-lang');
+            langBtns.forEach(function(btn) {
+                var btnLang = btn.getAttribute('data-lang');
                 if (btnLang === lang) {
                     btn.classList.add('active');
                 } else {
@@ -803,10 +990,10 @@ html:not(.custom-nav-page) {
         updateActiveButton(currentLang);
 
         // Click Handler
-        langBtns.forEach(btn => {
+        langBtns.forEach(function(btn) {
             btn.addEventListener('click', function() {
-                const targetLang = this.getAttribute('data-lang');
-                const storedLang = localStorage.getItem('locale') || 'de';
+                var targetLang = this.getAttribute('data-lang');
+                var storedLang = localStorage.getItem('locale') || 'de';
                 if (targetLang === storedLang) return;
 
                 // Sprache in localStorage speichern
@@ -815,6 +1002,9 @@ html:not(.custom-nav-page) {
 
                 // Button-Status aktualisieren
                 updateActiveButton(targetLang);
+
+                // Nav-Texte sofort übersetzen
+                applyTranslations(targetLang);
 
                 // Seite neu laden, damit Vue-i18n die neue Sprache übernimmt
                 window.location.reload();
