@@ -408,8 +408,13 @@ html {
         padding-left: 1.5rem;
     }
 
-    /* Controls (theme + lang) centered in mobile menu */
-    .global-nav-controls {
+    /* Hide desktop controls, show mobile controls */
+    .global-nav-controls-desktop {
+        display: none;
+    }
+
+    .global-nav-controls-mobile {
+        display: flex;
         justify-content: center;
         margin: 0.5rem auto 0;
         padding-top: 0.75rem;
@@ -472,7 +477,16 @@ html:not(.custom-nav-page) {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-left: 0.5rem;
+}
+
+/* Desktop: Controls as 3rd flex child (visible) */
+.global-nav-controls-desktop {
+    display: flex;
+}
+
+/* Mobile: Controls inside menu (hidden on desktop) */
+.global-nav-controls-mobile {
+    display: none;
 }
 
 /* Theme Toggle Button */
@@ -619,11 +633,11 @@ html:not(.custom-nav-page) {
                 <a href="https://kodinitools.com/kontaktformular/" class="global-nav-link" data-i18n="nav.contact">Kontakt</a>
             </div>
 
-            <!-- Controls: Theme Toggle + Language Switcher -->
-            <div class="global-nav-controls">
+            <!-- Mobile: Controls inside menu -->
+            <div class="global-nav-controls global-nav-controls-mobile">
                 <!-- Theme Toggle -->
                 <button class="global-nav-theme-toggle" type="button" aria-label="Theme wechseln" data-i18n-aria="aria.toggleTheme">
-                    <span class="global-nav-theme-icon" id="globalNavThemeIcon"></span>
+                    <span class="global-nav-theme-icon"></span>
                 </button>
 
                 <!-- Language Switcher -->
@@ -631,6 +645,20 @@ html:not(.custom-nav-page) {
                     <button class="global-nav-lang-btn" data-lang="de" type="button">DE</button>
                     <button class="global-nav-lang-btn" data-lang="en" type="button">EN</button>
                 </div>
+            </div>
+        </div>
+
+        <!-- Desktop: Controls outside nav-links (3rd flex child for centering) -->
+        <div class="global-nav-controls global-nav-controls-desktop">
+            <!-- Theme Toggle -->
+            <button class="global-nav-theme-toggle" type="button" aria-label="Theme wechseln" data-i18n-aria="aria.toggleTheme">
+                <span class="global-nav-theme-icon" id="globalNavThemeIcon"></span>
+            </button>
+
+            <!-- Language Switcher -->
+            <div class="global-nav-lang-switcher" role="group" aria-label="Sprache wählen" data-i18n-aria="aria.selectLanguage">
+                <button class="global-nav-lang-btn" data-lang="de" type="button">DE</button>
+                <button class="global-nav-lang-btn" data-lang="en" type="button">EN</button>
             </div>
         </div>
     </div>
@@ -867,9 +895,9 @@ html:not(.custom-nav-page) {
     // Theme Switcher
     // ==========================================
     function initThemeSwitcher() {
-        var themeBtn = document.querySelector('.global-nav-theme-toggle');
-        var themeIcon = document.getElementById('globalNavThemeIcon');
-        if (!themeBtn || !themeIcon) return;
+        var themeBtns = document.querySelectorAll('.global-nav-theme-toggle');
+        var themeIcons = document.querySelectorAll('.global-nav-theme-icon');
+        if (!themeBtns.length) return;
 
         // Aktuelles Theme ermitteln
         var savedTheme = localStorage.getItem('theme');
@@ -879,18 +907,22 @@ html:not(.custom-nav-page) {
         // Theme anwenden
         applyTheme(currentTheme);
 
-        // Click Handler
-        themeBtn.addEventListener('click', function() {
-            var current = document.documentElement.getAttribute('data-theme') || 'light';
-            var newTheme = current === 'light' ? 'dark' : 'light';
-            applyTheme(newTheme);
-            localStorage.setItem('theme', newTheme);
+        // Click Handler auf alle Theme-Buttons (mobile + desktop)
+        themeBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var current = document.documentElement.getAttribute('data-theme') || 'light';
+                var newTheme = current === 'light' ? 'dark' : 'light';
+                applyTheme(newTheme);
+                localStorage.setItem('theme', newTheme);
+            });
         });
 
         function applyTheme(theme) {
             document.documentElement.setAttribute('data-theme', theme);
             // Icon: Mond für Light-Mode (klick -> dark), Sonne für Dark-Mode (klick -> light)
-            themeIcon.textContent = theme === 'light' ? '\uD83C\uDF19' : '\u2600\uFE0F';
+            themeIcons.forEach(function(icon) {
+                icon.textContent = theme === 'light' ? '\uD83C\uDF19' : '\u2600\uFE0F';
+            });
         }
     }
 
