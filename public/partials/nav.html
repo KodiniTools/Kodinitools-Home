@@ -58,6 +58,16 @@ html {
     --dropdown-border: rgba(255, 255, 255, 0.1);
     --dropdown-shadow: rgba(0, 0, 0, 0.25);
     --accent-color: #6366f1;
+    background: rgba(26, 32, 44, 0.9) !important;
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 1px 20px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .global-nav .global-nav-brand,
+[data-theme="dark"] .global-nav .global-nav-link,
+[data-theme="dark"] .global-nav .global-nav-dropdown-toggle,
+[data-theme="dark"] .global-nav .global-nav-dropdown-item {
+    color: #e2e8f0;
 }
 
 /* Adaptive Navigation Styles - Non-Overlapping */
@@ -408,6 +418,15 @@ html {
         padding-left: 1.5rem;
     }
 
+    /* Dark Mode: mobile nav-links und dropdown Hintergrund */
+    [data-theme="dark"] .global-nav-links {
+        background: rgba(26, 32, 44, 0.95);
+    }
+
+    [data-theme="dark"] .global-nav-dropdown .global-nav-dropdown-menu {
+        background: rgba(26, 32, 44, 0.95);
+    }
+
     /* Hide desktop controls, show mobile controls */
     .global-nav-controls-desktop {
         display: none;
@@ -433,6 +452,10 @@ html {
         .global-nav {
             background: rgba(26, 32, 44, 0.95);
         }
+    }
+
+    [data-theme="dark"] .global-nav {
+        background: rgba(26, 32, 44, 0.95);
     }
 
     .global-nav-dropdown-menu {
@@ -570,9 +593,9 @@ html:not(.custom-nav-page) {
 <nav class="global-nav sticky" role="navigation" aria-label="Hauptnavigation">
     <div class="global-nav-container">
         <a href="https://kodinitools.com/" class="global-nav-brand">
-            <img src="https://kodinitools.com/android-chrome-192x192.png" alt="KodiniTools Logo" class="brand-logo-icon">
+            <img src="https://kodinitools.com/images/logo.svg" alt="KodiniTools Logo" class="brand-logo-icon">
             <span>KodiniTools</span>
-            <img src="https://kodinitools.com/images/schweiz-192x192.png" alt="Made in Switzerland" class="brand-flag-icon">
+            <img src="https://kodinitools.com/image/schweiz-192x192.png" alt="Made in Switzerland" class="brand-flag-icon">
         </a>
 
         <!-- Hamburger Button for Mobile -->
