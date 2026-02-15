@@ -1,6 +1,12 @@
+# Dependencies
+node_modules/
+
 # Build output
 dist/
 .vite-ssg-temp/
+
+# Astro
+.astro/
 
 # Environment variables (contains sensitive credentials)
 .env
