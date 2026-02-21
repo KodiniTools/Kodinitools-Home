@@ -51,7 +51,7 @@
     }
   },
   "tools": {
-    "sectionTitle": "🎵 Audio Tools",
+    "sectionTitle": "Audio Tools",
     "sectionDescription": "Edit your audio files securely - some tools run in the browser, others on our Hostinger servers",
     "processingBadge": {
       "browser": "Browser",
@@ -136,7 +136,7 @@
     }
   },
   "diverseTools": {
-    "sectionTitle": "🛠️ Diverse Tools",
+    "sectionTitle": "Diverse Tools",
     "sectionDescription": "More useful tools for your multimedia projects",
     "colorExtractor": {
       "title": "Kodini Color Extractor",
@@ -154,7 +154,7 @@
     }
   },
   "imageTools": {
-    "sectionTitle": "📷 Image Tools",
+    "sectionTitle": "Image Tools",
     "sectionDescription": "Convert and edit your images securely - some tools run in the browser, others on our Hostinger servers",
     "imageConverter": {
       "title": "Image Converter",

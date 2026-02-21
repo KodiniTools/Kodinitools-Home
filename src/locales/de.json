@@ -51,7 +51,7 @@
     }
   },
   "tools": {
-    "sectionTitle": "🎵 Audio Tools",
+    "sectionTitle": "Audio Tools",
     "sectionDescription": "Bearbeiten Sie Ihre Audiodateien sicher - einige Tools laufen im Browser, andere auf unseren Hostinger-Servern",
     "processingBadge": {
       "browser": "Browser",
@@ -136,7 +136,7 @@
     }
   },
   "diverseTools": {
-    "sectionTitle": "🛠️ Diverse Tools",
+    "sectionTitle": "Diverse Tools",
     "sectionDescription": "Weitere nützliche Werkzeuge für Ihre Multimedia-Projekte",
     "colorExtractor": {
       "title": "Kodini Farbextraktor",
@@ -154,7 +154,7 @@
     }
   },
   "imageTools": {
-    "sectionTitle": "📷 Bild Tools",
+    "sectionTitle": "Bild Tools",
     "sectionDescription": "Konvertieren und bearbeiten Sie Ihre Bilder sicher - einige Tools laufen im Browser, andere auf unseren Hostinger-Servern",
     "imageConverter": {
       "title": "Bildkonverter",
