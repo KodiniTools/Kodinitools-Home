@@ -74,7 +74,7 @@
         <!-- Audio Converter -->
         <div class="tool-card">
           <div class="tool-header">
-            <span class="tool-icon">🔄</span>
+
             <h3 class="tool-name">{{ $t('blog.sections.audioTools.audioConverter.title') }}</h3>
             <span class="tool-badge server">Server</span>
           </div>
@@ -100,7 +100,7 @@
         <!-- 19-Band EQ Pro -->
         <div class="tool-card">
           <div class="tool-header">
-            <span class="tool-icon">🎛️</span>
+
             <h3 class="tool-name">{{ $t('blog.sections.audioTools.eq19.title') }}</h3>
             <span class="tool-badge browser">Browser</span>
             <span class="tool-badge pro">PRO</span>
@@ -128,7 +128,7 @@
         <!-- Music Player -->
         <div class="tool-card">
           <div class="tool-header">
-            <span class="tool-icon">🎵</span>
+
             <h3 class="tool-name">{{ $t('blog.sections.audioTools.musicPlayer.title') }}</h3>
             <span class="tool-badge browser">Browser</span>
             <span class="tool-badge new">{{ $t('blog.new') }}</span>
@@ -155,7 +155,7 @@
         <!-- Audio Visualizer -->
         <div class="tool-card">
           <div class="tool-header">
-            <span class="tool-icon">📊</span>
+
             <h3 class="tool-name">{{ $t('blog.sections.audioTools.visualizer.title') }}</h3>
             <span class="tool-badge browser">Browser</span>
             <span class="tool-badge video">Video</span>
@@ -182,7 +182,7 @@
         <!-- MP3 Converter -->
         <div class="tool-card">
           <div class="tool-header">
-            <span class="tool-icon">🎧</span>
+
             <h3 class="tool-name">{{ $t('blog.sections.audioTools.mp3Converter.title') }}</h3>
             <span class="tool-badge server">Server</span>
           </div>
@@ -207,7 +207,7 @@
         <!-- Interactive Equalizer -->
         <div class="tool-card">
           <div class="tool-header">
-            <span class="tool-icon">🎚️</span>
+
             <h3 class="tool-name">{{ $t('blog.sections.audioTools.interactiveEq.title') }}</h3>
             <span class="tool-badge browser">Browser</span>
           </div>
@@ -232,7 +232,7 @@
         <!-- Modern Music Player -->
         <div class="tool-card">
           <div class="tool-header">
-            <span class="tool-icon">🎶</span>
+
             <h3 class="tool-name">{{ $t('blog.sections.audioTools.modernPlayer.title') }}</h3>
             <span class="tool-badge browser">Browser</span>
           </div>
@@ -257,7 +257,7 @@
         <!-- Playlist Generator -->
         <div class="tool-card">
           <div class="tool-header">
-            <span class="tool-icon">📋</span>
+
             <h3 class="tool-name">{{ $t('blog.sections.audioTools.playlistGenerator.title') }}</h3>
             <span class="tool-badge browser">Browser</span>
           </div>
@@ -282,7 +282,7 @@
         <!-- Alarm Tool -->
         <div class="tool-card">
           <div class="tool-header">
-            <span class="tool-icon">⏰</span>
+
             <h3 class="tool-name">{{ $t('blog.sections.audioTools.alarmTool.title') }}</h3>
             <span class="tool-badge browser">Browser</span>
           </div>
@@ -307,7 +307,7 @@
         <!-- Audio Normalizer -->
         <div class="tool-card">
           <div class="tool-header">
-            <span class="tool-icon">📢</span>
+
             <h3 class="tool-name">{{ $t('blog.sections.audioTools.audioNormalizer.title') }}</h3>
             <span class="tool-badge server">Server</span>
           </div>
@@ -332,7 +332,7 @@
         <!-- Playlist to WebM -->
         <div class="tool-card">
           <div class="tool-header">
-            <span class="tool-icon">🎬</span>
+
             <h3 class="tool-name">{{ $t('blog.sections.audioTools.playlistWebm.title') }}</h3>
             <span class="tool-badge server">Server</span>
           </div>
@@ -363,7 +363,7 @@
         <!-- Image Converter -->
         <div class="tool-card">
           <div class="tool-header">
-            <span class="tool-icon">🖼️</span>
+
             <h3 class="tool-name">{{ $t('blog.sections.imageTools.imageConverter.title') }}</h3>
             <span class="tool-badge server">Server</span>
           </div>
@@ -389,7 +389,7 @@
         <!-- Batch Image Editor -->
         <div class="tool-card">
           <div class="tool-header">
-            <span class="tool-icon">📸</span>
+
             <h3 class="tool-name">{{ $t('blog.sections.imageTools.batchEditor.title') }}</h3>
             <span class="tool-badge browser">Browser</span>
             <span class="tool-badge batch">Batch</span>
@@ -416,7 +416,7 @@
         <!-- Photo Collage -->
         <div class="tool-card">
           <div class="tool-header">
-            <span class="tool-icon">🎨</span>
+
             <h3 class="tool-name">{{ $t('blog.sections.imageTools.photoCollage.title') }}</h3>
             <span class="tool-badge browser">Browser</span>
           </div>
@@ -447,7 +447,7 @@
         <!-- Color Extractor -->
         <div class="tool-card">
           <div class="tool-header">
-            <span class="tool-icon">🎨</span>
+
             <h3 class="tool-name">{{ $t('blog.sections.diverseTools.colorExtractor.title') }}</h3>
             <span class="tool-badge browser">Browser</span>
           </div>
@@ -472,7 +472,7 @@
         <!-- Video Converter -->
         <div class="tool-card">
           <div class="tool-header">
-            <span class="tool-icon">🎥</span>
+
             <h3 class="tool-name">{{ $t('blog.sections.diverseTools.videoConverter.title') }}</h3>
             <span class="tool-badge server">Server</span>
           </div>

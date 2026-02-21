@@ -301,7 +301,6 @@
           class="tool-card-link"
         >
           <div class="tool-card">
-            <div class="tool-icon">{{ tool.icon }}</div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t(`${tool.key}.badge`) }}</span>
               <span :class="['processing-badge', $t(`${tool.key}.processing`)]">
@@ -327,9 +326,6 @@
         <a :href="$t('tools.audioConverter.link')" class="tool-card-link bento-featured">
           <div class="tool-card">
             <div class="card-glow"></div>
-            <div class="tool-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-            </div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('tools.audioConverter.badge') }}</span>
               <span :class="['processing-badge', $t('tools.audioConverter.processing')]">
@@ -346,9 +342,6 @@
         <a :href="$t('tools.audioEqualizer.link')" class="tool-card-link">
           <div class="tool-card">
             <div class="card-glow"></div>
-            <div class="tool-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="4" y1="21" y2="14"/><line x1="4" x2="4" y1="10" y2="3"/><line x1="12" x2="12" y1="21" y2="12"/><line x1="12" x2="12" y1="8" y2="3"/><line x1="20" x2="20" y1="21" y2="16"/><line x1="20" x2="20" y1="12" y2="3"/><line x1="2" x2="6" y1="14" y2="14"/><line x1="10" x2="14" y1="8" y2="8"/><line x1="18" x2="22" y1="16" y2="16"/></svg>
-            </div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('tools.audioEqualizer.badge') }}</span>
               <span :class="['processing-badge', $t('tools.audioEqualizer.processing')]">
@@ -364,9 +357,6 @@
         <a :href="$t('tools.musicPlayer.link')" class="tool-card-link">
           <div class="tool-card">
             <div class="card-glow"></div>
-            <div class="tool-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
-            </div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('tools.musicPlayer.badge') }}</span>
               <span :class="['processing-badge', $t('tools.musicPlayer.processing')]">
@@ -382,9 +372,6 @@
         <a :href="$t('tools.audioVisualizer.link')" class="tool-card-link bento-wide">
           <div class="tool-card">
             <div class="card-glow"></div>
-            <div class="tool-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-            </div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('tools.audioVisualizer.badge') }}</span>
               <span :class="['processing-badge', $t('tools.audioVisualizer.processing')]">
@@ -400,9 +387,6 @@
         <a :href="$t('tools.mp3Converter.link')" class="tool-card-link">
           <div class="tool-card">
             <div class="card-glow"></div>
-            <div class="tool-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15V6"/><path d="M18.5 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/><path d="M12 12H3"/><path d="M16 6H3"/><path d="M12 18H3"/></svg>
-            </div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('tools.mp3Converter.badge') }}</span>
               <span :class="['processing-badge', $t('tools.mp3Converter.processing')]">
@@ -418,9 +402,6 @@
         <a :href="$t('tools.interactiveEqualizer.link')" class="tool-card-link">
           <div class="tool-card">
             <div class="card-glow"></div>
-            <div class="tool-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="6" height="14" x="4" y="5" rx="2"/><rect width="6" height="10" x="14" y="7" rx="2"/><path d="M17 22v-5"/><path d="M7 22v-3"/><path d="M17 2v3"/><path d="M7 2v1"/></svg>
-            </div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('tools.interactiveEqualizer.badge') }}</span>
               <span :class="['processing-badge', $t('tools.interactiveEqualizer.processing')]">
@@ -436,9 +417,6 @@
         <a :href="$t('tools.modernPlayer.link')" class="tool-card-link bento-wide">
           <div class="tool-card">
             <div class="card-glow"></div>
-            <div class="tool-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
-            </div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('tools.modernPlayer.badge') }}</span>
               <span :class="['processing-badge', $t('tools.modernPlayer.processing')]">
@@ -454,9 +432,6 @@
         <a :href="$t('tools.playlistGenerator.link')" class="tool-card-link">
           <div class="tool-card">
             <div class="card-glow"></div>
-            <div class="tool-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
-            </div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('tools.playlistGenerator.badge') }}</span>
               <span :class="['processing-badge', $t('tools.playlistGenerator.processing')]">
@@ -472,9 +447,6 @@
         <a :href="$t('tools.alarmTool.link')" class="tool-card-link">
           <div class="tool-card">
             <div class="card-glow"></div>
-            <div class="tool-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3 2 6"/><path d="m22 6-3-3"/><path d="M6.38 18.7 4 21"/><path d="M17.64 18.67 20 21"/></svg>
-            </div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('tools.alarmTool.badge') }}</span>
               <span :class="['processing-badge', $t('tools.alarmTool.processing')]">
@@ -490,9 +462,6 @@
         <a :href="$t('tools.audioNormalizer.link')" class="tool-card-link">
           <div class="tool-card">
             <div class="card-glow"></div>
-            <div class="tool-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg>
-            </div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('tools.audioNormalizer.badge') }}</span>
               <span :class="['processing-badge', $t('tools.audioNormalizer.processing')]">
@@ -508,9 +477,6 @@
         <a :href="$t('tools.playlistToWebm.link')" class="tool-card-link">
           <div class="tool-card">
             <div class="card-glow"></div>
-            <div class="tool-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2" ry="2"/></svg>
-            </div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('tools.playlistToWebm.badge') }}</span>
               <span :class="['processing-badge', $t('tools.playlistToWebm.processing')]">
@@ -536,9 +502,6 @@
         <a :href="$t('imageTools.imageConverter.link')" class="tool-card-link bento-featured">
           <div class="tool-card">
             <div class="card-glow"></div>
-            <div class="tool-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-            </div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('imageTools.imageConverter.badge') }}</span>
               <span :class="['processing-badge', $t('imageTools.imageConverter.processing')]">
@@ -555,9 +518,6 @@
         <a :href="$t('imageTools.batchImageEditor.link')" class="tool-card-link">
           <div class="tool-card">
             <div class="card-glow"></div>
-            <div class="tool-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
-            </div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('imageTools.batchImageEditor.badge') }}</span>
               <span :class="['processing-badge', $t('imageTools.batchImageEditor.processing')]">
@@ -573,9 +533,6 @@
         <a :href="$t('imageTools.photoCollage.link')" class="tool-card-link">
           <div class="tool-card">
             <div class="card-glow"></div>
-            <div class="tool-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
-            </div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('imageTools.photoCollage.badge') }}</span>
               <span :class="['processing-badge', $t('imageTools.photoCollage.processing')]">
@@ -601,9 +558,6 @@
         <a :href="$t('diverseTools.colorExtractor.link')" class="tool-card-link bento-wide">
           <div class="tool-card">
             <div class="card-glow"></div>
-            <div class="tool-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="0.5" fill="currentColor"/><circle cx="17.5" cy="10.5" r="0.5" fill="currentColor"/><circle cx="8.5" cy="7.5" r="0.5" fill="currentColor"/><circle cx="6.5" cy="12.5" r="0.5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.555C21.965 6.012 17.461 2 12 2z"/></svg>
-            </div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('diverseTools.colorExtractor.badge') }}</span>
               <span :class="['processing-badge', $t('diverseTools.colorExtractor.processing')]">
@@ -619,9 +573,6 @@
         <a :href="$t('diverseTools.videoConverter.link')" class="tool-card-link bento-wide">
           <div class="tool-card">
             <div class="card-glow"></div>
-            <div class="tool-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>
-            </div>
             <div class="badge-container">
               <span class="tool-badge">{{ $t('diverseTools.videoConverter.badge') }}</span>
               <span :class="['processing-badge', $t('diverseTools.videoConverter.processing')]">
