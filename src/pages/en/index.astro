@@ -8,164 +8,30 @@ const navHtml = readFileSync(resolve('public/partials/nav.html'), 'utf-8')
 const footerHtml = readFileSync(resolve('public/partials/footer.html'), 'utf-8')
 const cookieBannerHtml = readFileSync(resolve('public/partials/cookie-banner.html'), 'utf-8')
 
-// Tool data for static rendering (English)
+// SVG card data for static rendering (English)
 const audioTools = [
-  {
-    title: 'Audio Converter',
-    description: 'Convert audio between MP3, WAV, OGG, FLAC, AAC and M4A. Batch processing with quality selection.',
-    badge: 'Batch',
-    processing: 'server',
-    link: 'https://kodinitools.com/audiokonverter/',
-    featured: true,
-    i18nKey: 'tools.audioConverter',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`
-  },
-  {
-    title: '19-Band EQ Pro',
-    description: '19-band equalizer with dynamic compressor, presets and recording function.',
-    badge: 'PRO',
-    processing: 'browser',
-    link: 'https://kodinitools.com/equaliser19/',
-    i18nKey: 'tools.audioEqualizer',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="4" y1="21" y2="14"/><line x1="4" x2="4" y1="10" y2="3"/><line x1="12" x2="12" y1="21" y2="12"/><line x1="12" x2="12" y1="8" y2="3"/><line x1="20" x2="20" y1="21" y2="16"/><line x1="20" x2="20" y1="12" y2="3"/><line x1="2" x2="6" y1="14" y2="14"/><line x1="10" x2="14" y1="8" y2="8"/><line x1="18" x2="22" y1="16" y2="16"/></svg>`
-  },
-  {
-    title: 'Music Player',
-    description: 'Minimalist audio player with playlist, shuffle, repeat and visualizer function.',
-    badge: 'New',
-    processing: 'browser',
-    link: 'https://kodinitools.com/ultimativermusikplayer/',
-    i18nKey: 'tools.musicPlayer',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>`
-  },
-  {
-    title: 'Audio Visualizer',
-    description: 'Create stunning MP4 videos for TikTok, Instagram and YouTube with audio visualizations.',
-    badge: 'Video',
-    processing: 'browser',
-    link: 'https://kodinitools.com/visualizer/',
-    wide: true,
-    i18nKey: 'tools.audioVisualizer',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>`
-  },
-  {
-    title: 'MP3 Converter',
-    description: 'Convert audio files quickly and easily to MP3 format. Optimized for podcasts and music.',
-    badge: 'MP3',
-    processing: 'server',
-    link: 'https://kodinitools.com/mp3konverter/',
-    i18nKey: 'tools.mp3Converter',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15V6"/><path d="M18.5 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/><path d="M12 12H3"/><path d="M16 6H3"/><path d="M12 18H3"/></svg>`
-  },
-  {
-    title: 'Interactive Audio Equalizer',
-    description: 'Edit your audio files with an intuitive graphical equalizer. Real-time preview and export.',
-    badge: 'Interactive',
-    processing: 'browser',
-    link: 'https://kodinitools.com/audioequalizer/',
-    i18nKey: 'tools.interactiveEqualizer',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="6" height="14" x="4" y="5" rx="2"/><rect width="6" height="10" x="14" y="7" rx="2"/><path d="M17 22v-5"/><path d="M7 22v-3"/><path d="M17 2v3"/><path d="M7 2v1"/></svg>`
-  },
-  {
-    title: 'Modern Music Player',
-    description: 'Sleek and modern audio player with all essential features. Supports many formats.',
-    badge: 'Modern',
-    processing: 'browser',
-    link: 'https://kodinitools.com/modernermusikplayer/',
-    wide: true,
-    i18nKey: 'tools.modernPlayer',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>`
-  },
-  {
-    title: 'Audio Playlist Generator',
-    description: 'Automatically create playlists from your audio files. With sorting and filtering functions.',
-    badge: 'Playlist',
-    processing: 'browser',
-    link: 'https://kodinitools.com/playlist_generator/',
-    i18nKey: 'tools.playlistGenerator',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>`
-  },
-  {
-    title: 'Alarm Tool',
-    description: 'Reliable alarm tool for reminders and alarms. With custom audio files.',
-    badge: 'Alarm',
-    processing: 'browser',
-    link: 'https://kodinitools.com/alarmtool/',
-    i18nKey: 'tools.alarmTool',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3 2 6"/><path d="m22 6-3-3"/><path d="M6.38 18.7 4 21"/><path d="M17.64 18.67 20 21"/></svg>`
-  },
-  {
-    title: 'Audio Normalizer',
-    description: 'Normalize the volume of your audio files automatically. Perfect for podcasts and audiobooks.',
-    badge: 'Normalizer',
-    processing: 'server',
-    link: 'https://kodinitools.com/audionormalisierer/',
-    i18nKey: 'tools.audioNormalizer',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg>`
-  },
-  {
-    title: 'Playlist to WebM Converter',
-    description: 'Convert up to 50 audio tracks into a WebM file',
-    badge: 'WebM',
-    processing: 'server',
-    link: 'https://kodinitools.com/playlistkonverter/',
-    i18nKey: 'tools.playlistToWebm',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2" ry="2"/></svg>`
-  }
+  { title: 'Audio Converter', description: 'Convert audio between MP3, WAV, OGG, FLAC, AAC and M4A.', link: 'https://kodinitools.com/audiokonverter/', svg: '/image/audio-converter.svg', i18nKey: 'tools.audioConverter' },
+  { title: '19-Band EQ Pro', description: '19-band equalizer with dynamic compressor, presets and recording.', link: 'https://kodinitools.com/equaliser19/', svg: '/image/eq19-pro1.svg', i18nKey: 'tools.audioEqualizer' },
+  { title: 'Music Player', description: 'Minimalist audio player with playlist, shuffle, repeat and visualizer.', link: 'https://kodinitools.com/ultimativermusikplayer/', svg: '/image/musikplayer-en.svg', i18nKey: 'tools.musicPlayer' },
+  { title: 'Audio Visualizer', description: 'Create stunning MP4 videos for TikTok, Instagram and YouTube.', link: 'https://kodinitools.com/visualizer/', svg: '/image/audiovisualizer-en.svg', i18nKey: 'tools.audioVisualizer' },
+  { title: 'MP3 Converter', description: 'Convert audio files quickly and easily to MP3 format.', link: 'https://kodinitools.com/mp3konverter/', svg: '/image/mp3-converter.svg', i18nKey: 'tools.mp3Converter' },
+  { title: 'Interactive Audio Equalizer', description: 'Edit your audio files with an intuitive graphical equalizer.', link: 'https://kodinitools.com/audioequalizer/', svg: '/image/interaktiver-equalizer-en.svg', i18nKey: 'tools.interactiveEqualizer' },
+  { title: 'Modern Music Player', description: 'Sleek and modern audio player with all essential features.', link: 'https://kodinitools.com/modernermusikplayer/', svg: '/image/modern-music-player.svg', i18nKey: 'tools.modernPlayer' },
+  { title: 'Audio Playlist Generator', description: 'Automatically create playlists from your audio files.', link: 'https://kodinitools.com/playlist_generator/', svg: '/image/audio-playlist-generator.svg', i18nKey: 'tools.playlistGenerator' },
+  { title: 'Alarm Tool', description: 'Reliable alarm tool for reminders and alarms.', link: 'https://kodinitools.com/alarmtool/', svg: '/image/modern-alarmtool.svg', i18nKey: 'tools.alarmTool' },
+  { title: 'Audio Normalizer', description: 'Normalize the volume of your audio files automatically.', link: 'https://kodinitools.com/audionormalisierer/', svg: '/image/audio-normalizer-en.svg', i18nKey: 'tools.audioNormalizer' },
+  { title: 'Playlist to WebM Converter', description: 'Convert up to 50 audio tracks into a WebM file.', link: 'https://kodinitools.com/playlistkonverter/', svg: '/image/playlist-converter.svg', i18nKey: 'tools.playlistToWebm' }
 ]
 
 const imageTools = [
-  {
-    title: 'Image Converter',
-    description: 'Convert images between JPG, PNG, WebP, AVIF, GIF and BMP. With quality selection.',
-    badge: 'Multi',
-    processing: 'server',
-    link: 'https://kodinitools.com/bildkonverter/',
-    featured: true,
-    i18nKey: 'imageTools.imageConverter',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>`
-  },
-  {
-    title: 'Batch Image Editor',
-    description: 'Edit 100+ images simultaneously: resize, rename, export as ZIP or PDF.',
-    badge: 'Batch',
-    processing: 'browser',
-    link: 'https://kodinitools.com/bilderseriebearbeiten/',
-    i18nKey: 'imageTools.batchImageEditor',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>`
-  },
-  {
-    title: 'Photo Collage',
-    description: 'Create creative photo collages from your images. Various layouts and templates available.',
-    badge: 'Creative',
-    processing: 'browser',
-    link: 'https://kodinitools.com/collagemaker',
-    i18nKey: 'imageTools.photoCollage',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>`
-  }
+  { title: 'Image Converter', description: 'Convert images between JPG, PNG, WebP, AVIF, GIF and BMP.', link: 'https://kodinitools.com/bildkonverter/', svg: '/image/image-converter.svg', i18nKey: 'imageTools.imageConverter' },
+  { title: 'Batch Image Editor', description: 'Edit 100+ images simultaneously: resize, rename, export as ZIP or PDF.', link: 'https://kodinitools.com/bilderseriebearbeiten/', svg: '/image/batch-imageeditor.svg', i18nKey: 'imageTools.batchImageEditor' },
+  { title: 'Photo Collage', description: 'Create creative photo collages from your images.', link: 'https://kodinitools.com/collagemaker', svg: '/image/photocollage.svg', i18nKey: 'imageTools.photoCollage' }
 ]
 
 const diverseTools = [
-  {
-    title: 'Kodini Color Extractor',
-    description: 'Extract dominant colors from images. Ideal for designers and creatives to create color palettes.',
-    badge: 'Colors',
-    processing: 'browser',
-    link: 'https://kodinitools.com/kodini-color-extractor/',
-    wide: true,
-    i18nKey: 'diverseTools.colorExtractor',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="0.5" fill="currentColor"/><circle cx="17.5" cy="10.5" r="0.5" fill="currentColor"/><circle cx="8.5" cy="7.5" r="0.5" fill="currentColor"/><circle cx="6.5" cy="12.5" r="0.5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.555C21.965 6.012 17.461 2 12 2z"/></svg>`
-  },
-  {
-    title: 'Video Converter',
-    description: 'Convert videos to various formats. Supports MP4, WebM, AVI and other common formats.',
-    badge: 'Video',
-    processing: 'server',
-    link: 'https://kodinitools.com/videokonverter/',
-    wide: true,
-    i18nKey: 'diverseTools.videoConverter',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>`
-  }
+  { title: 'Kodini Color Extractor', description: 'Extract dominant colors from images.', link: 'https://kodinitools.com/kodini-color-extractor/', svg: '/image/collor-extractor.svg', i18nKey: 'diverseTools.colorExtractor' },
+  { title: 'Video Converter', description: 'Convert videos to various formats.', link: 'https://kodinitools.com/videokonverter/', svg: '/image/video-converter.svg', i18nKey: 'diverseTools.videoConverter' }
 ]
 
 const features = [
@@ -328,86 +194,54 @@ const features = [
         <h2 data-i18n="search.resultsTitle">Search Results</h2>
         <p id="searchResultsCount"></p>
       </div>
-      <div id="searchResultsGrid" class="tools-grid"></div>
+      <div id="searchResultsGrid" class="svg-card-grid"></div>
     </section>
 
-    <!-- Audio Tools Section with Bento Grid -->
+    <!-- Audio Tools Section -->
     <section class="tools-section">
       <div class="section-header">
-        <h2 data-i18n="tools.sectionTitle">Audio Tools</h2>
         <p data-i18n="tools.sectionDescription">Edit your audio files securely - some tools run in the browser, others on our Hostinger servers</p>
       </div>
 
-      <div class="bento-grid">
+      <div class="svg-card-grid">
         {audioTools.map((tool) => (
-          <a href={tool.link} class={`tool-card-link ${tool.featured ? 'bento-featured' : ''} ${tool.wide ? 'bento-wide' : ''}`}
-             data-title={tool.title} data-description={tool.description}>
-            <div class="tool-card">
-              <div class="card-glow"></div>
-              <div class="badge-container">
-                <span class="tool-badge" data-i18n={`${tool.i18nKey}.badge`}>{tool.badge}</span>
-                <span class={`processing-badge ${tool.processing}`} data-i18n={`processing.${tool.processing}`}>
-                  {tool.processing === 'browser' ? 'Browser' : 'Server'}
-                </span>
-              </div>
-              <h3 data-i18n={`${tool.i18nKey}.title`}>{tool.title}</h3>
-              <p data-i18n={`${tool.i18nKey}.description`}>{tool.description}</p>
-              {tool.featured && <div class="card-arrow">&rarr;</div>}
+          <a href={tool.link} class="svg-card-link" data-title={tool.title} data-description={tool.description} data-svg-en={tool.svg} data-i18n-key={tool.i18nKey}>
+            <div class="svg-card">
+              <img src={tool.svg} alt={tool.title} loading="lazy" />
             </div>
           </a>
         ))}
       </div>
     </section>
 
-    <!-- Image Tools Section with Bento Grid -->
+    <!-- Image Tools Section -->
     <section class="tools-section">
       <div class="section-header">
-        <h2 data-i18n="imageTools.sectionTitle">Image Tools</h2>
         <p data-i18n="imageTools.sectionDescription">Convert and edit your images securely - some tools run in the browser, others on our Hostinger servers</p>
       </div>
 
-      <div class="bento-grid bento-small">
+      <div class="svg-card-grid">
         {imageTools.map((tool) => (
-          <a href={tool.link} class={`tool-card-link ${tool.featured ? 'bento-featured' : ''} ${tool.wide ? 'bento-wide' : ''}`}
-             data-title={tool.title} data-description={tool.description}>
-            <div class="tool-card">
-              <div class="card-glow"></div>
-              <div class="badge-container">
-                <span class="tool-badge" data-i18n={`${tool.i18nKey}.badge`}>{tool.badge}</span>
-                <span class={`processing-badge ${tool.processing}`} data-i18n={`processing.${tool.processing}`}>
-                  {tool.processing === 'browser' ? 'Browser' : 'Server'}
-                </span>
-              </div>
-              <h3 data-i18n={`${tool.i18nKey}.title`}>{tool.title}</h3>
-              <p data-i18n={`${tool.i18nKey}.description`}>{tool.description}</p>
-              {tool.featured && <div class="card-arrow">&rarr;</div>}
+          <a href={tool.link} class="svg-card-link" data-title={tool.title} data-description={tool.description} data-svg-en={tool.svg} data-i18n-key={tool.i18nKey}>
+            <div class="svg-card">
+              <img src={tool.svg} alt={tool.title} loading="lazy" />
             </div>
           </a>
         ))}
       </div>
     </section>
 
-    <!-- Diverse Tools Section with Bento Grid -->
+    <!-- Diverse Tools Section -->
     <section class="tools-section">
       <div class="section-header">
-        <h2 data-i18n="diverseTools.sectionTitle">Diverse Tools</h2>
         <p data-i18n="diverseTools.sectionDescription">More useful tools for your multimedia projects</p>
       </div>
 
-      <div class="bento-grid bento-small">
+      <div class="svg-card-grid">
         {diverseTools.map((tool) => (
-          <a href={tool.link} class={`tool-card-link ${tool.wide ? 'bento-wide' : ''}`}
-             data-title={tool.title} data-description={tool.description}>
-            <div class="tool-card">
-              <div class="card-glow"></div>
-              <div class="badge-container">
-                <span class="tool-badge" data-i18n={`${tool.i18nKey}.badge`}>{tool.badge}</span>
-                <span class={`processing-badge ${tool.processing}`} data-i18n={`processing.${tool.processing}`}>
-                  {tool.processing === 'browser' ? 'Browser' : 'Server'}
-                </span>
-              </div>
-              <h3 data-i18n={`${tool.i18nKey}.title`}>{tool.title}</h3>
-              <p data-i18n={`${tool.i18nKey}.description`}>{tool.description}</p>
+          <a href={tool.link} class="svg-card-link" data-title={tool.title} data-description={tool.description} data-svg-en={tool.svg} data-i18n-key={tool.i18nKey}>
+            <div class="svg-card">
+              <img src={tool.svg} alt={tool.title} loading="lazy" />
             </div>
           </a>
         ))}
@@ -682,7 +516,7 @@ const features = [
     var searchResultsCount = document.getElementById('searchResultsCount');
     var searchResultsGrid = document.getElementById('searchResultsGrid');
 
-    var allToolCards = document.querySelectorAll('.tool-card-link[data-title]');
+    var allToolCards = document.querySelectorAll('.svg-card-link[data-title]');
 
     if (searchInput) {
       searchInput.addEventListener('input', function() {
@@ -717,7 +551,7 @@ const features = [
             searchResultsGrid.innerHTML = '';
             matches.forEach(function(card) {
               var clone = card.cloneNode(true);
-              clone.className = 'tool-card-link';
+              clone.className = 'svg-card-link';
               searchResultsGrid.appendChild(clone);
             });
           }
@@ -758,13 +592,13 @@ const features = [
       });
     }
 
-    // --- 3D Tilt Effect for Tool Cards ---
+    // --- 3D Tilt Effect for SVG Cards ---
     var isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     if (!isTouchDevice) {
       document.addEventListener('mousemove', function(e) {
         var target = e.target;
         if (!target || typeof target.closest !== 'function') return;
-        var card = target.closest('.tool-card');
+        var card = target.closest('.svg-card');
         if (!card) return;
 
         var rect = card.getBoundingClientRect();
@@ -776,18 +610,14 @@ const features = [
         var rotateY = (centerX - x) / 15;
 
         card.style.transform = 'perspective(1000px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) translateY(-8px)';
-        card.style.setProperty('--mouse-x', (x / rect.width * 100) + '%');
-        card.style.setProperty('--mouse-y', (y / rect.height * 100) + '%');
       });
 
       document.addEventListener('mouseout', function(e) {
         var target = e.target;
         var relatedTarget = e.relatedTarget;
-        if (target && target.classList && target.classList.contains('tool-card') &&
+        if (target && target.classList && target.classList.contains('svg-card') &&
             (!relatedTarget || !target.contains(relatedTarget))) {
           target.style.transform = '';
-          target.style.setProperty('--mouse-x', '50%');
-          target.style.setProperty('--mouse-y', '50%');
         }
       });
     }
@@ -807,7 +637,7 @@ const features = [
       });
     }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
-    document.querySelectorAll('.tools-section, .tool-card-link').forEach(function(el) {
+    document.querySelectorAll('.tools-section, .svg-card-link').forEach(function(el) {
       el.classList.add('scroll-reveal');
       observer.observe(el);
     });
