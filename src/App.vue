@@ -293,294 +293,125 @@
         <p v-else class="no-results">{{ $t('search.noResults') }}</p>
       </div>
 
-      <div v-if="!showNoResults" class="tools-grid">
+      <div v-if="!showNoResults" class="svg-card-grid">
         <a
           v-for="tool in filteredTools"
           :key="tool.key"
           :href="$t(`${tool.key}.link`)"
-          class="tool-card-link"
+          class="svg-card-link"
         >
-          <div class="tool-card">
-            <div class="badge-container">
-              <span class="tool-badge">{{ $t(`${tool.key}.badge`) }}</span>
-              <span :class="['processing-badge', $t(`${tool.key}.processing`)]">
-                {{ $t('tools.processingBadge.' + $t(`${tool.key}.processing`)) }}
-              </span>
-            </div>
-            <h3>{{ $t(`${tool.key}.title`) }}</h3>
-            <p>{{ $t(`${tool.key}.description`) }}</p>
+          <div class="svg-card">
+            <img :src="$t(`${tool.key}.svg`)" :alt="$t(`${tool.key}.title`)" />
           </div>
         </a>
       </div>
     </section>
 
-    <!-- Audio Tools Section with Bento Grid -->
+    <!-- Audio Tools Section -->
     <section class="tools-section">
       <div class="section-header">
-        <h2>{{ $t('tools.sectionTitle') }}</h2>
         <p>{{ $t('tools.sectionDescription') }}</p>
       </div>
 
-      <div class="bento-grid">
-        <!-- Audio Konverter - Featured (Large) -->
-        <a :href="$t('tools.audioConverter.link')" class="tool-card-link bento-featured">
-          <div class="tool-card">
-            <div class="card-glow"></div>
-            <div class="badge-container">
-              <span class="tool-badge">{{ $t('tools.audioConverter.badge') }}</span>
-              <span :class="['processing-badge', $t('tools.audioConverter.processing')]">
-                {{ $t('tools.processingBadge.' + $t('tools.audioConverter.processing')) }}
-              </span>
-            </div>
-            <h3>{{ $t('tools.audioConverter.title') }}</h3>
-            <p>{{ $t('tools.audioConverter.description') }}</p>
-            <div class="card-arrow">→</div>
+      <div class="svg-card-grid">
+        <a :href="$t('tools.audioConverter.link')" class="svg-card-link">
+          <div class="svg-card">
+            <img :src="$t('tools.audioConverter.svg')" :alt="$t('tools.audioConverter.title')" />
           </div>
         </a>
-
-        <!-- 19-Band EQ Pro -->
-        <a :href="$t('tools.audioEqualizer.link')" class="tool-card-link">
-          <div class="tool-card">
-            <div class="card-glow"></div>
-            <div class="badge-container">
-              <span class="tool-badge">{{ $t('tools.audioEqualizer.badge') }}</span>
-              <span :class="['processing-badge', $t('tools.audioEqualizer.processing')]">
-                {{ $t('tools.processingBadge.' + $t('tools.audioEqualizer.processing')) }}
-              </span>
-            </div>
-            <h3>{{ $t('tools.audioEqualizer.title') }}</h3>
-            <p>{{ $t('tools.audioEqualizer.description') }}</p>
+        <a :href="$t('tools.audioEqualizer.link')" class="svg-card-link">
+          <div class="svg-card">
+            <img :src="$t('tools.audioEqualizer.svg')" :alt="$t('tools.audioEqualizer.title')" />
           </div>
         </a>
-
-        <!-- Musikplayer -->
-        <a :href="$t('tools.musicPlayer.link')" class="tool-card-link">
-          <div class="tool-card">
-            <div class="card-glow"></div>
-            <div class="badge-container">
-              <span class="tool-badge">{{ $t('tools.musicPlayer.badge') }}</span>
-              <span :class="['processing-badge', $t('tools.musicPlayer.processing')]">
-                {{ $t('tools.processingBadge.' + $t('tools.musicPlayer.processing')) }}
-              </span>
-            </div>
-            <h3>{{ $t('tools.musicPlayer.title') }}</h3>
-            <p>{{ $t('tools.musicPlayer.description') }}</p>
+        <a :href="$t('tools.musicPlayer.link')" class="svg-card-link">
+          <div class="svg-card">
+            <img :src="$t('tools.musicPlayer.svg')" :alt="$t('tools.musicPlayer.title')" />
           </div>
         </a>
-
-        <!-- Audio Visualizer - Wide -->
-        <a :href="$t('tools.audioVisualizer.link')" class="tool-card-link bento-wide">
-          <div class="tool-card">
-            <div class="card-glow"></div>
-            <div class="badge-container">
-              <span class="tool-badge">{{ $t('tools.audioVisualizer.badge') }}</span>
-              <span :class="['processing-badge', $t('tools.audioVisualizer.processing')]">
-                {{ $t('tools.processingBadge.' + $t('tools.audioVisualizer.processing')) }}
-              </span>
-            </div>
-            <h3>{{ $t('tools.audioVisualizer.title') }}</h3>
-            <p>{{ $t('tools.audioVisualizer.description') }}</p>
+        <a :href="$t('tools.audioVisualizer.link')" class="svg-card-link">
+          <div class="svg-card">
+            <img :src="$t('tools.audioVisualizer.svg')" :alt="$t('tools.audioVisualizer.title')" />
           </div>
         </a>
-
-        <!-- MP3 Konverter -->
-        <a :href="$t('tools.mp3Converter.link')" class="tool-card-link">
-          <div class="tool-card">
-            <div class="card-glow"></div>
-            <div class="badge-container">
-              <span class="tool-badge">{{ $t('tools.mp3Converter.badge') }}</span>
-              <span :class="['processing-badge', $t('tools.mp3Converter.processing')]">
-                {{ $t('tools.processingBadge.' + $t('tools.mp3Converter.processing')) }}
-              </span>
-            </div>
-            <h3>{{ $t('tools.mp3Converter.title') }}</h3>
-            <p>{{ $t('tools.mp3Converter.description') }}</p>
+        <a :href="$t('tools.mp3Converter.link')" class="svg-card-link">
+          <div class="svg-card">
+            <img :src="$t('tools.mp3Converter.svg')" :alt="$t('tools.mp3Converter.title')" />
           </div>
         </a>
-
-        <!-- Interaktiver Audio Equalizer -->
-        <a :href="$t('tools.interactiveEqualizer.link')" class="tool-card-link">
-          <div class="tool-card">
-            <div class="card-glow"></div>
-            <div class="badge-container">
-              <span class="tool-badge">{{ $t('tools.interactiveEqualizer.badge') }}</span>
-              <span :class="['processing-badge', $t('tools.interactiveEqualizer.processing')]">
-                {{ $t('tools.processingBadge.' + $t('tools.interactiveEqualizer.processing')) }}
-              </span>
-            </div>
-            <h3>{{ $t('tools.interactiveEqualizer.title') }}</h3>
-            <p>{{ $t('tools.interactiveEqualizer.description') }}</p>
+        <a :href="$t('tools.interactiveEqualizer.link')" class="svg-card-link">
+          <div class="svg-card">
+            <img :src="$t('tools.interactiveEqualizer.svg')" :alt="$t('tools.interactiveEqualizer.title')" />
           </div>
         </a>
-
-        <!-- Moderner Musikplayer - Wide -->
-        <a :href="$t('tools.modernPlayer.link')" class="tool-card-link bento-wide">
-          <div class="tool-card">
-            <div class="card-glow"></div>
-            <div class="badge-container">
-              <span class="tool-badge">{{ $t('tools.modernPlayer.badge') }}</span>
-              <span :class="['processing-badge', $t('tools.modernPlayer.processing')]">
-                {{ $t('tools.processingBadge.' + $t('tools.modernPlayer.processing')) }}
-              </span>
-            </div>
-            <h3>{{ $t('tools.modernPlayer.title') }}</h3>
-            <p>{{ $t('tools.modernPlayer.description') }}</p>
+        <a :href="$t('tools.modernPlayer.link')" class="svg-card-link">
+          <div class="svg-card">
+            <img :src="$t('tools.modernPlayer.svg')" :alt="$t('tools.modernPlayer.title')" />
           </div>
         </a>
-
-        <!-- Audioplaylist Generator -->
-        <a :href="$t('tools.playlistGenerator.link')" class="tool-card-link">
-          <div class="tool-card">
-            <div class="card-glow"></div>
-            <div class="badge-container">
-              <span class="tool-badge">{{ $t('tools.playlistGenerator.badge') }}</span>
-              <span :class="['processing-badge', $t('tools.playlistGenerator.processing')]">
-                {{ $t('tools.processingBadge.' + $t('tools.playlistGenerator.processing')) }}
-              </span>
-            </div>
-            <h3>{{ $t('tools.playlistGenerator.title') }}</h3>
-            <p>{{ $t('tools.playlistGenerator.description') }}</p>
+        <a :href="$t('tools.playlistGenerator.link')" class="svg-card-link">
+          <div class="svg-card">
+            <img :src="$t('tools.playlistGenerator.svg')" :alt="$t('tools.playlistGenerator.title')" />
           </div>
         </a>
-
-        <!-- Alarmtool -->
-        <a :href="$t('tools.alarmTool.link')" class="tool-card-link">
-          <div class="tool-card">
-            <div class="card-glow"></div>
-            <div class="badge-container">
-              <span class="tool-badge">{{ $t('tools.alarmTool.badge') }}</span>
-              <span :class="['processing-badge', $t('tools.alarmTool.processing')]">
-                {{ $t('tools.processingBadge.' + $t('tools.alarmTool.processing')) }}
-              </span>
-            </div>
-            <h3>{{ $t('tools.alarmTool.title') }}</h3>
-            <p>{{ $t('tools.alarmTool.description') }}</p>
+        <a :href="$t('tools.alarmTool.link')" class="svg-card-link">
+          <div class="svg-card">
+            <img :src="$t('tools.alarmTool.svg')" :alt="$t('tools.alarmTool.title')" />
           </div>
         </a>
-
-        <!-- Audio Normalizer -->
-        <a :href="$t('tools.audioNormalizer.link')" class="tool-card-link">
-          <div class="tool-card">
-            <div class="card-glow"></div>
-            <div class="badge-container">
-              <span class="tool-badge">{{ $t('tools.audioNormalizer.badge') }}</span>
-              <span :class="['processing-badge', $t('tools.audioNormalizer.processing')]">
-                {{ $t('tools.processingBadge.' + $t('tools.audioNormalizer.processing')) }}
-              </span>
-            </div>
-            <h3>{{ $t('tools.audioNormalizer.title') }}</h3>
-            <p>{{ $t('tools.audioNormalizer.description') }}</p>
+        <a :href="$t('tools.audioNormalizer.link')" class="svg-card-link">
+          <div class="svg-card">
+            <img :src="$t('tools.audioNormalizer.svg')" :alt="$t('tools.audioNormalizer.title')" />
           </div>
         </a>
-
-        <!-- Playlist zu WebM Konverter -->
-        <a :href="$t('tools.playlistToWebm.link')" class="tool-card-link">
-          <div class="tool-card">
-            <div class="card-glow"></div>
-            <div class="badge-container">
-              <span class="tool-badge">{{ $t('tools.playlistToWebm.badge') }}</span>
-              <span :class="['processing-badge', $t('tools.playlistToWebm.processing')]">
-                {{ $t('tools.processingBadge.' + $t('tools.playlistToWebm.processing')) }}
-              </span>
-            </div>
-            <h3>{{ $t('tools.playlistToWebm.title') }}</h3>
-            <p>{{ $t('tools.playlistToWebm.description') }}</p>
+        <a :href="$t('tools.playlistToWebm.link')" class="svg-card-link">
+          <div class="svg-card">
+            <img :src="$t('tools.playlistToWebm.svg')" :alt="$t('tools.playlistToWebm.title')" />
           </div>
         </a>
       </div>
     </section>
 
-    <!-- Image Tools Section with Bento Grid -->
+    <!-- Image Tools Section -->
     <section class="tools-section">
       <div class="section-header">
-        <h2>{{ $t('imageTools.sectionTitle') }}</h2>
         <p>{{ $t('imageTools.sectionDescription') }}</p>
       </div>
 
-      <div class="bento-grid bento-small">
-        <!-- Bildkonverter - Featured -->
-        <a :href="$t('imageTools.imageConverter.link')" class="tool-card-link bento-featured">
-          <div class="tool-card">
-            <div class="card-glow"></div>
-            <div class="badge-container">
-              <span class="tool-badge">{{ $t('imageTools.imageConverter.badge') }}</span>
-              <span :class="['processing-badge', $t('imageTools.imageConverter.processing')]">
-                {{ $t('tools.processingBadge.' + $t('imageTools.imageConverter.processing')) }}
-              </span>
-            </div>
-            <h3>{{ $t('imageTools.imageConverter.title') }}</h3>
-            <p>{{ $t('imageTools.imageConverter.description') }}</p>
-            <div class="card-arrow">→</div>
+      <div class="svg-card-grid">
+        <a :href="$t('imageTools.imageConverter.link')" class="svg-card-link">
+          <div class="svg-card">
+            <img :src="$t('imageTools.imageConverter.svg')" :alt="$t('imageTools.imageConverter.title')" />
           </div>
         </a>
-
-        <!-- Batch Bildbearbeitung -->
-        <a :href="$t('imageTools.batchImageEditor.link')" class="tool-card-link">
-          <div class="tool-card">
-            <div class="card-glow"></div>
-            <div class="badge-container">
-              <span class="tool-badge">{{ $t('imageTools.batchImageEditor.badge') }}</span>
-              <span :class="['processing-badge', $t('imageTools.batchImageEditor.processing')]">
-                {{ $t('tools.processingBadge.' + $t('imageTools.batchImageEditor.processing')) }}
-              </span>
-            </div>
-            <h3>{{ $t('imageTools.batchImageEditor.title') }}</h3>
-            <p>{{ $t('imageTools.batchImageEditor.description') }}</p>
+        <a :href="$t('imageTools.batchImageEditor.link')" class="svg-card-link">
+          <div class="svg-card">
+            <img :src="$t('imageTools.batchImageEditor.svg')" :alt="$t('imageTools.batchImageEditor.title')" />
           </div>
         </a>
-
-        <!-- Fotocollage -->
-        <a :href="$t('imageTools.photoCollage.link')" class="tool-card-link">
-          <div class="tool-card">
-            <div class="card-glow"></div>
-            <div class="badge-container">
-              <span class="tool-badge">{{ $t('imageTools.photoCollage.badge') }}</span>
-              <span :class="['processing-badge', $t('imageTools.photoCollage.processing')]">
-                {{ $t('tools.processingBadge.' + $t('imageTools.photoCollage.processing')) }}
-              </span>
-            </div>
-            <h3>{{ $t('imageTools.photoCollage.title') }}</h3>
-            <p>{{ $t('imageTools.photoCollage.description') }}</p>
+        <a :href="$t('imageTools.photoCollage.link')" class="svg-card-link">
+          <div class="svg-card">
+            <img :src="$t('imageTools.photoCollage.svg')" :alt="$t('imageTools.photoCollage.title')" />
           </div>
         </a>
       </div>
     </section>
 
-    <!-- Diverse Tools Section with Bento Grid -->
+    <!-- Diverse Tools Section -->
     <section class="tools-section">
       <div class="section-header">
-        <h2>{{ $t('diverseTools.sectionTitle') }}</h2>
         <p>{{ $t('diverseTools.sectionDescription') }}</p>
       </div>
 
-      <div class="bento-grid bento-small">
-        <!-- Kodini Color Extractor -->
-        <a :href="$t('diverseTools.colorExtractor.link')" class="tool-card-link bento-wide">
-          <div class="tool-card">
-            <div class="card-glow"></div>
-            <div class="badge-container">
-              <span class="tool-badge">{{ $t('diverseTools.colorExtractor.badge') }}</span>
-              <span :class="['processing-badge', $t('diverseTools.colorExtractor.processing')]">
-                {{ $t('tools.processingBadge.' + $t('diverseTools.colorExtractor.processing')) }}
-              </span>
-            </div>
-            <h3>{{ $t('diverseTools.colorExtractor.title') }}</h3>
-            <p>{{ $t('diverseTools.colorExtractor.description') }}</p>
+      <div class="svg-card-grid">
+        <a :href="$t('diverseTools.colorExtractor.link')" class="svg-card-link">
+          <div class="svg-card">
+            <img :src="$t('diverseTools.colorExtractor.svg')" :alt="$t('diverseTools.colorExtractor.title')" />
           </div>
         </a>
-
-        <!-- Videokonverter -->
-        <a :href="$t('diverseTools.videoConverter.link')" class="tool-card-link bento-wide">
-          <div class="tool-card">
-            <div class="card-glow"></div>
-            <div class="badge-container">
-              <span class="tool-badge">{{ $t('diverseTools.videoConverter.badge') }}</span>
-              <span :class="['processing-badge', $t('diverseTools.videoConverter.processing')]">
-                {{ $t('tools.processingBadge.' + $t('diverseTools.videoConverter.processing')) }}
-              </span>
-            </div>
-            <h3>{{ $t('diverseTools.videoConverter.title') }}</h3>
-            <p>{{ $t('diverseTools.videoConverter.description') }}</p>
+        <a :href="$t('diverseTools.videoConverter.link')" class="svg-card-link">
+          <div class="svg-card">
+            <img :src="$t('diverseTools.videoConverter.svg')" :alt="$t('diverseTools.videoConverter.title')" />
           </div>
         </a>
       </div>
@@ -840,7 +671,7 @@ const initTiltEffect = () => {
   document.addEventListener('mousemove', (e: MouseEvent) => {
     const target = e.target as HTMLElement
     if (!target || typeof target.closest !== 'function') return
-    const card = target.closest('.tool-card') as HTMLElement
+    const card = target.closest('.tool-card, .svg-card') as HTMLElement
     if (!card) return
 
     const rect = card.getBoundingClientRect()
@@ -864,7 +695,7 @@ const initTiltEffect = () => {
   document.addEventListener('mouseleave', (e: MouseEvent) => {
     const target = e.target as HTMLElement
     if (!target || typeof target.closest !== 'function') return
-    const card = target.closest('.tool-card') as HTMLElement
+    const card = target.closest('.tool-card, .svg-card') as HTMLElement
     if (!card) return
 
     card.style.transform = ''
@@ -877,7 +708,7 @@ const initTiltEffect = () => {
     const target = e.target as HTMLElement
     const relatedTarget = e.relatedTarget as HTMLElement
 
-    if (target.classList.contains('tool-card') &&
+    if ((target.classList.contains('tool-card') || target.classList.contains('svg-card')) &&
         (!relatedTarget || !target.contains(relatedTarget))) {
       target.style.transform = ''
       target.style.setProperty('--mouse-x', '50%')
@@ -964,7 +795,7 @@ const observeElements = () => {
     { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
   )
 
-  document.querySelectorAll('.tools-section, .tool-card-link').forEach((el) => {
+  document.querySelectorAll('.tools-section, .tool-card-link, .svg-card-link').forEach((el) => {
     el.classList.add('scroll-reveal')
     observer.observe(el)
   })
@@ -2371,6 +2202,73 @@ body {
   color: var(--text-secondary);
 }
 
+/* SVG Card Grid */
+.svg-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .svg-card-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .svg-card-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.svg-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  perspective: 1000px;
+}
+
+.svg-card {
+  position: relative;
+  border-radius: 1rem;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transform-style: preserve-3d;
+  will-change: transform;
+  cursor: pointer;
+  background: transparent;
+}
+
+.svg-card img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 1rem;
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.svg-card-link:hover .svg-card {
+  transform: translateY(-6px);
+  box-shadow:
+    0 20px 40px rgba(0, 57, 113, 0.18),
+    0 0 0 1px rgba(1, 79, 153, 0.12);
+}
+
+[data-theme="dark"] .svg-card-link:hover .svg-card {
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.5),
+    0 0 30px rgba(201, 152, 77, 0.15);
+}
+
+.svg-card-link:hover .svg-card img {
+  transform: scale(1.03);
+  filter: brightness(1.05);
+}
+
+[data-theme="dark"] .svg-card-link:hover .svg-card img {
+  filter: brightness(1.1);
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .hero-title {
@@ -2627,6 +2525,11 @@ body {
     font-size: 0.75rem;
   }
 
+  .svg-card-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
   .tools-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 0.75rem;
@@ -2770,6 +2673,11 @@ body {
     padding: 1.25rem 0.75rem;
   }
 
+  .svg-card-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
   .tools-grid {
     grid-template-columns: 1fr;
     gap: 0.5rem;
@@ -2883,6 +2791,10 @@ button:focus {
 
   .mouse-spotlight {
     display: none;
+  }
+
+  .svg-card {
+    transform: none !important;
   }
 }
 
@@ -3083,6 +2995,19 @@ button:focus {
 .tools-grid .scroll-reveal:nth-child(10) { transition-delay: 0.5s; }
 .tools-grid .scroll-reveal:nth-child(11) { transition-delay: 0.55s; }
 .tools-grid .scroll-reveal:nth-child(12) { transition-delay: 0.6s; }
+
+.svg-card-grid .scroll-reveal:nth-child(1) { transition-delay: 0.05s; }
+.svg-card-grid .scroll-reveal:nth-child(2) { transition-delay: 0.1s; }
+.svg-card-grid .scroll-reveal:nth-child(3) { transition-delay: 0.15s; }
+.svg-card-grid .scroll-reveal:nth-child(4) { transition-delay: 0.2s; }
+.svg-card-grid .scroll-reveal:nth-child(5) { transition-delay: 0.25s; }
+.svg-card-grid .scroll-reveal:nth-child(6) { transition-delay: 0.3s; }
+.svg-card-grid .scroll-reveal:nth-child(7) { transition-delay: 0.35s; }
+.svg-card-grid .scroll-reveal:nth-child(8) { transition-delay: 0.4s; }
+.svg-card-grid .scroll-reveal:nth-child(9) { transition-delay: 0.45s; }
+.svg-card-grid .scroll-reveal:nth-child(10) { transition-delay: 0.5s; }
+.svg-card-grid .scroll-reveal:nth-child(11) { transition-delay: 0.55s; }
+.svg-card-grid .scroll-reveal:nth-child(12) { transition-delay: 0.6s; }
 
 /* Mobile adjustments for new features */
 @media (max-width: 768px) {
