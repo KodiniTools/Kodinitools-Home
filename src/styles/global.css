@@ -1371,6 +1371,78 @@ body {
   color: var(--text-secondary);
 }
 
+/* SVG Card Grid */
+.svg-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .svg-card-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .svg-card-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.svg-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  perspective: 1000px;
+}
+
+.svg-card {
+  position: relative;
+  border-radius: 1rem;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transform-style: preserve-3d;
+  will-change: transform;
+  cursor: pointer;
+  background: transparent;
+}
+
+.svg-card img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 1rem;
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.svg-card-link:hover .svg-card {
+  box-shadow:
+    0 20px 40px rgba(0, 57, 113, 0.18),
+    0 0 0 1px rgba(1, 79, 153, 0.12);
+}
+
+[data-theme="dark"] .svg-card-link:hover .svg-card {
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.5),
+    0 0 30px rgba(201, 152, 77, 0.15);
+}
+
+.svg-card-link:hover .svg-card img {
+  transform: scale(1.03);
+  filter: brightness(1.05);
+}
+
+[data-theme="dark"] .svg-card-link:hover .svg-card img {
+  filter: brightness(1.1);
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .svg-card {
+    transform: none !important;
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .hero-title {
@@ -1573,6 +1645,12 @@ body {
     font-size: 0.8rem;
   }
 
+  /* SVG Card Grid Mobile */
+  .svg-card-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
   /* Bento Grid Mobile */
   .bento-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -1719,6 +1797,12 @@ body {
 
   .feature-text {
     font-size: 0.75rem;
+  }
+
+  /* SVG Card Grid Small Mobile */
+  .svg-card-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
   }
 
   /* Bento Grid Small Mobile */
