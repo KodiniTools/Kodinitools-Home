@@ -1054,20 +1054,23 @@ body {
 .tools-section {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2.5rem 2rem;
+  padding: 3.5rem 2rem;
   animation: fadeIn 1s ease;
 }
 
 .section-header {
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2.5rem;
   animation: fadeInUp 0.8s ease;
 }
 
 .section-header h2 {
-  font-size: 1.4rem;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+  font-family: 'Supreme', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
   background: var(--gradient-1);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -1458,7 +1461,7 @@ body {
   }
 
   .section-header h2 {
-    font-size: 1.25rem;
+    font-size: 2rem;
   }
 
   /* Bento Grid Tablet */
@@ -1698,7 +1701,7 @@ body {
   }
 
   .section-header h2 {
-    font-size: 1.1rem;
+    font-size: 1.75rem;
   }
 
   .section-header p {
@@ -1778,6 +1781,10 @@ body {
   }
 
   .title-word {
+    font-size: 1.35rem;
+  }
+
+  .section-header h2 {
     font-size: 1.35rem;
   }
 
