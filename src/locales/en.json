@@ -62,77 +62,88 @@
       "description": "Convert audio between MP3, WAV, OGG, FLAC, AAC and M4A. Batch processing with quality selection.",
       "badge": "Batch",
       "processing": "server",
-      "link": "https://kodinitools.com/audiokonverter/"
+      "link": "https://kodinitools.com/audiokonverter/",
+      "svg": "/image/audio-converter.svg"
     },
     "audioEqualizer": {
       "title": "19-Band EQ Pro",
       "description": "19-band equalizer with dynamic compressor, presets and recording function.",
       "badge": "PRO",
       "processing": "browser",
-      "link": "https://kodinitools.com/equaliser19/"
+      "link": "https://kodinitools.com/equaliser19/",
+      "svg": "/image/eq19-pro1.svg"
     },
     "musicPlayer": {
       "title": "Music Player",
       "description": "Minimalist audio player with playlist, shuffle, repeat and visualizer function.",
       "badge": "New",
       "processing": "browser",
-      "link": "https://kodinitools.com/ultimativermusikplayer/"
+      "link": "https://kodinitools.com/ultimativermusikplayer/",
+      "svg": "/image/musikplayer-en.svg"
     },
     "audioVisualizer": {
       "title": "Audio Visualizer",
       "description": "Create stunning MP4 videos for TikTok, Instagram and YouTube with audio visualizations.",
       "badge": "Video",
       "processing": "browser",
-      "link": "https://kodinitools.com/visualizer/"
+      "link": "https://kodinitools.com/visualizer/",
+      "svg": "/image/audiovisualizer-en.svg"
     },
     "mp3Converter": {
       "title": "MP3 Converter",
       "description": "Convert audio files quickly and easily to MP3 format. Optimized for podcasts and music.",
       "badge": "MP3",
       "processing": "server",
-      "link": "https://kodinitools.com/mp3konverter/"
+      "link": "https://kodinitools.com/mp3konverter/",
+      "svg": "/image/mp3-converter.svg"
     },
     "interactiveEqualizer": {
       "title": "Interactive Audio Equalizer",
       "description": "Edit your audio files with an intuitive graphical equalizer. Real-time preview and export.",
       "badge": "Interactive",
       "processing": "browser",
-      "link": "https://kodinitools.com/audioequalizer/"
+      "link": "https://kodinitools.com/audioequalizer/",
+      "svg": "/image/interaktiver-equalizer-en.svg"
     },
     "modernPlayer": {
       "title": "Modern Music Player",
       "description": "Sleek and modern audio player with all essential features. Supports many formats.",
       "badge": "Modern",
       "processing": "browser",
-      "link": "https://kodinitools.com/modernermusikplayer/"
+      "link": "https://kodinitools.com/modernermusikplayer/",
+      "svg": "/image/modern-music-player.svg"
     },
     "playlistGenerator": {
       "title": "Audio Playlist Generator",
       "description": "Automatically create playlists from your audio files. With sorting and filtering functions.",
       "badge": "Playlist",
       "processing": "browser",
-      "link": "https://kodinitools.com/playlist_generator/"
+      "link": "https://kodinitools.com/playlist_generator/",
+      "svg": "/image/audio-playlist-generator.svg"
     },
     "alarmTool": {
       "title": "Alarm Tool",
       "description": "Reliable alarm tool for reminders and alarms. With custom audio files.",
       "badge": "Alarm",
       "processing": "browser",
-      "link": "https://kodinitools.com/alarmtool/"
+      "link": "https://kodinitools.com/alarmtool/",
+      "svg": "/image/modern-alarmtool.svg"
     },
     "audioNormalizer": {
       "title": "Audio Normalizer",
       "description": "Normalize the volume of your audio files automatically. Perfect for podcasts and audiobooks.",
       "badge": "Normalizer",
       "processing": "server",
-      "link": "https://kodinitools.com/audionormalisierer/"
+      "link": "https://kodinitools.com/audionormalisierer/",
+      "svg": "/image/audio-normalizer-en.svg"
     },
     "playlistToWebm": {
       "title": "Playlist to WebM Converter",
       "description": "Convert up to 50 audio tracks into a WebM file",
       "badge": "WebM",
       "processing": "server",
-      "link": "https://kodinitools.com/playlistkonverter/"
+      "link": "https://kodinitools.com/playlistkonverter/",
+      "svg": "/image/playlist-converter.svg"
     }
   },
   "diverseTools": {
@@ -143,14 +154,16 @@
       "description": "Extract dominant colors from images. Ideal for designers and creatives to create color palettes.",
       "badge": "Colors",
       "processing": "browser",
-      "link": "https://kodinitools.com/kodini-color-extractor/"
+      "link": "https://kodinitools.com/kodini-color-extractor/",
+      "svg": "/image/collor-extractor.svg"
     },
     "videoConverter": {
       "title": "Video Converter",
       "description": "Convert videos to various formats. Supports MP4, WebM, AVI and other common formats.",
       "badge": "Video",
       "processing": "server",
-      "link": "https://kodinitools.com/videokonverter/"
+      "link": "https://kodinitools.com/videokonverter/",
+      "svg": "/image/video-converter.svg"
     }
   },
   "imageTools": {
@@ -161,21 +174,24 @@
       "description": "Convert images between JPG, PNG, WebP, AVIF, GIF and BMP. With quality selection.",
       "badge": "Multi",
       "processing": "server",
-      "link": "https://kodinitools.com/bildkonverter/"
+      "link": "https://kodinitools.com/bildkonverter/",
+      "svg": "/image/image-converter.svg"
     },
     "batchImageEditor": {
       "title": "Batch Image Editor",
       "description": "Edit 100+ images simultaneously: resize, rename, export as ZIP or PDF.",
       "badge": "Batch",
       "processing": "browser",
-      "link": "https://kodinitools.com/bilderseriebearbeiten/"
+      "link": "https://kodinitools.com/bilderseriebearbeiten/",
+      "svg": "/image/batch-imageeditor.svg"
     },
     "photoCollage": {
       "title": "Photo Collage",
       "description": "Create creative photo collages from your images. Various layouts and templates available.",
       "badge": "Creative",
       "processing": "browser",
-      "link": "https://kodinitools.com/collagemaker"
+      "link": "https://kodinitools.com/collagemaker",
+      "svg": "/image/photocollage.svg"
     }
   },
   "promotions": {
