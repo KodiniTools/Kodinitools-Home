@@ -59,6 +59,7 @@ function shareOnFacebook() {
   gap: 1.5rem;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
 }
 
 .footer-link {
