@@ -206,7 +206,9 @@
   },
   "footer": {
     "company": "KodiniTools",
-    "tagline": "Kostenlose Online-Tools für Audio & Bild"
+    "tagline": "Kostenlose Online-Tools für Audio & Bild",
+    "share": "Teilen",
+    "shareOnFacebook": "Auf Facebook teilen"
   },
   "search": {
     "placeholder": "Tools durchsuchen...",
