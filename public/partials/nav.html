@@ -954,19 +954,17 @@ html:not(.custom-nav-page) {
     // ==========================================
     function applyTranslations(lang) {
         var translations = NAV_TRANSLATIONS[lang] || NAV_TRANSLATIONS['de'];
-        var nav = document.querySelector('.global-nav');
-        if (!nav) return;
 
-        // Textinhalte nur innerhalb der Nav übersetzen
-        nav.querySelectorAll('[data-i18n]').forEach(function(el) {
+        // Textinhalte übersetzen
+        document.querySelectorAll('[data-i18n]').forEach(function(el) {
             var key = el.getAttribute('data-i18n');
             if (translations[key]) {
                 el.textContent = translations[key];
             }
         });
 
-        // aria-label Übersetzungen nur innerhalb der Nav
-        nav.querySelectorAll('[data-i18n-aria]').forEach(function(el) {
+        // aria-label Übersetzungen
+        document.querySelectorAll('[data-i18n-aria]').forEach(function(el) {
             var key = el.getAttribute('data-i18n-aria');
             if (translations[key]) {
                 el.setAttribute('aria-label', translations[key]);
@@ -974,7 +972,10 @@ html:not(.custom-nav-page) {
         });
 
         // Nav aria-label aktualisieren
-        nav.setAttribute('aria-label', translations['aria.mainNav']);
+        var nav = document.querySelector('.global-nav');
+        if (nav) {
+            nav.setAttribute('aria-label', translations['aria.mainNav']);
+        }
     }
 
     // ==========================================
