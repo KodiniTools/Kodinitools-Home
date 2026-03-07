@@ -188,6 +188,25 @@ const features = [
       </div>
     </section>
 
+    <!-- Video Showcase Section -->
+    <section class="video-showcase">
+      <div class="video-showcase-header">
+        <h2 data-i18n="videoShowcase.title">Our Tools at a Glance</h2>
+        <p data-i18n="videoShowcase.subtitle">Discover all KodiniTools in a short video</p>
+      </div>
+      <div class="video-wrapper">
+        <video
+          controls
+          preload="metadata"
+          poster="/images/video-poster.jpg"
+          class="showcase-video"
+        >
+          <source src="https://kodinitools.com/videos/kodinitools.mp4" type="video/mp4" />
+          <span data-i18n="videoShowcase.fallback">Your browser does not support the video element.</span>
+        </video>
+      </div>
+    </section>
+
     <!-- Search Results Section (hidden by default, shown via JS) -->
     <section id="searchResults" class="tools-section search-results-section" style="display: none;">
       <div class="section-header">
@@ -272,6 +291,9 @@ const features = [
     // --- Page i18n ---
     var PAGE_I18N = {
       de: {
+        'videoShowcase.title': 'Unsere Tools im Überblick',
+        'videoShowcase.subtitle': 'Entdecken Sie alle KodiniTools in einem kurzen Video',
+        'videoShowcase.fallback': 'Ihr Browser unterstützt das Video-Element nicht.',
         'hero.title': 'Kostenlose Online-Tools f\u00fcr Audio & Bild',
         'hero.subtitle': 'Sichere Bearbeitung - Im Browser oder auf unseren Servern\nKeine Installation, keine Anmeldung',
         'hero.features.free': '100% Kostenlos',
@@ -360,6 +382,9 @@ const features = [
         'diverseTools.videoConverter.svg': '/image/videokonverter.svg'
       },
       en: {
+        'videoShowcase.title': 'Our Tools at a Glance',
+        'videoShowcase.subtitle': 'Discover all KodiniTools in a short video',
+        'videoShowcase.fallback': 'Your browser does not support the video element.',
         'hero.title': 'Free Online Tools for Audio & Images',
         'hero.subtitle': 'Secure editing - In browser or on our servers\nNo installation, no registration',
         'hero.features.free': '100% Free',
