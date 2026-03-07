@@ -37,6 +37,11 @@
       "photoCollage": "Fotocollage"
     }
   },
+  "videoShowcase": {
+    "title": "Unsere Tools im Überblick",
+    "subtitle": "Entdecken Sie alle KodiniTools in einem kurzen Video",
+    "fallback": "Ihr Browser unterstützt das Video-Element nicht."
+  },
   "hero": {
     "title": "Kostenlose Online-Tools für Audio & Bild",
     "subtitle": "Sichere Bearbeitung - Im Browser oder auf unseren Servern\nKeine Installation, keine Anmeldung",
