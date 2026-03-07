@@ -1050,44 +1050,23 @@ body {
   background: rgba(201, 152, 77, 0.2);
 }
 
-/* Video Showcase Section */
-.video-showcase {
-  max-width: 1200px;
-  margin: 2rem auto 0;
-  padding: 2rem 2rem 2.5rem;
-  text-align: center;
-}
-
-.video-showcase-header h2 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 0.5rem;
-}
-
-.video-showcase-header p {
-  color: var(--text-secondary);
-  font-size: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.video-wrapper {
-  position: relative;
+/* Section Video (per-section video previews) */
+.section-video-wrapper {
   width: 100%;
-  max-width: 960px;
-  margin: 0 auto;
-  border-radius: 16px;
+  max-width: 720px;
+  margin: 0 auto 1.5rem;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   aspect-ratio: 16 / 9;
   background: #000;
 }
 
-[data-theme="dark"] .video-wrapper {
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+[data-theme="dark"] .section-video-wrapper {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
 }
 
-.showcase-video {
+.section-video {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -1692,13 +1671,10 @@ body {
     font-size: 0.8rem;
   }
 
-  /* Video Showcase Mobile */
-  .video-showcase {
-    padding: 1.5rem 1rem;
-  }
-
-  .video-showcase-header h2 {
-    font-size: 1.35rem;
+  /* Section Video Mobile */
+  .section-video-wrapper {
+    max-width: 100%;
+    border-radius: 8px;
   }
 
   /* SVG Card Grid Mobile */
