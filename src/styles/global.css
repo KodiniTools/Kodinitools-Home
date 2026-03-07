@@ -1057,13 +1057,14 @@ body {
   margin: 0 auto 1.5rem;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1.5px solid #4285f5;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1), 0 0 12px rgba(66, 133, 245, 0.15);
   aspect-ratio: 16 / 9;
   background: #000;
 }
 
 [data-theme="dark"] .section-video-wrapper {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35), 0 0 16px rgba(66, 133, 245, 0.2);
 }
 
 .section-video {
