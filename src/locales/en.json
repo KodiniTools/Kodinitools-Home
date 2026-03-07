@@ -37,6 +37,11 @@
       "photoCollage": "photo collage"
     }
   },
+  "videoShowcase": {
+    "title": "Our Tools at a Glance",
+    "subtitle": "Discover all KodiniTools in a short video",
+    "fallback": "Your browser does not support the video element."
+  },
   "hero": {
     "title": "Free Online Tools for Audio & Images",
     "subtitle": "Secure editing - In browser or on our servers\nNo installation, no registration",
