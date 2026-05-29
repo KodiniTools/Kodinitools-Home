@@ -209,7 +209,7 @@ const features = [
           muted
           loop
           playsinline
-          preload="auto"
+          preload="metadata"
           class="section-video"
         >
           <source src="/videos/audio-tools.mp4" type="video/mp4" />
@@ -235,12 +235,11 @@ const features = [
 
       <div class="section-video-wrapper">
         <video
-          autoplay
           muted
           loop
           playsinline
-          preload="auto"
-          class="section-video"
+          preload="none"
+          class="section-video lazy-video"
         >
           <source src="/videos/image-tools.mp4" type="video/mp4" />
         </video>
@@ -265,12 +264,11 @@ const features = [
 
       <div class="section-video-wrapper">
         <video
-          autoplay
           muted
           loop
           playsinline
-          preload="auto"
-          class="section-video"
+          preload="none"
+          class="section-video lazy-video"
         >
           <source src="/videos/diverse-tools.mp4" type="video/mp4" />
         </video>
@@ -761,5 +759,26 @@ const features = [
       }
     }
   });
+  </script>
+
+  <script>
+    // Lazy-load videos below the fold via IntersectionObserver
+    var lazyVideos = document.querySelectorAll('video.lazy-video');
+    if ('IntersectionObserver' in window && lazyVideos.length) {
+      var videoObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            var video = entry.target;
+            video.load();
+            video.play().catch(function() {});
+            videoObserver.unobserve(video);
+          }
+        });
+      }, { rootMargin: '200px' });
+      lazyVideos.forEach(function(v) { videoObserver.observe(v); });
+    } else {
+      // Fallback: just load them
+      lazyVideos.forEach(function(v) { v.load(); v.play().catch(function() {}); });
+    }
   </script>
 </BaseLayout>
