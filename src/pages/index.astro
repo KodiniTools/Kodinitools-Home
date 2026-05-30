@@ -20,7 +20,7 @@ const audioTools = [
   { title: 'Audioplaylist Generator', description: 'Erstellen Sie automatisch Playlists aus Ihren Audiodateien.', link: 'https://kodinitools.com/playlist_generator/', svg: '/image/playlist-generator.svg', i18nKey: 'tools.playlistGenerator', badge: 'Playlist' },
   { title: 'Alarmtool', description: 'Zuverlässiges Alarm-Tool für Erinnerungen und Wecker.', link: 'https://kodinitools.com/alarmtool/', svg: '/image/alarmtool.svg', i18nKey: 'tools.alarmTool', badge: 'Alarm' },
   { title: 'Audio Normalizer', description: 'Normalisieren Sie die Lautstärke Ihrer Audiodateien automatisch.', link: 'https://kodinitools.com/audionormalisierer/', svg: '/image/audio-normalizer.svg', i18nKey: 'tools.audioNormalizer', badge: 'Normalize' },
-  { title: 'Playlist zu WebM Konverter', description: 'Wandeln Sie bis zu 50 Audio-Tracks in eine WebM- oder MP3-Playlist um – ideal für YouTube und Podcasts.', link: 'https://kodinitools.com/playlistkonverter/', svg: '/image/playlist-konverter.svg', i18nKey: 'tools.playlistToWebm', badge: 'WebM' }
+  { title: 'Playlist zu WebM oder MP3 Konverter', description: 'Wandeln Sie bis zu 50 Audio-Tracks in eine WebM- oder MP3-Playlist um – ideal für YouTube und Podcasts.', link: 'https://kodinitools.com/playlistkonverter/', svg: '/image/playlist-konverter.svg', i18nKey: 'tools.playlistToWebm', badge: 'WebM·MP3' }
 ]
 
 const imageTools = [
@@ -243,6 +243,12 @@ const features = [
                 </span>
               </div>
             </div>
+            <div class="tool-popup" role="tooltip">
+              <p class="tool-popup-desc">{tool.description}</p>
+              <span class="tool-popup-cta">Öffnen
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </span>
+            </div>
           </a>
         ))}
       </div>
@@ -284,6 +290,12 @@ const features = [
                 </span>
               </div>
             </div>
+            <div class="tool-popup" role="tooltip">
+              <p class="tool-popup-desc">{tool.description}</p>
+              <span class="tool-popup-cta">Öffnen
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </span>
+            </div>
           </a>
         ))}
       </div>
@@ -324,6 +336,12 @@ const features = [
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </span>
               </div>
+            </div>
+            <div class="tool-popup" role="tooltip">
+              <p class="tool-popup-desc">{tool.description}</p>
+              <span class="tool-popup-cta">Öffnen
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </span>
             </div>
           </a>
         ))}
@@ -415,7 +433,7 @@ const features = [
         'tools.audioNormalizer.description': 'Normalisieren Sie die Lautstärke Ihrer Audiodateien automatisch. Perfekt für Podcasts und Hörbücher.',
         'tools.audioNormalizer.badge': 'Normalizer',
         'tools.audioNormalizer.svg': '/image/audio-normalizer.svg',
-        'tools.playlistToWebm.title': 'Playlist zu WebM Konverter',
+        'tools.playlistToWebm.title': 'Playlist zu WebM oder MP3 Konverter',
         'tools.playlistToWebm.description': 'Wandeln Sie bis zu 50 Audio-Tracks in eine WebM- oder MP3-Playlist um – ideal für YouTube und Podcasts.',
         'tools.playlistToWebm.badge': 'WebM',
         'tools.playlistToWebm.svg': '/image/playlist-konverter.svg',
@@ -593,6 +611,8 @@ const features = [
           card.setAttribute('data-description', pageT[descKey]);
           var descEl = card.querySelector('.tool-card-desc');
           if (descEl) descEl.textContent = pageT[descKey];
+          var popupDescEl = card.querySelector('.tool-popup-desc');
+          if (popupDescEl) popupDescEl.textContent = pageT[descKey];
         }
       });
 
