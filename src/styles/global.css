@@ -2600,6 +2600,12 @@ button:focus {
 
 .svg-card-link {
   overflow: visible;
+  position: relative;
+  z-index: 1;
+}
+
+.svg-card-link:hover {
+  z-index: 300;
 }
 
 .tool-popup {
