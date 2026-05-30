@@ -2595,3 +2595,85 @@ button:focus {
 [data-theme="dark"] .tool-card-footer .fav-btn.is-active {
   color: var(--accent-color);
 }
+
+/* ===== TOOL CARD HOVER POPUP ===== */
+
+.svg-card-link {
+  overflow: visible;
+}
+
+.tool-popup {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.9rem;
+  padding: 0.9rem 1rem 0.8rem;
+  box-shadow: 0 16px 40px rgba(0, 57, 113, 0.16), 0 2px 8px rgba(0, 57, 113, 0.08);
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.svg-card-link:hover .tool-popup {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.tool-popup::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 1.2rem;
+  width: 10px;
+  height: 10px;
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border-color);
+  border-top: 1px solid var(--border-color);
+  transform: rotate(45deg);
+}
+
+.tool-popup-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.tool-popup-cta {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  align-self: flex-end;
+}
+
+[data-theme="dark"] .tool-popup-cta {
+  color: var(--accent-color);
+}
+
+.tool-popup-cta svg {
+  width: 12px;
+  height: 12px;
+}
+
+[data-theme="dark"] .tool-popup {
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Hide popup on touch devices */
+@media (hover: none) {
+  .tool-popup {
+    display: none;
+  }
+}
