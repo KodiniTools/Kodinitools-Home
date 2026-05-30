@@ -2614,7 +2614,7 @@ button:focus {
   left: 0;
   right: 0;
   z-index: 200;
-  background: var(--bg-secondary);
+  background: #ffffff;
   border: 1px solid var(--border-color);
   border-radius: 0.9rem;
   padding: 0.9rem 1rem 0.8rem;
@@ -2674,6 +2674,7 @@ button:focus {
 }
 
 [data-theme="dark"] .tool-popup {
+  background: #0a1628;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
