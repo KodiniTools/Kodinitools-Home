@@ -830,12 +830,68 @@ const features = [
     var FAV_KEY = 'kdt-favorites';
 
     function getFavorites() {
-      try { return JSON.parse(localStorage.getItem(FAV_KEY)) || []; }
-      catch(e) { return []; }
+      try {
+        var raw = JSON.parse(localStorage.getItem(FAV_KEY)) || [];
+        // filter out legacy string-only entries from old format
+        return raw.filter(function(f) { return f && typeof f === 'object' && f.key; });
+      } catch(e) { return []; }
     }
 
     function saveFavorites(favs) {
       localStorage.setItem(FAV_KEY, JSON.stringify(favs));
+    }
+
+    function buildFavCard(item) {
+      var a = document.createElement('a');
+      a.href = item.link;
+      a.className = 'svg-card-link';
+      a.setAttribute('data-i18n-key', item.key);
+      a.setAttribute('data-title', item.title);
+      a.setAttribute('data-description', item.description);
+
+      var card = document.createElement('div');
+      card.className = 'tool-card';
+
+      if (item.badge) {
+        var badge = document.createElement('span');
+        badge.className = 'tool-card-badge';
+        badge.textContent = item.badge;
+        card.appendChild(badge);
+      }
+
+      var h3 = document.createElement('h3');
+      h3.className = 'tool-card-title';
+      h3.textContent = item.title;
+      card.appendChild(h3);
+
+      var footer = document.createElement('div');
+      footer.className = 'tool-card-footer';
+
+      var favBtn = document.createElement('button');
+      favBtn.className = 'fav-btn is-active';
+      favBtn.setAttribute('aria-label', 'Aus Favoriten entfernen');
+      favBtn.title = 'Favorit';
+      favBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>';
+      footer.appendChild(favBtn);
+
+      var openSpan = document.createElement('span');
+      openSpan.className = 'tool-card-open';
+      openSpan.innerHTML = 'Öffnen <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+      footer.appendChild(openSpan);
+
+      card.appendChild(footer);
+      a.appendChild(card);
+
+      var popup = document.createElement('div');
+      popup.className = 'tool-popup';
+      popup.setAttribute('role', 'tooltip');
+      var popupDesc = document.createElement('p');
+      popupDesc.className = 'tool-popup-desc';
+      popupDesc.textContent = item.description;
+      popup.appendChild(popupDesc);
+      a.appendChild(popup);
+
+      return a;
     }
 
     function renderFavorites() {
@@ -849,33 +905,37 @@ const features = [
         return;
       }
       section.style.display = 'block';
-      favs.forEach(function(key) {
-        var original = document.querySelector('#app > div > .svg-card-link[data-i18n-key="' + key + '"], .tools-section:not(.favorites-section) .svg-card-link[data-i18n-key="' + key + '"]');
-        if (!original) return;
-        var clone = original.cloneNode(true);
-        var btn = clone.querySelector('.fav-btn');
-        if (btn) btn.classList.add('is-active');
-        attachFavBtn(clone);
-        grid.appendChild(clone);
+      favs.forEach(function(item) {
+        var cardEl = buildFavCard(item);
+        attachFavBtn(cardEl);
+        grid.appendChild(cardEl);
       });
     }
 
     function updateAllFavButtons() {
       var favs = getFavorites();
+      var favKeys = favs.map(function(f) { return f.key; });
       document.querySelectorAll('.svg-card-link[data-i18n-key]').forEach(function(card) {
         var key = card.getAttribute('data-i18n-key');
         var btn = card.querySelector('.fav-btn');
         if (!btn) return;
         var inFavSection = !!card.closest('#favoritesSection');
-        btn.classList.toggle('is-active', inFavSection || favs.indexOf(key) !== -1);
+        btn.classList.toggle('is-active', inFavSection || favKeys.indexOf(key) !== -1);
       });
     }
 
-    function toggleFavorite(key, btnEl) {
+    function toggleFavorite(key, btnEl, cardEl) {
       var favs = getFavorites();
-      var idx = favs.indexOf(key);
+      var idx = favs.findIndex(function(f) { return f.key === key; });
       if (idx === -1) {
-        favs.push(key);
+        var badgeEl = cardEl ? cardEl.querySelector('.tool-card-badge') : null;
+        favs.push({
+          key: key,
+          title: cardEl ? (cardEl.getAttribute('data-title') || '') : key,
+          description: cardEl ? (cardEl.getAttribute('data-description') || '') : '',
+          link: cardEl ? (cardEl.getAttribute('href') || '#') : '#',
+          badge: badgeEl ? badgeEl.textContent : ''
+        });
       } else {
         favs.splice(idx, 1);
       }
@@ -895,7 +955,7 @@ const features = [
         e.preventDefault();
         e.stopPropagation();
         var key = cardEl.getAttribute('data-i18n-key');
-        toggleFavorite(key, btn);
+        toggleFavorite(key, btn, cardEl);
       });
     }
 
