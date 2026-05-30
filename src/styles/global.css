@@ -2264,3 +2264,129 @@ button:focus {
     right: 0.75rem;
   }
 }
+
+/* ===== FAVORITES FEATURE ===== */
+
+.svg-card-link {
+  position: relative;
+}
+
+.fav-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.92);
+  border: none;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  color: var(--text-muted);
+}
+
+.svg-card-link:hover .fav-btn {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.fav-btn.is-active {
+  opacity: 1;
+  transform: scale(1);
+  background: var(--primary-color);
+  color: #fff;
+}
+
+.fav-btn:hover {
+  background: var(--primary-color) !important;
+  color: #fff !important;
+  transform: scale(1.12) !important;
+}
+
+[data-theme="dark"] .fav-btn {
+  background: rgba(14, 28, 50, 0.92);
+  color: var(--text-muted);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .fav-btn.is-active {
+  background: var(--accent-color);
+  color: var(--accent-text, #091428);
+}
+
+[data-theme="dark"] .fav-btn:hover {
+  background: var(--accent-color) !important;
+  color: var(--accent-text, #091428) !important;
+}
+
+.fav-btn svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.fav-btn.is-active svg {
+  fill: currentColor;
+}
+
+/* Favorites section */
+.favorites-section {
+  border-top: 2px solid var(--accent-color);
+  padding-top: 0.5rem;
+}
+
+.favorites-section .section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.favorites-section .section-header h2::before {
+  content: '★ ';
+  color: var(--accent-color);
+}
+
+.fav-clear-btn {
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  padding: 0.3rem 0.7rem;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+  white-space: nowrap;
+}
+
+.fav-clear-btn:hover {
+  color: var(--text-color);
+  border-color: var(--text-muted);
+  background: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="dark"] .fav-clear-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+@keyframes favPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+.fav-btn.pop {
+  animation: favPop 0.3s ease;
+}
