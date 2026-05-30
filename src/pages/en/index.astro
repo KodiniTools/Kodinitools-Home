@@ -17,7 +17,7 @@ const audioTools = [
   { title: 'MP3 Converter', description: 'Convert audio files quickly and easily to MP3 format. Adjustable bitrate and metadata support optimized for podcasts and music.', link: 'https://kodinitools.com/mp3konverter/', svg: '/image/mp3-converter.svg', i18nKey: 'tools.mp3Converter', badge: 'MP3' },
   { title: 'Interactive Audio Equalizer', description: 'Edit your audio files with an intuitive graphical equalizer. Real-time preview and direct export to all common audio formats.', link: 'https://kodinitools.com/audioequalizer/', svg: '/image/interaktiver-equalizer-en.svg', i18nKey: 'tools.interactiveEqualizer', badge: 'EQ' },
   { title: 'Modern Music Player', description: 'Sleek and modern audio player with all essential features. Elegant interface with playlist support and a customizable appearance.', link: 'https://kodinitools.com/modernermusikplayer/', svg: '/image/modern-music-player.svg', i18nKey: 'tools.modernPlayer', badge: 'Player' },
-  { title: 'Audio Playlist Generator', description: 'Automatically create playlists from your audio files. Smart sorting, filter options and direct export as M3U file.', link: 'https://kodinitools.com/playlist_generator/', svg: '/image/audio-playlist-generator.svg', i18nKey: 'tools.playlistGenerator', badge: 'Playlist' },
+  { title: 'Audio Playlist Generator', description: 'Automatically create playlists from your audio files. Smart sorting, filter options and direct export as M3U, XSPF or JSON file.', link: 'https://kodinitools.com/playlist_generator/', svg: '/image/audio-playlist-generator.svg', i18nKey: 'tools.playlistGenerator', badge: 'Playlist' },
   { title: 'Alarm Tool', description: 'Reliable alarm tool for reminders and alarms. Use custom audio files as your ringtone – works even with a locked screen.', link: 'https://kodinitools.com/alarmtool/', svg: '/image/modern-alarmtool.svg', i18nKey: 'tools.alarmTool', badge: 'Alarm' },
   { title: 'Audio Normalizer', description: 'Normalize the volume of your audio files automatically. Ideal for podcasts and audiobooks with a consistent volume level across all tracks.', link: 'https://kodinitools.com/audionormalisierer/', svg: '/image/audio-normalizer-en.svg', i18nKey: 'tools.audioNormalizer', badge: 'Normalize' },
   { title: 'Playlist to WebM or MP3 Converter', description: 'Convert up to 50 audio tracks into a WebM or MP3 playlist – perfect for YouTube and podcasts. No additional software required.', link: 'https://kodinitools.com/playlistkonverter/', svg: '/image/playlist-converter.svg', i18nKey: 'tools.playlistToWebm', badge: 'WebM·MP3' }
@@ -245,9 +245,6 @@ const features = [
             </div>
             <div class="tool-popup" role="tooltip">
               <p class="tool-popup-desc">{tool.description}</p>
-              <span class="tool-popup-cta">Open
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              </span>
             </div>
           </a>
         ))}
@@ -292,9 +289,6 @@ const features = [
             </div>
             <div class="tool-popup" role="tooltip">
               <p class="tool-popup-desc">{tool.description}</p>
-              <span class="tool-popup-cta">Open
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              </span>
             </div>
           </a>
         ))}
@@ -339,9 +333,6 @@ const features = [
             </div>
             <div class="tool-popup" role="tooltip">
               <p class="tool-popup-desc">{tool.description}</p>
-              <span class="tool-popup-cta">Open
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              </span>
             </div>
           </a>
         ))}
@@ -513,7 +504,7 @@ const features = [
         'tools.modernPlayer.badge': 'Modern',
         'tools.modernPlayer.svg': '/image/modern-music-player.svg',
         'tools.playlistGenerator.title': 'Audio Playlist Generator',
-        'tools.playlistGenerator.description': 'Automatically create playlists from your audio files. Smart sorting, filter options and direct export as M3U file.',
+        'tools.playlistGenerator.description': 'Automatically create playlists from your audio files. Smart sorting, filter options and direct export as M3U, XSPF or JSON file.',
         'tools.playlistGenerator.badge': 'Playlist',
         'tools.playlistGenerator.svg': '/image/audio-playlist-generator.svg',
         'tools.alarmTool.title': 'Alarm Tool',
