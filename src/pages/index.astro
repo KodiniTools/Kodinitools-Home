@@ -10,28 +10,28 @@ const cookieBannerHtml = readFileSync(resolve('public/partials/cookie-banner.htm
 
 // SVG card data for static rendering (German)
 const audioTools = [
-  { title: 'Audio Konverter', description: 'Konvertieren Sie Audio zwischen MP3, WAV, OGG, FLAC, AAC und M4A.', link: 'https://kodinitools.com/audiokonverter/', svg: '/image/audio-konverter.svg', i18nKey: 'tools.audioConverter' },
-  { title: '19-Band EQ Pro', description: '19-Band Equalizer mit Dynamic Compressor, Presets und Aufnahme-Funktion.', link: 'https://kodinitools.com/equaliser19/', svg: '/image/eq19-pro.svg', i18nKey: 'tools.audioEqualizer' },
-  { title: 'Musikplayer', description: 'Minimalistischer Audioplayer mit Playlist, Shuffle, Repeat und Visualizer-Funktion.', link: 'https://kodinitools.com/ultimativermusikplayer/', svg: '/image/musikplayer.svg', i18nKey: 'tools.musicPlayer' },
-  { title: 'Audio Visualizer', description: 'Erstellen Sie beeindruckende MP4-Videos für TikTok, Instagram und YouTube.', link: 'https://kodinitools.com/visualizer/', svg: '/image/audio-visualizer.svg', i18nKey: 'tools.audioVisualizer' },
-  { title: 'MP3 Konverter', description: 'Konvertieren Sie Audiodateien schnell und einfach in das MP3-Format.', link: 'https://kodinitools.com/mp3konverter/', svg: '/image/mp3-konverter.svg', i18nKey: 'tools.mp3Converter' },
-  { title: 'Interaktiver Audio Equalizer', description: 'Bearbeiten Sie Ihre Audiodateien mit einem intuitiven grafischen Equalizer.', link: 'https://kodinitools.com/audioequalizer/', svg: '/image/interaktiver-equalizer.svg', i18nKey: 'tools.interactiveEqualizer' },
-  { title: 'Moderner Musikplayer', description: 'Schlanker und moderner Audio-Player mit allen wichtigen Funktionen.', link: 'https://kodinitools.com/modernermusikplayer/', svg: '/image/moderner-musikplayer.svg', i18nKey: 'tools.modernPlayer' },
-  { title: 'Audioplaylist Generator', description: 'Erstellen Sie automatisch Playlists aus Ihren Audiodateien.', link: 'https://kodinitools.com/playlist_generator/', svg: '/image/playlist-generator.svg', i18nKey: 'tools.playlistGenerator' },
-  { title: 'Alarmtool', description: 'Zuverlässiges Alarm-Tool für Erinnerungen und Wecker.', link: 'https://kodinitools.com/alarmtool/', svg: '/image/alarmtool.svg', i18nKey: 'tools.alarmTool' },
-  { title: 'Audio Normalizer', description: 'Normalisieren Sie die Lautstärke Ihrer Audiodateien automatisch.', link: 'https://kodinitools.com/audionormalisierer/', svg: '/image/audio-normalizer.svg', i18nKey: 'tools.audioNormalizer' },
-  { title: 'Playlist zu WebM Konverter', description: 'Bis zu 50 Audio-Tracks in eine WebM-Datei konvertieren.', link: 'https://kodinitools.com/playlistkonverter/', svg: '/image/playlist-konverter.svg', i18nKey: 'tools.playlistToWebm' }
+  { title: 'Audio Konverter', description: 'Konvertieren Sie Audio zwischen MP3, WAV, OGG, FLAC, AAC und M4A.', link: 'https://kodinitools.com/audiokonverter/', svg: '/image/audio-konverter.svg', i18nKey: 'tools.audioConverter', badge: 'Batch' },
+  { title: '19-Band EQ Pro', description: '19-Band Equalizer mit Dynamic Compressor, Presets und Aufnahme-Funktion.', link: 'https://kodinitools.com/equaliser19/', svg: '/image/eq19-pro.svg', i18nKey: 'tools.audioEqualizer', badge: 'PRO' },
+  { title: 'Musikplayer', description: 'Minimalistischer Audioplayer mit Playlist, Shuffle, Repeat und Visualizer-Funktion.', link: 'https://kodinitools.com/ultimativermusikplayer/', svg: '/image/musikplayer.svg', i18nKey: 'tools.musicPlayer', badge: 'Neu' },
+  { title: 'Audio Visualizer', description: 'Erstellen Sie beeindruckende MP4-Videos für TikTok, Instagram und YouTube.', link: 'https://kodinitools.com/visualizer/', svg: '/image/audio-visualizer.svg', i18nKey: 'tools.audioVisualizer', badge: 'Video' },
+  { title: 'MP3 Konverter', description: 'Konvertieren Sie Audiodateien schnell und einfach in das MP3-Format.', link: 'https://kodinitools.com/mp3konverter/', svg: '/image/mp3-konverter.svg', i18nKey: 'tools.mp3Converter', badge: 'MP3' },
+  { title: 'Interaktiver Audio Equalizer', description: 'Bearbeiten Sie Ihre Audiodateien mit einem intuitiven grafischen Equalizer.', link: 'https://kodinitools.com/audioequalizer/', svg: '/image/interaktiver-equalizer.svg', i18nKey: 'tools.interactiveEqualizer', badge: 'EQ' },
+  { title: 'Moderner Musikplayer', description: 'Schlanker und moderner Audio-Player mit allen wichtigen Funktionen.', link: 'https://kodinitools.com/modernermusikplayer/', svg: '/image/moderner-musikplayer.svg', i18nKey: 'tools.modernPlayer', badge: 'Player' },
+  { title: 'Audioplaylist Generator', description: 'Erstellen Sie automatisch Playlists aus Ihren Audiodateien.', link: 'https://kodinitools.com/playlist_generator/', svg: '/image/playlist-generator.svg', i18nKey: 'tools.playlistGenerator', badge: 'Playlist' },
+  { title: 'Alarmtool', description: 'Zuverlässiges Alarm-Tool für Erinnerungen und Wecker.', link: 'https://kodinitools.com/alarmtool/', svg: '/image/alarmtool.svg', i18nKey: 'tools.alarmTool', badge: 'Alarm' },
+  { title: 'Audio Normalizer', description: 'Normalisieren Sie die Lautstärke Ihrer Audiodateien automatisch.', link: 'https://kodinitools.com/audionormalisierer/', svg: '/image/audio-normalizer.svg', i18nKey: 'tools.audioNormalizer', badge: 'Normalize' },
+  { title: 'Playlist zu WebM Konverter', description: 'Bis zu 50 Audio-Tracks in eine WebM-Datei konvertieren.', link: 'https://kodinitools.com/playlistkonverter/', svg: '/image/playlist-konverter.svg', i18nKey: 'tools.playlistToWebm', badge: 'WebM' }
 ]
 
 const imageTools = [
-  { title: 'Bildkonverter', description: 'Konvertieren Sie Bilder zwischen JPG, PNG, WebP, AVIF, GIF und BMP.', link: 'https://kodinitools.com/bildkonverter/', svg: '/image/bildkonverter.svg', i18nKey: 'imageTools.imageConverter' },
-  { title: 'Batch Bildbearbeitung', description: 'Bearbeiten Sie 100+ Bilder gleichzeitig: Größe ändern, umbenennen, exportieren.', link: 'https://kodinitools.com/bilderseriebearbeiten/', svg: '/image/bilderseriebearbeiten.svg', i18nKey: 'imageTools.batchImageEditor' },
-  { title: 'Fotocollage', description: 'Erstellen Sie kreative Fotocollagen aus Ihren Bildern.', link: 'https://kodinitools.com/collagemaker', svg: '/image/collagemacher.svg', i18nKey: 'imageTools.photoCollage' }
+  { title: 'Bildkonverter', description: 'Konvertieren Sie Bilder zwischen JPG, PNG, WebP, AVIF, GIF und BMP.', link: 'https://kodinitools.com/bildkonverter/', svg: '/image/bildkonverter.svg', i18nKey: 'imageTools.imageConverter', badge: 'Multi' },
+  { title: 'Batch Bildbearbeitung', description: 'Bearbeiten Sie 100+ Bilder gleichzeitig: Größe ändern, umbenennen, exportieren.', link: 'https://kodinitools.com/bilderseriebearbeiten/', svg: '/image/bilderseriebearbeiten.svg', i18nKey: 'imageTools.batchImageEditor', badge: 'Batch' },
+  { title: 'Fotocollage', description: 'Erstellen Sie kreative Fotocollagen aus Ihren Bildern.', link: 'https://kodinitools.com/collagemaker', svg: '/image/collagemacher.svg', i18nKey: 'imageTools.photoCollage', badge: 'Kreativ' }
 ]
 
 const diverseTools = [
-  { title: 'Kodini Farbextraktor', description: 'Extrahieren Sie dominante Farben aus Bildern.', link: 'https://kodinitools.com/kodini-color-extractor/', svg: '/image/farbextraktor.svg', i18nKey: 'diverseTools.colorExtractor' },
-  { title: 'Videokonverter', description: 'Konvertieren Sie Videos in verschiedene Formate.', link: 'https://kodinitools.com/videokonverter/', svg: '/image/videokonverter.svg', i18nKey: 'diverseTools.videoConverter' }
+  { title: 'Kodini Farbextraktor', description: 'Extrahieren Sie dominante Farben aus Bildern.', link: 'https://kodinitools.com/kodini-color-extractor/', svg: '/image/farbextraktor.svg', i18nKey: 'diverseTools.colorExtractor', badge: 'Farben' },
+  { title: 'Videokonverter', description: 'Konvertieren Sie Videos in verschiedene Formate.', link: 'https://kodinitools.com/videokonverter/', svg: '/image/videokonverter.svg', i18nKey: 'diverseTools.videoConverter', badge: 'Video' }
 ]
 
 const features = [
@@ -228,14 +228,26 @@ const features = [
       <div class="svg-card-grid">
         {audioTools.map((tool) => (
           <a href={tool.link} class="svg-card-link" data-title={tool.title} data-description={tool.description} data-svg-de={tool.svg} data-i18n-key={tool.i18nKey}>
-            <div class="svg-card">
-              <img src={tool.svg} alt={tool.title} loading="lazy" />
+            <div class="tool-card">
+              <div class="tool-card-top">
+                <div class="tool-card-icon">
+                  <img src={tool.svg} alt="" loading="lazy" />
+                </div>
+                {tool.badge && <span class="tool-card-badge">{tool.badge}</span>}
+              </div>
+              <h3 class="tool-card-title">{tool.title}</h3>
+              <p class="tool-card-desc">{tool.description}</p>
+              <div class="tool-card-footer">
+                <button class="fav-btn" aria-label="Zu Favoriten hinzufügen" title="Favorit">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                  </svg>
+                </button>
+                <span class="tool-card-open" data-i18n="tool.open">Öffnen
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </span>
+              </div>
             </div>
-            <button class="fav-btn" aria-label="Zu Favoriten hinzufügen" title="Favorit">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
-              </svg>
-            </button>
           </a>
         ))}
       </div>
@@ -262,14 +274,26 @@ const features = [
       <div class="svg-card-grid">
         {imageTools.map((tool) => (
           <a href={tool.link} class="svg-card-link" data-title={tool.title} data-description={tool.description} data-svg-de={tool.svg} data-i18n-key={tool.i18nKey}>
-            <div class="svg-card">
-              <img src={tool.svg} alt={tool.title} loading="lazy" />
+            <div class="tool-card">
+              <div class="tool-card-top">
+                <div class="tool-card-icon">
+                  <img src={tool.svg} alt="" loading="lazy" />
+                </div>
+                {tool.badge && <span class="tool-card-badge">{tool.badge}</span>}
+              </div>
+              <h3 class="tool-card-title">{tool.title}</h3>
+              <p class="tool-card-desc">{tool.description}</p>
+              <div class="tool-card-footer">
+                <button class="fav-btn" aria-label="Zu Favoriten hinzufügen" title="Favorit">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                  </svg>
+                </button>
+                <span class="tool-card-open" data-i18n="tool.open">Öffnen
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </span>
+              </div>
             </div>
-            <button class="fav-btn" aria-label="Zu Favoriten hinzufügen" title="Favorit">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
-              </svg>
-            </button>
           </a>
         ))}
       </div>
@@ -296,14 +320,26 @@ const features = [
       <div class="svg-card-grid">
         {diverseTools.map((tool) => (
           <a href={tool.link} class="svg-card-link" data-title={tool.title} data-description={tool.description} data-svg-de={tool.svg} data-i18n-key={tool.i18nKey}>
-            <div class="svg-card">
-              <img src={tool.svg} alt={tool.title} loading="lazy" />
+            <div class="tool-card">
+              <div class="tool-card-top">
+                <div class="tool-card-icon">
+                  <img src={tool.svg} alt="" loading="lazy" />
+                </div>
+                {tool.badge && <span class="tool-card-badge">{tool.badge}</span>}
+              </div>
+              <h3 class="tool-card-title">{tool.title}</h3>
+              <p class="tool-card-desc">{tool.description}</p>
+              <div class="tool-card-footer">
+                <button class="fav-btn" aria-label="Zu Favoriten hinzufügen" title="Favorit">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                  </svg>
+                </button>
+                <span class="tool-card-open" data-i18n="tool.open">Öffnen
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </span>
+              </div>
             </div>
-            <button class="fav-btn" aria-label="Zu Favoriten hinzufügen" title="Favorit">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
-              </svg>
-            </button>
           </a>
         ))}
       </div>
@@ -349,6 +385,7 @@ const features = [
         'search.scrollTop': 'Nach oben scrollen',
         'favorites.sectionTitle': 'Meine Favoriten',
         'favorites.clearAll': 'Alle entfernen',
+        'tool.open': 'Öffnen',
         'processing.browser': 'Browser',
         'processing.server': 'Server',
         'tools.sectionTitle': 'Audio Tools',
@@ -439,6 +476,7 @@ const features = [
         'search.scrollTop': 'Scroll to top',
         'favorites.sectionTitle': 'My Favorites',
         'favorites.clearAll': 'Remove all',
+        'tool.open': 'Open',
         'processing.browser': 'Browser',
         'processing.server': 'Server',
         'tools.sectionTitle': 'Audio Tools',
@@ -561,8 +599,16 @@ const features = [
         // Update data-title and data-description for search
         var titleKey = key + '.title';
         var descKey = key + '.description';
-        if (pageT[titleKey]) card.setAttribute('data-title', pageT[titleKey]);
-        if (pageT[descKey]) card.setAttribute('data-description', pageT[descKey]);
+        if (pageT[titleKey]) {
+          card.setAttribute('data-title', pageT[titleKey]);
+          var titleEl = card.querySelector('.tool-card-title');
+          if (titleEl) titleEl.textContent = pageT[titleKey];
+        }
+        if (pageT[descKey]) {
+          card.setAttribute('data-description', pageT[descKey]);
+          var descEl = card.querySelector('.tool-card-desc');
+          if (descEl) descEl.textContent = pageT[descKey];
+        }
       });
 
       // Typing-Text aktualisieren (sofort, ohne Animation bei Sprachwechsel)
@@ -708,7 +754,7 @@ const features = [
       document.addEventListener('mousemove', function(e) {
         var target = e.target;
         if (!target || typeof target.closest !== 'function') return;
-        var card = target.closest('.svg-card');
+        var card = target.closest('.tool-card');
         if (!card) return;
 
         var rect = card.getBoundingClientRect();
@@ -716,16 +762,16 @@ const features = [
         var y = e.clientY - rect.top;
         var centerX = rect.width / 2;
         var centerY = rect.height / 2;
-        var rotateX = (y - centerY) / 15;
-        var rotateY = (centerX - x) / 15;
+        var rotateX = (y - centerY) / 18;
+        var rotateY = (centerX - x) / 18;
 
-        card.style.transform = 'perspective(1000px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) translateY(-8px)';
+        card.style.transform = 'perspective(1000px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) translateY(-5px)';
       });
 
       document.addEventListener('mouseout', function(e) {
         var target = e.target;
         var relatedTarget = e.relatedTarget;
-        if (target && target.classList && target.classList.contains('svg-card') &&
+        if (target && target.classList && target.classList.contains('tool-card') &&
             (!relatedTarget || !target.contains(relatedTarget))) {
           target.style.transform = '';
         }
