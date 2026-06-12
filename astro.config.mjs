@@ -1,12 +1,23 @@
 import { defineConfig } from 'astro/config'
 import vue from '@astrojs/vue'
+import sitemap from '@astrojs/sitemap'
 
 export default defineConfig({
+  site: 'https://kodinitools.com',
   base: '/',
   integrations: [
     vue({
-      appEntrypoint: '/src/pages/_app'
-    })
+      appEntrypoint: '/src/pages/_app',
+    }),
+    sitemap({
+      i18n: {
+        defaultLocale: 'de',
+        locales: {
+          de: 'de-CH',
+          en: 'en-US',
+        },
+      },
+    }),
   ],
   vite: {
     define: {
