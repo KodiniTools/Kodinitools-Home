@@ -223,6 +223,13 @@
     "noResults": "No tools found. Try a different search term.",
     "scrollTop": "Scroll to top"
   },
+  "tool": {
+    "open": "Open"
+  },
+  "favorites": {
+    "sectionTitle": "My Favorites",
+    "clearAll": "Remove all"
+  },
   "cookies": {
     "bannerTitle": "Cookie Settings",
     "bannerText": "We use cookies to improve your experience and analyze website traffic. You decide which cookies you allow.",

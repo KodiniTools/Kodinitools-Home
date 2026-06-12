@@ -223,6 +223,13 @@
     "noResults": "Keine Tools gefunden. Versuchen Sie einen anderen Suchbegriff.",
     "scrollTop": "Nach oben scrollen"
   },
+  "tool": {
+    "open": "Öffnen"
+  },
+  "favorites": {
+    "sectionTitle": "Meine Favoriten",
+    "clearAll": "Alle entfernen"
+  },
   "cookies": {
     "bannerTitle": "Cookie-Einstellungen",
     "bannerText": "Wir verwenden Cookies, um Ihre Erfahrung zu verbessern und den Website-Traffic zu analysieren. Sie entscheiden, welche Cookies Sie zulassen.",
