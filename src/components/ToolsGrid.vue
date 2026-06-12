@@ -195,15 +195,20 @@ const isTouchDevice = () => typeof window !== 'undefined' && ('ontouchstart' in 
 
 const initTiltEffect = () => {
   if (typeof window === 'undefined' || isTouchDevice()) return
+  let tiltRaf: number | null = null
   document.addEventListener('mousemove', (e: MouseEvent) => {
-    const card = (e.target as HTMLElement).closest?.('.tool-card, .svg-card') as HTMLElement | null
-    if (!card) return
-    const rect = card.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
-    card.style.transform = `perspective(1000px) rotateX(${(y - rect.height / 2) / 15}deg) rotateY(${(rect.width / 2 - x) / 15}deg) translateY(-8px)`
-    card.style.setProperty('--mouse-x', `${(x / rect.width) * 100}%`)
-    card.style.setProperty('--mouse-y', `${(y / rect.height) * 100}%`)
+    if (tiltRaf !== null) return
+    tiltRaf = requestAnimationFrame(() => {
+      tiltRaf = null
+      const card = (e.target as HTMLElement).closest?.('.tool-card, .svg-card') as HTMLElement | null
+      if (!card) return
+      const rect = card.getBoundingClientRect()
+      const x = e.clientX - rect.left
+      const y = e.clientY - rect.top
+      card.style.transform = `perspective(1000px) rotateX(${(y - rect.height / 2) / 15}deg) rotateY(${(rect.width / 2 - x) / 15}deg) translateY(-8px)`
+      card.style.setProperty('--mouse-x', `${(x / rect.width) * 100}%`)
+      card.style.setProperty('--mouse-y', `${(y / rect.height) * 100}%`)
+    })
   })
   document.addEventListener('mouseleave', (e: MouseEvent) => {
     const card = (e.target as HTMLElement).closest?.('.tool-card, .svg-card') as HTMLElement | null

@@ -123,16 +123,21 @@ const initFeatureCardTilt = () => {
   const featuresGrid = document.querySelector('.features-grid')
   if (!featuresGrid) return
 
+  let tiltRaf: number | null = null
   featuresGrid.addEventListener('mousemove', (e: Event) => {
-    const me = e as MouseEvent
-    const card = (me.target as HTMLElement).closest?.('.feature-card') as HTMLElement | null
-    if (!card) return
-    const rect = card.getBoundingClientRect()
-    const x = me.clientX - rect.left
-    const y = me.clientY - rect.top
-    card.style.transform = `perspective(800px) rotateX(${(y - rect.height / 2) / 12}deg) rotateY(${(rect.width / 2 - x) / 12}deg) translateY(-5px) scale(1.02)`
-    card.style.setProperty('--feature-mouse-x', `${(x / rect.width) * 100}%`)
-    card.style.setProperty('--feature-mouse-y', `${(y / rect.height) * 100}%`)
+    if (tiltRaf !== null) return
+    tiltRaf = requestAnimationFrame(() => {
+      tiltRaf = null
+      const me = e as MouseEvent
+      const card = (me.target as HTMLElement).closest?.('.feature-card') as HTMLElement | null
+      if (!card) return
+      const rect = card.getBoundingClientRect()
+      const x = me.clientX - rect.left
+      const y = me.clientY - rect.top
+      card.style.transform = `perspective(800px) rotateX(${(y - rect.height / 2) / 12}deg) rotateY(${(rect.width / 2 - x) / 12}deg) translateY(-5px) scale(1.02)`
+      card.style.setProperty('--feature-mouse-x', `${(x / rect.width) * 100}%`)
+      card.style.setProperty('--feature-mouse-y', `${(y / rect.height) * 100}%`)
+    })
   })
 
   featuresGrid.addEventListener('mouseleave', () => {
