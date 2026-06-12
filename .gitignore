@@ -18,6 +18,9 @@ logs
 *.log
 npm-debug.log*
 
+# Claude Code internal files
+.claude/
+
 # Editor directories
 .idea
 .vscode
