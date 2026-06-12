@@ -1,8 +1,13 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
 import GlobalNav from '../components/GlobalNav.astro'
+import SiteFooter from '../components/SiteFooter.astro'
+import { readFileSync } from 'fs'
+import { resolve } from 'path'
 import de from '../locales/de.json'
 import en from '../locales/en.json'
+
+const cookieBannerHtml = readFileSync(resolve('public/partials/cookie-banner.html'), 'utf-8')
 
 // Type guard for tool entries (filters out sectionTitle, sectionDescription, processingBadge)
 type ToolEntry = { title: string; description: string; badge: string; link: string; svg: string }
@@ -364,6 +369,8 @@ const pageI18n = {
       &uarr;
     </button>
 
+    <SiteFooter lang="de" />
+    <Fragment set:html={cookieBannerHtml} />
     </div>
 
   <!-- Minimal Vanilla JS for interactivity -->
