@@ -2,46 +2,69 @@
 import BaseLayout from '../layouts/BaseLayout.astro'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
+import de from '../locales/de.json'
+import en from '../locales/en.json'
 
 // Read SSI partials at build time
 const navHtml = readFileSync(resolve('public/partials/nav.html'), 'utf-8')
 const footerHtml = readFileSync(resolve('public/partials/footer.html'), 'utf-8')
 const cookieBannerHtml = readFileSync(resolve('public/partials/cookie-banner.html'), 'utf-8')
 
-// SVG card data for static rendering (German)
-const audioTools = [
-  { title: 'Audio Konverter', description: 'Konvertieren Sie Audio zwischen MP3, WAV, OGG, FLAC, AAC und M4A. Unterstützt Stapelverarbeitung und individuelle Qualitätseinstellungen für optimale Ergebnisse.', link: 'https://kodinitools.com/audiokonverter/', svg: '/image/audio-konverter.svg', i18nKey: 'tools.audioConverter', badge: 'Batch' },
-  { title: '19-Band EQ Pro', description: '19-Band Equalizer mit Dynamic Compressor, Presets und Aufnahme-Funktion. Perfekt für Musiker und Podcaster, die professionellen Klang direkt im Browser benötigen.', link: 'https://kodinitools.com/equaliser19/', svg: '/image/eq19-pro.svg', i18nKey: 'tools.audioEqualizer', badge: 'PRO' },
-  { title: 'Musikplayer', description: 'Minimalistischer Audioplayer mit Playlist, Shuffle, Repeat und Visualizer-Funktion. Unterstützt alle gängigen Audioformate ohne Installation.', link: 'https://kodinitools.com/ultimativermusikplayer/', svg: '/image/musikplayer.svg', i18nKey: 'tools.musicPlayer', badge: 'Neu' },
-  { title: 'Audio Visualizer', description: 'Erstellen Sie beeindruckende MP4-Videos für TikTok, Instagram und YouTube. Wählen Sie aus verschiedenen Visualisierungs-Stilen und exportieren Sie in HD-Qualität.', link: 'https://kodinitools.com/visualizer/', svg: '/image/audio-visualizer.svg', i18nKey: 'tools.audioVisualizer', badge: 'Video' },
-  { title: 'MP3 Konverter', description: 'Konvertieren Sie Audiodateien schnell und einfach in das MP3-Format. Einstellbare Bitrate und Metadaten-Unterstützung für Podcasts und Musik.', link: 'https://kodinitools.com/mp3konverter/', svg: '/image/mp3-konverter.svg', i18nKey: 'tools.mp3Converter', badge: 'MP3' },
-  { title: 'Interaktiver Audio Equalizer', description: 'Bearbeiten Sie Ihre Audiodateien mit einem intuitiven grafischen Equalizer. Echtzeit-Vorschau und direkter Export in alle gängigen Audioformate.', link: 'https://kodinitools.com/audioequalizer/', svg: '/image/interaktiver-equalizer.svg', i18nKey: 'tools.interactiveEqualizer', badge: 'EQ' },
-  { title: 'Moderner Musikplayer', description: 'Schlanker und moderner Audio-Player mit allen wichtigen Funktionen. Elegantes Interface mit Playlist-Unterstützung und anpassbarer Oberfläche.', link: 'https://kodinitools.com/modernermusikplayer/', svg: '/image/moderner-musikplayer.svg', i18nKey: 'tools.modernPlayer', badge: 'Player' },
-  { title: 'Audioplaylist Generator', description: 'Erstellen Sie automatisch Playlists aus Ihren Audiodateien. Intelligente Sortierung, Filteroptionen und direkter Export als M3U-, XSPF- oder JSON-Datei.', link: 'https://kodinitools.com/playlist_generator/', svg: '/image/playlist-generator.svg', i18nKey: 'tools.playlistGenerator', badge: 'Playlist' },
-  { title: 'Alarmtool', description: 'Zuverlässiges Alarm-Tool für Erinnerungen und Wecker. Eigene Audiodateien als Klingelton verwendbar – funktioniert auch bei gesperrtem Bildschirm.', link: 'https://kodinitools.com/alarmtool/', svg: '/image/alarmtool.svg', i18nKey: 'tools.alarmTool', badge: 'Alarm' },
-  { title: 'Audio Normalizer', description: 'Normalisieren Sie die Lautstärke Ihrer Audiodateien automatisch. Ideal für Podcasts und Hörbücher mit einheitlichem Lautstärkepegel über alle Tracks.', link: 'https://kodinitools.com/audionormalisierer/', svg: '/image/audio-normalizer.svg', i18nKey: 'tools.audioNormalizer', badge: 'Normalize' },
-  { title: 'Playlist zu WebM oder MP3 Konverter', description: 'Wandeln Sie bis zu 50 Audio-Tracks in eine WebM- oder MP3-Playlist um – ideal für YouTube und Podcasts. Keine zusätzliche Software erforderlich.', link: 'https://kodinitools.com/playlistkonverter/', svg: '/image/playlist-konverter.svg', i18nKey: 'tools.playlistToWebm', badge: 'WebM·MP3' }
-]
+// Type guard for tool entries (filters out sectionTitle, sectionDescription, processingBadge)
+type ToolEntry = { title: string; description: string; badge: string; link: string; svg: string }
+function isTool(val: unknown): val is ToolEntry {
+  return typeof val === 'object' && val !== null && 'title' in val && 'link' in val
+}
 
-const imageTools = [
-  { title: 'Bildkonverter', description: 'Konvertieren Sie Bilder zwischen JPG, PNG, WebP, AVIF, GIF und BMP. Individuelle Qualitätseinstellung und Stapelverarbeitung für bis zu 100 Dateien gleichzeitig.', link: 'https://kodinitools.com/bildkonverter/', svg: '/image/bildkonverter.svg', i18nKey: 'imageTools.imageConverter', badge: 'Multi' },
-  { title: 'Batch Bildbearbeitung', description: 'Bearbeiten Sie 100+ Bilder gleichzeitig: Größe ändern, umbenennen, als ZIP oder PDF exportieren. Spart Stunden an manueller Arbeit – sicher im Browser verarbeitet.', link: 'https://kodinitools.com/bilderseriebearbeiten/', svg: '/image/bilderseriebearbeiten.svg', i18nKey: 'imageTools.batchImageEditor', badge: 'Batch' },
-  { title: 'Fotocollage', description: 'Erstellen Sie kreative Fotocollagen aus Ihren Bildern. Verschiedene Layouts, Rahmen und Vorlagen für professionelle Ergebnisse in Sekunden.', link: 'https://kodinitools.com/collagemaker', svg: '/image/collagemacher.svg', i18nKey: 'imageTools.photoCollage', badge: 'Kreativ' }
-]
+// Derive tool card arrays from de.json (single source of truth)
+const audioTools = Object.entries(de.tools)
+  .filter((e): e is [string, ToolEntry] => isTool(e[1]))
+  .map(([k, t]) => ({ title: t.title, description: t.description, link: t.link, svg: t.svg, i18nKey: `tools.${k}`, badge: t.badge }))
 
-const diverseTools = [
-  { title: 'Kodini Farbextraktor', description: 'Extrahieren Sie dominante Farben aus Bildern. Exportieren Sie Farbpaletten als HEX, RGB oder CSS-Variablen für Ihr nächstes Design-Projekt.', link: 'https://kodinitools.com/kodini-color-extractor/', svg: '/image/farbextraktor.svg', i18nKey: 'diverseTools.colorExtractor', badge: 'Farben' },
-  { title: 'Videokonverter', description: 'Konvertieren Sie Videos in verschiedene Formate. Unterstützt MP4, WebM, AVI, MOV und weitere – direkt im Browser ohne Upload-Limit.', link: 'https://kodinitools.com/videokonverter/', svg: '/image/videokonverter.svg', i18nKey: 'diverseTools.videoConverter', badge: 'Video' }
-]
+const imageTools = Object.entries(de.imageTools)
+  .filter((e): e is [string, ToolEntry] => isTool(e[1]))
+  .map(([k, t]) => ({ title: t.title, description: t.description, link: t.link, svg: t.svg, i18nKey: `imageTools.${k}`, badge: t.badge }))
 
-const features = [
-  { text: '100% Kostenlos', i18nKey: 'hero.features.free' },
-  { text: 'Datenschutz', i18nKey: 'hero.features.privacy' },
-  { text: 'Browser-basiert', i18nKey: 'hero.features.browserBased' },
-  { text: 'Server-basiert', i18nKey: 'hero.features.serverBased' },
-  { text: 'Mehrsprachig', i18nKey: 'hero.features.multiLanguage' },
-  { text: 'Keine Installation', i18nKey: 'hero.features.noInstall' }
-]
+const diverseTools = Object.entries(de.diverseTools)
+  .filter((e): e is [string, ToolEntry] => isTool(e[1]))
+  .map(([k, t]) => ({ title: t.title, description: t.description, link: t.link, svg: t.svg, i18nKey: `diverseTools.${k}`, badge: t.badge }))
+
+const features = Object.entries(de.hero.features).map(([k, text]) => ({
+  text,
+  i18nKey: `hero.features.${k}`,
+}))
+
+// Build focused i18n map for vanilla JS (only keys used on this page)
+const SKIP = new Set(['sectionTitle', 'sectionDescription', 'processingBadge'])
+
+function buildPageMessages(locale: typeof de): Record<string, string> {
+  const r: Record<string, string> = {}
+
+  r['hero.title'] = locale.hero.title
+  for (const [k, v] of Object.entries(locale.hero.features)) r[`hero.features.${k}`] = v
+  for (const [k, v] of Object.entries(locale.search)) r[`search.${k}`] = v
+  r['tool.open'] = locale.tool.open
+  r['favorites.sectionTitle'] = locale.favorites.sectionTitle
+  r['favorites.clearAll'] = locale.favorites.clearAll
+
+  for (const section of ['tools', 'imageTools', 'diverseTools'] as const) {
+    r[`${section}.sectionTitle`] = locale[section].sectionTitle
+    for (const [k, entry] of Object.entries(locale[section])) {
+      if (SKIP.has(k) || !isTool(entry)) continue
+      r[`${section}.${k}.title`] = entry.title
+      r[`${section}.${k}.description`] = entry.description
+      r[`${section}.${k}.badge`] = entry.badge
+      r[`${section}.${k}.svg`] = entry.svg
+    }
+  }
+
+  return r
+}
+
+const pageI18n = {
+  de: buildPageMessages(de),
+  en: buildPageMessages(en as typeof de),
+}
 ---
 
 <BaseLayout>
@@ -355,7 +378,7 @@ const features = [
   </div>
 
   <!-- Minimal Vanilla JS for interactivity -->
-  <script is:inline>
+  <script is:inline define:vars={{ pageI18n }}>
   document.addEventListener('DOMContentLoaded', function() {
     // --- Page i18n ---
     var PAGE_I18N = {
