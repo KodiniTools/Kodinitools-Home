@@ -20,7 +20,7 @@
           <button
             class="faq-question"
             @click="toggleItem(index)"
-            :aria-expanded="openItems.includes(index)"
+            :aria-expanded="String(openItems.includes(index))"
           >
             <span class="question-text">{{ $t(`faq.questions.q${index + 1}.question`) }}</span>
             <span class="question-icon">
@@ -50,13 +50,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const emit = defineEmits(['goHome'])
 const { t, locale } = useI18n()
 
-const openItems = ref<number[]>([0]) // First item open by default
+const openItems = ref<number[]>([0])
 const faqItems = ref(Array.from({ length: 10 }, (_, i) => i))
 
 const toggleItem = (index: number) => {
@@ -68,43 +68,45 @@ const toggleItem = (index: number) => {
   }
 }
 
-// Generate and inject FAQ Structured Data
-const generateStructuredData = () => {
-  const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": faqItems.value.map((_, index) => ({
-      "@type": "Question",
-      "name": t(`faq.questions.q${index + 1}.question`),
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": t(`faq.questions.q${index + 1}.answer`)
-      }
-    }))
+const injectSchema = () => {
+  const existing = document.getElementById('faq-structured-data')
+  if (existing) existing.remove()
+
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqItems.value.map((_, i) => ({
+      '@type': 'Question',
+      name: t(`faq.questions.q${i + 1}.question`),
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: t(`faq.questions.q${i + 1}.answer`),
+      },
+    })),
   }
 
-  // Remove existing FAQ schema if present
-  const existingScript = document.getElementById('faq-structured-data')
-  if (existingScript) {
-    existingScript.remove()
-  }
-
-  // Add new FAQ schema
   const script = document.createElement('script')
   script.id = 'faq-structured-data'
   script.type = 'application/ld+json'
-  script.textContent = JSON.stringify(faqSchema)
+  script.textContent = JSON.stringify(schema)
   document.head.appendChild(script)
 }
 
+const removeSchema = () => {
+  document.getElementById('faq-structured-data')?.remove()
+}
+
 onMounted(() => {
-  generateStructuredData()
+  injectSchema()
   window.scrollTo(0, 0)
 })
 
-// Regenerate structured data when language changes
+onUnmounted(() => {
+  removeSchema()
+})
+
 watch(locale, () => {
-  generateStructuredData()
+  injectSchema()
 })
 </script>
 
