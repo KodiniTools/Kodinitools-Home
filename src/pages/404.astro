@@ -1,0 +1,190 @@
+---
+import '../styles/global.css'
+---
+
+<!DOCTYPE html>
+<html lang="de" id="html404">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>404 – Seite nicht gefunden | KodiniTools</title>
+  <meta name="robots" content="noindex, follow" />
+  <meta name="theme-color" content="#014f99" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="canonical" href="https://kodinitools.com/" />
+</head>
+<body>
+  <div class="page-404">
+    <div class="error-card">
+      <div class="error-code">404</div>
+      <div class="error-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="m21 21-4.35-4.35"/>
+          <path d="M11 8v4M11 16h.01"/>
+        </svg>
+      </div>
+      <h1 class="error-title" id="errorTitle">Seite nicht gefunden</h1>
+      <p class="error-message" id="errorMessage">
+        Die gesuchte Seite existiert nicht oder wurde verschoben.
+      </p>
+      <a href="/" class="back-btn" id="backBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m12 19-7-7 7-7"/>
+          <path d="M19 12H5"/>
+        </svg>
+        Zurück zur Startseite
+      </a>
+    </div>
+  </div>
+
+  <script is:inline>
+    // Apply language from stored locale
+    (function () {
+      var locale = localStorage.getItem('locale') || 'de';
+      if (locale === 'en') {
+        document.getElementById('html404').setAttribute('lang', 'en');
+        document.getElementById('errorTitle').textContent = 'Page not found';
+        document.getElementById('errorMessage').textContent =
+          'The page you are looking for does not exist or has been moved.';
+        document.getElementById('backBtn').innerHTML =
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>Back to home';
+        document.title = '404 – Page not found | KodiniTools';
+      }
+
+      // Apply saved theme
+      var theme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Supreme', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg-color, #f9f2d5);
+      color: var(--text-color, #003971);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .page-404 {
+      padding: 2rem 1rem;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    .error-card {
+      max-width: 480px;
+      width: 100%;
+      background: var(--bg-secondary, #ffffff);
+      border: 1px solid var(--border-color, #d4c09a);
+      border-radius: 1.5rem;
+      padding: 3rem 2.5rem;
+      text-align: center;
+      box-shadow: 0 10px 40px rgba(0, 57, 113, 0.1);
+    }
+
+    [data-theme="dark"] .error-card {
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .error-code {
+      font-size: 6rem;
+      font-weight: 800;
+      line-height: 1;
+      background: linear-gradient(135deg, #014f99 0%, #003971 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+    }
+
+    [data-theme="dark"] .error-code {
+      background: linear-gradient(135deg, #c9984d 0%, #f8e1a9 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    .error-icon {
+      width: 3rem;
+      height: 3rem;
+      margin: 0 auto 1.5rem;
+      color: var(--primary-color, #014f99);
+      opacity: 0.5;
+    }
+
+    .error-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .error-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      color: var(--text-color, #003971);
+    }
+
+    .error-message {
+      font-size: 0.9rem;
+      color: var(--text-muted, #4f6f8e);
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background: linear-gradient(135deg, #014f99 0%, #003971 100%);
+      color: #ffffff;
+      text-decoration: none;
+      border-radius: 0.75rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 15px rgba(1, 79, 153, 0.3);
+    }
+
+    [data-theme="dark"] .back-btn {
+      background: linear-gradient(135deg, #c9984d 0%, #a67d3d 100%);
+      box-shadow: 0 4px 15px rgba(201, 152, 77, 0.3);
+      color: #091428;
+    }
+
+    .back-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(1, 79, 153, 0.4);
+    }
+
+    [data-theme="dark"] .back-btn:hover {
+      box-shadow: 0 6px 20px rgba(201, 152, 77, 0.4);
+    }
+
+    .back-btn svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 480px) {
+      .error-card {
+        padding: 2rem 1.5rem;
+        border-radius: 1.25rem;
+      }
+      .error-code {
+        font-size: 5rem;
+      }
+      .error-title {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</body>
+</html>
