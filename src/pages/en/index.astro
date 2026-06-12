@@ -1,14 +1,9 @@
 ---
 import EnLayout from '../../layouts/EnLayout.astro'
-import { readFileSync } from 'fs'
-import { resolve } from 'path'
+import GlobalNav from '../../components/GlobalNav.astro'
+import SiteFooter from '../../components/SiteFooter.astro'
 import de from '../../locales/de.json'
 import en from '../../locales/en.json'
-
-// Read SSI partials at build time
-const navHtml = readFileSync(resolve('public/partials/nav.html'), 'utf-8')
-const footerHtml = readFileSync(resolve('public/partials/footer.html'), 'utf-8')
-const cookieBannerHtml = readFileSync(resolve('public/partials/cookie-banner.html'), 'utf-8')
 
 // Type guard for tool entries (filters out sectionTitle, sectionDescription, processingBadge)
 type ToolEntry = { title: string; description: string; badge: string; link: string; svg: string }
@@ -147,7 +142,7 @@ const pageI18n = {
     </div>
 
     <!-- Navigation (SSI Partial) -->
-    <Fragment set:html={navHtml} />
+    <GlobalNav lang="en" />
 
     <!-- Hero Section with Animated Mesh Gradient -->
     <section class="hero">
@@ -370,11 +365,7 @@ const pageI18n = {
       &uarr;
     </button>
 
-    <!-- Footer (SSI Partial) -->
-    <Fragment set:html={footerHtml} />
-
-    <!-- Cookie Banner (SSI Partial) -->
-    <Fragment set:html={cookieBannerHtml} />
+    <SiteFooter lang="en" />
   </div>
 
   <!-- Minimal Vanilla JS for interactivity -->
