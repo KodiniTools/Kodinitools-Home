@@ -196,8 +196,14 @@ const updateIconTransforms = () => {
   })
 }
 
+let mouseMoveRaf: number | null = null
+
 const handleMouseMove = (e: MouseEvent) => {
   if (typeof window === 'undefined') return
+  if (mouseMoveRaf !== null) return
+
+  mouseMoveRaf = requestAnimationFrame(() => {
+    mouseMoveRaf = null
 
   // Update spotlight position (percentage of viewport)
   mouseX.value = (e.clientX / window.innerWidth) * 100
@@ -216,6 +222,7 @@ const handleMouseMove = (e: MouseEvent) => {
     iconMouseOffsets.value = newOffsets
     updateIconTransforms()
   }
+  }) // end rAF
 }
 
 // Search functionality
