@@ -798,6 +798,71 @@ body {
   color: #f8e1a9;
 }
 
+/* Hero CTA Button */
+.hero-cta-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.hero-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 2.2rem;
+  background: linear-gradient(135deg, #014f99 0%, #003971 100%);
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 700;
+  border-radius: 50px;
+  text-decoration: none;
+  box-shadow: 0 4px 20px rgba(1, 79, 153, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  animation: fadeInUp 1s ease 0.6s forwards;
+  opacity: 0;
+}
+
+.hero-cta-btn:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 8px 28px rgba(1, 79, 153, 0.5);
+}
+
+.hero-cta-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+[data-theme="dark"] .hero-cta-btn {
+  background: linear-gradient(135deg, #c9984d 0%, #a07030 100%);
+  box-shadow: 0 4px 20px rgba(201, 152, 77, 0.35);
+}
+
+[data-theme="dark"] .hero-cta-btn:hover {
+  box-shadow: 0 8px 28px rgba(201, 152, 77, 0.5);
+}
+
+/* Scroll Indicator */
+.scroll-indicator {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #014f99;
+  opacity: 0.7;
+  animation: scrollBounce 2s ease-in-out infinite;
+  cursor: pointer;
+  z-index: 5;
+  transition: opacity 0.4s ease;
+}
+
+[data-theme="dark"] .scroll-indicator {
+  color: #c9984d;
+}
+
+@keyframes scrollBounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(8px); }
+}
+
 /* Hero Promo Section with Logo */
 .hero-promo {
   display: flex;

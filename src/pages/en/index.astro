@@ -40,6 +40,7 @@ function buildPageMessages(locale: typeof de): Record<string, string> {
   const r: Record<string, string> = {}
 
   r['hero.title'] = locale.hero.title
+  r['hero.cta'] = locale.hero.cta
   for (const [k, v] of Object.entries(locale.hero.features)) r[`hero.features.${k}`] = v
   for (const [k, v] of Object.entries(locale.search)) r[`search.${k}`] = v
   r['tool.open'] = locale.tool.open
@@ -207,6 +208,18 @@ const pageI18n = {
             </button>
           </div>
         </div>
+
+        <!-- Hero CTA -->
+        <div class="hero-cta-wrap">
+          <a href="#audio-tools" class="hero-cta-btn" data-i18n="hero.cta">Get Started</a>
+        </div>
+      </div>
+
+      <!-- Scroll Indicator -->
+      <div class="scroll-indicator" id="scrollIndicator">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="28" height="28">
+          <path d="M12 5v14M5 12l7 7 7-7"/>
+        </svg>
       </div>
     </section>
 
@@ -229,7 +242,7 @@ const pageI18n = {
     </section>
 
     <!-- Audio Tools Section -->
-    <section class="tools-section">
+    <section id="audio-tools" class="tools-section">
       <div class="section-header">
         <h2 data-i18n="tools.sectionTitle">Audio Tools</h2>
       </div>
@@ -551,11 +564,20 @@ const pageI18n = {
       }
     }
 
+    // --- Scroll Indicator hide on scroll ---
+    var scrollIndicator = document.getElementById('scrollIndicator');
+    if (scrollIndicator) {
+      scrollIndicator.addEventListener('click', function() {
+        document.getElementById('audio-tools')?.scrollIntoView({ behavior: 'smooth' });
+      });
+    }
+
     // --- Scroll to Top ---
     var scrollBtn = document.getElementById('scrollToTop');
     if (scrollBtn) {
       window.addEventListener('scroll', function() {
         scrollBtn.style.display = window.scrollY > 400 ? 'flex' : 'none';
+        if (scrollIndicator) scrollIndicator.style.opacity = window.scrollY > 80 ? '0' : '0.7';
 
         // Scroll parallax for floating icons
         if (floatingIcons) {
