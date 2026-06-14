@@ -18,8 +18,8 @@
         <div class="hero-logo">
           <img src="https://kodinitools.com/images/logo.svg" alt="KodiniTools Logo" />
         </div>
-        <h1 class="hero-title typing-title">
-          <span class="typed-text">{{ typedTitle }}</span>
+        <h1 class="hero-title">
+          <span class="gradient-title">{{ $t('hero.title') }}</span>
         </h1>
         <p class="hero-subtitle">{{ $t('hero.subtitle') }}</p>
       </div>
@@ -78,44 +78,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { computed, onMounted } from 'vue'
 
 const props = defineProps<{ searchQuery: string }>()
 const emit = defineEmits<{ 'update:searchQuery': [value: string] }>()
 
-const { t, locale } = useI18n()
-
-// Two-way binding for search
 const searchQueryModel = computed({
   get: () => props.searchQuery,
   set: (val) => emit('update:searchQuery', val),
 })
 
-// Typing animation (moved from App.vue)
-const typedTitle = ref('')
-let typingTimeout: ReturnType<typeof setTimeout> | null = null
-
-const startTypingAnimation = () => {
-  const fullTitle = t('hero.title')
-  let currentIndex = 0
-  typedTitle.value = ''
-  const typeNextChar = () => {
-    if (currentIndex < fullTitle.length) {
-      typedTitle.value += fullTitle[currentIndex]
-      currentIndex++
-      typingTimeout = setTimeout(typeNextChar, Math.random() * 50 + 50)
-    }
-  }
-  typingTimeout = setTimeout(typeNextChar, 500)
-}
-
-watch(locale, () => {
-  if (typingTimeout) clearTimeout(typingTimeout)
-  startTypingAnimation()
-})
-
-// Feature card 3D tilt (moved from App.vue)
 const isTouchDevice = () => typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0)
 
 const initFeatureCardTilt = () => {
@@ -158,11 +130,6 @@ const initFeatureCardTilt = () => {
 }
 
 onMounted(() => {
-  startTypingAnimation()
   setTimeout(() => initFeatureCardTilt(), 100)
-})
-
-onUnmounted(() => {
-  if (typingTimeout) clearTimeout(typingTimeout)
 })
 </script>

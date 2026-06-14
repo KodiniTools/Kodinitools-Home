@@ -748,61 +748,28 @@ body {
   z-index: 3;
 }
 
-/* Hero Title with Word Animation */
+/* Hero Title */
 .hero-title {
   font-size: 2.5rem;
   margin-bottom: 0.75rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1.2;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  text-align: center;
+  animation: fadeInUp 0.7s ease forwards;
 }
 
-.title-word {
-  display: inline-block;
-  background: linear-gradient(135deg, #014f99 0%, #003971 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: wordReveal 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  opacity: 0;
-  transform: translateY(20px);
-}
-
-/* Typing Animation Styles */
-.typing-title {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 1.2em;
-}
-
-.typed-text {
+.gradient-title {
   background: linear-gradient(135deg, #014f99 0%, #003971 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-[data-theme="dark"] .typed-text {
+[data-theme="dark"] .gradient-title {
   background: linear-gradient(135deg, #e8a945 0%, #f8e1a9 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-@keyframes wordReveal {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-[data-theme="dark"] .title-word {
-  background: linear-gradient(135deg, #e8a945 0%, #f8e1a9 100%);
-  -webkit-background-clip: text;
   background-clip: text;
 }
 
@@ -939,10 +906,10 @@ body {
   --feature-mouse-x: 50%;
   --feature-mouse-y: 50%;
   position: relative;
-  background: linear-gradient(135deg, #014f99 0%, #003971 100%);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(232, 169, 69, 0.2);
+  background: rgba(1, 79, 153, 0.15);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 0.85rem 0.5rem;
   border-radius: 0.75rem;
   text-align: center;
@@ -992,8 +959,8 @@ body {
 }
 
 [data-theme="dark"] .feature-card {
-  background: rgba(20, 38, 64, 0.8);
-  border: 1px solid rgba(232, 169, 69, 0.1);
+  background: rgba(20, 38, 64, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 [data-theme="dark"] .feature-card::before {
@@ -1167,8 +1134,13 @@ body {
 .tools-section {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 3.5rem 2rem;
+  padding: 5rem 2rem;
   animation: fadeIn 1s ease;
+}
+
+.section-alt {
+  background: var(--bg-secondary);
+  border-radius: 1.5rem;
 }
 
 .section-header {
@@ -1536,6 +1508,30 @@ body {
   transition: transform 0.3s ease, filter 0.3s ease;
 }
 
+.svg-card-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1.5rem 0.75rem 0.85rem;
+  background: linear-gradient(to top, rgba(0, 39, 80, 0.88) 0%, transparent 100%);
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  border-radius: 0 0 1rem 1rem;
+  pointer-events: none;
+}
+
+.svg-card-link:hover .svg-card-label {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .svg-card-link:hover .svg-card {
   box-shadow:
     0 20px 40px rgba(0, 57, 113, 0.18),
@@ -1566,10 +1562,6 @@ body {
 /* Responsive Design */
 @media (max-width: 1024px) {
   .hero-title {
-    font-size: 2rem;
-  }
-
-  .title-word {
     font-size: 2rem;
   }
 
@@ -1739,10 +1731,6 @@ body {
     font-size: 2.1rem;
   }
 
-  .title-word {
-    font-size: 2.1rem;
-  }
-
   .hero-subtitle {
     font-size: 0.95rem;
   }
@@ -1900,10 +1888,6 @@ body {
   }
 
   .hero-title {
-    font-size: 1.8rem;
-  }
-
-  .title-word {
     font-size: 1.8rem;
   }
 
