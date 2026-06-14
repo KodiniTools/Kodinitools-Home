@@ -395,7 +395,7 @@ const pageI18n = {
     // Reusable translation function
     var pageT;
     function applyPageTranslations() {
-      var pageLang = localStorage.getItem('locale') || 'en';
+      var pageLang = 'en';
       pageT = PAGE_I18N[pageLang] || PAGE_I18N['en'];
 
       // Apply text translations
