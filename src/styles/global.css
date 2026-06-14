@@ -469,14 +469,14 @@ body {
   border-radius: 2rem;
   margin-bottom: 2.5rem;
   overflow: hidden;
-  border: 1px solid rgba(1, 79, 153, 0.12);
-  box-shadow: 0 8px 32px rgba(0, 57, 113, 0.08),
-              0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+  border: 1px solid rgba(1, 79, 153, 0.25);
+  box-shadow: 0 8px 32px rgba(0, 57, 113, 0.1),
+              0 0 0 1px rgba(255, 255, 255, 0.6) inset;
 }
 
 [data-theme="dark"] .hero {
   background: rgba(14, 28, 50, 0.8);
-  border: 1px solid rgba(232, 169, 69, 0.15);
+  border: 1px solid rgba(232, 169, 69, 0.28);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
               0 0 0 1px rgba(232, 169, 69, 0.1) inset;
 }
