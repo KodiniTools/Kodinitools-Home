@@ -1139,8 +1139,12 @@ body {
 }
 
 .section-alt {
-  background: var(--bg-secondary);
+  background: #f0f2f5;
   border-radius: 1.5rem;
+}
+
+[data-theme="dark"] .section-alt {
+  background: #0E1C32;
 }
 
 .section-header {
