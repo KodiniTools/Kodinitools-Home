@@ -36,6 +36,7 @@
         >
           <div class="svg-card">
             <img :src="$t(`${tool.key}.svg`)" :alt="$t(`${tool.key}.title`)" />
+            <span class="svg-card-label">{{ $t(`${tool.key}.title`) }}</span>
           </div>
         </a>
       </div>
@@ -51,63 +52,74 @@
         <a :href="$t('tools.audioConverter.link')" class="svg-card-link">
           <div class="svg-card">
             <img :src="$t('tools.audioConverter.svg')" :alt="$t('tools.audioConverter.title')" />
+            <span class="svg-card-label">{{ $t('tools.audioConverter.title') }}</span>
           </div>
         </a>
         <a :href="$t('tools.audioEqualizer.link')" class="svg-card-link">
           <div class="svg-card">
             <img :src="$t('tools.audioEqualizer.svg')" :alt="$t('tools.audioEqualizer.title')" />
+            <span class="svg-card-label">{{ $t('tools.audioEqualizer.title') }}</span>
           </div>
         </a>
         <a :href="$t('tools.musicPlayer.link')" class="svg-card-link">
           <div class="svg-card">
             <img :src="$t('tools.musicPlayer.svg')" :alt="$t('tools.musicPlayer.title')" />
+            <span class="svg-card-label">{{ $t('tools.musicPlayer.title') }}</span>
           </div>
         </a>
         <a :href="$t('tools.audioVisualizer.link')" class="svg-card-link">
           <div class="svg-card">
             <img :src="$t('tools.audioVisualizer.svg')" :alt="$t('tools.audioVisualizer.title')" />
+            <span class="svg-card-label">{{ $t('tools.audioVisualizer.title') }}</span>
           </div>
         </a>
         <a :href="$t('tools.mp3Converter.link')" class="svg-card-link">
           <div class="svg-card">
             <img :src="$t('tools.mp3Converter.svg')" :alt="$t('tools.mp3Converter.title')" />
+            <span class="svg-card-label">{{ $t('tools.mp3Converter.title') }}</span>
           </div>
         </a>
         <a :href="$t('tools.interactiveEqualizer.link')" class="svg-card-link">
           <div class="svg-card">
             <img :src="$t('tools.interactiveEqualizer.svg')" :alt="$t('tools.interactiveEqualizer.title')" />
+            <span class="svg-card-label">{{ $t('tools.interactiveEqualizer.title') }}</span>
           </div>
         </a>
         <a :href="$t('tools.modernPlayer.link')" class="svg-card-link">
           <div class="svg-card">
             <img :src="$t('tools.modernPlayer.svg')" :alt="$t('tools.modernPlayer.title')" />
+            <span class="svg-card-label">{{ $t('tools.modernPlayer.title') }}</span>
           </div>
         </a>
         <a :href="$t('tools.playlistGenerator.link')" class="svg-card-link">
           <div class="svg-card">
             <img :src="$t('tools.playlistGenerator.svg')" :alt="$t('tools.playlistGenerator.title')" />
+            <span class="svg-card-label">{{ $t('tools.playlistGenerator.title') }}</span>
           </div>
         </a>
         <a :href="$t('tools.alarmTool.link')" class="svg-card-link">
           <div class="svg-card">
             <img :src="$t('tools.alarmTool.svg')" :alt="$t('tools.alarmTool.title')" />
+            <span class="svg-card-label">{{ $t('tools.alarmTool.title') }}</span>
           </div>
         </a>
         <a :href="$t('tools.audioNormalizer.link')" class="svg-card-link">
           <div class="svg-card">
             <img :src="$t('tools.audioNormalizer.svg')" :alt="$t('tools.audioNormalizer.title')" />
+            <span class="svg-card-label">{{ $t('tools.audioNormalizer.title') }}</span>
           </div>
         </a>
         <a :href="$t('tools.playlistToWebm.link')" class="svg-card-link">
           <div class="svg-card">
             <img :src="$t('tools.playlistToWebm.svg')" :alt="$t('tools.playlistToWebm.title')" />
+            <span class="svg-card-label">{{ $t('tools.playlistToWebm.title') }}</span>
           </div>
         </a>
       </div>
     </section>
 
     <!-- Image Tools Section -->
-    <section class="tools-section">
+    <section class="tools-section section-alt">
       <div class="section-header">
         <p>{{ $t('imageTools.sectionDescription') }}</p>
       </div>
@@ -116,16 +128,19 @@
         <a :href="$t('imageTools.imageConverter.link')" class="svg-card-link">
           <div class="svg-card">
             <img :src="$t('imageTools.imageConverter.svg')" :alt="$t('imageTools.imageConverter.title')" />
+            <span class="svg-card-label">{{ $t('imageTools.imageConverter.title') }}</span>
           </div>
         </a>
         <a :href="$t('imageTools.batchImageEditor.link')" class="svg-card-link">
           <div class="svg-card">
             <img :src="$t('imageTools.batchImageEditor.svg')" :alt="$t('imageTools.batchImageEditor.title')" />
+            <span class="svg-card-label">{{ $t('imageTools.batchImageEditor.title') }}</span>
           </div>
         </a>
         <a :href="$t('imageTools.photoCollage.link')" class="svg-card-link">
           <div class="svg-card">
             <img :src="$t('imageTools.photoCollage.svg')" :alt="$t('imageTools.photoCollage.title')" />
+            <span class="svg-card-label">{{ $t('imageTools.photoCollage.title') }}</span>
           </div>
         </a>
       </div>
@@ -141,11 +156,13 @@
         <a :href="$t('diverseTools.colorExtractor.link')" class="svg-card-link">
           <div class="svg-card">
             <img :src="$t('diverseTools.colorExtractor.svg')" :alt="$t('diverseTools.colorExtractor.title')" />
+            <span class="svg-card-label">{{ $t('diverseTools.colorExtractor.title') }}</span>
           </div>
         </a>
         <a :href="$t('diverseTools.videoConverter.link')" class="svg-card-link">
           <div class="svg-card">
             <img :src="$t('diverseTools.videoConverter.svg')" :alt="$t('diverseTools.videoConverter.title')" />
+            <span class="svg-card-label">{{ $t('diverseTools.videoConverter.title') }}</span>
           </div>
         </a>
       </div>
