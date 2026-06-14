@@ -1233,7 +1233,8 @@ body {
 .tool-card {
   position: relative;
   background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
+  border: 1px solid rgba(1, 79, 153, 0.14);
+  box-shadow: 0 1px 4px rgba(0, 57, 113, 0.07), 0 0 0 1px rgba(1, 79, 153, 0.05);
   padding: 1.25rem;
   border-radius: 1rem;
   transition: transform 0.15s ease-out, box-shadow 0.3s ease, border-color 0.3s ease;
@@ -1297,6 +1298,11 @@ body {
     0 25px 50px rgba(0, 57, 113, 0.15),
     0 0 0 1px rgba(1, 79, 153, 0.12);
   border-color: rgba(1, 79, 153, 0.2);
+}
+
+[data-theme="dark"] .tool-card {
+  border-color: rgba(232, 169, 69, 0.12);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(232, 169, 69, 0.06);
 }
 
 [data-theme="dark"] .tool-card-link:hover .tool-card {
