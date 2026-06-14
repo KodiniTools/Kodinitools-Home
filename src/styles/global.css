@@ -347,20 +347,23 @@ body {
 }
 
 .dropdown-menu {
-  display: none;
   position: absolute;
   top: 100%;
   left: 0;
   background: rgba(255, 255, 255, 0.97);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid var(--border-color);
+  border: 1px solid rgba(1, 79, 153, 0.18);
   border-radius: 0.75rem;
   box-shadow: var(--shadow-xl);
   min-width: 220px;
   z-index: 1000;
   padding: 0.5rem;
-  animation: fadeInUp 0.2s ease;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
 }
 
 .dropdown-menu::before {
@@ -374,10 +377,14 @@ body {
 
 [data-theme="dark"] .dropdown-menu {
   background: rgba(14, 28, 50, 0.98);
+  border-color: rgba(232, 169, 69, 0.2);
 }
 
 .nav-dropdown:hover .dropdown-menu {
-  display: block;
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
 .dropdown-item {
