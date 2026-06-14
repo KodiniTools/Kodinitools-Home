@@ -6,6 +6,30 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'Supreme';
+  src: url('/fonts/Supreme-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Supreme';
+  src: url('/fonts/Supreme-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Supreme';
+  src: url('/fonts/Supreme-Extrabold.woff2') format('woff2');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -1159,8 +1183,8 @@ body {
   font-size: 2.5rem;
   margin-bottom: 0.75rem;
   font-family: 'Supreme', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
-  font-weight: 400;
-  letter-spacing: -0.02em;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   line-height: 1.2;
   background: var(--gradient-1);
   -webkit-background-clip: text;
@@ -1712,15 +1736,15 @@ body {
   }
 
   .hero-title {
-    font-size: 1.75rem;
+    font-size: 2.1rem;
   }
 
   .title-word {
-    font-size: 1.75rem;
+    font-size: 2.1rem;
   }
 
   .hero-subtitle {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
   }
 
   /* Features Grid Mobile */
@@ -1876,19 +1900,19 @@ body {
   }
 
   .hero-title {
-    font-size: 1.35rem;
+    font-size: 1.8rem;
   }
 
   .title-word {
-    font-size: 1.35rem;
+    font-size: 1.8rem;
   }
 
   .section-header h2 {
-    font-size: 1.35rem;
+    font-size: 1.5rem;
   }
 
   .hero-subtitle {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
   }
 
   /* Features Grid Small Mobile */
