@@ -961,6 +961,10 @@ body {
   transform: translateY(-2px);
 }
 
+.feature-card:hover .feature-text {
+  color: #F5F4D6;
+}
+
 [data-theme="dark"] .feature-card {
   background: rgba(20, 38, 64, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -988,9 +992,9 @@ body {
   position: relative;
   z-index: 1;
   font-weight: 600;
-  color: #F5F4D6;
+  color: #013f7a;
   font-size: 0.95rem;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  text-shadow: none;
 }
 
 /* Spotlight Search Box */
