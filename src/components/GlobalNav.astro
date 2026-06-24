@@ -11,6 +11,8 @@ const t = {
     imageTools: 'Bildtools',
     tools: 'Tools',
     contact: 'Kontakt',
+    faq: 'FAQ',
+    faqHref: '/faq/',
     mp3Converter: 'MP3 Konverter',
     audioEqualizer: 'Interaktiver Audio Equalizer',
     modernPlayer: 'Moderner Musikplayer',
@@ -40,6 +42,8 @@ const t = {
     imageTools: 'Image Tools',
     tools: 'Tools',
     contact: 'Contact',
+    faq: 'FAQ',
+    faqHref: '/en/faq/',
     mp3Converter: 'MP3 Converter',
     audioEqualizer: 'Interactive Audio Equalizer',
     modernPlayer: 'Modern Music Player',
@@ -590,6 +594,10 @@ html {
                     <a href="https://kodinitools.com/kodini-color-extractor/" class="global-nav-dropdown-item" role="menuitem">{c.colorExtractor}</a>
                     <a href="https://kodinitools.com/videokonverter/" class="global-nav-dropdown-item" role="menuitem">{c.videoConverter}</a>
                 </div>
+            </div>
+
+            <div class="global-nav-item">
+                <a href={c.faqHref} class="global-nav-link">{c.faq}</a>
             </div>
 
             <div class="global-nav-item">
