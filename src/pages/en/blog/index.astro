@@ -1,0 +1,225 @@
+---
+import GlobalNav from '../../../components/GlobalNav.astro'
+import SiteFooter from '../../../components/SiteFooter.astro'
+import { readFileSync } from 'fs'
+import { resolve } from 'path'
+
+const cookieBannerHtml = readFileSync(resolve('public/partials/cookie-banner.html'), 'utf-8')
+
+const posts = [
+  {
+    slug: '/en/blog/mp3-to-wav-converter',
+    title: 'How to Convert MP3 to WAV Free Online (No Registration)',
+    description: 'When does the conversion make sense? What is the difference between MP3 and WAV? Step-by-step guide.',
+    date: 'June 2, 2026',
+    tag: 'Audio',
+    minutes: 4,
+  },
+  {
+    slug: '/en/blog/jpg-to-webp-converter',
+    title: 'How to Convert JPG to WebP: Images up to 30% Smaller',
+    description: 'How WebP improves your Google rankings and how conversion works in 5 steps — free, no upload needed.',
+    date: 'June 5, 2026',
+    tag: 'Image',
+    minutes: 4,
+  },
+  {
+    slug: '/en/blog/normalize-audio-online',
+    title: 'How to Normalize Audio: LUFS & dBFS Explained',
+    description: 'Spotify -14 LUFS, Podcasts -16 LUFS, Broadcasting -23 LUFS — which standard applies when?',
+    date: 'June 8, 2026',
+    tag: 'Audio',
+    minutes: 5,
+  },
+  {
+    slug: '/en/blog/music-video-tiktok-free',
+    title: 'How to Create a Music Video for TikTok Free (No App)',
+    description: 'Use the Audio Visualizer in your browser — MP4 export in vertical 9:16 format for TikTok and Reels.',
+    date: 'June 11, 2026',
+    tag: 'Video',
+    minutes: 4,
+  },
+  {
+    slug: '/en/blog/batch-resize-images',
+    title: 'How to Resize Multiple Images at Once: Batch Editing Made Easy',
+    description: 'Scale 100+ images in seconds, rename and export as ZIP — without installing any software.',
+    date: 'June 14, 2026',
+    tag: 'Image',
+    minutes: 4,
+  },
+  {
+    slug: '/en/blog/photo-collage-free-online',
+    title: 'How to Create a Photo Collage Free Online Without an App',
+    description: 'Layouts for Instagram, Pinterest and printing. Images never leave your browser — GDPR compliant.',
+    date: 'June 17, 2026',
+    tag: 'Image',
+    minutes: 4,
+  },
+  {
+    slug: '/en/blog/change-audio-file-format',
+    title: 'How to Change Audio File Format: GDPR-Compliant & Free',
+    description: 'MP3, WAV, OGG, FLAC, AAC — which format for what? And what does GDPR-compliant mean for audio converters?',
+    date: 'June 20, 2026',
+    tag: 'Audio',
+    minutes: 5,
+  },
+]
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script is:inline>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage': 'denied', 'ad_user_data': 'denied', 'ad_personalization': 'denied',
+    'analytics_storage': 'denied', 'functionality_storage': 'denied',
+    'personalization_storage': 'denied', 'security_storage': 'granted', 'wait_for_update': 500
+  });
+  (function() {
+    try {
+      var c = JSON.parse(localStorage.getItem('cookieConsent') || '{}');
+      if (c.analytics) gtag('consent', 'update', { 'analytics_storage': 'granted', 'functionality_storage': 'granted', 'personalization_storage': 'granted' });
+      if (c.marketing) gtag('consent', 'update', { 'ad_storage': 'granted', 'ad_user_data': 'granted', 'ad_personalization': 'granted' });
+    } catch(e) {}
+  })();
+  </script>
+  <script is:inline>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-T7NS656K');</script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog – How-to Guides for Audio & Image Editing | KodiniTools</title>
+  <meta name="description" content="How-to guides for free online tools: convert MP3 to WAV, JPG to WebP, normalize audio, create TikTok videos and more — GDPR compliant, no registration." />
+  <meta name="robots" content="index, follow" />
+  <meta name="language" content="en" />
+  <link rel="canonical" href="https://kodinitools.com/en/blog/" />
+  <link rel="alternate" hreflang="en" href="https://kodinitools.com/en/blog/" />
+  <link rel="alternate" hreflang="de" href="https://kodinitools.com/blog/" />
+  <link rel="alternate" hreflang="x-default" href="https://kodinitools.com/blog/" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://kodinitools.com/en/blog/" />
+  <meta property="og:title" content="Blog – How-to Guides for Audio & Image Editing | KodiniTools" />
+  <meta property="og:description" content="How-to guides for free online tools: convert audio, optimize images, create TikTok videos and more." />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:site_name" content="KodiniTools" />
+
+  <meta name="theme-color" content="#014f99" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <style>
+    @import '../../../styles/global.css';
+
+    .blog-index-main {
+      min-height: calc(100vh - 140px);
+      padding: 2rem 1rem 5rem;
+    }
+    .blog-index-container { max-width: 800px; margin: 0 auto; }
+    .blog-breadcrumb {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.82rem; color: var(--text-muted, #4f6f8e); margin-bottom: 2rem;
+    }
+    .blog-breadcrumb a { color: var(--primary-color, #014f99); text-decoration: none; }
+    .blog-breadcrumb a:hover { text-decoration: underline; }
+    .blog-index-header { text-align: center; margin-bottom: 3rem; }
+    .blog-index-header h1 {
+      font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 800;
+      background: linear-gradient(135deg, #014f99 0%, #003971 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      margin-bottom: 0.75rem; line-height: 1.2;
+    }
+    [data-theme="dark"] .blog-index-header h1 {
+      background: linear-gradient(135deg, #c9984d 0%, #f8e1a9 100%);
+      -webkit-background-clip: text; background-clip: text;
+    }
+    .blog-index-subtitle { font-size: 1rem; color: var(--text-secondary, #014f99); max-width: 520px; margin: 0 auto; }
+    .blog-grid { display: flex; flex-direction: column; gap: 1rem; }
+    .blog-card {
+      display: block; background: var(--bg-secondary, #ffffff);
+      border: 1px solid var(--border-color, #d4c09a); border-radius: 1rem;
+      padding: 1.25rem 1.5rem; text-decoration: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .blog-card:hover {
+      border-color: var(--primary-color, #014f99);
+      box-shadow: 0 4px 20px rgba(1, 79, 153, 0.1); text-decoration: none;
+    }
+    [data-theme="dark"] .blog-card:hover { border-color: var(--accent-color, #c9984d); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+    .blog-card-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
+    .blog-card-tag {
+      font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 999px;
+      color: var(--primary-color, #014f99); background: rgba(1,79,153,0.08);
+    }
+    [data-theme="dark"] .blog-card-tag { background: rgba(201,152,77,0.12); color: var(--accent-color, #c9984d); }
+    .blog-card-meta { font-size: 0.78rem; color: var(--text-muted, #4f6f8e); }
+    .blog-card h2 { font-size: 1rem; font-weight: 700; color: var(--text-color, #003971); margin: 0 0 0.4rem; line-height: 1.35; }
+    [data-theme="dark"] .blog-card h2 { color: var(--text-color, #f9f2d5); }
+    .blog-card p { font-size: 0.85rem; line-height: 1.6; color: var(--text-secondary, #4f6f8e); margin: 0; }
+    .blog-card-arrow {
+      display: flex; align-items: center; justify-content: flex-end;
+      margin-top: 0.75rem; color: var(--primary-color, #014f99);
+      font-size: 0.8rem; font-weight: 600; gap: 0.3rem;
+    }
+    [data-theme="dark"] .blog-card-arrow { color: var(--accent-color, #c9984d); }
+    @media (max-width: 600px) {
+      .blog-index-main { padding: 1.5rem 0.75rem 3rem; }
+      .blog-card { padding: 1rem 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T7NS656K" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+  <GlobalNav lang="en" />
+
+  <main class="blog-index-main">
+    <div class="blog-index-container">
+
+      <nav class="blog-breadcrumb" aria-label="Breadcrumb">
+        <a href="/en/">Home</a>
+        <span aria-hidden="true">›</span>
+        <span aria-current="page">Blog</span>
+      </nav>
+
+      <header class="blog-index-header">
+        <h1>Blog – Tips &amp; How-to Guides</h1>
+        <p class="blog-index-subtitle">Step-by-step guides for audio and image editing — free, GDPR compliant, no registration required.</p>
+      </header>
+
+      <div class="blog-grid">
+        {posts.map((post) => (
+          <a href={post.slug} class="blog-card">
+            <div class="blog-card-header">
+              <span class="blog-card-tag">{post.tag}</span>
+              <span class="blog-card-meta">{post.date} · {post.minutes} min read</span>
+            </div>
+            <h2>{post.title}</h2>
+            <p>{post.description}</p>
+            <div class="blog-card-arrow">
+              Read article
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+              </svg>
+            </div>
+          </a>
+        ))}
+      </div>
+
+    </div>
+  </main>
+
+  <SiteFooter lang="en" />
+  <Fragment set:html={cookieBannerHtml} />
+
+  <script is:inline>
+  (function() {
+    var theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+---
+import BlogArticleLayout from '../../../layouts/BlogArticleLayout.astro'
+---
+
+<BlogArticleLayout
+  title="How to Normalize Audio: LUFS & dBFS Explained | KodiniTools"
+  description="Normalize audio online free — LUFS standards for Spotify (-14), Podcasts (-16), and Broadcasting (-23) explained. Step-by-step guide with KodiniTools Audio Normalizer."
+  canonical="https://kodinitools.com/en/blog/normalize-audio-online"
+  publishedDate="2026-06-08"
+  lang="en"
+>
+
+  <h1>How to Normalize Audio: LUFS &amp; dBFS Explained</h1>
+
+  <div class="blog-meta">
+    <span class="blog-meta-badge">How-to</span>
+    <span>June 8, 2026</span>
+    <span>· 5 min read</span>
+  </div>
+
+  <p>
+    You know the problem: you're listening to a podcast and constantly adjusting the volume because the speaker alternates between too loud and too quiet. Or your music production sounds great in the car but flat on a smartphone. Audio normalization solves exactly this problem — and it's simpler than you think.
+  </p>
+
+  <h2>What Is Audio Normalization?</h2>
+
+  <p>
+    Normalization means adjusting the volume of an audio file to a defined target level — without changing the sound quality. There are two fundamentally different approaches:
+  </p>
+
+  <ul>
+    <li>
+      <strong>Peak normalization:</strong> Amplifies the file until the loudest moment reaches a specific dBFS value (e.g. -0.1 dBFS). Simple, but unreliable for perceived loudness.
+    </li>
+    <li>
+      <strong>LUFS normalization (recommended):</strong> Measures average loudness based on the human hearing model (EBU R128 / ITU-R BS.1770). This is the standard used by all major streaming platforms.
+    </li>
+  </ul>
+
+  <h2>Key LUFS Standards by Platform</h2>
+
+  <div class="blog-table-wrap">
+    <table class="blog-table">
+      <thead>
+        <tr>
+          <th>Platform / Use</th>
+          <th>Target (LUFS)</th>
+          <th>Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Spotify</td><td>-14 LUFS</td><td>Automatic adjustment</td></tr>
+        <tr><td>YouTube</td><td>-14 LUFS</td><td>Louder = gets reduced</td></tr>
+        <tr><td>TikTok</td><td>-14 LUFS</td><td>Short clips</td></tr>
+        <tr><td>Apple Podcasts</td><td>-16 LUFS</td><td>Podcast standard</td></tr>
+        <tr><td>Broadcasting (EBU R128)</td><td>-23 LUFS</td><td>EU legal standard</td></tr>
+        <tr><td>Audible / Audiobooks</td><td>-18 to -20 LUFS</td><td>ACX requirements</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="tip-box">
+    <p><strong>Practical tip:</strong> If your file is louder than the platform standard, it will be automatically turned down — without quality loss. If it's too quiet, it will sound weak compared to other content. The goal is hitting the right average level.</p>
+  </div>
+
+  <h2>Step-by-Step: Normalize Audio with KodiniTools</h2>
+
+  <ol class="steps">
+    <li>
+      <div class="step-content">
+        <strong>Open the Audio Normalizer</strong>
+        <p>Visit <a href="https://kodinitools.com/audionormalisierer/" target="_blank" rel="noopener">kodinitools.com/audionormalisierer</a></p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Upload your audio file</strong>
+        <p>MP3, WAV, OGG or M4A — your file is processed securely on our servers.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Set the target level (LUFS)</strong>
+        <p>Podcast: <strong>-16 LUFS</strong> · Music / YouTube / TikTok: <strong>-14 LUFS</strong> · Broadcasting: <strong>-23 LUFS</strong></p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Start normalization</strong>
+        <p>The server analyzes the loudness of your file and adjusts it precisely to the target level.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Download</strong>
+        <p>The normalized audio file is immediately ready for download — in the same format as the input.</p>
+      </div>
+    </li>
+  </ol>
+
+  <h2>Common Normalization Mistakes</h2>
+
+  <h3>Mistake 1: Using only peak normalization</h3>
+  <p>
+    Peak shows how loud the loudest moment is — not how loud the file is <em>perceived</em>. Two files with identical peak values can sound completely different in loudness. Always use LUFS for consistent results.
+  </p>
+
+  <h3>Mistake 2: Normalizing multiple times</h3>
+  <p>
+    Each normalization of MP3 files can cost quality because MP3 recompresses on saving. Better approach: keep the source material as WAV, normalize it, then export to the target format.
+  </p>
+
+  <h3>Mistake 3: Ignoring compression</h3>
+  <p>
+    Normalization changes loudness uniformly. For consistent <em>dynamics</em> — e.g. in podcasts with varying speaking volumes — you additionally need a compressor. Compress first, then normalize.
+  </p>
+
+  <h2>Preparing Audio Files for Podcasts Professionally</h2>
+
+  <p>
+    For Apple Podcasts, Spotify Podcasts, and all other platforms, we recommend this workflow:
+  </p>
+
+  <ol>
+    <li>Remove noise (noise reduction)</li>
+    <li>Smooth dynamics (compressor, e.g. -3 dB threshold)</li>
+    <li>Normalize to <strong>-16 LUFS</strong></li>
+    <li>Export as MP3 at 128–192 kbps or WAV</li>
+  </ol>
+
+  <div class="blog-cta">
+    <p>Normalize audio loudness professionally — free and GDPR compliant.</p>
+    <a href="https://kodinitools.com/audionormalisierer/" class="blog-cta-btn" target="_blank" rel="noopener">
+      Open Audio Normalizer →
+    </a>
+  </div>
+
+  <div class="blog-related">
+    <h2>Related articles</h2>
+    <div class="blog-related-grid">
+      <a href="/en/blog/mp3-to-wav-converter" class="blog-related-card">
+        <span>How to Convert MP3 to WAV Free Online</span>
+      </a>
+      <a href="/en/blog/music-video-tiktok-free" class="blog-related-card">
+        <span>How to Create a Music Video for TikTok Free</span>
+      </a>
+      <a href="/en/blog/batch-resize-images" class="blog-related-card">
+        <span>How to Resize Multiple Images at Once</span>
+      </a>
+    </div>
+  </div>
+
+</BlogArticleLayout>
