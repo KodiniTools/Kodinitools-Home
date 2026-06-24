@@ -57,7 +57,7 @@ const emit = defineEmits(['goHome'])
 const { t, locale } = useI18n()
 
 const openItems = ref<number[]>([0])
-const faqItems = ref(Array.from({ length: 10 }, (_, i) => i))
+const faqItems = ref(Array.from({ length: 18 }, (_, i) => i))
 
 const toggleItem = (index: number) => {
   const idx = openItems.value.indexOf(index)

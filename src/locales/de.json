@@ -540,6 +540,38 @@
       "q10": {
         "question": "Ist KodiniTools DSGVO-konform?",
         "answer": "Ja, KodiniTools ist vollständig DSGVO-konform. Wir verwenden Google Consent Mode v2, bieten transparente Cookie-Einstellungen und speichern keine personenbezogenen Daten ohne Ihre Einwilligung. Detaillierte Informationen finden Sie in unserer Datenschutzerklärung."
+      },
+      "q11": {
+        "question": "Wie konvertiere ich MP3 zu WAV kostenlos?",
+        "answer": "Mit dem KodiniTools Audio Konverter ganz einfach: Datei hochladen, WAV als Zielformat auswählen und auf Konvertieren klicken. Die fertige WAV-Datei steht sofort zum Download bereit – ohne Registrierung und ohne Installierung."
+      },
+      "q12": {
+        "question": "Wie kann ich mehrere Bilder gleichzeitig verkleinern?",
+        "answer": "Mit dem Batch Bildbearbeiter können Sie über 100 Bilder auf einmal verkleinern: Bilder per Drag-and-Drop hochladen, Zielgrösse in Pixeln oder Prozent festlegen und als ZIP-Archiv herunterladen. Alles läuft direkt im Browser – Ihre Bilder verlassen niemals Ihren Computer."
+      },
+      "q13": {
+        "question": "Was ist der Unterschied zwischen MP3 und WAV?",
+        "answer": "MP3 ist ein komprimiertes Format – kleinere Dateigrösse, leichter Qualitätsverlust durch Kompression, ideal für Streaming und Podcasts. WAV ist unkomprimiert – grössere Dateigrösse, verlustfreie Qualität, ideal für professionelle Musikproduktion und Archivierung. Mit dem Audio Konverter können Sie jederzeit zwischen beiden Formaten wechseln."
+      },
+      "q14": {
+        "question": "Wie erstelle ich ein Musik-Video für TikTok oder Instagram?",
+        "answer": "Mit dem KodiniTools Audio Visualizer in wenigen Schritten: Audiodatei hochladen, einen Visualisierungsstil auswählen und das fertige MP4-Video exportieren. Das Video ist direkt optimiert für TikTok, Instagram Reels und YouTube Shorts – komplett kostenlos und ohne App-Download."
+      },
+      "q15": {
+        "question": "Welches Bildformat ist am besten für Websites?",
+        "answer": "WebP und AVIF bieten die beste Kombination aus Qualität und kleiner Dateigrösse für Websites und verbessern die Ladegeschwindigkeit deutlich. Unser Bildkonverter wandelt JPG, PNG und andere Formate direkt in WebP oder AVIF um – ideal zur Website-Optimierung."
+      },
+      "q16": {
+        "question": "Wie normalisiere ich die Lautstärke meiner Audiodateien?",
+        "answer": "Mit dem Audio Normalizer von KodiniTools: Audiodatei hochladen und das Tool gleicht die Lautstärke automatisch auf einen einheitlichen Pegel an. Besonders nützlich für Podcasts, Hörbücher oder Musiksammlungen, bei denen unterschiedliche Tracks unterschiedlich laut sind. Die Verarbeitung erfolgt auf unseren sicheren Servern."
+      },
+      "q17": {
+        "question": "Wie erstelle ich eine Fotocollage kostenlos online?",
+        "answer": "Mit dem KodiniTools Fotocollage-Tool: Bilder hochladen, ein Layout aus den verfügbaren Vorlagen wählen, Fotos per Drag-and-Drop anordnen und die fertige Collage herunterladen. Kein Konto nötig, keine Wasserzeichen – läuft vollständig im Browser."
+      },
+      "q18": {
+        "question": "Kann ich Audiodateien für Podcasts vorbereiten?",
+        "answer": "Ja, KodiniTools bietet mehrere Tools speziell für Podcaster: Mit dem Audio Normalizer stellen Sie eine konstante Lautstärke sicher, mit dem MP3 Konverter erstellen Sie kompatible Podcast-Dateien und mit dem Audio Konverter wechseln Sie zwischen Formaten wie WAV, MP3 oder M4A. Alle Tools sind kostenlos und ohne Registrierung nutzbar."
       }
     }
   }
