@@ -11,6 +11,8 @@ const t = {
     imageTools: 'Bildtools',
     tools: 'Tools',
     contact: 'Kontakt',
+    blog: 'Blog',
+    blogHref: '/blog/',
     faq: 'FAQ',
     faqHref: '/faq/',
     mp3Converter: 'MP3 Konverter',
@@ -42,6 +44,8 @@ const t = {
     imageTools: 'Image Tools',
     tools: 'Tools',
     contact: 'Contact',
+    blog: 'Blog',
+    blogHref: '/blog/',
     faq: 'FAQ',
     faqHref: '/en/faq/',
     mp3Converter: 'MP3 Converter',
@@ -594,6 +598,10 @@ html {
                     <a href="https://kodinitools.com/kodini-color-extractor/" class="global-nav-dropdown-item" role="menuitem">{c.colorExtractor}</a>
                     <a href="https://kodinitools.com/videokonverter/" class="global-nav-dropdown-item" role="menuitem">{c.videoConverter}</a>
                 </div>
+            </div>
+
+            <div class="global-nav-item">
+                <a href={c.blogHref} class="global-nav-link">{c.blog}</a>
             </div>
 
             <div class="global-nav-item">
