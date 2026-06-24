@@ -64,7 +64,7 @@
     },
     "audioConverter": {
       "title": "Audio Converter",
-      "description": "Convert audio between MP3, WAV, OGG, FLAC, AAC and M4A. Batch processing with quality selection.",
+      "description": "Convert MP3 to WAV free online – and vice versa. Change audio file format between MP3, WAV, OGG, FLAC, AAC and M4A. GDPR compliant, no registration.",
       "badge": "Batch",
       "processing": "server",
       "link": "https://kodinitools.com/audiokonverter/",
@@ -72,7 +72,7 @@
     },
     "audioEqualizer": {
       "title": "19-Band EQ Pro",
-      "description": "19-band equalizer with dynamic compressor, presets and recording function.",
+      "description": "Free browser equalizer – 19 bands, dynamic compressor, presets and recording function. No download, works instantly in your browser.",
       "badge": "PRO",
       "processing": "browser",
       "link": "https://kodinitools.com/equaliser19/",
@@ -88,7 +88,7 @@
     },
     "audioVisualizer": {
       "title": "Audio Visualizer",
-      "description": "Create stunning MP4 videos for TikTok, Instagram and YouTube with audio visualizations.",
+      "description": "Create music video for TikTok free – stunning MP4 visualizations for TikTok, Instagram Reels and YouTube. No app required.",
       "badge": "Video",
       "processing": "browser",
       "link": "https://kodinitools.com/visualizer/",
@@ -96,7 +96,7 @@
     },
     "mp3Converter": {
       "title": "MP3 Converter",
-      "description": "Convert audio files quickly and easily to MP3 format. Optimized for podcasts and music.",
+      "description": "MP3 converter without registration – quickly convert audio files to MP3 format for free. Optimized for podcasts, music and audiobooks.",
       "badge": "MP3",
       "processing": "server",
       "link": "https://kodinitools.com/mp3konverter/",
@@ -136,7 +136,7 @@
     },
     "audioNormalizer": {
       "title": "Audio Normalizer",
-      "description": "Normalize the volume of your audio files automatically. Perfect for podcasts and audiobooks.",
+      "description": "Normalize audio volume online free – automatic LUFS-compliant leveling. Perfect for podcasts, audiobooks and preparing audio files for streaming.",
       "badge": "Normalizer",
       "processing": "server",
       "link": "https://kodinitools.com/audionormalisierer/",
@@ -176,7 +176,7 @@
     "sectionDescription": "Convert and edit your images securely - some tools run in the browser, others on our Hostinger servers",
     "imageConverter": {
       "title": "Image Converter",
-      "description": "Convert images between JPG, PNG, WebP, AVIF, GIF and BMP. With quality selection.",
+      "description": "JPG to WebP converter online free – and vice versa. Batch convert images between JPG, PNG, WebP, AVIF, GIF and BMP. GDPR compliant.",
       "badge": "Multi",
       "processing": "server",
       "link": "https://kodinitools.com/bildkonverter/",
@@ -184,7 +184,7 @@
     },
     "batchImageEditor": {
       "title": "Batch Image Editor",
-      "description": "Edit 100+ images simultaneously: resize, rename, export as ZIP or PDF.",
+      "description": "Resize multiple images at once – 100+ images simultaneously, rename and export as ZIP or PDF. Batch convert images free.",
       "badge": "Batch",
       "processing": "browser",
       "link": "https://kodinitools.com/bilderseriebearbeiten/",
@@ -192,7 +192,7 @@
     },
     "photoCollage": {
       "title": "Photo Collage",
-      "description": "Create creative photo collages from your images. Various layouts and templates available.",
+      "description": "Photo collage without app – create collages free online directly in your browser. Various layouts and templates for Instagram, Pinterest and more.",
       "badge": "Creative",
       "processing": "browser",
       "link": "https://kodinitools.com/collagemaker",

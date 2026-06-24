@@ -64,7 +64,7 @@
     },
     "audioConverter": {
       "title": "Audio Konverter",
-      "description": "Konvertieren Sie Audio zwischen MP3, WAV, OGG, FLAC, AAC und M4A. Stapelverarbeitung mit Qualitätsauswahl.",
+      "description": "MP3 in WAV umwandeln kostenlos online – und umgekehrt. Audiodatei Format ändern zwischen MP3, WAV, OGG, FLAC, AAC und M4A. DSGVO-konform, keine Registrierung.",
       "badge": "Batch",
       "processing": "server",
       "link": "https://kodinitools.com/audiokonverter/",
@@ -72,7 +72,7 @@
     },
     "audioEqualizer": {
       "title": "19-Band EQ Pro",
-      "description": "19-Band Equalizer mit Dynamic Compressor, Presets und Aufnahme-Funktion.",
+      "description": "Equalizer für Browser kostenlos – 19 Bänder, Dynamic Compressor, Presets und Aufnahme-Funktion. Kein Download, sofort im Browser nutzbar.",
       "badge": "PRO",
       "processing": "browser",
       "link": "https://kodinitools.com/equaliser19/",
@@ -88,7 +88,7 @@
     },
     "audioVisualizer": {
       "title": "Audio Visualizer",
-      "description": "Erstellen Sie beeindruckende MP4-Videos für TikTok, Instagram und YouTube mit Audio-Visualisierungen.",
+      "description": "Musik-Video für TikTok erstellen kostenlos – beeindruckende MP4-Videos mit Audio-Visualisierungen für TikTok, Instagram Reels und YouTube.",
       "badge": "Video",
       "processing": "browser",
       "link": "https://kodinitools.com/visualizer/",
@@ -96,7 +96,7 @@
     },
     "mp3Converter": {
       "title": "MP3 Konverter",
-      "description": "Konvertieren Sie Audiodateien schnell und einfach in das MP3-Format. Optimiert für Podcasts und Musik.",
+      "description": "MP3 Konverter ohne Registrierung – schnell und kostenlos Audiodateien in MP3 umwandeln. Optimiert für Podcasts, Musik und Hörbücher.",
       "badge": "MP3",
       "processing": "server",
       "link": "https://kodinitools.com/mp3konverter/",
@@ -136,7 +136,7 @@
     },
     "audioNormalizer": {
       "title": "Audio Normalizer",
-      "description": "Normalisieren Sie die Lautstärke Ihrer Audiodateien automatisch. Perfekt für Podcasts und Hörbücher.",
+      "description": "Audio Lautstärke normalisieren online kostenlos – automatisch LUFS-konform angleichen. Perfekt für Podcasts, Hörbücher und Audiodateien für Podcasts vorbereiten.",
       "badge": "Normalizer",
       "processing": "server",
       "link": "https://kodinitools.com/audionormalisierer/",
@@ -176,7 +176,7 @@
     "sectionDescription": "Konvertieren und bearbeiten Sie Ihre Bilder sicher - einige Tools laufen im Browser, andere auf unseren Hostinger-Servern",
     "imageConverter": {
       "title": "Bildkonverter",
-      "description": "Konvertieren Sie Bilder zwischen JPG, PNG, WebP, AVIF, GIF und BMP. Mit Qualitätsauswahl.",
+      "description": "JPG zu WebP konvertieren online kostenlos – und umgekehrt. Bilder batch konvertieren zwischen JPG, PNG, WebP, AVIF, GIF und BMP. DSGVO-konform.",
       "badge": "Multi",
       "processing": "server",
       "link": "https://kodinitools.com/bildkonverter/",
@@ -184,7 +184,7 @@
     },
     "batchImageEditor": {
       "title": "Batch Bildbearbeitung",
-      "description": "Bearbeiten Sie 100+ Bilder gleichzeitig: Größe ändern, umbenennen, als ZIP oder PDF exportieren.",
+      "description": "Bildgrösse ändern mehrere Bilder gleichzeitig – 100+ Bilder auf einmal skalieren, umbenennen, als ZIP oder PDF exportieren. Bilder batch konvertieren kostenlos.",
       "badge": "Batch",
       "processing": "browser",
       "link": "https://kodinitools.com/bilderseriebearbeiten/",
@@ -192,7 +192,7 @@
     },
     "photoCollage": {
       "title": "Fotocollage",
-      "description": "Erstellen Sie kreative Fotocollagen aus Ihren Bildern. Verschiedene Layouts und Vorlagen verfügbar.",
+      "description": "Foto Collage erstellen ohne App – kostenlos online direkt im Browser. Verschiedene Layouts und Vorlagen für Instagram, Pinterest und mehr.",
       "badge": "Kreativ",
       "processing": "browser",
       "link": "https://kodinitools.com/collagemaker",
