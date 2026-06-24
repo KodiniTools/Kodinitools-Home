@@ -1,0 +1,317 @@
+---
+import GlobalNav from '../../components/GlobalNav.astro'
+import SiteFooter from '../../components/SiteFooter.astro'
+import { readFileSync } from 'fs'
+import { resolve } from 'path'
+
+const cookieBannerHtml = readFileSync(resolve('public/partials/cookie-banner.html'), 'utf-8')
+
+const posts = [
+  {
+    slug: '/blog/mp3-in-wav-umwandeln',
+    title: 'MP3 in WAV umwandeln: Kostenlos & ohne Registrierung',
+    description: 'Wann macht die Umwandlung Sinn? Was ist der Unterschied? Schritt-für-Schritt Anleitung.',
+    date: '2. Juni 2026',
+    tag: 'Audio',
+    minutes: 4,
+  },
+  {
+    slug: '/blog/jpg-zu-webp-konvertieren',
+    title: 'JPG zu WebP konvertieren: Bilder bis 30% kleiner ohne Qualitätsverlust',
+    description: 'Wie WebP Ihre Google-Rankings verbessert und wie die Konvertierung in 5 Schritten gelingt.',
+    date: '5. Juni 2026',
+    tag: 'Bild',
+    minutes: 4,
+  },
+  {
+    slug: '/blog/audio-normalisieren',
+    title: 'Audio Lautstärke normalisieren: LUFS & dBFS verständlich erklärt',
+    description: 'Spotify -14 LUFS, Podcasts -16 LUFS, Rundfunk -23 LUFS – welcher Standard gilt wann?',
+    date: '8. Juni 2026',
+    tag: 'Audio',
+    minutes: 5,
+  },
+  {
+    slug: '/blog/musik-video-tiktok',
+    title: 'Musik-Video für TikTok erstellen: Kostenlos & ohne App',
+    description: 'Audio Visualizer im Browser nutzen – MP4-Export im Hochformat 9:16 für TikTok und Reels.',
+    date: '11. Juni 2026',
+    tag: 'Video',
+    minutes: 4,
+  },
+  {
+    slug: '/blog/bilder-batch-verkleinern',
+    title: 'Mehrere Bilder gleichzeitig verkleinern: Batch-Bearbeitung leicht gemacht',
+    description: '100+ Bilder in Sekunden skalieren, umbenennen und als ZIP exportieren – ohne Installation.',
+    date: '14. Juni 2026',
+    tag: 'Bild',
+    minutes: 4,
+  },
+  {
+    slug: '/blog/fotocollage-erstellen',
+    title: 'Fotocollage kostenlos erstellen ohne App – direkt im Browser',
+    description: 'Layouts für Instagram, Pinterest und Drucken. Bilder verlassen nie Ihren Browser – DSGVO-konform.',
+    date: '17. Juni 2026',
+    tag: 'Bild',
+    minutes: 4,
+  },
+  {
+    slug: '/blog/audiodatei-format-aendern',
+    title: 'Audiodatei Format ändern: DSGVO-konform & kostenlos online',
+    description: 'MP3, WAV, OGG, FLAC, AAC – welches Format wofür? Und was bedeutet DSGVO bei Audio-Konvertern?',
+    date: '20. Juni 2026',
+    tag: 'Audio',
+    minutes: 5,
+  },
+]
+
+const tagColors: Record<string, string> = {
+  Audio: 'rgba(1,79,153,0.08)',
+  Bild: 'rgba(14,128,71,0.08)',
+  Video: 'rgba(153,60,1,0.08)',
+}
+---
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <script is:inline>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage': 'denied', 'ad_user_data': 'denied', 'ad_personalization': 'denied',
+    'analytics_storage': 'denied', 'functionality_storage': 'denied',
+    'personalization_storage': 'denied', 'security_storage': 'granted', 'wait_for_update': 500
+  });
+  (function() {
+    try {
+      var c = JSON.parse(localStorage.getItem('cookieConsent') || '{}');
+      if (c.analytics) gtag('consent', 'update', { 'analytics_storage': 'granted', 'functionality_storage': 'granted', 'personalization_storage': 'granted' });
+      if (c.marketing) gtag('consent', 'update', { 'ad_storage': 'granted', 'ad_user_data': 'granted', 'ad_personalization': 'granted' });
+    } catch(e) {}
+  })();
+  </script>
+  <script is:inline>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-T7NS656K');</script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog – Tipps & Anleitungen für Audio und Bildbearbeitung | KodiniTools</title>
+  <meta name="description" content="How-to Guides für kostenlose Online-Tools: MP3 in WAV umwandeln, JPG zu WebP konvertieren, Audio normalisieren, TikTok Videos erstellen und mehr – DSGVO-konform." />
+  <meta name="robots" content="index, follow" />
+  <meta name="language" content="de" />
+  <link rel="canonical" href="https://kodinitools.com/blog/" />
+  <link rel="alternate" hreflang="de" href="https://kodinitools.com/blog/" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://kodinitools.com/blog/" />
+  <meta property="og:title" content="Blog – Tipps & Anleitungen für Audio und Bildbearbeitung | KodiniTools" />
+  <meta property="og:description" content="How-to Guides für kostenlose Online-Tools: Audio konvertieren, Bilder optimieren, TikTok Videos erstellen und mehr." />
+  <meta property="og:locale" content="de_DE" />
+  <meta property="og:site_name" content="KodiniTools" />
+
+  <meta name="theme-color" content="#014f99" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <style>
+    @import '../../styles/global.css';
+
+    .blog-index-main {
+      min-height: calc(100vh - 140px);
+      padding: 2rem 1rem 5rem;
+    }
+
+    .blog-index-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .blog-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.82rem;
+      color: var(--text-muted, #4f6f8e);
+      margin-bottom: 2rem;
+    }
+
+    .blog-breadcrumb a {
+      color: var(--primary-color, #014f99);
+      text-decoration: none;
+    }
+
+    .blog-breadcrumb a:hover { text-decoration: underline; }
+
+    .blog-index-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .blog-index-header h1 {
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, #014f99 0%, #003971 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.75rem;
+      line-height: 1.2;
+    }
+
+    [data-theme="dark"] .blog-index-header h1 {
+      background: linear-gradient(135deg, #c9984d 0%, #f8e1a9 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    .blog-index-subtitle {
+      font-size: 1rem;
+      color: var(--text-secondary, #014f99);
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .blog-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .blog-card {
+      display: block;
+      background: var(--bg-secondary, #ffffff);
+      border: 1px solid var(--border-color, #d4c09a);
+      border-radius: 1rem;
+      padding: 1.25rem 1.5rem;
+      text-decoration: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .blog-card:hover {
+      border-color: var(--primary-color, #014f99);
+      box-shadow: 0 4px 20px rgba(1, 79, 153, 0.1);
+      text-decoration: none;
+    }
+
+    [data-theme="dark"] .blog-card:hover {
+      border-color: var(--accent-color, #c9984d);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    .blog-card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .blog-card-tag {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      color: var(--primary-color, #014f99);
+      background: rgba(1,79,153,0.08);
+    }
+
+    [data-theme="dark"] .blog-card-tag {
+      background: rgba(201,152,77,0.12);
+      color: var(--accent-color, #c9984d);
+    }
+
+    .blog-card-meta {
+      font-size: 0.78rem;
+      color: var(--text-muted, #4f6f8e);
+    }
+
+    .blog-card h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-color, #003971);
+      margin: 0 0 0.4rem;
+      line-height: 1.35;
+    }
+
+    [data-theme="dark"] .blog-card h2 { color: var(--text-color, #f9f2d5); }
+
+    .blog-card p {
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--text-secondary, #4f6f8e);
+      margin: 0;
+    }
+
+    .blog-card-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      margin-top: 0.75rem;
+      color: var(--primary-color, #014f99);
+      font-size: 0.8rem;
+      font-weight: 600;
+      gap: 0.3rem;
+    }
+
+    [data-theme="dark"] .blog-card-arrow { color: var(--accent-color, #c9984d); }
+
+    @media (max-width: 600px) {
+      .blog-index-main { padding: 1.5rem 0.75rem 3rem; }
+      .blog-card { padding: 1rem 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T7NS656K" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+  <GlobalNav lang="de" />
+
+  <main class="blog-index-main">
+    <div class="blog-index-container">
+
+      <nav class="blog-breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Startseite</a>
+        <span aria-hidden="true">›</span>
+        <span aria-current="page">Blog</span>
+      </nav>
+
+      <header class="blog-index-header">
+        <h1>Blog – Tipps &amp; Anleitungen</h1>
+        <p class="blog-index-subtitle">How-to Guides für Audio- und Bildbearbeitung – kostenlos, DSGVO-konform, ohne Registrierung.</p>
+      </header>
+
+      <div class="blog-grid">
+        {posts.map((post) => (
+          <a href={post.slug} class="blog-card">
+            <div class="blog-card-header">
+              <span class="blog-card-tag">{post.tag}</span>
+              <span class="blog-card-meta">{post.date} · {post.minutes} Min.</span>
+            </div>
+            <h2>{post.title}</h2>
+            <p>{post.description}</p>
+            <div class="blog-card-arrow">
+              Artikel lesen
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+              </svg>
+            </div>
+          </a>
+        ))}
+      </div>
+
+    </div>
+  </main>
+
+  <SiteFooter lang="de" />
+  <Fragment set:html={cookieBannerHtml} />
+
+  <script is:inline>
+  (function() {
+    var theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+  })();
+  </script>
+</body>
+</html>
