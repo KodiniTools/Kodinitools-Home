@@ -25,9 +25,11 @@ export default defineConfig({
       customPages: toolPages,
       i18n: {
         defaultLocale: 'de',
+        // Generic language codes to match the in-page hreflang tags and reach all
+        // German/English speakers (not just CH/US regional variants).
         locales: {
-          de: 'de-CH',
-          en: 'en-US',
+          de: 'de',
+          en: 'en',
         },
       },
     }),
