@@ -6,12 +6,58 @@ interface Props {
 const { lang } = Astro.props
 
 const t = {
-  de: { privacy: 'Datenschutz', contact: 'Kontakt', cookieSettings: 'Cookie-Einstellungen' },
-  en: { privacy: 'Privacy Policy', contact: 'Contact', cookieSettings: 'Cookie Settings' },
+  de: {
+    privacy: 'Datenschutz',
+    contact: 'Kontakt',
+    cookieSettings: 'Cookie-Einstellungen',
+    blog: 'Blog',
+    blogHref: '/blog/',
+    faq: 'FAQ',
+    faqHref: '/faq/',
+    exploreLabel: 'Beliebte Tools & Ratgeber',
+    mp3Converter: 'MP3 Konverter',
+    audioConverter: 'Audio Konverter',
+    audioEqualizer: 'Audio Equalizer',
+    imageConverter: 'Bildkonverter',
+    videoConverter: 'Videokonverter',
+    photoCollage: 'Fotocollage',
+    colorExtractor: 'Farbextraktor',
+  },
+  en: {
+    privacy: 'Privacy Policy',
+    contact: 'Contact',
+    cookieSettings: 'Cookie Settings',
+    blog: 'Blog',
+    blogHref: '/en/blog/',
+    faq: 'FAQ',
+    faqHref: '/en/faq/',
+    exploreLabel: 'Popular tools & guides',
+    mp3Converter: 'MP3 Converter',
+    audioConverter: 'Audio Converter',
+    audioEqualizer: 'Audio Equalizer',
+    imageConverter: 'Image Converter',
+    videoConverter: 'Video Converter',
+    photoCollage: 'Photo Collage',
+    colorExtractor: 'Color Extractor',
+  },
 } as const
 
 const c = t[lang]
 const year = new Date().getFullYear()
+
+// Curated internal links (tools + content) surfaced on every page for
+// discoverability and to distribute link equity to the key tool pages.
+const footerNav = [
+  { label: c.mp3Converter, href: 'https://kodinitools.com/mp3konverter/' },
+  { label: c.audioConverter, href: 'https://kodinitools.com/audiokonverter/' },
+  { label: c.audioEqualizer, href: 'https://kodinitools.com/audioequalizer/' },
+  { label: c.imageConverter, href: 'https://kodinitools.com/bildkonverter/' },
+  { label: c.videoConverter, href: 'https://kodinitools.com/videokonverter/' },
+  { label: c.photoCollage, href: 'https://kodinitools.com/collagemaker/' },
+  { label: c.colorExtractor, href: 'https://kodinitools.com/kodini-color-extractor/' },
+  { label: c.blog, href: c.blogHref },
+  { label: c.faq, href: c.faqHref },
+]
 ---
 
 <style>
@@ -36,6 +82,21 @@ const year = new Date().getFullYear()
   align-items: center;
   gap: 1rem;
 }
+
+.footer-nav {
+  display: flex;
+  gap: 1rem 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding-bottom: 1rem;
+  margin-bottom: 0.25rem;
+  border-bottom: 1px solid #d4c09a;
+  max-width: 900px;
+}
+
+[data-theme="dark"] .footer-nav { border-bottom-color: #5E5F69; }
+
+.footer-nav-link { font-weight: 500; }
 
 .footer-links {
   display: flex;
@@ -99,6 +160,10 @@ const year = new Date().getFullYear()
 
 <footer class="site-footer">
   <div class="footer-content">
+    <nav class="footer-nav" aria-label={c.exploreLabel}>
+      {footerNav.map((item) => <a href={item.href} class="footer-link footer-nav-link">{item.label}</a>)}
+    </nav>
+
     <div class="footer-links">
       <a href="https://kodinitools.com/datenschutz/" class="footer-link">{c.privacy}</a>
       <a href="https://kodinitools.com/kontaktformular/" class="footer-link">{c.contact}</a>

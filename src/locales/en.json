@@ -195,7 +195,7 @@
       "description": "Photo collage without app – create collages free online directly in your browser. Various layouts and templates for Instagram, Pinterest and more.",
       "badge": "Creative",
       "processing": "browser",
-      "link": "https://kodinitools.com/collagemaker",
+      "link": "https://kodinitools.com/collagemaker/",
       "svg": "/image/photocollage.svg"
     }
   },
