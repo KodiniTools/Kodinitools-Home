@@ -24,6 +24,8 @@ export const config = {
   sessionSecret: process.env.SESSION_SECRET || '',
   sessionTtlHours: int('SESSION_TTL_HOURS', 8),
   totpSecret: process.env.ADMIN_TOTP_SECRET || '', // optional (Phase 5)
+  // Cookie-Pfad: in Produktion /admin (nginx), lokal ggf. / für Tests.
+  cookiePath: process.env.COOKIE_PATH || '/admin',
 
   // Pfade
   repoDir: process.env.REPO_DIR || REPO_ROOT_DEFAULT,
@@ -52,6 +54,7 @@ export function contentPaths() {
     overridesEn: resolve(base, 'overrides.en.json'),
     tickerDe: resolve(base, 'ticker.de.json'),
     tickerEn: resolve(base, 'ticker.en.json'),
+    media: resolve(base, 'media.json'),
     localesDe: resolve(config.repoDir, 'src/locales/de.json'),
     localesEn: resolve(config.repoDir, 'src/locales/en.json'),
     base,

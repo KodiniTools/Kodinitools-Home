@@ -303,8 +303,17 @@ cd /opt/kodini/repo && ./deploy.sh
 - Eingebunden unter jeder `GlobalNav`: Home (DE/EN), FAQ (DE/EN), Blog-Index (DE/EN), Blog-Artikel-Layout.
 - Liest `src/content/ticker.*.json`. Aktuell `enabled:false` / leer → rendert nichts (unsichtbar bis der Admin es aktiviert). Aktiviert-Test verifiziert: Markup, Text und klickbarer Link erscheinen korrekt.
 
-**Phase 4 – Admin-Frontend**
-- Versteckter Combo-Login, Inline-Editing-Overlay, **Lauftext-Editor**, **Medien-Staging in IndexedDB → Upload beim Veröffentlichen**, Speichern/Veröffentlichen, Statusanzeige.
+**Phase 4 – Admin-Frontend** ✅ *(umgesetzt & im echten Browser getestet)*
+- **Versteckter Login:** Tastenkombi `Strg/Cmd+Shift+Alt+K` in `GlobalNav` (auf jeder Seite) → `/admin/`. Kein sichtbarer Button.
+- `server/admin/public/` — eigenständige Vanilla-JS-App (kein Build-Schritt), vom Node-Dienst ausgeliefert:
+  - **Laufband-Editor** (DE/EN): Einträge hinzufügen/sortieren/löschen, Link, an/aus, Tempo.
+  - **Text-Editor** (DE/EN): Hero-Titel/-Untertitel/-Button, Video-Bereich-Titel/-Untertitel (leer = Standard).
+  - **Videos & Medien:** 3 Sektions-Video-Slots + **Medien-Zwischenspeicher via IndexedDB** (Drag&Drop, Vorschau, übersteht Reload) → Upload auf den Server erst beim **Veröffentlichen**.
+  - **Erweitert:** roher Overrides-JSON-Editor (Escape-Hatch).
+  - **Speichern** (Draft) + **Veröffentlichen** mit Live-Status (Polling).
+- Cookie-Pfad konfigurierbar (`COOKIE_PATH`, Default `/admin`); Prod braucht nichts zu setzen.
+- **Getestet** (headless Chromium): Login (falsch/richtig), Laufband-/Text-/Video-Bearbeitung, Speichern → korrekte Dateien geschrieben, keine JS-Fehler.
+- Sektions-Videos der Startseite (`index.astro` DE/EN) lesen jetzt aus `media.json` (Defaults = bisherige Pfade → verhaltensneutral).
 
 **Phase 5 – Härtung & Test**
 - Rate-Limit, optional 2FA, End-to-End-Test des Publish-Flows, Rollback testen.

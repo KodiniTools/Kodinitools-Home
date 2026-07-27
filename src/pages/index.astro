@@ -5,11 +5,12 @@ import TickerBar from '../components/TickerBar.astro'
 import SiteFooter from '../components/SiteFooter.astro'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
-import { getContent } from '../content/content'
+import { getContent, getMedia } from '../content/content'
 
 // Inhalte aus der Content-Schicht (Standard-Locale + Admin-Overrides, gemergt).
 const de = getContent('de')
 const en = getContent('en')
+const media = getMedia()
 
 const cookieBannerHtml = readFileSync(resolve('public/partials/cookie-banner.html'), 'utf-8')
 
@@ -261,7 +262,7 @@ const pageI18n = {
           preload="metadata"
           class="section-video"
         >
-          <source src="/videos/audio-tools.mp4" type="video/mp4" />
+          <source src={media.sectionVideos.audio} type="video/mp4" />
         </video>
       </div>
 
@@ -304,7 +305,7 @@ const pageI18n = {
           preload="none"
           class="section-video lazy-video"
         >
-          <source src="/videos/image-tools.mp4" type="video/mp4" />
+          <source src={media.sectionVideos.image} type="video/mp4" />
         </video>
       </div>
 
@@ -347,7 +348,7 @@ const pageI18n = {
           preload="none"
           class="section-video lazy-video"
         >
-          <source src="/videos/diverse-tools.mp4" type="video/mp4" />
+          <source src={media.sectionVideos.diverse} type="video/mp4" />
         </video>
       </div>
 

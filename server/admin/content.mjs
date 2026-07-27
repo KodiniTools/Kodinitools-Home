@@ -12,26 +12,39 @@ async function readJsonFile(path, fallback) {
   }
 }
 
-/** Aktueller Content-Stand (Overrides + Ticker + Standard-Locales als Referenz). */
+/** Aktueller Content-Stand (Overrides + Ticker + Medien + Standard-Locales). */
 export async function loadContent() {
   const p = contentPaths();
-  const [overridesDe, overridesEn, tickerDe, tickerEn, localesDe, localesEn] = await Promise.all([
-    readJsonFile(p.overridesDe, {}),
-    readJsonFile(p.overridesEn, {}),
-    readJsonFile(p.tickerDe, defaultTicker()),
-    readJsonFile(p.tickerEn, defaultTicker()),
-    readJsonFile(p.localesDe, {}),
-    readJsonFile(p.localesEn, {}),
-  ]);
+  const [overridesDe, overridesEn, tickerDe, tickerEn, media, localesDe, localesEn] =
+    await Promise.all([
+      readJsonFile(p.overridesDe, {}),
+      readJsonFile(p.overridesEn, {}),
+      readJsonFile(p.tickerDe, defaultTicker()),
+      readJsonFile(p.tickerEn, defaultTicker()),
+      readJsonFile(p.media, defaultMedia()),
+      readJsonFile(p.localesDe, {}),
+      readJsonFile(p.localesEn, {}),
+    ]);
   return {
     overrides: { de: overridesDe, en: overridesEn },
     ticker: { de: tickerDe, en: tickerEn },
+    media,
     defaults: { de: localesDe, en: localesEn },
   };
 }
 
 function defaultTicker() {
   return { enabled: false, speed: 'normal', items: [] };
+}
+
+function defaultMedia() {
+  return {
+    sectionVideos: {
+      audio: '/videos/audio-tools.mp4',
+      image: '/videos/image-tools.mp4',
+      diverse: '/videos/diverse-tools.mp4',
+    },
+  };
 }
 
 function isPlainObject(v) {
@@ -69,12 +82,31 @@ export function validateOverrides(o) {
   return o;
 }
 
+/** Erlaubt interne Pfade oder http(s)-URLs. */
+function isValidMediaUrl(v) {
+  return typeof v === 'string' && /^(\/[^\s]*|https?:\/\/[^\s]+)$/.test(v);
+}
+
+/** Validiert die Medien-Konfiguration (Sektions-Videos). */
+export function validateMedia(m) {
+  if (!isPlainObject(m)) throw new Error('media muss ein Objekt sein');
+  const sv = m.sectionVideos;
+  if (!isPlainObject(sv)) throw new Error('media.sectionVideos fehlt');
+  const out = { sectionVideos: {} };
+  for (const key of ['audio', 'image', 'diverse']) {
+    const val = sv[key];
+    if (!isValidMediaUrl(val)) throw new Error(`media.sectionVideos.${key} ungültig`);
+    out.sectionVideos[key] = val;
+  }
+  return out;
+}
+
 const pretty = (obj) => JSON.stringify(obj, null, 2) + '\n';
 
 /**
  * Speichert einen kompletten Content-Stand (Draft im Arbeitsverzeichnis;
  * noch NICHT committet — das macht publish()).
- * payload: { overrides:{de,en}, ticker:{de,en} }
+ * payload: { overrides:{de,en}, ticker:{de,en}, media }
  */
 export async function saveContent(payload) {
   if (!isPlainObject(payload)) throw new Error('ungültiger Payload');
@@ -85,6 +117,7 @@ export async function saveContent(payload) {
   const oEn = validateOverrides(overrides.en ?? {});
   const tDe = validateTicker(ticker.de ?? defaultTicker());
   const tEn = validateTicker(ticker.en ?? defaultTicker());
+  const media = validateMedia(payload.media ?? defaultMedia());
 
   const p = contentPaths();
   await Promise.all([
@@ -92,7 +125,8 @@ export async function saveContent(payload) {
     writeFile(p.overridesEn, pretty(oEn), 'utf8'),
     writeFile(p.tickerDe, pretty(tDe), 'utf8'),
     writeFile(p.tickerEn, pretty(tEn), 'utf8'),
+    writeFile(p.media, pretty(media), 'utf8'),
   ]);
 
-  return { overrides: { de: oDe, en: oEn }, ticker: { de: tDe, en: tEn } };
+  return { overrides: { de: oDe, en: oEn }, ticker: { de: tDe, en: tEn }, media };
 }
