@@ -4,8 +4,11 @@ import GlobalNav from '../components/GlobalNav.astro'
 import SiteFooter from '../components/SiteFooter.astro'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
-import de from '../locales/de.json'
-import en from '../locales/en.json'
+import { getContent } from '../content/content'
+
+// Inhalte aus der Content-Schicht (Standard-Locale + Admin-Overrides, gemergt).
+const de = getContent('de')
+const en = getContent('en')
 
 const cookieBannerHtml = readFileSync(resolve('public/partials/cookie-banner.html'), 'utf-8')
 

@@ -4,7 +4,8 @@ import GlobalNav from '../../components/GlobalNav.astro'
 import SiteFooter from '../../components/SiteFooter.astro'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
-import en from '../../locales/en.json'
+import { getContent } from '../../content/content'
+const en = getContent('en')
 
 const cookieBannerHtml = readFileSync(resolve('public/partials/cookie-banner.html'), 'utf-8')
 
