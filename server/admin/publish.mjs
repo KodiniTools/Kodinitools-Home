@@ -84,6 +84,7 @@ async function doPublish(message) {
     'src/content/overrides.en.json',
     'src/content/ticker.de.json',
     'src/content/ticker.en.json',
+    'src/content/media.json',
   ]);
 
   // 2. Gibt es überhaupt Änderungen?

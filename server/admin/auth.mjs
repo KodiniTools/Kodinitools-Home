@@ -75,7 +75,7 @@ export function sessionCookie(token) {
   const maxAge = config.sessionTtlHours * 3600;
   const parts = [
     `${COOKIE_NAME}=${token}`,
-    'Path=/admin',
+    `Path=${config.cookiePath}`,
     'HttpOnly',
     'SameSite=Strict',
     `Max-Age=${maxAge}`,
@@ -86,7 +86,13 @@ export function sessionCookie(token) {
 
 /** Set-Cookie-Header-Wert zum Ausloggen. */
 export function clearCookie() {
-  const parts = [`${COOKIE_NAME}=`, 'Path=/admin', 'HttpOnly', 'SameSite=Strict', 'Max-Age=0'];
+  const parts = [
+    `${COOKIE_NAME}=`,
+    `Path=${config.cookiePath}`,
+    'HttpOnly',
+    'SameSite=Strict',
+    'Max-Age=0',
+  ];
   if (config.isProd) parts.push('Secure');
   return parts.join('; ');
 }

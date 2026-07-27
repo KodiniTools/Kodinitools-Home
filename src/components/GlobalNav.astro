@@ -639,6 +639,15 @@ html {
 (function () {
   'use strict';
 
+  // Versteckter Admin-Zugang: kein sichtbarer Button. Tastenkombination
+  // Strg+Shift+Alt+K (bzw. Cmd+Shift+Alt+K) öffnet den Adminbereich.
+  document.addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.altKey && (e.key === 'K' || e.key === 'k')) {
+      e.preventDefault();
+      window.location.href = '/admin/';
+    }
+  });
+
   var MENU_OPEN = document.querySelector('.global-nav-hamburger')?.getAttribute('aria-label') || 'Menü öffnen';
   var MENU_CLOSE = document.querySelector('.global-nav-hamburger')?.getAttribute('aria-label') === 'Open menu'
     ? 'Close menu' : 'Menü schliessen';

@@ -15,6 +15,7 @@ import deOverrides from './overrides.de.json';
 import enOverrides from './overrides.en.json';
 import deTicker from './ticker.de.json';
 import enTicker from './ticker.en.json';
+import mediaOverrides from './media.json';
 
 export type Locale = 'de' | 'en';
 
@@ -65,4 +66,24 @@ export interface TickerConfig {
 /** Laufband-Konfiguration für eine Sprache. */
 export function getTicker(locale: Locale): TickerConfig {
   return (locale === 'en' ? enTicker : deTicker) as TickerConfig;
+}
+
+// --- Medien (sprachunabhängig; admin-editierbar über media.json) ---
+
+export interface MediaConfig {
+  sectionVideos: { audio: string; image: string; diverse: string };
+}
+
+// Standard-Pfade entsprechen dem bisherigen Auslieferungszustand.
+const MEDIA_DEFAULTS: MediaConfig = {
+  sectionVideos: {
+    audio: '/videos/audio-tools.mp4',
+    image: '/videos/image-tools.mp4',
+    diverse: '/videos/diverse-tools.mp4',
+  },
+};
+
+/** Medien-Konfiguration (Defaults + Admin-Override aus media.json). */
+export function getMedia(): MediaConfig {
+  return deepMerge(MEDIA_DEFAULTS, mediaOverrides);
 }

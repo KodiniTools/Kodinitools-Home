@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>KodiniTools · Adminbereich</title>
+    <style>
+      :root {
+        --bg: #0f172a;
+        --panel: #1e293b;
+        --panel-2: #273449;
+        --text: #e2e8f0;
+        --muted: #94a3b8;
+        --accent: #38bdf8;
+        --accent-2: #22c55e;
+        --danger: #ef4444;
+        --border: #334155;
+        --radius: 10px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family:
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+      }
+      button {
+        font: inherit;
+        cursor: pointer;
+        border: 1px solid var(--border);
+        background: var(--panel-2);
+        color: var(--text);
+        padding: 0.5rem 0.9rem;
+        border-radius: 8px;
+        transition: background 0.15s;
+      }
+      button:hover {
+        background: #33455f;
+      }
+      button.primary {
+        background: var(--accent);
+        color: #062a3a;
+        border-color: transparent;
+        font-weight: 600;
+      }
+      button.success {
+        background: var(--accent-2);
+        color: #05320f;
+        border-color: transparent;
+        font-weight: 600;
+      }
+      button.danger {
+        background: transparent;
+        color: var(--danger);
+        border-color: var(--danger);
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      input,
+      textarea,
+      select {
+        font: inherit;
+        width: 100%;
+        background: var(--bg);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.55rem 0.7rem;
+      }
+      textarea {
+        min-height: 90px;
+        resize: vertical;
+        font-family: ui-monospace, monospace;
+        font-size: 0.85rem;
+      }
+      label {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin: 0.75rem 0 0.25rem;
+      }
+      a {
+        color: var(--accent);
+      }
+
+      /* Login */
+      .login-wrap {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 1rem;
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        width: 100%;
+        max-width: 380px;
+      }
+      .card h1 {
+        margin: 0 0 1rem;
+        font-size: 1.25rem;
+      }
+
+      /* App layout */
+      .app {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 1rem;
+      }
+      header.bar {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 1rem;
+      }
+      header.bar h1 {
+        font-size: 1.1rem;
+        margin: 0;
+        flex: 1;
+      }
+      .tabs {
+        display: flex;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+      }
+      .tabs button.active {
+        background: var(--accent);
+        color: #062a3a;
+        border-color: transparent;
+      }
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1rem 1.25rem 1.25rem;
+        margin-bottom: 1rem;
+      }
+      .panel h2 {
+        font-size: 1rem;
+        margin: 0.25rem 0 0.5rem;
+      }
+      .row {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+      .row > div {
+        flex: 1;
+        min-width: 220px;
+      }
+      .lang-badge {
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: 700;
+        background: var(--panel-2);
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        padding: 0.05rem 0.4rem;
+        margin-left: 0.4rem;
+        color: var(--muted);
+      }
+      .hint {
+        font-size: 0.78rem;
+        color: var(--muted);
+        margin: 0.25rem 0 0;
+      }
+      .err {
+        color: var(--danger);
+        font-size: 0.85rem;
+        min-height: 1.2em;
+      }
+
+      /* Ticker items */
+      .tick-item {
+        display: flex;
+        gap: 0.5rem;
+        align-items: flex-start;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.6rem;
+        margin-bottom: 0.5rem;
+      }
+      .tick-item .grow {
+        flex: 1;
+      }
+      .tick-item .idx {
+        color: var(--muted);
+        font-size: 0.8rem;
+        padding-top: 0.5rem;
+        min-width: 1.5rem;
+        text-align: center;
+      }
+      .tick-item .btns {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+      .tick-item .btns button {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+      }
+
+      /* Media library */
+      .media-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 0.75rem;
+        margin-top: 0.75rem;
+      }
+      .media-tile {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.5rem;
+        font-size: 0.75rem;
+      }
+      .media-tile img,
+      .media-tile video {
+        width: 100%;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 5px;
+        background: #000;
+      }
+      .media-tile .nm {
+        margin-top: 0.3rem;
+        word-break: break-all;
+        color: var(--muted);
+      }
+      .media-tile .st {
+        font-size: 0.68rem;
+        margin-top: 0.2rem;
+      }
+      .st.local {
+        color: #fbbf24;
+      }
+      .st.pub {
+        color: var(--accent-2);
+      }
+      .dropzone {
+        border: 2px dashed var(--border);
+        border-radius: 8px;
+        padding: 1.25rem;
+        text-align: center;
+        color: var(--muted);
+        margin-top: 0.5rem;
+      }
+      .dropzone.drag {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      /* Publish status */
+      .status {
+        white-space: pre-wrap;
+        font-family: ui-monospace, monospace;
+        font-size: 0.8rem;
+        background: #0b1220;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.6rem;
+        max-height: 240px;
+        overflow: auto;
+        margin-top: 0.5rem;
+      }
+      .pill {
+        display: inline-block;
+        padding: 0.1rem 0.5rem;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 700;
+      }
+      .pill.running {
+        background: #78350f;
+        color: #fde68a;
+      }
+      .pill.success {
+        background: #064e3b;
+        color: #6ee7b7;
+      }
+      .pill.error {
+        background: #7f1d1d;
+        color: #fecaca;
+      }
+      .pill.idle {
+        background: var(--panel-2);
+        color: var(--muted);
+      }
+      .toast {
+        position: fixed;
+        bottom: 1rem;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--panel-2);
+        border: 1px solid var(--border);
+        padding: 0.6rem 1rem;
+        border-radius: 8px;
+        opacity: 0;
+        transition: opacity 0.2s;
+        pointer-events: none;
+      }
+      .toast.show {
+        opacity: 1;
+      }
+      .hidden {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- LOGIN -->
+    <div id="loginView" class="login-wrap">
+      <form class="card" id="loginForm">
+        <h1>🔒 Adminbereich</h1>
+        <label for="pw">Passwort</label>
+        <input type="password" id="pw" autocomplete="current-password" autofocus />
+        <div class="err" id="loginErr"></div>
+        <button class="primary" type="submit" style="width: 100%; margin-top: 0.75rem">
+          Anmelden
+        </button>
+      </form>
+    </div>
+
+    <!-- APP -->
+    <div id="appView" class="app hidden">
+      <header class="bar">
+        <h1>KodiniTools · Inhalte</h1>
+        <span class="pill idle" id="pubPill">bereit</span>
+        <button id="saveBtn">💾 Speichern</button>
+        <button class="success" id="publishBtn">🚀 Veröffentlichen</button>
+        <button id="logoutBtn">Abmelden</button>
+      </header>
+
+      <div class="tabs" id="tabs">
+        <button data-tab="ticker" class="active">Laufband</button>
+        <button data-tab="texts">Texte</button>
+        <button data-tab="videos">Videos &amp; Medien</button>
+        <button data-tab="advanced">Erweitert</button>
+        <button data-tab="publish">Veröffentlichen</button>
+      </div>
+
+      <div id="tab-ticker" class="tabpane"></div>
+      <div id="tab-texts" class="tabpane hidden"></div>
+      <div id="tab-videos" class="tabpane hidden"></div>
+      <div id="tab-advanced" class="tabpane hidden"></div>
+      <div id="tab-publish" class="tabpane hidden"></div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script type="module" src="./admin.js"></script>
+  </body>
+</html>
