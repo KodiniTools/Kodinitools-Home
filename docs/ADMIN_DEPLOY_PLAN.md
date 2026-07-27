@@ -3,8 +3,11 @@
 > Status: **Planung / Vorbereitung** – noch keine Umsetzung.
 > Entscheidungen (mit Inhaber abgestimmt):
 > 1. **Publish-Flow:** Commit in `main` + Rebuild + Deploy
-> 2. **Medien:** Server-Uploads-Ordner (außerhalb Git)
-> 3. **Admin-Backend:** Eigener Node-Dienst am Server (systemd) hinter nginx
+> 2. **Medien:** Server-Uploads-Ordner (außerhalb Git); Browser-Storage nur als Staging/Vorschau
+> 3. **Admin-Backend:** Eigener Node-Dienst am Server (systemd) hinter nginx (`127.0.0.1:9020`)
+> 4. **Admin-URL:** `kodinitools.com/admin` (Pfad)
+> 5. **Git-Push Server → main:** SSH-Deploy-Key
+> 6. **Zusatz-Feature:** Lauftext/Laufband unter der Navigation, im Admin editierbar
 
 ---
 
@@ -300,10 +303,11 @@ cd /opt/kodini/repo && ./deploy.sh
 - **Admin-Dienst-Port:** `127.0.0.1:9020` (frei) vorgesehen.
 - **Snippets vorhanden:** `kodini-security.conf`, `kodini-proxy-common.conf`, `kodini-spa-static.conf` — für den Admin-Block wiederverwendbar.
 - **Deploy-Schutzliste** steht fest (§6, aus der Config abgeleitet).
+- **Admin-URL:** `kodinitools.com/admin` (Pfad, kein DNS/Zertifikat nötig). ✅ entschieden
+- **Git-Push vom Server nach `main`:** **SSH-Deploy-Key** am Server, im Repo als Deploy-Key mit Schreibrecht hinterlegt. ✅ entschieden
 
-**Noch offen / vom Inhaber benötigt**
-- **Admin-URL:** `kodinitools.com/admin` (empfohlen, nur nginx-Location) **oder** Subdomain `admin.kodinitools.com` (braucht DNS + Zertifikat). — *offen*
-- **Git-Push vom Server nach `main`:** SSH-Deploy-Key (empfohlen) **oder** Fine-grained-Token (`contents:write`, nur dieses Repo). — *offen*
+**Noch benötigt (zum Zeitpunkt der Umsetzung)**
+- **SSH-Deploy-Key erzeugen** (`ssh-keygen -t ed25519`) und den Public Key im GitHub-Repo unter *Settings → Deploy keys* mit „Allow write access" hinterlegen.
 - **Passwort** für das Inhaber-Konto (wird nur als Hash gespeichert).
 - Bestätigung der **Tastenkombination** (Default `Strg+Shift+Alt+K`).
 - Freigabe: **Git-Clone unter `/opt/kodini/repo`** + **systemd-Dienst `kodini-admin`** anlegen.
