@@ -641,12 +641,19 @@ html {
 
   // Versteckter Admin-Zugang: kein sichtbarer Button. Tastenkombination
   // Strg+Shift+Alt+K (bzw. Cmd+Shift+Alt+K) öffnet den Adminbereich.
-  document.addEventListener('keydown', function (e) {
-    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.altKey && (e.key === 'K' || e.key === 'k')) {
-      e.preventDefault();
-      window.location.href = '/admin/';
-    }
-  });
+  // e.code === 'KeyK' = physische K-Taste, unabhängig vom Tastaturlayout
+  // (bei gedrücktem Alt/AltGr liefert e.key sonst je nach Layout ein anderes
+  // Zeichen). Capture-Phase, um vor anderen Handlern zu greifen.
+  document.addEventListener(
+    'keydown',
+    function (e) {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.altKey && e.code === 'KeyK') {
+        e.preventDefault();
+        window.location.href = '/admin/';
+      }
+    },
+    true,
+  );
 
   var MENU_OPEN = document.querySelector('.global-nav-hamburger')?.getAttribute('aria-label') || 'Menü öffnen';
   var MENU_CLOSE = document.querySelector('.global-nav-hamburger')?.getAttribute('aria-label') === 'Open menu'
