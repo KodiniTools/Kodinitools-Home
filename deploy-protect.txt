@@ -1,0 +1,37 @@
+# deploy-protect.txt
+#
+# rsync --exclude-from Liste für deploy.sh.
+# Diese Pfade (relativ zum Webroot /var/www/kodinitools.com) werden beim
+# Deploy NIEMALS angefasst oder gelöscht — sie stammen NICHT aus dem
+# Astro-Build, sondern sind eigenständige Tool-Apps / hochgeladene Medien.
+#
+# Regeln:
+#  - Ein Eintrag pro Zeile, mit abschließendem '/' für Verzeichnisse.
+#  - Zeilen mit '#' sind Kommentare.
+#  - en/, blog/, faq/ NICHT eintragen — die erzeugt Astro und sollen
+#    aktualisiert werden.
+#  - Neuen eigenständigen Tool-Ordner? -> hier eine Zeile ergänzen.
+
+# --- vom Admin hochgeladene Medien ---
+uploads/
+
+# --- eigenständige Tool-Apps im Webroot ---
+audionormalisierer/
+audiokonverter/
+bilderseriebearbeiten/
+bildkonverter/
+mp3konverter/
+alarmtool/
+audioequalizer/
+modernermusikplayer/
+playlist_generator/
+ultimativer-musikplayer/
+musikvideos/
+visualizer/
+bildergalerie/
+collagemaker/
+kodini-color-extractor/
+equaliser19/
+videokonverter/
+playlistkonverter/
+kontaktformular/

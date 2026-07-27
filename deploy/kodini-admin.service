@@ -1,0 +1,49 @@
+# systemd-Unit für den Kodini-Admin-Dienst.
+#
+# Installation:
+#   sudo cp deploy/kodini-admin.service /etc/systemd/system/kodini-admin.service
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now kodini-admin
+#   systemctl status kodini-admin
+#
+# Der Dienst lauscht nur lokal auf 127.0.0.1:9020 und wird von nginx
+# unter /admin bzw. /admin/api reverse-proxied (siehe deploy/nginx-admin.conf).
+#
+# Voraussetzungen:
+#   - Git-Clone des Repos unter /opt/kodini/repo (WorkingDirectory)
+#   - Admin-Backend-Code unter server/admin/ (Phase 3) mit Entry server/admin/index.mjs
+#   - /opt/kodini/.env mit Secrets (Passwort-Hash, Session-Secret, Pfade) — Datei mit chmod 600
+
+[Unit]
+Description=Kodini Admin Service (Content-Editor + Publish/Deploy)
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/kodini/repo
+
+# Konfiguration: Umgebungsdatei mit Secrets (nicht im Git!)
+EnvironmentFile=/opt/kodini/.env
+Environment=NODE_ENV=production
+Environment=PORT=9020
+
+# Entry-Point des Admin-Backends (wird in Phase 3 angelegt)
+ExecStart=/usr/bin/node server/admin/index.mjs
+
+Restart=on-failure
+RestartSec=3
+
+# --- Härtung ---
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+# Schreibzugriff nur auf die tatsächlich benötigten Pfade:
+#   - /opt/kodini/repo      : Content-Dateien schreiben + git commit/push + deploy.sh
+#   - Webroot uploads/      : hochgeladene Medien ablegen
+ReadWritePaths=/opt/kodini/repo /var/www/kodinitools.com/uploads
+
+[Install]
+WantedBy=multi-user.target
