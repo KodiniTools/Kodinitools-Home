@@ -33,6 +33,21 @@ export default tseslint.config(
     },
   },
 
+  // Node-Server (Admin-Dienst) — Node-Built-in-Globals bereitstellen
+  {
+    files: ['server/**/*.mjs'],
+    languageOptions: {
+      globals: {
+        process: 'readonly',
+        console: 'readonly',
+        Buffer: 'readonly',
+        URL: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+      },
+    },
+  },
+
   {
     ignores: [
       'dist/**',
