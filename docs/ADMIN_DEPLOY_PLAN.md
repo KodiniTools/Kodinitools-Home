@@ -279,8 +279,13 @@ cd /opt/kodini/repo && ./deploy.sh
 - `deploy/README.md` — Server-Setup Schritt für Schritt (Clone, Deploy-Key, Dry-Run, systemd, nginx).
 - **Noch auf dem Server auszuführen:** Setup nach `deploy/README.md` + Trockenlauf (`./deploy.sh --dry-run`).
 
-**Phase 2 – Content-Modell**
-- Editierbare Felder in `src/content/*` herausziehen, Seiten darauf umstellen (verhaltensneutral, gleiche Ausgabe).
+**Phase 2 – Content-Modell** ✅ *(umgesetzt, verhaltensneutral verifiziert)*
+- `src/content/content.ts` — Loader: merged Standard-Locale + `overrides.*.json`, exportiert `getContent()`, `messages`, `getTicker()`.
+- `src/content/overrides.de.json` / `overrides.en.json` — leer (`{}`), vom Admin beschreibbar.
+- `src/content/ticker.de.json` / `ticker.en.json` — Laufband-Config (`enabled:false`, leer → rendert nichts).
+- Seiten umgestellt: `index.astro`, `en/index.astro`, `faq.astro`, `en/faq.astro`, `_app.ts` lesen jetzt über die Content-Schicht.
+- `src/content/README.md` — Doku der Schicht + Override-/Ticker-Format.
+- **Verifikation:** Build vorher/nachher — alle 21 HTML-Seiten **byte-identisch**, alle referenzierten Assets identisch (einzige Differenz: ein nirgends eingebundener Vue-Orphan-Chunk). Neue Dateien lint- & prettier-sauber.
 
 **Phase 3 – Admin-Backend**
 - Node-Dienst mit Auth, Content-API, Upload, Publish + `deploy.sh`-Anbindung.
