@@ -277,7 +277,8 @@ cd /opt/kodini/repo && ./deploy.sh
 - `deploy/nginx-admin.conf` — nginx-Blöcke `/admin`, `/admin/api`, `/uploads`.
 - `deploy/.env.example` — Secrets-Vorlage für `/opt/kodini/.env`.
 - `deploy/README.md` — Server-Setup Schritt für Schritt (Clone, Deploy-Key, Dry-Run, systemd, nginx).
-- **Noch auf dem Server auszuführen:** Setup nach `deploy/README.md` + Trockenlauf (`./deploy.sh --dry-run`).
+- `deploy/setup-server.sh` — **idempotentes Ein-Kommando-Setup** (Service-User-Erkennung, Voraussetzungen, Deploy-Key, Repo-Klon mit repo-lokalem `core.sshCommand`, `.env` + Passwort, systemd-Dienst). Führt durch die manuellen Rest-Schritte (GitHub-Key, nginx, Dry-Run).
+- **Noch auf dem Server auszuführen:** `sudo bash deploy/setup-server.sh`, dann nginx-Blöcke einfügen + Trockenlauf (`./deploy.sh --dry-run`).
 
 **Phase 2 – Content-Modell** ✅ *(umgesetzt, verhaltensneutral verifiziert)*
 - `src/content/content.ts` — Loader: merged Standard-Locale + `overrides.*.json`, exportiert `getContent()`, `messages`, `getTicker()`.
