@@ -287,8 +287,16 @@ cd /opt/kodini/repo && ./deploy.sh
 - `src/content/README.md` — Doku der Schicht + Override-/Ticker-Format.
 - **Verifikation:** Build vorher/nachher — alle 21 HTML-Seiten **byte-identisch**, alle referenzierten Assets identisch (einzige Differenz: ein nirgends eingebundener Vue-Orphan-Chunk). Neue Dateien lint- & prettier-sauber.
 
-**Phase 3 – Admin-Backend**
-- Node-Dienst mit Auth, Content-API, Upload, Publish + `deploy.sh`-Anbindung.
+**Phase 3 – Admin-Backend** ✅ *(umgesetzt & lokal getestet)*
+- `server/admin/` — Node-Dienst **ohne externe npm-Deps** (nur Built-ins).
+  - `auth.mjs`: scrypt-Passwort, signierte HMAC-Session-Cookies, Login-Bruteforce-Schutz.
+  - `content.mjs`: Lesen/Schreiben + Validierung von `overrides.*`/`ticker.*`.
+  - `uploads.mjs`: Raw-Body-Upload (`X-Filename`) → `UPLOADS_DIR`, Typ-Whitelist.
+  - `publish.mjs`: commit → push → `deploy.sh` (asynchron, Status-Polling).
+  - `index.mjs`: HTTP-Server + Routing + statische Auslieferung des Frontends.
+  - `hash-password.mjs`: erzeugt `ADMIN_PASSWORD_HASH`. `README.md`: Doku.
+- eslint-Override für `server/**/*.mjs` (Node-Globals) ergänzt.
+- **Lokal getestet** (curl): Auth, 401 ohne Session, CSRF-403, Speichern (valides JSON), Upload + Namens-Sanitisierung, 415 für `.php`, Ticker-Validierung (400 bei `javascript:`-Link), Logout. *(Publish/Git/Deploy erst auf dem Server testbar.)*
 
 **Phase 3b – Laufband (Ticker)** ✅ *(umgesetzt)*
 - `src/components/TickerBar.astro` — CSS-Marquee unter der Navigation, pausiert bei Hover/Focus, respektiert `prefers-reduced-motion`, dark-theme-aware, optionaler Link pro Eintrag, Tempo (slow/normal/fast).
