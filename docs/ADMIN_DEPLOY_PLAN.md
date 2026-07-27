@@ -134,7 +134,29 @@ Gewünschter Ablauf: **erst lokal im Browser, dann beim Veröffentlichen auf den
 
 ## 5. Adminbereich – Backend (Node-Dienst)
 
-- **Laufzeit:** Node (Express oder Fastify), als `systemd`-Dienst `kodini-admin`, lauscht nur lokal (`127.0.0.1:4000`); nginx reverse-proxyt `/admin` und `/admin/api`.
+- **Laufzeit:** Node (Express oder Fastify), als `systemd`-Dienst `kodini-admin`, lauscht nur lokal (`127.0.0.1:9020` — freier Port; belegt sind 3847, 9000, 9001, 9003, 9006–9009, 9013, 9014); nginx reverse-proxyt `/admin` und `/admin/api`.
+- **Vorlage vorhanden:** Der bestehende Dienst **`traffic-dashboard`** (Node auf `127.0.0.1:3847`, nginx-Block `/traffic-dashboard/api/` + Frontend aus `dist/`) ist praktisch das gleiche Muster — Admin-Dienst + nginx-Block werden analog gebaut.
+- **nginx (neuer Block, analog `traffic-dashboard`, VOR den generischen Astro-Locations einsortiert):**
+  ```nginx
+  # Admin-API -> Node-Dienst
+  location ^~ /admin/api/ {
+      proxy_pass http://127.0.0.1:9020/api/;
+      proxy_http_version 1.1;
+      proxy_set_header Host              $host;
+      proxy_set_header X-Real-IP         $remote_addr;
+      proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+      client_max_body_size 2G;           # große Video-Uploads beim Veröffentlichen
+      proxy_request_buffering off;
+  }
+  # Admin-Frontend (Login/Overlay-Bundle) -> Node-Dienst
+  location ^~ /admin/ {
+      proxy_pass http://127.0.0.1:9020/;
+      proxy_http_version 1.1;
+      proxy_set_header Host              $host;
+      proxy_set_header X-Forwarded-Proto $scheme;
+  }
+  ```
 - **Speicherort:** Git-Clone des Repos unter `/opt/kodini/repo` (getrennt vom Webroot). Der Dienst hat Schreibrechte dort + auf `public/uploads` bzw. `/var/www/kodinitools.com/uploads`.
 - **API-Endpunkte (Entwurf):**
   | Methode | Pfad | Zweck |
@@ -163,6 +185,7 @@ set -euo pipefail
 REPO_DIR="/opt/kodini/repo"
 WEBROOT="/var/www/kodinitools.com"
 BRANCH="main"
+EXCLUDES="$REPO_DIR/deploy-protect.txt"   # geschützte Pfade, siehe unten
 
 cd "$REPO_DIR"
 
@@ -175,18 +198,51 @@ git reset --hard "origin/$BRANCH"
 npm ci
 npm run build   # -> dist/
 
-# 3. Nach Webroot spiegeln – ABER Tool-Apps & Uploads NIE löschen
+# 3. Nach Webroot spiegeln – Astro-Dateien aktualisieren/aufräumen,
+#    ABER alle eigenständigen Tool-Ordner + uploads NIE anfassen.
 rsync -a --delete \
-  --exclude 'uploads/' \
-  --exclude '<tool-verzeichnisse…>' \
+  --exclude-from="$EXCLUDES" \
   dist/ "$WEBROOT/"
 ```
 
-**Kritische Punkte, die im Skript sauber gelöst werden müssen:**
-- **Tool-Apps schützen:** Alle eigenständigen Tool-Ordner (`audiokonverter/`, `visualizer/`, `mp3konverter/`, … – Liste wird aus `de.json`-`link`-Feldern abgeleitet) müssen von `--delete` ausgenommen werden, sonst sind sie nach dem ersten Deploy weg. → Deploy-Skript generiert die Exclude-Liste automatisch aus den `link`-Einträgen.
-- **`uploads/` schützen:** Vom `--delete` ausschließen, damit hochgeladene Medien erhalten bleiben.
+**Warum eine explizite Schutzliste (`deploy-protect.txt`) statt Auto-Ableitung?**
+Der Astro-Build (`dist/`) enthält **nur** die Shell: `index.html`, `en/`, `blog/`, `faq/`, `_astro/`, `404.html` + `public/`-Assets (`image/`, `fonts/`, `fontawesome/`, `partials/`, Favicons, `robots.txt`, `sitemap`). Er enthält **keine** der ~19 eigenständigen Tool-Ordner. Ein `rsync --delete` ohne Schutz würde sie **alle löschen**. Die Verzeichnisnamen weichen teils von den Tool-Links ab (`ultimativer-musikplayer` vs. Link `ultimativermusikplayer`, `playlist_generator`, `kodini-color-extractor`), daher ist eine **gepflegte, reviewbare Liste** sicherer als Auto-Ableitung.
+
+**`deploy-protect.txt` (aus aktueller nginx-Config abgeleitet — im Webroot, aber NICHT aus dem Astro-Build):**
+
+```
+uploads/
+audionormalisierer/
+audiokonverter/
+bilderseriebearbeiten/
+bildkonverter/
+mp3konverter/
+alarmtool/
+audioequalizer/
+modernermusikplayer/
+playlist_generator/
+ultimativer-musikplayer/
+musikvideos/
+visualizer/
+bildergalerie/
+collagemaker/
+kodini-color-extractor/
+equaliser19/
+videokonverter/
+playlistkonverter/
+kontaktformular/
+```
+
+> Hinweise:
+> - `en/`, `blog/`, `faq/` werden von Astro erzeugt → **nicht** schützen (sollen aktualisiert werden).
+> - `traffic-dashboard` liegt unter `/var/www/traffic-dashboard/` (außerhalb des Webroots) → vom Deploy ohnehin nicht betroffen.
+> - Neuer eigenständiger Tool-Ordner künftig? → **eine Zeile** in `deploy-protect.txt` ergänzen.
+
+**Weitere Punkte im Skript:**
+- **`uploads/` schützen:** steht in der Liste, damit hochgeladene Medien erhalten bleiben.
+- **Trockenlauf zuerst:** erster echter Deploy mit `rsync --dry-run`, um sicherzustellen, dass kein Tool-Ordner in der Lösch-Liste auftaucht.
 - **Atomar/rückrollbar (empfohlen):** In ein Release-Verzeichnis bauen und per Symlink umschalten, damit ein fehlgeschlagener Build die Live-Seite nicht beschädigt (optional, Phase 2).
-- **Rechte:** korrekte Owner/Permissions für nginx.
+- **Rechte:** korrekte Owner/Permissions für nginx (`www-data`).
 
 Ein manueller Deploy bleibt jederzeit möglich:
 ```bash
@@ -233,14 +289,25 @@ cd /opt/kodini/repo && ./deploy.sh
 
 ---
 
-## 9. Vom Inhaber benötigt (bevor Umsetzung startet)
+## 9. Serverumgebung (aus aktueller nginx-Config festgestellt)
 
-- **Server-Infos:** Betriebssystem, Webserver (vermutlich nginx?), Node vorhanden?, wie wird HTTPS bereitgestellt (Let's Encrypt?).
-- **Domain für Admin:** unter `kodinitools.com/admin` (empfohlen) oder Subdomain `admin.kodinitools.com`?
-- **Git-Zugang am Server:** Deploy-Key/Token zum Pushen nach `main` einrichten.
+**Bereits geklärt ✅**
+- **OS:** Debian/Ubuntu-Familie (`sites-enabled`, `snippets/fastcgi-php.conf`, `php8.3-fpm.sock`).
+- **Webserver:** nginx, läuft produktiv; Config unter `/etc/nginx/sites-enabled/kodinitools.com`, Webroot `/var/www/kodinitools.com`, SSI aktiv.
+- **HTTPS:** Let's Encrypt (`/etc/letsencrypt/live/kodinitools.com/`).
+- **Node:** installiert & aktiv (Tool-Backends auf 9000/9001/9003/9006–9009/9013/9014, `traffic-dashboard` auf 3847). → Admin-Dienst kann analog laufen.
+- **PHP 8.3-FPM** vorhanden.
+- **Admin-Dienst-Port:** `127.0.0.1:9020` (frei) vorgesehen.
+- **Snippets vorhanden:** `kodini-security.conf`, `kodini-proxy-common.conf`, `kodini-spa-static.conf` — für den Admin-Block wiederverwendbar.
+- **Deploy-Schutzliste** steht fest (§6, aus der Config abgeleitet).
+
+**Noch offen / vom Inhaber benötigt**
+- **Admin-URL:** `kodinitools.com/admin` (empfohlen, nur nginx-Location) **oder** Subdomain `admin.kodinitools.com` (braucht DNS + Zertifikat). — *offen*
+- **Git-Push vom Server nach `main`:** SSH-Deploy-Key (empfohlen) **oder** Fine-grained-Token (`contents:write`, nur dieses Repo). — *offen*
 - **Passwort** für das Inhaber-Konto (wird nur als Hash gespeichert).
 - Bestätigung der **Tastenkombination** (Default `Strg+Shift+Alt+K`).
-- Freigabe, dass der Server einen **Git-Clone unter `/opt/kodini/repo`** und den **systemd-Dienst** bekommt.
+- Freigabe: **Git-Clone unter `/opt/kodini/repo`** + **systemd-Dienst `kodini-admin`** anlegen.
+- **Node-Version** am Server (nur zur Info; Astro 5 braucht ≥ 18/20): `node -v`.
 
 ---
 
