@@ -270,10 +270,14 @@ cd /opt/kodini/repo && ./deploy.sh
 
 **Phase 0 – Vorbereitung (dieser Plan).** ✅ Kein Code geändert.
 
-**Phase 1 – Deploy-Grundlage**
-- `deploy.sh` schreiben (inkl. Schutz von Tools + uploads).
-- Server: nginx-Konfig für `/admin`-Proxy + `/uploads`-Location dokumentieren, systemd-Unit-Vorlage.
-- Trockenlauf des Deploys (ohne Admin) verifizieren, dass Tools/Uploads erhalten bleiben.
+**Phase 1 – Deploy-Grundlage** ✅ *(Dateien im Repo angelegt)*
+- `deploy.sh` (Root) — Build aus `main` + rsync mit Schutzliste + automatischer Abbruch, falls ein geschützter Pfad gelöscht würde; `--dry-run` / `--no-pull`.
+- `deploy-protect.txt` (Root) — Schutzliste (uploads/ + 19 Tool-Ordner).
+- `deploy/kodini-admin.service` — systemd-Unit-Vorlage (Port 9020, gehärtet).
+- `deploy/nginx-admin.conf` — nginx-Blöcke `/admin`, `/admin/api`, `/uploads`.
+- `deploy/.env.example` — Secrets-Vorlage für `/opt/kodini/.env`.
+- `deploy/README.md` — Server-Setup Schritt für Schritt (Clone, Deploy-Key, Dry-Run, systemd, nginx).
+- **Noch auf dem Server auszuführen:** Setup nach `deploy/README.md` + Trockenlauf (`./deploy.sh --dry-run`).
 
 **Phase 2 – Content-Modell**
 - Editierbare Felder in `src/content/*` herausziehen, Seiten darauf umstellen (verhaltensneutral, gleiche Ausgabe).

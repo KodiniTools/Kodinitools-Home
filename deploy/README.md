@@ -1,0 +1,119 @@
+# Deploy & Adminbereich — Server-Setup
+
+Diese Anleitung richtet die Deploy-Grundlage (Phase 1) auf dem Server ein.
+Voller Kontext: [`../docs/ADMIN_DEPLOY_PLAN.md`](../docs/ADMIN_DEPLOY_PLAN.md).
+
+> **Stand Phase 1:** `deploy.sh`, `deploy-protect.txt` und die Server-Vorlagen
+> (systemd, nginx) sind angelegt. Der Admin-Node-Dienst selbst (`server/admin/`)
+> entsteht in Phase 3 — die systemd-Unit verweist bereits darauf.
+
+## Überblick
+
+| Komponente | Ort |
+|---|---|
+| Repo-Clone (Build-Quelle) | `/opt/kodini/repo` |
+| Webroot (nginx) | `/var/www/kodinitools.com` |
+| Upload-Medien | `/var/www/kodinitools.com/uploads/` |
+| Admin-Node-Dienst | `127.0.0.1:9020` (systemd `kodini-admin`) |
+| Secrets | `/opt/kodini/.env` (chmod 600, nicht im Git) |
+
+---
+
+## 1. Repo auf dem Server klonen
+
+```bash
+sudo mkdir -p /opt/kodini
+sudo chown "$USER" /opt/kodini
+git clone https://github.com/KodiniTools/Kodinitools-Home.git /opt/kodini/repo
+```
+
+## 2. SSH-Deploy-Key einrichten (Server darf nach `main` pushen)
+
+```bash
+ssh-keygen -t ed25519 -C "kodini-deploy" -f /opt/kodini/deploy_key -N ""
+cat /opt/kodini/deploy_key.pub
+```
+Den ausgegebenen **Public Key** in GitHub hinterlegen:
+**Repo → Settings → Deploy keys → Add deploy key → „Allow write access" aktivieren.**
+
+Git so konfigurieren, dass dieser Key genutzt wird (Beispiel via SSH-Config):
+```bash
+cat >> ~/.ssh/config <<'EOF'
+Host github-kodini
+  HostName github.com
+  User git
+  IdentityFile /opt/kodini/deploy_key
+  IdentitiesOnly yes
+EOF
+
+cd /opt/kodini/repo
+git remote set-url origin git@github-kodini:KodiniTools/Kodinitools-Home.git
+git fetch origin main   # Test: sollte ohne Passwort funktionieren
+```
+
+## 3. Uploads-Ordner anlegen
+
+```bash
+sudo mkdir -p /var/www/kodinitools.com/uploads
+sudo chown www-data:www-data /var/www/kodinitools.com/uploads
+```
+
+## 4. Erster Deploy — ZUERST als Trockenlauf
+
+> ⚠️ Der Trockenlauf ist Pflicht: Er zeigt, welche Dateien rsync anfassen würde,
+> **ohne** etwas zu verändern. So ist sichergestellt, dass keiner der ~19
+> eigenständigen Tool-Ordner gelöscht wird.
+
+```bash
+cd /opt/kodini/repo
+./deploy.sh --dry-run      # nur anzeigen
+```
+Prüfen, dass in der Ausgabe **kein** Tool-Ordner (audiokonverter, visualizer,
+videokonverter, bildergalerie, kontaktformular, …) und **nicht** `uploads/`
+zum Löschen (`deleting`) markiert ist. Das Skript bricht zusätzlich automatisch
+ab, falls ein geschützter Pfad gelöscht würde.
+
+Wenn alles gut aussieht:
+```bash
+./deploy.sh                # echter Deploy
+```
+
+## 5. Admin-Dienst (Phase 3) — Secrets + systemd
+
+`.env` anlegen (Vorlage: [`.env.example`](.env.example)):
+```bash
+sudo install -m 600 -o www-data -g www-data /dev/null /opt/kodini/.env
+sudo -e /opt/kodini/.env    # Werte eintragen (Passwort-Hash, Session-Secret …)
+```
+
+systemd-Unit installieren:
+```bash
+sudo cp /opt/kodini/repo/deploy/kodini-admin.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now kodini-admin
+systemctl status kodini-admin
+```
+
+## 6. nginx-Blöcke für `/admin` + `/uploads`
+
+Inhalt von [`nginx-admin.conf`](nginx-admin.conf) in den bestehenden
+`server { server_name kodinitools.com; listen 443 ... }`-Block einfügen —
+**vor** den generischen Astro-Locations (`location = /` usw.).
+
+```bash
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+---
+
+## Manueller Deploy jederzeit
+
+```bash
+cd /opt/kodini/repo && ./deploy.sh            # baut main, deployt
+cd /opt/kodini/repo && ./deploy.sh --dry-run  # nur Vorschau
+```
+
+## Neuen eigenständigen Tool-Ordner ergänzt?
+
+Eine Zeile in [`../deploy-protect.txt`](../deploy-protect.txt) hinzufügen
+(z. B. `neues-tool/`), damit der Deploy ihn nicht löscht.
