@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
 import GlobalNav from '../components/GlobalNav.astro'
+import TickerBar from '../components/TickerBar.astro'
 import SiteFooter from '../components/SiteFooter.astro'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
@@ -151,6 +152,7 @@ const pageI18n = {
 
     <!-- Navigation (SSI Partial) -->
     <GlobalNav lang="de" />
+    <TickerBar lang="de" />
 
     <!-- Hero Section with Animated Mesh Gradient -->
     <section class="hero">

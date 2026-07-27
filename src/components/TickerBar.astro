@@ -1,0 +1,137 @@
+---
+// Laufband / Ticker unter der Navigation (Phase 3b).
+// Inhalte kommen aus der Content-Schicht (src/content/ticker.*.json),
+// werden vom Adminbereich gepflegt. Rendert NICHTS, wenn deaktiviert oder leer
+// -> im aktuellen Auslieferungszustand unsichtbar (verhaltensneutral).
+import { getTicker, type Locale } from '../content/content';
+
+interface Props {
+  lang: Locale;
+}
+const { lang } = Astro.props;
+const ticker = getTicker(lang);
+const items = Array.isArray(ticker.items) ? ticker.items.filter((i) => i && i.text) : [];
+const show = ticker.enabled === true && items.length > 0;
+
+// Geschwindigkeit -> Animationsdauer (längere Dauer = langsamer)
+const durations = { slow: '48s', normal: '32s', fast: '18s' } as const;
+const duration = durations[ticker.speed] ?? durations.normal;
+
+// Für nahtloses Endlos-Scrollen die Einträge doppelt ausgeben.
+const loop = [...items, ...items];
+---
+
+{
+  show && (
+    <div
+      class="ticker"
+      role="region"
+      aria-label={lang === 'en' ? 'Announcements' : 'Ankündigungen'}
+      style={`--ticker-duration:${duration}`}
+    >
+      <div class="ticker__viewport">
+        <div class="ticker__track">
+          {loop.map((item, idx) => (
+            <span class="ticker__item" aria-hidden={idx >= items.length ? 'true' : undefined}>
+              {item.link ? (
+                <a class="ticker__link" href={item.link}>
+                  {item.text}
+                </a>
+              ) : (
+                <span class="ticker__text">{item.text}</span>
+              )}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+<style>
+  .ticker {
+    --ticker-bg: #014f99;
+    --ticker-fg: #ffffff;
+    --ticker-sep: rgba(255, 255, 255, 0.4);
+    width: 100%;
+    background: var(--ticker-bg);
+    color: var(--ticker-fg);
+    overflow: hidden;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  :global([data-theme='dark']) .ticker {
+    --ticker-bg: #111827;
+    --ticker-fg: #e2e8f0;
+    --ticker-sep: rgba(255, 255, 255, 0.25);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .ticker__viewport {
+    display: flex;
+    overflow: hidden;
+  }
+
+  .ticker__track {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    will-change: transform;
+    animation: ticker-scroll var(--ticker-duration, 32s) linear infinite;
+  }
+
+  /* Pausiert bei Hover/Focus, damit Links klickbar bleiben */
+  .ticker:hover .ticker__track,
+  .ticker:focus-within .ticker__track {
+    animation-play-state: paused;
+  }
+
+  .ticker__item {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  /* Trennzeichen zwischen den Einträgen */
+  .ticker__item::after {
+    content: '•';
+    margin: 0 1.5rem;
+    color: var(--ticker-sep);
+  }
+
+  .ticker__link {
+    color: var(--ticker-fg);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .ticker__link:hover {
+    opacity: 0.85;
+  }
+  .ticker__text {
+    color: var(--ticker-fg);
+  }
+
+  @keyframes ticker-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      /* zweite Hälfte = Duplikat -> nahtloser Loop */
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Barrierefreiheit: keine Bewegung, wenn der Nutzer das wünscht */
+  @media (prefers-reduced-motion: reduce) {
+    .ticker__track {
+      animation: none;
+    }
+    .ticker__viewport {
+      overflow-x: auto;
+    }
+  }
+</style>

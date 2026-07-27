@@ -290,8 +290,10 @@ cd /opt/kodini/repo && ./deploy.sh
 **Phase 3 – Admin-Backend**
 - Node-Dienst mit Auth, Content-API, Upload, Publish + `deploy.sh`-Anbindung.
 
-**Phase 3b – Laufband (Ticker)**
-- `TickerBar`-Komponente unter der Navigation, `src/content/ticker.*.json`, CSS-Animation, `prefers-reduced-motion`.
+**Phase 3b – Laufband (Ticker)** ✅ *(umgesetzt)*
+- `src/components/TickerBar.astro` — CSS-Marquee unter der Navigation, pausiert bei Hover/Focus, respektiert `prefers-reduced-motion`, dark-theme-aware, optionaler Link pro Eintrag, Tempo (slow/normal/fast).
+- Eingebunden unter jeder `GlobalNav`: Home (DE/EN), FAQ (DE/EN), Blog-Index (DE/EN), Blog-Artikel-Layout.
+- Liest `src/content/ticker.*.json`. Aktuell `enabled:false` / leer → rendert nichts (unsichtbar bis der Admin es aktiviert). Aktiviert-Test verifiziert: Markup, Text und klickbarer Link erscheinen korrekt.
 
 **Phase 4 – Admin-Frontend**
 - Versteckter Combo-Login, Inline-Editing-Overlay, **Lauftext-Editor**, **Medien-Staging in IndexedDB → Upload beim Veröffentlichen**, Speichern/Veröffentlichen, Statusanzeige.
