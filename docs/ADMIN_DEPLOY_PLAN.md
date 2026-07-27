@@ -68,6 +68,7 @@ Vorgeschlagene neue Struktur (`src/content/`):
 |---|---|
 | `src/content/home.de.json` / `home.en.json` | Hero-Titel/-Text/-CTA, `videoShowcase` (Video-URLs/Poster), Promo-Texte |
 | `src/content/tools.de.json` / `.en.json` | Tool-Karten (Titel, Beschreibung, Badge, Link) – migriert aus `locales/*.json` |
+| `src/content/ticker.de.json` / `ticker.en.json` | **Lauftext-Einträge** (mehrere) für das Laufband unter der Navigation |
 | `src/content/blog/*.md` (optional Phase 2) | Blog-Artikel als Markdown |
 | `public/uploads/…` | Vom Admin hochgeladene Bilder/Videos (Server, außerhalb Git) |
 
@@ -75,9 +76,40 @@ Vorgeschlagene neue Struktur (`src/content/`):
 
 **Editierbare Feldtypen im Admin:**
 - **Texte:** Hero, Sektionsüberschriften, Tool-Beschreibungen, Footer, FAQ, Blog.
-- **Bilder:** Upload → landet in `public/uploads/…`; Feld speichert Pfad `/uploads/<datei>`.
-- **Videos:** Upload (Server-Uploads, ideal für große Dateien) **oder** externe URL (YouTube/Vimeo). Referenz in `videoShowcase`.
+- **Lauftext (Laufband):** siehe §3a.
+- **Bilder:** Upload → siehe §3b (erst Browser-Storage, beim Veröffentlichen nach `public/uploads/…`); Feld speichert Pfad `/uploads/<datei>`.
+- **Videos:** Upload (wie Bilder, Browser-Staging → Server-Uploads, ideal für große Dateien) **oder** externe URL (YouTube/Vimeo). Referenz in `videoShowcase`.
 - Jedes Feld ist an einen stabilen Schlüssel gebunden (z. B. `hero.title`), damit DE/EN synchron gepflegt werden.
+
+### 3a. Lauftext / Laufband (neu)
+
+- **Position:** eine horizontale Zeile **direkt unter der Navigation**, über die volle Breite, kontinuierlich laufend (Marquee-Effekt).
+- **Mehrere Einträge:** Der Admin pflegt eine **Liste von Text-Einträgen** (plural). Sie laufen nacheinander/aneinandergereiht in einer Zeile durch.
+- **Datenmodell** (`src/content/ticker.de.json`):
+  ```json
+  {
+    "enabled": true,
+    "speed": "normal",
+    "items": [
+      { "id": "1", "text": "🎉 Neues Tool: Audio-Normalisierer ist da!", "link": "/audionormalisierer/" },
+      { "id": "2", "text": "Alle Tools laufen zu 100 % im Browser – keine Uploads nötig." }
+    ]
+  }
+  ```
+- **Editor im Admin:** kleiner Listen-Editor – Einträge hinzufügen/entfernen/sortieren, Text bearbeiten, optionalen Link setzen, DE/EN getrennt, Laufband an-/ausschalten, Geschwindigkeit wählen. Live-Vorschau im Overlay.
+- **Rendering:** neue Astro/Vue-Komponente `TickerBar`, eingebunden in `BaseLayout` unter `GlobalNav`; reine CSS-Animation (kein externes Marquee-Plugin), pausiert bei Hover, respektiert `prefers-reduced-motion`.
+
+### 3b. Medien-Upload über Browser-Storage (neu)
+
+Gewünschter Ablauf: **erst lokal im Browser, dann beim Veröffentlichen auf den Server.**
+
+1. **Ablegen im Admin:** Der Admin zieht Bild/Video ins Overlay. Die Datei wird **im Browser-Storage** gehalten:
+   - **IndexedDB** (nicht `localStorage`) als Speicher – `localStorage` ist ~5 MB und nur Strings; IndexedDB speichert Blobs und trägt problemlos Videos.
+   - Sofortige **Vorschau** über eine `blob:`-URL, **ohne** Server-Round-Trip.
+   - Der Draft (inkl. Medien) **übersteht Reload** und kann später weiterbearbeitet werden.
+2. **Veröffentlichen:** Beim Klick auf **Veröffentlichen** werden die im Browser-Storage liegenden Medien an das Backend hochgeladen (`POST /admin/api/upload`), landen in `public/uploads/…` (Server, außerhalb Git), und die Content-Referenz `/uploads/<datei>` wird in `main` committet und deployt. Danach werden die lokalen Blobs aus dem Browser-Storage geräumt.
+
+> **Wichtig / zu bestätigen:** Reiner Browser-Storage ist **geräte-/browserlokal** und für andere Besucher unsichtbar. Damit hochgeladene Medien **öffentlich auf der Live-Seite** erscheinen, müssen sie beim Veröffentlichen auf den Server übertragen werden (Schritt 2). Der Browser-Storage dient als **Staging/Vorschau**, nicht als finaler Speicher. Diese Kombination erfüllt beides: lokales Hochladen/Vorschau **und** öffentliche Sichtbarkeit nach dem Veröffentlichen.
 
 ---
 
@@ -87,7 +119,8 @@ Vorgeschlagene neue Struktur (`src/content/`):
 - **Login-Modal:** Passwortabfrage → an Backend (`POST /admin/api/login`) → httpOnly-Session-Cookie.
 - **Admin-Overlay nach Login:**
   - **Inline-Editing:** editierbare Felder werden markiert (Rahmen/Stift-Icon); Klick → Bearbeiten direkt an Ort und Stelle („Inhalte fixiert auf der Seite").
-  - **Medien-Upload:** Drag & Drop für Bilder/Videos.
+  - **Lauftext-Editor:** Listen-Editor für die Laufband-Einträge unter der Navigation (hinzufügen/sortieren/löschen, Link optional, an/aus, Tempo) mit Live-Vorschau (§3a).
+  - **Medien-Upload:** Drag & Drop für Bilder/Videos → zunächst **Browser-Storage (IndexedDB)** als Draft/Vorschau, Upload auf den Server erst beim Veröffentlichen (§3b).
   - **Sprachumschalter DE/EN** zum parallelen Pflegen.
   - **Zwei Buttons:**
     - *Speichern* → Zwischenstand am Server (noch nicht live).
@@ -189,8 +222,11 @@ cd /opt/kodini/repo && ./deploy.sh
 **Phase 3 – Admin-Backend**
 - Node-Dienst mit Auth, Content-API, Upload, Publish + `deploy.sh`-Anbindung.
 
+**Phase 3b – Laufband (Ticker)**
+- `TickerBar`-Komponente unter der Navigation, `src/content/ticker.*.json`, CSS-Animation, `prefers-reduced-motion`.
+
 **Phase 4 – Admin-Frontend**
-- Versteckter Combo-Login, Inline-Editing-Overlay, Speichern/Veröffentlichen, Statusanzeige.
+- Versteckter Combo-Login, Inline-Editing-Overlay, **Lauftext-Editor**, **Medien-Staging in IndexedDB → Upload beim Veröffentlichen**, Speichern/Veröffentlichen, Statusanzeige.
 
 **Phase 5 – Härtung & Test**
 - Rate-Limit, optional 2FA, End-to-End-Test des Publish-Flows, Rollback testen.
