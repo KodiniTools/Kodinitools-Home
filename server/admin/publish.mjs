@@ -97,7 +97,17 @@ async function doPublish(message) {
   } else {
     state.step = 'commit';
     log(`git commit: ${commitMsg}`);
-    await run('git', ['commit', '-m', commitMsg]);
+    // Commit-Identität explizit setzen, damit kein globales git user.name/email
+    // auf dem Server nötig ist (Dienst läuft als www-data ohne git-Identität).
+    await run('git', [
+      '-c',
+      `user.name=${config.gitAuthorName}`,
+      '-c',
+      `user.email=${config.gitAuthorEmail}`,
+      'commit',
+      '-m',
+      commitMsg,
+    ]);
     state.commit = (await run('git', ['rev-parse', '--short', 'HEAD'])).trim();
 
     state.step = 'push';

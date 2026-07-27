@@ -35,6 +35,8 @@ export const config = {
   // Git
   gitBranch: process.env.GIT_BRANCH || 'main',
   gitRemote: process.env.GIT_REMOTE || 'origin',
+  gitAuthorName: process.env.GIT_AUTHOR_NAME || 'KodiniTools Admin',
+  gitAuthorEmail: process.env.GIT_AUTHOR_EMAIL || 'admin@kodinitools.com',
 
   // Uploads
   maxUploadMb: int('MAX_UPLOAD_MB', 2048),
