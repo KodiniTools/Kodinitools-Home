@@ -26,6 +26,15 @@ WEBROOT="${WEBROOT:-/var/www/kodinitools.com}"
 BRANCH="${BRANCH:-main}"
 EXCLUDES="$REPO_DIR/deploy-protect.txt"
 
+# --- Build-Umgebung robust machen ---
+# Astro-Telemetrie deaktivieren (sonst Schreibversuch nach ~/.config/astro,
+# was als Dienst-User www-data fehlschlägt) und dem Build ein sicher
+# beschreibbares HOME geben (npm-Cache, Tool-Configs).
+export ASTRO_TELEMETRY_DISABLED=1
+export DO_NOT_TRACK=1
+export HOME="${DEPLOY_HOME:-$(dirname "$REPO_DIR")/.build-home}"
+mkdir -p "$HOME"
+
 DRY_RUN=""
 DO_PULL=1
 for arg in "$@"; do
