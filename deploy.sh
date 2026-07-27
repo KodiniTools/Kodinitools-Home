@@ -24,7 +24,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${REPO_DIR:-$SCRIPT_DIR}"
 WEBROOT="${WEBROOT:-/var/www/kodinitools.com}"
 BRANCH="${BRANCH:-main}"
-EXCLUDES="$REPO_DIR/deploy-protect.txt"
 
 # --- Build-Umgebung robust machen ---
 # Astro-Telemetrie deaktivieren (sonst Schreibversuch nach ~/.config/astro,
@@ -49,7 +48,6 @@ log() { printf '\033[1;34m[deploy]\033[0m %s\n' "$*"; }
 err() { printf '\033[1;31m[deploy:FEHLER]\033[0m %s\n' "$*" >&2; }
 
 # --- Vorbedingungen prüfen ---
-[ -f "$EXCLUDES" ] || { err "Schutzliste fehlt: $EXCLUDES"; exit 1; }
 [ -d "$WEBROOT" ]  || { err "Webroot existiert nicht: $WEBROOT"; exit 1; }
 command -v rsync >/dev/null || { err "rsync nicht installiert"; exit 1; }
 command -v npm   >/dev/null || { err "npm/Node nicht installiert"; exit 1; }
@@ -76,37 +74,35 @@ npm run build   # -> dist/
 
 [ -d "$REPO_DIR/dist" ] || { err "Build-Ausgabe dist/ fehlt — Abbruch."; exit 1; }
 
-# --- 3. Sicherheitscheck: kein geschützter Ordner darf gelöscht werden ---
-# Trockenlauf und prüfen, ob rsync einen Pfad aus der Schutzliste löschen würde.
-log "Prüfe geplante Löschungen gegen Schutzliste ..."
-DELETIONS="$(rsync -a --delete --exclude-from="$EXCLUDES" --dry-run \
-            --out-format='%o %n' dist/ "$WEBROOT/" | awk '$1=="del." || $1=="deleting"{ $1=""; sub(/^ /,""); print }')" || true
+# --- 3. Spiegeln nach Webroot ---
+#
+# WICHTIG: KEIN destruktives --delete auf dem gesamten Webroot!
+# Der Astro-Build (dist/) enthält NUR die Astro-Shell (index.html, en/, blog/,
+# faq/, _astro/, public-Assets). Er enthält NICHT die eigenständigen Tool-Ordner
+# und NICHT webroot-eigene Assets wie images/ oder videos/. Ein globales
+# --delete würde all das löschen.
+#
+# Strategie:
+#   (a) dist/ additiv nach Webroot spiegeln (kopieren/aktualisieren, nie löschen)
+#   (b) NUR innerhalb von _astro/ veraltete, gehashte Bundles bereinigen
+#       (dieses Verzeichnis gehört zu 100 % dem Astro-Build)
 
-if [ -n "$DELETIONS" ]; then
-  # Vergleiche jede geplante Löschung mit den Top-Level-Einträgen der Schutzliste
-  while IFS= read -r prot; do
-    [ -z "$prot" ] && continue
-    case "$prot" in \#*) continue ;; esac
-    prot_top="${prot%%/*}"
-    if echo "$DELETIONS" | grep -qE "^${prot_top}(/|$)"; then
-      err "ABBRUCH: rsync würde geschützten Pfad '$prot_top' löschen!"
-      err "Prüfe deploy-protect.txt. Geplante Löschungen:"
-      echo "$DELETIONS" | sed 's/^/    /' >&2
-      exit 1
-    fi
-  done < "$EXCLUDES"
-fi
-
-# --- 4. Spiegeln (bzw. Dry-Run) ---
 if [ -n "$DRY_RUN" ]; then
-  log "DRY-RUN — es wird nichts verändert. Geplante Änderungen:"
-  rsync -a --delete --exclude-from="$EXCLUDES" --dry-run --itemize-changes \
-    dist/ "$WEBROOT/"
+  log "DRY-RUN — es wird nichts verändert."
+  log "(a) additive Spiegelung dist/ -> Webroot:"
+  rsync -a --itemize-changes --dry-run dist/ "$WEBROOT/"
+  if [ -d "$WEBROOT/_astro" ]; then
+    log "(b) _astro/ Bereinigung veralteter Bundles:"
+    rsync -a --delete --itemize-changes --dry-run dist/_astro/ "$WEBROOT/_astro/"
+  fi
   log "DRY-RUN beendet."
   exit 0
 fi
 
-log "Spiegele dist/ nach $WEBROOT (Tool-Ordner + uploads/ geschützt) ..."
-rsync -a --delete --exclude-from="$EXCLUDES" dist/ "$WEBROOT/"
+log "(a) Spiegele dist/ additiv nach $WEBROOT (löscht nichts) ..."
+rsync -a dist/ "$WEBROOT/"
+
+log "(b) Bereinige veraltete Bundles in _astro/ ..."
+rsync -a --delete dist/_astro/ "$WEBROOT/_astro/"
 
 log "Fertig. Live-Stand: $(git rev-parse --short HEAD)"
