@@ -19,6 +19,39 @@ Voller Kontext: [`../docs/ADMIN_DEPLOY_PLAN.md`](../docs/ADMIN_DEPLOY_PLAN.md).
 
 ---
 
+## Schnellstart (empfohlen): ein Skript
+
+Das Skript [`setup-server.sh`](setup-server.sh) erledigt fast alles automatisch
+(idempotent, mehrfach ausführbar). Da das Repo zum Klonen erst den Deploy-Key
+braucht, führt es dich an der richtigen Stelle durch die 1–2 manuellen Schritte.
+
+```bash
+# 1. Repo einmalig irgendwohin holen (oder das Skript separat kopieren)
+git clone https://github.com/KodiniTools/Kodinitools-Home.git /tmp/kodini-src
+sudo bash /tmp/kodini-src/deploy/setup-server.sh
+```
+
+Das Skript:
+1. erkennt den **Service-User** (Owner des Webroots),
+2. prüft **Voraussetzungen** (git, node ≥ 18, rsync, nginx, openssl),
+3. legt `/opt/kodini` + `uploads/` an,
+4. erzeugt den **SSH-Deploy-Key** und zeigt den Public-Key → du hinterlegst ihn
+   bei GitHub (Deploy key, *write*), dann bestätigst du im Skript,
+5. **klont** das Repo nach `/opt/kodini/repo` und verankert den Key repo-lokal
+   (`core.sshCommand` → Dienst *und* manuelle Läufe nutzen ihn automatisch),
+6. schreibt `/opt/kodini/.env` (Session-Secret generiert; **Passwort** kannst du
+   direkt setzen),
+7. installiert + startet den **systemd-Dienst** `kodini-admin`,
+8. nennt zum Schluss die restlichen manuellen Schritte (nginx-Blöcke, Dry-Run).
+
+Danach noch **manuell**: nginx-Blöcke einfügen (Schritt 6 unten) und den ersten
+**Trockenlauf-Deploy** fahren. Fertig.
+
+Die folgenden Abschnitte erklären dieselben Schritte einzeln — als Referenz oder
+für ein manuelles Setup ohne Skript.
+
+---
+
 ## 1. Repo auf dem Server klonen
 
 ```bash
@@ -36,18 +69,13 @@ cat /opt/kodini/deploy_key.pub
 Den ausgegebenen **Public Key** in GitHub hinterlegen:
 **Repo → Settings → Deploy keys → Add deploy key → „Allow write access" aktivieren.**
 
-Git so konfigurieren, dass dieser Key genutzt wird (Beispiel via SSH-Config):
+Git so konfigurieren, dass dieser Key **repo-lokal** genutzt wird — dann greifen
+sowohl der Dienst (als Service-User) als auch manuelle Läufe automatisch darauf zu,
+ohne SSH-Config im Home-Verzeichnis:
 ```bash
-cat >> ~/.ssh/config <<'EOF'
-Host github-kodini
-  HostName github.com
-  User git
-  IdentityFile /opt/kodini/deploy_key
-  IdentitiesOnly yes
-EOF
-
 cd /opt/kodini/repo
-git remote set-url origin git@github-kodini:KodiniTools/Kodinitools-Home.git
+git remote set-url origin git@github.com:KodiniTools/Kodinitools-Home.git
+git config core.sshCommand "ssh -i /opt/kodini/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
 git fetch origin main   # Test: sollte ohne Passwort funktionieren
 ```
 

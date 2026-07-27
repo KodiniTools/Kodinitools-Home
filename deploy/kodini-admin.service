@@ -41,9 +41,9 @@ PrivateTmp=true
 ProtectSystem=full
 ProtectHome=true
 # Schreibzugriff nur auf die tatsächlich benötigten Pfade:
-#   - /opt/kodini/repo      : Content-Dateien schreiben + git commit/push + deploy.sh
-#   - Webroot uploads/      : hochgeladene Medien ablegen
-ReadWritePaths=/opt/kodini/repo /var/www/kodinitools.com/uploads
+#   - /opt/kodini/repo      : Content-Dateien schreiben + git commit/push + npm build
+#   - Webroot               : deploy.sh spiegelt dist/ hierher (rsync)
+ReadWritePaths=/opt/kodini/repo /var/www/kodinitools.com
 
 [Install]
 WantedBy=multi-user.target
