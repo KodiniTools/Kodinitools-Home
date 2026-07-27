@@ -1,5 +1,6 @@
 ---
 import GlobalNav from '../../components/GlobalNav.astro'
+import TickerBar from '../../components/TickerBar.astro'
 import SiteFooter from '../../components/SiteFooter.astro'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
@@ -271,6 +272,7 @@ const tagColors: Record<string, string> = {
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T7NS656K" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   <GlobalNav lang="de" />
+  <TickerBar lang="de" />
 
   <main class="blog-index-main">
     <div class="blog-index-container">

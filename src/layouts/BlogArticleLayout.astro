@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css'
 import GlobalNav from '../components/GlobalNav.astro'
+import TickerBar from '../components/TickerBar.astro'
 import SiteFooter from '../components/SiteFooter.astro'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
@@ -496,6 +497,7 @@ const schemaBreadcrumb = {
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T7NS656K" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   <GlobalNav lang={lang} />
+  <TickerBar lang={lang} />
 
   <main class="blog-main">
     <div class="blog-container">
