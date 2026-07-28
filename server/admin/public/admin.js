@@ -736,6 +736,74 @@ $('#publishBtn').addEventListener('click', async () => {
   }
 });
 
+// --- Vorschau (Build ohne Deploy, öffnet die gerenderte Seite in neuem Tab) ---
+let previewPollTimer;
+$('#previewBtn').addEventListener('click', async () => {
+  // Neuen Tab SOFORT (synchron zum Klick) öffnen, sonst blockt der Popup-Blocker
+  // das spätere Navigieren nach dem asynchronen Build.
+  const win = window.open('', '_blank');
+  if (win) {
+    win.document.write(
+      '<!doctype html><meta charset="utf-8"><title>Vorschau wird erstellt…</title>' +
+        '<body style="font-family:system-ui;background:#0f172a;color:#e2e8f0;padding:2rem;line-height:1.6">' +
+        '<p>🛠️ <strong>Vorschau wird gebaut …</strong></p>' +
+        '<p>Das dauert typischerweise 15–40 Sekunden. Dieses Fenster lädt die ' +
+        'Vorschau automatisch, sobald sie fertig ist.</p></body>',
+    );
+  }
+  $('#previewBtn').disabled = true;
+  $('#publishBtn').disabled = true;
+  setPill('running', 'Vorschau…');
+  try {
+    await uploadStagedReferenced();
+    const media = resolveMediaForSave();
+    const put = await api('/content', { method: 'PUT', body: buildPayload(media) });
+    if (!put.ok) throw new Error(put.data?.error || 'Speichern fehlgeschlagen');
+    state.loadedMedia = JSON.parse(JSON.stringify(media));
+    renderVideos();
+    const pv = await api('/preview', { method: 'POST' });
+    if (!pv.ok) throw new Error(pv.data?.error || 'Vorschau-Build fehlgeschlagen');
+    pollPreview(win);
+  } catch (e) {
+    setPill('error', 'Fehler');
+    if (win)
+      win.document.body.innerHTML =
+        '<p style="font-family:system-ui;color:#fecaca;padding:2rem">Fehler: ' +
+        esc(String(e.message || e)) +
+        '</p>';
+    toast('Vorschau: ' + (e.message || e));
+    $('#previewBtn').disabled = false;
+    $('#publishBtn').disabled = false;
+  }
+});
+
+function pollPreview(win) {
+  clearInterval(previewPollTimer);
+  previewPollTimer = setInterval(async () => {
+    const r = await api('/preview/status');
+    if (!r.ok) return;
+    const s = r.data;
+    setPill(s.status, s.status === 'running' ? 'Vorschau… (' + (s.step || '') + ')' : s.status);
+    if (s.status !== 'success' && s.status !== 'error') return;
+    clearInterval(previewPollTimer);
+    $('#previewBtn').disabled = false;
+    $('#publishBtn').disabled = false;
+    if (s.status === 'success') {
+      setPill('idle', 'bereit');
+      if (win) win.location.href = '/admin/preview/';
+      else window.open('/admin/preview/', '_blank');
+      toast('Vorschau bereit ✓');
+    } else {
+      if (win)
+        win.document.body.innerHTML =
+          '<pre style="font-family:ui-monospace;color:#fecaca;padding:1rem;white-space:pre-wrap">' +
+          esc((s.log || []).join('\n') || s.error || 'Build-Fehler') +
+          '</pre>';
+      toast('Vorschau fehlgeschlagen');
+    }
+  }, 2000);
+}
+
 function setPill(cls, text) {
   for (const id of ['#pubPill', '#pubPill2']) {
     const el = $(id);

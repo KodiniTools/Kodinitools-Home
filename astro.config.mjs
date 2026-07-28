@@ -16,7 +16,11 @@ const toolPages = ['tools', 'imageTools', 'diverseTools'].flatMap((group) =>
 
 export default defineConfig({
   site: 'https://kodinitools.com',
-  base: '/',
+  // Standard-Deploy: base '/', Ausgabe nach dist/. Der Admin-Vorschau-Build
+  // überschreibt beides per Umgebungsvariable (base /admin/preview/, eigenes
+  // Ausgabeverzeichnis), damit die Vorschau die Live-Auslieferung nicht berührt.
+  base: process.env.ASTRO_BASE || '/',
+  outDir: process.env.ASTRO_OUT_DIR || './dist',
   integrations: [
     vue({
       appEntrypoint: '/src/pages/_app',
