@@ -32,8 +32,8 @@ const pxPerSec = speeds[ticker.speed] ?? speeds.normal;
       <div class="ticker__viewport">
         <div class="ticker__track" data-ticker-track>
           {/* Eine "Gruppe" = ein vollständiger Durchlauf aller Einträge.
-              Der Client dupliziert sie so oft, dass der Streifen immer breiter
-              als der sichtbare Bereich ist -> nahtloses Endlos-Scrollen. */}
+              Einzeldurchlauf: die Gruppe startet rechts außerhalb, läuft einmal
+              komplett durch bis links raus, dann wieder von rechts. */}
           <div class="ticker__group" data-ticker-group>
             {items.map((item) => (
               <span class="ticker__item">
@@ -84,11 +84,11 @@ const pxPerSec = speeds[ticker.speed] ?? speeds.normal;
     will-change: transform;
   }
 
-  /* Animation läuft erst, wenn der Client den Streifen vermessen und die
-     nötige Verschiebung (--ticker-shift) + Dauer (--ticker-duration) gesetzt
-     hat. So ist der Loop garantiert nahtlos und gleichmäßig schnell. */
+  /* Animation läuft erst, wenn der Client Breite von Streifen und Sichtbereich
+     vermessen und Start/Ende + Dauer gesetzt hat -> gleichmäßige Geschwindigkeit
+     und sauberer Ein-/Auslauf. */
   .ticker.is-ready .ticker__track {
-    animation: ticker-scroll var(--ticker-duration, 32s) linear infinite;
+    animation: ticker-scroll var(--ticker-duration, 20s) linear infinite;
   }
 
   /* Pausiert bei Hover/Focus, damit Links klickbar bleiben */
@@ -113,8 +113,8 @@ const pxPerSec = speeds[ticker.speed] ?? speeds.normal;
     line-height: 1.2;
   }
 
-  /* Trennzeichen zwischen den Einträgen */
-  .ticker__item::after {
+  /* Trennzeichen zwischen den Einträgen (nicht hinter dem letzten). */
+  .ticker__item:not(:last-child)::after {
     content: '•';
     margin: 0 1.5rem;
     color: var(--ticker-sep);
@@ -132,13 +132,14 @@ const pxPerSec = speeds[ticker.speed] ?? speeds.normal;
     color: var(--ticker-fg);
   }
 
+  /* Einzeldurchlauf: von rechts außerhalb (Sichtbreite) bis links komplett raus
+     (eigene Breite nach links). Danach beginnt der Zyklus wieder rechts. */
   @keyframes ticker-scroll {
     from {
-      transform: translateX(0);
+      transform: translateX(var(--ticker-start, 100vw));
     }
     to {
-      /* Genau eine Gruppenbreite -> Inhalt deckt sich wieder, nahtloser Loop */
-      transform: translateX(calc(-1 * var(--ticker-shift, 50%)));
+      transform: translateX(var(--ticker-end, -100%));
     }
   }
 
@@ -154,45 +155,36 @@ const pxPerSec = speeds[ticker.speed] ?? speeds.normal;
 </style>
 
 <script>
-  // Progressive Enhancement: den Ticker vermessen, ausreichend duplizieren und
-  // die Animation mit konstanter Geschwindigkeit (px/s) starten.
+  // Progressive Enhancement: Streifen und Sichtbereich vermessen und die
+  // Animation als Einzeldurchlauf mit konstanter Geschwindigkeit (px/s) starten.
+  // Ein Durchlauf = Gruppe von rechts außerhalb bis links komplett raus; danach
+  // erscheint sie wieder von rechts (ein Eintrag läuft einmal durch, dann der
+  // nächste bzw. bei einem Eintrag wieder derselbe).
   function setupTicker(ticker: HTMLElement) {
     const track = ticker.querySelector<HTMLElement>('[data-ticker-track]');
-    const firstGroup = ticker.querySelector<HTMLElement>('[data-ticker-group]');
-    if (!track || !firstGroup) return;
+    const group = ticker.querySelector<HTMLElement>('[data-ticker-group]');
+    if (!track || !group) return;
 
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduce) {
-      // Kein Scrollen gewünscht -> statisch anzeigen, keine Duplikate.
+      // Kein Scrollen gewünscht -> statisch anzeigen.
       ticker.classList.add('is-ready');
       return;
     }
 
     const pxPerSec = Number(ticker.getAttribute('data-ticker-speed')) || 70;
 
-    // Vorherige Klone entfernen (bei erneutem Aufruf, z.B. nach Resize).
-    track.querySelectorAll('[data-ticker-clone]').forEach((n) => n.remove());
-
-    const groupWidth = firstGroup.getBoundingClientRect().width;
-    if (groupWidth <= 0) return; // noch nicht sichtbar/gerendert
-
+    const groupWidth = group.getBoundingClientRect().width;
     const viewport = ticker.getBoundingClientRect().width;
+    if (groupWidth <= 0 || viewport <= 0) return; // noch nicht sichtbar/gerendert
 
-    // So viele Gruppen, dass der Streifen mindestens die Sichtbreite + eine
-    // Gruppe abdeckt -> während der Verschiebung ist immer alles gefüllt.
-    const needed = Math.max(2, Math.ceil((viewport + groupWidth) / groupWidth));
-    for (let i = 1; i < needed; i++) {
-      const clone = firstGroup.cloneNode(true) as HTMLElement;
-      clone.setAttribute('data-ticker-clone', '');
-      clone.setAttribute('aria-hidden', 'true');
-      track.appendChild(clone);
-    }
+    // Startpunkt: rechte Kante des Sichtbereichs. Endpunkt: Gruppe komplett
+    // links draußen (um die eigene Breite nach links). Gesamtstrecke = beides.
+    const travel = viewport + groupWidth;
+    const duration = Math.max(4, travel / pxPerSec);
 
-    // Um genau eine Gruppenbreite verschieben -> nahtlos.
-    // Dauer aus konstanter Pixel-Geschwindigkeit ableiten (Untergrenze 1s
-    // gegen absurd kurze Zyklen bei sehr wenig Text).
-    const duration = Math.max(1, groupWidth / pxPerSec);
-    ticker.style.setProperty('--ticker-shift', `${groupWidth}px`);
+    ticker.style.setProperty('--ticker-start', `${viewport}px`);
+    ticker.style.setProperty('--ticker-end', `-${groupWidth}px`);
     ticker.style.setProperty('--ticker-duration', `${duration}s`);
     ticker.classList.add('is-ready');
   }
