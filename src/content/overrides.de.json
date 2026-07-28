@@ -1,5 +1,8 @@
 {
   "videoShowcase": {
     "title": "KodiniTools im Überblick"
+  },
+  "hero": {
+    "subtitle": "Sichere Bearbeitung - Im Browser oder auf unseren Servern\nKeine Installation, keine Anmeldung oder Registrierung nötig"
   }
 }
