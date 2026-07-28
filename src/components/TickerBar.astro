@@ -13,12 +13,11 @@ const ticker = getTicker(lang);
 const items = Array.isArray(ticker.items) ? ticker.items.filter((i) => i && i.text) : [];
 const show = ticker.enabled === true && items.length > 0;
 
-// Geschwindigkeit -> Animationsdauer (längere Dauer = langsamer)
-const durations = { slow: '48s', normal: '32s', fast: '18s' } as const;
-const duration = durations[ticker.speed] ?? durations.normal;
-
-// Für nahtloses Endlos-Scrollen die Einträge doppelt ausgeben.
-const loop = [...items, ...items];
+// Geschwindigkeit -> gleichmäßige Scroll-Geschwindigkeit in Pixel/Sekunde.
+// (Konstante Pixel-Geschwindigkeit statt fester Dauer -> läuft bei kurzem wie
+// bei langem Text gleich flott, unabhängig von der Textmenge.)
+const speeds = { slow: 40, normal: 70, fast: 120 } as const;
+const pxPerSec = speeds[ticker.speed] ?? speeds.normal;
 ---
 
 {
@@ -27,21 +26,27 @@ const loop = [...items, ...items];
       class="ticker"
       role="region"
       aria-label={lang === 'en' ? 'Announcements' : 'Ankündigungen'}
-      style={`--ticker-duration:${duration}`}
+      data-ticker
+      data-ticker-speed={pxPerSec}
     >
       <div class="ticker__viewport">
-        <div class="ticker__track">
-          {loop.map((item, idx) => (
-            <span class="ticker__item" aria-hidden={idx >= items.length ? 'true' : undefined}>
-              {item.link ? (
-                <a class="ticker__link" href={item.link}>
-                  {item.text}
-                </a>
-              ) : (
-                <span class="ticker__text">{item.text}</span>
-              )}
-            </span>
-          ))}
+        <div class="ticker__track" data-ticker-track>
+          {/* Eine "Gruppe" = ein vollständiger Durchlauf aller Einträge.
+              Der Client dupliziert sie so oft, dass der Streifen immer breiter
+              als der sichtbare Bereich ist -> nahtloses Endlos-Scrollen. */}
+          <div class="ticker__group" data-ticker-group>
+            {items.map((item) => (
+              <span class="ticker__item">
+                {item.link ? (
+                  <a class="ticker__link" href={item.link}>
+                    {item.text}
+                  </a>
+                ) : (
+                  <span class="ticker__text">{item.text}</span>
+                )}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -73,11 +78,16 @@ const loop = [...items, ...items];
   }
 
   .ticker__track {
-    display: inline-flex;
-    align-items: center;
+    display: flex;
     flex-wrap: nowrap;
     white-space: nowrap;
     will-change: transform;
+  }
+
+  /* Animation läuft erst, wenn der Client den Streifen vermessen und die
+     nötige Verschiebung (--ticker-shift) + Dauer (--ticker-duration) gesetzt
+     hat. So ist der Loop garantiert nahtlos und gleichmäßig schnell. */
+  .ticker.is-ready .ticker__track {
     animation: ticker-scroll var(--ticker-duration, 32s) linear infinite;
   }
 
@@ -85,6 +95,13 @@ const loop = [...items, ...items];
   .ticker:hover .ticker__track,
   .ticker:focus-within .ticker__track {
     animation-play-state: paused;
+  }
+
+  .ticker__group {
+    display: flex;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    flex: 0 0 auto;
   }
 
   .ticker__item {
@@ -120,14 +137,14 @@ const loop = [...items, ...items];
       transform: translateX(0);
     }
     to {
-      /* zweite Hälfte = Duplikat -> nahtloser Loop */
-      transform: translateX(-50%);
+      /* Genau eine Gruppenbreite -> Inhalt deckt sich wieder, nahtloser Loop */
+      transform: translateX(calc(-1 * var(--ticker-shift, 50%)));
     }
   }
 
   /* Barrierefreiheit: keine Bewegung, wenn der Nutzer das wünscht */
   @media (prefers-reduced-motion: reduce) {
-    .ticker__track {
+    .ticker.is-ready .ticker__track {
       animation: none;
     }
     .ticker__viewport {
@@ -135,3 +152,68 @@ const loop = [...items, ...items];
     }
   }
 </style>
+
+<script>
+  // Progressive Enhancement: den Ticker vermessen, ausreichend duplizieren und
+  // die Animation mit konstanter Geschwindigkeit (px/s) starten.
+  function setupTicker(ticker: HTMLElement) {
+    const track = ticker.querySelector<HTMLElement>('[data-ticker-track]');
+    const firstGroup = ticker.querySelector<HTMLElement>('[data-ticker-group]');
+    if (!track || !firstGroup) return;
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) {
+      // Kein Scrollen gewünscht -> statisch anzeigen, keine Duplikate.
+      ticker.classList.add('is-ready');
+      return;
+    }
+
+    const pxPerSec = Number(ticker.getAttribute('data-ticker-speed')) || 70;
+
+    // Vorherige Klone entfernen (bei erneutem Aufruf, z.B. nach Resize).
+    track.querySelectorAll('[data-ticker-clone]').forEach((n) => n.remove());
+
+    const groupWidth = firstGroup.getBoundingClientRect().width;
+    if (groupWidth <= 0) return; // noch nicht sichtbar/gerendert
+
+    const viewport = ticker.getBoundingClientRect().width;
+
+    // So viele Gruppen, dass der Streifen mindestens die Sichtbreite + eine
+    // Gruppe abdeckt -> während der Verschiebung ist immer alles gefüllt.
+    const needed = Math.max(2, Math.ceil((viewport + groupWidth) / groupWidth));
+    for (let i = 1; i < needed; i++) {
+      const clone = firstGroup.cloneNode(true) as HTMLElement;
+      clone.setAttribute('data-ticker-clone', '');
+      clone.setAttribute('aria-hidden', 'true');
+      track.appendChild(clone);
+    }
+
+    // Um genau eine Gruppenbreite verschieben -> nahtlos.
+    // Dauer aus konstanter Pixel-Geschwindigkeit ableiten (Untergrenze 1s
+    // gegen absurd kurze Zyklen bei sehr wenig Text).
+    const duration = Math.max(1, groupWidth / pxPerSec);
+    ticker.style.setProperty('--ticker-shift', `${groupWidth}px`);
+    ticker.style.setProperty('--ticker-duration', `${duration}s`);
+    ticker.classList.add('is-ready');
+  }
+
+  function init() {
+    document.querySelectorAll<HTMLElement>('[data-ticker]').forEach(setupTicker);
+  }
+
+  // Nach Layout/Fonts vermessen; bei Resize neu berechnen (entprellt).
+  const start = () => requestAnimationFrame(init);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
+  } else {
+    start();
+  }
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(init).catch(() => {});
+  }
+  let resizeTimer: number | undefined;
+  window.addEventListener('resize', () => {
+    window.clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(init, 200);
+  });
+</script>
