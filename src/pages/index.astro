@@ -169,9 +169,13 @@ const pageI18n = {
 
       <div class="hero-content">
         <div class="hero-promo">
-          <div class="hero-logo">
-            <img src="https://kodinitools.com/images/logo.svg" alt="KodiniTools Logo" />
-          </div>
+          <SectionMedia
+            src={media.heroBanner}
+            eager={true}
+            alt="KodiniTools Banner"
+            wrapperClass="hero-banner-wrapper"
+            mediaClass="hero-banner"
+          />
           <h1 class="hero-title typing-title">
             <span class="typed-text" id="typedText"></span>
           </h1>

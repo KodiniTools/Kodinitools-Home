@@ -1,16 +1,25 @@
 ---
-// Sektions-Medium unter einer Tools-Überschrift.
-// Rendert je nach Dateiendung ein <video> ODER ein <img>, damit der Adminbereich
-// pro Slot wahlweise ein Video oder ein Bild hinterlegen kann (media.json).
+// Austauschbares Medium (Video ODER Bild), gesteuert über den Adminbereich
+// (media.json). Rendert je nach Dateiendung ein <video> oder ein <img>.
 //
-// eager=true  -> sofort sichtbares Medium oben (autoplay bei Video, eager-Bild)
+// eager=true  -> sofort sichtbares Medium (autoplay bei Video, eager-Bild)
 // eager=false -> unterhalb des Sichtbereichs (lazy: erst beim Scrollen laden)
+// wrapperClass/mediaClass -> Styling-Haken (Sektions-Video vs. Hero-Banner)
+// Leerer src -> es wird NICHTS gerendert.
 interface Props {
   src: string;
   eager?: boolean;
   alt?: string;
+  wrapperClass?: string;
+  mediaClass?: string;
 }
-const { src, eager = false, alt = '' } = Astro.props;
+const {
+  src,
+  eager = false,
+  alt = '',
+  wrapperClass = 'section-video-wrapper',
+  mediaClass = 'section-video',
+} = Astro.props;
 
 const ext = (src.split('?')[0].split('.').pop() || '').toLowerCase();
 const VIDEO_EXT = ['mp4', 'webm', 'mov', 'm4v', 'ogv'];
@@ -25,26 +34,28 @@ const VIDEO_MIME: Record<string, string> = {
 const mime = VIDEO_MIME[ext] || 'video/mp4';
 ---
 
-<div class="section-video-wrapper">
-  {
-    isVideo ? (
-      eager ? (
-        <video autoplay muted loop playsinline preload="metadata" class="section-video">
-          <source src={src} type={mime} />
-        </video>
+{
+  src && (
+    <div class={wrapperClass}>
+      {isVideo ? (
+        eager ? (
+          <video autoplay muted loop playsinline preload="metadata" class={mediaClass}>
+            <source src={src} type={mime} />
+          </video>
+        ) : (
+          <video muted loop playsinline preload="none" class={`${mediaClass} lazy-video`}>
+            <source src={src} type={mime} />
+          </video>
+        )
       ) : (
-        <video muted loop playsinline preload="none" class="section-video lazy-video">
-          <source src={src} type={mime} />
-        </video>
-      )
-    ) : (
-      <img
-        src={src}
-        alt={alt}
-        class="section-video"
-        loading={eager ? 'eager' : 'lazy'}
-        decoding="async"
-      />
-    )
-  }
-</div>
+        <img
+          src={src}
+          alt={alt}
+          class={mediaClass}
+          loading={eager ? 'eager' : 'lazy'}
+          decoding="async"
+        />
+      )}
+    </div>
+  )
+}

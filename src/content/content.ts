@@ -72,6 +72,8 @@ export function getTicker(locale: Locale): TickerConfig {
 
 export interface MediaConfig {
   sectionVideos: { audio: string; image: string; diverse: string };
+  // Austauschbares Hero-Banner (Bild oder Video). Leer = kein Banner.
+  heroBanner: string;
 }
 
 // Standard-Pfade entsprechen dem bisherigen Auslieferungszustand.
@@ -81,6 +83,7 @@ const MEDIA_DEFAULTS: MediaConfig = {
     image: '/videos/image-tools.mp4',
     diverse: '/videos/diverse-tools.mp4',
   },
+  heroBanner: '',
 };
 
 /** Medien-Konfiguration (Defaults + Admin-Override aus media.json). */
