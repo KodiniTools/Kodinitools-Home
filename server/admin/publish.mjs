@@ -95,19 +95,39 @@ async function doPublish(message) {
       'Keine Content-Änderungen zu committen — überspringe Commit/Push, führe trotzdem Deploy aus.',
     );
   } else {
-    state.step = 'commit';
-    log(`git commit: ${commitMsg}`);
     // Commit-Identität explizit setzen, damit kein globales git user.name/email
     // auf dem Server nötig ist (Dienst läuft als www-data ohne git-Identität).
-    await run('git', [
+    // Wird auch beim Rebase gebraucht (setzt die Commits neu).
+    const ident = [
       '-c',
       `user.name=${config.gitAuthorName}`,
       '-c',
       `user.email=${config.gitAuthorEmail}`,
-      'commit',
-      '-m',
-      commitMsg,
-    ]);
+    ];
+
+    state.step = 'commit';
+    log(`git commit: ${commitMsg}`);
+    await run('git', [...ident, 'commit', '-m', commitMsg]);
+    state.commit = (await run('git', ['rev-parse', '--short', 'HEAD'])).trim();
+
+    // Remote-Stand holen und den Content-Commit darauf aufsetzen. Nötig, weil
+    // main z.B. durch gemergte Pull-Requests vorausgeeilt sein kann; sonst wird
+    // der Push als non-fast-forward abgelehnt ("Updates were rejected … fetch first").
+    state.step = 'sync';
+    log(`git fetch ${remote} ${branch}`);
+    await run('git', ['fetch', remote, branch]);
+    log(`git rebase ${remote}/${branch}`);
+    try {
+      await run('git', [...ident, 'rebase', `${remote}/${branch}`]);
+    } catch (e) {
+      // Rebase-Zustand sauber verlassen, damit der nächste Versuch nicht hängt.
+      await run('git', ['rebase', '--abort']).catch(() => {});
+      throw new Error(
+        `Rebase auf ${remote}/${branch} fehlgeschlagen (vermutlich ein Konflikt in den ` +
+          `Content-Dateien). Bitte einmalig auf dem Server auflösen. ${e.output || e.message || ''}`,
+        { cause: e },
+      );
+    }
     state.commit = (await run('git', ['rev-parse', '--short', 'HEAD'])).trim();
 
     state.step = 'push';
