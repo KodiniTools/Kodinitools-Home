@@ -2,6 +2,7 @@
 import EnLayout from '../../layouts/EnLayout.astro'
 import GlobalNav from '../../components/GlobalNav.astro'
 import TickerBar from '../../components/TickerBar.astro'
+import SectionMedia from '../../components/SectionMedia.astro'
 import SiteFooter from '../../components/SiteFooter.astro'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
@@ -45,6 +46,7 @@ function buildPageMessages(locale: typeof de): Record<string, string> {
   const r: Record<string, string> = {}
 
   r['hero.title'] = locale.hero.title
+  r['hero.subtitle'] = locale.hero.subtitle
   r['hero.cta'] = locale.hero.cta
   for (const [k, v] of Object.entries(locale.hero.features)) r[`hero.features.${k}`] = v
   for (const [k, v] of Object.entries(locale.search)) r[`search.${k}`] = v
@@ -253,18 +255,7 @@ const pageI18n = {
         <h2 data-i18n="tools.sectionTitle">Audio Tools</h2>
       </div>
 
-      <div class="section-video-wrapper">
-        <video
-          autoplay
-          muted
-          loop
-          playsinline
-          preload="metadata"
-          class="section-video"
-        >
-          <source src={media.sectionVideos.audio} type="video/mp4" />
-        </video>
-      </div>
+      <SectionMedia src={media.sectionVideos.audio} eager={true} />
 
       <div class="svg-card-grid">
         {audioTools.map((tool) => (
@@ -297,17 +288,7 @@ const pageI18n = {
         <h2 data-i18n="imageTools.sectionTitle">Image Tools</h2>
       </div>
 
-      <div class="section-video-wrapper">
-        <video
-          muted
-          loop
-          playsinline
-          preload="none"
-          class="section-video lazy-video"
-        >
-          <source src={media.sectionVideos.image} type="video/mp4" />
-        </video>
-      </div>
+      <SectionMedia src={media.sectionVideos.image} />
 
       <div class="svg-card-grid grid-centered">
         {imageTools.map((tool) => (
@@ -340,17 +321,7 @@ const pageI18n = {
         <h2 data-i18n="diverseTools.sectionTitle">Diverse Tools</h2>
       </div>
 
-      <div class="section-video-wrapper">
-        <video
-          muted
-          loop
-          playsinline
-          preload="none"
-          class="section-video lazy-video"
-        >
-          <source src={media.sectionVideos.diverse} type="video/mp4" />
-        </video>
-      </div>
+      <SectionMedia src={media.sectionVideos.diverse} />
 
       <div class="svg-card-grid grid-centered">
         {diverseTools.map((tool) => (

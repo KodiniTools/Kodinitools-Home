@@ -1,0 +1,50 @@
+---
+// Sektions-Medium unter einer Tools-Überschrift.
+// Rendert je nach Dateiendung ein <video> ODER ein <img>, damit der Adminbereich
+// pro Slot wahlweise ein Video oder ein Bild hinterlegen kann (media.json).
+//
+// eager=true  -> sofort sichtbares Medium oben (autoplay bei Video, eager-Bild)
+// eager=false -> unterhalb des Sichtbereichs (lazy: erst beim Scrollen laden)
+interface Props {
+  src: string;
+  eager?: boolean;
+  alt?: string;
+}
+const { src, eager = false, alt = '' } = Astro.props;
+
+const ext = (src.split('?')[0].split('.').pop() || '').toLowerCase();
+const VIDEO_EXT = ['mp4', 'webm', 'mov', 'm4v', 'ogv'];
+const isVideo = VIDEO_EXT.includes(ext);
+const VIDEO_MIME: Record<string, string> = {
+  mp4: 'video/mp4',
+  webm: 'video/webm',
+  mov: 'video/quicktime',
+  m4v: 'video/mp4',
+  ogv: 'video/ogg',
+};
+const mime = VIDEO_MIME[ext] || 'video/mp4';
+---
+
+<div class="section-video-wrapper">
+  {
+    isVideo ? (
+      eager ? (
+        <video autoplay muted loop playsinline preload="metadata" class="section-video">
+          <source src={src} type={mime} />
+        </video>
+      ) : (
+        <video muted loop playsinline preload="none" class="section-video lazy-video">
+          <source src={src} type={mime} />
+        </video>
+      )
+    ) : (
+      <img
+        src={src}
+        alt={alt}
+        class="section-video"
+        loading={eager ? 'eager' : 'lazy'}
+        decoding="async"
+      />
+    )
+  }
+</div>
