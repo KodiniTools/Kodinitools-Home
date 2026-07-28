@@ -94,7 +94,24 @@ function defaultMedia() {
       image: '/videos/image-tools.mp4',
       diverse: '/videos/diverse-tools.mp4',
     },
+    heroBanner: '',
   };
+}
+
+// Alle austauschbaren Medien-Ziele: die drei Sektions-Videos + das Hero-Banner.
+// 'heroBanner' liegt auf oberster Ebene, die anderen unter sectionVideos.
+const MEDIA_TARGETS = ['audio', 'image', 'diverse', 'heroBanner'];
+function getMediaVal(target) {
+  return target === 'heroBanner'
+    ? state.media.heroBanner || ''
+    : state.media.sectionVideos[target] || '';
+}
+function setMediaVal(target, val) {
+  if (target === 'heroBanner') state.media.heroBanner = val;
+  else state.media.sectionVideos[target] = val;
+}
+function defMediaVal(target) {
+  return target === 'heroBanner' ? '' : defaultMedia().sectionVideos[target];
 }
 
 // --- Pfad-Helfer für verschachtelte Overrides ---
@@ -198,6 +215,7 @@ async function boot() {
     en: normTicker(r.data.ticker?.en),
   };
   state.media = r.data.media && r.data.media.sectionVideos ? r.data.media : defaultMedia();
+  if (typeof state.media.heroBanner !== 'string') state.media.heroBanner = '';
   state.loadedMedia = JSON.parse(JSON.stringify(state.media));
   state.defaults = { de: r.data.defaults?.de || {}, en: r.data.defaults?.en || {} };
   state.stagedItems = await mediaAll();
@@ -403,11 +421,28 @@ function renderVideos() {
       </div>`;
   }).join('');
 
+  // Hero-Banner (oben auf der Seite, ersetzt das frühere Logo).
+  const bval = state.media.heroBanner || '';
+  const bannerPanel = `
+      <div class="panel">
+        <h2>Hero-Banner (oben auf der Seite)</h2>
+        <p class="hint">Erscheint ganz oben im Hero-Bereich (anstelle des früheren Logos).
+          Bild oder Video. Leer lassen = kein Banner.</p>
+        ${slotPreview(bval)}
+        <label>Pfad/URL</label>
+        <input data-slot="heroBanner" value="${esc(bval.startsWith('staged:') ? '' : bval)}" placeholder="/uploads/mein-banner.jpg" ${bval.startsWith('staged:') ? 'disabled' : ''} />
+        <div class="row" style="margin-top:.5rem">
+          <button data-slotpick="heroBanner" style="flex:0 0 auto">📁 Aus Zwischenspeicher wählen</button>
+          <button data-slotreset="heroBanner" style="flex:0 0 auto">↺ Entfernen</button>
+        </div>
+      </div>`;
+
   const tiles = state.stagedItems.length
     ? state.stagedItems.map(mediaTile).join('')
     : '<p class="hint">Noch nichts im Zwischenspeicher. Dateien oben hineinziehen oder auswählen.</p>';
 
   pane.innerHTML = `
+    ${bannerPanel}
     ${slots}
     <div class="panel">
       <h2>Medien-Zwischenspeicher (Browser)</h2>
@@ -426,14 +461,12 @@ function renderVideos() {
   pane.querySelectorAll('[data-slot]').forEach((el) =>
     el.addEventListener('input', () => {
       const v = el.value.trim();
-      state.media.sectionVideos[el.dataset.slot] =
-        v || defaultMedia().sectionVideos[el.dataset.slot];
+      setMediaVal(el.dataset.slot, v || defMediaVal(el.dataset.slot));
     }),
   );
   pane.querySelectorAll('[data-slotreset]').forEach((el) =>
     el.addEventListener('click', () => {
-      state.media.sectionVideos[el.dataset.slotreset] =
-        defaultMedia().sectionVideos[el.dataset.slotreset];
+      setMediaVal(el.dataset.slotreset, defMediaVal(el.dataset.slotreset));
       renderVideos();
     }),
   );
@@ -505,7 +538,7 @@ async function addFiles(fileList) {
   if (files.length) toast(`${files.length} Datei(en) im Zwischenspeicher`);
 }
 
-function pickFromLibrary(slotKey) {
+function pickFromLibrary(target) {
   const local = state.stagedItems;
   if (!local.length) {
     toast('Zwischenspeicher ist leer — zuerst Datei hinzufügen.');
@@ -520,7 +553,7 @@ function pickFromLibrary(slotKey) {
   const idx = parseInt(choice, 10) - 1;
   if (Number.isInteger(idx) && local[idx]) {
     const item = local[idx];
-    state.media.sectionVideos[slotKey] = item.publishedUrl || 'staged:' + item.id;
+    setMediaVal(target, item.publishedUrl || 'staged:' + item.id);
     renderVideos();
   }
 }
@@ -584,6 +617,7 @@ function resolveMediaForSave() {
   // Ersetzt staged:-Referenzen durch bereits veröffentlichte URLs oder
   // (falls noch nicht hochgeladen) durch den zuletzt geladenen/Default-Wert.
   const m = JSON.parse(JSON.stringify(state.media));
+  if (typeof m.heroBanner !== 'string') m.heroBanner = '';
   for (const key of ['audio', 'image', 'diverse']) {
     const v = m.sectionVideos[key];
     if (typeof v === 'string' && v.startsWith('staged:')) {
@@ -594,6 +628,11 @@ function resolveMediaForSave() {
         state.loadedMedia.sectionVideos[key] ||
         defaultMedia().sectionVideos[key];
     }
+  }
+  if (typeof m.heroBanner === 'string' && m.heroBanner.startsWith('staged:')) {
+    const id = m.heroBanner.slice(7);
+    const item = state.stagedItems.find((x) => x.id === id);
+    m.heroBanner = (item && item.publishedUrl) || state.loadedMedia.heroBanner || '';
   }
   return m;
 }
@@ -642,8 +681,8 @@ $('#saveBtn').addEventListener('click', async () => {
 async function uploadStagedReferenced() {
   // Lädt alle staged Medien hoch, die in Slots referenziert werden.
   const referenced = new Set();
-  for (const key of ['audio', 'image', 'diverse']) {
-    const v = state.media.sectionVideos[key];
+  for (const target of MEDIA_TARGETS) {
+    const v = getMediaVal(target);
     if (typeof v === 'string' && v.startsWith('staged:')) referenced.add(v.slice(7));
   }
   for (const id of referenced) {
@@ -661,11 +700,11 @@ async function uploadStagedReferenced() {
   }
   state.stagedItems = await mediaAll();
   // Slots auf endgültige URLs setzen
-  for (const key of ['audio', 'image', 'diverse']) {
-    const v = state.media.sectionVideos[key];
+  for (const target of MEDIA_TARGETS) {
+    const v = getMediaVal(target);
     if (typeof v === 'string' && v.startsWith('staged:')) {
       const item = state.stagedItems.find((x) => x.id === v.slice(7));
-      if (item && item.publishedUrl) state.media.sectionVideos[key] = item.publishedUrl;
+      if (item && item.publishedUrl) setMediaVal(target, item.publishedUrl);
     }
   }
 }

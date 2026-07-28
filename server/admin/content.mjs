@@ -44,6 +44,7 @@ function defaultMedia() {
       image: '/videos/image-tools.mp4',
       diverse: '/videos/diverse-tools.mp4',
     },
+    heroBanner: '',
   };
 }
 
@@ -97,6 +98,12 @@ export function validateMedia(m) {
     const val = sv[key];
     if (!isValidMediaUrl(val)) throw new Error(`media.sectionVideos.${key} ungültig`);
     out.sectionVideos[key] = val;
+  }
+  // Hero-Banner: optional. Leerer String = kein Banner; sonst gültige URL.
+  out.heroBanner = '';
+  if (m.heroBanner != null && m.heroBanner !== '') {
+    if (!isValidMediaUrl(m.heroBanner)) throw new Error('media.heroBanner ungültig');
+    out.heroBanner = m.heroBanner;
   }
   return out;
 }

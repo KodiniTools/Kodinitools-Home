@@ -900,6 +900,29 @@ body {
   object-fit: contain;
 }
 
+/* Austauschbares Hero-Banner (ersetzt das frühere Logo) */
+.hero-banner-wrapper {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-banner {
+  max-width: min(100%, 900px);
+  max-height: 240px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 14px;
+}
+
+@media (max-width: 640px) {
+  .hero-banner {
+    max-height: 150px;
+  }
+}
+
 
 /* Features Grid */
 .features-grid {
