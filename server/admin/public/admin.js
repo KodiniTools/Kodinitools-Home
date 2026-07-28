@@ -885,8 +885,7 @@ function pollPreview(win) {
     $('#publishBtn').disabled = false;
     if (s.status === 'success') {
       setPill('idle', 'bereit');
-      if (win) win.location.href = '/admin/preview/';
-      else window.open('/admin/preview/', '_blank');
+      showPreviewChooser(win);
       toast('Vorschau bereit ✓');
     } else {
       if (win)
@@ -897,6 +896,33 @@ function pollPreview(win) {
       toast('Vorschau fehlgeschlagen');
     }
   }, 2000);
+}
+
+// Nach erfolgreichem Vorschau-Build: Auswahl beider Sprachen anbieten
+// (die DE- und die EN-Startseite haben getrennte Medien/Inhalte).
+function showPreviewChooser(win) {
+  const base = '/admin/preview/';
+  if (!win) {
+    // Popup wurde blockiert -> beide Seiten direkt öffnen.
+    window.open(base, '_blank');
+    window.open(base + 'en/', '_blank');
+    return;
+  }
+  const btn =
+    'display:inline-block;padding:.85rem 1.5rem;margin:.35rem;border-radius:10px;' +
+    'background:#38bdf8;color:#062a3a;font-weight:700;text-decoration:none';
+  win.document.open();
+  win.document.write(
+    '<!doctype html><meta charset="utf-8"><title>Vorschau</title>' +
+      '<body style="font-family:system-ui;background:#0f172a;color:#e2e8f0;padding:3rem 1rem;text-align:center;line-height:1.6">' +
+      '<h2>Vorschau bereit ✓</h2>' +
+      '<p>Welche Startseite möchtest du prüfen?</p>' +
+      `<p><a href="${base}" style="${btn}">🇩🇪 Deutsche Startseite</a>` +
+      `<a href="${base}en/" style="${btn}">🇬🇧 English homepage</a></p>` +
+      '<p style="color:#94a3b8;font-size:.85rem;margin-top:1.5rem">' +
+      'Dies ist dein aktueller Entwurf – noch nicht veröffentlicht.</p></body>',
+  );
+  win.document.close();
 }
 
 function setPill(cls, text) {
