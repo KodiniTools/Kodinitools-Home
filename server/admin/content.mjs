@@ -37,7 +37,7 @@ function defaultTicker() {
   return { enabled: false, speed: 'normal', items: [] };
 }
 
-function defaultMedia() {
+function defaultMediaLocale() {
   return {
     sectionVideos: {
       audio: '/videos/audio-tools.mp4',
@@ -46,6 +46,11 @@ function defaultMedia() {
     },
     heroBanner: '',
   };
+}
+
+/** Medien-Standard pro Sprache ({ de, en }). */
+function defaultMedia() {
+  return { de: defaultMediaLocale(), en: defaultMediaLocale() };
 }
 
 function isPlainObject(v) {
@@ -88,24 +93,47 @@ function isValidMediaUrl(v) {
   return typeof v === 'string' && /^(\/[^\s]*|https?:\/\/[^\s]+)$/.test(v);
 }
 
-/** Validiert die Medien-Konfiguration (Sektions-Videos). */
-export function validateMedia(m) {
-  if (!isPlainObject(m)) throw new Error('media muss ein Objekt sein');
-  const sv = m.sectionVideos;
-  if (!isPlainObject(sv)) throw new Error('media.sectionVideos fehlt');
+/** Validiert die Medien EINER Sprache; fehlende Werte fallen auf Standard zurück. */
+function validateMediaLocale(m, langLabel) {
+  const def = defaultMediaLocale();
+  if (!isPlainObject(m)) return def;
+  const sv = isPlainObject(m.sectionVideos) ? m.sectionVideos : {};
   const out = { sectionVideos: {} };
   for (const key of ['audio', 'image', 'diverse']) {
     const val = sv[key];
-    if (!isValidMediaUrl(val)) throw new Error(`media.sectionVideos.${key} ungültig`);
-    out.sectionVideos[key] = val;
+    if (val == null || val === '') {
+      out.sectionVideos[key] = def.sectionVideos[key];
+    } else if (!isValidMediaUrl(val)) {
+      throw new Error(`media.${langLabel}.sectionVideos.${key} ungültig`);
+    } else {
+      out.sectionVideos[key] = val;
+    }
   }
   // Hero-Banner: optional. Leerer String = kein Banner; sonst gültige URL.
   out.heroBanner = '';
   if (m.heroBanner != null && m.heroBanner !== '') {
-    if (!isValidMediaUrl(m.heroBanner)) throw new Error('media.heroBanner ungültig');
+    if (!isValidMediaUrl(m.heroBanner)) throw new Error(`media.${langLabel}.heroBanner ungültig`);
     out.heroBanner = m.heroBanner;
   }
   return out;
+}
+
+/**
+ * Validiert die Medien-Konfiguration und normalisiert auf { de, en }.
+ * Akzeptiert die alte, sprachunabhängige Struktur ({ sectionVideos, heroBanner })
+ * und wendet sie auf beide Sprachen an.
+ */
+export function validateMedia(m) {
+  if (!isPlainObject(m)) throw new Error('media muss ein Objekt sein');
+  // Alte, flache Struktur -> auf beide Sprachen anwenden.
+  if (isPlainObject(m.sectionVideos)) {
+    const one = validateMediaLocale(m, 'de');
+    return { de: one, en: JSON.parse(JSON.stringify(one)) };
+  }
+  return {
+    de: validateMediaLocale(m.de ?? {}, 'de'),
+    en: validateMediaLocale(m.en ?? {}, 'en'),
+  };
 }
 
 const pretty = (obj) => JSON.stringify(obj, null, 2) + '\n';
