@@ -544,18 +544,65 @@ function pickFromLibrary(target) {
     toast('Zwischenspeicher ist leer — zuerst Datei hinzufügen.');
     return;
   }
-  const choice = prompt(
-    'Nummer des Mediums für diesen Slot:\n' +
-      local
-        .map((m, i) => `${i + 1}) ${m.name}${m.publishedUrl ? ' (veröffentlicht)' : ''}`)
-        .join('\n'),
-  );
-  const idx = parseInt(choice, 10) - 1;
-  if (Number.isInteger(idx) && local[idx]) {
-    const item = local[idx];
-    setMediaVal(target, item.publishedUrl || 'staged:' + item.id);
-    renderVideos();
+  openMediaPicker(target, local);
+}
+
+// Anklickbares Auswahlfenster: Kachel klicken -> Medium diesem Platz zuweisen.
+function openMediaPicker(target, items) {
+  document.getElementById('mediaPicker')?.remove();
+
+  const tiles = items
+    .map((item) => {
+      const u = objUrl(item.id);
+      const media = /^video\//.test(item.type)
+        ? `<video src="${u}" muted></video>`
+        : `<img src="${u}" alt="" />`;
+      const st = item.publishedUrl
+        ? '<div class="st pub">✓ veröffentlicht</div>'
+        : '<div class="st local">● nur lokal</div>';
+      return `<button type="button" class="picker-tile" data-pick="${item.id}">
+        ${media}<div class="nm">${esc(item.name)}</div>${st}
+      </button>`;
+    })
+    .join('');
+
+  const overlay = document.createElement('div');
+  overlay.className = 'picker-overlay';
+  overlay.id = 'mediaPicker';
+  overlay.innerHTML = `
+    <div class="picker-modal" role="dialog" aria-modal="true">
+      <h3>Medium auswählen</h3>
+      <p class="hint" style="margin-bottom:.75rem">Auf eine Datei klicken, um sie diesem Platz zuzuweisen.</p>
+      <div class="media-grid">${tiles}</div>
+      <div class="row" style="margin-top:1rem;justify-content:flex-end">
+        <button type="button" data-pickcancel style="flex:0 0 auto">Abbrechen</button>
+      </div>
+    </div>`;
+
+  const onKey = (e) => {
+    if (e.key === 'Escape') close();
+  };
+  function close() {
+    overlay.remove();
+    document.removeEventListener('keydown', onKey);
   }
+
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) close(); // Klick auf den abgedunkelten Hintergrund
+  });
+  overlay.querySelector('[data-pickcancel]').addEventListener('click', close);
+  overlay.querySelectorAll('[data-pick]').forEach((el) =>
+    el.addEventListener('click', () => {
+      const item = items.find((x) => x.id === el.dataset.pick);
+      if (item) {
+        setMediaVal(target, item.publishedUrl || 'staged:' + item.id);
+        renderVideos();
+      }
+      close();
+    }),
+  );
+  document.addEventListener('keydown', onKey);
+  document.body.appendChild(overlay);
 }
 
 // ============ TAB: Erweitert (rohe Overrides) ============
