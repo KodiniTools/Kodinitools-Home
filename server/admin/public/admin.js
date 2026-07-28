@@ -313,8 +313,9 @@ const TEXT_FIELDS = [
   { path: ['hero', 'title'], label: 'Hero – Titel' },
   { path: ['hero', 'subtitle'], label: 'Hero – Untertitel', textarea: true },
   { path: ['hero', 'cta'], label: 'Hero – Button-Text' },
-  { path: ['videoShowcase', 'title'], label: 'Video-Bereich – Titel' },
-  { path: ['videoShowcase', 'subtitle'], label: 'Video-Bereich – Untertitel' },
+  { path: ['tools', 'sectionTitle'], label: 'Abschnitt – Audio-Tools (Titel)' },
+  { path: ['imageTools', 'sectionTitle'], label: 'Abschnitt – Bild-Tools (Titel)' },
+  { path: ['diverseTools', 'sectionTitle'], label: 'Abschnitt – Diverse Tools (Titel)' },
 ];
 
 function renderTexts() {
@@ -352,6 +353,8 @@ const VIDEO_SLOTS = [
   { key: 'image', label: 'Bild-Tools Sektion' },
   { key: 'diverse', label: 'Diverse Tools Sektion' },
 ];
+// Diese Slots akzeptieren Video ODER Bild – die Seite rendert je nach
+// Dateiendung automatisch <video> oder <img>.
 
 function objUrl(id) {
   if (state.objectUrls.has(id)) return state.objectUrls.get(id);
@@ -388,7 +391,8 @@ function renderVideos() {
     const def = defaultMedia().sectionVideos[s.key];
     return `
       <div class="panel">
-        <h2>Video: ${s.label}</h2>
+        <h2>Medium: ${s.label}</h2>
+        <p class="hint">Video oder Bild – wird je nach Datei automatisch passend angezeigt.</p>
         ${slotPreview(val)}
         <label>Pfad/URL</label>
         <input data-slot="${s.key}" value="${esc(val.startsWith('staged:') ? '' : val)}" placeholder="${esc(def)}" ${val.startsWith('staged:') ? 'disabled' : ''} />
