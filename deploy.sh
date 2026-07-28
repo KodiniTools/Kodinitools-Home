@@ -67,8 +67,11 @@ fi
 log "Stand: $(git rev-parse --short HEAD) — $(git log -1 --pretty=%s)"
 
 # --- 2. Bauen ---
-log "npm ci ..."
-npm ci
+# --include=dev erzwingt die devDependencies (z.B. @astrojs/sitemap), die der
+# Build braucht. Ohne das lässt npm sie unter NODE_ENV=production weg — der
+# Admin-Dienst läuft mit NODE_ENV=production, daher ist das Flag hier Pflicht.
+log "npm ci (inkl. devDependencies) ..."
+npm ci --include=dev
 log "npm run build ..."
 npm run build   # -> dist/
 
