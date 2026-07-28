@@ -1,10 +1,5 @@
 {
   "enabled": true,
   "speed": "fast",
-  "items": [
-    {
-      "id": "1785205639114",
-      "text": "demo"
-    }
-  ]
+  "items": []
 }
