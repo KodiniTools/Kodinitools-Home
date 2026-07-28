@@ -141,6 +141,22 @@ cd /opt/kodini/repo && ./deploy.sh            # baut main, deployt
 cd /opt/kodini/repo && ./deploy.sh --dry-run  # nur Vorschau
 ```
 
+## Admin-**Backend** geändert? Dienst neu starten
+
+`deploy.sh` baut die Website neu und spiegelt `dist/` — es startet aber
+**nicht** den laufenden Admin-Node-Dienst neu. Das Frontend (`server/admin/public/`)
+wird bei jeder Anfrage frisch von der Platte geladen und ist sofort aktuell;
+der **Server-Code** (`server/admin/*.mjs`, z. B. neue API-Routen wie
+`/api/preview`) wird jedoch nur beim Prozessstart geladen. Nach Änderungen am
+Backend daher einmalig:
+
+```bash
+sudo systemctl restart kodini-admin
+```
+
+Symptom, wenn das vergessen wird: das neue Frontend ruft eine neue Route auf,
+der alte Prozess kennt sie nicht → **„Unbekannter Endpunkt"**.
+
 ## Neuen eigenständigen Tool-Ordner ergänzt?
 
 Eine Zeile in [`../deploy-protect.txt`](../deploy-protect.txt) hinzufügen
