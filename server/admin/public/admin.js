@@ -87,7 +87,7 @@ const state = {
 function emptyTicker() {
   return { enabled: false, speed: 'normal', items: [] };
 }
-function defaultMedia() {
+function defaultMediaLocale() {
   return {
     sectionVideos: {
       audio: '/videos/audio-tools.mp4',
@@ -97,21 +97,47 @@ function defaultMedia() {
     heroBanner: '',
   };
 }
+// Medien werden pro Sprache getrennt gepflegt: { de: {...}, en: {...} }.
+function defaultMedia() {
+  return { de: defaultMediaLocale(), en: defaultMediaLocale() };
+}
 
-// Alle austauschbaren Medien-Ziele: die drei Sektions-Videos + das Hero-Banner.
-// 'heroBanner' liegt auf oberster Ebene, die anderen unter sectionVideos.
-const MEDIA_TARGETS = ['audio', 'image', 'diverse', 'heroBanner'];
-function getMediaVal(target) {
-  return target === 'heroBanner'
-    ? state.media.heroBanner || ''
-    : state.media.sectionVideos[target] || '';
+// Normalisiert einen geladenen Medien-Stand auf { de, en }. Akzeptiert auch die
+// alte, sprachunabhängige Struktur ({ sectionVideos, heroBanner }) und wendet
+// sie auf beide Sprachen an.
+function normalizeMedia(m) {
+  const mk = (o) => {
+    const d = defaultMediaLocale();
+    const sv = o && typeof o.sectionVideos === 'object' && o.sectionVideos ? o.sectionVideos : {};
+    return {
+      sectionVideos: {
+        audio: sv.audio || d.sectionVideos.audio,
+        image: sv.image || d.sectionVideos.image,
+        diverse: sv.diverse || d.sectionVideos.diverse,
+      },
+      heroBanner: o && typeof o.heroBanner === 'string' ? o.heroBanner : '',
+    };
+  };
+  if (m && typeof m === 'object' && m.sectionVideos) return { de: mk(m), en: mk(m) };
+  const src = m && typeof m === 'object' ? m : {};
+  return { de: mk(src.de), en: mk(src.en) };
 }
-function setMediaVal(target, val) {
-  if (target === 'heroBanner') state.media.heroBanner = val;
-  else state.media.sectionVideos[target] = val;
+
+// Sprachen + Slots. 'heroBanner' liegt auf oberster Ebene der Sprache, die
+// anderen unter sectionVideos.
+const MEDIA_LANGS = ['de', 'en'];
+const MEDIA_KEYS = ['audio', 'image', 'diverse', 'heroBanner'];
+function getMediaVal(lang, key) {
+  return key === 'heroBanner'
+    ? state.media[lang].heroBanner || ''
+    : state.media[lang].sectionVideos[key] || '';
 }
-function defMediaVal(target) {
-  return target === 'heroBanner' ? '' : defaultMedia().sectionVideos[target];
+function setMediaVal(lang, key, val) {
+  if (key === 'heroBanner') state.media[lang].heroBanner = val;
+  else state.media[lang].sectionVideos[key] = val;
+}
+function defMediaVal(key) {
+  return key === 'heroBanner' ? '' : defaultMediaLocale().sectionVideos[key];
 }
 
 // --- Pfad-Helfer für verschachtelte Overrides ---
@@ -214,8 +240,7 @@ async function boot() {
     de: normTicker(r.data.ticker?.de),
     en: normTicker(r.data.ticker?.en),
   };
-  state.media = r.data.media && r.data.media.sectionVideos ? r.data.media : defaultMedia();
-  if (typeof state.media.heroBanner !== 'string') state.media.heroBanner = '';
+  state.media = normalizeMedia(r.data.media);
   state.loadedMedia = JSON.parse(JSON.stringify(state.media));
   state.defaults = { de: r.data.defaults?.de || {}, en: r.data.defaults?.en || {} };
   state.stagedItems = await mediaAll();
@@ -402,52 +427,67 @@ function slotPreview(val) {
   return `${tag}<p class="st pub">● ${esc(val)}</p>`;
 }
 
-function renderVideos() {
-  const pane = $('#tab-videos');
-  const slots = VIDEO_SLOTS.map((s) => {
-    const val = state.media.sectionVideos[s.key] || '';
-    const def = defaultMedia().sectionVideos[s.key];
-    return `
+// Ein einzelner Medien-Slot (Sprache + Schlüssel). data-Attribute kodieren
+// "lang:key", damit die Bindings wissen, welche Sprache/welcher Slot gemeint ist.
+function mediaSlotPanel(lang, key, { title, hint, placeholder, resetLabel }) {
+  const val = getMediaVal(lang, key);
+  const staged = val.startsWith('staged:');
+  const id = `${lang}:${key}`;
+  return `
       <div class="panel">
-        <h2>Medium: ${s.label}</h2>
-        <p class="hint">Video oder Bild – wird je nach Datei automatisch passend angezeigt.</p>
+        <h2>${title}</h2>
+        <p class="hint">${hint}</p>
         ${slotPreview(val)}
         <label>Pfad/URL</label>
-        <input data-slot="${s.key}" value="${esc(val.startsWith('staged:') ? '' : val)}" placeholder="${esc(def)}" ${val.startsWith('staged:') ? 'disabled' : ''} />
+        <input data-slot="${id}" value="${esc(staged ? '' : val)}" placeholder="${esc(placeholder)}" ${staged ? 'disabled' : ''} />
         <div class="row" style="margin-top:.5rem">
-          <button data-slotpick="${s.key}" style="flex:0 0 auto">📁 Aus Zwischenspeicher wählen</button>
-          <button data-slotreset="${s.key}" style="flex:0 0 auto">↺ Standard</button>
+          <button data-slotpick="${id}" style="flex:0 0 auto">📁 Aus Zwischenspeicher wählen</button>
+          <button data-slotreset="${id}" style="flex:0 0 auto">${resetLabel}</button>
         </div>
       </div>`;
-  }).join('');
+}
 
-  // Hero-Banner (oben auf der Seite, ersetzt das frühere Logo).
-  const bval = state.media.heroBanner || '';
-  const bannerPanel = `
-      <div class="panel">
-        <h2>Hero-Banner (oben auf der Seite)</h2>
-        <p class="hint">Erscheint ganz oben im Hero-Bereich (anstelle des früheren Logos).
-          Bild oder Video. Leer lassen = kein Banner.</p>
-        ${slotPreview(bval)}
-        <label>Pfad/URL</label>
-        <input data-slot="heroBanner" value="${esc(bval.startsWith('staged:') ? '' : bval)}" placeholder="/uploads/mein-banner.jpg" ${bval.startsWith('staged:') ? 'disabled' : ''} />
-        <div class="row" style="margin-top:.5rem">
-          <button data-slotpick="heroBanner" style="flex:0 0 auto">📁 Aus Zwischenspeicher wählen</button>
-          <button data-slotreset="heroBanner" style="flex:0 0 auto">↺ Entfernen</button>
-        </div>
+// Medien-Gruppe einer Sprache: Überschrift + Hero-Banner + drei Sektions-Slots.
+function renderLangMedia(lang) {
+  const head = lang === 'de' ? '🇩🇪 Deutsche Startseite' : '🇬🇧 English homepage';
+  const forWhich = lang === 'de' ? 'deutsche' : 'englische';
+  const header = `
+      <div class="panel" style="border-color:var(--accent);background:var(--panel-2)">
+        <h2 style="margin:.1rem 0">${head}</h2>
+        <p class="hint">Diese Medien gelten nur für die ${forWhich} Startseite.</p>
       </div>`;
+  const banner = mediaSlotPanel(lang, 'heroBanner', {
+    title: 'Hero-Banner (oben auf der Seite)',
+    hint: 'Erscheint ganz oben im Hero-Bereich (anstelle des früheren Logos). Bild oder Video. Leer lassen = kein Banner.',
+    placeholder: '/uploads/mein-banner.jpg',
+    resetLabel: '↺ Entfernen',
+  });
+  const slots = VIDEO_SLOTS.map((s) =>
+    mediaSlotPanel(lang, s.key, {
+      title: 'Medium: ' + s.label,
+      hint: 'Video oder Bild – wird je nach Datei automatisch passend angezeigt.',
+      placeholder: defMediaVal(s.key),
+      resetLabel: '↺ Standard',
+    }),
+  ).join('');
+  return header + banner + slots;
+}
+
+function renderVideos() {
+  const pane = $('#tab-videos');
 
   const tiles = state.stagedItems.length
     ? state.stagedItems.map(mediaTile).join('')
     : '<p class="hint">Noch nichts im Zwischenspeicher. Dateien oben hineinziehen oder auswählen.</p>';
 
   pane.innerHTML = `
-    ${bannerPanel}
-    ${slots}
+    ${renderLangMedia('de')}
+    ${renderLangMedia('en')}
     <div class="panel">
       <h2>Medien-Zwischenspeicher (Browser)</h2>
       <p class="hint">Bilder/Videos werden zunächst nur lokal im Browser gespeichert (Vorschau).
-        Erst beim <strong>Veröffentlichen</strong> werden sie auf den Server geladen.</p>
+        Erst beim <strong>Veröffentlichen</strong> werden sie auf den Server geladen.
+        Eine Datei kann für beide Sprachen verwendet werden.</p>
       <div class="dropzone" id="dropzone">
         Dateien hierher ziehen oder
         <label style="display:inline;color:var(--accent);cursor:pointer;text-decoration:underline">
@@ -457,22 +497,27 @@ function renderVideos() {
       <div class="media-grid">${tiles}</div>
     </div>`;
 
-  // Bindings
+  // Bindings — data-Attribute kodieren "lang:key".
   pane.querySelectorAll('[data-slot]').forEach((el) =>
     el.addEventListener('input', () => {
+      const [lang, key] = el.dataset.slot.split(':');
       const v = el.value.trim();
-      setMediaVal(el.dataset.slot, v || defMediaVal(el.dataset.slot));
+      setMediaVal(lang, key, v || defMediaVal(key));
     }),
   );
   pane.querySelectorAll('[data-slotreset]').forEach((el) =>
     el.addEventListener('click', () => {
-      setMediaVal(el.dataset.slotreset, defMediaVal(el.dataset.slotreset));
+      const [lang, key] = el.dataset.slotreset.split(':');
+      setMediaVal(lang, key, defMediaVal(key));
       renderVideos();
     }),
   );
-  pane
-    .querySelectorAll('[data-slotpick]')
-    .forEach((el) => el.addEventListener('click', () => pickFromLibrary(el.dataset.slotpick)));
+  pane.querySelectorAll('[data-slotpick]').forEach((el) =>
+    el.addEventListener('click', () => {
+      const [lang, key] = el.dataset.slotpick.split(':');
+      pickFromLibrary(lang, key);
+    }),
+  );
   pane.querySelectorAll('[data-mediadel]').forEach((el) =>
     el.addEventListener('click', async () => {
       await mediaDel(el.dataset.mediadel);
@@ -538,17 +583,17 @@ async function addFiles(fileList) {
   if (files.length) toast(`${files.length} Datei(en) im Zwischenspeicher`);
 }
 
-function pickFromLibrary(target) {
+function pickFromLibrary(lang, key) {
   const local = state.stagedItems;
   if (!local.length) {
     toast('Zwischenspeicher ist leer — zuerst Datei hinzufügen.');
     return;
   }
-  openMediaPicker(target, local);
+  openMediaPicker(lang, key, local);
 }
 
 // Anklickbares Auswahlfenster: Kachel klicken -> Medium diesem Platz zuweisen.
-function openMediaPicker(target, items) {
+function openMediaPicker(lang, key, items) {
   document.getElementById('mediaPicker')?.remove();
 
   const tiles = items
@@ -595,7 +640,7 @@ function openMediaPicker(target, items) {
     el.addEventListener('click', () => {
       const item = items.find((x) => x.id === el.dataset.pick);
       if (item) {
-        setMediaVal(target, item.publishedUrl || 'staged:' + item.id);
+        setMediaVal(lang, key, item.publishedUrl || 'staged:' + item.id);
         renderVideos();
       }
       close();
@@ -661,25 +706,24 @@ function renderPublish() {
 
 // --- Speichern (Draft) ---
 function resolveMediaForSave() {
-  // Ersetzt staged:-Referenzen durch bereits veröffentlichte URLs oder
-  // (falls noch nicht hochgeladen) durch den zuletzt geladenen/Default-Wert.
+  // Ersetzt staged:-Referenzen (pro Sprache) durch bereits veröffentlichte URLs
+  // oder (falls noch nicht hochgeladen) durch den zuletzt geladenen/Default-Wert.
   const m = JSON.parse(JSON.stringify(state.media));
-  if (typeof m.heroBanner !== 'string') m.heroBanner = '';
-  for (const key of ['audio', 'image', 'diverse']) {
-    const v = m.sectionVideos[key];
-    if (typeof v === 'string' && v.startsWith('staged:')) {
-      const id = v.slice(7);
-      const item = state.stagedItems.find((x) => x.id === id);
-      m.sectionVideos[key] =
-        (item && item.publishedUrl) ||
-        state.loadedMedia.sectionVideos[key] ||
-        defaultMedia().sectionVideos[key];
+  for (const lang of MEDIA_LANGS) {
+    const lm = m[lang];
+    const loaded = state.loadedMedia[lang] || defaultMediaLocale();
+    for (const key of ['audio', 'image', 'diverse']) {
+      const v = lm.sectionVideos[key];
+      if (typeof v === 'string' && v.startsWith('staged:')) {
+        const item = state.stagedItems.find((x) => x.id === v.slice(7));
+        lm.sectionVideos[key] =
+          (item && item.publishedUrl) || loaded.sectionVideos[key] || defMediaVal(key);
+      }
     }
-  }
-  if (typeof m.heroBanner === 'string' && m.heroBanner.startsWith('staged:')) {
-    const id = m.heroBanner.slice(7);
-    const item = state.stagedItems.find((x) => x.id === id);
-    m.heroBanner = (item && item.publishedUrl) || state.loadedMedia.heroBanner || '';
+    if (typeof lm.heroBanner === 'string' && lm.heroBanner.startsWith('staged:')) {
+      const item = state.stagedItems.find((x) => x.id === lm.heroBanner.slice(7));
+      lm.heroBanner = (item && item.publishedUrl) || loaded.heroBanner || '';
+    }
   }
   return m;
 }
@@ -726,11 +770,13 @@ $('#saveBtn').addEventListener('click', async () => {
 
 // --- Veröffentlichen ---
 async function uploadStagedReferenced() {
-  // Lädt alle staged Medien hoch, die in Slots referenziert werden.
+  // Lädt alle staged Medien hoch, die in Slots referenziert werden (beide Sprachen).
   const referenced = new Set();
-  for (const target of MEDIA_TARGETS) {
-    const v = getMediaVal(target);
-    if (typeof v === 'string' && v.startsWith('staged:')) referenced.add(v.slice(7));
+  for (const lang of MEDIA_LANGS) {
+    for (const key of MEDIA_KEYS) {
+      const v = getMediaVal(lang, key);
+      if (typeof v === 'string' && v.startsWith('staged:')) referenced.add(v.slice(7));
+    }
   }
   for (const id of referenced) {
     const item = await mediaGet(id);
@@ -746,12 +792,14 @@ async function uploadStagedReferenced() {
     await mediaPut(item);
   }
   state.stagedItems = await mediaAll();
-  // Slots auf endgültige URLs setzen
-  for (const target of MEDIA_TARGETS) {
-    const v = getMediaVal(target);
-    if (typeof v === 'string' && v.startsWith('staged:')) {
-      const item = state.stagedItems.find((x) => x.id === v.slice(7));
-      if (item && item.publishedUrl) setMediaVal(target, item.publishedUrl);
+  // Slots (beide Sprachen) auf endgültige URLs setzen
+  for (const lang of MEDIA_LANGS) {
+    for (const key of MEDIA_KEYS) {
+      const v = getMediaVal(lang, key);
+      if (typeof v === 'string' && v.startsWith('staged:')) {
+        const item = state.stagedItems.find((x) => x.id === v.slice(7));
+        if (item && item.publishedUrl) setMediaVal(lang, key, item.publishedUrl);
+      }
     }
   }
 }

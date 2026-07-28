@@ -68,7 +68,7 @@ export function getTicker(locale: Locale): TickerConfig {
   return (locale === 'en' ? enTicker : deTicker) as TickerConfig;
 }
 
-// --- Medien (sprachunabhängig; admin-editierbar über media.json) ---
+// --- Medien (pro Sprache; admin-editierbar über media.json) ---
 
 export interface MediaConfig {
   sectionVideos: { audio: string; image: string; diverse: string };
@@ -86,7 +86,21 @@ const MEDIA_DEFAULTS: MediaConfig = {
   heroBanner: '',
 };
 
-/** Medien-Konfiguration (Defaults + Admin-Override aus media.json). */
-export function getMedia(): MediaConfig {
-  return deepMerge(MEDIA_DEFAULTS, mediaOverrides);
+/**
+ * Liefert den Admin-Override für eine Sprache. Unterstützt beide Formen von
+ * media.json:
+ *   - neu:  { de: {...}, en: {...} }  (pro Sprache getrennt)
+ *   - alt:  { sectionVideos, heroBanner }  (sprachunabhängig -> beide Sprachen)
+ */
+function mediaOverrideFor(locale: Locale): unknown {
+  const m = mediaOverrides as Record<string, unknown>;
+  if (isPlainObject(m) && (isPlainObject(m.de) || isPlainObject(m.en))) {
+    return m[locale];
+  }
+  return m; // alte, sprachunabhängige Struktur
+}
+
+/** Medien-Konfiguration für eine Sprache (Defaults + Admin-Override). */
+export function getMedia(locale: Locale): MediaConfig {
+  return deepMerge(MEDIA_DEFAULTS, mediaOverrideFor(locale));
 }
