@@ -5,6 +5,7 @@
 // der Admin alle Änderungen vor dem Veröffentlichen im Browser sieht.
 
 import { execFile } from 'node:child_process';
+import { mkdir } from 'node:fs/promises';
 import { resolve, dirname } from 'node:path';
 import { config } from './config.mjs';
 
@@ -71,15 +72,19 @@ async function doPreview() {
   state.step = 'build';
   log('astro build (Vorschau) -> dist-preview/');
 
-  // Build-Umgebung wie im Deploy robust machen: Telemetrie aus, sicher
-  // beschreibbares HOME. Zusätzlich base + Ausgabeverzeichnis der Vorschau.
+  // Build-Umgebung exakt wie im Deploy (deploy.sh) robust machen: Telemetrie
+  // aus und ein sicher beschreibbares HOME (npm-/Astro-Cache) — das vom Dienst
+  // geerbte HOME (z.B. /var/www) ist im systemd-Sandbox nicht beschreibbar.
+  // Zusätzlich base + Ausgabeverzeichnis der Vorschau.
+  const buildHome = resolve(dirname(config.repoDir), '.build-home');
+  await mkdir(buildHome, { recursive: true });
   const env = {
     ...process.env,
     ASTRO_BASE: PREVIEW_BASE,
     ASTRO_OUT_DIR: PREVIEW_DIR,
     ASTRO_TELEMETRY_DISABLED: '1',
     DO_NOT_TRACK: '1',
-    HOME: process.env.HOME || resolve(dirname(config.repoDir), '.build-home'),
+    HOME: buildHome,
   };
 
   const out = await run('npm', ['run', 'build'], { env });
