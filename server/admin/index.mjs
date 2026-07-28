@@ -21,6 +21,7 @@ import { readJson, readBody, sendJson, sendText, clientIp, csrfOk } from './util
 import { loadContent, saveContent } from './content.mjs';
 import { saveUpload } from './uploads.mjs';
 import { startPublish, getPublishState } from './publish.mjs';
+import { startPreview, getPreviewState, PREVIEW_DIR } from './preview.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = resolve(__dirname, 'public');
@@ -28,12 +29,23 @@ const PUBLIC_DIR = resolve(__dirname, 'public');
 const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
+  '.mjs': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
+  '.map': 'application/json; charset=utf-8',
+  '.xml': 'application/xml; charset=utf-8',
+  '.txt': 'text/plain; charset=utf-8',
   '.svg': 'image/svg+xml',
   '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.webp': 'image/webp',
+  '.avif': 'image/avif',
   '.ico': 'image/x-icon',
+  '.woff': 'font/woff',
   '.woff2': 'font/woff2',
+  '.ttf': 'font/ttf',
 };
 
 function noindex(res) {
@@ -68,6 +80,43 @@ async function serveStatic(req, res, urlPath) {
     } catch {
       sendText(res, 404, 'Admin-Frontend noch nicht gebaut (Phase 4).');
     }
+  }
+}
+
+// --- Auslieferung der Vorschau (dist-preview/) unter /admin/preview/ ---
+// Nur für angemeldete Admins. Die Vorschau-HTML referenziert eigene Assets
+// unter /admin/preview/_astro/… (base), Medien/Bilder/Videos hingegen unter
+// dem Live-Root (/uploads, /videos, /images) — die existieren dort bereits.
+async function servePreview(req, res, urlPath) {
+  if (!isAuthenticated(req)) {
+    noindex(res);
+    res.writeHead(401, { 'Content-Type': MIME['.html'], 'Cache-Control': 'no-store' });
+    res.end(
+      '<p>Nicht angemeldet. Bitte zuerst im <a href="/admin/">Adminbereich</a> anmelden.</p>',
+    );
+    return;
+  }
+  // '/preview' oder '/preview/...' -> relativer Pfad innerhalb dist-preview/
+  const sub = urlPath.slice('/preview'.length) || '/';
+  const rel = normalize(decodeURIComponent(sub)).replace(/^(\.\.[/\\])+/, '');
+  let filePath = resolve(PREVIEW_DIR, '.' + (rel === '/' ? '/index.html' : rel));
+  if (filePath !== PREVIEW_DIR && !filePath.startsWith(PREVIEW_DIR + '/')) {
+    return sendText(res, 403, 'Forbidden');
+  }
+  try {
+    let s = await stat(filePath);
+    if (s.isDirectory()) filePath = resolve(filePath, 'index.html');
+    const body = await readFile(filePath);
+    noindex(res);
+    res.writeHead(200, {
+      'Content-Type': MIME[extname(filePath)] || 'application/octet-stream',
+      'Cache-Control': 'no-store',
+    });
+    res.end(body);
+  } catch {
+    noindex(res);
+    res.writeHead(404, { 'Content-Type': MIME['.html'], 'Cache-Control': 'no-store' });
+    res.end('<p>In der Vorschau nicht gefunden. Wurde die Vorschau schon erstellt?</p>');
   }
 }
 
@@ -162,6 +211,11 @@ async function handleApi(req, res, path) {
   if (path === '/api/publish' && method === 'POST') {
     if (!requireAuth(req, res)) return;
     if (!requireCsrf(req, res)) return;
+    if (getPreviewState().status === 'running') {
+      return sendJson(res, 409, {
+        error: 'Es läuft gerade ein Vorschau-Build. Bitte kurz warten.',
+      });
+    }
     let body = {};
     try {
       body = await readJson(req);
@@ -178,6 +232,25 @@ async function handleApi(req, res, path) {
     return sendJson(res, 200, getPublishState());
   }
 
+  // Vorschau-Build (baut Entwurf nach dist-preview/, ohne Deploy)
+  if (path === '/api/preview' && method === 'POST') {
+    if (!requireAuth(req, res)) return;
+    if (!requireCsrf(req, res)) return;
+    if (getPublishState().status === 'running') {
+      return sendJson(res, 409, {
+        error: 'Es läuft gerade eine Veröffentlichung. Bitte kurz warten.',
+      });
+    }
+    const result = startPreview();
+    if (!result.ok) return sendJson(res, 409, { error: result.reason });
+    return sendJson(res, 202, { ok: true });
+  }
+
+  if (path === '/api/preview/status' && method === 'GET') {
+    if (!requireAuth(req, res)) return;
+    return sendJson(res, 200, getPreviewState());
+  }
+
   return sendJson(res, 404, { error: 'Unbekannter Endpunkt' });
 }
 
@@ -187,6 +260,8 @@ const server = http.createServer(async (req, res) => {
     const path = url.pathname;
     if (path === '/api' || path.startsWith('/api/')) {
       await handleApi(req, res, path);
+    } else if (path === '/preview' || path.startsWith('/preview/')) {
+      await servePreview(req, res, path);
     } else {
       await serveStatic(req, res, path);
     }

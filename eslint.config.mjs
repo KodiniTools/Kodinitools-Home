@@ -33,9 +33,9 @@ export default tseslint.config(
     },
   },
 
-  // Node-Server (Admin-Dienst) — Node-Built-in-Globals bereitstellen
+  // Node-Server (Admin-Dienst) + Build-Config — Node-Built-in-Globals bereitstellen
   {
-    files: ['server/**/*.mjs'],
+    files: ['server/**/*.mjs', 'astro.config.mjs'],
     languageOptions: {
       globals: {
         process: 'readonly',
@@ -44,6 +44,32 @@ export default tseslint.config(
         URL: 'readonly',
         setTimeout: 'readonly',
         clearTimeout: 'readonly',
+      },
+    },
+  },
+
+  // Admin-Frontend (Browser-JavaScript) — Browser-Globals bereitstellen
+  {
+    files: ['server/admin/public/**/*.js'],
+    languageOptions: {
+      globals: {
+        window: 'readonly',
+        document: 'readonly',
+        location: 'readonly',
+        fetch: 'readonly',
+        URL: 'readonly',
+        prompt: 'readonly',
+        alert: 'readonly',
+        confirm: 'readonly',
+        console: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        indexedDB: 'readonly',
+        FileReader: 'readonly',
+        Blob: 'readonly',
+        FormData: 'readonly',
       },
     },
   },
