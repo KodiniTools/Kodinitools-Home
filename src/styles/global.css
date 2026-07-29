@@ -901,14 +901,17 @@ body {
 }
 
 /* Austauschbares Hero-Banner (ersetzt das frühere Logo) */
+/* WICHTIG: kein Flexbox um das Bild. Ein <img> mit width/height:auto als
+   Flex-Item kollabiert in iOS-Safari auf 0 Höhe (bekannter WebKit-Bug) und
+   wird dort nicht angezeigt. Block-Zentrierung ist zuverlässig überall. */
 .hero-banner-wrapper {
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  text-align: center;
 }
 
 .hero-banner {
+  display: block;
+  margin: 0 auto;
   max-width: min(100%, 900px);
   max-height: 240px;
   width: auto;
