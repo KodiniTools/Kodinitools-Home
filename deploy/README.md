@@ -136,9 +136,21 @@ sudo nginx -t && sudo systemctl reload nginx
 
 ## Manueller Deploy jederzeit
 
+**Immer als Dienst-User `www-data` ausführen — NICHT als root.** Läuft der
+Deploy als root, gehören die erzeugten Webroot-Dateien danach root, und der
+Admin-Dienst (www-data) kann beim nächsten Veröffentlichen nicht mehr
+darüberschreiben (`rsync … Permission denied`).
+
 ```bash
-cd /opt/kodini/repo && ./deploy.sh            # baut main, deployt
-cd /opt/kodini/repo && ./deploy.sh --dry-run  # nur Vorschau
+sudo -u www-data /opt/kodini/repo/deploy.sh            # baut main, deployt
+sudo -u www-data /opt/kodini/repo/deploy.sh --dry-run  # nur Vorschau
+```
+
+Falls die Rechte bereits verstellt sind (Deploy meldet „Permission denied"),
+einmalig als root reparieren:
+
+```bash
+sudo chown -R www-data:www-data /var/www/kodinitools.com
 ```
 
 ## Admin-**Backend** geändert? Dienst neu starten
