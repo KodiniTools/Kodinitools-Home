@@ -44,6 +44,11 @@ for arg in "$@"; do
   esac
 done
 
+# rsync ohne Eigentümer/Gruppe zu übernehmen: Der Dienst läuft als www-data und
+# darf chown/chgrp nicht ausführen. Ohne --no-owner/--no-group scheitert -a mit
+# "chgrp … Operation not permitted", sobald Quell- und Ziel-Gruppe abweichen.
+RSYNC_OPTS="-a --no-owner --no-group"
+
 log() { printf '\033[1;34m[deploy]\033[0m %s\n' "$*"; }
 err() { printf '\033[1;31m[deploy:FEHLER]\033[0m %s\n' "$*" >&2; }
 
@@ -93,19 +98,32 @@ npm run build   # -> dist/
 if [ -n "$DRY_RUN" ]; then
   log "DRY-RUN — es wird nichts verändert."
   log "(a) additive Spiegelung dist/ -> Webroot:"
-  rsync -a --itemize-changes --dry-run dist/ "$WEBROOT/"
+  rsync $RSYNC_OPTS --itemize-changes --dry-run dist/ "$WEBROOT/"
   if [ -d "$WEBROOT/_astro" ]; then
     log "(b) _astro/ Bereinigung veralteter Bundles:"
-    rsync -a --delete --itemize-changes --dry-run dist/_astro/ "$WEBROOT/_astro/"
+    rsync $RSYNC_OPTS --delete --itemize-changes --dry-run dist/_astro/ "$WEBROOT/_astro/"
   fi
   log "DRY-RUN beendet."
   exit 0
 fi
 
+# Vorabprüfung: Kann der Dienst-User überhaupt ins Webroot schreiben? Wenn nicht
+# (z.B. weil ein früherer Deploy als root lief und root-eigene Dateien anlegte),
+# bricht rsync mit "Permission denied" ab. Klarer Hinweis mit Reparatur-Befehl.
+if [ ! -w "$WEBROOT" ] || { [ -d "$WEBROOT/_astro" ] && [ ! -w "$WEBROOT/_astro" ]; }; then
+  err "Kein Schreibrecht im Webroot ($WEBROOT) für Benutzer '$(id -un)'."
+  err "Vermutlich gehören Dateien einem anderen Benutzer (z.B. root aus einem"
+  err "früheren 'sudo ./deploy.sh'). Einmalig als root reparieren:"
+  err "    sudo chown -R www-data:www-data $WEBROOT"
+  err "und danach den Deploy erneut ausführen (als Dienst-User, nicht als root):"
+  err "    sudo -u www-data $REPO_DIR/deploy.sh"
+  exit 1
+fi
+
 log "(a) Spiegele dist/ additiv nach $WEBROOT (löscht nichts) ..."
-rsync -a dist/ "$WEBROOT/"
+rsync $RSYNC_OPTS dist/ "$WEBROOT/"
 
 log "(b) Bereinige veraltete Bundles in _astro/ ..."
-rsync -a --delete dist/_astro/ "$WEBROOT/_astro/"
+rsync $RSYNC_OPTS --delete dist/_astro/ "$WEBROOT/_astro/"
 
 log "Fertig. Live-Stand: $(git rev-parse --short HEAD)"
