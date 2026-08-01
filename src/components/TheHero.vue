@@ -16,7 +16,7 @@
       <!-- Promo Section with Logo -->
       <div class="hero-promo">
         <div class="hero-logo">
-          <img src="https://kodinitools.com/images/logo.svg" alt="KodiniTools Logo" />
+          <img src="https://kodinitools.com/images/logo.png" alt="KodiniTools Logo" />
         </div>
         <h1 class="hero-title">
           <span class="gradient-title">{{ $t('hero.title') }}</span>
