@@ -18,6 +18,34 @@ const show = ticker.enabled === true && items.length > 0;
 // bei langem Text gleich flott, unabhängig von der Textmenge.)
 const speeds = { slow: 40, normal: 70, fast: 120 } as const;
 const pxPerSec = speeds[ticker.speed] ?? speeds.normal;
+
+// Admin-Design (optional). Nur wenn aktiviert, überschreiben wir per Inline-Vars
+// die Standardfarben/-größe — sonst bleibt das bisherige Aussehen (inkl. Dark Mode).
+function hexToRgba(hex: string, opacityPct: number): string | null {
+  const m = /^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.exec((hex || '').trim());
+  if (!m) return null;
+  let h = m[1];
+  if (h.length === 3)
+    h = h
+      .split('')
+      .map((c) => c + c)
+      .join('');
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  const a = Math.max(0, Math.min(100, Number.isFinite(opacityPct) ? opacityPct : 100)) / 100;
+  return `rgba(${r}, ${g}, ${b}, ${a})`;
+}
+
+const s = ticker.style;
+const styleVars: string[] = [];
+if (s && s.enabled) {
+  if (s.fontSize) styleVars.push(`--ticker-fs:${s.fontSize}px`);
+  if (s.textColor) styleVars.push(`--ticker-fg:${s.textColor}`);
+  const bg = s.bgColor ? hexToRgba(s.bgColor, s.bgOpacity ?? 100) : null;
+  if (bg) styleVars.push(`--ticker-bg:${bg}`);
+}
+const tickerStyle = styleVars.length ? styleVars.join(';') : undefined;
 ---
 
 {
@@ -28,6 +56,7 @@ const pxPerSec = speeds[ticker.speed] ?? speeds.normal;
       aria-label={lang === 'en' ? 'Announcements' : 'Ankündigungen'}
       data-ticker
       data-ticker-speed={pxPerSec}
+      style={tickerStyle}
     >
       <div class="ticker__viewport">
         <div class="ticker__track" data-ticker-track>
@@ -108,7 +137,7 @@ const pxPerSec = speeds[ticker.speed] ?? speeds.normal;
     display: inline-flex;
     align-items: center;
     padding: 8px 0;
-    font-size: 0.9rem;
+    font-size: var(--ticker-fs, 0.9rem);
     font-weight: 500;
     line-height: 1.2;
   }

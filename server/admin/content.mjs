@@ -33,8 +33,44 @@ export async function loadContent() {
   };
 }
 
+function defaultTickerStyle() {
+  return { enabled: false, fontSize: 14, textColor: '#ffffff', bgColor: '#014f99', bgOpacity: 100 };
+}
+
 function defaultTicker() {
-  return { enabled: false, speed: 'normal', items: [] };
+  return { enabled: false, speed: 'normal', items: [], style: defaultTickerStyle() };
+}
+
+function normHexColor(v, def) {
+  if (typeof v !== 'string') return def;
+  const m = /^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.exec(v.trim());
+  if (!m) return def;
+  let h = m[1];
+  if (h.length === 3)
+    h = h
+      .split('')
+      .map((c) => c + c)
+      .join('');
+  return '#' + h.toLowerCase();
+}
+
+function clampNum(v, min, max, def) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return def;
+  return Math.max(min, Math.min(max, Math.round(n)));
+}
+
+/** Validiert/normalisiert das Laufband-Design (fehlerhafte Werte -> Standard). */
+export function validateTickerStyle(s) {
+  const d = defaultTickerStyle();
+  if (!isPlainObject(s)) return d;
+  return {
+    enabled: s.enabled === true,
+    fontSize: clampNum(s.fontSize, 8, 48, d.fontSize),
+    textColor: normHexColor(s.textColor, d.textColor),
+    bgColor: normHexColor(s.bgColor, d.bgColor),
+    bgOpacity: clampNum(s.bgOpacity, 0, 100, d.bgOpacity),
+  };
 }
 
 function defaultMediaLocale() {
@@ -77,7 +113,7 @@ export function validateTicker(t) {
     }
     return out;
   });
-  return { enabled: t.enabled === true, speed, items };
+  return { enabled: t.enabled === true, speed, items, style: validateTickerStyle(t.style) };
 }
 
 /** Validiert Overrides (nur Plain-Object, begrenzte Tiefe/Größe). */

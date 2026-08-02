@@ -77,6 +77,7 @@ async function mediaDel(id) {
 const state = {
   overrides: { de: {}, en: {} },
   ticker: { de: emptyTicker(), en: emptyTicker() },
+  tickerStyle: defaultTickerStyle(), // gemeinsames Laufband-Design (DE+EN)
   media: defaultMedia(),
   loadedMedia: defaultMedia(), // Fallback für nicht aufgelöste Staging-Refs beim Speichern
   defaults: { de: {}, en: {} },
@@ -86,6 +87,42 @@ const state = {
 
 function emptyTicker() {
   return { enabled: false, speed: 'normal', items: [] };
+}
+function defaultTickerStyle() {
+  return { enabled: false, fontSize: 14, textColor: '#ffffff', bgColor: '#014f99', bgOpacity: 100 };
+}
+// Laufband-Design normalisieren (aus geladener Config).
+function normTickerStyle(s) {
+  const d = defaultTickerStyle();
+  if (!s || typeof s !== 'object') return d;
+  const clamp = (v, min, max, def) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : def;
+  };
+  const hex = (v, def) => (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? v : def);
+  return {
+    enabled: s.enabled === true,
+    fontSize: clamp(s.fontSize, 8, 48, d.fontSize),
+    textColor: hex(s.textColor, d.textColor),
+    bgColor: hex(s.bgColor, d.bgColor),
+    bgOpacity: clamp(s.bgOpacity, 0, 100, d.bgOpacity),
+  };
+}
+// Hex + Deckkraft(%) -> rgba() (für Vorschau).
+function rgbaFromHex(hex, opacityPct) {
+  const m = /^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.exec(String(hex || '').trim());
+  if (!m) return hex;
+  let h = m[1];
+  if (h.length === 3)
+    h = h
+      .split('')
+      .map((c) => c + c)
+      .join('');
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  const a = Math.max(0, Math.min(100, Number(opacityPct) || 0)) / 100;
+  return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
 function defaultMediaLocale() {
   return {
@@ -240,6 +277,8 @@ async function boot() {
     de: normTicker(r.data.ticker?.de),
     en: normTicker(r.data.ticker?.en),
   };
+  // Laufband-Design ist gemeinsam für DE+EN; aus DE (bzw. EN) laden.
+  state.tickerStyle = normTickerStyle(r.data.ticker?.de?.style || r.data.ticker?.en?.style);
   state.media = normalizeMedia(r.data.media);
   state.loadedMedia = JSON.parse(JSON.stringify(state.media));
   state.defaults = { de: r.data.defaults?.de || {}, en: r.data.defaults?.en || {} };
@@ -268,8 +307,72 @@ function normTicker(t) {
 // ============ TAB: Laufband ============
 function renderTicker() {
   const pane = $('#tab-ticker');
-  pane.innerHTML = ['de', 'en'].map(tickerPanel).join('');
+  pane.innerHTML = tickerStylePanel() + ['de', 'en'].map(tickerPanel).join('');
   pane.querySelectorAll('[data-tk]').forEach(bindTickerControl);
+  bindTickerStyle(pane);
+}
+
+// Vorschau-Style des Laufbands (gleiche Logik wie TickerBar.astro).
+function tickerPreviewStyle(s) {
+  const bg = s.enabled ? rgbaFromHex(s.bgColor, s.bgOpacity) : '#014f99';
+  const fg = s.enabled ? s.textColor : '#ffffff';
+  const fs = s.enabled ? `${s.fontSize}px` : '0.9rem';
+  return `background:${bg};color:${fg};font-size:${fs};font-weight:500;padding:8px 14px;border-radius:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis`;
+}
+
+function tickerStylePanel() {
+  const s = state.tickerStyle;
+  return `
+    <div class="panel">
+      <h2>Laufband-Design</h2>
+      <p class="hint">Gilt für Deutsch und Englisch gemeinsam. Ausgeschaltet = Standard-Design (Blau, passt sich Dark Mode an).</p>
+      <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin-top:.4rem">
+        <input type="checkbox" data-tks="enabled" ${s.enabled ? 'checked' : ''} style="width:auto" /> Eigenes Design verwenden
+      </label>
+      <div class="row" style="margin-top:.6rem;align-items:flex-end">
+        <div style="flex:0 0 auto">
+          <label>Schriftgröße (px)</label>
+          <input type="number" data-tks="fontSize" min="8" max="48" value="${s.fontSize}" style="width:90px" />
+        </div>
+        <div style="flex:0 0 auto">
+          <label>Schriftfarbe</label>
+          <input type="color" data-tks="textColor" value="${esc(s.textColor)}" style="width:56px;height:38px;padding:2px" />
+        </div>
+        <div style="flex:0 0 auto">
+          <label>Hintergrundfarbe</label>
+          <input type="color" data-tks="bgColor" value="${esc(s.bgColor)}" style="width:56px;height:38px;padding:2px" />
+        </div>
+        <div style="flex:1 1 180px">
+          <label>Transparenz Hintergrund: <span data-tks-oval>${s.bgOpacity}</span>% <span class="hint">(0 = ganz durchsichtig)</span></label>
+          <input type="range" data-tks="bgOpacity" min="0" max="100" value="${s.bgOpacity}" style="width:100%" />
+        </div>
+      </div>
+      <p class="hint" style="margin-top:.8rem">Vorschau:</p>
+      <div data-tks-preview style="${tickerPreviewStyle(s)}">Immer die besten Tools für deine Aufgaben – Beispieltext</div>
+    </div>`;
+}
+
+function bindTickerStyle(pane) {
+  const preview = pane.querySelector('[data-tks-preview]');
+  const oval = pane.querySelector('[data-tks-oval]');
+  const refresh = () => {
+    if (preview) preview.setAttribute('style', tickerPreviewStyle(state.tickerStyle));
+  };
+  pane.querySelectorAll('[data-tks]').forEach((el) => {
+    const field = el.dataset.tks;
+    const evt = el.type === 'checkbox' ? 'change' : 'input';
+    el.addEventListener(evt, () => {
+      const s = state.tickerStyle;
+      if (field === 'enabled') s.enabled = el.checked;
+      else if (field === 'fontSize')
+        s.fontSize = Math.max(8, Math.min(48, parseInt(el.value, 10) || 14));
+      else if (field === 'bgOpacity') {
+        s.bgOpacity = Math.max(0, Math.min(100, parseInt(el.value, 10) || 0));
+        if (oval) oval.textContent = s.bgOpacity;
+      } else s[field] = el.value; // Farben
+      refresh();
+    });
+  });
 }
 
 function tickerPanel(lang) {
@@ -749,6 +852,8 @@ function cleanTicker(t) {
         if (i.link && i.link.trim()) o.link = i.link.trim();
         return o;
       }),
+    // Gemeinsames Design in beide Sprachen schreiben (immer synchron).
+    style: { ...state.tickerStyle },
   };
 }
 
