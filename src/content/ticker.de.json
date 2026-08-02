@@ -6,5 +6,12 @@
       "id": "1785207507498",
       "text": "Immer die besten Tools für deine Aufgaben – Stets aktuell, geprüft und einsatzbereit - Schau regelmässig vorbei - Letzte Aktuallisierung: 02.08.2026"
     }
-  ]
+  ],
+  "style": {
+    "enabled": true,
+    "fontSize": 14,
+    "textColor": "#070c5a",
+    "bgColor": "#88b9e7",
+    "bgOpacity": 100
+  }
 }
