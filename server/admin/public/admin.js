@@ -525,7 +525,33 @@ function slotPreview(val) {
   const tag = isVid
     ? `<video src="${esc(val)}" muted style="max-width:220px;border-radius:6px"></video>`
     : `<img src="${esc(val)}" style="max-width:220px;border-radius:6px" onerror="this.style.display='none'" />`;
-  return `${tag}<p class="st pub">● ${esc(val)}</p>`;
+  // data-slotstatus: nach dem Rendern prüfen wir, ob die /uploads-Datei
+  // wirklich auf dem Server liegt (sonst zeigt der Slot fälschlich „ok").
+  return `${tag}<p class="st pub" data-slotstatus="${esc(val)}">● ${esc(val)}</p>`;
+}
+
+// Prüft nach dem Rendern, ob referenzierte /uploads-Dateien serverseitig
+// existieren. Fehlt eine, wird eine deutliche Warnung eingeblendet — so sieht
+// der Admin sofort, dass der Slot zwar gesetzt, die Datei aber weg ist.
+async function verifyPublishedSlots(pane) {
+  const nodes = pane.querySelectorAll('[data-slotstatus]');
+  for (const el of nodes) {
+    const url = el.dataset.slotstatus;
+    if (!/^\/uploads\//.test(url)) continue; // nur hochgeladene Medien prüfen
+    let ok;
+    try {
+      const r = await fetch(url, { method: 'HEAD', cache: 'no-store' });
+      ok = r.ok;
+    } catch {
+      ok = false;
+    }
+    if (!ok && el.isConnected) {
+      el.insertAdjacentHTML(
+        'afterend',
+        '<p class="st" style="color:#f87171;font-weight:600">⚠ Datei fehlt auf dem Server – bitte über „📁 Aus Zwischenspeicher wählen" neu zuweisen und veröffentlichen.</p>',
+      );
+    }
+  }
 }
 
 // Ein einzelner Medien-Slot (Sprache + Schlüssel). data-Attribute kodieren
@@ -643,6 +669,9 @@ function renderVideos() {
     }),
   );
   dz.addEventListener('drop', (e) => addFiles(e.dataTransfer.files));
+
+  // Nach dem Rendern prüfen, ob die referenzierten Upload-Dateien noch existieren.
+  verifyPublishedSlots(pane);
 }
 
 function mediaTile(item) {
