@@ -76,8 +76,7 @@ async function mediaDel(id) {
 // --- App-Zustand ---
 const state = {
   overrides: { de: {}, en: {} },
-  ticker: { de: emptyTicker(), en: emptyTicker() },
-  tickerStyle: defaultTickerStyle(), // gemeinsames Laufband-Design (DE+EN)
+  ticker: { de: emptyTicker(), en: emptyTicker() }, // style ist pro Sprache Teil des Tickers
   media: defaultMedia(),
   loadedMedia: defaultMedia(), // Fallback für nicht aufgelöste Staging-Refs beim Speichern
   defaults: { de: {}, en: {} },
@@ -86,7 +85,7 @@ const state = {
 };
 
 function emptyTicker() {
-  return { enabled: false, speed: 'normal', items: [] };
+  return { enabled: false, speed: 'normal', items: [], style: defaultTickerStyle() };
 }
 function defaultTickerStyle() {
   return { enabled: false, fontSize: 14, textColor: '#ffffff', bgColor: '#014f99', bgOpacity: 100 };
@@ -277,8 +276,6 @@ async function boot() {
     de: normTicker(r.data.ticker?.de),
     en: normTicker(r.data.ticker?.en),
   };
-  // Laufband-Design ist gemeinsam für DE+EN; aus DE (bzw. EN) laden.
-  state.tickerStyle = normTickerStyle(r.data.ticker?.de?.style || r.data.ticker?.en?.style);
   state.media = normalizeMedia(r.data.media);
   state.loadedMedia = JSON.parse(JSON.stringify(state.media));
   state.defaults = { de: r.data.defaults?.de || {}, en: r.data.defaults?.en || {} };
@@ -301,13 +298,14 @@ function normTicker(t) {
     items: Array.isArray(t.items)
       ? t.items.map((i) => ({ id: String(i.id ?? ''), text: i.text || '', link: i.link || '' }))
       : [],
+    style: normTickerStyle(t.style),
   };
 }
 
 // ============ TAB: Laufband ============
 function renderTicker() {
   const pane = $('#tab-ticker');
-  pane.innerHTML = tickerStylePanel() + ['de', 'en'].map(tickerPanel).join('');
+  pane.innerHTML = ['de', 'en'].map(tickerPanel).join('');
   pane.querySelectorAll('[data-tk]').forEach(bindTickerControl);
   bindTickerStyle(pane);
 }
@@ -320,57 +318,56 @@ function tickerPreviewStyle(s) {
   return `background:${bg};color:${fg};font-size:${fs};font-weight:500;padding:8px 14px;border-radius:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis`;
 }
 
-function tickerStylePanel() {
-  const s = state.tickerStyle;
+// Design-Abschnitt für EINE Sprache (in tickerPanel eingebettet).
+function tickerStyleSection(lang) {
+  const s = state.ticker[lang].style;
   return `
-    <div class="panel">
-      <h2>Laufband-Design</h2>
-      <p class="hint">Gilt für Deutsch und Englisch gemeinsam. Ausgeschaltet = Standard-Design (Blau, passt sich Dark Mode an).</p>
-      <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin-top:.4rem">
-        <input type="checkbox" data-tks="enabled" ${s.enabled ? 'checked' : ''} style="width:auto" /> Eigenes Design verwenden
-      </label>
-      <div class="row" style="margin-top:.6rem;align-items:flex-end">
-        <div style="flex:0 0 auto">
-          <label>Schriftgröße (px)</label>
-          <input type="number" data-tks="fontSize" min="8" max="48" value="${s.fontSize}" style="width:90px" />
+      <details style="margin-top:1rem;border-top:1px solid var(--border);padding-top:.75rem">
+        <summary style="cursor:pointer;font-weight:600">🎨 Design (${lang.toUpperCase()})</summary>
+        <p class="hint" style="margin-top:.4rem">Nur für ${lang === 'de' ? 'Deutsch' : 'Englisch'}. Ausgeschaltet = Standard-Design (Blau, passt sich Dark Mode an).</p>
+        <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin-top:.4rem">
+          <input type="checkbox" data-tks="enabled" data-lang="${lang}" ${s.enabled ? 'checked' : ''} style="width:auto" /> Eigenes Design verwenden
+        </label>
+        <div class="row" style="margin-top:.6rem;align-items:flex-end">
+          <div style="flex:0 0 auto">
+            <label>Schriftgröße (px)</label>
+            <input type="number" data-tks="fontSize" data-lang="${lang}" min="8" max="48" value="${s.fontSize}" style="width:90px" />
+          </div>
+          <div style="flex:0 0 auto">
+            <label>Schriftfarbe</label>
+            <input type="color" data-tks="textColor" data-lang="${lang}" value="${esc(s.textColor)}" style="width:56px;height:38px;padding:2px" />
+          </div>
+          <div style="flex:0 0 auto">
+            <label>Hintergrundfarbe</label>
+            <input type="color" data-tks="bgColor" data-lang="${lang}" value="${esc(s.bgColor)}" style="width:56px;height:38px;padding:2px" />
+          </div>
+          <div style="flex:1 1 180px">
+            <label>Transparenz Hintergrund: <span data-tks-oval data-lang="${lang}">${s.bgOpacity}</span>% <span class="hint">(0 = ganz durchsichtig)</span></label>
+            <input type="range" data-tks="bgOpacity" data-lang="${lang}" min="0" max="100" value="${s.bgOpacity}" style="width:100%" />
+          </div>
         </div>
-        <div style="flex:0 0 auto">
-          <label>Schriftfarbe</label>
-          <input type="color" data-tks="textColor" value="${esc(s.textColor)}" style="width:56px;height:38px;padding:2px" />
-        </div>
-        <div style="flex:0 0 auto">
-          <label>Hintergrundfarbe</label>
-          <input type="color" data-tks="bgColor" value="${esc(s.bgColor)}" style="width:56px;height:38px;padding:2px" />
-        </div>
-        <div style="flex:1 1 180px">
-          <label>Transparenz Hintergrund: <span data-tks-oval>${s.bgOpacity}</span>% <span class="hint">(0 = ganz durchsichtig)</span></label>
-          <input type="range" data-tks="bgOpacity" min="0" max="100" value="${s.bgOpacity}" style="width:100%" />
-        </div>
-      </div>
-      <p class="hint" style="margin-top:.8rem">Vorschau:</p>
-      <div data-tks-preview style="${tickerPreviewStyle(s)}">Immer die besten Tools für deine Aufgaben – Beispieltext</div>
-    </div>`;
+        <p class="hint" style="margin-top:.8rem">Vorschau:</p>
+        <div data-tks-preview data-lang="${lang}" style="${tickerPreviewStyle(s)}">Immer die besten Tools für deine Aufgaben – Beispieltext</div>
+      </details>`;
 }
 
 function bindTickerStyle(pane) {
-  const preview = pane.querySelector('[data-tks-preview]');
-  const oval = pane.querySelector('[data-tks-oval]');
-  const refresh = () => {
-    if (preview) preview.setAttribute('style', tickerPreviewStyle(state.tickerStyle));
-  };
   pane.querySelectorAll('[data-tks]').forEach((el) => {
     const field = el.dataset.tks;
+    const lang = el.dataset.lang;
     const evt = el.type === 'checkbox' ? 'change' : 'input';
     el.addEventListener(evt, () => {
-      const s = state.tickerStyle;
+      const s = state.ticker[lang].style;
       if (field === 'enabled') s.enabled = el.checked;
       else if (field === 'fontSize')
         s.fontSize = Math.max(8, Math.min(48, parseInt(el.value, 10) || 14));
       else if (field === 'bgOpacity') {
         s.bgOpacity = Math.max(0, Math.min(100, parseInt(el.value, 10) || 0));
+        const oval = pane.querySelector(`[data-tks-oval][data-lang="${lang}"]`);
         if (oval) oval.textContent = s.bgOpacity;
       } else s[field] = el.value; // Farben
-      refresh();
+      const preview = pane.querySelector(`[data-tks-preview][data-lang="${lang}"]`);
+      if (preview) preview.setAttribute('style', tickerPreviewStyle(s));
     });
   });
 }
@@ -416,6 +413,7 @@ function tickerPanel(lang) {
       <label>Einträge</label>
       ${items || '<p class="hint">Noch keine Einträge.</p>'}
       <button data-tk="add" data-lang="${lang}" style="margin-top:.5rem">+ Eintrag hinzufügen</button>
+      ${tickerStyleSection(lang)}
     </div>`;
 }
 
@@ -852,8 +850,8 @@ function cleanTicker(t) {
         if (i.link && i.link.trim()) o.link = i.link.trim();
         return o;
       }),
-    // Gemeinsames Design in beide Sprachen schreiben (immer synchron).
-    style: { ...state.tickerStyle },
+    // Design pro Sprache.
+    style: normTickerStyle(t.style),
   };
 }
 
