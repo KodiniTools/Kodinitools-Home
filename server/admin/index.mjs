@@ -284,4 +284,16 @@ server.listen(config.port, config.host, () => {
   console.log(
     `[kodini-admin] läuft auf http://${config.host}:${config.port} (repo: ${config.repoDir})`,
   );
+  // Effektives Upload-Verzeichnis loggen — Uploads MÜSSEN dort landen, wo nginx
+  // /uploads/ ausliefert (webroot/uploads). Liegt UPLOADS_DIR woanders, liefert
+  // die Seite 404 für alle Nutzer, obwohl der Upload „erfolgreich" war.
+  const expectedUploads = resolve(config.webroot, 'uploads');
+  console.log(`[kodini-admin] uploadsDir: ${config.uploadsDir}`);
+  if (resolve(config.uploadsDir) !== expectedUploads) {
+    console.warn(
+      `[kodini-admin] WARNUNG: uploadsDir (${config.uploadsDir}) != ${expectedUploads}. ` +
+        `Von nginx unter /uploads/ ausgelieferte Dateien werden nicht gefunden (404). ` +
+        `Setze UPLOADS_DIR=${expectedUploads} in /opt/kodini/.env und starte den Dienst neu.`,
+    );
+  }
 });

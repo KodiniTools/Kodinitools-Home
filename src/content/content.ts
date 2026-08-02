@@ -57,15 +57,33 @@ export interface TickerItem {
   text: string;
   link?: string;
 }
+/** Admin-einstellbares Aussehen des Laufbands. enabled=false -> Standard-Design. */
+export interface TickerStyle {
+  enabled: boolean;
+  fontSize: number; // px
+  textColor: string; // Hex
+  bgColor: string; // Hex
+  bgOpacity: number; // 0–100 (%)
+}
 export interface TickerConfig {
   enabled: boolean;
   speed: 'slow' | 'normal' | 'fast';
   items: TickerItem[];
+  style?: TickerStyle;
 }
 
-/** Laufband-Konfiguration für eine Sprache. */
+const TICKER_STYLE_DEFAULTS: TickerStyle = {
+  enabled: false,
+  fontSize: 14,
+  textColor: '#ffffff',
+  bgColor: '#014f99',
+  bgOpacity: 100,
+};
+
+/** Laufband-Konfiguration für eine Sprache (mit vollständig aufgefülltem style). */
 export function getTicker(locale: Locale): TickerConfig {
-  return (locale === 'en' ? enTicker : deTicker) as TickerConfig;
+  const raw = (locale === 'en' ? enTicker : deTicker) as TickerConfig;
+  return { ...raw, style: { ...TICKER_STYLE_DEFAULTS, ...(raw.style ?? {}) } };
 }
 
 // --- Medien (pro Sprache; admin-editierbar über media.json) ---
