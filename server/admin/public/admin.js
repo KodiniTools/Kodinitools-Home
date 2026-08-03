@@ -84,6 +84,7 @@ const state = {
   serverFiles: [], // tatsächlich auf dem Server liegende Uploads
   objectUrls: new Map(), // id -> objectURL (für Vorschau)
   nav: { section: 'de', sub: 'ticker' }, // Ebene 1 (de|en|dateien|publish) + Ebene 2
+  publishing: false, // läuft gerade eine Veröffentlichung?
 };
 
 function fmtBytes(n) {
@@ -938,7 +939,7 @@ function renderAdvanced() {
   });
 }
 
-// ============ Veröffentlichen ============
+// ============ Veröffentlichen (Status + Aktion) ============
 function renderPublish() {
   const pane = $('#content');
   pane.innerHTML = `
@@ -948,11 +949,14 @@ function renderPublish() {
         und startet den Deploy auf den Server. Dauert typischerweise 1–2 Minuten.</p>
       <label>Notiz (optional)</label>
       <input id="pubMsg" placeholder="z.B. Neue Hero-Texte" />
-      <div style="margin-top:.75rem">
-        Status: <span class="pill idle" id="pubPill2">bereit</span>
+      <div class="row" style="margin-top:.75rem;align-items:center;gap:.75rem">
+        <button class="success" id="pubNow" style="flex:0 0 auto" ${state.publishing ? 'disabled' : ''}>🚀 Jetzt veröffentlichen</button>
+        <span>Status: <span class="pill idle" id="pubPill2">bereit</span></span>
       </div>
+      <p class="hint" style="margin-top:.5rem">Tipp: Dieselbe Aktion löst auch der grüne Button oben rechts aus. Diese Seite zeigt nur den Fortschritt.</p>
       <div class="status" id="pubLog">—</div>
     </div>`;
+  $('#pubNow').addEventListener('click', runPublish);
 }
 
 // --- Speichern (Draft) ---
@@ -1058,8 +1062,14 @@ async function uploadStagedReferenced() {
 }
 
 let pollTimer;
-$('#publishBtn').addEventListener('click', async () => {
+// Der eigentliche Veröffentlichen-Ablauf. Wird vom grünen Kopf-Button UND vom
+// Button auf der Status-Seite genutzt (beide lösen dasselbe aus).
+async function runPublish() {
+  if (state.publishing) return;
+  state.publishing = true;
   $('#publishBtn').disabled = true;
+  const pn = $('#pubNow');
+  if (pn) pn.disabled = true;
   setPill('running', 'lädt Medien…');
   try {
     await uploadStagedReferenced();
@@ -1072,16 +1082,18 @@ $('#publishBtn').addEventListener('click', async () => {
     const msg = ($('#pubMsg')?.value || '').slice(0, 100);
     const pub = await api('/publish', { method: 'POST', body: { message: msg } });
     if (!pub.ok) throw new Error(pub.data?.error || 'Publish fehlgeschlagen');
-    // In den Veröffentlichen-Bereich wechseln und pollen
+    // In den Status-Bereich wechseln und pollen
     goto('publish');
     startPolling();
   } catch (e) {
+    state.publishing = false;
     setPill('error', 'Fehler');
     const log = $('#pubLog');
     if (log) log.textContent = String(e.message || e);
     $('#publishBtn').disabled = false;
   }
-});
+}
+$('#publishBtn').addEventListener('click', runPublish);
 
 // --- Vorschau (Build ohne Deploy, öffnet die gerenderte Seite in neuem Tab) ---
 let previewPollTimer;
@@ -1201,7 +1213,10 @@ async function refreshPublishStatus() {
   if (log) log.textContent = (s.log || []).join('\n') || '—';
   if (s.status === 'success' || s.status === 'error') {
     clearInterval(pollTimer);
+    state.publishing = false;
     $('#publishBtn').disabled = false;
+    const pn = $('#pubNow');
+    if (pn) pn.disabled = false;
     if (s.status === 'success') {
       toast('Veröffentlicht ✓');
       // Server-Dateiliste aktualisieren (neue Uploads sind jetzt live).
