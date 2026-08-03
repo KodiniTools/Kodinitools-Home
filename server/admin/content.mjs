@@ -84,6 +84,7 @@ function defaultMediaLocale() {
     heroBanner: '',
     heroGrid: ['', '', ''],
     heroGridRatio: '1:1',
+    heroGridFit: 'cover',
   };
 }
 
@@ -166,8 +167,9 @@ function validateMediaLocale(m, langLabel) {
       out.heroGrid[i] = v;
     }
   }
-  // Seitenverhältnis des Rasters.
+  // Seitenverhältnis + Darstellung (zuschneiden vs. ganzes Bild) des Rasters.
   out.heroGridRatio = ['1:1', '16:9', '2:3'].includes(m.heroGridRatio) ? m.heroGridRatio : '1:1';
+  out.heroGridFit = m.heroGridFit === 'contain' ? 'contain' : 'cover';
   return out;
 }
 

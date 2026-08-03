@@ -97,6 +97,8 @@ export interface MediaConfig {
   // Option 2: drei Bilder für das Raster + gewähltes Seitenverhältnis.
   heroGrid: string[];
   heroGridRatio: '1:1' | '16:9' | '2:3';
+  // 'cover' = auf Format zuschneiden, 'contain' = ganzes Bild zeigen (mit Rand).
+  heroGridFit: 'cover' | 'contain';
 }
 
 // Standard-Pfade entsprechen dem bisherigen Auslieferungszustand.
@@ -110,6 +112,7 @@ const MEDIA_DEFAULTS: MediaConfig = {
   heroBanner: '',
   heroGrid: ['', '', ''],
   heroGridRatio: '1:1',
+  heroGridFit: 'cover',
 };
 
 /**

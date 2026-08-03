@@ -172,7 +172,7 @@ const pageI18n = {
           {media.heroMode === 'grid' ? (
             <div
               class="hero-grid"
-              style={`--hero-cell-ratio:${({ '1:1': '1 / 1', '16:9': '16 / 9', '2:3': '2 / 3' })[media.heroGridRatio] || '1 / 1'}`}
+              style={`--hero-cell-ratio:${({ '1:1': '1 / 1', '16:9': '16 / 9', '2:3': '2 / 3' })[media.heroGridRatio] || '1 / 1'};--hero-cell-fit:${media.heroGridFit === 'contain' ? 'contain' : 'cover'}`}
             >
               {media.heroGrid.map((src, i) => (
                 <SectionMedia
