@@ -170,7 +170,10 @@ const pageI18n = {
       <div class="hero-content">
         <div class="hero-promo">
           {media.heroMode === 'grid' ? (
-            <div class="hero-grid">
+            <div
+              class="hero-grid"
+              style={`--hero-cell-ratio:${({ '1:1': '1 / 1', '16:9': '16 / 9', '2:3': '2 / 3' })[media.heroGridRatio] || '1 / 1'}`}
+            >
               {media.heroGrid.map((src, i) => (
                 <SectionMedia
                   src={src}

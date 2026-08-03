@@ -94,8 +94,9 @@ export interface MediaConfig {
   heroMode: 'banner' | 'grid';
   // Option 1: austauschbares Hero-Banner (Bild oder Video). Leer = kein Banner.
   heroBanner: string;
-  // Option 2: drei quadratische Bilder für das Raster.
+  // Option 2: drei Bilder für das Raster + gewähltes Seitenverhältnis.
   heroGrid: string[];
+  heroGridRatio: '1:1' | '16:9' | '2:3';
 }
 
 // Standard-Pfade entsprechen dem bisherigen Auslieferungszustand.
@@ -108,6 +109,7 @@ const MEDIA_DEFAULTS: MediaConfig = {
   heroMode: 'banner',
   heroBanner: '',
   heroGrid: ['', '', ''],
+  heroGridRatio: '1:1',
 };
 
 /**

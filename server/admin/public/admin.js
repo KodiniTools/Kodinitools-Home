@@ -147,6 +147,7 @@ function defaultMediaLocale() {
     heroMode: 'banner',
     heroBanner: '',
     heroGrid: ['', '', ''],
+    heroGridRatio: '1:1',
   };
 }
 // Medien werden pro Sprache getrennt gepflegt: { de: {...}, en: {...} }.
@@ -171,6 +172,7 @@ function normalizeMedia(m) {
       heroMode: o && o.heroMode === 'grid' ? 'grid' : 'banner',
       heroBanner: o && typeof o.heroBanner === 'string' ? o.heroBanner : '',
       heroGrid: [0, 1, 2].map((i) => (typeof grid[i] === 'string' ? grid[i] : '')),
+      heroGridRatio: ['1:1', '16:9', '2:3'].includes(o?.heroGridRatio) ? o.heroGridRatio : '1:1',
     };
   };
   if (m && typeof m === 'object' && m.sectionVideos) return { de: mk(m), en: mk(m) };
@@ -670,17 +672,30 @@ function heroPanel(lang) {
         </div>
       </div>`;
   if (mode === 'grid') {
+    const ratio = ['1:1', '16:9', '2:3'].includes(state.media[lang].heroGridRatio)
+      ? state.media[lang].heroGridRatio
+      : '1:1';
+    const ratioSel = `
+      <div class="panel">
+        <label>Seitenverhältnis der Rasterbilder</label>
+        <select data-gridratio data-lang="${lang}" style="width:auto">
+          <option value="1:1" ${ratio === '1:1' ? 'selected' : ''}>3 × 1:1 (quadratisch)</option>
+          <option value="16:9" ${ratio === '16:9' ? 'selected' : ''}>3 × 16:9 (breit)</option>
+          <option value="2:3" ${ratio === '2:3' ? 'selected' : ''}>3 × 2:3 (hochkant)</option>
+        </select>
+        <p class="hint" style="margin-top:.4rem">Bilder werden auf dieses Verhältnis zugeschnitten (mittig, „cover"). Am besten passende Bilder hochladen.</p>
+      </div>`;
     const cells = [0, 1, 2]
       .map((i) =>
         mediaSlotPanel(lang, 'grid' + i, {
-          title: `Rasterbild ${i + 1} (quadratisch 1:1)`,
-          hint: 'Wird im 3er-Raster oben angezeigt (quadratisch zugeschnitten). Leer = Feld bleibt frei.',
+          title: `Rasterbild ${i + 1}`,
+          hint: 'Wird im 3er-Raster oben angezeigt. Leer = Feld bleibt frei.',
           placeholder: '/uploads/bild.jpg',
           resetLabel: '↺ Entfernen',
         }),
       )
       .join('');
-    return toggle + cells;
+    return toggle + ratioSel + cells;
   }
   return (
     toggle +
@@ -754,6 +769,11 @@ function renderMedia() {
         state.media[el.dataset.lang].heroMode = el.dataset.heromode;
         renderMedia();
       }
+    }),
+  );
+  pane.querySelectorAll('[data-gridratio]').forEach((el) =>
+    el.addEventListener('change', () => {
+      state.media[el.dataset.lang].heroGridRatio = el.value;
     }),
   );
   pane.querySelectorAll('[data-slot]').forEach((el) =>

@@ -936,7 +936,7 @@ body {
   margin: 0 auto;
 }
 .hero-grid-cell {
-  aspect-ratio: 1 / 1;
+  aspect-ratio: var(--hero-cell-ratio, 1 / 1);
   border-radius: 14px;
   overflow: hidden;
   background: rgba(1, 79, 153, 0.08);
