@@ -1,0 +1,4 @@
+# Verzeichnis für vom Admin hochgeladene Medien (per Git dauerhaft gesichert).
+# Beim Build kopiert Astro public/uploads/ nach dist/uploads/ und der Deploy
+# spiegelt es ins Webroot (/uploads). So werden Uploads bei jedem Deploy
+# wiederhergestellt und ueberleben sogar einen Server-Neuaufbau.
