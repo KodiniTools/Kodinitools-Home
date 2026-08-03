@@ -3,37 +3,10 @@
 // Speicher gehalten und per Polling abgefragt.
 
 import { execFile } from 'node:child_process';
-import { readdir, stat, readFile, copyFile, mkdir } from 'node:fs/promises';
+import { readFile, copyFile, mkdir, stat } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { config } from './config.mjs';
-
-// Uploads bis zu dieser Größe werden ins Git aufgenommen (dauerhaft versioniert,
-// bei jedem Deploy wiederhergestellt). Größere Dateien (z.B. Videos) bleiben nur
-// lokal im Repo-/Webroot-Ordner, um das Repo nicht aufzublähen.
-const UPLOADS_GIT_MAX_BYTES = 25 * 1024 * 1024;
-
-/** Relative Pfade der zu versionierenden Upload-Dateien (klein genug). */
-async function uploadFilesForGit() {
-  const dir = resolve(config.repoDir, 'public/uploads');
-  let names;
-  try {
-    names = await readdir(dir);
-  } catch {
-    return [];
-  }
-  const out = [];
-  for (const name of names) {
-    if (name.startsWith('.')) continue; // .gitkeep etc. separat behandelt
-    let s;
-    try {
-      s = await stat(resolve(dir, name));
-    } catch {
-      continue;
-    }
-    if (s.isFile() && s.size <= UPLOADS_GIT_MAX_BYTES) out.push(`public/uploads/${name}`);
-  }
-  return out;
-}
+import { UPLOADS_GIT_MAX_BYTES } from './uploads.mjs';
 
 /**
  * Nachsicherung: In media.json referenzierte /uploads-Dateien, die nur im
@@ -156,8 +129,7 @@ async function doPublish(message) {
   // 1. Content-Dateien + hochgeladene Medien (public/uploads) stagen.
   state.step = 'git-add';
   await backfillReferencedUploads();
-  const uploadFiles = await uploadFilesForGit();
-  log(`git add src/content/ (+ ${uploadFiles.length} Upload-Datei(en))`);
+  log('git add src/content/ + public/uploads/');
   await run('git', [
     'add',
     'src/content/overrides.de.json',
@@ -165,8 +137,12 @@ async function doPublish(message) {
     'src/content/ticker.de.json',
     'src/content/ticker.en.json',
     'src/content/media.json',
-    ...uploadFiles,
   ]);
+  // -A erfasst neue UND gelöschte Upload-Dateien, damit im Admin gelöschte
+  // Medien nicht beim nächsten Deploy aus Git zurückkehren. public/uploads
+  // enthält nur Dateien bis zur Größengrenze (siehe saveUpload), daher fügt -A
+  // keine großen Dateien hinzu.
+  await run('git', ['add', '-A', '--', 'public/uploads']);
 
   // 2. Gibt es überhaupt Änderungen?
   const staged = await run('git', ['diff', '--cached', '--name-only']);
