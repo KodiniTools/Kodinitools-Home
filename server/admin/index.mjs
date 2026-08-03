@@ -19,7 +19,7 @@ import {
 } from './auth.mjs';
 import { readJson, readBody, sendJson, sendText, clientIp, csrfOk } from './util.mjs';
 import { loadContent, saveContent } from './content.mjs';
-import { saveUpload } from './uploads.mjs';
+import { saveUpload, listUploads, deleteUpload } from './uploads.mjs';
 import { startPublish, getPublishState } from './publish.mjs';
 import { startPreview, getPreviewState, PREVIEW_DIR } from './preview.mjs';
 
@@ -203,6 +203,31 @@ async function handleApi(req, res, path) {
       const buf = await readBody(req, config.maxUploadMb * 1024 * 1024);
       const result = await saveUpload(buf, filename);
       return sendJson(res, 200, { ok: true, ...result });
+    } catch (e) {
+      return sendJson(res, e.statusCode || 500, { error: e.message });
+    }
+  }
+
+  // Tatsächlich auf dem Server liegende Upload-Dateien auflisten
+  if (path === '/api/uploads' && method === 'GET') {
+    if (!requireAuth(req, res)) return;
+    return sendJson(res, 200, { files: await listUploads() });
+  }
+
+  // Eine Upload-Datei löschen (Webroot + Repo). Dauerhaft mit dem nächsten
+  // Veröffentlichen (dort wird die Repo-Löschung committet).
+  if (path === '/api/uploads/delete' && method === 'POST') {
+    if (!requireAuth(req, res)) return;
+    if (!requireCsrf(req, res)) return;
+    let body;
+    try {
+      body = await readJson(req);
+    } catch {
+      return sendJson(res, 400, { error: 'Ungültiger Body' });
+    }
+    try {
+      const result = await deleteUpload(String(body.name || ''));
+      return sendJson(res, 200, result);
     } catch (e) {
       return sendJson(res, e.statusCode || 500, { error: e.message });
     }

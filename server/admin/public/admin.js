@@ -80,9 +80,21 @@ const state = {
   media: defaultMedia(),
   loadedMedia: defaultMedia(), // Fallback für nicht aufgelöste Staging-Refs beim Speichern
   defaults: { de: {}, en: {} },
-  stagedItems: [], // aus IndexedDB
+  stagedItems: [], // aus IndexedDB (nur im Browser)
+  serverFiles: [], // tatsächlich auf dem Server liegende Uploads
   objectUrls: new Map(), // id -> objectURL (für Vorschau)
 };
+
+function fmtBytes(n) {
+  if (!n && n !== 0) return '';
+  if (n < 1024) return n + ' B';
+  if (n < 1024 * 1024) return (n / 1024).toFixed(0) + ' KB';
+  return (n / 1024 / 1024).toFixed(1) + ' MB';
+}
+async function loadServerFiles() {
+  const r = await api('/uploads');
+  state.serverFiles = r.ok && Array.isArray(r.data?.files) ? r.data.files : [];
+}
 
 function emptyTicker() {
   return { enabled: false, speed: 'normal', items: [], style: defaultTickerStyle() };
@@ -280,6 +292,7 @@ async function boot() {
   state.loadedMedia = JSON.parse(JSON.stringify(state.media));
   state.defaults = { de: r.data.defaults?.de || {}, en: r.data.defaults?.en || {} };
   state.stagedItems = await mediaAll();
+  await loadServerFiles();
 
   $('#loginView').classList.add('hidden');
   $('#appView').classList.remove('hidden');
@@ -600,6 +613,35 @@ function renderLangMedia(lang) {
   return header + banner + slots;
 }
 
+// Übersicht der tatsächlich auf dem Server liegenden Upload-Dateien (+ Löschen).
+function serverFilesPanel() {
+  const files = state.serverFiles;
+  const tiles = files.length
+    ? files
+        .map((f) => {
+          const isVid = /\.(mp4|webm|mov|ogg)$/i.test(f.name);
+          const media = isVid
+            ? `<video src="${esc(f.url)}" muted></video>`
+            : `<img src="${esc(f.url)}" alt="" loading="lazy" />`;
+          return `<div class="media-tile">
+        ${media}
+        <div class="nm">${esc(f.name)}</div>
+        <div class="st pub">✓ auf Server · ${fmtBytes(f.bytes)}</div>
+        <button class="danger" data-srvdel="${esc(f.name)}" style="margin-top:.35rem;width:100%;padding:.2rem;font-size:.72rem">Löschen</button>
+      </div>`;
+        })
+        .join('')
+    : '<p class="hint">Keine Dateien auf dem Server.</p>';
+  return `
+    <div class="panel">
+      <h2>📂 Dateien auf dem Server</h2>
+      <p class="hint">Das sind die tatsächlich auf dem Server gespeicherten Medien (unter <code>/uploads/</code>) –
+        unabhängig vom Browser. Über „📁 Aus Zwischenspeicher wählen" bei einem Slot kannst du eine davon zuweisen.
+        <strong>Löschen</strong> entfernt sie sofort; dauerhaft (auch aus Git) wird es beim nächsten <strong>Veröffentlichen</strong>.</p>
+      <div class="media-grid">${tiles}</div>
+    </div>`;
+}
+
 function renderVideos() {
   const pane = $('#tab-videos');
 
@@ -610,6 +652,7 @@ function renderVideos() {
   pane.innerHTML = `
     ${renderLangMedia('de')}
     ${renderLangMedia('en')}
+    ${serverFilesPanel()}
     <div class="panel">
       <h2>Medien-Zwischenspeicher (Browser)</h2>
       <p class="hint">Bilder/Videos werden zunächst nur lokal im Browser gespeichert (Vorschau).
@@ -643,6 +686,20 @@ function renderVideos() {
     el.addEventListener('click', () => {
       const [lang, key] = el.dataset.slotpick.split(':');
       pickFromLibrary(lang, key);
+    }),
+  );
+  pane.querySelectorAll('[data-srvdel]').forEach((el) =>
+    el.addEventListener('click', async () => {
+      const name = el.dataset.srvdel;
+      if (!confirm(`Datei „${name}" vom Server löschen?`)) return;
+      const r = await api('/uploads/delete', { method: 'POST', body: { name } });
+      if (!r.ok) {
+        toast('Löschen fehlgeschlagen: ' + (r.data?.error || r.status));
+        return;
+      }
+      await loadServerFiles();
+      renderVideos();
+      toast('Gelöscht – dauerhaft beim nächsten Veröffentlichen');
     }),
   );
   pane.querySelectorAll('[data-mediadel]').forEach((el) =>
@@ -714,19 +771,31 @@ async function addFiles(fileList) {
 }
 
 function pickFromLibrary(lang, key) {
-  const local = state.stagedItems;
-  if (!local.length) {
-    toast('Zwischenspeicher ist leer — zuerst Datei hinzufügen.');
+  if (!state.stagedItems.length && !state.serverFiles.length) {
+    toast('Keine Medien vorhanden — zuerst eine Datei hinzufügen.');
     return;
   }
-  openMediaPicker(lang, key, local);
+  openMediaPicker(lang, key);
 }
 
-// Anklickbares Auswahlfenster: Kachel klicken -> Medium diesem Platz zuweisen.
-function openMediaPicker(lang, key, items) {
+// Anklickbares Auswahlfenster: zeigt Server-Dateien UND Browser-Zwischenspeicher.
+// Kachel klicken -> Medium diesem Platz zuweisen.
+function openMediaPicker(lang, key) {
   document.getElementById('mediaPicker')?.remove();
+  const items = state.stagedItems;
 
-  const tiles = items
+  const serverTiles = state.serverFiles
+    .map((f) => {
+      const media = /\.(mp4|webm|mov|ogg)$/i.test(f.name)
+        ? `<video src="${esc(f.url)}" muted></video>`
+        : `<img src="${esc(f.url)}" alt="" />`;
+      return `<button type="button" class="picker-tile" data-picksrv="${esc(f.url)}">
+        ${media}<div class="nm">${esc(f.name)}</div><div class="st pub">✓ auf Server</div>
+      </button>`;
+    })
+    .join('');
+
+  const stagedTiles = items
     .map((item) => {
       const u = objUrl(item.id);
       const media = /^video\//.test(item.type)
@@ -741,14 +810,19 @@ function openMediaPicker(lang, key, items) {
     })
     .join('');
 
+  const section = (title, tiles, empty) =>
+    `<h4 style="margin:.75rem 0 .35rem">${title}</h4>` +
+    (tiles ? `<div class="media-grid">${tiles}</div>` : `<p class="hint">${empty}</p>`);
+
   const overlay = document.createElement('div');
   overlay.className = 'picker-overlay';
   overlay.id = 'mediaPicker';
   overlay.innerHTML = `
     <div class="picker-modal" role="dialog" aria-modal="true">
       <h3>Medium auswählen</h3>
-      <p class="hint" style="margin-bottom:.75rem">Auf eine Datei klicken, um sie diesem Platz zuzuweisen.</p>
-      <div class="media-grid">${tiles}</div>
+      <p class="hint" style="margin-bottom:.25rem">Auf eine Datei klicken, um sie diesem Platz zuzuweisen.</p>
+      ${section('📂 Auf dem Server', serverTiles, 'Noch nichts auf dem Server.')}
+      ${section('🖥️ Zwischenspeicher (Browser)', stagedTiles, 'Zwischenspeicher leer.')}
       <div class="row" style="margin-top:1rem;justify-content:flex-end">
         <button type="button" data-pickcancel style="flex:0 0 auto">Abbrechen</button>
       </div>
@@ -773,6 +847,13 @@ function openMediaPicker(lang, key, items) {
         setMediaVal(lang, key, item.publishedUrl || 'staged:' + item.id);
         renderVideos();
       }
+      close();
+    }),
+  );
+  overlay.querySelectorAll('[data-picksrv]').forEach((el) =>
+    el.addEventListener('click', () => {
+      setMediaVal(lang, key, el.dataset.picksrv); // direkt die Server-URL zuweisen
+      renderVideos();
       close();
     }),
   );
@@ -1083,7 +1164,13 @@ async function refreshPublishStatus() {
   if (s.status === 'success' || s.status === 'error') {
     clearInterval(pollTimer);
     $('#publishBtn').disabled = false;
-    if (s.status === 'success') toast('Veröffentlicht ✓');
+    if (s.status === 'success') {
+      toast('Veröffentlicht ✓');
+      // Server-Dateiliste aktualisieren (neue Uploads sind jetzt live).
+      loadServerFiles().then(() => {
+        if (!$('#tab-videos').classList.contains('hidden')) renderVideos();
+      });
+    }
   }
 }
 function statusLabel(s) {
