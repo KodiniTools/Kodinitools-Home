@@ -148,8 +148,11 @@ function defaultMediaLocale() {
     heroBanner: '',
     heroGrid: ['', '', ''],
     heroGridRatio: '1:1',
+    heroGridFit: 'cover',
   };
 }
+// Empfohlene Bildabmessungen je Seitenverhältnis (crisp bei ~3-spaltiger Anzeige).
+const GRID_DIMS = { '1:1': '800 × 800 px', '16:9': '800 × 450 px', '2:3': '800 × 1200 px' };
 // Medien werden pro Sprache getrennt gepflegt: { de: {...}, en: {...} }.
 function defaultMedia() {
   return { de: defaultMediaLocale(), en: defaultMediaLocale() };
@@ -173,6 +176,7 @@ function normalizeMedia(m) {
       heroBanner: o && typeof o.heroBanner === 'string' ? o.heroBanner : '',
       heroGrid: [0, 1, 2].map((i) => (typeof grid[i] === 'string' ? grid[i] : '')),
       heroGridRatio: ['1:1', '16:9', '2:3'].includes(o?.heroGridRatio) ? o.heroGridRatio : '1:1',
+      heroGridFit: o?.heroGridFit === 'contain' ? 'contain' : 'cover',
     };
   };
   if (m && typeof m === 'object' && m.sectionVideos) return { de: mk(m), en: mk(m) };
@@ -675,6 +679,7 @@ function heroPanel(lang) {
     const ratio = ['1:1', '16:9', '2:3'].includes(state.media[lang].heroGridRatio)
       ? state.media[lang].heroGridRatio
       : '1:1';
+    const fitContain = state.media[lang].heroGridFit === 'contain';
     const ratioSel = `
       <div class="panel">
         <label>Seitenverhältnis der Rasterbilder</label>
@@ -683,7 +688,12 @@ function heroPanel(lang) {
           <option value="16:9" ${ratio === '16:9' ? 'selected' : ''}>3 × 16:9 (breit)</option>
           <option value="2:3" ${ratio === '2:3' ? 'selected' : ''}>3 × 2:3 (hochkant)</option>
         </select>
-        <p class="hint" style="margin-top:.4rem">Bilder werden auf dieses Verhältnis zugeschnitten (mittig, „cover"). Am besten passende Bilder hochladen.</p>
+        <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin-top:.7rem">
+          <input type="checkbox" data-gridfit data-lang="${lang}" ${fitContain ? 'checked' : ''} style="width:auto" />
+          Ganzes Bild zeigen (nicht beschneiden)
+        </label>
+        <p class="hint" data-griddims style="margin-top:.6rem">📐 Empfohlene Bildgröße für optimale Darstellung: <strong>${GRID_DIMS[ratio]}</strong> — für alle drei Bilder gleich.</p>
+        <p class="hint">Standard: Bild wird formatfüllend zugeschnitten („cover"). Mit Häkchen: das <strong>ganze Bild</strong> wird gezeigt („contain"), ggf. mit Rand.</p>
       </div>`;
     const cells = [0, 1, 2]
       .map((i) =>
@@ -701,7 +711,7 @@ function heroPanel(lang) {
     toggle +
     mediaSlotPanel(lang, 'heroBanner', {
       title: 'Banner (ein Bild oder Video)',
-      hint: 'Erscheint ganz oben im Hero-Bereich. Bild oder Video. Leer lassen = kein Banner.',
+      hint: 'Erscheint ganz oben im Hero-Bereich. Bild oder Video. Leer lassen = kein Banner. 📐 Empfohlen: breites Format, ca. 1800 × 480 px (Anzeige bis 900 × 240 px).',
       placeholder: '/uploads/mein-banner.jpg',
       resetLabel: '↺ Entfernen',
     })
@@ -774,6 +784,14 @@ function renderMedia() {
   pane.querySelectorAll('[data-gridratio]').forEach((el) =>
     el.addEventListener('change', () => {
       state.media[el.dataset.lang].heroGridRatio = el.value;
+      const dims = pane.querySelector('[data-griddims]');
+      if (dims)
+        dims.innerHTML = `📐 Empfohlene Bildgröße für optimale Darstellung: <strong>${GRID_DIMS[el.value] || ''}</strong> — für alle drei Bilder gleich.`;
+    }),
+  );
+  pane.querySelectorAll('[data-gridfit]').forEach((el) =>
+    el.addEventListener('change', () => {
+      state.media[el.dataset.lang].heroGridFit = el.checked ? 'contain' : 'cover';
     }),
   );
   pane.querySelectorAll('[data-slot]').forEach((el) =>
