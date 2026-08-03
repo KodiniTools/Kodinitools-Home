@@ -2,7 +2,7 @@
 // Header X-Filename (kein Multipart-Parsing nötig). Ziel: uploadsDir auf dem
 // Server (außerhalb Git). Rückgabe: öffentlicher Pfad /uploads/<datei>.
 
-import { mkdir, writeFile, access } from 'node:fs/promises';
+import { mkdir, writeFile, access, copyFile } from 'node:fs/promises';
 import { resolve, extname, basename } from 'node:path';
 import { randomBytes } from 'node:crypto';
 import { config } from './config.mjs';
@@ -66,5 +66,21 @@ export async function saveUpload(buf, filename) {
   await mkdir(config.uploadsDir, { recursive: true });
   const { full, fname } = await uniquePath(config.uploadsDir, stem, ext);
   await writeFile(full, buf);
+
+  // Zusätzlich eine versionierbare Kopie im Repo ablegen (public/uploads/).
+  // Beim Veröffentlichen wird sie mitcommittet; der Build kopiert public/uploads
+  // nach dist/uploads und der Deploy spiegelt es ins Webroot. Dadurch wird die
+  // Datei bei JEDEM Deploy wiederhergestellt — auch wenn /var/www/.../uploads
+  // zwischendurch geleert wird. Schlägt die Kopie fehl, gilt der Upload dennoch
+  // als erfolgreich (die Webroot-Datei existiert bereits).
+  try {
+    const repoUploads = resolve(config.repoDir, 'public/uploads');
+    await mkdir(repoUploads, { recursive: true });
+    const repoTarget = resolve(repoUploads, fname);
+    if (repoTarget !== full) await copyFile(full, repoTarget);
+  } catch (e) {
+    console.warn('[kodini-admin] Upload-Kopie nach public/uploads fehlgeschlagen:', e.message);
+  }
+
   return { url: `/uploads/${fname}`, filename: fname, bytes: buf.length };
 }

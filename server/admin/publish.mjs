@@ -3,8 +3,37 @@
 // Speicher gehalten und per Polling abgefragt.
 
 import { execFile } from 'node:child_process';
+import { readdir, stat } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { config } from './config.mjs';
+
+// Uploads bis zu dieser Größe werden ins Git aufgenommen (dauerhaft versioniert,
+// bei jedem Deploy wiederhergestellt). Größere Dateien (z.B. Videos) bleiben nur
+// lokal im Repo-/Webroot-Ordner, um das Repo nicht aufzublähen.
+const UPLOADS_GIT_MAX_BYTES = 25 * 1024 * 1024;
+
+/** Relative Pfade der zu versionierenden Upload-Dateien (klein genug). */
+async function uploadFilesForGit() {
+  const dir = resolve(config.repoDir, 'public/uploads');
+  let names;
+  try {
+    names = await readdir(dir);
+  } catch {
+    return [];
+  }
+  const out = [];
+  for (const name of names) {
+    if (name.startsWith('.')) continue; // .gitkeep etc. separat behandelt
+    let s;
+    try {
+      s = await stat(resolve(dir, name));
+    } catch {
+      continue;
+    }
+    if (s.isFile() && s.size <= UPLOADS_GIT_MAX_BYTES) out.push(`public/uploads/${name}`);
+  }
+  return out;
+}
 
 let state = {
   status: 'idle', // idle | running | success | error
@@ -75,9 +104,10 @@ async function doPublish(message) {
   const remote = config.gitRemote;
   const commitMsg = `content: update via admin${message ? ` – ${message}` : ''}`;
 
-  // 1. Nur die Content-Dateien stagen (keine unbeabsichtigten Änderungen).
+  // 1. Content-Dateien + hochgeladene Medien (public/uploads) stagen.
   state.step = 'git-add';
-  log('git add src/content/');
+  const uploadFiles = await uploadFilesForGit();
+  log(`git add src/content/ (+ ${uploadFiles.length} Upload-Datei(en))`);
   await run('git', [
     'add',
     'src/content/overrides.de.json',
@@ -85,6 +115,7 @@ async function doPublish(message) {
     'src/content/ticker.de.json',
     'src/content/ticker.en.json',
     'src/content/media.json',
+    ...uploadFiles,
   ]);
 
   // 2. Gibt es überhaupt Änderungen?
