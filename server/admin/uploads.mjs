@@ -2,8 +2,17 @@
 // Header X-Filename (kein Multipart-Parsing nötig). Ziel: uploadsDir auf dem
 // Server (außerhalb Git). Rückgabe: öffentlicher Pfad /uploads/<datei>.
 
-import { mkdir, writeFile, access, copyFile, readdir, stat, unlink } from 'node:fs/promises';
-import { resolve, extname, basename } from 'node:path';
+import {
+  mkdir,
+  writeFile,
+  access,
+  copyFile,
+  readdir,
+  stat,
+  unlink,
+  rename,
+} from 'node:fs/promises';
+import { resolve, extname, basename, dirname } from 'node:path';
 import { randomBytes } from 'node:crypto';
 import { config } from './config.mjs';
 
@@ -186,4 +195,49 @@ export async function deleteUpload(relPath) {
     throw Object.assign(new Error('Datei nicht gefunden'), { statusCode: 404 });
   }
   return { ok: true, path: relPath, removed: removed.length };
+}
+
+/**
+ * Verschiebt eine Upload-Datei in einen anderen Sprachordner (bzw. in den
+ * gemeinsamen Ordner). Benennt sie im Webroot UND in public/uploads um.
+ * @param {string} fromPath  relativer Pfad, z.B. "banner.jpg" oder "de/x.jpg"
+ * @param {string} toLang    'de' | 'en' | '' (gemeinsam)
+ */
+export async function moveUpload(fromPath, toLang) {
+  if (!isValidUploadPath(fromPath)) {
+    throw Object.assign(new Error('Ungültiger Quellpfad'), { statusCode: 400 });
+  }
+  const sub = langSub(toLang);
+  const base = basename(fromPath);
+  const toPath = sub ? `${sub}/${base}` : base;
+  if (toPath === fromPath) {
+    throw Object.assign(new Error('Datei liegt bereits dort'), { statusCode: 400 });
+  }
+  const srcWeb = resolve(config.uploadsDir, fromPath);
+  const dstWeb = resolve(config.uploadsDir, toPath);
+  // Quelle muss existieren, Ziel darf nicht existieren.
+  try {
+    await stat(srcWeb);
+  } catch {
+    throw Object.assign(new Error('Quelldatei nicht gefunden'), { statusCode: 404 });
+  }
+  try {
+    await stat(dstWeb);
+    throw Object.assign(new Error('Zielname existiert bereits'), { statusCode: 409 });
+  } catch (e) {
+    if (e.statusCode === 409) throw e; // Ziel existiert -> abbrechen
+    /* sonst: Ziel frei -> weiter */
+  }
+  await mkdir(dirname(dstWeb), { recursive: true });
+  await rename(srcWeb, dstWeb);
+  // Repo-Kopie ebenfalls verschieben (falls vorhanden).
+  try {
+    const srcRepo = resolve(config.repoDir, 'public/uploads', fromPath);
+    const dstRepo = resolve(config.repoDir, 'public/uploads', toPath);
+    await mkdir(dirname(dstRepo), { recursive: true });
+    await rename(srcRepo, dstRepo);
+  } catch {
+    /* Repo-Kopie fehlt -> egal */
+  }
+  return { ok: true, from: fromPath, to: toPath, url: `/uploads/${toPath}` };
 }
