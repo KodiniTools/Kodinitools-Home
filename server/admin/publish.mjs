@@ -3,7 +3,7 @@
 // Speicher gehalten und per Polling abgefragt.
 
 import { execFile } from 'node:child_process';
-import { readdir, stat } from 'node:fs/promises';
+import { readdir, stat, readFile, copyFile, mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { config } from './config.mjs';
 
@@ -33,6 +33,55 @@ async function uploadFilesForGit() {
     if (s.isFile() && s.size <= UPLOADS_GIT_MAX_BYTES) out.push(`public/uploads/${name}`);
   }
   return out;
+}
+
+/**
+ * Nachsicherung: In media.json referenzierte /uploads-Dateien, die nur im
+ * Webroot liegen (z.B. vor Einführung der Git-Sicherung hochgeladen), ins
+ * Repo (public/uploads) kopieren, damit sie beim Commit mit gesichert werden.
+ */
+async function backfillReferencedUploads() {
+  let media;
+  try {
+    media = JSON.parse(await readFile(resolve(config.repoDir, 'src/content/media.json'), 'utf8'));
+  } catch {
+    return;
+  }
+  const urls = new Set();
+  const collect = (m) => {
+    if (!m || typeof m !== 'object') return;
+    if (typeof m.heroBanner === 'string') urls.add(m.heroBanner);
+    if (m.sectionVideos && typeof m.sectionVideos === 'object') {
+      for (const v of Object.values(m.sectionVideos)) if (typeof v === 'string') urls.add(v);
+    }
+  };
+  collect(media.de);
+  collect(media.en);
+  collect(media); // alte, sprachunabhängige Struktur
+  const repoUploads = resolve(config.repoDir, 'public/uploads');
+  for (const url of urls) {
+    if (!url.startsWith('/uploads/')) continue;
+    const name = url.slice('/uploads/'.length);
+    if (!name || name.includes('/')) continue;
+    const dst = resolve(repoUploads, name);
+    try {
+      await stat(dst);
+      continue; // schon im Repo
+    } catch {
+      /* fehlt -> kopieren */
+    }
+    try {
+      const src = resolve(config.uploadsDir, name);
+      const s = await stat(src);
+      if (s.isFile() && s.size <= UPLOADS_GIT_MAX_BYTES) {
+        await mkdir(repoUploads, { recursive: true });
+        await copyFile(src, dst);
+        log(`Upload nachgesichert: ${name}`);
+      }
+    } catch {
+      /* Quelle fehlt -> nichts zu tun */
+    }
+  }
 }
 
 let state = {
@@ -106,6 +155,7 @@ async function doPublish(message) {
 
   // 1. Content-Dateien + hochgeladene Medien (public/uploads) stagen.
   state.step = 'git-add';
+  await backfillReferencedUploads();
   const uploadFiles = await uploadFilesForGit();
   log(`git add src/content/ (+ ${uploadFiles.length} Upload-Datei(en))`);
   await run('git', [
