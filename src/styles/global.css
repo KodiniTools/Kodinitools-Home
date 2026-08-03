@@ -926,6 +926,33 @@ body {
   }
 }
 
+/* Hero-Raster: drei quadratische (1:1) Bilder nebeneinander */
+.hero-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.hero-grid-cell {
+  aspect-ratio: 1 / 1;
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(1, 79, 153, 0.08);
+}
+.hero-grid-media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+@media (max-width: 640px) {
+  .hero-grid {
+    gap: 0.5rem;
+  }
+}
+
 
 /* Features Grid */
 .features-grid {

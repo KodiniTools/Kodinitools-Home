@@ -80,7 +80,9 @@ function defaultMediaLocale() {
       image: '/videos/image-tools.mp4',
       diverse: '/videos/diverse-tools.mp4',
     },
+    heroMode: 'banner',
     heroBanner: '',
+    heroGrid: ['', '', ''],
   };
 }
 
@@ -145,11 +147,23 @@ function validateMediaLocale(m, langLabel) {
       out.sectionVideos[key] = val;
     }
   }
-  // Hero-Banner: optional. Leerer String = kein Banner; sonst gültige URL.
+  // Hero-Modus: 'banner' (Einzelbild) oder 'grid' (3er-Raster).
+  out.heroMode = m.heroMode === 'grid' ? 'grid' : 'banner';
+  // Option 1 – Hero-Banner: optional. Leerer String = kein Banner; sonst gültige URL.
   out.heroBanner = '';
   if (m.heroBanner != null && m.heroBanner !== '') {
     if (!isValidMediaUrl(m.heroBanner)) throw new Error(`media.${langLabel}.heroBanner ungültig`);
     out.heroBanner = m.heroBanner;
+  }
+  // Option 2 – Hero-Raster: genau drei Felder, je '' oder gültige URL.
+  out.heroGrid = ['', '', ''];
+  if (Array.isArray(m.heroGrid)) {
+    for (let i = 0; i < 3; i++) {
+      const v = m.heroGrid[i];
+      if (v == null || v === '') continue;
+      if (!isValidMediaUrl(v)) throw new Error(`media.${langLabel}.heroGrid[${i}] ungültig`);
+      out.heroGrid[i] = v;
+    }
   }
   return out;
 }

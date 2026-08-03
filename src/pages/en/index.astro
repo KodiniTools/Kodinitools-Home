@@ -169,13 +169,27 @@ const pageI18n = {
 
       <div class="hero-content">
         <div class="hero-promo">
-          <SectionMedia
-            src={media.heroBanner}
-            eager={true}
-            alt="KodiniTools Banner"
-            wrapperClass="hero-banner-wrapper"
-            mediaClass="hero-banner"
-          />
+          {media.heroMode === 'grid' ? (
+            <div class="hero-grid">
+              {media.heroGrid.map((src, i) => (
+                <SectionMedia
+                  src={src}
+                  eager={true}
+                  alt={`Image ${i + 1}`}
+                  wrapperClass="hero-grid-cell"
+                  mediaClass="hero-grid-media"
+                />
+              ))}
+            </div>
+          ) : (
+            <SectionMedia
+              src={media.heroBanner}
+              eager={true}
+              alt="KodiniTools Banner"
+              wrapperClass="hero-banner-wrapper"
+              mediaClass="hero-banner"
+            />
+          )}
           <h1 class="hero-title typing-title">
             <span class="typed-text" id="typedText"></span>
           </h1>
