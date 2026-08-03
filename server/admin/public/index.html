@@ -145,6 +145,21 @@
         color: #062a3a;
         border-color: transparent;
       }
+      /* Zweite Navigationsebene (Unterpunkte einer Sprache) */
+      .subnav {
+        margin: -0.5rem 0 1rem;
+        padding-left: 0.75rem;
+        border-left: 3px solid var(--accent);
+      }
+      .subnav button {
+        font-size: 0.85rem;
+        padding: 0.35rem 0.7rem;
+      }
+      .subnav button.active {
+        background: var(--accent-2);
+        color: #05320f;
+        border-color: transparent;
+      }
       .panel {
         background: var(--panel);
         border: 1px solid var(--border);
@@ -403,19 +418,18 @@
         <button id="logoutBtn">Abmelden</button>
       </header>
 
-      <div class="tabs" id="tabs">
-        <button data-tab="ticker" class="active">Laufband</button>
-        <button data-tab="texts">Texte</button>
-        <button data-tab="videos">Videos &amp; Medien</button>
-        <button data-tab="advanced">Erweitert</button>
-        <button data-tab="publish">Veröffentlichen</button>
+      <!-- Ebene 1: Sprache / Dateien / Veröffentlichen -->
+      <div class="tabs" id="topnav">
+        <button data-sec="de" class="active">🇩🇪 Deutsch</button>
+        <button data-sec="en">🇬🇧 English</button>
+        <button data-sec="dateien">📂 Dateien</button>
+        <button data-sec="publish">🚀 Veröffentlichen</button>
       </div>
 
-      <div id="tab-ticker" class="tabpane"></div>
-      <div id="tab-texts" class="tabpane hidden"></div>
-      <div id="tab-videos" class="tabpane hidden"></div>
-      <div id="tab-advanced" class="tabpane hidden"></div>
-      <div id="tab-publish" class="tabpane hidden"></div>
+      <!-- Ebene 2: Unterpunkte einer Sprache (Laufband/Texte/Medien/Erweitert) -->
+      <div class="tabs subnav hidden" id="subnav"></div>
+
+      <div id="content" class="tabpane"></div>
     </div>
 
     <div class="toast" id="toast"></div>
