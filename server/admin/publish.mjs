@@ -4,7 +4,7 @@
 
 import { execFile } from 'node:child_process';
 import { readFile, copyFile, mkdir, stat } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { resolve, dirname } from 'node:path';
 import { config } from './config.mjs';
 import { UPLOADS_GIT_MAX_BYTES } from './uploads.mjs';
 
@@ -24,6 +24,8 @@ async function backfillReferencedUploads() {
   const collect = (m) => {
     if (!m || typeof m !== 'object') return;
     if (typeof m.heroBanner === 'string') urls.add(m.heroBanner);
+    if (Array.isArray(m.heroGrid))
+      for (const v of m.heroGrid) if (typeof v === 'string') urls.add(v);
     if (m.sectionVideos && typeof m.sectionVideos === 'object') {
       for (const v of Object.values(m.sectionVideos)) if (typeof v === 'string') urls.add(v);
     }
@@ -34,9 +36,10 @@ async function backfillReferencedUploads() {
   const repoUploads = resolve(config.repoDir, 'public/uploads');
   for (const url of urls) {
     if (!url.startsWith('/uploads/')) continue;
-    const name = url.slice('/uploads/'.length);
-    if (!name || name.includes('/')) continue;
-    const dst = resolve(repoUploads, name);
+    const rel = url.slice('/uploads/'.length);
+    // erlaubte relative Pfade: "datei" oder "de/datei" / "en/datei"
+    if (!/^((de|en)\/)?[a-zA-Z0-9][a-zA-Z0-9._-]*$/.test(rel)) continue;
+    const dst = resolve(repoUploads, rel);
     try {
       await stat(dst);
       continue; // schon im Repo
@@ -44,12 +47,12 @@ async function backfillReferencedUploads() {
       /* fehlt -> kopieren */
     }
     try {
-      const src = resolve(config.uploadsDir, name);
+      const src = resolve(config.uploadsDir, rel);
       const s = await stat(src);
       if (s.isFile() && s.size <= UPLOADS_GIT_MAX_BYTES) {
-        await mkdir(repoUploads, { recursive: true });
+        await mkdir(dirname(dst), { recursive: true });
         await copyFile(src, dst);
-        log(`Upload nachgesichert: ${name}`);
+        log(`Upload nachgesichert: ${rel}`);
       }
     } catch {
       /* Quelle fehlt -> nichts zu tun */

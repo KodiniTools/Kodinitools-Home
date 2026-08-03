@@ -52,13 +52,20 @@ async function uniquePath(dir, stem, ext) {
   return { full: resolve(dir, fname), fname };
 }
 
+/** Sprach-Unterordner: 'de'/'en' -> getrennte Galerie; sonst '' (gemeinsam). */
+function langSub(lang) {
+  return lang === 'de' || lang === 'en' ? lang : '';
+}
+
 /**
- * Speichert einen Upload.
+ * Speichert einen Upload — pro Sprache in einen eigenen Unterordner
+ * (/uploads/de, /uploads/en), damit DE- und EN-Medien getrennt bleiben.
  * @param {Buffer} buf  Dateiinhalt
  * @param {string} filename  gewünschter Name (aus X-Filename)
- * @returns {{ url: string, filename: string, bytes: number }}
+ * @param {string} lang  'de' | 'en' | '' (gemeinsam)
+ * @returns {{ url: string, filename: string, bytes: number, lang: string }}
  */
-export async function saveUpload(buf, filename) {
+export async function saveUpload(buf, filename, lang) {
   const { stem, ext } = safeName(filename);
   if (!ALLOWED.has(ext)) {
     throw Object.assign(new Error(`Dateityp ${ext || '(keiner)'} nicht erlaubt`), {
@@ -68,27 +75,30 @@ export async function saveUpload(buf, filename) {
   if (!buf || buf.length === 0) {
     throw Object.assign(new Error('Leere Datei'), { statusCode: 400 });
   }
-  await mkdir(config.uploadsDir, { recursive: true });
-  const { full, fname } = await uniquePath(config.uploadsDir, stem, ext);
+  const sub = langSub(lang);
+  const rel = sub ? `${sub}/` : '';
+  const dir = resolve(config.uploadsDir, sub);
+  await mkdir(dir, { recursive: true });
+  const { full, fname } = await uniquePath(dir, stem, ext);
   await writeFile(full, buf);
 
-  // Zusätzlich eine versionierbare Kopie im Repo ablegen (public/uploads/) —
+  // Zusätzlich eine versionierbare Kopie im Repo ablegen (public/uploads/<sub>) —
   // nur bis zur Größengrenze. Beim Veröffentlichen wird sie mitcommittet; der
   // Build kopiert public/uploads nach dist/uploads und der Deploy spiegelt es
   // ins Webroot. Dadurch wird die Datei bei JEDEM Deploy wiederhergestellt.
   // Schlägt die Kopie fehl, gilt der Upload dennoch als erfolgreich.
   if (buf.length <= UPLOADS_GIT_MAX_BYTES) {
     try {
-      const repoUploads = resolve(config.repoDir, 'public/uploads');
-      await mkdir(repoUploads, { recursive: true });
-      const repoTarget = resolve(repoUploads, fname);
+      const repoDir = resolve(config.repoDir, 'public/uploads', sub);
+      await mkdir(repoDir, { recursive: true });
+      const repoTarget = resolve(repoDir, fname);
       if (repoTarget !== full) await copyFile(full, repoTarget);
     } catch (e) {
       console.warn('[kodini-admin] Upload-Kopie nach public/uploads fehlgeschlagen:', e.message);
     }
   }
 
-  return { url: `/uploads/${fname}`, filename: fname, bytes: buf.length };
+  return { url: `/uploads/${rel}${fname}`, filename: fname, bytes: buf.length, lang: sub };
 }
 
 /** Prüft, dass ein Name ein einfacher Dateiname ist (kein Pfad/Traversal). */
@@ -103,42 +113,65 @@ function isPlainName(name) {
   );
 }
 
-/** Listet die tatsächlich auf dem Server ausgelieferten Upload-Dateien. */
-export async function listUploads() {
+/** Dateien EINES Unterordners auflisten (sub='' = Wurzel = gemeinsam). */
+async function listDir(sub) {
+  const rel = sub ? `${sub}/` : '';
   let names;
   try {
-    names = await readdir(config.uploadsDir);
+    names = await readdir(resolve(config.uploadsDir, sub));
   } catch {
     return [];
   }
   const out = [];
   for (const name of names) {
-    if (!isPlainName(name)) continue; // .gitkeep & Verstecktes überspringen
+    if (!isPlainName(name)) continue; // .gitkeep, Unterordner & Verstecktes überspringen
     let s;
     try {
-      s = await stat(resolve(config.uploadsDir, name));
+      s = await stat(resolve(config.uploadsDir, sub, name));
     } catch {
       continue;
     }
     if (!s.isFile()) continue;
-    out.push({ name, url: `/uploads/${name}`, bytes: s.size, mtime: s.mtimeMs });
+    out.push({
+      name,
+      path: `${rel}${name}`,
+      url: `/uploads/${rel}${name}`,
+      bytes: s.size,
+      mtime: s.mtimeMs,
+    });
   }
   out.sort((a, b) => b.mtime - a.mtime);
   return out;
 }
 
 /**
- * Löscht eine Upload-Datei aus dem Webroot UND aus public/uploads (Repo).
- * Die Repo-Löschung wird beim nächsten Veröffentlichen mit committet (git add
- * -A public/uploads), sodass die Datei nicht beim nächsten Deploy zurückkehrt.
+ * Listet die Server-Uploads getrennt nach Sprache:
+ * { de: [...], en: [...], shared: [...] } (shared = alte, ungetrennte Dateien
+ * direkt in /uploads).
  */
-export async function deleteUpload(name) {
-  if (!isPlainName(name)) {
-    throw Object.assign(new Error('Ungültiger Dateiname'), { statusCode: 400 });
+export async function listUploads() {
+  const [de, en, shared] = await Promise.all([listDir('de'), listDir('en'), listDir('')]);
+  return { de, en, shared };
+}
+
+/** Erlaubt "de/datei", "en/datei" oder "datei" (kein Traversal). */
+function isValidUploadPath(p) {
+  return typeof p === 'string' && /^((de|en)\/)?[a-zA-Z0-9][a-zA-Z0-9._-]*$/.test(p);
+}
+
+/**
+ * Löscht eine Upload-Datei (relativer Pfad, z.B. "de/bild.jpg") aus dem Webroot
+ * UND aus public/uploads (Repo). Die Repo-Löschung wird beim nächsten
+ * Veröffentlichen mit committet (git add -A public/uploads), sodass die Datei
+ * nicht beim nächsten Deploy zurückkehrt.
+ */
+export async function deleteUpload(relPath) {
+  if (!isValidUploadPath(relPath)) {
+    throw Object.assign(new Error('Ungültiger Pfad'), { statusCode: 400 });
   }
   const targets = [
-    resolve(config.uploadsDir, name),
-    resolve(config.repoDir, 'public/uploads', name),
+    resolve(config.uploadsDir, relPath),
+    resolve(config.repoDir, 'public/uploads', relPath),
   ];
   const removed = [];
   for (const t of targets) {
@@ -152,5 +185,5 @@ export async function deleteUpload(name) {
   if (removed.length === 0) {
     throw Object.assign(new Error('Datei nicht gefunden'), { statusCode: 404 });
   }
-  return { ok: true, name, removed: removed.length };
+  return { ok: true, path: relPath, removed: removed.length };
 }
