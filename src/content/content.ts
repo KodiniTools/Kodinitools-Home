@@ -90,8 +90,12 @@ export function getTicker(locale: Locale): TickerConfig {
 
 export interface MediaConfig {
   sectionVideos: { audio: string; image: string; diverse: string };
-  // Austauschbares Hero-Banner (Bild oder Video). Leer = kein Banner.
+  // Hero-Bereich: 'banner' = ein einzelnes Bild/Video, 'grid' = 3er-Raster (1:1).
+  heroMode: 'banner' | 'grid';
+  // Option 1: austauschbares Hero-Banner (Bild oder Video). Leer = kein Banner.
   heroBanner: string;
+  // Option 2: drei quadratische Bilder für das Raster.
+  heroGrid: string[];
 }
 
 // Standard-Pfade entsprechen dem bisherigen Auslieferungszustand.
@@ -101,7 +105,9 @@ const MEDIA_DEFAULTS: MediaConfig = {
     image: '/videos/image-tools.mp4',
     diverse: '/videos/diverse-tools.mp4',
   },
+  heroMode: 'banner',
   heroBanner: '',
+  heroGrid: ['', '', ''],
 };
 
 /**

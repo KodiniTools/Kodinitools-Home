@@ -144,7 +144,9 @@ function defaultMediaLocale() {
       image: '/videos/image-tools.mp4',
       diverse: '/videos/diverse-tools.mp4',
     },
+    heroMode: 'banner',
     heroBanner: '',
+    heroGrid: ['', '', ''],
   };
 }
 // Medien werden pro Sprache getrennt gepflegt: { de: {...}, en: {...} }.
@@ -159,13 +161,16 @@ function normalizeMedia(m) {
   const mk = (o) => {
     const d = defaultMediaLocale();
     const sv = o && typeof o.sectionVideos === 'object' && o.sectionVideos ? o.sectionVideos : {};
+    const grid = Array.isArray(o?.heroGrid) ? o.heroGrid : [];
     return {
       sectionVideos: {
         audio: sv.audio || d.sectionVideos.audio,
         image: sv.image || d.sectionVideos.image,
         diverse: sv.diverse || d.sectionVideos.diverse,
       },
+      heroMode: o && o.heroMode === 'grid' ? 'grid' : 'banner',
       heroBanner: o && typeof o.heroBanner === 'string' ? o.heroBanner : '',
+      heroGrid: [0, 1, 2].map((i) => (typeof grid[i] === 'string' ? grid[i] : '')),
     };
   };
   if (m && typeof m === 'object' && m.sectionVideos) return { de: mk(m), en: mk(m) };
@@ -176,18 +181,30 @@ function normalizeMedia(m) {
 // Sprachen + Slots. 'heroBanner' liegt auf oberster Ebene der Sprache, die
 // anderen unter sectionVideos.
 const MEDIA_LANGS = ['de', 'en'];
-const MEDIA_KEYS = ['audio', 'image', 'diverse', 'heroBanner'];
+// Slot-Schlüssel: Sektions-Videos, Einzel-Banner und die drei Rasterbilder.
+const MEDIA_KEYS = ['audio', 'image', 'diverse', 'heroBanner', 'grid0', 'grid1', 'grid2'];
 function getMediaVal(lang, key) {
-  return key === 'heroBanner'
-    ? state.media[lang].heroBanner || ''
-    : state.media[lang].sectionVideos[key] || '';
+  if (key === 'heroBanner') return state.media[lang].heroBanner || '';
+  const g = /^grid([0-2])$/.exec(key);
+  if (g) return (state.media[lang].heroGrid || [])[+g[1]] || '';
+  return state.media[lang].sectionVideos[key] || '';
 }
 function setMediaVal(lang, key, val) {
-  if (key === 'heroBanner') state.media[lang].heroBanner = val;
-  else state.media[lang].sectionVideos[key] = val;
+  if (key === 'heroBanner') {
+    state.media[lang].heroBanner = val;
+    return;
+  }
+  const g = /^grid([0-2])$/.exec(key);
+  if (g) {
+    if (!Array.isArray(state.media[lang].heroGrid)) state.media[lang].heroGrid = ['', '', ''];
+    state.media[lang].heroGrid[+g[1]] = val;
+    return;
+  }
+  state.media[lang].sectionVideos[key] = val;
 }
 function defMediaVal(key) {
-  return key === 'heroBanner' ? '' : defaultMediaLocale().sectionVideos[key];
+  if (key === 'heroBanner' || /^grid[0-2]$/.test(key)) return '';
+  return defaultMediaLocale().sectionVideos[key];
 }
 
 // --- Pfad-Helfer für verschachtelte Overrides ---
@@ -634,7 +651,49 @@ function mediaSlotPanel(lang, key, { title, hint, placeholder, resetLabel }) {
       </div>`;
 }
 
-// Medien-Gruppe einer Sprache: Überschrift + Hero-Banner + drei Sektions-Slots.
+// Hero-Bereich einer Sprache: Umschalter Banner <-> 3er-Raster + passende Slots.
+function heroPanel(lang) {
+  const mode = state.media[lang].heroMode === 'grid' ? 'grid' : 'banner';
+  const toggle = `
+      <div class="panel">
+        <h2>Hero-Bereich (oben auf der Seite)</h2>
+        <p class="hint">Wähle, was ganz oben angezeigt wird.</p>
+        <div class="row" style="gap:1.25rem;margin-top:.4rem">
+          <label style="display:flex;align-items:center;gap:.4rem;color:var(--text)">
+            <input type="radio" name="heromode-${lang}" data-heromode="banner" data-lang="${lang}" ${mode === 'banner' ? 'checked' : ''} style="width:auto" />
+            Option 1: Einzel-Banner
+          </label>
+          <label style="display:flex;align-items:center;gap:.4rem;color:var(--text)">
+            <input type="radio" name="heromode-${lang}" data-heromode="grid" data-lang="${lang}" ${mode === 'grid' ? 'checked' : ''} style="width:auto" />
+            Option 2: 3er-Bildraster (1:1)
+          </label>
+        </div>
+      </div>`;
+  if (mode === 'grid') {
+    const cells = [0, 1, 2]
+      .map((i) =>
+        mediaSlotPanel(lang, 'grid' + i, {
+          title: `Rasterbild ${i + 1} (quadratisch 1:1)`,
+          hint: 'Wird im 3er-Raster oben angezeigt (quadratisch zugeschnitten). Leer = Feld bleibt frei.',
+          placeholder: '/uploads/bild.jpg',
+          resetLabel: '↺ Entfernen',
+        }),
+      )
+      .join('');
+    return toggle + cells;
+  }
+  return (
+    toggle +
+    mediaSlotPanel(lang, 'heroBanner', {
+      title: 'Banner (ein Bild oder Video)',
+      hint: 'Erscheint ganz oben im Hero-Bereich. Bild oder Video. Leer lassen = kein Banner.',
+      placeholder: '/uploads/mein-banner.jpg',
+      resetLabel: '↺ Entfernen',
+    })
+  );
+}
+
+// Medien-Gruppe einer Sprache: Überschrift + Hero-Bereich + drei Sektions-Slots.
 function renderLangMedia(lang) {
   const head = lang === 'de' ? '🇩🇪 Deutsche Startseite' : '🇬🇧 English homepage';
   const forWhich = lang === 'de' ? 'deutsche' : 'englische';
@@ -643,12 +702,6 @@ function renderLangMedia(lang) {
         <h2 style="margin:.1rem 0">${head}</h2>
         <p class="hint">Diese Medien gelten nur für die ${forWhich} Startseite.</p>
       </div>`;
-  const banner = mediaSlotPanel(lang, 'heroBanner', {
-    title: 'Hero-Banner (oben auf der Seite)',
-    hint: 'Erscheint ganz oben im Hero-Bereich (anstelle des früheren Logos). Bild oder Video. Leer lassen = kein Banner.',
-    placeholder: '/uploads/mein-banner.jpg',
-    resetLabel: '↺ Entfernen',
-  });
   const slots = VIDEO_SLOTS.map((s) =>
     mediaSlotPanel(lang, s.key, {
       title: 'Medium: ' + s.label,
@@ -657,7 +710,7 @@ function renderLangMedia(lang) {
       resetLabel: '↺ Standard',
     }),
   ).join('');
-  return header + banner + slots;
+  return header + heroPanel(lang) + slots;
 }
 
 // Übersicht der tatsächlich auf dem Server liegenden Upload-Dateien (+ Löschen).
@@ -695,6 +748,14 @@ function renderMedia() {
   const pane = $('#content');
   pane.innerHTML = renderLangMedia(lang);
 
+  pane.querySelectorAll('[data-heromode]').forEach((el) =>
+    el.addEventListener('change', () => {
+      if (el.checked) {
+        state.media[el.dataset.lang].heroMode = el.dataset.heromode;
+        renderMedia();
+      }
+    }),
+  );
   pane.querySelectorAll('[data-slot]').forEach((el) =>
     el.addEventListener('input', () => {
       const [l, key] = el.dataset.slot.split(':');
@@ -978,6 +1039,16 @@ function resolveMediaForSave() {
     if (typeof lm.heroBanner === 'string' && lm.heroBanner.startsWith('staged:')) {
       const item = state.stagedItems.find((x) => x.id === lm.heroBanner.slice(7));
       lm.heroBanner = (item && item.publishedUrl) || loaded.heroBanner || '';
+    }
+    if (Array.isArray(lm.heroGrid)) {
+      for (let i = 0; i < lm.heroGrid.length; i++) {
+        const v = lm.heroGrid[i];
+        if (typeof v === 'string' && v.startsWith('staged:')) {
+          const item = state.stagedItems.find((x) => x.id === v.slice(7));
+          lm.heroGrid[i] =
+            (item && item.publishedUrl) || (loaded.heroGrid && loaded.heroGrid[i]) || '';
+        }
+      }
     }
   }
   return m;
