@@ -19,7 +19,7 @@ import {
 } from './auth.mjs';
 import { readJson, readBody, sendJson, sendText, clientIp, csrfOk } from './util.mjs';
 import { loadContent, saveContent } from './content.mjs';
-import { saveUpload, listUploads, deleteUpload } from './uploads.mjs';
+import { saveUpload, listUploads, deleteUpload, moveUpload } from './uploads.mjs';
 import { startPublish, getPublishState } from './publish.mjs';
 import { startPreview, getPreviewState, PREVIEW_DIR } from './preview.mjs';
 
@@ -227,6 +227,24 @@ async function handleApi(req, res, path) {
     }
     try {
       const result = await deleteUpload(String(body.path || body.name || ''));
+      return sendJson(res, 200, result);
+    } catch (e) {
+      return sendJson(res, e.statusCode || 500, { error: e.message });
+    }
+  }
+
+  // Eine Upload-Datei in einen anderen Sprachordner verschieben
+  if (path === '/api/uploads/move' && method === 'POST') {
+    if (!requireAuth(req, res)) return;
+    if (!requireCsrf(req, res)) return;
+    let body;
+    try {
+      body = await readJson(req);
+    } catch {
+      return sendJson(res, 400, { error: 'Ungültiger Body' });
+    }
+    try {
+      const result = await moveUpload(String(body.path || ''), String(body.lang || ''));
       return sendJson(res, 200, result);
     } catch (e) {
       return sendJson(res, e.statusCode || 500, { error: e.message });

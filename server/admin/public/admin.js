@@ -217,6 +217,15 @@ function defMediaVal(key) {
   if (key === 'heroBanner' || /^grid[0-2]$/.test(key)) return '';
   return defaultMediaLocale().sectionVideos[key];
 }
+// Ersetzt eine Medien-URL in ALLEN Slots (beide Sprachen) — z.B. nachdem eine
+// Datei serverseitig verschoben wurde, damit die Zuweisungen erhalten bleiben.
+function updateMediaUrlEverywhere(oldUrl, newUrl) {
+  for (const lang of MEDIA_LANGS) {
+    for (const key of MEDIA_KEYS) {
+      if (getMediaVal(lang, key) === oldUrl) setMediaVal(lang, key, newUrl);
+    }
+  }
+}
 
 // --- Pfad-Helfer für verschachtelte Overrides ---
 function getPath(obj, path) {
@@ -743,20 +752,31 @@ function renderLangMedia(lang) {
   return header + heroPanel(lang) + slots;
 }
 
-// Kacheln für Server-Dateien (mit Löschen; data-srvdel trägt den relativen Pfad).
-function fileTilesHtml(files) {
+const LOC_LABEL = { de: 'DE', en: 'EN', '': 'Gemeinsam' };
+
+// Kacheln für Server-Dateien (Verschieben in andere Sprache + Löschen).
+// loc = aktueller Ordner der Dateien ('de' | 'en' | '' = gemeinsam).
+function fileTilesHtml(files, loc) {
   if (!files.length) return '<p class="hint">Keine Dateien.</p>';
+  const targets = loc === 'de' ? ['en', ''] : loc === 'en' ? ['de', ''] : ['de', 'en'];
   return files
     .map((f) => {
       const isVid = /\.(mp4|webm|mov|ogg)$/i.test(f.name);
       const media = isVid
         ? `<video src="${esc(f.url)}" muted></video>`
         : `<img src="${esc(f.url)}" alt="" loading="lazy" />`;
+      const moveBtns = targets
+        .map(
+          (t) =>
+            `<button data-srvmove="${esc(f.path)}" data-tolang="${t}" style="flex:1;padding:.2rem;font-size:.68rem">→ ${LOC_LABEL[t]}</button>`,
+        )
+        .join('');
       return `<div class="media-tile">
         ${media}
         <div class="nm">${esc(f.name)}</div>
         <div class="st pub">✓ auf Server · ${fmtBytes(f.bytes)}</div>
-        <button class="danger" data-srvdel="${esc(f.path)}" style="margin-top:.35rem;width:100%;padding:.2rem;font-size:.72rem">Löschen</button>
+        <div class="row" style="gap:.25rem;margin-top:.35rem">${moveBtns}</div>
+        <button class="danger" data-srvdel="${esc(f.path)}" style="margin-top:.25rem;width:100%;padding:.2rem;font-size:.72rem">Löschen</button>
       </div>`;
     })
     .join('');
@@ -771,8 +791,9 @@ function serverFilesPanel(lang) {
     ? `
     <div class="panel">
       <h2>📂 Gemeinsame Dateien (ohne Sprache)</h2>
-      <p class="hint">Ältere Uploads ohne Sprach-Zuordnung (direkt unter <code>/uploads/</code>). Können jeder Seite zugewiesen werden.</p>
-      <div class="media-grid">${fileTilesHtml(shared)}</div>
+      <p class="hint">Ältere Uploads ohne Sprach-Zuordnung (direkt unter <code>/uploads/</code>).
+        Mit „→ DE" / „→ EN" einer Sprache zuordnen (verschieben) oder direkt zuweisen.</p>
+      <div class="media-grid">${fileTilesHtml(shared, '')}</div>
     </div>`
     : '';
   return `
@@ -781,7 +802,7 @@ function serverFilesPanel(lang) {
       <p class="hint">Nur die für <strong>${langLabel}</strong> hochgeladenen Medien (unter <code>/uploads/${lang}/</code>) –
         so bleibt getrennt, was auf welche Seite kommt. Über „📁 Aus Zwischenspeicher wählen" bei einem Slot zuweisen.
         <strong>Löschen</strong> entfernt sofort; dauerhaft (auch aus Git) beim nächsten <strong>Veröffentlichen</strong>.</p>
-      <div class="media-grid">${fileTilesHtml(langFiles)}</div>
+      <div class="media-grid">${fileTilesHtml(langFiles, lang)}</div>
     </div>${sharedBlock}`;
 }
 
@@ -874,6 +895,22 @@ function renderFiles() {
       await loadServerFiles();
       renderFiles();
       toast('Gelöscht – dauerhaft beim nächsten Veröffentlichen');
+    }),
+  );
+  pane.querySelectorAll('[data-srvmove]').forEach((el) =>
+    el.addEventListener('click', async () => {
+      const path = el.dataset.srvmove;
+      const lang = el.dataset.tolang; // '' | 'de' | 'en'
+      const r = await api('/uploads/move', { method: 'POST', body: { path, lang } });
+      if (!r.ok) {
+        toast('Verschieben fehlgeschlagen: ' + (r.data?.error || r.status));
+        return;
+      }
+      // Verweise in den Slots mitziehen (alte URL -> neue URL).
+      updateMediaUrlEverywhere('/uploads/' + path, r.data.url);
+      await loadServerFiles();
+      renderFiles();
+      toast(`Verschoben nach „${LOC_LABEL[lang]}" – zum Übernehmen veröffentlichen`);
     }),
   );
   pane.querySelectorAll('[data-mediadel]').forEach((el) =>
