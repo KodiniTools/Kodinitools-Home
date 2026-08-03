@@ -5,7 +5,14 @@
       "image": "/videos/image-tools.mp4",
       "diverse": "/videos/diverse-tools.mp4"
     },
-    "heroBanner": "/uploads/banne-3-52b252ee.webp"
+    "heroMode": "grid",
+    "heroBanner": "/uploads/banne-3-52b252ee.webp",
+    "heroGrid": [
+      "",
+      "",
+      ""
+    ],
+    "heroGridRatio": "1:1"
   },
   "en": {
     "sectionVideos": {
@@ -13,6 +20,13 @@
       "image": "/videos/image-tools.mp4",
       "diverse": "/videos/diverse-tools.mp4"
     },
-    "heroBanner": "/uploads/banne-2-e2d3654d.webp"
+    "heroMode": "banner",
+    "heroBanner": "/uploads/banne-2-e2d3654d.webp",
+    "heroGrid": [
+      "",
+      "",
+      ""
+    ],
+    "heroGridRatio": "1:1"
   }
 }
