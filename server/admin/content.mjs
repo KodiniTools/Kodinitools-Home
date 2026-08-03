@@ -83,6 +83,7 @@ function defaultMediaLocale() {
     heroMode: 'banner',
     heroBanner: '',
     heroGrid: ['', '', ''],
+    heroGridRatio: '1:1',
   };
 }
 
@@ -165,6 +166,8 @@ function validateMediaLocale(m, langLabel) {
       out.heroGrid[i] = v;
     }
   }
+  // Seitenverhältnis des Rasters.
+  out.heroGridRatio = ['1:1', '16:9', '2:3'].includes(m.heroGridRatio) ? m.heroGridRatio : '1:1';
   return out;
 }
 
