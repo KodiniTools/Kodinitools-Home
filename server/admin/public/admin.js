@@ -83,6 +83,7 @@ const state = {
   stagedItems: [], // aus IndexedDB (nur im Browser)
   serverFiles: [], // tatsächlich auf dem Server liegende Uploads
   objectUrls: new Map(), // id -> objectURL (für Vorschau)
+  nav: { section: 'de', sub: 'ticker' }, // Ebene 1 (de|en|dateien|publish) + Ebene 2
 };
 
 function fmtBytes(n) {
@@ -258,15 +259,63 @@ $('#logoutBtn').addEventListener('click', async () => {
   location.reload();
 });
 
-// --- Tabs ---
-$('#tabs').addEventListener('click', (e) => {
-  const btn = e.target.closest('button[data-tab]');
-  if (!btn) return;
-  document.querySelectorAll('#tabs button').forEach((b) => b.classList.toggle('active', b === btn));
-  const tab = btn.dataset.tab;
-  document.querySelectorAll('.tabpane').forEach((p) => p.classList.add('hidden'));
-  $('#tab-' + tab).classList.remove('hidden');
-  if (tab === 'publish') refreshPublishStatus();
+// --- Navigation (zwei Ebenen) ---
+const SUBTABS = [
+  { key: 'ticker', label: 'Laufband' },
+  { key: 'texts', label: 'Texte' },
+  { key: 'media', label: 'Medien' },
+  { key: 'advanced', label: 'Erweitert' },
+];
+const LANG_SECTIONS = ['de', 'en'];
+
+function renderNav() {
+  const { section, sub } = state.nav;
+  document
+    .querySelectorAll('#topnav button')
+    .forEach((b) => b.classList.toggle('active', b.dataset.sec === section));
+  const subnav = $('#subnav');
+  if (LANG_SECTIONS.includes(section)) {
+    subnav.classList.remove('hidden');
+    subnav.innerHTML = SUBTABS.map(
+      (t) =>
+        `<button data-sub="${t.key}" class="${t.key === sub ? 'active' : ''}">${t.label}</button>`,
+    ).join('');
+  } else {
+    subnav.classList.add('hidden');
+    subnav.innerHTML = '';
+  }
+}
+
+// Rendert den aktuellen Bereich in #content (Sprache = state.nav.section).
+function renderMain() {
+  const { section, sub } = state.nav;
+  if (LANG_SECTIONS.includes(section)) {
+    if (sub === 'ticker') renderTicker();
+    else if (sub === 'texts') renderTexts();
+    else if (sub === 'media') renderMedia();
+    else if (sub === 'advanced') renderAdvanced();
+  } else if (section === 'dateien') {
+    renderFiles();
+  } else if (section === 'publish') {
+    renderPublish();
+    refreshPublishStatus();
+  }
+}
+
+function goto(section, sub) {
+  state.nav.section = section;
+  if (sub) state.nav.sub = sub;
+  renderNav();
+  renderMain();
+}
+
+$('#topnav').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-sec]');
+  if (btn) goto(btn.dataset.sec);
+});
+$('#subnav').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-sub]');
+  if (btn) goto(state.nav.section, btn.dataset.sub);
 });
 
 // --- Laden & Anzeigen ---
@@ -296,11 +345,8 @@ async function boot() {
 
   $('#loginView').classList.add('hidden');
   $('#appView').classList.remove('hidden');
-  renderTicker();
-  renderTexts();
-  renderVideos();
-  renderAdvanced();
-  renderPublish();
+  renderNav();
+  renderMain();
 }
 
 function normTicker(t) {
@@ -315,10 +361,10 @@ function normTicker(t) {
   };
 }
 
-// ============ TAB: Laufband ============
+// ============ Laufband (eine Sprache) ============
 function renderTicker() {
-  const pane = $('#tab-ticker');
-  pane.innerHTML = ['de', 'en'].map(tickerPanel).join('');
+  const pane = $('#content');
+  pane.innerHTML = tickerPanel(state.nav.section);
   pane.querySelectorAll('[data-tk]').forEach(bindTickerControl);
   bindTickerStyle(pane);
 }
@@ -476,8 +522,8 @@ const TEXT_FIELDS = [
 ];
 
 function renderTexts() {
-  const pane = $('#tab-texts');
-  pane.innerHTML = ['de', 'en'].map(textPanel).join('');
+  const pane = $('#content');
+  pane.innerHTML = textPanel(state.nav.section);
   pane.querySelectorAll('[data-txt]').forEach((el) => {
     const idx = parseInt(el.dataset.txt, 10);
     const lang = el.dataset.lang;
@@ -642,22 +688,49 @@ function serverFilesPanel() {
     </div>`;
 }
 
-function renderVideos() {
-  const pane = $('#tab-videos');
+// Medien EINER Sprache (Banner + Sektions-Slots) im Bereich #content.
+function renderMedia() {
+  const lang = state.nav.section;
+  const pane = $('#content');
+  pane.innerHTML = renderLangMedia(lang);
 
+  pane.querySelectorAll('[data-slot]').forEach((el) =>
+    el.addEventListener('input', () => {
+      const [l, key] = el.dataset.slot.split(':');
+      const v = el.value.trim();
+      setMediaVal(l, key, v || defMediaVal(key));
+    }),
+  );
+  pane.querySelectorAll('[data-slotreset]').forEach((el) =>
+    el.addEventListener('click', () => {
+      const [l, key] = el.dataset.slotreset.split(':');
+      setMediaVal(l, key, defMediaVal(key));
+      renderMedia();
+    }),
+  );
+  pane.querySelectorAll('[data-slotpick]').forEach((el) =>
+    el.addEventListener('click', () => {
+      const [l, key] = el.dataset.slotpick.split(':');
+      pickFromLibrary(l, key);
+    }),
+  );
+
+  verifyPublishedSlots(pane);
+}
+
+// Bereich „Dateien": Server-Dateien + Browser-Zwischenspeicher (Upload/Löschen).
+function renderFiles() {
+  const pane = $('#content');
   const tiles = state.stagedItems.length
     ? state.stagedItems.map(mediaTile).join('')
-    : '<p class="hint">Noch nichts im Zwischenspeicher. Dateien oben hineinziehen oder auswählen.</p>';
+    : '<p class="hint">Noch nichts im Zwischenspeicher. Dateien unten hineinziehen oder auswählen.</p>';
 
   pane.innerHTML = `
-    ${renderLangMedia('de')}
-    ${renderLangMedia('en')}
     ${serverFilesPanel()}
     <div class="panel">
       <h2>Medien-Zwischenspeicher (Browser)</h2>
-      <p class="hint">Bilder/Videos werden zunächst nur lokal im Browser gespeichert (Vorschau).
-        Erst beim <strong>Veröffentlichen</strong> werden sie auf den Server geladen.
-        Eine Datei kann für beide Sprachen verwendet werden.</p>
+      <p class="hint">Neue Dateien werden zunächst nur lokal im Browser gehalten (Vorschau).
+        Erst wenn du sie einem Slot zuweist und <strong>veröffentlichst</strong>, landen sie auf dem Server.</p>
       <div class="dropzone" id="dropzone">
         Dateien hierher ziehen oder
         <label style="display:inline;color:var(--accent);cursor:pointer;text-decoration:underline">
@@ -667,27 +740,6 @@ function renderVideos() {
       <div class="media-grid">${tiles}</div>
     </div>`;
 
-  // Bindings — data-Attribute kodieren "lang:key".
-  pane.querySelectorAll('[data-slot]').forEach((el) =>
-    el.addEventListener('input', () => {
-      const [lang, key] = el.dataset.slot.split(':');
-      const v = el.value.trim();
-      setMediaVal(lang, key, v || defMediaVal(key));
-    }),
-  );
-  pane.querySelectorAll('[data-slotreset]').forEach((el) =>
-    el.addEventListener('click', () => {
-      const [lang, key] = el.dataset.slotreset.split(':');
-      setMediaVal(lang, key, defMediaVal(key));
-      renderVideos();
-    }),
-  );
-  pane.querySelectorAll('[data-slotpick]').forEach((el) =>
-    el.addEventListener('click', () => {
-      const [lang, key] = el.dataset.slotpick.split(':');
-      pickFromLibrary(lang, key);
-    }),
-  );
   pane.querySelectorAll('[data-srvdel]').forEach((el) =>
     el.addEventListener('click', async () => {
       const name = el.dataset.srvdel;
@@ -698,7 +750,7 @@ function renderVideos() {
         return;
       }
       await loadServerFiles();
-      renderVideos();
+      renderFiles();
       toast('Gelöscht – dauerhaft beim nächsten Veröffentlichen');
     }),
   );
@@ -706,7 +758,7 @@ function renderVideos() {
     el.addEventListener('click', async () => {
       await mediaDel(el.dataset.mediadel);
       state.stagedItems = await mediaAll();
-      renderVideos();
+      renderFiles();
     }),
   );
 
@@ -726,9 +778,6 @@ function renderVideos() {
     }),
   );
   dz.addEventListener('drop', (e) => addFiles(e.dataTransfer.files));
-
-  // Nach dem Rendern prüfen, ob die referenzierten Upload-Dateien noch existieren.
-  verifyPublishedSlots(pane);
 }
 
 function mediaTile(item) {
@@ -766,7 +815,7 @@ async function addFiles(fileList) {
     await mediaPut(item);
   }
   state.stagedItems = await mediaAll();
-  renderVideos();
+  renderFiles();
   if (files.length) toast(`${files.length} Datei(en) im Zwischenspeicher`);
 }
 
@@ -845,7 +894,7 @@ function openMediaPicker(lang, key) {
       const item = items.find((x) => x.id === el.dataset.pick);
       if (item) {
         setMediaVal(lang, key, item.publishedUrl || 'staged:' + item.id);
-        renderVideos();
+        renderMedia();
       }
       close();
     }),
@@ -853,7 +902,7 @@ function openMediaPicker(lang, key) {
   overlay.querySelectorAll('[data-picksrv]').forEach((el) =>
     el.addEventListener('click', () => {
       setMediaVal(lang, key, el.dataset.picksrv); // direkt die Server-URL zuweisen
-      renderVideos();
+      renderMedia();
       close();
     }),
   );
@@ -861,36 +910,27 @@ function openMediaPicker(lang, key) {
   document.body.appendChild(overlay);
 }
 
-// ============ TAB: Erweitert (rohe Overrides) ============
+// ============ Erweitert (rohe Overrides, eine Sprache) ============
 function renderAdvanced() {
-  const pane = $('#tab-advanced');
+  const l = state.nav.section;
+  const pane = $('#content');
   pane.innerHTML = `
     <div class="panel">
-      <h2>Erweitert — Overrides als JSON</h2>
+      <h2>Erweitert — Overrides als JSON <span class="lang-badge">${l.toUpperCase()}</span></h2>
       <p class="hint">Für Felder, die es oben nicht als Formular gibt. Struktur wie in den Locale-Dateien,
         nur die zu ändernden Schlüssel. Ungültiges JSON wird beim Übernehmen abgelehnt.</p>
-      ${['de', 'en']
-        .map(
-          (l) => `
-        <label>Overrides <span class="lang-badge">${l.toUpperCase()}</span></label>
-        <textarea data-adv="${l}" style="min-height:160px">${esc(JSON.stringify(state.overrides[l], null, 2))}</textarea>
-      `,
-        )
-        .join('')}
+      <textarea data-adv="${l}" style="min-height:220px">${esc(JSON.stringify(state.overrides[l], null, 2))}</textarea>
       <div class="err" id="advErr"></div>
       <button id="advApply" style="margin-top:.5rem">Übernehmen</button>
     </div>`;
   $('#advApply').addEventListener('click', () => {
     $('#advErr').textContent = '';
     try {
-      for (const l of ['de', 'en']) {
-        const txt = pane.querySelector(`[data-adv="${l}"]`).value.trim();
-        const obj = txt ? JSON.parse(txt) : {};
-        if (typeof obj !== 'object' || obj === null || Array.isArray(obj))
-          throw new Error(`${l}: kein Objekt`);
-        state.overrides[l] = obj;
-      }
-      renderTexts();
+      const txt = pane.querySelector(`[data-adv="${l}"]`).value.trim();
+      const obj = txt ? JSON.parse(txt) : {};
+      if (typeof obj !== 'object' || obj === null || Array.isArray(obj))
+        throw new Error(`${l}: kein Objekt`);
+      state.overrides[l] = obj;
       toast('Overrides übernommen (noch nicht gespeichert)');
     } catch (e) {
       $('#advErr').textContent = 'Fehler: ' + e.message;
@@ -898,9 +938,9 @@ function renderAdvanced() {
   });
 }
 
-// ============ TAB: Veröffentlichen ============
+// ============ Veröffentlichen ============
 function renderPublish() {
-  const pane = $('#tab-publish');
+  const pane = $('#content');
   pane.innerHTML = `
     <div class="panel">
       <h2>Veröffentlichen</h2>
@@ -1028,13 +1068,12 @@ $('#publishBtn').addEventListener('click', async () => {
     const put = await api('/content', { method: 'PUT', body: buildPayload(media) });
     if (!put.ok) throw new Error(put.data?.error || 'Speichern fehlgeschlagen');
     state.loadedMedia = JSON.parse(JSON.stringify(media));
-    renderVideos();
     // Publish starten
     const msg = ($('#pubMsg')?.value || '').slice(0, 100);
     const pub = await api('/publish', { method: 'POST', body: { message: msg } });
     if (!pub.ok) throw new Error(pub.data?.error || 'Publish fehlgeschlagen');
-    // In den Publish-Tab wechseln und pollen
-    document.querySelector('#tabs button[data-tab="publish"]').click();
+    // In den Veröffentlichen-Bereich wechseln und pollen
+    goto('publish');
     startPolling();
   } catch (e) {
     setPill('error', 'Fehler');
@@ -1068,7 +1107,6 @@ $('#previewBtn').addEventListener('click', async () => {
     const put = await api('/content', { method: 'PUT', body: buildPayload(media) });
     if (!put.ok) throw new Error(put.data?.error || 'Speichern fehlgeschlagen');
     state.loadedMedia = JSON.parse(JSON.stringify(media));
-    renderVideos();
     const pv = await api('/preview', { method: 'POST' });
     if (!pv.ok) throw new Error(pv.data?.error || 'Vorschau-Build fehlgeschlagen');
     pollPreview(win);
@@ -1168,7 +1206,9 @@ async function refreshPublishStatus() {
       toast('Veröffentlicht ✓');
       // Server-Dateiliste aktualisieren (neue Uploads sind jetzt live).
       loadServerFiles().then(() => {
-        if (!$('#tab-videos').classList.contains('hidden')) renderVideos();
+        const sec = state.nav.section;
+        if (sec === 'dateien') renderFiles();
+        else if (LANG_SECTIONS.includes(sec) && state.nav.sub === 'media') renderMedia();
       });
     }
   }
