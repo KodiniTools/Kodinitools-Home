@@ -201,17 +201,17 @@ async function handleApi(req, res, path) {
     if (!filename) return sendJson(res, 400, { error: 'X-Filename-Header fehlt' });
     try {
       const buf = await readBody(req, config.maxUploadMb * 1024 * 1024);
-      const result = await saveUpload(buf, filename);
+      const result = await saveUpload(buf, filename, req.headers['x-lang']);
       return sendJson(res, 200, { ok: true, ...result });
     } catch (e) {
       return sendJson(res, e.statusCode || 500, { error: e.message });
     }
   }
 
-  // Tatsächlich auf dem Server liegende Upload-Dateien auflisten
+  // Server-Uploads getrennt nach Sprache auflisten: { de, en, shared }
   if (path === '/api/uploads' && method === 'GET') {
     if (!requireAuth(req, res)) return;
-    return sendJson(res, 200, { files: await listUploads() });
+    return sendJson(res, 200, await listUploads());
   }
 
   // Eine Upload-Datei löschen (Webroot + Repo). Dauerhaft mit dem nächsten
@@ -226,7 +226,7 @@ async function handleApi(req, res, path) {
       return sendJson(res, 400, { error: 'Ungültiger Body' });
     }
     try {
-      const result = await deleteUpload(String(body.name || ''));
+      const result = await deleteUpload(String(body.path || body.name || ''));
       return sendJson(res, 200, result);
     } catch (e) {
       return sendJson(res, e.statusCode || 500, { error: e.message });

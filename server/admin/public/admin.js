@@ -81,7 +81,7 @@ const state = {
   loadedMedia: defaultMedia(), // Fallback für nicht aufgelöste Staging-Refs beim Speichern
   defaults: { de: {}, en: {} },
   stagedItems: [], // aus IndexedDB (nur im Browser)
-  serverFiles: [], // tatsächlich auf dem Server liegende Uploads
+  serverFiles: { de: [], en: [], shared: [] }, // Server-Uploads getrennt nach Sprache
   objectUrls: new Map(), // id -> objectURL (für Vorschau)
   nav: { section: 'de', sub: 'ticker' }, // Ebene 1 (de|en|dateien|publish) + Ebene 2
   publishing: false, // läuft gerade eine Veröffentlichung?
@@ -95,7 +95,12 @@ function fmtBytes(n) {
 }
 async function loadServerFiles() {
   const r = await api('/uploads');
-  state.serverFiles = r.ok && Array.isArray(r.data?.files) ? r.data.files : [];
+  const d = (r.ok && r.data) || {};
+  state.serverFiles = {
+    de: Array.isArray(d.de) ? d.de : [],
+    en: Array.isArray(d.en) ? d.en : [],
+    shared: Array.isArray(d.shared) ? d.shared : [],
+  };
 }
 
 function emptyTicker() {
@@ -288,6 +293,7 @@ const SUBTABS = [
   { key: 'ticker', label: 'Laufband' },
   { key: 'texts', label: 'Texte' },
   { key: 'media', label: 'Medien' },
+  { key: 'files', label: 'Dateien' },
   { key: 'advanced', label: 'Erweitert' },
 ];
 const LANG_SECTIONS = ['de', 'en'];
@@ -317,9 +323,8 @@ function renderMain() {
     if (sub === 'ticker') renderTicker();
     else if (sub === 'texts') renderTexts();
     else if (sub === 'media') renderMedia();
+    else if (sub === 'files') renderFiles();
     else if (sub === 'advanced') renderAdvanced();
-  } else if (section === 'dateien') {
-    renderFiles();
   } else if (section === 'publish') {
     renderPublish();
     refreshPublishStatus();
@@ -738,33 +743,46 @@ function renderLangMedia(lang) {
   return header + heroPanel(lang) + slots;
 }
 
-// Übersicht der tatsächlich auf dem Server liegenden Upload-Dateien (+ Löschen).
-function serverFilesPanel() {
-  const files = state.serverFiles;
-  const tiles = files.length
-    ? files
-        .map((f) => {
-          const isVid = /\.(mp4|webm|mov|ogg)$/i.test(f.name);
-          const media = isVid
-            ? `<video src="${esc(f.url)}" muted></video>`
-            : `<img src="${esc(f.url)}" alt="" loading="lazy" />`;
-          return `<div class="media-tile">
+// Kacheln für Server-Dateien (mit Löschen; data-srvdel trägt den relativen Pfad).
+function fileTilesHtml(files) {
+  if (!files.length) return '<p class="hint">Keine Dateien.</p>';
+  return files
+    .map((f) => {
+      const isVid = /\.(mp4|webm|mov|ogg)$/i.test(f.name);
+      const media = isVid
+        ? `<video src="${esc(f.url)}" muted></video>`
+        : `<img src="${esc(f.url)}" alt="" loading="lazy" />`;
+      return `<div class="media-tile">
         ${media}
         <div class="nm">${esc(f.name)}</div>
         <div class="st pub">✓ auf Server · ${fmtBytes(f.bytes)}</div>
-        <button class="danger" data-srvdel="${esc(f.name)}" style="margin-top:.35rem;width:100%;padding:.2rem;font-size:.72rem">Löschen</button>
+        <button class="danger" data-srvdel="${esc(f.path)}" style="margin-top:.35rem;width:100%;padding:.2rem;font-size:.72rem">Löschen</button>
       </div>`;
-        })
-        .join('')
-    : '<p class="hint">Keine Dateien auf dem Server.</p>';
+    })
+    .join('');
+}
+
+// Server-Dateien EINER Sprache (+ ggf. gemeinsame Altdateien).
+function serverFilesPanel(lang) {
+  const langLabel = lang === 'de' ? 'Deutsch' : 'English';
+  const langFiles = state.serverFiles[lang] || [];
+  const shared = state.serverFiles.shared || [];
+  const sharedBlock = shared.length
+    ? `
+    <div class="panel">
+      <h2>📂 Gemeinsame Dateien (ohne Sprache)</h2>
+      <p class="hint">Ältere Uploads ohne Sprach-Zuordnung (direkt unter <code>/uploads/</code>). Können jeder Seite zugewiesen werden.</p>
+      <div class="media-grid">${fileTilesHtml(shared)}</div>
+    </div>`
+    : '';
   return `
     <div class="panel">
-      <h2>📂 Dateien auf dem Server</h2>
-      <p class="hint">Das sind die tatsächlich auf dem Server gespeicherten Medien (unter <code>/uploads/</code>) –
-        unabhängig vom Browser. Über „📁 Aus Zwischenspeicher wählen" bei einem Slot kannst du eine davon zuweisen.
-        <strong>Löschen</strong> entfernt sie sofort; dauerhaft (auch aus Git) wird es beim nächsten <strong>Veröffentlichen</strong>.</p>
-      <div class="media-grid">${tiles}</div>
-    </div>`;
+      <h2>📂 Dateien auf dem Server — ${langLabel}</h2>
+      <p class="hint">Nur die für <strong>${langLabel}</strong> hochgeladenen Medien (unter <code>/uploads/${lang}/</code>) –
+        so bleibt getrennt, was auf welche Seite kommt. Über „📁 Aus Zwischenspeicher wählen" bei einem Slot zuweisen.
+        <strong>Löschen</strong> entfernt sofort; dauerhaft (auch aus Git) beim nächsten <strong>Veröffentlichen</strong>.</p>
+      <div class="media-grid">${fileTilesHtml(langFiles)}</div>
+    </div>${sharedBlock}`;
 }
 
 // Medien EINER Sprache (Banner + Sektions-Slots) im Bereich #content.
@@ -818,19 +836,23 @@ function renderMedia() {
   verifyPublishedSlots(pane);
 }
 
-// Bereich „Dateien": Server-Dateien + Browser-Zwischenspeicher (Upload/Löschen).
+// Bereich „Dateien" EINER Sprache: Server-Dateien + Browser-Zwischenspeicher.
 function renderFiles() {
+  const lang = state.nav.section;
+  const langLabel = lang === 'de' ? 'Deutsch' : 'English';
   const pane = $('#content');
   const tiles = state.stagedItems.length
     ? state.stagedItems.map(mediaTile).join('')
     : '<p class="hint">Noch nichts im Zwischenspeicher. Dateien unten hineinziehen oder auswählen.</p>';
 
   pane.innerHTML = `
-    ${serverFilesPanel()}
+    ${serverFilesPanel(lang)}
     <div class="panel">
       <h2>Medien-Zwischenspeicher (Browser)</h2>
-      <p class="hint">Neue Dateien werden zunächst nur lokal im Browser gehalten (Vorschau).
-        Erst wenn du sie einem Slot zuweist und <strong>veröffentlichst</strong>, landen sie auf dem Server.</p>
+      <p class="hint">Neue Dateien hier ablegen und dann bei einem <strong>${langLabel}</strong>-Slot zuweisen.
+        Beim <strong>Veröffentlichen</strong> landen sie automatisch im ${langLabel}-Ordner
+        (<code>/uploads/${lang}/</code>). Der Zwischenspeicher ist gemeinsam – die Sprache
+        ergibt sich aus dem Slot, dem du die Datei zuweist.</p>
       <div class="dropzone" id="dropzone">
         Dateien hierher ziehen oder
         <label style="display:inline;color:var(--accent);cursor:pointer;text-decoration:underline">
@@ -842,9 +864,9 @@ function renderFiles() {
 
   pane.querySelectorAll('[data-srvdel]').forEach((el) =>
     el.addEventListener('click', async () => {
-      const name = el.dataset.srvdel;
-      if (!confirm(`Datei „${name}" vom Server löschen?`)) return;
-      const r = await api('/uploads/delete', { method: 'POST', body: { name } });
+      const path = el.dataset.srvdel;
+      if (!confirm(`Datei „${path}" vom Server löschen?`)) return;
+      const r = await api('/uploads/delete', { method: 'POST', body: { path } });
       if (!r.ok) {
         toast('Löschen fehlgeschlagen: ' + (r.data?.error || r.status));
         return;
@@ -920,20 +942,22 @@ async function addFiles(fileList) {
 }
 
 function pickFromLibrary(lang, key) {
-  if (!state.stagedItems.length && !state.serverFiles.length) {
+  const srv = (state.serverFiles[lang] || []).length + (state.serverFiles.shared || []).length;
+  if (!state.stagedItems.length && !srv) {
     toast('Keine Medien vorhanden — zuerst eine Datei hinzufügen.');
     return;
   }
   openMediaPicker(lang, key);
 }
 
-// Anklickbares Auswahlfenster: zeigt Server-Dateien UND Browser-Zwischenspeicher.
-// Kachel klicken -> Medium diesem Platz zuweisen.
+// Anklickbares Auswahlfenster: zeigt die Server-Dateien DIESER Sprache (+
+// gemeinsame) UND den Browser-Zwischenspeicher. Kachel klicken -> zuweisen.
 function openMediaPicker(lang, key) {
   document.getElementById('mediaPicker')?.remove();
   const items = state.stagedItems;
 
-  const serverTiles = state.serverFiles
+  const serverList = [...(state.serverFiles[lang] || []), ...(state.serverFiles.shared || [])];
+  const serverTiles = serverList
     .map((f) => {
       const media = /\.(mp4|webm|mov|ogg)$/i.test(f.name)
         ? `<video src="${esc(f.url)}" muted></video>`
@@ -1136,38 +1160,38 @@ $('#saveBtn').addEventListener('click', async () => {
 
 // --- Veröffentlichen ---
 async function uploadStagedReferenced() {
-  // Lädt alle staged Medien hoch, die in Slots referenziert werden (beide Sprachen).
-  const referenced = new Set();
+  // Lädt jedes in einem Slot referenzierte staged Medium in den Ordner SEINER
+  // Sprache (/uploads/<lang>/) hoch und ersetzt die staged:-Referenz durch die
+  // endgültige URL. Ein Medium, das in DE und EN genutzt wird, kommt in beide
+  // Ordner (getrennte Galerien). Pro (Sprache, Datei) wird nur einmal geladen.
+  const cache = new Map(); // "lang:id" -> url
   for (const lang of MEDIA_LANGS) {
     for (const key of MEDIA_KEYS) {
       const v = getMediaVal(lang, key);
-      if (typeof v === 'string' && v.startsWith('staged:')) referenced.add(v.slice(7));
-    }
-  }
-  for (const id of referenced) {
-    const item = await mediaGet(id);
-    if (!item) continue;
-    if (item.publishedUrl) continue; // schon hochgeladen
-    const r = await api('/upload', {
-      method: 'POST',
-      raw: item.blob,
-      headers: { 'X-Filename': item.name, 'Content-Type': item.type || 'application/octet-stream' },
-    });
-    if (!r.ok) throw new Error(`Upload ${item.name}: ${r.data?.error || r.status}`);
-    item.publishedUrl = r.data.url;
-    await mediaPut(item);
-  }
-  state.stagedItems = await mediaAll();
-  // Slots (beide Sprachen) auf endgültige URLs setzen
-  for (const lang of MEDIA_LANGS) {
-    for (const key of MEDIA_KEYS) {
-      const v = getMediaVal(lang, key);
-      if (typeof v === 'string' && v.startsWith('staged:')) {
-        const item = state.stagedItems.find((x) => x.id === v.slice(7));
-        if (item && item.publishedUrl) setMediaVal(lang, key, item.publishedUrl);
+      if (typeof v !== 'string' || !v.startsWith('staged:')) continue;
+      const id = v.slice(7);
+      const cacheKey = lang + ':' + id;
+      let url = cache.get(cacheKey);
+      if (!url) {
+        const item = await mediaGet(id);
+        if (!item) continue;
+        const r = await api('/upload', {
+          method: 'POST',
+          raw: item.blob,
+          headers: {
+            'X-Filename': item.name,
+            'X-Lang': lang,
+            'Content-Type': item.type || 'application/octet-stream',
+          },
+        });
+        if (!r.ok) throw new Error(`Upload ${item.name}: ${r.data?.error || r.status}`);
+        url = r.data.url;
+        cache.set(cacheKey, url);
       }
+      setMediaVal(lang, key, url);
     }
   }
+  await loadServerFiles();
 }
 
 let pollTimer;
@@ -1330,9 +1354,9 @@ async function refreshPublishStatus() {
       toast('Veröffentlicht ✓');
       // Server-Dateiliste aktualisieren (neue Uploads sind jetzt live).
       loadServerFiles().then(() => {
-        const sec = state.nav.section;
-        if (sec === 'dateien') renderFiles();
-        else if (LANG_SECTIONS.includes(sec) && state.nav.sub === 'media') renderMedia();
+        if (!LANG_SECTIONS.includes(state.nav.section)) return;
+        if (state.nav.sub === 'files') renderFiles();
+        else if (state.nav.sub === 'media') renderMedia();
       });
     }
   }
