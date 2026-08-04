@@ -103,6 +103,22 @@ export interface MediaConfig {
   heroGridRatio: '1:1' | '16:9' | '2:3';
   // 'cover' = auf Format zuschneiden, 'contain' = ganzes Bild zeigen (mit Rand).
   heroGridFit: 'cover' | 'contain';
+  // Admin-einstellbares Design des Hero-Bereichs (Rahmen/Hintergrund/Buttons).
+  heroDesign: HeroDesign;
+}
+
+/** Aussehen des Hero-Bereichs. enabled=false -> Standard-Design (global.css). */
+export interface HeroDesign {
+  enabled: boolean;
+  borderColor: string; // Hex – Rahmenfarbe des Hero-Kastens
+  borderWidth: number; // px
+  bgColor: string; // Hex – Hintergrundfarbe
+  bgOpacity: number; // 0–100 (%)
+  chipBgColor: string; // Hex – Hintergrund der Buttons (Feature-Chips)
+  chipBgOpacity: number; // 0–100 (%)
+  chipTextColor: string; // Hex – Schriftfarbe der Buttons
+  chipBorderColor: string; // Hex – Rahmenfarbe der Buttons
+  chipBorderOpacity: number; // 0–100 (%)
 }
 
 // Standard-Pfade entsprechen dem bisherigen Auslieferungszustand.
@@ -117,6 +133,18 @@ const MEDIA_DEFAULTS: MediaConfig = {
   heroGrid: ['', '', ''],
   heroGridRatio: '1:1',
   heroGridFit: 'cover',
+  heroDesign: {
+    enabled: false,
+    borderColor: '#014f99',
+    borderWidth: 1,
+    bgColor: '#ffffff',
+    bgOpacity: 70,
+    chipBgColor: '#014f99',
+    chipBgOpacity: 15,
+    chipTextColor: '#013f7a',
+    chipBorderColor: '#ffffff',
+    chipBorderOpacity: 20,
+  },
 };
 
 /**

@@ -470,20 +470,20 @@ body {
   margin: 2rem auto 0;
   padding: 4rem 2rem;
   text-align: center;
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--hero-bg, rgba(255, 255, 255, 0.7));
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-radius: 2rem;
   margin-bottom: 2.5rem;
   overflow: hidden;
-  border: 1px solid rgba(1, 79, 153, 0.25);
+  border: var(--hero-border-width, 1px) solid var(--hero-border-color, rgba(1, 79, 153, 0.25));
   box-shadow: 0 8px 32px rgba(0, 57, 113, 0.1),
               0 0 0 1px rgba(255, 255, 255, 0.6) inset;
 }
 
 [data-theme="dark"] .hero {
-  background: rgba(14, 28, 50, 0.8);
-  border: 1px solid rgba(232, 169, 69, 0.28);
+  background: var(--hero-bg, rgba(14, 28, 50, 0.8));
+  border: var(--hero-border-width, 1px) solid var(--hero-border-color, rgba(232, 169, 69, 0.28));
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
               0 0 0 1px rgba(232, 169, 69, 0.1) inset;
 }
@@ -966,10 +966,10 @@ body {
   --feature-mouse-x: 50%;
   --feature-mouse-y: 50%;
   position: relative;
-  background: rgba(1, 79, 153, 0.15);
+  background: var(--hero-chip-bg, rgba(1, 79, 153, 0.15));
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--hero-chip-border, rgba(255, 255, 255, 0.2));
   padding: 0.85rem 0.5rem;
   border-radius: 0.75rem;
   text-align: center;
@@ -1023,8 +1023,8 @@ body {
 }
 
 [data-theme="dark"] .feature-card {
-  background: rgba(20, 38, 64, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--hero-chip-bg, rgba(20, 38, 64, 0.4));
+  border: 1px solid var(--hero-chip-border, rgba(255, 255, 255, 0.08));
 }
 
 [data-theme="dark"] .feature-card::before {
@@ -1042,14 +1042,14 @@ body {
 }
 
 [data-theme="dark"] .feature-text {
-  color: #f8e1a9;
+  color: var(--hero-chip-text, #f8e1a9);
 }
 
 .feature-text {
   position: relative;
   z-index: 1;
   font-weight: 600;
-  color: #013f7a;
+  color: var(--hero-chip-text, #013f7a);
   font-size: 0.95rem;
   text-shadow: none;
 }

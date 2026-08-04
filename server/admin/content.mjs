@@ -96,6 +96,41 @@ export function validateTickerStyle(s) {
   };
 }
 
+// Standard-Design des Hero-Bereichs. enabled=false -> bisheriges Aussehen
+// (die Standardwerte entsprechen dem aktuellen Design in global.css).
+function defaultHeroDesign() {
+  return {
+    enabled: false,
+    borderColor: '#014f99',
+    borderWidth: 1,
+    bgColor: '#ffffff',
+    bgOpacity: 70,
+    chipBgColor: '#014f99',
+    chipBgOpacity: 15,
+    chipTextColor: '#013f7a',
+    chipBorderColor: '#ffffff',
+    chipBorderOpacity: 20,
+  };
+}
+
+/** Validiert/normalisiert das Hero-Design (fehlerhafte Werte -> Standard). */
+function validateHeroDesign(hd) {
+  const d = defaultHeroDesign();
+  if (!isPlainObject(hd)) return d;
+  return {
+    enabled: hd.enabled === true,
+    borderColor: normHexColor(hd.borderColor, d.borderColor),
+    borderWidth: clampNum(hd.borderWidth, 0, 8, d.borderWidth),
+    bgColor: normHexColor(hd.bgColor, d.bgColor),
+    bgOpacity: clampNum(hd.bgOpacity, 0, 100, d.bgOpacity),
+    chipBgColor: normHexColor(hd.chipBgColor, d.chipBgColor),
+    chipBgOpacity: clampNum(hd.chipBgOpacity, 0, 100, d.chipBgOpacity),
+    chipTextColor: normHexColor(hd.chipTextColor, d.chipTextColor),
+    chipBorderColor: normHexColor(hd.chipBorderColor, d.chipBorderColor),
+    chipBorderOpacity: clampNum(hd.chipBorderOpacity, 0, 100, d.chipBorderOpacity),
+  };
+}
+
 function defaultMediaLocale() {
   return {
     sectionVideos: {
@@ -108,6 +143,7 @@ function defaultMediaLocale() {
     heroGrid: ['', '', ''],
     heroGridRatio: '1:1',
     heroGridFit: 'cover',
+    heroDesign: defaultHeroDesign(),
   };
 }
 
@@ -193,6 +229,8 @@ function validateMediaLocale(m, langLabel) {
   // Seitenverhältnis + Darstellung (zuschneiden vs. ganzes Bild) des Rasters.
   out.heroGridRatio = ['1:1', '16:9', '2:3'].includes(m.heroGridRatio) ? m.heroGridRatio : '1:1';
   out.heroGridFit = m.heroGridFit === 'contain' ? 'contain' : 'cover';
+  // Hero-Design (Rahmen/Hintergrund/Buttons) – optional, mit Standard-Fallback.
+  out.heroDesign = validateHeroDesign(m.heroDesign);
   return out;
 }
 
