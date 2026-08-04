@@ -37,16 +37,39 @@ function hexToRgba(hex: string, opacityPct: number): string | null {
   return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
 
+// Eigene Schrift (optional): der Admin wählt einen Dateinamen aus /fonts. Wir
+// erzeugen dafür eine @font-face-Regel und setzen die Schrift per CSS-Variable.
+function fontFormat(file: string): string {
+  const ext = (file.split('.').pop() || '').toLowerCase();
+  return { woff2: 'woff2', woff: 'woff', ttf: 'truetype', otf: 'opentype' }[ext] ?? '';
+}
+// Dateiname -> eindeutiger, CSS-sicherer Family-Name.
+function fontFamilyId(file: string): string {
+  return 'ticker-font-' + file.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9]+/g, '-');
+}
+const VALID_FONT = /^[a-zA-Z0-9][a-zA-Z0-9._ -]*\.(woff2|woff|ttf|otf)$/i;
+
 const s = ticker.style;
 const styleVars: string[] = [];
+let fontFace: string | undefined;
 if (s && s.enabled) {
   if (s.fontSize) styleVars.push(`--ticker-fs:${s.fontSize}px`);
   if (s.textColor) styleVars.push(`--ticker-fg:${s.textColor}`);
   const bg = s.bgColor ? hexToRgba(s.bgColor, s.bgOpacity ?? 100) : null;
   if (bg) styleVars.push(`--ticker-bg:${bg}`);
+  const font = typeof s.fontFamily === 'string' ? s.fontFamily.trim() : '';
+  if (font && VALID_FONT.test(font)) {
+    const fam = fontFamilyId(font);
+    const fmt = fontFormat(font);
+    const src = `url("/fonts/${encodeURIComponent(font)}")${fmt ? ` format("${fmt}")` : ''}`;
+    fontFace = `@font-face{font-family:"${fam}";src:${src};font-display:swap;}`;
+    styleVars.push(`--ticker-ff:"${fam}", system-ui, sans-serif`);
+  }
 }
 const tickerStyle = styleVars.length ? styleVars.join(';') : undefined;
 ---
+
+{fontFace && <style is:global set:html={fontFace} />}
 
 {
   show && (
@@ -138,6 +161,7 @@ const tickerStyle = styleVars.length ? styleVars.join(';') : undefined;
     align-items: center;
     padding: 8px 0;
     font-size: var(--ticker-fs, 0.9rem);
+    font-family: var(--ticker-ff, inherit);
     font-weight: 500;
     line-height: 1.2;
   }

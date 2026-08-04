@@ -82,6 +82,7 @@ const state = {
   defaults: { de: {}, en: {} },
   stagedItems: [], // aus IndexedDB (nur im Browser)
   serverFiles: { de: [], en: [], shared: [] }, // Server-Uploads getrennt nach Sprache
+  fonts: [], // verfügbare Schriftarten aus /fonts (für die Laufband-Schrift)
   objectUrls: new Map(), // id -> objectURL (für Vorschau)
   nav: { section: 'de', sub: 'ticker' }, // Ebene 1 (de|en|dateien|publish) + Ebene 2
   publishing: false, // läuft gerade eine Veröffentlichung?
@@ -102,12 +103,59 @@ async function loadServerFiles() {
     shared: Array.isArray(d.shared) ? d.shared : [],
   };
 }
+// Verfügbare Schriftarten laden (für die Laufband-Schriftauswahl).
+async function loadFonts() {
+  const r = await api('/fonts');
+  state.fonts = (r.ok && Array.isArray(r.data?.fonts) ? r.data.fonts : []).filter(
+    (f) => f && f.name,
+  );
+}
+// Dateiname -> CSS-sicherer Family-Name (identisch zu TickerBar.astro).
+function fontFamilyId(file) {
+  return (
+    'ticker-font-' +
+    String(file)
+      .replace(/\.[^.]+$/, '')
+      .replace(/[^a-zA-Z0-9]+/g, '-')
+  );
+}
+// @font-face für eine Schriftdatei einmalig in die Admin-Seite einfügen, damit
+// die Vorschau die echte Schrift zeigt (Fonts liegen unter /fonts auf der Domain).
+function ensureFontFace(file) {
+  if (!file) return '';
+  const fam = fontFamilyId(file);
+  const id = 'ff-' + fam;
+  if (!document.getElementById(id)) {
+    const ext = (file.split('.').pop() || '').toLowerCase();
+    const fmt = { woff2: 'woff2', woff: 'woff', ttf: 'truetype', otf: 'opentype' }[ext] || '';
+    const st = document.createElement('style');
+    st.id = id;
+    st.textContent = `@font-face{font-family:"${fam}";src:url("/fonts/${encodeURIComponent(
+      file,
+    )}")${fmt ? ` format("${fmt}")` : ''};font-display:swap;}`;
+    document.head.appendChild(st);
+  }
+  return fam;
+}
 
 function emptyTicker() {
   return { enabled: false, speed: 'normal', items: [], style: defaultTickerStyle() };
 }
 function defaultTickerStyle() {
-  return { enabled: false, fontSize: 14, textColor: '#ffffff', bgColor: '#014f99', bgOpacity: 100 };
+  return {
+    enabled: false,
+    fontSize: 14,
+    textColor: '#ffffff',
+    bgColor: '#014f99',
+    bgOpacity: 100,
+    fontFamily: '',
+  };
+}
+// Erlaubt einen einfachen Schrift-Dateinamen oder '' (Standardschrift).
+function normFontFile(v) {
+  return typeof v === 'string' && /^[a-zA-Z0-9][a-zA-Z0-9._ -]*\.(woff2|woff|ttf|otf)$/i.test(v)
+    ? v
+    : '';
 }
 // Laufband-Design normalisieren (aus geladener Config).
 function normTickerStyle(s) {
@@ -124,6 +172,7 @@ function normTickerStyle(s) {
     textColor: hex(s.textColor, d.textColor),
     bgColor: hex(s.bgColor, d.bgColor),
     bgOpacity: clamp(s.bgOpacity, 0, 100, d.bgOpacity),
+    fontFamily: normFontFile(s.fontFamily),
   };
 }
 // Hex + Deckkraft(%) -> rgba() (für Vorschau).
@@ -380,6 +429,7 @@ async function boot() {
   state.defaults = { de: r.data.defaults?.de || {}, en: r.data.defaults?.en || {} };
   state.stagedItems = await mediaAll();
   await loadServerFiles();
+  await loadFonts();
 
   $('#loginView').classList.add('hidden');
   $('#appView').classList.remove('hidden');
@@ -412,7 +462,31 @@ function tickerPreviewStyle(s) {
   const bg = s.enabled ? rgbaFromHex(s.bgColor, s.bgOpacity) : '#014f99';
   const fg = s.enabled ? s.textColor : '#ffffff';
   const fs = s.enabled ? `${s.fontSize}px` : '0.9rem';
-  return `background:${bg};color:${fg};font-size:${fs};font-weight:500;padding:8px 14px;border-radius:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis`;
+  let ff = '';
+  if (s.enabled && s.fontFamily) {
+    const fam = ensureFontFace(s.fontFamily); // @font-face in die Seite laden
+    ff = `font-family:"${fam}", system-ui, sans-serif;`;
+  }
+  return `background:${bg};color:${fg};font-size:${fs};${ff}font-weight:500;padding:8px 14px;border-radius:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis`;
+}
+
+// Options für die Schriftauswahl. Enthält immer "Standard" und die vom Server
+// gemeldeten Schriften; eine ausgewählte, aber (noch) nicht gelistete Datei wird
+// zusätzlich aufgenommen, damit sie ausgewählt bleibt.
+function fontOptionsHtml(current) {
+  const list = state.fonts.slice();
+  if (current && !list.some((f) => f.name === current)) {
+    list.unshift({ name: current, label: current + ' (nicht gefunden)' });
+  }
+  const opts = [`<option value="" ${!current ? 'selected' : ''}>Standard (System)</option>`];
+  for (const f of list) {
+    opts.push(
+      `<option value="${esc(f.name)}" ${f.name === current ? 'selected' : ''}>${esc(
+        f.label || f.name,
+      )}</option>`,
+    );
+  }
+  return opts.join('');
 }
 
 // Design-Abschnitt für EINE Sprache (in tickerPanel eingebettet).
@@ -441,6 +515,13 @@ function tickerStyleSection(lang) {
           <div style="flex:1 1 180px">
             <label>Transparenz Hintergrund: <span data-tks-oval data-lang="${lang}">${s.bgOpacity}</span>% <span class="hint">(0 = ganz durchsichtig)</span></label>
             <input type="range" data-tks="bgOpacity" data-lang="${lang}" min="0" max="100" value="${s.bgOpacity}" style="width:100%" />
+          </div>
+        </div>
+        <div class="row" style="margin-top:.6rem">
+          <div style="flex:1 1 240px">
+            <label>Schriftart</label>
+            <select data-tks="fontFamily" data-lang="${lang}">${fontOptionsHtml(s.fontFamily)}</select>
+            <p class="hint">Aus dem Ordner <code>/fonts</code> auf dem Server. Eigene Schriften einfach dorthin legen.</p>
           </div>
         </div>
         <p class="hint" style="margin-top:.8rem">Vorschau:</p>

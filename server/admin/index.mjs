@@ -20,6 +20,7 @@ import {
 import { readJson, readBody, sendJson, sendText, clientIp, csrfOk } from './util.mjs';
 import { loadContent, saveContent } from './content.mjs';
 import { saveUpload, listUploads, deleteUpload, moveUpload } from './uploads.mjs';
+import { listFonts } from './fonts.mjs';
 import { startPublish, getPublishState } from './publish.mjs';
 import { startPreview, getPreviewState, PREVIEW_DIR } from './preview.mjs';
 
@@ -212,6 +213,12 @@ async function handleApi(req, res, path) {
   if (path === '/api/uploads' && method === 'GET') {
     if (!requireAuth(req, res)) return;
     return sendJson(res, 200, await listUploads());
+  }
+
+  // Verfügbare Schriftarten (aus dem Fonts-Ordner) für die Laufband-Schrift.
+  if (path === '/api/fonts' && method === 'GET') {
+    if (!requireAuth(req, res)) return;
+    return sendJson(res, 200, { fonts: await listFonts() });
   }
 
   // Eine Upload-Datei löschen (Webroot + Repo). Dauerhaft mit dem nächsten

@@ -34,7 +34,20 @@ export async function loadContent() {
 }
 
 function defaultTickerStyle() {
-  return { enabled: false, fontSize: 14, textColor: '#ffffff', bgColor: '#014f99', bgOpacity: 100 };
+  return {
+    enabled: false,
+    fontSize: 14,
+    textColor: '#ffffff',
+    bgColor: '#014f99',
+    bgOpacity: 100,
+    fontFamily: '', // Dateiname im Fonts-Ordner; leer = Standardschrift
+  };
+}
+
+/** Erlaubt einen einfachen Schrift-Dateinamen (kein Pfad) oder '' (Standard). */
+function normFontFile(v) {
+  if (typeof v !== 'string' || v === '') return '';
+  return /^[a-zA-Z0-9][a-zA-Z0-9._ -]*\.(woff2|woff|ttf|otf)$/i.test(v.trim()) ? v.trim() : '';
 }
 
 function defaultTicker() {
@@ -70,6 +83,7 @@ export function validateTickerStyle(s) {
     textColor: normHexColor(s.textColor, d.textColor),
     bgColor: normHexColor(s.bgColor, d.bgColor),
     bgOpacity: clampNum(s.bgOpacity, 0, 100, d.bgOpacity),
+    fontFamily: normFontFile(s.fontFamily),
   };
 }
 
