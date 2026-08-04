@@ -119,6 +119,8 @@ export interface HeroDesign {
   chipTextColor: string; // Hex – Schriftfarbe der Buttons
   chipBorderColor: string; // Hex – Rahmenfarbe der Buttons
   chipBorderOpacity: number; // 0–100 (%)
+  chipHoverBgColor: string; // Hex – Hintergrund der Buttons beim Überfahren
+  chipHoverTextColor: string; // Hex – Schriftfarbe der Buttons beim Überfahren
   ctaBgColor: string; // Hex – Hintergrund des CTA-Buttons ("Jetzt starten")
   ctaTextColor: string; // Hex – Schriftfarbe des CTA-Buttons
 }
@@ -146,6 +148,8 @@ const MEDIA_DEFAULTS: MediaConfig = {
     chipTextColor: '#013f7a',
     chipBorderColor: '#ffffff',
     chipBorderOpacity: 20,
+    chipHoverBgColor: '#0160b8',
+    chipHoverTextColor: '#f5f4d6',
     ctaBgColor: '#014f99',
     ctaTextColor: '#ffffff',
   },

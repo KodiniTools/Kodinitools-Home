@@ -45,6 +45,10 @@ function previewChipStyle(hd) {
 function previewCtaStyle(hd) {
   return `display:inline-block;margin-top:.9rem;padding:.55rem 1.6rem;border-radius:50px;background:${hd.ctaBgColor};color:${hd.ctaTextColor};font-weight:700;font-size:.9rem`;
 }
+// CSS-Regel für den echten Hover-Effekt der Vorschau-Chips (nur im Vorschau-Kasten).
+function hoverRuleCss(hd) {
+  return `[data-hdprev] [data-hdchip]:hover{background:${hd.chipHoverBgColor} !important;color:${hd.chipHoverTextColor} !important;border-color:transparent !important}`;
+}
 function heroPreviewNote(hd) {
   return hd.enabled
     ? '✅ Dieses Hero-Design wird auf der Seite angewandt.'
@@ -96,6 +100,11 @@ function heroDesignPanel(lang) {
         ${colorField(lang, 'chipTextColor', 'Textfarbe', false, null, hd)}
         ${colorField(lang, 'chipBorderColor', 'Rahmenfarbe', true, 'chipBorderOpacity', hd)}
       </div>
+      <p class="hint" style="margin-top:.6rem">Hover (beim Überfahren) – zwei Farben:</p>
+      <div class="row" style="align-items:flex-end">
+        ${colorField(lang, 'chipHoverBgColor', 'Hover-Hintergrund', false, null, hd)}
+        ${colorField(lang, 'chipHoverTextColor', 'Hover-Textfarbe', false, null, hd)}
+      </div>
 
       <h3 style="margin:1.1rem 0 .25rem;font-size:.95rem">CTA-Button („Jetzt starten")</h3>
       <div class="row" style="align-items:flex-end">
@@ -103,7 +112,8 @@ function heroDesignPanel(lang) {
         ${colorField(lang, 'ctaTextColor', 'Textfarbe', false, null, hd)}
       </div>
 
-      <p class="hint" style="margin-top:1rem">Vorschau:</p>
+      <p class="hint" style="margin-top:1rem">Vorschau <em>(zum Testen über die Buttons fahren)</em>:</p>
+      <style data-hdhoverstyle>${hoverRuleCss(hd)}</style>
       <div data-hdprev style="${previewBoxStyle(hd)}">
         <div style="font-weight:800;font-size:1.1rem;color:${esc(hd.chipTextColor)}" data-hdtitle>Kostenlose Online-Tools</div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.9rem">${chips}</div>
@@ -145,6 +155,8 @@ function refreshPreview(pane, lang) {
     .forEach((c) => c.setAttribute('style', previewChipStyle(hd)));
   const cta = pane.querySelector('[data-hdcta]');
   if (cta) cta.setAttribute('style', previewCtaStyle(hd));
+  const hs = pane.querySelector('[data-hdhoverstyle]');
+  if (hs) hs.textContent = hoverRuleCss(hd);
   const note = pane.querySelector('[data-hdnote]');
   if (note) note.textContent = heroPreviewNote(hd);
 }

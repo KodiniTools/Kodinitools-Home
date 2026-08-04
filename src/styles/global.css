@@ -1012,14 +1012,14 @@ body {
 .feature-card:nth-child(6) { animation-delay: 0.35s; }
 
 .feature-card:hover {
-  background: linear-gradient(135deg, #0160b8 0%, #014f99 100%);
+  background: var(--hero-chip-hover-bg, linear-gradient(135deg, #0160b8 0%, #014f99 100%));
   border-color: rgba(232, 169, 69, 0.5);
   box-shadow: 0 10px 30px rgba(0, 57, 113, 0.3), 0 0 15px rgba(232, 169, 69, 0.15);
   transform: translateY(-2px);
 }
 
 .feature-card:hover .feature-text {
-  color: #F5F4D6;
+  color: var(--hero-chip-hover-text, #F5F4D6);
 }
 
 [data-theme="dark"] .feature-card {
@@ -1036,7 +1036,7 @@ body {
 }
 
 [data-theme="dark"] .feature-card:hover {
-  background: rgba(20, 38, 64, 0.95);
+  background: var(--hero-chip-hover-bg, rgba(20, 38, 64, 0.95));
   border-color: rgba(232, 169, 69, 0.3);
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 5px 15px rgba(232, 169, 69, 0.1);
 }
