@@ -42,6 +42,9 @@ function previewChipStyle(hd) {
   const bd = rgbaFromHex(hd.chipBorderColor, hd.chipBorderOpacity);
   return `background:${bg};color:${hd.chipTextColor};border:1px solid ${bd};border-radius:.6rem;padding:.5rem .3rem;font-weight:600;font-size:.78rem;text-align:center`;
 }
+function previewCtaStyle(hd) {
+  return `display:inline-block;margin-top:.9rem;padding:.55rem 1.6rem;border-radius:50px;background:${hd.ctaBgColor};color:${hd.ctaTextColor};font-weight:700;font-size:.9rem`;
+}
 function heroPreviewNote(hd) {
   return hd.enabled
     ? '✅ Dieses Hero-Design wird auf der Seite angewandt.'
@@ -94,10 +97,17 @@ function heroDesignPanel(lang) {
         ${colorField(lang, 'chipBorderColor', 'Rahmenfarbe', true, 'chipBorderOpacity', hd)}
       </div>
 
+      <h3 style="margin:1.1rem 0 .25rem;font-size:.95rem">CTA-Button („Jetzt starten")</h3>
+      <div class="row" style="align-items:flex-end">
+        ${colorField(lang, 'ctaBgColor', 'Hintergrund', false, null, hd)}
+        ${colorField(lang, 'ctaTextColor', 'Textfarbe', false, null, hd)}
+      </div>
+
       <p class="hint" style="margin-top:1rem">Vorschau:</p>
       <div data-hdprev style="${previewBoxStyle(hd)}">
         <div style="font-weight:800;font-size:1.1rem;color:${esc(hd.chipTextColor)}" data-hdtitle>Kostenlose Online-Tools</div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.9rem">${chips}</div>
+        <div data-hdcta style="${previewCtaStyle(hd)}">Jetzt starten</div>
       </div>
       <p class="hint" data-hdnote style="margin-top:.4rem">${heroPreviewNote(hd)}</p>
     </div>
@@ -133,6 +143,8 @@ function refreshPreview(pane, lang) {
   pane
     .querySelectorAll('[data-hdchip]')
     .forEach((c) => c.setAttribute('style', previewChipStyle(hd)));
+  const cta = pane.querySelector('[data-hdcta]');
+  if (cta) cta.setAttribute('style', previewCtaStyle(hd));
   const note = pane.querySelector('[data-hdnote]');
   if (note) note.textContent = heroPreviewNote(hd);
 }

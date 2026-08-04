@@ -90,6 +90,8 @@ export function defaultHeroDesign() {
     chipTextColor: '#013f7a',
     chipBorderColor: '#ffffff',
     chipBorderOpacity: 20,
+    ctaBgColor: '#014f99',
+    ctaTextColor: '#ffffff',
   };
 }
 // Geladenes Hero-Design normalisieren (fehlerhafte Werte -> Standard).
@@ -112,6 +114,8 @@ export function normHeroDesign(hd) {
     chipTextColor: hex(hd.chipTextColor, d.chipTextColor),
     chipBorderColor: hex(hd.chipBorderColor, d.chipBorderColor),
     chipBorderOpacity: num(hd.chipBorderOpacity, 0, 100, d.chipBorderOpacity),
+    ctaBgColor: hex(hd.ctaBgColor, d.ctaBgColor),
+    ctaTextColor: hex(hd.ctaTextColor, d.ctaTextColor),
   };
 }
 
