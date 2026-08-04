@@ -77,10 +77,10 @@ export function rgbaFromHex(hex, opacityPct) {
 }
 
 // --- Medien-Standard & -Normalisierung ---
-// Standard-Design des Hero-Bereichs (entspricht dem Aussehen in global.css).
-export function defaultHeroDesign() {
+// Standard-Design des Hero-Bereichs, getrennt für Hell- und Dunkelmodus
+// (entspricht dem jeweiligen Aussehen in global.css).
+export function heroSideLight() {
   return {
-    enabled: false,
     borderColor: '#014f99',
     borderWidth: 1,
     bgColor: '#ffffff',
@@ -96,30 +96,61 @@ export function defaultHeroDesign() {
     ctaTextColor: '#ffffff',
   };
 }
-// Geladenes Hero-Design normalisieren (fehlerhafte Werte -> Standard).
-export function normHeroDesign(hd) {
-  const d = defaultHeroDesign();
-  if (!hd || typeof hd !== 'object') return d;
-  const num = (v, min, max, def) => {
-    const n = Number(v);
-    return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : def;
+export function heroSideDark() {
+  return {
+    borderColor: '#e8a945',
+    borderWidth: 1,
+    bgColor: '#0e1c32',
+    bgOpacity: 80,
+    chipBgColor: '#142640',
+    chipBgOpacity: 40,
+    chipTextColor: '#f8e1a9',
+    chipBorderColor: '#ffffff',
+    chipBorderOpacity: 8,
+    chipHoverBgColor: '#142640',
+    chipHoverTextColor: '#f5f4d6',
+    ctaBgColor: '#e8a945',
+    ctaTextColor: '#ffffff',
   };
-  const hex = (v, def) => (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? v : def);
+}
+export function defaultHeroDesign() {
+  return { enabled: false, light: heroSideLight(), dark: heroSideDark() };
+}
+// Einen Farb-Satz (Hell/Dunkel) normalisieren.
+function normHeroSide(s, def) {
+  if (!s || typeof s !== 'object') return def;
+  const num = (v, min, max, d) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : d;
+  };
+  const hex = (v, d) => (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? v : d);
+  return {
+    borderColor: hex(s.borderColor, def.borderColor),
+    borderWidth: num(s.borderWidth, 0, 8, def.borderWidth),
+    bgColor: hex(s.bgColor, def.bgColor),
+    bgOpacity: num(s.bgOpacity, 0, 100, def.bgOpacity),
+    chipBgColor: hex(s.chipBgColor, def.chipBgColor),
+    chipBgOpacity: num(s.chipBgOpacity, 0, 100, def.chipBgOpacity),
+    chipTextColor: hex(s.chipTextColor, def.chipTextColor),
+    chipBorderColor: hex(s.chipBorderColor, def.chipBorderColor),
+    chipBorderOpacity: num(s.chipBorderOpacity, 0, 100, def.chipBorderOpacity),
+    chipHoverBgColor: hex(s.chipHoverBgColor, def.chipHoverBgColor),
+    chipHoverTextColor: hex(s.chipHoverTextColor, def.chipHoverTextColor),
+    ctaBgColor: hex(s.ctaBgColor, def.ctaBgColor),
+    ctaTextColor: hex(s.ctaTextColor, def.ctaTextColor),
+  };
+}
+// Geladenes Hero-Design normalisieren (getrennt Hell/Dunkel). Migriert die alte
+// flache Struktur (Farben auf oberster Ebene) auf beide Modi.
+export function normHeroDesign(hd) {
+  if (!hd || typeof hd !== 'object') return defaultHeroDesign();
+  const hasSides =
+    (hd.light && typeof hd.light === 'object') || (hd.dark && typeof hd.dark === 'object');
+  const flat = !hasSides && typeof hd.borderColor === 'string' ? hd : null;
   return {
     enabled: hd.enabled === true,
-    borderColor: hex(hd.borderColor, d.borderColor),
-    borderWidth: num(hd.borderWidth, 0, 8, d.borderWidth),
-    bgColor: hex(hd.bgColor, d.bgColor),
-    bgOpacity: num(hd.bgOpacity, 0, 100, d.bgOpacity),
-    chipBgColor: hex(hd.chipBgColor, d.chipBgColor),
-    chipBgOpacity: num(hd.chipBgOpacity, 0, 100, d.chipBgOpacity),
-    chipTextColor: hex(hd.chipTextColor, d.chipTextColor),
-    chipBorderColor: hex(hd.chipBorderColor, d.chipBorderColor),
-    chipBorderOpacity: num(hd.chipBorderOpacity, 0, 100, d.chipBorderOpacity),
-    chipHoverBgColor: hex(hd.chipHoverBgColor, d.chipHoverBgColor),
-    chipHoverTextColor: hex(hd.chipHoverTextColor, d.chipHoverTextColor),
-    ctaBgColor: hex(hd.ctaBgColor, d.ctaBgColor),
-    ctaTextColor: hex(hd.ctaTextColor, d.ctaTextColor),
+    light: normHeroSide(hasSides ? hd.light : flat, heroSideLight()),
+    dark: normHeroSide(hasSides ? hd.dark : flat, heroSideDark()),
   };
 }
 

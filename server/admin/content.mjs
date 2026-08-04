@@ -96,11 +96,11 @@ export function validateTickerStyle(s) {
   };
 }
 
-// Standard-Design des Hero-Bereichs. enabled=false -> bisheriges Aussehen
-// (die Standardwerte entsprechen dem aktuellen Design in global.css).
-function defaultHeroDesign() {
+// Standard-Design des Hero-Bereichs, getrennt für Hell- und Dunkelmodus. Die
+// Standardwerte entsprechen dem jeweiligen Aussehen in global.css, sodass
+// enabled=false (und auch enabled=true mit Standardwerten) unverändert wirkt.
+function heroSideLight() {
   return {
-    enabled: false,
     borderColor: '#014f99',
     borderWidth: 1,
     bgColor: '#ffffff',
@@ -116,26 +116,59 @@ function defaultHeroDesign() {
     ctaTextColor: '#ffffff',
   };
 }
+function heroSideDark() {
+  return {
+    borderColor: '#e8a945',
+    borderWidth: 1,
+    bgColor: '#0e1c32',
+    bgOpacity: 80,
+    chipBgColor: '#142640',
+    chipBgOpacity: 40,
+    chipTextColor: '#f8e1a9',
+    chipBorderColor: '#ffffff',
+    chipBorderOpacity: 8,
+    chipHoverBgColor: '#142640',
+    chipHoverTextColor: '#f5f4d6',
+    ctaBgColor: '#e8a945',
+    ctaTextColor: '#ffffff',
+  };
+}
+function defaultHeroDesign() {
+  return { enabled: false, light: heroSideLight(), dark: heroSideDark() };
+}
 
-/** Validiert/normalisiert das Hero-Design (fehlerhafte Werte -> Standard). */
+/** Validiert einen Farb-Satz (Hell oder Dunkel) gegen dessen Standard. */
+function validateHeroSide(s, def) {
+  if (!isPlainObject(s)) return def;
+  return {
+    borderColor: normHexColor(s.borderColor, def.borderColor),
+    borderWidth: clampNum(s.borderWidth, 0, 8, def.borderWidth),
+    bgColor: normHexColor(s.bgColor, def.bgColor),
+    bgOpacity: clampNum(s.bgOpacity, 0, 100, def.bgOpacity),
+    chipBgColor: normHexColor(s.chipBgColor, def.chipBgColor),
+    chipBgOpacity: clampNum(s.chipBgOpacity, 0, 100, def.chipBgOpacity),
+    chipTextColor: normHexColor(s.chipTextColor, def.chipTextColor),
+    chipBorderColor: normHexColor(s.chipBorderColor, def.chipBorderColor),
+    chipBorderOpacity: clampNum(s.chipBorderOpacity, 0, 100, def.chipBorderOpacity),
+    chipHoverBgColor: normHexColor(s.chipHoverBgColor, def.chipHoverBgColor),
+    chipHoverTextColor: normHexColor(s.chipHoverTextColor, def.chipHoverTextColor),
+    ctaBgColor: normHexColor(s.ctaBgColor, def.ctaBgColor),
+    ctaTextColor: normHexColor(s.ctaTextColor, def.ctaTextColor),
+  };
+}
+
+/**
+ * Validiert/normalisiert das Hero-Design (getrennt Hell/Dunkel).
+ * Migriert die alte flache Struktur (Farben auf oberster Ebene) -> beide Modi.
+ */
 function validateHeroDesign(hd) {
-  const d = defaultHeroDesign();
-  if (!isPlainObject(hd)) return d;
+  if (!isPlainObject(hd)) return defaultHeroDesign();
+  const hasSides = isPlainObject(hd.light) || isPlainObject(hd.dark);
+  const flat = !hasSides && typeof hd.borderColor === 'string' ? hd : null;
   return {
     enabled: hd.enabled === true,
-    borderColor: normHexColor(hd.borderColor, d.borderColor),
-    borderWidth: clampNum(hd.borderWidth, 0, 8, d.borderWidth),
-    bgColor: normHexColor(hd.bgColor, d.bgColor),
-    bgOpacity: clampNum(hd.bgOpacity, 0, 100, d.bgOpacity),
-    chipBgColor: normHexColor(hd.chipBgColor, d.chipBgColor),
-    chipBgOpacity: clampNum(hd.chipBgOpacity, 0, 100, d.chipBgOpacity),
-    chipTextColor: normHexColor(hd.chipTextColor, d.chipTextColor),
-    chipBorderColor: normHexColor(hd.chipBorderColor, d.chipBorderColor),
-    chipBorderOpacity: clampNum(hd.chipBorderOpacity, 0, 100, d.chipBorderOpacity),
-    chipHoverBgColor: normHexColor(hd.chipHoverBgColor, d.chipHoverBgColor),
-    chipHoverTextColor: normHexColor(hd.chipHoverTextColor, d.chipHoverTextColor),
-    ctaBgColor: normHexColor(hd.ctaBgColor, d.ctaBgColor),
-    ctaTextColor: normHexColor(hd.ctaTextColor, d.ctaTextColor),
+    light: validateHeroSide(hasSides ? hd.light : flat, heroSideLight()),
+    dark: validateHeroSide(hasSides ? hd.dark : flat, heroSideDark()),
   };
 }
 
