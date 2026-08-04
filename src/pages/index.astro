@@ -39,6 +39,35 @@ const features = Object.entries(de.hero.features).map(([k, text]) => ({
   i18nKey: `hero.features.${k}`,
 }))
 
+// Admin-Design des Hero-Bereichs -> Inline-CSS-Variablen (nur wenn aktiviert;
+// sonst bleibt das Standard-Aussehen aus global.css, inkl. Dark Mode).
+function heroHexToRgba(hex: string, opacityPct: number): string | null {
+  const m = /^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.exec((hex || '').trim())
+  if (!m) return null
+  let h = m[1]
+  if (h.length === 3) h = h.split('').map((c) => c + c).join('')
+  const r = parseInt(h.slice(0, 2), 16)
+  const g = parseInt(h.slice(2, 4), 16)
+  const b = parseInt(h.slice(4, 6), 16)
+  const a = Math.max(0, Math.min(100, Number.isFinite(opacityPct) ? opacityPct : 100)) / 100
+  return `rgba(${r}, ${g}, ${b}, ${a})`
+}
+function heroDesignVars(hd: typeof media.heroDesign): string | undefined {
+  if (!hd || !hd.enabled) return undefined
+  const v: string[] = []
+  const bg = heroHexToRgba(hd.bgColor, hd.bgOpacity)
+  if (bg) v.push(`--hero-bg:${bg}`)
+  if (hd.borderColor) v.push(`--hero-border-color:${hd.borderColor}`)
+  v.push(`--hero-border-width:${hd.borderWidth}px`)
+  const cbg = heroHexToRgba(hd.chipBgColor, hd.chipBgOpacity)
+  if (cbg) v.push(`--hero-chip-bg:${cbg}`)
+  if (hd.chipTextColor) v.push(`--hero-chip-text:${hd.chipTextColor}`)
+  const cbd = heroHexToRgba(hd.chipBorderColor, hd.chipBorderOpacity)
+  if (cbd) v.push(`--hero-chip-border:${cbd}`)
+  return v.length ? v.join(';') : undefined
+}
+const heroStyle = heroDesignVars(media.heroDesign)
+
 // Build focused i18n map for vanilla JS (only keys used on this page)
 const SKIP = new Set(['sectionTitle', 'sectionDescription', 'processingBadge'])
 
@@ -158,7 +187,7 @@ const pageI18n = {
     <TickerBar lang="de" />
 
     <!-- Hero Section with Animated Mesh Gradient -->
-    <section class="hero">
+    <section class="hero" style={heroStyle}>
       <div class="mesh-gradient-container">
         <div class="mesh-blob mesh-blob-1"></div>
         <div class="mesh-blob mesh-blob-2"></div>

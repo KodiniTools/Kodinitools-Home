@@ -7,6 +7,7 @@ import { $, api, mediaAll } from './core.js';
 import { state, normTicker, normalizeMedia, SUBTABS, LANG_SECTIONS } from './model.js';
 import { renderTicker, loadFonts } from './ticker.js';
 import { renderTexts, renderAdvanced } from './content.js';
+import { renderHeroDesign } from './design.js';
 import { renderMedia, renderFiles, loadServerFiles } from './media.js';
 import { renderPublish, refreshPublishStatus } from './publish.js';
 
@@ -54,6 +55,7 @@ function renderMain() {
     if (sub === 'ticker') renderTicker();
     else if (sub === 'texts') renderTexts();
     else if (sub === 'media') renderMedia();
+    else if (sub === 'design') renderHeroDesign();
     else if (sub === 'files') renderFiles();
     else if (sub === 'advanced') renderAdvanced();
   } else if (section === 'publish') {

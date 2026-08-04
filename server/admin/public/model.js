@@ -77,6 +77,44 @@ export function rgbaFromHex(hex, opacityPct) {
 }
 
 // --- Medien-Standard & -Normalisierung ---
+// Standard-Design des Hero-Bereichs (entspricht dem Aussehen in global.css).
+export function defaultHeroDesign() {
+  return {
+    enabled: false,
+    borderColor: '#014f99',
+    borderWidth: 1,
+    bgColor: '#ffffff',
+    bgOpacity: 70,
+    chipBgColor: '#014f99',
+    chipBgOpacity: 15,
+    chipTextColor: '#013f7a',
+    chipBorderColor: '#ffffff',
+    chipBorderOpacity: 20,
+  };
+}
+// Geladenes Hero-Design normalisieren (fehlerhafte Werte -> Standard).
+export function normHeroDesign(hd) {
+  const d = defaultHeroDesign();
+  if (!hd || typeof hd !== 'object') return d;
+  const num = (v, min, max, def) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : def;
+  };
+  const hex = (v, def) => (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? v : def);
+  return {
+    enabled: hd.enabled === true,
+    borderColor: hex(hd.borderColor, d.borderColor),
+    borderWidth: num(hd.borderWidth, 0, 8, d.borderWidth),
+    bgColor: hex(hd.bgColor, d.bgColor),
+    bgOpacity: num(hd.bgOpacity, 0, 100, d.bgOpacity),
+    chipBgColor: hex(hd.chipBgColor, d.chipBgColor),
+    chipBgOpacity: num(hd.chipBgOpacity, 0, 100, d.chipBgOpacity),
+    chipTextColor: hex(hd.chipTextColor, d.chipTextColor),
+    chipBorderColor: hex(hd.chipBorderColor, d.chipBorderColor),
+    chipBorderOpacity: num(hd.chipBorderOpacity, 0, 100, d.chipBorderOpacity),
+  };
+}
+
 export function defaultMediaLocale() {
   return {
     sectionVideos: {
@@ -89,6 +127,7 @@ export function defaultMediaLocale() {
     heroGrid: ['', '', ''],
     heroGridRatio: '1:1',
     heroGridFit: 'cover',
+    heroDesign: defaultHeroDesign(),
   };
 }
 // Empfohlene Bildabmessungen je Seitenverhältnis (crisp bei ~3-spaltiger Anzeige).
@@ -117,6 +156,7 @@ export function normalizeMedia(m) {
       heroGrid: [0, 1, 2].map((i) => (typeof grid[i] === 'string' ? grid[i] : '')),
       heroGridRatio: ['1:1', '16:9', '2:3'].includes(o?.heroGridRatio) ? o.heroGridRatio : '1:1',
       heroGridFit: o?.heroGridFit === 'contain' ? 'contain' : 'cover',
+      heroDesign: normHeroDesign(o?.heroDesign),
     };
   };
   if (m && typeof m === 'object' && m.sectionVideos) return { de: mk(m), en: mk(m) };
@@ -202,6 +242,7 @@ export const SUBTABS = [
   { key: 'ticker', label: 'Laufband' },
   { key: 'texts', label: 'Texte' },
   { key: 'media', label: 'Medien' },
+  { key: 'design', label: 'Hero-Design' },
   { key: 'files', label: 'Dateien' },
   { key: 'advanced', label: 'Erweitert' },
 ];
