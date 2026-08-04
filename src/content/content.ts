@@ -107,9 +107,8 @@ export interface MediaConfig {
   heroDesign: HeroDesign;
 }
 
-/** Aussehen des Hero-Bereichs. enabled=false -> Standard-Design (global.css). */
-export interface HeroDesign {
-  enabled: boolean;
+/** Ein Farb-Satz des Hero-Bereichs (für Hell- bzw. Dunkelmodus getrennt). */
+export interface HeroDesignSide {
   borderColor: string; // Hex – Rahmenfarbe des Hero-Kastens
   borderWidth: number; // px
   bgColor: string; // Hex – Hintergrundfarbe
@@ -123,6 +122,16 @@ export interface HeroDesign {
   chipHoverTextColor: string; // Hex – Schriftfarbe der Buttons beim Überfahren
   ctaBgColor: string; // Hex – Hintergrund des CTA-Buttons ("Jetzt starten")
   ctaTextColor: string; // Hex – Schriftfarbe des CTA-Buttons
+}
+
+/**
+ * Aussehen des Hero-Bereichs, getrennt für Hell- und Dunkelmodus.
+ * enabled=false -> Standard-Design (global.css).
+ */
+export interface HeroDesign {
+  enabled: boolean;
+  light: HeroDesignSide;
+  dark: HeroDesignSide;
 }
 
 // Standard-Pfade entsprechen dem bisherigen Auslieferungszustand.
@@ -139,19 +148,36 @@ const MEDIA_DEFAULTS: MediaConfig = {
   heroGridFit: 'cover',
   heroDesign: {
     enabled: false,
-    borderColor: '#014f99',
-    borderWidth: 1,
-    bgColor: '#ffffff',
-    bgOpacity: 70,
-    chipBgColor: '#014f99',
-    chipBgOpacity: 15,
-    chipTextColor: '#013f7a',
-    chipBorderColor: '#ffffff',
-    chipBorderOpacity: 20,
-    chipHoverBgColor: '#0160b8',
-    chipHoverTextColor: '#f5f4d6',
-    ctaBgColor: '#014f99',
-    ctaTextColor: '#ffffff',
+    light: {
+      borderColor: '#014f99',
+      borderWidth: 1,
+      bgColor: '#ffffff',
+      bgOpacity: 70,
+      chipBgColor: '#014f99',
+      chipBgOpacity: 15,
+      chipTextColor: '#013f7a',
+      chipBorderColor: '#ffffff',
+      chipBorderOpacity: 20,
+      chipHoverBgColor: '#0160b8',
+      chipHoverTextColor: '#f5f4d6',
+      ctaBgColor: '#014f99',
+      ctaTextColor: '#ffffff',
+    },
+    dark: {
+      borderColor: '#e8a945',
+      borderWidth: 1,
+      bgColor: '#0e1c32',
+      bgOpacity: 80,
+      chipBgColor: '#142640',
+      chipBgOpacity: 40,
+      chipTextColor: '#f8e1a9',
+      chipBorderColor: '#ffffff',
+      chipBorderOpacity: 8,
+      chipHoverBgColor: '#142640',
+      chipHoverTextColor: '#f5f4d6',
+      ctaBgColor: '#e8a945',
+      ctaTextColor: '#ffffff',
+    },
   },
 };
 

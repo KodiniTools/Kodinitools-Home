@@ -52,25 +52,29 @@ function heroHexToRgba(hex: string, opacityPct: number): string | null {
   const a = Math.max(0, Math.min(100, Number.isFinite(opacityPct) ? opacityPct : 100)) / 100
   return `rgba(${r}, ${g}, ${b}, ${a})`
 }
-function heroDesignVars(hd: typeof media.heroDesign): string | undefined {
-  if (!hd || !hd.enabled) return undefined
+function heroSideVars(side: typeof media.heroDesign.light): string {
   const v: string[] = []
-  const bg = heroHexToRgba(hd.bgColor, hd.bgOpacity)
+  const bg = heroHexToRgba(side.bgColor, side.bgOpacity)
   if (bg) v.push(`--hero-bg:${bg}`)
-  if (hd.borderColor) v.push(`--hero-border-color:${hd.borderColor}`)
-  v.push(`--hero-border-width:${hd.borderWidth}px`)
-  const cbg = heroHexToRgba(hd.chipBgColor, hd.chipBgOpacity)
+  if (side.borderColor) v.push(`--hero-border-color:${side.borderColor}`)
+  v.push(`--hero-border-width:${side.borderWidth}px`)
+  const cbg = heroHexToRgba(side.chipBgColor, side.chipBgOpacity)
   if (cbg) v.push(`--hero-chip-bg:${cbg}`)
-  if (hd.chipTextColor) v.push(`--hero-chip-text:${hd.chipTextColor}`)
-  const cbd = heroHexToRgba(hd.chipBorderColor, hd.chipBorderOpacity)
+  if (side.chipTextColor) v.push(`--hero-chip-text:${side.chipTextColor}`)
+  const cbd = heroHexToRgba(side.chipBorderColor, side.chipBorderOpacity)
   if (cbd) v.push(`--hero-chip-border:${cbd}`)
-  if (hd.chipHoverBgColor) v.push(`--hero-chip-hover-bg:${hd.chipHoverBgColor}`)
-  if (hd.chipHoverTextColor) v.push(`--hero-chip-hover-text:${hd.chipHoverTextColor}`)
-  if (hd.ctaBgColor) v.push(`--hero-cta-bg:${hd.ctaBgColor}`)
-  if (hd.ctaTextColor) v.push(`--hero-cta-text:${hd.ctaTextColor}`)
-  return v.length ? v.join(';') : undefined
+  if (side.chipHoverBgColor) v.push(`--hero-chip-hover-bg:${side.chipHoverBgColor}`)
+  if (side.chipHoverTextColor) v.push(`--hero-chip-hover-text:${side.chipHoverTextColor}`)
+  if (side.ctaBgColor) v.push(`--hero-cta-bg:${side.ctaBgColor}`)
+  if (side.ctaTextColor) v.push(`--hero-cta-text:${side.ctaTextColor}`)
+  return v.join(';')
 }
-const heroStyle = heroDesignVars(media.heroDesign)
+// Getrennte CSS-Variablen für Hell (.hero) und Dunkel ([data-theme="dark"] .hero).
+function heroDesignCss(hd: typeof media.heroDesign): string | undefined {
+  if (!hd || !hd.enabled) return undefined
+  return `.hero{${heroSideVars(hd.light)}}\n[data-theme="dark"] .hero{${heroSideVars(hd.dark)}}`
+}
+const heroCss = heroDesignCss(media.heroDesign)
 
 // Build focused i18n map for vanilla JS (only keys used on this page)
 const SKIP = new Set(['sectionTitle', 'sectionDescription', 'processingBadge'])
@@ -191,7 +195,8 @@ const pageI18n = {
     <TickerBar lang="de" />
 
     <!-- Hero Section with Animated Mesh Gradient -->
-    <section class="hero" style={heroStyle}>
+    {heroCss && <style is:global set:html={heroCss} />}
+    <section class="hero">
       <div class="mesh-gradient-container">
         <div class="mesh-blob mesh-blob-1"></div>
         <div class="mesh-blob mesh-blob-2"></div>
