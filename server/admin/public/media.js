@@ -86,12 +86,39 @@ async function verifyPublishedSlots(pane) {
   }
 }
 
+// Verlinkung eines Hero-Mediums (Banner oder Rasterbild) lesen/schreiben.
+function heroLinkVal(lang, key) {
+  if (key === 'heroBanner') return state.media[lang].heroBannerLink || '';
+  const g = /^grid([0-2])$/.exec(key);
+  if (g) return (state.media[lang].heroGridLinks || [])[+g[1]] || '';
+  return '';
+}
+function setHeroLink(lang, key, val) {
+  if (key === 'heroBanner') {
+    state.media[lang].heroBannerLink = val;
+    return;
+  }
+  const g = /^grid([0-2])$/.exec(key);
+  if (g) {
+    if (!Array.isArray(state.media[lang].heroGridLinks))
+      state.media[lang].heroGridLinks = ['', '', ''];
+    state.media[lang].heroGridLinks[+g[1]] = val;
+  }
+}
+
 // Ein einzelner Medien-Slot (Sprache + Schlüssel). data-Attribute kodieren
 // "lang:key", damit die Bindings wissen, welche Sprache/welcher Slot gemeint ist.
-function mediaSlotPanel(lang, key, { title, hint, placeholder, resetLabel }) {
+// withLink=true blendet ein optionales Verlinkungsfeld ein (nur Banner/Raster).
+function mediaSlotPanel(lang, key, { title, hint, placeholder, resetLabel, withLink }) {
   const val = getMediaVal(lang, key);
   const staged = val.startsWith('staged:');
   const id = `${lang}:${key}`;
+  const linkField = withLink
+    ? `
+        <label style="margin-top:.6rem">🔗 Verlinkung (optional) — öffnet beim Klick auf das Medium</label>
+        <input data-slotlink="${id}" value="${esc(heroLinkVal(lang, key))}" placeholder="https://… oder /faq/" />
+        <p class="hint">Leer = nicht klickbar. Externe Links (http/https) öffnen in neuem Tab; interne Pfade (z.B. <code>/faq/</code>) im selben Tab.</p>`
+    : '';
   return `
       <div class="panel">
         <h2>${title}</h2>
@@ -103,6 +130,7 @@ function mediaSlotPanel(lang, key, { title, hint, placeholder, resetLabel }) {
           <button data-slotpick="${id}" style="flex:0 0 auto">📁 Aus Zwischenspeicher wählen</button>
           <button data-slotreset="${id}" style="flex:0 0 auto">${resetLabel}</button>
         </div>
+        ${linkField}
       </div>`;
 }
 
@@ -151,6 +179,7 @@ function heroPanel(lang) {
           hint: 'Wird im 3er-Raster oben angezeigt. Leer = Feld bleibt frei.',
           placeholder: '/uploads/bild.jpg',
           resetLabel: '↺ Entfernen',
+          withLink: true,
         }),
       )
       .join('');
@@ -163,6 +192,7 @@ function heroPanel(lang) {
       hint: 'Erscheint ganz oben im Hero-Bereich. Bild oder Video. Leer lassen = kein Banner. 📐 Empfohlen: breites Format, ca. 1800 × 480 px (Anzeige bis 900 × 240 px).',
       placeholder: '/uploads/mein-banner.jpg',
       resetLabel: '↺ Entfernen',
+      withLink: true,
     })
   );
 }
@@ -286,6 +316,12 @@ export function renderMedia() {
     el.addEventListener('click', () => {
       const [l, key] = el.dataset.slotpick.split(':');
       pickFromLibrary(l, key);
+    }),
+  );
+  pane.querySelectorAll('[data-slotlink]').forEach((el) =>
+    el.addEventListener('input', () => {
+      const [l, key] = el.dataset.slotlink.split(':');
+      setHeroLink(l, key, el.value.trim());
     }),
   );
 

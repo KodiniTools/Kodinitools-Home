@@ -163,7 +163,9 @@ export function defaultMediaLocale() {
     },
     heroMode: 'banner',
     heroBanner: '',
+    heroBannerLink: '',
     heroGrid: ['', '', ''],
+    heroGridLinks: ['', '', ''],
     heroGridRatio: '1:1',
     heroGridFit: 'cover',
     heroDesign: defaultHeroDesign(),
@@ -184,6 +186,7 @@ export function normalizeMedia(m) {
     const d = defaultMediaLocale();
     const sv = o && typeof o.sectionVideos === 'object' && o.sectionVideos ? o.sectionVideos : {};
     const grid = Array.isArray(o?.heroGrid) ? o.heroGrid : [];
+    const gridLinks = Array.isArray(o?.heroGridLinks) ? o.heroGridLinks : [];
     return {
       sectionVideos: {
         audio: sv.audio || d.sectionVideos.audio,
@@ -192,7 +195,9 @@ export function normalizeMedia(m) {
       },
       heroMode: o && o.heroMode === 'grid' ? 'grid' : 'banner',
       heroBanner: o && typeof o.heroBanner === 'string' ? o.heroBanner : '',
+      heroBannerLink: o && typeof o.heroBannerLink === 'string' ? o.heroBannerLink : '',
       heroGrid: [0, 1, 2].map((i) => (typeof grid[i] === 'string' ? grid[i] : '')),
+      heroGridLinks: [0, 1, 2].map((i) => (typeof gridLinks[i] === 'string' ? gridLinks[i] : '')),
       heroGridRatio: ['1:1', '16:9', '2:3'].includes(o?.heroGridRatio) ? o.heroGridRatio : '1:1',
       heroGridFit: o?.heroGridFit === 'contain' ? 'contain' : 'cover',
       heroDesign: normHeroDesign(o?.heroDesign),
