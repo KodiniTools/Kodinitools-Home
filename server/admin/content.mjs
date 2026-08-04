@@ -110,6 +110,8 @@ function defaultHeroDesign() {
     chipTextColor: '#013f7a',
     chipBorderColor: '#ffffff',
     chipBorderOpacity: 20,
+    ctaBgColor: '#014f99',
+    ctaTextColor: '#ffffff',
   };
 }
 
@@ -128,6 +130,8 @@ function validateHeroDesign(hd) {
     chipTextColor: normHexColor(hd.chipTextColor, d.chipTextColor),
     chipBorderColor: normHexColor(hd.chipBorderColor, d.chipBorderColor),
     chipBorderOpacity: clampNum(hd.chipBorderOpacity, 0, 100, d.chipBorderOpacity),
+    ctaBgColor: normHexColor(hd.ctaBgColor, d.ctaBgColor),
+    ctaTextColor: normHexColor(hd.ctaTextColor, d.ctaTextColor),
   };
 }
 

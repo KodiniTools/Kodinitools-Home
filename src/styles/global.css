@@ -808,8 +808,8 @@ body {
   align-items: center;
   gap: 0.5rem;
   padding: 0.85rem 2.2rem;
-  background: linear-gradient(135deg, #014f99 0%, #003971 100%);
-  color: #fff;
+  background: var(--hero-cta-bg, linear-gradient(135deg, #014f99 0%, #003971 100%));
+  color: var(--hero-cta-text, #fff);
   font-size: 1.05rem;
   font-weight: 700;
   border-radius: 50px;
@@ -830,7 +830,7 @@ body {
 }
 
 [data-theme="dark"] .hero-cta-btn {
-  background: linear-gradient(135deg, #e8a945 0%, #a07030 100%);
+  background: var(--hero-cta-bg, linear-gradient(135deg, #e8a945 0%, #a07030 100%));
   box-shadow: 0 4px 20px rgba(232, 169, 69, 0.35);
 }
 

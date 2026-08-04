@@ -64,6 +64,8 @@ function heroDesignVars(hd: typeof media.heroDesign): string | undefined {
   if (hd.chipTextColor) v.push(`--hero-chip-text:${hd.chipTextColor}`)
   const cbd = heroHexToRgba(hd.chipBorderColor, hd.chipBorderOpacity)
   if (cbd) v.push(`--hero-chip-border:${cbd}`)
+  if (hd.ctaBgColor) v.push(`--hero-cta-bg:${hd.ctaBgColor}`)
+  if (hd.ctaTextColor) v.push(`--hero-cta-text:${hd.ctaTextColor}`)
   return v.length ? v.join(';') : undefined
 }
 const heroStyle = heroDesignVars(media.heroDesign)
