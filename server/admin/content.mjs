@@ -41,7 +41,15 @@ function defaultTickerStyle() {
     bgColor: '#014f99',
     bgOpacity: 100,
     fontFamily: '', // Dateiname im Fonts-Ordner; leer = Standardschrift
+    letterSpacing: 0, // Buchstabenabstand in px (0 = normal)
   };
+}
+
+/** Buchstabenabstand: auf [-5, 20] px begrenzen, auf 0,5 gerundet. */
+function clampSpacing(v, def) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return def;
+  return Math.max(-5, Math.min(20, Math.round(n * 2) / 2));
 }
 
 /** Erlaubt einen einfachen Schrift-Dateinamen (kein Pfad) oder '' (Standard). */
@@ -84,6 +92,7 @@ export function validateTickerStyle(s) {
     bgColor: normHexColor(s.bgColor, d.bgColor),
     bgOpacity: clampNum(s.bgOpacity, 0, 100, d.bgOpacity),
     fontFamily: normFontFile(s.fontFamily),
+    letterSpacing: clampSpacing(s.letterSpacing, d.letterSpacing),
   };
 }
 

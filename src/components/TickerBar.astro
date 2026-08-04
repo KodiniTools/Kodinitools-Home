@@ -54,6 +54,7 @@ const styleVars: string[] = [];
 let fontFace: string | undefined;
 if (s && s.enabled) {
   if (s.fontSize) styleVars.push(`--ticker-fs:${s.fontSize}px`);
+  if (typeof s.letterSpacing === 'number') styleVars.push(`--ticker-ls:${s.letterSpacing}px`);
   if (s.textColor) styleVars.push(`--ticker-fg:${s.textColor}`);
   const bg = s.bgColor ? hexToRgba(s.bgColor, s.bgOpacity ?? 100) : null;
   if (bg) styleVars.push(`--ticker-bg:${bg}`);
@@ -162,6 +163,7 @@ const tickerStyle = styleVars.length ? styleVars.join(';') : undefined;
     padding: 8px 0;
     font-size: var(--ticker-fs, 0.9rem);
     font-family: var(--ticker-ff, inherit);
+    letter-spacing: var(--ticker-ls, normal);
     font-weight: 500;
     line-height: 1.2;
   }
