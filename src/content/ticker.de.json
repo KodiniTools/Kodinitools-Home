@@ -4,7 +4,7 @@
   "items": [
     {
       "id": "1785207507498",
-      "text": "Immer die besten Tools für deine Aufgaben – Stets aktuell, geprüft und einsatzbereit - Schau regelmässig vorbei - Letzte Aktuallisierung: 03.08.2026"
+      "text": "Immer die besten Tools für deine Aufgaben – Stets aktuell, geprüft und einsatzbereit - Schau regelmässig vorbei - Letzte Aktuallisierung: 04.08.2026"
     }
   ],
   "style": {
@@ -12,6 +12,8 @@
     "fontSize": 14,
     "textColor": "#070c5a",
     "bgColor": "#d2e4f4",
-    "bgOpacity": 100
+    "bgOpacity": 100,
+    "fontFamily": "Supreme-Regular.woff2",
+    "letterSpacing": 1.5
   }
 }
