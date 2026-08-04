@@ -149,7 +149,13 @@ function defaultTickerStyle() {
     bgColor: '#014f99',
     bgOpacity: 100,
     fontFamily: '',
+    letterSpacing: 0,
   };
+}
+// Buchstabenabstand auf [-5, 20] px begrenzen, auf 0,5 gerundet.
+function clampSpacing(v, def) {
+  const n = Number(v);
+  return Number.isFinite(n) ? Math.max(-5, Math.min(20, Math.round(n * 2) / 2)) : def;
 }
 // Erlaubt einen einfachen Schrift-Dateinamen oder '' (Standardschrift).
 function normFontFile(v) {
@@ -173,6 +179,7 @@ function normTickerStyle(s) {
     bgColor: hex(s.bgColor, d.bgColor),
     bgOpacity: clamp(s.bgOpacity, 0, 100, d.bgOpacity),
     fontFamily: normFontFile(s.fontFamily),
+    letterSpacing: clampSpacing(s.letterSpacing, d.letterSpacing),
   };
 }
 // Hex + Deckkraft(%) -> rgba() (für Vorschau).
@@ -467,7 +474,8 @@ function tickerPreviewStyle(s) {
     const fam = ensureFontFace(s.fontFamily); // @font-face in die Seite laden
     ff = `font-family:"${fam}", system-ui, sans-serif;`;
   }
-  return `background:${bg};color:${fg};font-size:${fs};${ff}font-weight:500;padding:8px 14px;border-radius:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis`;
+  const ls = s.enabled ? `letter-spacing:${Number(s.letterSpacing) || 0}px;` : '';
+  return `background:${bg};color:${fg};font-size:${fs};${ff}${ls}font-weight:500;padding:8px 14px;border-radius:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis`;
 }
 
 // Options für die Schriftauswahl. Enthält immer "Standard" und die vom Server
@@ -505,6 +513,10 @@ function tickerStyleSection(lang) {
             <input type="number" data-tks="fontSize" data-lang="${lang}" min="8" max="48" value="${s.fontSize}" style="width:90px" />
           </div>
           <div style="flex:0 0 auto">
+            <label>Buchstabenabstand (px)</label>
+            <input type="number" data-tks="letterSpacing" data-lang="${lang}" min="-5" max="20" step="0.5" value="${s.letterSpacing}" style="width:90px" />
+          </div>
+          <div style="flex:0 0 auto">
             <label>Schriftfarbe</label>
             <input type="color" data-tks="textColor" data-lang="${lang}" value="${esc(s.textColor)}" style="width:56px;height:38px;padding:2px" />
           </div>
@@ -539,6 +551,7 @@ function bindTickerStyle(pane) {
       if (field === 'enabled') s.enabled = el.checked;
       else if (field === 'fontSize')
         s.fontSize = Math.max(8, Math.min(48, parseInt(el.value, 10) || 14));
+      else if (field === 'letterSpacing') s.letterSpacing = clampSpacing(el.value, 0);
       else if (field === 'bgOpacity') {
         s.bgOpacity = Math.max(0, Math.min(100, parseInt(el.value, 10) || 0));
         const oval = pane.querySelector(`[data-tks-oval][data-lang="${lang}"]`);

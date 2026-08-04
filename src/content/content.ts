@@ -65,6 +65,7 @@ export interface TickerStyle {
   bgColor: string; // Hex
   bgOpacity: number; // 0–100 (%)
   fontFamily: string; // Dateiname im /fonts-Ordner (z.B. "Chillax-Variable.woff2"); leer = Standardschrift
+  letterSpacing: number; // Buchstabenabstand in px (0 = normal)
 }
 export interface TickerConfig {
   enabled: boolean;
@@ -80,6 +81,7 @@ const TICKER_STYLE_DEFAULTS: TickerStyle = {
   bgColor: '#014f99',
   bgOpacity: 100,
   fontFamily: '',
+  letterSpacing: 0,
 };
 
 /** Laufband-Konfiguration für eine Sprache (mit vollständig aufgefülltem style). */
