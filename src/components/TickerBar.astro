@@ -49,6 +49,26 @@ function fontFamilyId(file: string): string {
 }
 const VALID_FONT = /^[a-zA-Z0-9][a-zA-Z0-9._ -]*\.(woff2|woff|ttf|otf)$/i;
 
+// Inline-Links im Text: [Wort](/pfad/) oder [Wort](https://…) machen nur dieses
+// Wort zum Link. Andere/ungültige URLs bleiben unveränderter Literaltext (sicher
+// gegen javascript: & Co.). Rückgabe: Segmente aus Text bzw. Text+Link.
+function parseInline(text: string): { text: string; href?: string }[] {
+  const parts: { text: string; href?: string }[] = [];
+  const re = /\[([^\]]+)\]\(([^)\s]+)\)/g;
+  let last = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) parts.push({ text: text.slice(last, m.index) });
+    const [full, label, url] = m;
+    if (/^(\/[^\s]*|https?:\/\/[^\s]+)$/.test(url)) parts.push({ text: label, href: url });
+    else parts.push({ text: full });
+    last = m.index + full.length;
+  }
+  if (last < text.length) parts.push({ text: text.slice(last) });
+  return parts;
+}
+const isExternal = (u: string) => /^https?:\/\//i.test(u);
+
 const s = ticker.style;
 const styleVars: string[] = [];
 let fontFace: string | undefined;
@@ -88,17 +108,41 @@ const tickerStyle = styleVars.length ? styleVars.join(';') : undefined;
               Einzeldurchlauf: die Gruppe startet rechts außerhalb, läuft einmal
               komplett durch bis links raus, dann wieder von rechts. */}
           <div class="ticker__group" data-ticker-group>
-            {items.map((item) => (
-              <span class="ticker__item">
-                {item.link ? (
-                  <a class="ticker__link" href={item.link}>
-                    {item.text}
-                  </a>
-                ) : (
-                  <span class="ticker__text">{item.text}</span>
-                )}
-              </span>
-            ))}
+            {items.map((item) => {
+              const parts = parseInline(item.text);
+              const hasInline = parts.some((p) => p.href);
+              return (
+                <span class="ticker__item">
+                  {item.link && !hasInline ? (
+                    <a
+                      class="ticker__link"
+                      href={item.link}
+                      target={isExternal(item.link) ? '_blank' : undefined}
+                      rel={isExternal(item.link) ? 'noopener noreferrer' : undefined}
+                    >
+                      {item.text}
+                    </a>
+                  ) : (
+                    <span class="ticker__text">
+                      {parts.map((p) =>
+                        p.href ? (
+                          <a
+                            class="ticker__link"
+                            href={p.href}
+                            target={isExternal(p.href) ? '_blank' : undefined}
+                            rel={isExternal(p.href) ? 'noopener noreferrer' : undefined}
+                          >
+                            {p.text}
+                          </a>
+                        ) : (
+                          p.text
+                        ),
+                      )}
+                    </span>
+                  )}
+                </span>
+              );
+            })}
           </div>
         </div>
       </div>

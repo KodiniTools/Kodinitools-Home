@@ -200,6 +200,10 @@ function tickerPanel(lang) {
         </div>
       </div>
       <label>Einträge</label>
+      <p class="hint" style="margin-top:0">
+        🔗 Ein einzelnes Wort im Text verlinken: <code>[Wort](/faq/)</code> oder <code>[Wort](https://…)</code> –
+        nur dieses Wort wird anklickbar. Das Link-Feld darunter macht dagegen den <strong>ganzen</strong> Eintrag klickbar.
+      </p>
       ${items || '<p class="hint">Noch keine Einträge.</p>'}
       <button data-tk="add" data-lang="${lang}" style="margin-top:.5rem">+ Eintrag hinzufügen</button>
       ${tickerStyleSection(lang)}
