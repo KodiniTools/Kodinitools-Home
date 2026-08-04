@@ -212,16 +212,47 @@ const pageI18n = {
               class="hero-grid"
               style={`--hero-cell-ratio:${({ '1:1': '1 / 1', '16:9': '16 / 9', '2:3': '2 / 3' })[media.heroGridRatio] || '1 / 1'};--hero-cell-fit:${media.heroGridFit === 'contain' ? 'contain' : 'cover'}`}
             >
-              {media.heroGrid.map((src, i) => (
-                <SectionMedia
-                  src={src}
-                  eager={true}
-                  alt={`Image ${i + 1}`}
-                  wrapperClass="hero-grid-cell"
-                  mediaClass="hero-grid-media"
-                />
-              ))}
+              {media.heroGrid.map((src, i) => {
+                const link = (media.heroGridLinks && media.heroGridLinks[i]) || ''
+                const ext = /^https?:\/\//i.test(link)
+                const cell = (
+                  <SectionMedia
+                    src={src}
+                    eager={true}
+                    alt={`Image ${i + 1}`}
+                    wrapperClass="hero-grid-cell"
+                    mediaClass="hero-grid-media"
+                  />
+                )
+                return src && link ? (
+                  <a
+                    class="hero-media-link"
+                    href={link}
+                    target={ext ? '_blank' : undefined}
+                    rel={ext ? 'noopener noreferrer' : undefined}
+                  >
+                    {cell}
+                  </a>
+                ) : (
+                  cell
+                )
+              })}
             </div>
+          ) : media.heroBanner && media.heroBannerLink ? (
+            <a
+              class="hero-media-link"
+              href={media.heroBannerLink}
+              target={/^https?:\/\//i.test(media.heroBannerLink) ? '_blank' : undefined}
+              rel={/^https?:\/\//i.test(media.heroBannerLink) ? 'noopener noreferrer' : undefined}
+            >
+              <SectionMedia
+                src={media.heroBanner}
+                eager={true}
+                alt="KodiniTools Banner"
+                wrapperClass="hero-banner-wrapper"
+                mediaClass="hero-banner"
+              />
+            </a>
           ) : (
             <SectionMedia
               src={media.heroBanner}

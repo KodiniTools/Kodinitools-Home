@@ -904,6 +904,17 @@ body {
 /* WICHTIG: kein Flexbox um das Bild. Ein <img> mit width/height:auto als
    Flex-Item kollabiert in iOS-Safari auf 0 Höhe (bekannter WebKit-Bug) und
    wird dort nicht angezeigt. Block-Zentrierung ist zuverlässig überall. */
+/* Verlinktes Hero-Medium: der Anker erzeugt keinen eigenen Kasten
+   (display:contents), damit Raster-/Banner-Layout unverändert bleibt; Klicks
+   auf Bild/Banner öffnen dennoch den Link. */
+.hero-media-link {
+  display: contents;
+}
+.hero-media-link img,
+.hero-media-link video {
+  cursor: pointer;
+}
+
 .hero-banner-wrapper {
   width: 100%;
   text-align: center;

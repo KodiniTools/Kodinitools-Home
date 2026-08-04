@@ -181,7 +181,9 @@ function defaultMediaLocale() {
     },
     heroMode: 'banner',
     heroBanner: '',
+    heroBannerLink: '',
     heroGrid: ['', '', ''],
+    heroGridLinks: ['', '', ''],
     heroGridRatio: '1:1',
     heroGridFit: 'cover',
     heroDesign: defaultHeroDesign(),
@@ -257,6 +259,13 @@ function validateMediaLocale(m, langLabel) {
     if (!isValidMediaUrl(m.heroBanner)) throw new Error(`media.${langLabel}.heroBanner ungültig`);
     out.heroBanner = m.heroBanner;
   }
+  // Verlinkung des Banners (optional): interner Pfad oder http(s). Leer = kein Link.
+  out.heroBannerLink = '';
+  if (m.heroBannerLink != null && m.heroBannerLink !== '') {
+    if (!isValidMediaUrl(m.heroBannerLink))
+      throw new Error(`media.${langLabel}.heroBannerLink muss / oder http(s) sein`);
+    out.heroBannerLink = m.heroBannerLink;
+  }
   // Option 2 – Hero-Raster: genau drei Felder, je '' oder gültige URL.
   out.heroGrid = ['', '', ''];
   if (Array.isArray(m.heroGrid)) {
@@ -265,6 +274,17 @@ function validateMediaLocale(m, langLabel) {
       if (v == null || v === '') continue;
       if (!isValidMediaUrl(v)) throw new Error(`media.${langLabel}.heroGrid[${i}] ungültig`);
       out.heroGrid[i] = v;
+    }
+  }
+  // Verlinkung der drei Rasterbilder (optional): interner Pfad oder http(s).
+  out.heroGridLinks = ['', '', ''];
+  if (Array.isArray(m.heroGridLinks)) {
+    for (let i = 0; i < 3; i++) {
+      const v = m.heroGridLinks[i];
+      if (v == null || v === '') continue;
+      if (!isValidMediaUrl(v))
+        throw new Error(`media.${langLabel}.heroGridLinks[${i}] muss / oder http(s) sein`);
+      out.heroGridLinks[i] = v;
     }
   }
   // Seitenverhältnis + Darstellung (zuschneiden vs. ganzes Bild) des Rasters.

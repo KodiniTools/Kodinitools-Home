@@ -98,8 +98,12 @@ export interface MediaConfig {
   heroMode: 'banner' | 'grid';
   // Option 1: austauschbares Hero-Banner (Bild oder Video). Leer = kein Banner.
   heroBanner: string;
+  // Verlinkung des Banners (interner Pfad oder http(s)). Leer = nicht klickbar.
+  heroBannerLink: string;
   // Option 2: drei Bilder für das Raster + gewähltes Seitenverhältnis.
   heroGrid: string[];
+  // Verlinkung der drei Rasterbilder (interner Pfad oder http(s)). Leer = nicht klickbar.
+  heroGridLinks: string[];
   heroGridRatio: '1:1' | '16:9' | '2:3';
   // 'cover' = auf Format zuschneiden, 'contain' = ganzes Bild zeigen (mit Rand).
   heroGridFit: 'cover' | 'contain';
@@ -143,7 +147,9 @@ const MEDIA_DEFAULTS: MediaConfig = {
   },
   heroMode: 'banner',
   heroBanner: '',
+  heroBannerLink: '',
   heroGrid: ['', '', ''],
+  heroGridLinks: ['', '', ''],
   heroGridRatio: '1:1',
   heroGridFit: 'cover',
   heroDesign: {
