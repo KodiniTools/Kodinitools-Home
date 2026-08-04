@@ -464,18 +464,28 @@ function renderTicker() {
   bindTickerStyle(pane);
 }
 
-// Vorschau-Style des Laufbands (gleiche Logik wie TickerBar.astro).
+// Vorschau-Style des Laufbands. Zeigt IMMER die aktuell eingestellten Werte
+// (reagiert also live auf jede Änderung), unabhängig vom „Eigenes Design"-Schalter.
+// Der Schalter entscheidet nur, ob dieses Design auf der Seite angewandt wird
+// (siehe tickerPreviewNote); die Vorschau ist das Design-Werkzeug dafür.
 function tickerPreviewStyle(s) {
-  const bg = s.enabled ? rgbaFromHex(s.bgColor, s.bgOpacity) : '#014f99';
-  const fg = s.enabled ? s.textColor : '#ffffff';
-  const fs = s.enabled ? `${s.fontSize}px` : '0.9rem';
+  const bg = rgbaFromHex(s.bgColor, s.bgOpacity);
+  const fg = s.textColor;
+  const fs = `${s.fontSize}px`;
   let ff = '';
-  if (s.enabled && s.fontFamily) {
+  if (s.fontFamily) {
     const fam = ensureFontFace(s.fontFamily); // @font-face in die Seite laden
     ff = `font-family:"${fam}", system-ui, sans-serif;`;
   }
-  const ls = s.enabled ? `letter-spacing:${Number(s.letterSpacing) || 0}px;` : '';
+  const ls = `letter-spacing:${Number(s.letterSpacing) || 0}px;`;
   return `background:${bg};color:${fg};font-size:${fs};${ff}${ls}font-weight:500;padding:8px 14px;border-radius:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis`;
+}
+
+// Hinweis unter der Vorschau: macht klar, ob das Design tatsächlich live geht.
+function tickerPreviewNote(s) {
+  return s.enabled
+    ? '✅ Dieses Design wird auf der Seite angewandt.'
+    : '⚠️ „Eigenes Design verwenden" ist aus – auf der Seite erscheint das Standard-Design (Blau). Die Vorschau zeigt dein eingestelltes Design.';
 }
 
 // Options für die Schriftauswahl. Enthält immer "Standard" und die vom Server
@@ -538,6 +548,7 @@ function tickerStyleSection(lang) {
         </div>
         <p class="hint" style="margin-top:.8rem">Vorschau:</p>
         <div data-tks-preview data-lang="${lang}" style="${tickerPreviewStyle(s)}">Immer die besten Tools für deine Aufgaben – Beispieltext</div>
+        <p class="hint" data-tks-note data-lang="${lang}" style="margin-top:.4rem">${tickerPreviewNote(s)}</p>
       </details>`;
 }
 
@@ -559,6 +570,8 @@ function bindTickerStyle(pane) {
       } else s[field] = el.value; // Farben
       const preview = pane.querySelector(`[data-tks-preview][data-lang="${lang}"]`);
       if (preview) preview.setAttribute('style', tickerPreviewStyle(s));
+      const note = pane.querySelector(`[data-tks-note][data-lang="${lang}"]`);
+      if (note) note.textContent = tickerPreviewNote(s);
     });
   });
 }
