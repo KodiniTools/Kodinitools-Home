@@ -122,6 +122,12 @@ export function defaultHeroDesign() {
     enabled: false,
     titleFont: '', // Überschriften-Schrift (Dateiname im /fonts-Ordner)
     buttonFont: '', // Schrift der Feature-Chips + CTA
+    titleLetterSpacing: 0,
+    titleStrokeColor: '#000000',
+    titleStrokeWidth: 0,
+    buttonLetterSpacing: 0,
+    buttonStrokeColor: '#000000',
+    buttonStrokeWidth: 0,
     light: heroSideLight(),
     dark: heroSideDark(),
   };
@@ -159,10 +165,21 @@ export function normHeroDesign(hd) {
   const hasSides =
     (hd.light && typeof hd.light === 'object') || (hd.dark && typeof hd.dark === 'object');
   const flat = !hasSides && typeof hd.borderColor === 'string' ? hd : null;
+  const hex = (v, d) => (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? v : d);
+  const stroke = (v) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? Math.max(0, Math.min(5, Math.round(n * 2) / 2)) : 0;
+  };
   return {
     enabled: hd.enabled === true,
     titleFont: normFontFile(hd.titleFont),
     buttonFont: normFontFile(hd.buttonFont),
+    titleLetterSpacing: clampSpacing(hd.titleLetterSpacing, 0),
+    titleStrokeColor: hex(hd.titleStrokeColor, '#000000'),
+    titleStrokeWidth: stroke(hd.titleStrokeWidth),
+    buttonLetterSpacing: clampSpacing(hd.buttonLetterSpacing, 0),
+    buttonStrokeColor: hex(hd.buttonStrokeColor, '#000000'),
+    buttonStrokeWidth: stroke(hd.buttonStrokeWidth),
     light: normHeroSide(hasSides ? hd.light : flat, heroSideLight()),
     dark: normHeroSide(hasSides ? hd.dark : flat, heroSideDark()),
   };

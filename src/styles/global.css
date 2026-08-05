@@ -761,7 +761,8 @@ body {
   margin-bottom: 0.75rem;
   font-weight: 800;
   font-family: var(--hero-title-ff, inherit);
-  letter-spacing: -0.02em;
+  letter-spacing: var(--hero-title-ls, -0.02em);
+  -webkit-text-stroke: var(--hero-title-stroke, 0);
   line-height: 1.2;
   text-align: center;
   animation: fadeInUp 0.7s ease forwards;
@@ -789,6 +790,8 @@ body {
   opacity: 0;
   font-weight: 500;
   font-family: var(--hero-title-ff, inherit);
+  letter-spacing: var(--hero-title-ls, normal);
+  -webkit-text-stroke: var(--hero-title-stroke, 0);
   max-width: 600px;
   margin: 0 auto;
   white-space: pre-line;
@@ -813,6 +816,8 @@ body {
   background: var(--hero-cta-bg, linear-gradient(135deg, #014f99 0%, #003971 100%));
   color: var(--hero-cta-text, #fff);
   font-family: var(--hero-btn-ff, inherit);
+  letter-spacing: var(--hero-btn-ls, normal);
+  -webkit-text-stroke: var(--hero-btn-stroke, 0);
   font-size: 1.05rem;
   font-weight: 700;
   border-radius: 50px;
@@ -1068,6 +1073,8 @@ body {
   font-weight: 600;
   color: var(--hero-chip-text, #013f7a);
   font-family: var(--hero-btn-ff, inherit);
+  letter-spacing: var(--hero-btn-ls, normal);
+  -webkit-text-stroke: var(--hero-btn-stroke, 0);
   font-size: 0.95rem;
   text-shadow: none;
 }

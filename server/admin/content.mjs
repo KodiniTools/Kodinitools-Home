@@ -137,6 +137,12 @@ function heroSideDark() {
     ctaHoverTextColor: '#ffffff',
   };
 }
+// Buchstaben-Konturbreite: [0, 5] px, auf 0,5 gerundet.
+function clampStroke(v, def) {
+  const n = Number(v);
+  return Number.isFinite(n) ? Math.max(0, Math.min(5, Math.round(n * 2) / 2)) : def;
+}
+
 function defaultHeroDesign() {
   return {
     enabled: false,
@@ -144,6 +150,14 @@ function defaultHeroDesign() {
     // beide Modi. titleFont: Überschriften, buttonFont: Feature-Chips + CTA.
     titleFont: '',
     buttonFont: '',
+    // Typografie (für beide Modi): Buchstabenabstand + Buchstaben-Kontur (Rahmen)
+    // je Gruppe (Überschriften bzw. Buttons). strokeWidth 0 = keine Kontur.
+    titleLetterSpacing: 0,
+    titleStrokeColor: '#000000',
+    titleStrokeWidth: 0,
+    buttonLetterSpacing: 0,
+    buttonStrokeColor: '#000000',
+    buttonStrokeWidth: 0,
     light: heroSideLight(),
     dark: heroSideDark(),
   };
@@ -183,6 +197,12 @@ function validateHeroDesign(hd) {
     enabled: hd.enabled === true,
     titleFont: normFontFile(hd.titleFont),
     buttonFont: normFontFile(hd.buttonFont),
+    titleLetterSpacing: clampSpacing(hd.titleLetterSpacing, 0),
+    titleStrokeColor: normHexColor(hd.titleStrokeColor, '#000000'),
+    titleStrokeWidth: clampStroke(hd.titleStrokeWidth, 0),
+    buttonLetterSpacing: clampSpacing(hd.buttonLetterSpacing, 0),
+    buttonStrokeColor: normHexColor(hd.buttonStrokeColor, '#000000'),
+    buttonStrokeWidth: clampStroke(hd.buttonStrokeWidth, 0),
     light: validateHeroSide(hasSides ? hd.light : flat, heroSideLight()),
     dark: validateHeroSide(hasSides ? hd.dark : flat, heroSideDark()),
   };

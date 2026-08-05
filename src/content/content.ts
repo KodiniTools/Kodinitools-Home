@@ -139,6 +139,13 @@ export interface HeroDesign {
   // Eigene Schriften (Dateiname im /fonts-Ordner; leer = Standard), für beide Modi.
   titleFont: string; // Überschriften (Hero-Titel/Untertitel)
   buttonFont: string; // Feature-Chips + CTA-Button
+  // Typografie (für beide Modi): Buchstabenabstand + Buchstaben-Kontur (Rahmen).
+  titleLetterSpacing: number; // px (Überschriften)
+  titleStrokeColor: string; // Hex – Konturfarbe der Überschriften
+  titleStrokeWidth: number; // px – Konturbreite (0 = keine)
+  buttonLetterSpacing: number; // px (Buttons)
+  buttonStrokeColor: string; // Hex – Konturfarbe der Buttons
+  buttonStrokeWidth: number; // px – Konturbreite (0 = keine)
   light: HeroDesignSide;
   dark: HeroDesignSide;
 }
@@ -161,6 +168,12 @@ const MEDIA_DEFAULTS: MediaConfig = {
     enabled: false,
     titleFont: '',
     buttonFont: '',
+    titleLetterSpacing: 0,
+    titleStrokeColor: '#000000',
+    titleStrokeWidth: 0,
+    buttonLetterSpacing: 0,
+    buttonStrokeColor: '#000000',
+    buttonStrokeWidth: 0,
     light: {
       borderColor: '#014f99',
       borderWidth: 1,
