@@ -99,6 +99,14 @@ function heroDesignCss(hd: typeof media.heroDesign): string | undefined {
     if (btnF !== titleF) faces.push(heroFontFaceCss(btnF))
     fontVars.push(`--hero-btn-ff:"${heroFontId(btnF)}", system-ui, sans-serif`)
   }
+  // Typografie: Buchstabenabstand + Buchstaben-Kontur (Rahmen), für beide Modi.
+  const numOr0 = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : 0)
+  if (numOr0(hd.titleLetterSpacing) !== 0) fontVars.push(`--hero-title-ls:${hd.titleLetterSpacing}px`)
+  if (numOr0(hd.buttonLetterSpacing) !== 0) fontVars.push(`--hero-btn-ls:${hd.buttonLetterSpacing}px`)
+  if (numOr0(hd.titleStrokeWidth) > 0)
+    fontVars.push(`--hero-title-stroke:${hd.titleStrokeWidth}px ${hd.titleStrokeColor}`)
+  if (numOr0(hd.buttonStrokeWidth) > 0)
+    fontVars.push(`--hero-btn-stroke:${hd.buttonStrokeWidth}px ${hd.buttonStrokeColor}`)
   if (hd.enabled) {
     rules.push(`.hero{${heroSideVars(hd.light)}}`)
     rules.push(`[data-theme="dark"] .hero{${heroSideVars(hd.dark)}}`)

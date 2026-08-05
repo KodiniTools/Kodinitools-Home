@@ -50,15 +50,33 @@ function previewBoxStyle(s) {
   const bg = rgbaFromHex(s.bgColor, s.bgOpacity);
   return `background:${bg};border:${s.borderWidth}px solid ${s.borderColor};border-radius:1rem;padding:1.1rem 1rem;text-align:center`;
 }
-function previewChipStyle(s, ff) {
+function previewChipStyle(s, extra) {
   const bg = rgbaFromHex(s.chipBgColor, s.chipBgOpacity);
   const bd = rgbaFromHex(s.chipBorderColor, s.chipBorderOpacity);
-  const font = ff ? `font-family:${ff};` : '';
-  return `background:${bg};color:${s.chipTextColor};border:1px solid ${bd};border-radius:.6rem;padding:.5rem .3rem;font-weight:600;font-size:.78rem;text-align:center;${font}`;
+  return `background:${bg};color:${s.chipTextColor};border:1px solid ${bd};border-radius:.6rem;padding:.5rem .3rem;font-weight:600;font-size:.78rem;text-align:center;${extra || ''}`;
 }
-function previewCtaStyle(s, ff) {
-  const font = ff ? `font-family:${ff};` : '';
-  return `display:inline-block;margin-top:.9rem;padding:.55rem 1.6rem;border-radius:50px;background:${s.ctaBgColor};color:${s.ctaTextColor};font-weight:700;font-size:.9rem;cursor:pointer;${font}`;
+function previewCtaStyle(s, extra) {
+  return `display:inline-block;margin-top:.9rem;padding:.55rem 1.6rem;border-radius:50px;background:${s.ctaBgColor};color:${s.ctaTextColor};font-weight:700;font-size:.9rem;cursor:pointer;${extra || ''}`;
+}
+function previewTitleStyle(s, hd) {
+  return `font-weight:800;font-size:1.1rem;color:${s.chipTextColor};${titleTypo(hd)}`;
+}
+// Typografie-CSS (Schrift + Abstand + Kontur) für Überschriften bzw. Buttons.
+function titleTypo(hd) {
+  const ff = fontFF(hd.titleFont);
+  let css = ff ? `font-family:${ff};` : '';
+  if (hd.titleLetterSpacing) css += `letter-spacing:${hd.titleLetterSpacing}px;`;
+  if (hd.titleStrokeWidth > 0)
+    css += `-webkit-text-stroke:${hd.titleStrokeWidth}px ${hd.titleStrokeColor};`;
+  return css;
+}
+function buttonTypo(hd) {
+  const ff = fontFF(hd.buttonFont);
+  let css = ff ? `font-family:${ff};` : '';
+  if (hd.buttonLetterSpacing) css += `letter-spacing:${hd.buttonLetterSpacing}px;`;
+  if (hd.buttonStrokeWidth > 0)
+    css += `-webkit-text-stroke:${hd.buttonStrokeWidth}px ${hd.buttonStrokeColor};`;
+  return css;
 }
 // CSS-Regeln für den echten Hover-Effekt der Vorschau (Chips + CTA-Button).
 function hoverRuleCss(s) {
@@ -125,14 +143,13 @@ function heroDesignPanel(lang) {
     ['hero', 'cta'],
     lang === 'de' ? 'Jetzt starten' : 'Get started',
   );
-  const titleFF = fontFF(hd.titleFont);
-  const btnFF = fontFF(hd.buttonFont);
+  const btnExtra = buttonTypo(hd);
   const chips = featureDefs(lang)
     .slice(0, 3)
     .map(({ key, def }) => {
       const o = getPath(state.overrides[lang], ['hero', 'features', key]);
       const label = o != null && o !== '' ? o : def || key;
-      return `<div data-hdchip style="${previewChipStyle(s, btnFF)}">${esc(label)}</div>`;
+      return `<div data-hdchip style="${previewChipStyle(s, btnExtra)}">${esc(label)}</div>`;
     })
     .join('');
   return `
@@ -144,7 +161,7 @@ function heroDesignPanel(lang) {
         <input type="checkbox" data-hd="enabled" data-lang="${lang}" ${hd.enabled ? 'checked' : ''} style="width:auto" /> Eigenes Hero-Design verwenden
       </label>
 
-      <h3 style="margin:1rem 0 .25rem;font-size:.95rem">Schriftarten <span class="hint" style="font-weight:400">(für beide Modi)</span></h3>
+      <h3 style="margin:1rem 0 .25rem;font-size:.95rem">Schriften &amp; Typografie <span class="hint" style="font-weight:400">(für beide Modi)</span></h3>
       <div class="row">
         <div style="flex:1 1 220px">
           <label>Überschriften-Schrift (Titel/Untertitel)</label>
@@ -155,7 +172,38 @@ function heroDesignPanel(lang) {
           <select data-hdfont="buttonFont" data-lang="${lang}">${fontOptionsHtml(hd.buttonFont)}</select>
         </div>
       </div>
-      <p class="hint">Aus dem Ordner <code>/fonts</code> auf dem Server. Wirkt auf beide Modi. Auch ohne „Eigenes Hero-Design" nutzbar.</p>
+      <p class="hint" style="margin-bottom:.5rem">Aus dem Ordner <code>/fonts</code> auf dem Server. Wirkt auf beide Modi. Auch ohne „Eigenes Hero-Design" nutzbar.</p>
+      <p class="hint" style="margin:.2rem 0">✏️ Überschriften – Buchstabenabstand &amp; Kontur (Rahmen):</p>
+      <div class="row" style="align-items:flex-end">
+        <div style="flex:0 0 auto">
+          <label>Abstand (px)</label>
+          <input type="number" data-hdtypo="titleLetterSpacing" min="-5" max="20" step="0.5" value="${hd.titleLetterSpacing}" style="width:90px" />
+        </div>
+        <div style="flex:0 0 auto">
+          <label>Kontur-Farbe</label>
+          <input type="color" data-hdtypo="titleStrokeColor" value="${esc(hd.titleStrokeColor)}" style="width:56px;height:38px;padding:2px" />
+        </div>
+        <div style="flex:0 0 auto">
+          <label>Kontur-Breite (px)</label>
+          <input type="number" data-hdtypo="titleStrokeWidth" min="0" max="5" step="0.5" value="${hd.titleStrokeWidth}" style="width:90px" />
+        </div>
+      </div>
+      <p class="hint" style="margin:.5rem 0 .2rem">✏️ Buttons – Buchstabenabstand &amp; Kontur (Rahmen):</p>
+      <div class="row" style="align-items:flex-end">
+        <div style="flex:0 0 auto">
+          <label>Abstand (px)</label>
+          <input type="number" data-hdtypo="buttonLetterSpacing" min="-5" max="20" step="0.5" value="${hd.buttonLetterSpacing}" style="width:90px" />
+        </div>
+        <div style="flex:0 0 auto">
+          <label>Kontur-Farbe</label>
+          <input type="color" data-hdtypo="buttonStrokeColor" value="${esc(hd.buttonStrokeColor)}" style="width:56px;height:38px;padding:2px" />
+        </div>
+        <div style="flex:0 0 auto">
+          <label>Kontur-Breite (px)</label>
+          <input type="number" data-hdtypo="buttonStrokeWidth" min="0" max="5" step="0.5" value="${hd.buttonStrokeWidth}" style="width:90px" />
+        </div>
+      </div>
+      <p class="hint">Kontur-Breite 0 = keine Kontur. Buchstabenabstand 0 = normal.</p>
 
       ${themeSwitch()}
       <h3 style="margin:.4rem 0 .25rem;font-size:.95rem">Rahmen &amp; Hintergrund <span class="lang-badge">${modusLabel}</span></h3>
@@ -194,9 +242,9 @@ function heroDesignPanel(lang) {
       <p class="hint" style="margin-top:1rem">Vorschau (${modusLabel}) <em>(zum Testen über die Buttons fahren)</em>:</p>
       <style data-hdhoverstyle>${hoverRuleCss(s)}</style>
       <div data-hdprev style="${previewBoxStyle(s)}">
-        <div style="font-weight:800;font-size:1.1rem;color:${esc(s.chipTextColor)};font-family:${titleFF || 'inherit'}" data-hdtitle>${esc(previewTitle)}</div>
+        <div style="${previewTitleStyle(s, hd)}" data-hdtitle>${esc(previewTitle)}</div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.9rem">${chips}</div>
-        <div data-hdcta style="${previewCtaStyle(s, btnFF)}">${esc(previewCta)}</div>
+        <div data-hdcta style="${previewCtaStyle(s, btnExtra)}">${esc(previewCta)}</div>
       </div>
       <p class="hint" data-hdnote style="margin-top:.4rem">${heroPreviewNote(hd)}</p>
     </div>
@@ -226,20 +274,16 @@ function featureLabelsPanel(lang) {
 function refreshPreview(pane, lang) {
   const hd = heroDesignOf(lang);
   const s = sideOf(lang);
-  const titleFF = fontFF(hd.titleFont);
-  const btnFF = fontFF(hd.buttonFont);
+  const btnExtra = buttonTypo(hd);
   const box = pane.querySelector('[data-hdprev]');
   if (box) box.setAttribute('style', previewBoxStyle(s));
   const title = pane.querySelector('[data-hdtitle]');
-  if (title) {
-    title.style.color = s.chipTextColor;
-    title.style.fontFamily = titleFF || 'inherit';
-  }
+  if (title) title.setAttribute('style', previewTitleStyle(s, hd));
   pane
     .querySelectorAll('[data-hdchip]')
-    .forEach((c) => c.setAttribute('style', previewChipStyle(s, btnFF)));
+    .forEach((c) => c.setAttribute('style', previewChipStyle(s, btnExtra)));
   const cta = pane.querySelector('[data-hdcta]');
-  if (cta) cta.setAttribute('style', previewCtaStyle(s, btnFF));
+  if (cta) cta.setAttribute('style', previewCtaStyle(s, btnExtra));
   const hs = pane.querySelector('[data-hdhoverstyle]');
   if (hs) hs.textContent = hoverRuleCss(s);
   const note = pane.querySelector('[data-hdnote]');
@@ -285,6 +329,20 @@ export function renderHeroDesign() {
   pane.querySelectorAll('[data-hdfont]').forEach((el) => {
     el.addEventListener('change', () => {
       heroDesignOf(lang)[el.dataset.hdfont] = el.value;
+      refreshPreview(pane, lang);
+    });
+  });
+
+  // Typografie (Buchstabenabstand + Kontur) – gilt für beide Modi.
+  pane.querySelectorAll('[data-hdtypo]').forEach((el) => {
+    el.addEventListener('input', () => {
+      const hd = heroDesignOf(lang);
+      const f = el.dataset.hdtypo;
+      if (/LetterSpacing$/.test(f))
+        hd[f] = Math.max(-5, Math.min(20, Math.round((parseFloat(el.value) || 0) * 2) / 2));
+      else if (/StrokeWidth$/.test(f))
+        hd[f] = Math.max(0, Math.min(5, Math.round((parseFloat(el.value) || 0) * 2) / 2));
+      else hd[f] = el.value; // Kontur-Farbe
       refreshPreview(pane, lang);
     });
   });
