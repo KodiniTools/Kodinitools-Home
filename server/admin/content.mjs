@@ -142,6 +142,12 @@ function clampStroke(v, def) {
   const n = Number(v);
   return Number.isFinite(n) ? Math.max(0, Math.min(5, Math.round(n * 2) / 2)) : def;
 }
+// Schriftgröße: 0 = Standard (CSS), sonst [8, 96] px (ganzzahlig).
+function clampFont(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n) || n <= 0) return 0;
+  return Math.max(8, Math.min(96, Math.round(n)));
+}
 
 function defaultHeroDesign() {
   return {
@@ -158,6 +164,11 @@ function defaultHeroDesign() {
     buttonLetterSpacing: 0,
     buttonStrokeColor: '#000000',
     buttonStrokeWidth: 0,
+    // Schriftgrößen (0 = Standard), je Hero-Text.
+    titleFontSize: 0,
+    subtitleFontSize: 0,
+    chipFontSize: 0,
+    ctaFontSize: 0,
     light: heroSideLight(),
     dark: heroSideDark(),
   };
@@ -203,6 +214,10 @@ function validateHeroDesign(hd) {
     buttonLetterSpacing: clampSpacing(hd.buttonLetterSpacing, 0),
     buttonStrokeColor: normHexColor(hd.buttonStrokeColor, '#000000'),
     buttonStrokeWidth: clampStroke(hd.buttonStrokeWidth, 0),
+    titleFontSize: clampFont(hd.titleFontSize),
+    subtitleFontSize: clampFont(hd.subtitleFontSize),
+    chipFontSize: clampFont(hd.chipFontSize),
+    ctaFontSize: clampFont(hd.ctaFontSize),
     light: validateHeroSide(hasSides ? hd.light : flat, heroSideLight()),
     dark: validateHeroSide(hasSides ? hd.dark : flat, heroSideDark()),
   };

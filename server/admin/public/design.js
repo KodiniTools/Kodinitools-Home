@@ -50,16 +50,23 @@ function previewBoxStyle(s) {
   const bg = rgbaFromHex(s.bgColor, s.bgOpacity);
   return `background:${bg};border:${s.borderWidth}px solid ${s.borderColor};border-radius:1rem;padding:1.1rem 1rem;text-align:center`;
 }
-function previewChipStyle(s, extra) {
+function previewChipStyle(s, hd) {
   const bg = rgbaFromHex(s.chipBgColor, s.chipBgOpacity);
   const bd = rgbaFromHex(s.chipBorderColor, s.chipBorderOpacity);
-  return `background:${bg};color:${s.chipTextColor};border:1px solid ${bd};border-radius:.6rem;padding:.5rem .3rem;font-weight:600;font-size:.78rem;text-align:center;${extra || ''}`;
+  const size = hd.chipFontSize > 0 ? `${hd.chipFontSize}px` : '.78rem';
+  return `background:${bg};color:${s.chipTextColor};border:1px solid ${bd};border-radius:.6rem;padding:.5rem .3rem;font-weight:600;font-size:${size};text-align:center;${buttonTypo(hd)}`;
 }
-function previewCtaStyle(s, extra) {
-  return `display:inline-block;margin-top:.9rem;padding:.55rem 1.6rem;border-radius:50px;background:${s.ctaBgColor};color:${s.ctaTextColor};font-weight:700;font-size:.9rem;cursor:pointer;${extra || ''}`;
+function previewCtaStyle(s, hd) {
+  const size = hd.ctaFontSize > 0 ? `${hd.ctaFontSize}px` : '.9rem';
+  return `display:inline-block;margin-top:.9rem;padding:.55rem 1.6rem;border-radius:50px;background:${s.ctaBgColor};color:${s.ctaTextColor};font-weight:700;font-size:${size};cursor:pointer;${buttonTypo(hd)}`;
 }
 function previewTitleStyle(s, hd) {
-  return `font-weight:800;font-size:1.1rem;color:${s.chipTextColor};${titleTypo(hd)}`;
+  const size = hd.titleFontSize > 0 ? `${hd.titleFontSize}px` : '1.1rem';
+  return `font-weight:800;font-size:${size};color:${s.chipTextColor};${titleTypo(hd)}`;
+}
+function previewSubtitleStyle(s, hd) {
+  const size = hd.subtitleFontSize > 0 ? `${hd.subtitleFontSize}px` : '.8rem';
+  return `margin-top:.3rem;font-weight:500;font-size:${size};opacity:.85;color:${s.chipTextColor};${titleTypo(hd)}`;
 }
 // Typografie-CSS (Schrift + Abstand + Kontur) für Überschriften bzw. Buttons.
 function titleTypo(hd) {
@@ -151,13 +158,19 @@ function heroDesignPanel(lang) {
     ['hero', 'cta'],
     lang === 'de' ? 'Jetzt starten' : 'Get started',
   );
-  const btnExtra = buttonTypo(hd);
+  const previewSubtitle = String(
+    effLabel(
+      lang,
+      ['hero', 'subtitle'],
+      lang === 'de' ? 'Sichere Bearbeitung im Browser' : 'Secure editing in the browser',
+    ),
+  ).split('\n')[0];
   const chips = featureDefs(lang)
     .slice(0, 3)
     .map(({ key, def }) => {
       const o = getPath(state.overrides[lang], ['hero', 'features', key]);
       const label = o != null && o !== '' ? o : def || key;
-      return `<div data-hdchip style="${previewChipStyle(s, btnExtra)}">${esc(label)}</div>`;
+      return `<div data-hdchip style="${previewChipStyle(s, hd)}">${esc(label)}</div>`;
     })
     .join('');
   // Bausteine der klappbaren Sektionen.
@@ -203,7 +216,26 @@ function heroDesignPanel(lang) {
           <input type="number" data-hdtypo="buttonStrokeWidth" min="0" max="5" step="0.5" value="${hd.buttonStrokeWidth}" style="width:90px" />
         </div>
       </div>
-      <p class="hint">Kontur-Breite 0 = keine Kontur. Buchstabenabstand 0 = normal.</p>`;
+      <p class="hint">Kontur-Breite 0 = keine Kontur. Buchstabenabstand 0 = normal.</p>
+      <p class="hint" style="margin:.5rem 0 .2rem">🔠 Schriftgröße (px, 0 = Standard):</p>
+      <div class="row" style="align-items:flex-end">
+        <div style="flex:0 0 auto">
+          <label>Titel</label>
+          <input type="number" data-hdtypo="titleFontSize" min="0" max="96" step="1" value="${hd.titleFontSize}" style="width:80px" />
+        </div>
+        <div style="flex:0 0 auto">
+          <label>Untertitel</label>
+          <input type="number" data-hdtypo="subtitleFontSize" min="0" max="96" step="1" value="${hd.subtitleFontSize}" style="width:80px" />
+        </div>
+        <div style="flex:0 0 auto">
+          <label>Chips</label>
+          <input type="number" data-hdtypo="chipFontSize" min="0" max="96" step="1" value="${hd.chipFontSize}" style="width:80px" />
+        </div>
+        <div style="flex:0 0 auto">
+          <label>CTA-Button</label>
+          <input type="number" data-hdtypo="ctaFontSize" min="0" max="96" step="1" value="${hd.ctaFontSize}" style="width:80px" />
+        </div>
+      </div>`;
 
   const frameBody = `
       <div class="row" style="align-items:flex-end">
@@ -255,8 +287,9 @@ function heroDesignPanel(lang) {
         <style data-hdhoverstyle>${hoverRuleCss(s)}</style>
         <div data-hdprev style="${previewBoxStyle(s)}">
           <div style="${previewTitleStyle(s, hd)}" data-hdtitle>${esc(previewTitle)}</div>
+          <div style="${previewSubtitleStyle(s, hd)}" data-hdsub>${esc(previewSubtitle)}</div>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.9rem">${chips}</div>
-          <div data-hdcta style="${previewCtaStyle(s, btnExtra)}">${esc(previewCta)}</div>
+          <div data-hdcta style="${previewCtaStyle(s, hd)}">${esc(previewCta)}</div>
         </div>
         <p class="hint" data-hdnote style="margin-top:.35rem">${heroPreviewNote(hd)}</p>
       </div>
@@ -294,16 +327,17 @@ function featureLabelsPanel(lang) {
 function refreshPreview(pane, lang) {
   const hd = heroDesignOf(lang);
   const s = sideOf(lang);
-  const btnExtra = buttonTypo(hd);
   const box = pane.querySelector('[data-hdprev]');
   if (box) box.setAttribute('style', previewBoxStyle(s));
   const title = pane.querySelector('[data-hdtitle]');
   if (title) title.setAttribute('style', previewTitleStyle(s, hd));
+  const sub = pane.querySelector('[data-hdsub]');
+  if (sub) sub.setAttribute('style', previewSubtitleStyle(s, hd));
   pane
     .querySelectorAll('[data-hdchip]')
-    .forEach((c) => c.setAttribute('style', previewChipStyle(s, btnExtra)));
+    .forEach((c) => c.setAttribute('style', previewChipStyle(s, hd)));
   const cta = pane.querySelector('[data-hdcta]');
-  if (cta) cta.setAttribute('style', previewCtaStyle(s, btnExtra));
+  if (cta) cta.setAttribute('style', previewCtaStyle(s, hd));
   const hs = pane.querySelector('[data-hdhoverstyle]');
   if (hs) hs.textContent = hoverRuleCss(s);
   const note = pane.querySelector('[data-hdnote]');
@@ -362,7 +396,10 @@ export function renderHeroDesign() {
         hd[f] = Math.max(-5, Math.min(20, Math.round((parseFloat(el.value) || 0) * 2) / 2));
       else if (/StrokeWidth$/.test(f))
         hd[f] = Math.max(0, Math.min(5, Math.round((parseFloat(el.value) || 0) * 2) / 2));
-      else hd[f] = el.value; // Kontur-Farbe
+      else if (/FontSize$/.test(f)) {
+        const n = parseInt(el.value, 10);
+        hd[f] = Number.isFinite(n) && n > 0 ? Math.max(8, Math.min(96, n)) : 0;
+      } else hd[f] = el.value; // Kontur-Farbe
       refreshPreview(pane, lang);
     });
   });

@@ -757,7 +757,7 @@ body {
 
 /* Hero Title */
 .hero-title {
-  font-size: 2.5rem;
+  font-size: var(--hero-title-fs, 2.5rem);
   margin-bottom: 0.75rem;
   font-weight: 800;
   font-family: var(--hero-title-ff, inherit);
@@ -783,7 +783,7 @@ body {
 }
 
 .hero-subtitle {
-  font-size: 1.1rem;
+  font-size: var(--hero-subtitle-fs, 1.1rem);
   color: #014f99;
   margin-bottom: 0;
   animation: fadeInUp 1s ease 0.3s forwards;
@@ -818,7 +818,7 @@ body {
   font-family: var(--hero-btn-ff, inherit);
   letter-spacing: var(--hero-btn-ls, normal);
   -webkit-text-stroke: var(--hero-btn-stroke, 0);
-  font-size: 1.05rem;
+  font-size: var(--hero-cta-fs, 1.05rem);
   font-weight: 700;
   border-radius: 50px;
   text-decoration: none;
@@ -1075,7 +1075,7 @@ body {
   font-family: var(--hero-btn-ff, inherit);
   letter-spacing: var(--hero-btn-ls, normal);
   -webkit-text-stroke: var(--hero-btn-stroke, 0);
-  font-size: 0.95rem;
+  font-size: var(--hero-chip-fs, 0.95rem);
   text-shadow: none;
 }
 

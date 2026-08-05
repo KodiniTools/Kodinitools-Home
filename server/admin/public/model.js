@@ -128,6 +128,10 @@ export function defaultHeroDesign() {
     buttonLetterSpacing: 0,
     buttonStrokeColor: '#000000',
     buttonStrokeWidth: 0,
+    titleFontSize: 0,
+    subtitleFontSize: 0,
+    chipFontSize: 0,
+    ctaFontSize: 0,
     light: heroSideLight(),
     dark: heroSideDark(),
   };
@@ -170,6 +174,10 @@ export function normHeroDesign(hd) {
     const n = Number(v);
     return Number.isFinite(n) ? Math.max(0, Math.min(5, Math.round(n * 2) / 2)) : 0;
   };
+  const fontSize = (v) => {
+    const n = Number(v);
+    return Number.isFinite(n) && n > 0 ? Math.max(8, Math.min(96, Math.round(n))) : 0;
+  };
   return {
     enabled: hd.enabled === true,
     titleFont: normFontFile(hd.titleFont),
@@ -180,6 +188,10 @@ export function normHeroDesign(hd) {
     buttonLetterSpacing: clampSpacing(hd.buttonLetterSpacing, 0),
     buttonStrokeColor: hex(hd.buttonStrokeColor, '#000000'),
     buttonStrokeWidth: stroke(hd.buttonStrokeWidth),
+    titleFontSize: fontSize(hd.titleFontSize),
+    subtitleFontSize: fontSize(hd.subtitleFontSize),
+    chipFontSize: fontSize(hd.chipFontSize),
+    ctaFontSize: fontSize(hd.ctaFontSize),
     light: normHeroSide(hasSides ? hd.light : flat, heroSideLight()),
     dark: normHeroSide(hasSides ? hd.dark : flat, heroSideDark()),
   };

@@ -107,6 +107,10 @@ function heroDesignCss(hd: typeof media.heroDesign): string | undefined {
     fontVars.push(`--hero-title-stroke:${hd.titleStrokeWidth}px ${hd.titleStrokeColor}`)
   if (numOr0(hd.buttonStrokeWidth) > 0)
     fontVars.push(`--hero-btn-stroke:${hd.buttonStrokeWidth}px ${hd.buttonStrokeColor}`)
+  if (numOr0(hd.titleFontSize) > 0) fontVars.push(`--hero-title-fs:${hd.titleFontSize}px`)
+  if (numOr0(hd.subtitleFontSize) > 0) fontVars.push(`--hero-subtitle-fs:${hd.subtitleFontSize}px`)
+  if (numOr0(hd.chipFontSize) > 0) fontVars.push(`--hero-chip-fs:${hd.chipFontSize}px`)
+  if (numOr0(hd.ctaFontSize) > 0) fontVars.push(`--hero-cta-fs:${hd.ctaFontSize}px`)
   if (hd.enabled) {
     rules.push(`.hero{${heroSideVars(hd.light)}}`)
     rules.push(`[data-theme="dark"] .hero{${heroSideVars(hd.dark)}}`)
