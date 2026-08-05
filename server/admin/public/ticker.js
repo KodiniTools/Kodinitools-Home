@@ -1,9 +1,9 @@
 // Laufband-Tab (eine Sprache): Einträge, Design (Farben/Größe/Abstand/Schrift)
-// samt Live-Vorschau. Enthält auch die Schrift-Helfer, da diese nur hier
-// gebraucht werden.
+// samt Live-Vorschau. Schrift-Helfer kommen aus dem gemeinsamen fonts.js.
 
-import { $, esc, api, toast } from './core.js';
+import { $, esc, toast } from './core.js';
 import { state, rgbaFromHex, clampSpacing } from './model.js';
+import { ensureFontFace, fontOptionsHtml } from './fonts.js';
 
 // Laufband-Text mit Inline-Links [Wort](url) in sichere HTML-Vorschau wandeln
 // (gleiche Regel wie TickerBar.astro; Klicks in der Vorschau navigieren nicht).
@@ -46,61 +46,6 @@ function insertInlineLink(lang, i, word, url) {
         ? `${text} ${md}`
         : md;
   return { ok: true };
-}
-
-// --- Schriftarten (aus /fonts) ---
-// Verfügbare Schriftarten laden (für die Laufband-Schriftauswahl).
-export async function loadFonts() {
-  const r = await api('/fonts');
-  state.fonts = (r.ok && Array.isArray(r.data?.fonts) ? r.data.fonts : []).filter(
-    (f) => f && f.name,
-  );
-}
-// Dateiname -> CSS-sicherer Family-Name (identisch zu TickerBar.astro).
-function fontFamilyId(file) {
-  return (
-    'ticker-font-' +
-    String(file)
-      .replace(/\.[^.]+$/, '')
-      .replace(/[^a-zA-Z0-9]+/g, '-')
-  );
-}
-// @font-face für eine Schriftdatei einmalig in die Admin-Seite einfügen, damit
-// die Vorschau die echte Schrift zeigt (Fonts liegen unter /fonts auf der Domain).
-function ensureFontFace(file) {
-  if (!file) return '';
-  const fam = fontFamilyId(file);
-  const id = 'ff-' + fam;
-  if (!document.getElementById(id)) {
-    const ext = (file.split('.').pop() || '').toLowerCase();
-    const fmt = { woff2: 'woff2', woff: 'woff', ttf: 'truetype', otf: 'opentype' }[ext] || '';
-    const st = document.createElement('style');
-    st.id = id;
-    st.textContent = `@font-face{font-family:"${fam}";src:url("/fonts/${encodeURIComponent(
-      file,
-    )}")${fmt ? ` format("${fmt}")` : ''};font-display:swap;}`;
-    document.head.appendChild(st);
-  }
-  return fam;
-}
-
-// Options für die Schriftauswahl. Enthält immer "Standard" und die vom Server
-// gemeldeten Schriften; eine ausgewählte, aber (noch) nicht gelistete Datei wird
-// zusätzlich aufgenommen, damit sie ausgewählt bleibt.
-function fontOptionsHtml(current) {
-  const list = state.fonts.slice();
-  if (current && !list.some((f) => f.name === current)) {
-    list.unshift({ name: current, label: current + ' (nicht gefunden)' });
-  }
-  const opts = [`<option value="" ${!current ? 'selected' : ''}>Standard (System)</option>`];
-  for (const f of list) {
-    opts.push(
-      `<option value="${esc(f.name)}" ${f.name === current ? 'selected' : ''}>${esc(
-        f.label || f.name,
-      )}</option>`,
-    );
-  }
-  return opts.join('');
 }
 
 // --- Laufband (eine Sprache) ---
