@@ -120,6 +120,14 @@ function themeSwitch() {
       <p class="hint" style="margin:.1rem 0 .4rem">Hell- und Dunkelmodus werden getrennt gespeichert. Wechsle oben, um den jeweils anderen Modus zu gestalten.</p>`;
 }
 
+// Klappbare Sektion (Details/Summary) – standardmäßig geöffnet.
+function section(title, body, open = true) {
+  return `<details ${open ? 'open' : ''} style="border-top:1px solid var(--border);margin-top:.5rem;padding-top:.4rem">
+        <summary style="cursor:pointer;font-weight:600;font-size:.95rem">${title}</summary>
+        <div style="padding-top:.5rem">${body}</div>
+      </details>`;
+}
+
 // Effektiver Text (Override, sonst Standard der Sprache, sonst Fallback).
 function effLabel(lang, path, fallback) {
   const o = getPath(state.overrides[lang], path);
@@ -152,16 +160,8 @@ function heroDesignPanel(lang) {
       return `<div data-hdchip style="${previewChipStyle(s, btnExtra)}">${esc(label)}</div>`;
     })
     .join('');
-  return `
-    <div class="panel">
-      <h2>Hero-Design <span class="lang-badge">${lang.toUpperCase()}</span></h2>
-      <p class="hint">Gestaltet den Hero-Bereich oben auf der ${lang === 'de' ? 'deutschen' : 'englischen'} Startseite:
-        Rahmen, Hintergrund und die Buttons (die Feature-Chips) – getrennt für Hell- und Dunkelmodus. Ausgeschaltet = Standard-Design.</p>
-      <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin-top:.4rem">
-        <input type="checkbox" data-hd="enabled" data-lang="${lang}" ${hd.enabled ? 'checked' : ''} style="width:auto" /> Eigenes Hero-Design verwenden
-      </label>
-
-      <h3 style="margin:1rem 0 .25rem;font-size:.95rem">Schriften &amp; Typografie <span class="hint" style="font-weight:400">(für beide Modi)</span></h3>
+  // Bausteine der klappbaren Sektionen.
+  const typoBody = `
       <div class="row">
         <div style="flex:1 1 220px">
           <label>Überschriften-Schrift (Titel/Untertitel)</label>
@@ -203,10 +203,9 @@ function heroDesignPanel(lang) {
           <input type="number" data-hdtypo="buttonStrokeWidth" min="0" max="5" step="0.5" value="${hd.buttonStrokeWidth}" style="width:90px" />
         </div>
       </div>
-      <p class="hint">Kontur-Breite 0 = keine Kontur. Buchstabenabstand 0 = normal.</p>
+      <p class="hint">Kontur-Breite 0 = keine Kontur. Buchstabenabstand 0 = normal.</p>`;
 
-      ${themeSwitch()}
-      <h3 style="margin:.4rem 0 .25rem;font-size:.95rem">Rahmen &amp; Hintergrund <span class="lang-badge">${modusLabel}</span></h3>
+  const frameBody = `
       <div class="row" style="align-items:flex-end">
         ${colorField(lang, 'borderColor', 'Rahmenfarbe', false, null, s)}
         <div style="flex:0 0 auto">
@@ -214,9 +213,9 @@ function heroDesignPanel(lang) {
           <input type="number" data-hd="borderWidth" data-lang="${lang}" min="0" max="8" step="1" value="${s.borderWidth}" style="width:90px" />
         </div>
         ${colorField(lang, 'bgColor', 'Hintergrund', true, 'bgOpacity', s)}
-      </div>
+      </div>`;
 
-      <h3 style="margin:1.1rem 0 .25rem;font-size:.95rem">Buttons (Feature-Chips) <span class="lang-badge">${modusLabel}</span></h3>
+  const chipsBody = `
       <div class="row" style="align-items:flex-end">
         ${colorField(lang, 'chipBgColor', 'Hintergrund', true, 'chipBgOpacity', s)}
         ${colorField(lang, 'chipTextColor', 'Textfarbe', false, null, s)}
@@ -226,9 +225,9 @@ function heroDesignPanel(lang) {
       <div class="row" style="align-items:flex-end">
         ${colorField(lang, 'chipHoverBgColor', 'Hover-Hintergrund', false, null, s)}
         ${colorField(lang, 'chipHoverTextColor', 'Hover-Textfarbe', false, null, s)}
-      </div>
+      </div>`;
 
-      <h3 style="margin:1.1rem 0 .25rem;font-size:.95rem">CTA-Button („Jetzt starten") <span class="lang-badge">${modusLabel}</span></h3>
+  const ctaBody = `
       <div class="row" style="align-items:flex-end">
         ${colorField(lang, 'ctaBgColor', 'Hintergrund', false, null, s)}
         ${colorField(lang, 'ctaTextColor', 'Textfarbe', false, null, s)}
@@ -237,16 +236,35 @@ function heroDesignPanel(lang) {
       <div class="row" style="align-items:flex-end">
         ${colorField(lang, 'ctaHoverBgColor', 'Hover-Hintergrund', false, null, s)}
         ${colorField(lang, 'ctaHoverTextColor', 'Hover-Textfarbe', false, null, s)}
+      </div>`;
+
+  const badge = `<span class="lang-badge">${modusLabel}</span>`;
+  return `
+    <div class="panel">
+      <h2>Hero-Design <span class="lang-badge">${lang.toUpperCase()}</span></h2>
+      <p class="hint">Gestaltet den Hero-Bereich oben auf der ${lang === 'de' ? 'deutschen' : 'englischen'} Startseite –
+        getrennt für Hell- und Dunkelmodus. Ausgeschaltet = Standard-Design. Sektionen zum Fokussieren zuklappen; die Vorschau bleibt oben sichtbar.</p>
+      <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin-top:.4rem">
+        <input type="checkbox" data-hd="enabled" data-lang="${lang}" ${hd.enabled ? 'checked' : ''} style="width:auto" /> Eigenes Hero-Design verwenden
+      </label>
+
+      <!-- Vorschau bleibt beim Scrollen oben sichtbar -->
+      <div style="position:sticky;top:.5rem;z-index:5;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:.55rem .7rem;margin:.6rem 0 .8rem;box-shadow:0 6px 18px rgba(0,0,0,.35)">
+        ${themeSwitch()}
+        <p class="hint" style="margin:.1rem 0 .3rem">Vorschau (${modusLabel}) <em>(zum Testen über die Buttons fahren)</em>:</p>
+        <style data-hdhoverstyle>${hoverRuleCss(s)}</style>
+        <div data-hdprev style="${previewBoxStyle(s)}">
+          <div style="${previewTitleStyle(s, hd)}" data-hdtitle>${esc(previewTitle)}</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.9rem">${chips}</div>
+          <div data-hdcta style="${previewCtaStyle(s, btnExtra)}">${esc(previewCta)}</div>
+        </div>
+        <p class="hint" data-hdnote style="margin-top:.35rem">${heroPreviewNote(hd)}</p>
       </div>
 
-      <p class="hint" style="margin-top:1rem">Vorschau (${modusLabel}) <em>(zum Testen über die Buttons fahren)</em>:</p>
-      <style data-hdhoverstyle>${hoverRuleCss(s)}</style>
-      <div data-hdprev style="${previewBoxStyle(s)}">
-        <div style="${previewTitleStyle(s, hd)}" data-hdtitle>${esc(previewTitle)}</div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.9rem">${chips}</div>
-        <div data-hdcta style="${previewCtaStyle(s, btnExtra)}">${esc(previewCta)}</div>
-      </div>
-      <p class="hint" data-hdnote style="margin-top:.4rem">${heroPreviewNote(hd)}</p>
+      ${section('🔤 Schriften &amp; Typografie <span class="hint" style="font-weight:400">(für beide Modi)</span>', typoBody)}
+      ${section(`🖼️ Rahmen &amp; Hintergrund ${badge}`, frameBody)}
+      ${section(`🔘 Buttons (Feature-Chips) ${badge}`, chipsBody)}
+      ${section(`🚀 CTA-Button („Jetzt starten") ${badge}`, ctaBody)}
     </div>
 
     ${featureLabelsPanel(lang)}`;
@@ -264,9 +282,11 @@ function featureLabelsPanel(lang) {
     .join('');
   return `
     <div class="panel">
-      <h2>Button-Beschriftungen <span class="lang-badge">${lang.toUpperCase()}</span></h2>
-      <p class="hint">Text der Feature-Buttons (gilt für beide Modi). Leer lassen = Standardtext.</p>
-      ${rows}
+      <details open>
+        <summary style="cursor:pointer;font-weight:600">Button-Beschriftungen <span class="lang-badge">${lang.toUpperCase()}</span></summary>
+        <p class="hint">Text der Feature-Buttons (gilt für beide Modi). Leer lassen = Standardtext.</p>
+        ${rows}
+      </details>
     </div>`;
 }
 
