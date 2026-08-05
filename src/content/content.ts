@@ -146,6 +146,11 @@ export interface HeroDesign {
   buttonLetterSpacing: number; // px (Buttons)
   buttonStrokeColor: string; // Hex – Konturfarbe der Buttons
   buttonStrokeWidth: number; // px – Konturbreite (0 = keine)
+  // Schriftgrößen (0 = Standard) je Hero-Text.
+  titleFontSize: number; // px – Titel
+  subtitleFontSize: number; // px – Untertitel
+  chipFontSize: number; // px – Feature-Chips
+  ctaFontSize: number; // px – CTA-Button
   light: HeroDesignSide;
   dark: HeroDesignSide;
 }
@@ -174,6 +179,10 @@ const MEDIA_DEFAULTS: MediaConfig = {
     buttonLetterSpacing: 0,
     buttonStrokeColor: '#000000',
     buttonStrokeWidth: 0,
+    titleFontSize: 0,
+    subtitleFontSize: 0,
+    chipFontSize: 0,
+    ctaFontSize: 0,
     light: {
       borderColor: '#014f99',
       borderWidth: 1,
