@@ -58,11 +58,14 @@ function previewChipStyle(s, ff) {
 }
 function previewCtaStyle(s, ff) {
   const font = ff ? `font-family:${ff};` : '';
-  return `display:inline-block;margin-top:.9rem;padding:.55rem 1.6rem;border-radius:50px;background:${s.ctaBgColor};color:${s.ctaTextColor};font-weight:700;font-size:.9rem;${font}`;
+  return `display:inline-block;margin-top:.9rem;padding:.55rem 1.6rem;border-radius:50px;background:${s.ctaBgColor};color:${s.ctaTextColor};font-weight:700;font-size:.9rem;cursor:pointer;${font}`;
 }
-// CSS-Regel für den echten Hover-Effekt der Vorschau-Chips (nur im Vorschau-Kasten).
+// CSS-Regeln für den echten Hover-Effekt der Vorschau (Chips + CTA-Button).
 function hoverRuleCss(s) {
-  return `[data-hdprev] [data-hdchip]:hover{background:${s.chipHoverBgColor} !important;color:${s.chipHoverTextColor} !important;border-color:transparent !important}`;
+  return (
+    `[data-hdprev] [data-hdchip]:hover{background:${s.chipHoverBgColor} !important;color:${s.chipHoverTextColor} !important;border-color:transparent !important}` +
+    `[data-hdprev] [data-hdcta]:hover{background:${s.ctaHoverBgColor} !important;color:${s.ctaHoverTextColor} !important}`
+  );
 }
 function heroPreviewNote(hd) {
   return hd.enabled
@@ -181,6 +184,11 @@ function heroDesignPanel(lang) {
       <div class="row" style="align-items:flex-end">
         ${colorField(lang, 'ctaBgColor', 'Hintergrund', false, null, s)}
         ${colorField(lang, 'ctaTextColor', 'Textfarbe', false, null, s)}
+      </div>
+      <p class="hint" style="margin-top:.6rem">Hover (beim Überfahren) – zwei Farben:</p>
+      <div class="row" style="align-items:flex-end">
+        ${colorField(lang, 'ctaHoverBgColor', 'Hover-Hintergrund', false, null, s)}
+        ${colorField(lang, 'ctaHoverTextColor', 'Hover-Textfarbe', false, null, s)}
       </div>
 
       <p class="hint" style="margin-top:1rem">Vorschau (${modusLabel}) <em>(zum Testen über die Buttons fahren)</em>:</p>

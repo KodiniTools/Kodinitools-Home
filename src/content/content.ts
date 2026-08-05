@@ -126,6 +126,8 @@ export interface HeroDesignSide {
   chipHoverTextColor: string; // Hex – Schriftfarbe der Buttons beim Überfahren
   ctaBgColor: string; // Hex – Hintergrund des CTA-Buttons ("Jetzt starten")
   ctaTextColor: string; // Hex – Schriftfarbe des CTA-Buttons
+  ctaHoverBgColor: string; // Hex – Hintergrund des CTA-Buttons beim Überfahren
+  ctaHoverTextColor: string; // Hex – Schriftfarbe des CTA-Buttons beim Überfahren
 }
 
 /**
@@ -173,6 +175,8 @@ const MEDIA_DEFAULTS: MediaConfig = {
       chipHoverTextColor: '#f5f4d6',
       ctaBgColor: '#014f99',
       ctaTextColor: '#ffffff',
+      ctaHoverBgColor: '#003971',
+      ctaHoverTextColor: '#ffffff',
     },
     dark: {
       borderColor: '#e8a945',
@@ -188,6 +192,8 @@ const MEDIA_DEFAULTS: MediaConfig = {
       chipHoverTextColor: '#f5f4d6',
       ctaBgColor: '#e8a945',
       ctaTextColor: '#ffffff',
+      ctaHoverBgColor: '#a07030',
+      ctaHoverTextColor: '#ffffff',
     },
   },
 };

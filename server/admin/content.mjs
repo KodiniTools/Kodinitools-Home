@@ -114,6 +114,8 @@ function heroSideLight() {
     chipHoverTextColor: '#f5f4d6',
     ctaBgColor: '#014f99',
     ctaTextColor: '#ffffff',
+    ctaHoverBgColor: '#003971',
+    ctaHoverTextColor: '#ffffff',
   };
 }
 function heroSideDark() {
@@ -131,6 +133,8 @@ function heroSideDark() {
     chipHoverTextColor: '#f5f4d6',
     ctaBgColor: '#e8a945',
     ctaTextColor: '#ffffff',
+    ctaHoverBgColor: '#a07030',
+    ctaHoverTextColor: '#ffffff',
   };
 }
 function defaultHeroDesign() {
@@ -162,6 +166,8 @@ function validateHeroSide(s, def) {
     chipHoverTextColor: normHexColor(s.chipHoverTextColor, def.chipHoverTextColor),
     ctaBgColor: normHexColor(s.ctaBgColor, def.ctaBgColor),
     ctaTextColor: normHexColor(s.ctaTextColor, def.ctaTextColor),
+    ctaHoverBgColor: normHexColor(s.ctaHoverBgColor, def.ctaHoverBgColor),
+    ctaHoverTextColor: normHexColor(s.ctaHoverTextColor, def.ctaHoverTextColor),
   };
 }
 

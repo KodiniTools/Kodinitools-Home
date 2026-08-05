@@ -67,6 +67,8 @@ function heroSideVars(side: typeof media.heroDesign.light): string {
   if (side.chipHoverTextColor) v.push(`--hero-chip-hover-text:${side.chipHoverTextColor}`)
   if (side.ctaBgColor) v.push(`--hero-cta-bg:${side.ctaBgColor}`)
   if (side.ctaTextColor) v.push(`--hero-cta-text:${side.ctaTextColor}`)
+  if (side.ctaHoverBgColor) v.push(`--hero-cta-hover-bg:${side.ctaHoverBgColor}`)
+  if (side.ctaHoverTextColor) v.push(`--hero-cta-hover-text:${side.ctaHoverTextColor}`)
   return v.join(';')
 }
 // Eigene Hero-Schriften: Dateiname -> Family-Name, @font-face, gültige Endungen.
