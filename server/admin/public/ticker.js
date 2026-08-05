@@ -2,8 +2,51 @@
 // samt Live-Vorschau. Enthält auch die Schrift-Helfer, da diese nur hier
 // gebraucht werden.
 
-import { $, esc, api } from './core.js';
+import { $, esc, api, toast } from './core.js';
 import { state, rgbaFromHex, clampSpacing } from './model.js';
+
+// Laufband-Text mit Inline-Links [Wort](url) in sichere HTML-Vorschau wandeln
+// (gleiche Regel wie TickerBar.astro; Klicks in der Vorschau navigieren nicht).
+const VALID_LINK = /^(\/[^\s]*|https?:\/\/[^\s]+)$/;
+function tickerTextToHtml(text) {
+  const re = /\[([^\]]+)\]\(([^)\s]+)\)/g;
+  let out = '';
+  let last = 0;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    out += esc(text.slice(last, m.index));
+    const [full, label, url] = m;
+    if (VALID_LINK.test(url)) {
+      out += `<a href="${esc(url)}" style="color:var(--accent);text-decoration:underline" onclick="return false">${esc(label)}</a>`;
+    } else {
+      out += esc(full);
+    }
+    last = m.index + full.length;
+  }
+  out += esc(text.slice(last));
+  return out;
+}
+
+// Fügt [Wort](url) in den Text eines Eintrags ein (ersetzt das erste Vorkommen
+// des Wortes, sonst angehängt). Gibt {ok, msg} zurück.
+function insertInlineLink(lang, i, word, url) {
+  word = (word || '').trim();
+  url = (url || '').trim();
+  if (!word || !url) return { ok: false, msg: 'Bitte Wort und Link ausfüllen.' };
+  if (!VALID_LINK.test(url))
+    return { ok: false, msg: 'Der Link muss mit / (intern) oder http(s):// (extern) beginnen.' };
+  const t = state.ticker[lang];
+  const text = t.items[i].text || '';
+  const md = `[${word}](${url})`;
+  const idx = text.indexOf(word);
+  t.items[i].text =
+    idx >= 0
+      ? text.slice(0, idx) + md + text.slice(idx + word.length)
+      : text
+        ? `${text} ${md}`
+        : md;
+  return { ok: true };
+}
 
 // --- Schriftarten (aus /fonts) ---
 // Verfügbare Schriftarten laden (für die Laufband-Schriftauswahl).
@@ -65,7 +108,27 @@ export function renderTicker() {
   const pane = $('#content');
   pane.innerHTML = tickerPanel(state.nav.section);
   pane.querySelectorAll('[data-tk]').forEach(bindTickerControl);
+  bindInlineLinkHelper(pane);
   bindTickerStyle(pane);
+}
+
+// „Wort verlinken"-Helfer je Eintrag: fügt [Wort](url) in den Text ein.
+function bindInlineLinkHelper(pane) {
+  pane.querySelectorAll('[data-tkins="go"]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const lang = btn.dataset.lang;
+      const i = parseInt(btn.dataset.i, 10);
+      const word = pane.querySelector(`[data-tkins="word"][data-i="${i}"]`)?.value;
+      const url = pane.querySelector(`[data-tkins="url"][data-i="${i}"]`)?.value;
+      const r = insertInlineLink(lang, i, word, url);
+      if (!r.ok) {
+        toast(r.msg);
+        return;
+      }
+      renderTicker();
+      toast('Wort verlinkt ✓ – zum Übernehmen veröffentlichen');
+    });
+  });
 }
 
 // Vorschau-Style des Laufbands. Zeigt IMMER die aktuell eingestellten Werte
@@ -170,7 +233,16 @@ function tickerPanel(lang) {
         <div class="idx">${i + 1}</div>
         <div class="grow">
           <input data-tk="text" data-lang="${lang}" data-i="${i}" placeholder="Text" value="${esc(it.text)}" />
-          <input data-tk="link" data-lang="${lang}" data-i="${i}" placeholder="Link (optional, z.B. /faq/)" value="${esc(it.link || '')}" style="margin-top:.35rem" />
+          <div class="hint" style="margin:.35rem 0 0">So sieht der Eintrag aus: <span data-tkprev data-lang="${lang}" data-i="${i}" style="color:var(--text)">${tickerTextToHtml(it.text) || '—'}</span></div>
+          <div style="border:1px dashed var(--border);border-radius:8px;padding:.5rem;margin-top:.4rem">
+            <div class="hint" style="margin:0 0 .3rem">🔗 Ein Wort im Text verlinken:</div>
+            <div class="row" style="gap:.3rem;align-items:flex-end">
+              <input data-tkins="word" data-lang="${lang}" data-i="${i}" placeholder="Wort im Text (z.B. aktuell)" style="flex:1 1 130px" />
+              <input data-tkins="url" data-lang="${lang}" data-i="${i}" placeholder="Ziel: /faq/ oder https://…" style="flex:1 1 150px" />
+              <button data-tkins="go" data-lang="${lang}" data-i="${i}" style="flex:0 0 auto">Wort verlinken</button>
+            </div>
+          </div>
+          <input data-tk="link" data-lang="${lang}" data-i="${i}" placeholder="Optional: GANZEN Eintrag verlinken (z.B. /faq/)" value="${esc(it.link || '')}" style="margin-top:.4rem" />
         </div>
         <div class="btns">
           <button data-tk="up" data-lang="${lang}" data-i="${i}" title="nach oben">▲</button>
@@ -201,8 +273,9 @@ function tickerPanel(lang) {
       </div>
       <label>Einträge</label>
       <p class="hint" style="margin-top:0">
-        🔗 Ein einzelnes Wort im Text verlinken: <code>[Wort](/faq/)</code> oder <code>[Wort](https://…)</code> –
-        nur dieses Wort wird anklickbar. Das Link-Feld darunter macht dagegen den <strong>ganzen</strong> Eintrag klickbar.
+        Schreibe oben den Text. Um <strong>ein Wort</strong> anklickbar zu machen: das Wort und das Ziel im
+        Kasten „🔗 Ein Wort im Text verlinken" eintragen und auf <strong>Wort verlinken</strong> klicken –
+        die Vorschau zeigt sofort das Ergebnis. Das unterste Feld macht dagegen den <strong>ganzen</strong> Eintrag klickbar.
       </p>
       ${items || '<p class="hint">Noch keine Einträge.</p>'}
       <button data-tk="add" data-lang="${lang}" style="margin-top:.5rem">+ Eintrag hinzufügen</button>
@@ -217,7 +290,12 @@ function bindTickerControl(el) {
   const t = state.ticker[lang];
   if (kind === 'enabled') el.addEventListener('change', () => (t.enabled = el.checked));
   else if (kind === 'speed') el.addEventListener('change', () => (t.speed = el.value));
-  else if (kind === 'text') el.addEventListener('input', () => (t.items[i].text = el.value));
+  else if (kind === 'text')
+    el.addEventListener('input', () => {
+      t.items[i].text = el.value;
+      const prev = document.querySelector(`[data-tkprev][data-lang="${lang}"][data-i="${i}"]`);
+      if (prev) prev.innerHTML = tickerTextToHtml(el.value) || '—';
+    });
   else if (kind === 'link') el.addEventListener('input', () => (t.items[i].link = el.value));
   else if (kind === 'add')
     el.addEventListener('click', () => {
