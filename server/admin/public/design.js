@@ -6,6 +6,12 @@
 
 import { $, esc } from './core.js';
 import { state, rgbaFromHex, defaultHeroDesign, getPath, setPath, delPath } from './model.js';
+import { ensureFontFace, fontOptionsHtml } from './fonts.js';
+
+// Family-CSS für eine Schriftdatei (lädt @font-face für die Vorschau) oder ''.
+function fontFF(file) {
+  return file ? `"${ensureFontFace(file)}", system-ui, sans-serif` : '';
+}
 
 // Aktuell im Editor bearbeiteter Modus (UI-Zustand, nicht gespeichert).
 let editTheme = 'light';
@@ -44,13 +50,15 @@ function previewBoxStyle(s) {
   const bg = rgbaFromHex(s.bgColor, s.bgOpacity);
   return `background:${bg};border:${s.borderWidth}px solid ${s.borderColor};border-radius:1rem;padding:1.1rem 1rem;text-align:center`;
 }
-function previewChipStyle(s) {
+function previewChipStyle(s, ff) {
   const bg = rgbaFromHex(s.chipBgColor, s.chipBgOpacity);
   const bd = rgbaFromHex(s.chipBorderColor, s.chipBorderOpacity);
-  return `background:${bg};color:${s.chipTextColor};border:1px solid ${bd};border-radius:.6rem;padding:.5rem .3rem;font-weight:600;font-size:.78rem;text-align:center`;
+  const font = ff ? `font-family:${ff};` : '';
+  return `background:${bg};color:${s.chipTextColor};border:1px solid ${bd};border-radius:.6rem;padding:.5rem .3rem;font-weight:600;font-size:.78rem;text-align:center;${font}`;
 }
-function previewCtaStyle(s) {
-  return `display:inline-block;margin-top:.9rem;padding:.55rem 1.6rem;border-radius:50px;background:${s.ctaBgColor};color:${s.ctaTextColor};font-weight:700;font-size:.9rem`;
+function previewCtaStyle(s, ff) {
+  const font = ff ? `font-family:${ff};` : '';
+  return `display:inline-block;margin-top:.9rem;padding:.55rem 1.6rem;border-radius:50px;background:${s.ctaBgColor};color:${s.ctaTextColor};font-weight:700;font-size:.9rem;${font}`;
 }
 // CSS-Regel für den echten Hover-Effekt der Vorschau-Chips (nur im Vorschau-Kasten).
 function hoverRuleCss(s) {
@@ -114,12 +122,14 @@ function heroDesignPanel(lang) {
     ['hero', 'cta'],
     lang === 'de' ? 'Jetzt starten' : 'Get started',
   );
+  const titleFF = fontFF(hd.titleFont);
+  const btnFF = fontFF(hd.buttonFont);
   const chips = featureDefs(lang)
     .slice(0, 3)
     .map(({ key, def }) => {
       const o = getPath(state.overrides[lang], ['hero', 'features', key]);
       const label = o != null && o !== '' ? o : def || key;
-      return `<div data-hdchip style="${previewChipStyle(s)}">${esc(label)}</div>`;
+      return `<div data-hdchip style="${previewChipStyle(s, btnFF)}">${esc(label)}</div>`;
     })
     .join('');
   return `
@@ -130,6 +140,19 @@ function heroDesignPanel(lang) {
       <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin-top:.4rem">
         <input type="checkbox" data-hd="enabled" data-lang="${lang}" ${hd.enabled ? 'checked' : ''} style="width:auto" /> Eigenes Hero-Design verwenden
       </label>
+
+      <h3 style="margin:1rem 0 .25rem;font-size:.95rem">Schriftarten <span class="hint" style="font-weight:400">(für beide Modi)</span></h3>
+      <div class="row">
+        <div style="flex:1 1 220px">
+          <label>Überschriften-Schrift (Titel/Untertitel)</label>
+          <select data-hdfont="titleFont" data-lang="${lang}">${fontOptionsHtml(hd.titleFont)}</select>
+        </div>
+        <div style="flex:1 1 220px">
+          <label>Button-Schrift (Chips + „Jetzt starten")</label>
+          <select data-hdfont="buttonFont" data-lang="${lang}">${fontOptionsHtml(hd.buttonFont)}</select>
+        </div>
+      </div>
+      <p class="hint">Aus dem Ordner <code>/fonts</code> auf dem Server. Wirkt auf beide Modi. Auch ohne „Eigenes Hero-Design" nutzbar.</p>
 
       ${themeSwitch()}
       <h3 style="margin:.4rem 0 .25rem;font-size:.95rem">Rahmen &amp; Hintergrund <span class="lang-badge">${modusLabel}</span></h3>
@@ -163,9 +186,9 @@ function heroDesignPanel(lang) {
       <p class="hint" style="margin-top:1rem">Vorschau (${modusLabel}) <em>(zum Testen über die Buttons fahren)</em>:</p>
       <style data-hdhoverstyle>${hoverRuleCss(s)}</style>
       <div data-hdprev style="${previewBoxStyle(s)}">
-        <div style="font-weight:800;font-size:1.1rem;color:${esc(s.chipTextColor)}" data-hdtitle>${esc(previewTitle)}</div>
+        <div style="font-weight:800;font-size:1.1rem;color:${esc(s.chipTextColor)};font-family:${titleFF || 'inherit'}" data-hdtitle>${esc(previewTitle)}</div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.9rem">${chips}</div>
-        <div data-hdcta style="${previewCtaStyle(s)}">${esc(previewCta)}</div>
+        <div data-hdcta style="${previewCtaStyle(s, btnFF)}">${esc(previewCta)}</div>
       </div>
       <p class="hint" data-hdnote style="margin-top:.4rem">${heroPreviewNote(hd)}</p>
     </div>
@@ -191,19 +214,24 @@ function featureLabelsPanel(lang) {
     </div>`;
 }
 
-// Aktualisiert Vorschau-Box, Chips, Titelfarbe und Hinweis nach einer Änderung.
+// Aktualisiert Vorschau-Box, Chips, Titel, CTA (inkl. Schriften) und Hinweis.
 function refreshPreview(pane, lang) {
   const hd = heroDesignOf(lang);
   const s = sideOf(lang);
+  const titleFF = fontFF(hd.titleFont);
+  const btnFF = fontFF(hd.buttonFont);
   const box = pane.querySelector('[data-hdprev]');
   if (box) box.setAttribute('style', previewBoxStyle(s));
   const title = pane.querySelector('[data-hdtitle]');
-  if (title) title.style.color = s.chipTextColor;
+  if (title) {
+    title.style.color = s.chipTextColor;
+    title.style.fontFamily = titleFF || 'inherit';
+  }
   pane
     .querySelectorAll('[data-hdchip]')
-    .forEach((c) => c.setAttribute('style', previewChipStyle(s)));
+    .forEach((c) => c.setAttribute('style', previewChipStyle(s, btnFF)));
   const cta = pane.querySelector('[data-hdcta]');
-  if (cta) cta.setAttribute('style', previewCtaStyle(s));
+  if (cta) cta.setAttribute('style', previewCtaStyle(s, btnFF));
   const hs = pane.querySelector('[data-hdhoverstyle]');
   if (hs) hs.textContent = hoverRuleCss(s);
   const note = pane.querySelector('[data-hdnote]');
@@ -241,6 +269,14 @@ export function renderHeroDesign() {
           if (oval) oval.textContent = s[field];
         } else s[field] = el.value; // Farben
       }
+      refreshPreview(pane, lang);
+    });
+  });
+
+  // Schriftauswahl (Überschriften / Buttons) – gilt für beide Modi.
+  pane.querySelectorAll('[data-hdfont]').forEach((el) => {
+    el.addEventListener('change', () => {
+      heroDesignOf(lang)[el.dataset.hdfont] = el.value;
       refreshPreview(pane, lang);
     });
   });

@@ -5,7 +5,8 @@
 
 import { $, api, mediaAll } from './core.js';
 import { state, normTicker, normalizeMedia, SUBTABS, LANG_SECTIONS } from './model.js';
-import { renderTicker, loadFonts } from './ticker.js';
+import { renderTicker } from './ticker.js';
+import { loadFonts } from './fonts.js';
 import { renderTexts, renderAdvanced } from './content.js';
 import { renderHeroDesign } from './design.js';
 import { renderMedia, renderFiles, loadServerFiles } from './media.js';

@@ -134,6 +134,9 @@ export interface HeroDesignSide {
  */
 export interface HeroDesign {
   enabled: boolean;
+  // Eigene Schriften (Dateiname im /fonts-Ordner; leer = Standard), für beide Modi.
+  titleFont: string; // Überschriften (Hero-Titel/Untertitel)
+  buttonFont: string; // Feature-Chips + CTA-Button
   light: HeroDesignSide;
   dark: HeroDesignSide;
 }
@@ -154,6 +157,8 @@ const MEDIA_DEFAULTS: MediaConfig = {
   heroGridFit: 'cover',
   heroDesign: {
     enabled: false,
+    titleFont: '',
+    buttonFont: '',
     light: {
       borderColor: '#014f99',
       borderWidth: 1,

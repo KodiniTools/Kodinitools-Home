@@ -114,7 +114,13 @@ export function heroSideDark() {
   };
 }
 export function defaultHeroDesign() {
-  return { enabled: false, light: heroSideLight(), dark: heroSideDark() };
+  return {
+    enabled: false,
+    titleFont: '', // Überschriften-Schrift (Dateiname im /fonts-Ordner)
+    buttonFont: '', // Schrift der Feature-Chips + CTA
+    light: heroSideLight(),
+    dark: heroSideDark(),
+  };
 }
 // Einen Farb-Satz (Hell/Dunkel) normalisieren.
 function normHeroSide(s, def) {
@@ -149,6 +155,8 @@ export function normHeroDesign(hd) {
   const flat = !hasSides && typeof hd.borderColor === 'string' ? hd : null;
   return {
     enabled: hd.enabled === true,
+    titleFont: normFontFile(hd.titleFont),
+    buttonFont: normFontFile(hd.buttonFont),
     light: normHeroSide(hasSides ? hd.light : flat, heroSideLight()),
     dark: normHeroSide(hasSides ? hd.dark : flat, heroSideDark()),
   };

@@ -134,7 +134,15 @@ function heroSideDark() {
   };
 }
 function defaultHeroDesign() {
-  return { enabled: false, light: heroSideLight(), dark: heroSideDark() };
+  return {
+    enabled: false,
+    // Eigene Schriften (Dateiname im /fonts-Ordner; leer = Standard). Gelten für
+    // beide Modi. titleFont: Überschriften, buttonFont: Feature-Chips + CTA.
+    titleFont: '',
+    buttonFont: '',
+    light: heroSideLight(),
+    dark: heroSideDark(),
+  };
 }
 
 /** Validiert einen Farb-Satz (Hell oder Dunkel) gegen dessen Standard. */
@@ -167,6 +175,8 @@ function validateHeroDesign(hd) {
   const flat = !hasSides && typeof hd.borderColor === 'string' ? hd : null;
   return {
     enabled: hd.enabled === true,
+    titleFont: normFontFile(hd.titleFont),
+    buttonFont: normFontFile(hd.buttonFont),
     light: validateHeroSide(hasSides ? hd.light : flat, heroSideLight()),
     dark: validateHeroSide(hasSides ? hd.dark : flat, heroSideDark()),
   };

@@ -69,10 +69,41 @@ function heroSideVars(side: typeof media.heroDesign.light): string {
   if (side.ctaTextColor) v.push(`--hero-cta-text:${side.ctaTextColor}`)
   return v.join(';')
 }
-// Getrennte CSS-Variablen für Hell (.hero) und Dunkel ([data-theme="dark"] .hero).
+// Eigene Hero-Schriften: Dateiname -> Family-Name, @font-face, gültige Endungen.
+const VALID_FONT_FILE = /^[a-zA-Z0-9][a-zA-Z0-9._ -]*\.(woff2|woff|ttf|otf)$/i
+function heroFontId(file: string): string {
+  return 'kodini-font-' + file.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9]+/g, '-')
+}
+function heroFontFaceCss(file: string): string {
+  const ext = (file.split('.').pop() || '').toLowerCase()
+  const fmt = ({ woff2: 'woff2', woff: 'woff', ttf: 'truetype', otf: 'opentype' } as Record<string, string>)[ext] || ''
+  const src = `url("/fonts/${encodeURIComponent(file)}")${fmt ? ` format("${fmt}")` : ''}`
+  return `@font-face{font-family:"${heroFontId(file)}";src:${src};font-display:swap;}`
+}
+// Farben (getrennt Hell/Dunkel, nur wenn aktiviert) + eigene Schriften (immer,
+// wenn gesetzt) als globales CSS für den Hero-Bereich.
 function heroDesignCss(hd: typeof media.heroDesign): string | undefined {
-  if (!hd || !hd.enabled) return undefined
-  return `.hero{${heroSideVars(hd.light)}}\n[data-theme="dark"] .hero{${heroSideVars(hd.dark)}}`
+  if (!hd) return undefined
+  const faces: string[] = []
+  const rules: string[] = []
+  const fontVars: string[] = []
+  const titleF = typeof hd.titleFont === 'string' ? hd.titleFont.trim() : ''
+  const btnF = typeof hd.buttonFont === 'string' ? hd.buttonFont.trim() : ''
+  if (titleF && VALID_FONT_FILE.test(titleF)) {
+    faces.push(heroFontFaceCss(titleF))
+    fontVars.push(`--hero-title-ff:"${heroFontId(titleF)}", system-ui, sans-serif`)
+  }
+  if (btnF && VALID_FONT_FILE.test(btnF)) {
+    if (btnF !== titleF) faces.push(heroFontFaceCss(btnF))
+    fontVars.push(`--hero-btn-ff:"${heroFontId(btnF)}", system-ui, sans-serif`)
+  }
+  if (hd.enabled) {
+    rules.push(`.hero{${heroSideVars(hd.light)}}`)
+    rules.push(`[data-theme="dark"] .hero{${heroSideVars(hd.dark)}}`)
+  }
+  if (fontVars.length) rules.push(`.hero{${fontVars.join(';')}}`)
+  const css = faces.join('') + rules.join('\n')
+  return css || undefined
 }
 const heroCss = heroDesignCss(media.heroDesign)
 
