@@ -91,12 +91,36 @@ function themeSwitch() {
       <p class="hint" style="margin:.1rem 0 .4rem">Hell- und Dunkelmodus werden getrennt gespeichert. Wechsle oben, um den jeweils anderen Modus zu gestalten.</p>`;
 }
 
+// Effektiver Text (Override, sonst Standard der Sprache, sonst Fallback).
+function effLabel(lang, path, fallback) {
+  const o = getPath(state.overrides[lang], path);
+  if (o != null && o !== '') return o;
+  const d = getPath(state.defaults[lang], path);
+  return d != null && d !== '' ? d : fallback;
+}
+
 function heroDesignPanel(lang) {
   const hd = heroDesignOf(lang);
   const s = sideOf(lang);
   const modusLabel = editTheme === 'light' ? 'Hell ☀️' : 'Dunkel 🌙';
-  const chips = ['100% Kostenlos', 'Datenschutz', 'Browser-basiert']
-    .map((t) => `<div data-hdchip style="${previewChipStyle(s)}">${t}</div>`)
+  // Vorschau in der bearbeiteten Sprache (Titel, erste drei Chips, CTA).
+  const previewTitle = effLabel(
+    lang,
+    ['hero', 'title'],
+    lang === 'de' ? 'Kostenlose Online-Tools' : 'Free Online Tools',
+  );
+  const previewCta = effLabel(
+    lang,
+    ['hero', 'cta'],
+    lang === 'de' ? 'Jetzt starten' : 'Get started',
+  );
+  const chips = featureDefs(lang)
+    .slice(0, 3)
+    .map(({ key, def }) => {
+      const o = getPath(state.overrides[lang], ['hero', 'features', key]);
+      const label = o != null && o !== '' ? o : def || key;
+      return `<div data-hdchip style="${previewChipStyle(s)}">${esc(label)}</div>`;
+    })
     .join('');
   return `
     <div class="panel">
@@ -139,9 +163,9 @@ function heroDesignPanel(lang) {
       <p class="hint" style="margin-top:1rem">Vorschau (${modusLabel}) <em>(zum Testen über die Buttons fahren)</em>:</p>
       <style data-hdhoverstyle>${hoverRuleCss(s)}</style>
       <div data-hdprev style="${previewBoxStyle(s)}">
-        <div style="font-weight:800;font-size:1.1rem;color:${esc(s.chipTextColor)}" data-hdtitle>Kostenlose Online-Tools</div>
+        <div style="font-weight:800;font-size:1.1rem;color:${esc(s.chipTextColor)}" data-hdtitle>${esc(previewTitle)}</div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.9rem">${chips}</div>
-        <div data-hdcta style="${previewCtaStyle(s)}">Jetzt starten</div>
+        <div data-hdcta style="${previewCtaStyle(s)}">${esc(previewCta)}</div>
       </div>
       <p class="hint" data-hdnote style="margin-top:.4rem">${heroPreviewNote(hd)}</p>
     </div>
