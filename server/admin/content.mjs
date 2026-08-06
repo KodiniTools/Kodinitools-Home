@@ -244,8 +244,31 @@ function defaultMediaLocale() {
     heroGridUniformCell: 0,
     heroGridRatio: '1:1',
     heroGridFit: 'cover',
+    textStyles: {},
     heroDesign: defaultHeroDesign(),
   };
+}
+// Text-Slots des „Texte"-Tabs mit einstellbarer Größe/Farbe.
+const TEXT_STYLE_KEYS = [
+  'hero.title',
+  'hero.subtitle',
+  'hero.cta',
+  'tools.sectionTitle',
+  'imageTools.sectionTitle',
+  'diverseTools.sectionTitle',
+];
+/** Validiert die Text-Stile: nur bekannte Schlüssel, Größe 0–120, Hex-Farbe. */
+function validateTextStyles(o) {
+  const out = {};
+  if (!isPlainObject(o)) return out;
+  for (const k of TEXT_STYLE_KEYS) {
+    const s = o[k];
+    if (!isPlainObject(s)) continue;
+    const size = clampNum(s.size, 0, 120, 0);
+    const color = normHexColor(s.color, '');
+    if (size > 0 || color) out[k] = { size, color };
+  }
+  return out;
 }
 // Erlaubte Hero-Raster-Layouts (Anordnung der Kacheln).
 const HERO_LAYOUTS = ['grid2', 'grid3', 'row4', 'grid4', 'grid6', 'big2', 'vrow', 'mosaic'];
@@ -415,6 +438,8 @@ function validateMediaLocale(m, langLabel) {
   // Seitenverhältnis + Darstellung (zuschneiden vs. ganzes Bild) des Rasters.
   out.heroGridRatio = ['1:1', '16:9', '2:3'].includes(m.heroGridRatio) ? m.heroGridRatio : '1:1';
   out.heroGridFit = m.heroGridFit === 'contain' ? 'contain' : 'cover';
+  // Text-Stile (Größe/Farbe) der Slots aus dem „Texte"-Tab.
+  out.textStyles = validateTextStyles(m.textStyles);
   // Hero-Design (Rahmen/Hintergrund/Buttons) – optional, mit Standard-Fallback.
   out.heroDesign = validateHeroDesign(m.heroDesign);
   return out;

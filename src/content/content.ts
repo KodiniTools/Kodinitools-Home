@@ -120,6 +120,8 @@ export interface MediaConfig {
   heroGridRatio: '1:1' | '16:9' | '2:3';
   // 'cover' = auf Format zuschneiden, 'contain' = ganzes Bild zeigen (mit Rand).
   heroGridFit: 'cover' | 'contain';
+  // Größe/Farbe einzelner Text-Slots aus dem „Texte"-Tab (Schlüssel = i18n-Key).
+  textStyles: Record<string, { size: number; color: string }>;
   // Admin-einstellbares Design des Hero-Bereichs (Rahmen/Hintergrund/Buttons).
   heroDesign: HeroDesign;
 }
@@ -215,6 +217,7 @@ const MEDIA_DEFAULTS: MediaConfig = {
   heroGridUniformCell: 0,
   heroGridRatio: '1:1',
   heroGridFit: 'cover',
+  textStyles: {},
   heroDesign: {
     enabled: false,
     titleFont: '',
@@ -306,6 +309,43 @@ export function effectiveHeroCellStyle(media: MediaConfig, i: number): HeroCellS
   const out: HeroCellStyle = { ...base };
   for (const p of CELL_SYNC_PROPS) (out[p] as HeroCellStyle[typeof p]) = master[p];
   return out;
+}
+
+// CSS-Selektor je Text-Slot. Alle Slots außer dem Hero-Titel (wird per
+// Tipp-Animation gefüllt) sind über ihr data-i18n-Attribut erreichbar.
+const TEXT_STYLE_SELECTORS: Record<string, string> = {
+  'hero.title': '#app .hero-title',
+  'hero.subtitle': '#app [data-i18n="hero.subtitle"]',
+  'hero.cta': '#app [data-i18n="hero.cta"]',
+  'tools.sectionTitle': '#app [data-i18n="tools.sectionTitle"]',
+  'imageTools.sectionTitle': '#app [data-i18n="imageTools.sectionTitle"]',
+  'diverseTools.sectionTitle': '#app [data-i18n="diverseTools.sectionTitle"]',
+};
+
+/**
+ * CSS für die im „Texte"-Tab gesetzten Größen/Farben einzelner Text-Slots.
+ * Gibt `undefined` zurück, wenn nichts eingestellt ist (dann bleibt der Standard).
+ * Mehrzeilige Texte werden über white-space:pre-line umgebrochen.
+ */
+export function getTextStylesCss(media: MediaConfig): string | undefined {
+  const ts = media.textStyles;
+  if (!ts) return undefined;
+  // Zeilenumbrüche in allen Text-Slots respektieren (mehrzeilige Texte).
+  const rules: string[] = [
+    `${Object.values(TEXT_STYLE_SELECTORS).join(',')}{white-space:pre-line}`,
+  ];
+  for (const [key, sel] of Object.entries(TEXT_STYLE_SELECTORS)) {
+    const s = ts[key];
+    if (!s) continue;
+    const decl: string[] = [];
+    if (typeof s.size === 'number' && s.size > 0) decl.push(`font-size:${s.size}px`);
+    if (/^#[0-9a-fA-F]{3,6}$/.test(s.color || '')) {
+      // -webkit-text-fill-color überschreibt auch Verlaufs-Überschriften.
+      decl.push(`color:${s.color}`, `-webkit-text-fill-color:${s.color}`, 'background:none');
+    }
+    if (decl.length) rules.push(`${sel}{${decl.join(';')}}`);
+  }
+  return rules.length ? rules.join('') : undefined;
 }
 
 /** Anzahl Bild-Kacheln je Hero-Raster-Layout. */
