@@ -330,19 +330,22 @@ function updatePreviewText(pane, lang, i) {
   box.setAttribute('style', cellTextOverlayStyle(s.textColor, s.textSize, s.textPos, s.font));
 }
 
-// Kachel in der Vorschau markieren + zugehörigen Editor direkt unter die sticky
-// Vorschau scrollen.
-function selectCell(pane, i) {
+// Kachel i in Vorschau UND Editor hervorheben (ohne zu scrollen).
+function markCell(pane, i) {
   pane.querySelectorAll('[data-prevcell]').forEach((el) => {
     const on = Number(el.dataset.prevcell) === i;
     el.style.outline = on ? '3px solid var(--accent)' : '';
     el.style.outlineOffset = on ? '-2px' : '';
   });
+  pane.querySelectorAll('[data-celleditor]').forEach((el) => {
+    el.style.boxShadow = Number(el.dataset.celleditor) === i ? '0 0 0 2px var(--accent)' : '';
+  });
+}
+// Wie markCell, zusätzlich den Editor direkt unter die sticky Vorschau scrollen.
+function selectCell(pane, i) {
+  markCell(pane, i);
   const editor = pane.querySelector(`[data-celleditor="${i}"]`);
   if (!editor) return;
-  pane.querySelectorAll('[data-celleditor]').forEach((el) => {
-    el.style.boxShadow = el === editor ? '0 0 0 2px var(--accent)' : '';
-  });
   const sticky = pane.querySelector('[data-stickyprev]');
   const stickyH = sticky ? sticky.getBoundingClientRect().height : 0;
   const top = editor.getBoundingClientRect().top + window.scrollY - stickyH - 24;
@@ -359,6 +362,12 @@ export function renderLayout() {
     .querySelectorAll('[data-prevcell]')
     .forEach((el) =>
       el.addEventListener('click', () => selectCell(pane, Number(el.dataset.prevcell))),
+    );
+  // Umgekehrt: Fokus in einem Kachel-Editor markiert die passende Vorschau-Kachel.
+  pane
+    .querySelectorAll('[data-celleditor]')
+    .forEach((el) =>
+      el.addEventListener('focusin', () => markCell(pane, Number(el.dataset.celleditor))),
     );
 
   // Modus (Banner/Raster) + Layout: strukturelle Änderung -> neu rendern.
