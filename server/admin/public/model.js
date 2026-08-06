@@ -304,16 +304,18 @@ export function getCellStyle(lang, i) {
 }
 // Eigenschaften, die „Standard für alle Kacheln" von der Master-Kachel übernimmt.
 export const CELL_SYNC_PROPS = [
+  'borderColor',
   'borderWidth',
   'bgColor',
   'bgOpacity',
   'font',
   'textSize',
   'textColor',
+  'textPos',
 ];
 // Effektiver Style der Kachel i: bei aktivem „Standard für alle Kacheln" werden
-// die synchronisierten Eigenschaften von der Master-Kachel übernommen; die
-// eigenen Werte (Text, Position, Rahmenfarbe, Bild) bleiben erhalten.
+// die synchronisierten Eigenschaften von der Master-Kachel übernommen; der
+// eigene Text (und das Bild) bleiben je Kachel erhalten.
 export function getEffectiveCellStyle(lang, i) {
   const m = state.media[lang];
   const base = getCellStyle(lang, i);

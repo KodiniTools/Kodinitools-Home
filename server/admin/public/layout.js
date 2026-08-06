@@ -121,7 +121,7 @@ function cellEditor(lang, i, bigLabel) {
   const inherited = m.heroGridUniform && !isMaster;
   const dis = inherited ? 'disabled' : '';
   const note = inherited
-    ? `<p class="hint" style="margin:.3rem 0 0;color:var(--accent)">↳ Übernimmt Rahmendicke, Hintergrund, Transparenz, Schriftart, -größe und -farbe von Kachel ${(m.heroGridUniformCell || 0) + 1}.</p>`
+    ? `<p class="hint" style="margin:.3rem 0 0;color:var(--accent)">↳ Übernimmt Rahmen (Farbe &amp; Dicke), Hintergrund, Transparenz, Schriftart, Textgröße, -farbe und -position von Kachel ${(m.heroGridUniformCell || 0) + 1}.</p>`
     : '';
   return `
     <div class="panel" data-celleditor="${i}" style="padding:.7rem .9rem;margin-bottom:.6rem;scroll-margin-top:44vh${inherited ? ';opacity:.75' : ''}">
@@ -136,7 +136,7 @@ function cellEditor(lang, i, bigLabel) {
       <div class="row" style="align-items:flex-end;margin-top:.4rem">
         <div style="flex:0 0 auto">
           <label>Rahmenfarbe</label>
-          <input type="color" data-cellfield="${i}:borderColor" value="${esc(s.borderColor)}" style="width:56px;height:38px;padding:2px" />
+          <input type="color" data-cellfield="${i}:borderColor" value="${esc(s.borderColor)}" ${dis} style="width:56px;height:38px;padding:2px" />
         </div>
         <div style="flex:0 0 auto">
           <label>Rahmendicke (px)</label>
@@ -172,7 +172,7 @@ function cellEditor(lang, i, bigLabel) {
         </div>
         <div style="flex:0 0 auto">
           <label>Position</label>
-          <select data-cellpos="${i}" style="width:auto">
+          <select data-cellpos="${i}" ${dis} style="width:auto">
             <option value="top" ${s.textPos === 'top' ? 'selected' : ''}>Oben</option>
             <option value="center" ${s.textPos === 'bottom' || s.textPos === 'top' ? '' : 'selected'}>Mitte</option>
             <option value="bottom" ${s.textPos === 'bottom' ? 'selected' : ''}>Unten</option>
@@ -476,7 +476,7 @@ export function renderLayout() {
     const i = Number(el.dataset.cellpos);
     el.addEventListener('change', () => {
       getCellStyle(lang, i).textPos = el.value;
-      updatePreviewText(pane, lang, i);
+      refreshPreviewFor(pane, lang, i, 'textPos');
     });
   });
 
