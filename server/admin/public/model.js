@@ -223,8 +223,38 @@ export function defaultMediaLocale() {
     heroGridUniformCell: 0, // Index der Master-Kachel, deren Werte gelten
     heroGridRatio: '1:1',
     heroGridFit: 'cover',
+    textStyles: {}, // { "<textKey>": { size: px (0=auto), color: Hex|'' } }
     heroDesign: defaultHeroDesign(),
   };
+}
+// Text-Slots des „Texte"-Tabs, für die Größe/Farbe einstellbar sind.
+export const TEXT_STYLE_KEYS = [
+  'hero.title',
+  'hero.subtitle',
+  'hero.cta',
+  'tools.sectionTitle',
+  'imageTools.sectionTitle',
+  'diverseTools.sectionTitle',
+];
+export function normTextStyles(o) {
+  const out = {};
+  if (!o || typeof o !== 'object') return out;
+  for (const k of TEXT_STYLE_KEYS) {
+    const s = o[k];
+    if (!s || typeof s !== 'object') continue;
+    const size = Number(s.size);
+    const color = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(s.color)) ? s.color : '';
+    const px = Number.isFinite(size) ? Math.max(0, Math.min(120, Math.round(size))) : 0;
+    if (px > 0 || color) out[k] = { size: px, color };
+  }
+  return out;
+}
+// Style-Objekt eines Text-Slots (legt es bei Bedarf an).
+export function getTextStyle(lang, key) {
+  const m = state.media[lang];
+  if (!m.textStyles || typeof m.textStyles !== 'object') m.textStyles = {};
+  if (!m.textStyles[key]) m.textStyles[key] = { size: 0, color: '' };
+  return m.textStyles[key];
 }
 // Empfohlene Bildabmessungen je Seitenverhältnis (crisp bei ~3-spaltiger Anzeige).
 export const GRID_DIMS = { '1:1': '800 × 800 px', '16:9': '800 × 450 px', '2:3': '800 × 1200 px' };
@@ -389,6 +419,7 @@ export function normalizeMedia(m) {
         : 0,
       heroGridRatio: ['1:1', '16:9', '2:3'].includes(o?.heroGridRatio) ? o.heroGridRatio : '1:1',
       heroGridFit: o?.heroGridFit === 'contain' ? 'contain' : 'cover',
+      textStyles: normTextStyles(o?.textStyles),
       heroDesign: normHeroDesign(o?.heroDesign),
     };
   };

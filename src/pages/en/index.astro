@@ -6,7 +6,7 @@ import SectionMedia from '../../components/SectionMedia.astro'
 import SiteFooter from '../../components/SiteFooter.astro'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
-import { getContent, getMedia, HERO_LAYOUT_CELLS, effectiveHeroCellStyle } from '../../content/content'
+import { getContent, getMedia, HERO_LAYOUT_CELLS, effectiveHeroCellStyle, getTextStylesCss } from '../../content/content'
 
 // Inhalte aus der Content-Schicht (Standard-Locale + Admin-Overrides, gemergt).
 const de = getContent('de')
@@ -135,6 +135,8 @@ const heroCellFontCss = [
 ]
   .map(heroFontFaceCss)
   .join('')
+// Größen/Farben einzelner Text-Slots aus dem „Texte"-Tab.
+const textStylesCss = getTextStylesCss(media)
 // Inline-Style des Text-Overlays: Farbe, vertikale Position, Größe, Schrift.
 const TEXT_POS_ALIGN: Record<string, string> = {
   top: 'flex-start',
@@ -271,6 +273,7 @@ const pageI18n = {
     <!-- Hero Section with Animated Mesh Gradient -->
     {heroCss && <style is:global set:html={heroCss} />}
     {heroCellFontCss && <style is:global set:html={heroCellFontCss} />}
+    {textStylesCss && <style is:global set:html={textStylesCss} />}
     <section class="hero">
       <div class="mesh-gradient-container">
         <div class="mesh-blob mesh-blob-1"></div>
@@ -588,10 +591,14 @@ const pageI18n = {
       document.querySelectorAll('#app [data-i18n]').forEach(function(el) {
         var key = el.getAttribute('data-i18n');
         if (pageT[key]) {
-          if (key === 'hero.subtitle') {
-            el.innerHTML = pageT[key].replace(/\n/g, '<br/>');
+          var v = pageT[key];
+          if (v.indexOf('\n') !== -1) {
+            // Mehrzeilig: sicher escapen, dann Umbrüche als <br/> ausgeben.
+            el.innerHTML = v
+              .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+              .replace(/\n/g, '<br/>');
           } else {
-            el.textContent = pageT[key];
+            el.textContent = v;
           }
         }
       });
