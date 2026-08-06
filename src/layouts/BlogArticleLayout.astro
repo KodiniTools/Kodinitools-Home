@@ -3,8 +3,12 @@ import '../styles/global.css'
 import GlobalNav from '../components/GlobalNav.astro'
 import TickerBar from '../components/TickerBar.astro'
 import SiteFooter from '../components/SiteFooter.astro'
+import { getSiteFontStyle } from '../content/content'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
+
+// Globale Basis-Schrift (im Admin per Kachel gesetzt, sprachübergreifend).
+const siteFontStyle = getSiteFontStyle()
 
 interface Props {
   title: string
@@ -488,6 +492,9 @@ const schemaBreadcrumb = {
       .steps li { padding: 0.85rem 1rem; }
     }
   </style>
+
+  <!-- Globale Basis-Schrift (Admin, sprachübergreifend) -->
+  {siteFontStyle && <style set:html={siteFontStyle}></style>}
 </head>
 <body>
   <div class="global-background" aria-hidden="true">

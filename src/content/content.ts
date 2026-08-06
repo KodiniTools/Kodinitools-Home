@@ -241,3 +241,52 @@ function mediaOverrideFor(locale: Locale): unknown {
 export function getMedia(locale: Locale): MediaConfig {
   return deepMerge(MEDIA_DEFAULTS, mediaOverrideFor(locale));
 }
+
+// --- Globale (sprachübergreifende) Seiten-Einstellungen ---
+
+export interface SiteConfig {
+  // Basis-Schriftart der ganzen Seite (Dateiname im /fonts-Ordner; leer =
+  // System-Standard). Wird im Admin per Kachel gesetzt und gilt für alle Sprachen.
+  globalFont: string;
+}
+
+const SITE_DEFAULTS: SiteConfig = { globalFont: '' };
+
+/**
+ * Globale Seiten-Einstellungen aus media.json (`site`-Zweig, sprachübergreifend).
+ * Fällt auf Standard zurück, wenn nicht gesetzt.
+ */
+export function getSite(): SiteConfig {
+  const m = mediaOverrides as Record<string, unknown>;
+  const site = isPlainObject(m) && isPlainObject(m.site) ? m.site : {};
+  return deepMerge(SITE_DEFAULTS, site);
+}
+
+// System-Fallback-Stack, wenn die globale Schrift nicht lädt.
+const SITE_FONT_FALLBACK =
+  "'Supreme', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif";
+const VALID_FONT_FILE = /^[a-zA-Z0-9][a-zA-Z0-9._ -]*\.(woff2|woff|ttf|otf)$/i;
+function siteFontId(file: string): string {
+  return 'kodini-font-' + file.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9]+/g, '-');
+}
+
+/**
+ * CSS zum Setzen der globalen Basis-Schrift der ganzen Seite (@font-face plus
+ * Überschreiben der CSS-Variable --site-font). Gibt `undefined` zurück, wenn
+ * keine (gültige) globale Schrift gesetzt ist – dann bleibt der Standard.
+ * Wird von allen Layouts (BaseLayout, EnLayout, BlogArticleLayout) im <head>
+ * eingebunden, damit die Schrift auf der GANZEN Website greift.
+ */
+export function getSiteFontStyle(): string | undefined {
+  const file = getSite().globalFont;
+  if (!file || !VALID_FONT_FILE.test(file)) return undefined;
+  const ext = (file.split('.').pop() || '').toLowerCase();
+  const fmt =
+    ({ woff2: 'woff2', woff: 'woff', ttf: 'truetype', otf: 'opentype' } as Record<string, string>)[
+      ext
+    ] || '';
+  const src = `url("/fonts/${encodeURIComponent(file)}")${fmt ? ` format("${fmt}")` : ''}`;
+  const id = siteFontId(file);
+  // html:root gewinnt gegen global.css :root (höhere Spezifität), unabhängig von der Reihenfolge.
+  return `@font-face{font-family:"${id}";src:${src};font-display:swap;}html:root{--site-font:"${id}", ${SITE_FONT_FALLBACK};}`;
+}

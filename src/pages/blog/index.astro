@@ -2,6 +2,7 @@
 import GlobalNav from '../../components/GlobalNav.astro'
 import TickerBar from '../../components/TickerBar.astro'
 import SiteFooter from '../../components/SiteFooter.astro'
+import SiteFont from '../../components/SiteFont.astro'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
 
@@ -263,6 +264,7 @@ const tagColors: Record<string, string> = {
       .blog-card { padding: 1rem 1.1rem; }
     }
   </style>
+  <SiteFont />
 </head>
 <body>
   <div class="global-background" aria-hidden="true">

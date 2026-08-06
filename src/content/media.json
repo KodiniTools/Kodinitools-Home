@@ -1,4 +1,7 @@
 {
+  "site": {
+    "globalFont": ""
+  },
   "de": {
     "sectionVideos": {
       "audio": "/videos/audio-tools.mp4",
@@ -13,11 +16,7 @@
       "/uploads/Modern-flat-design--high-contrast--low-key-lighting--tight-c-71d64eb5.jpg",
       "/uploads/Thick-foggy-surroundings--high-angle-perspective--modern-fla-495a5a95.jpg"
     ],
-    "heroGridLinks": [
-      "",
-      "",
-      ""
-    ],
+    "heroGridLinks": ["", "", ""],
     "heroGridRatio": "2:3",
     "heroGridFit": "contain",
     "heroDesign": {
@@ -81,16 +80,8 @@
     "heroMode": "banner",
     "heroBanner": "/uploads/en/banne-2-e2d3654d.webp",
     "heroBannerLink": "",
-    "heroGrid": [
-      "",
-      "",
-      ""
-    ],
-    "heroGridLinks": [
-      "",
-      "",
-      ""
-    ],
+    "heroGrid": ["", "", ""],
+    "heroGridLinks": ["", "", ""],
     "heroGridRatio": "1:1",
     "heroGridFit": "cover",
     "heroDesign": {
