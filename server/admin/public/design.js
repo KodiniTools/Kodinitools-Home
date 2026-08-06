@@ -194,12 +194,14 @@ function globalFontTiles() {
   const tile = (file, label, isActive) => {
     const ff = fontFF(file); // lädt @font-face für die Vorschau (oder '')
     const sampleStyle = ff ? `font-family:${ff}` : '';
+    // Muster = der Schriftname selbst, in der jeweiligen Schrift gerendert.
+    // Darunter derselbe Name klein in der UI-Schrift zur sicheren Lesbarkeit.
     return `<button type="button" class="hd-fonttile${isActive ? ' active' : ''}" data-hdglobalfont="${esc(
       file,
     )}" title="Als globale Standard-Schrift der ganzen Seite aktivieren" aria-pressed="${
       isActive ? 'true' : 'false'
     }">
-        <span class="hd-fonttile-sample" style="${sampleStyle}">Ag</span>
+        <span class="hd-fonttile-sample" style="${sampleStyle}">${esc(label)}</span>
         <span class="hd-fonttile-label">${esc(label)}</span>
         ${isActive ? '<span class="hd-fonttile-badge">✓ Aktiv</span>' : ''}
       </button>`;
