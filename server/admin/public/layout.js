@@ -10,7 +10,9 @@ import {
   heroLayoutCells,
   GRID_DIMS,
   getCellStyle,
+  getMediaVal,
 } from './model.js';
+import { objUrl } from './media.js';
 
 const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 const RATIO_AR = { '1:1': '1 / 1', '16:9': '16 / 9', '2:3': '2 / 3' };
@@ -23,9 +25,31 @@ function gridCols(layout) {
   return 'repeat(2, 1fr)'; // grid2, grid4, big2
 }
 
-// Live-Vorschau der Anordnung: leere Kacheln mit dem jeweiligen Per-Kachel-Design.
+// Das der Kachel i zugewiesene Medium (zugewiesenes Bild/Video) als <img>/<video>
+// für die Vorschau – Server-URL oder lokaler Zwischenspeicher (staged:). '' wenn leer.
+function cellMediaHtml(lang, i, fit) {
+  const val = getMediaVal(lang, 'grid' + i);
+  if (!val) return '';
+  let src = val;
+  let isVid = /\.(mp4|webm|mov|ogg)$/i.test(val);
+  if (val.startsWith('staged:')) {
+    const id = val.slice(7);
+    const item = state.stagedItems.find((x) => x.id === id);
+    if (!item) return '';
+    src = objUrl(id);
+    isVid = /^video\//.test(item.type);
+  }
+  const st = `width:100%;height:100%;object-fit:${fit};display:block`;
+  return isVid
+    ? `<video src="${src}" muted style="${st}"></video>`
+    : `<img src="${esc(src)}" style="${st}" />`;
+}
+
+// Live-Vorschau der Anordnung: zeigt die zugewiesenen Bilder (oder eine leere,
+// gestylte Platzhalter-Kachel) im jeweiligen Per-Kachel-Design.
 function previewHtml(lang, layout, cellsN, ratio) {
   const ar = RATIO_AR[ratio] || '1 / 1';
+  const fit = state.media[lang].heroGridFit === 'contain' ? 'contain' : 'cover';
   const cells = Array.from({ length: cellsN }, (_, i) => {
     const s = getCellStyle(lang, i);
     const bg = rgbaFromHex(s.bgColor, s.bgOpacity);
@@ -35,7 +59,9 @@ function previewHtml(lang, layout, cellsN, ratio) {
       box = 'height:100%;';
       if (i === 0) span = 'grid-row:1 / span 2;';
     }
-    return `<div data-prevcell="${i}" style="${box}${span}border-radius:8px;background:${bg};border:${s.borderWidth}px solid ${s.borderColor};display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.72rem">${i + 1}</div>`;
+    const media = cellMediaHtml(lang, i, fit);
+    const inner = media || `<span style="color:var(--muted);font-size:.72rem">${i + 1}</span>`;
+    return `<div data-prevcell="${i}" style="${box}${span}border-radius:8px;overflow:hidden;background:${bg};border:${s.borderWidth}px solid ${s.borderColor};display:flex;align-items:center;justify-content:center">${inner}</div>`;
   }).join('');
   const rows = layout === 'mosaic' ? 'grid-template-rows:1fr 1fr;aspect-ratio:2 / 1;' : '';
   const maxW = layout === 'big2' ? '380px' : layout === 'vrow' ? '170px' : '340px';
