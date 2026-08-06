@@ -237,15 +237,35 @@ function defaultMediaLocale() {
     heroLayout: 'grid3',
     heroBanner: '',
     heroBannerLink: '',
-    heroGrid: ['', '', '', ''],
-    heroGridLinks: ['', '', '', ''],
+    heroGrid: ['', '', '', '', '', ''],
+    heroGridLinks: ['', '', '', '', '', ''],
+    heroGridStyles: defaultCellStyles(),
     heroGridRatio: '1:1',
     heroGridFit: 'cover',
     heroDesign: defaultHeroDesign(),
   };
 }
 // Erlaubte Hero-Raster-Layouts (Anordnung der Kacheln).
-const HERO_LAYOUTS = ['grid2', 'grid3', 'grid4', 'mosaic'];
+const HERO_LAYOUTS = ['grid2', 'grid3', 'grid4', 'grid6', 'big2', 'vrow', 'mosaic'];
+// Größtmögliche Kachelzahl über alle Layouts (für Raster + Per-Kachel-Design).
+const HERO_GRID_MAX = 6;
+// Per-Kachel-Design (Rahmen + Hintergrund); Standard = kein Rahmen, bg 8 %.
+function defaultCellStyle() {
+  return { borderColor: '#014f99', borderWidth: 0, bgColor: '#014f99', bgOpacity: 8 };
+}
+function defaultCellStyles() {
+  return Array.from({ length: HERO_GRID_MAX }, () => defaultCellStyle());
+}
+function validateCellStyle(s) {
+  const d = defaultCellStyle();
+  if (!isPlainObject(s)) return d;
+  return {
+    borderColor: normHexColor(s.borderColor, d.borderColor),
+    borderWidth: clampNum(s.borderWidth, 0, 20, d.borderWidth),
+    bgColor: normHexColor(s.bgColor, d.bgColor),
+    bgOpacity: clampNum(s.bgOpacity, 0, 100, d.bgOpacity),
+  };
+}
 
 /** Globale (sprachübergreifende) Seiten-Einstellungen (Standard). */
 function defaultSite() {
@@ -337,10 +357,10 @@ function validateMediaLocale(m, langLabel) {
       throw new Error(`media.${langLabel}.heroBannerLink muss / oder http(s) sein`);
     out.heroBannerLink = m.heroBannerLink;
   }
-  // Option 2 – Hero-Raster: bis zu vier Felder, je '' oder gültige URL.
-  out.heroGrid = ['', '', '', ''];
+  // Option 2 – Hero-Raster: bis zu sechs Felder, je '' oder gültige URL.
+  out.heroGrid = ['', '', '', '', '', ''];
   if (Array.isArray(m.heroGrid)) {
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < HERO_GRID_MAX; i++) {
       const v = m.heroGrid[i];
       if (v == null || v === '') continue;
       if (!isValidMediaUrl(v)) throw new Error(`media.${langLabel}.heroGrid[${i}] ungültig`);
@@ -348,9 +368,9 @@ function validateMediaLocale(m, langLabel) {
     }
   }
   // Verlinkung der Rasterbilder (optional): interner Pfad oder http(s).
-  out.heroGridLinks = ['', '', '', ''];
+  out.heroGridLinks = ['', '', '', '', '', ''];
   if (Array.isArray(m.heroGridLinks)) {
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < HERO_GRID_MAX; i++) {
       const v = m.heroGridLinks[i];
       if (v == null || v === '') continue;
       if (!isValidMediaUrl(v))
@@ -358,6 +378,10 @@ function validateMediaLocale(m, langLabel) {
       out.heroGridLinks[i] = v;
     }
   }
+  // Per-Kachel-Design (Rahmen + Hintergrund) – genau HERO_GRID_MAX Einträge.
+  out.heroGridStyles = Array.from({ length: HERO_GRID_MAX }, (_, i) =>
+    validateCellStyle(Array.isArray(m.heroGridStyles) ? m.heroGridStyles[i] : null),
+  );
   // Seitenverhältnis + Darstellung (zuschneiden vs. ganzes Bild) des Rasters.
   out.heroGridRatio = ['1:1', '16:9', '2:3'].includes(m.heroGridRatio) ? m.heroGridRatio : '1:1';
   out.heroGridFit = m.heroGridFit === 'contain' ? 'contain' : 'cover';
