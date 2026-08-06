@@ -12,6 +12,7 @@ import {
   getCellStyle,
   getEffectiveCellStyle,
   CELL_SYNC_PROPS,
+  defaultCellStyle,
   getMediaVal,
 } from './model.js';
 import { objUrl } from './media.js';
@@ -25,6 +26,16 @@ function fontFF(file) {
   return file ? `font-family:'${ensureFontFace(file)}', var(--site-font, sans-serif);` : '';
 }
 const RATIO_AR = { '1:1': '1 / 1', '16:9': '16 / 9', '2:3': '2 / 3' };
+
+// Kleiner „Zurücksetzen"-Button (↺) für ein einzelnes Feld.
+// scope: 'cell' (data-cellreset="i:feld") oder 'banner' (data-bannerreset="feld").
+function resetBtn(attr, val, disabled) {
+  return `<button type="button" class="hd-reset" ${attr}="${esc(val)}" ${disabled ? 'disabled' : ''} title="Auf Standard zurücksetzen" aria-label="Auf Standard zurücksetzen">↺</button>`;
+}
+// Umschließt ein Eingabe-Element mit seinem Zurücksetzen-Button (nebeneinander).
+function withReset(inputHtml, attr, val, disabled) {
+  return `<div style="display:flex;gap:.3rem;align-items:center">${inputHtml}${resetBtn(attr, val, disabled)}</div>`;
+}
 
 // CSS grid-template-columns je Layout (nur für die Vorschau).
 function gridCols(layout) {
@@ -131,52 +142,58 @@ function cellEditor(lang, i, bigLabel) {
           <input type="checkbox" data-cellmaster="${i}" ${isMaster ? 'checked' : ''} style="width:auto" />
           Standard für alle Kacheln
         </label>
+        <button type="button" class="hd-reset" data-cellresetall="${i}" title="Ganze Kachel auf Standard zurücksetzen" aria-label="Ganze Kachel zurücksetzen" style="margin-left:auto">↺ Kachel</button>
       </div>
       ${note}
       <div class="row" style="align-items:flex-end;margin-top:.4rem">
         <div style="flex:0 0 auto">
           <label>Rahmenfarbe</label>
-          <input type="color" data-cellfield="${i}:borderColor" value="${esc(s.borderColor)}" ${dis} style="width:56px;height:38px;padding:2px" />
+          ${withReset(`<input type="color" data-cellfield="${i}:borderColor" value="${esc(s.borderColor)}" ${dis} style="width:56px;height:38px;padding:2px" />`, 'data-cellreset', `${i}:borderColor`, inherited)}
         </div>
         <div style="flex:0 0 auto">
           <label>Rahmendicke (px)</label>
-          <input type="number" data-cellfield="${i}:borderWidth" min="0" max="20" step="1" value="${s.borderWidth}" ${dis} style="width:90px" />
+          ${withReset(`<input type="number" data-cellfield="${i}:borderWidth" min="0" max="20" step="1" value="${s.borderWidth}" ${dis} style="width:90px" />`, 'data-cellreset', `${i}:borderWidth`, inherited)}
         </div>
         <div style="flex:0 0 auto">
           <label>Hintergrund</label>
-          <input type="color" data-cellfield="${i}:bgColor" value="${esc(s.bgColor)}" ${dis} style="width:56px;height:38px;padding:2px" />
+          ${withReset(`<input type="color" data-cellfield="${i}:bgColor" value="${esc(s.bgColor)}" ${dis} style="width:56px;height:38px;padding:2px" />`, 'data-cellreset', `${i}:bgColor`, inherited)}
         </div>
         <div style="flex:1 1 170px">
           <label>Hintergrund-Transparenz: <span data-cellopval="${i}">${s.bgOpacity}</span>%</label>
-          <input type="range" data-cellfield="${i}:bgOpacity" min="0" max="100" value="${s.bgOpacity}" ${dis} style="width:100%" />
+          ${withReset(`<input type="range" data-cellfield="${i}:bgOpacity" min="0" max="100" value="${s.bgOpacity}" ${dis} style="width:100%" />`, 'data-cellreset', `${i}:bgOpacity`, inherited)}
         </div>
       </div>
       <div class="row" style="align-items:flex-end;margin-top:.4rem">
         <div style="flex:2 1 220px">
           <label>Text (über dem Bild / im leeren Kasten)</label>
-          <input data-cellfield="${i}:text" value="${esc(s.text || '')}" placeholder="z.B. Neu" maxlength="120" style="${fontFF(s.font || '')}" />
+          ${withReset(`<input data-cellfield="${i}:text" value="${esc(s.text || '')}" placeholder="z.B. Neu" maxlength="120" style="${fontFF(s.font || '')}" />`, 'data-cellreset', `${i}:text`, false)}
         </div>
         <div style="flex:1 1 200px">
           <label>Schriftart des Textes</label>
-          <select data-cellfont="${i}" ${dis} style="${fontFF(s.font || '')}">${fontOptionsHtml(s.font || '')}</select>
+          ${withReset(`<select data-cellfont="${i}" ${dis} style="${fontFF(s.font || '')}">${fontOptionsHtml(s.font || '')}</select>`, 'data-cellreset', `${i}:font`, inherited)}
         </div>
       </div>
       <div class="row" style="align-items:flex-end;margin-top:.4rem">
         <div style="flex:0 0 auto">
           <label>Textfarbe</label>
-          <input type="color" data-cellfield="${i}:textColor" value="${esc(s.textColor || '#ffffff')}" ${dis} style="width:56px;height:38px;padding:2px" />
+          ${withReset(`<input type="color" data-cellfield="${i}:textColor" value="${esc(s.textColor || '#ffffff')}" ${dis} style="width:56px;height:38px;padding:2px" />`, 'data-cellreset', `${i}:textColor`, inherited)}
         </div>
         <div style="flex:0 0 auto">
           <label>Textgröße (px, 0=auto)</label>
-          <input type="number" data-cellfield="${i}:textSize" min="0" max="96" step="1" value="${s.textSize || 0}" ${dis} style="width:120px" />
+          ${withReset(`<input type="number" data-cellfield="${i}:textSize" min="0" max="96" step="1" value="${s.textSize || 0}" ${dis} style="width:120px" />`, 'data-cellreset', `${i}:textSize`, inherited)}
         </div>
         <div style="flex:0 0 auto">
           <label>Position</label>
-          <select data-cellpos="${i}" ${dis} style="width:auto">
+          ${withReset(
+            `<select data-cellpos="${i}" ${dis} style="width:auto">
             <option value="top" ${s.textPos === 'top' ? 'selected' : ''}>Oben</option>
             <option value="center" ${s.textPos === 'bottom' || s.textPos === 'top' ? '' : 'selected'}>Mitte</option>
             <option value="bottom" ${s.textPos === 'bottom' ? 'selected' : ''}>Unten</option>
-          </select>
+          </select>`,
+            'data-cellreset',
+            `${i}:textPos`,
+            inherited,
+          )}
         </div>
       </div>
     </div>`;
@@ -227,29 +244,34 @@ function layoutPanel(lang) {
         <div class="row" style="align-items:flex-end">
           <div style="flex:2 1 240px">
             <label>Text</label>
-            <input data-bannerfield="text" value="${esc(bText)}" placeholder="z.B. Willkommen" maxlength="120" style="${fontFF(bFont)}" />
+            ${withReset(`<input data-bannerfield="text" value="${esc(bText)}" placeholder="z.B. Willkommen" maxlength="120" style="${fontFF(bFont)}" />`, 'data-bannerreset', 'text', false)}
           </div>
           <div style="flex:1 1 200px">
             <label>Schriftart des Textes</label>
-            <select data-bannerfont style="${fontFF(bFont)}">${fontOptionsHtml(bFont)}</select>
+            ${withReset(`<select data-bannerfont style="${fontFF(bFont)}">${fontOptionsHtml(bFont)}</select>`, 'data-bannerreset', 'font', false)}
           </div>
         </div>
         <div class="row" style="align-items:flex-end;margin-top:.4rem">
           <div style="flex:0 0 auto">
             <label>Textfarbe</label>
-            <input type="color" data-bannerfield="textColor" value="${esc(bColor)}" style="width:56px;height:38px;padding:2px" />
+            ${withReset(`<input type="color" data-bannerfield="textColor" value="${esc(bColor)}" style="width:56px;height:38px;padding:2px" />`, 'data-bannerreset', 'textColor', false)}
           </div>
           <div style="flex:0 0 auto">
             <label>Textgröße (px, 0=auto)</label>
-            <input type="number" data-bannerfield="textSize" min="0" max="96" step="1" value="${bSize}" style="width:120px" />
+            ${withReset(`<input type="number" data-bannerfield="textSize" min="0" max="96" step="1" value="${bSize}" style="width:120px" />`, 'data-bannerreset', 'textSize', false)}
           </div>
           <div style="flex:0 0 auto">
             <label>Position</label>
-            <select data-bannerpos style="width:auto">
+            ${withReset(
+              `<select data-bannerpos style="width:auto">
               <option value="top" ${bPos === 'top' ? 'selected' : ''}>Oben</option>
               <option value="center" ${bPos === 'bottom' || bPos === 'top' ? '' : 'selected'}>Mitte</option>
               <option value="bottom" ${bPos === 'bottom' ? 'selected' : ''}>Unten</option>
-            </select>
+            </select>`,
+              'data-bannerreset',
+              'textPos',
+              false,
+            )}
           </div>
         </div>
       </div>`;
@@ -416,6 +438,39 @@ export function renderLayout() {
           ? `Kachel ${i + 1} ist Standard für alle Kacheln`
           : 'Jede Kachel nutzt wieder ihre eigenen Einstellungen',
       );
+    });
+  });
+
+  // ↺ Einzelnes Kachel-Feld auf Standard zurücksetzen.
+  pane.querySelectorAll('[data-cellreset]').forEach((el) => {
+    const [iStr, field] = el.dataset.cellreset.split(':');
+    const i = Number(iStr);
+    el.addEventListener('click', () => {
+      const d = defaultCellStyle();
+      if (field in d) getCellStyle(lang, i)[field] = d[field];
+      renderLayout();
+      toast('Auf Standard zurückgesetzt');
+    });
+  });
+  // ↺ Ganze Kachel zurücksetzen (alle Felder inkl. Text).
+  pane.querySelectorAll('[data-cellresetall]').forEach((el) => {
+    const i = Number(el.dataset.cellresetall);
+    el.addEventListener('click', () => {
+      if (!confirm(`Alle Einstellungen von Kachel ${i + 1} auf Standard zurücksetzen?`)) return;
+      Object.assign(getCellStyle(lang, i), defaultCellStyle());
+      renderLayout();
+      toast(`Kachel ${i + 1} zurückgesetzt`);
+    });
+  });
+  // ↺ Banner-Textfeld auf Standard zurücksetzen.
+  pane.querySelectorAll('[data-bannerreset]').forEach((el) => {
+    const field = el.dataset.bannerreset;
+    const defs = { text: '', font: '', textColor: '#ffffff', textSize: 0, textPos: 'center' };
+    el.addEventListener('click', () => {
+      const key = 'heroBanner' + field.charAt(0).toUpperCase() + field.slice(1);
+      if (field in defs) state.media[lang][key] = defs[field];
+      renderLayout();
+      toast('Auf Standard zurückgesetzt');
     });
   });
 
