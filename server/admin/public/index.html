@@ -88,6 +88,13 @@
         grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
         gap: 0.5rem;
         margin: 0.2rem 0 0.6rem;
+        /* Bei vielen Schriften scrollbar statt endlos lang */
+        max-height: 300px;
+        overflow-y: auto;
+        padding: 0.15rem 0.4rem 0.15rem 0.15rem;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: var(--bg);
       }
       button.hd-fonttile {
         display: flex;

@@ -20,8 +20,11 @@ import {
 import { ensureFontFace, fontOptionsHtml } from './fonts.js';
 
 // Family-CSS für eine Schriftdatei (lädt @font-face für die Vorschau) oder ''.
+// Einfache Anführungszeichen um den Family-Namen, damit der Wert gefahrlos in
+// doppelt-gequotete HTML-style="…"-Attribute eingesetzt werden kann (sonst
+// kollidieren die Anführungszeichen und font-family wird ungültig).
 function fontFF(file) {
-  return file ? `"${ensureFontFace(file)}", system-ui, sans-serif` : '';
+  return file ? `'${ensureFontFace(file)}', system-ui, sans-serif` : '';
 }
 
 // Aktuell im Editor bearbeiteter Modus (UI-Zustand, nicht gespeichert).
