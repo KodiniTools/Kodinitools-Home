@@ -26,6 +26,7 @@ const RATIO_AR = { '1:1': '1 / 1', '16:9': '16 / 9', '2:3': '2 / 3' };
 function gridCols(layout) {
   if (layout === 'vrow') return '1fr';
   if (layout === 'mosaic') return '2fr 1fr';
+  if (layout === 'row4') return 'repeat(4, 1fr)';
   if (layout === 'grid3' || layout === 'grid6') return 'repeat(3, 1fr)';
   return 'repeat(2, 1fr)'; // grid2, grid4, big2
 }
@@ -96,8 +97,8 @@ function previewHtml(lang, layout, cellsN, ratio) {
     return `<div data-prevcell="${i}" style="position:relative;${box}${span}border-radius:8px;overflow:hidden;background:${bg};border:${s.borderWidth}px solid ${s.borderColor};display:flex;align-items:center;justify-content:center">${base}${textOverlay}</div>`;
   }).join('');
   const rows = layout === 'mosaic' ? 'grid-template-rows:1fr 1fr;aspect-ratio:2 / 1;' : '';
-  const maxW = layout === 'big2' ? '560px' : layout === 'vrow' ? '260px' : '520px';
-  return `<div style="display:grid;grid-template-columns:${gridCols(layout)};${rows}gap:.5rem;max-width:${maxW};margin:.3rem auto">${cells}</div>`;
+  const maxW = layout === 'big2' ? '440px' : layout === 'vrow' ? '190px' : '400px';
+  return `<div style="display:grid;grid-template-columns:${gridCols(layout)};${rows}gap:.45rem;max-width:${maxW};margin:.2rem auto">${cells}</div>`;
 }
 
 // Editor für Rahmen + Hintergrund einer Kachel.
@@ -162,13 +163,13 @@ function layoutPanel(lang) {
     const bFont = m.heroBannerFont || '';
     const bMedia = bannerMediaHtml(lang);
     const previewBox = `
-      <div style="position:relative;max-width:640px;margin:.3rem auto;display:flex;align-items:center;justify-content:center;min-height:90px">
+      <div style="position:relative;max-width:520px;margin:.2rem auto;display:flex;align-items:center;justify-content:center;min-height:80px">
         ${bMedia || '<span class="hint">Kein Banner gewählt — im Tab „Medien" zuweisen.</span>'}
         <div data-bannertext style="${bText ? bannerTextStyle(bFont) : ''}">${esc(bText)}</div>
       </div>`;
     const previewPanel = `
-      <div style="position:sticky;top:.5rem;z-index:5;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:.7rem .9rem;margin:0 0 .9rem;box-shadow:0 8px 22px rgba(0,0,0,.4)">
-        <p class="hint" style="margin:.1rem 0 .4rem">👁 Live-Vorschau (Banner) — bleibt beim Scrollen sichtbar:</p>
+      <div style="position:sticky;top:.5rem;z-index:5;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:.6rem .9rem;margin:0 0 .9rem;box-shadow:0 8px 22px rgba(0,0,0,.4);max-height:38vh;overflow:auto">
+        <p class="hint" style="margin:.1rem 0 .35rem">👁 Live-Vorschau (Banner):</p>
         ${previewBox}
       </div>`;
     const textPanel = `
@@ -199,10 +200,11 @@ function layoutPanel(lang) {
   const layoutOpts = Object.entries(HERO_LAYOUTS)
     .map(([k, v]) => `<option value="${k}" ${k === layout ? 'selected' : ''}>${v.label}</option>`)
     .join('');
-  // Große Live-Vorschau – bleibt beim Scrollen oben sichtbar (sticky).
+  // Kompakte Live-Vorschau – bleibt beim Scrollen sichtbar (sticky), Höhe
+  // begrenzt (scrollt intern), damit sie den Adminbereich nicht blockiert.
   const previewPanel = `
-    <div style="position:sticky;top:.5rem;z-index:5;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:.7rem .9rem;margin:0 0 .9rem;box-shadow:0 8px 22px rgba(0,0,0,.4)">
-      <p class="hint" style="margin:.1rem 0 .4rem">👁 Live-Vorschau (${cellsN} Kachel${cellsN === 1 ? '' : 'n'}) — bleibt beim Scrollen sichtbar:</p>
+    <div style="position:sticky;top:.5rem;z-index:5;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:.6rem .9rem;margin:0 0 .9rem;box-shadow:0 8px 22px rgba(0,0,0,.4);max-height:38vh;overflow:auto">
+      <p class="hint" style="margin:.1rem 0 .35rem">👁 Live-Vorschau (${cellsN} Kachel${cellsN === 1 ? '' : 'n'}):</p>
       <div data-layprev>${previewHtml(lang, layout, cellsN, ratio)}</div>
     </div>`;
   const layoutSel = `
