@@ -587,14 +587,32 @@ function redo() {
   toast('Wiederhergestellt ↷');
 }
 
-// Aktiviert/deaktiviert die ↶/↷-Buttons je nach Verfügbarkeit.
+// Aktiviert/deaktiviert die ↶/↷-Buttons je nach Verfügbarkeit. Neben den
+// Kopf-Buttons werden auch bereichsinterne Kopien ([data-undoproxy] /
+// [data-redoproxy]) mitgeführt, damit sie überall den gleichen Zustand zeigen.
 function refreshUndoUi(snap) {
+  const cur = snap || editSnapshot();
+  const canUndo = !(undoStack.length === 0 && cur === historyBase);
+  const canRedo = redoStack.length > 0;
   const u = $('#undoBtn');
   const r = $('#redoBtn');
-  const cur = snap || editSnapshot();
-  if (u) u.disabled = undoStack.length === 0 && cur === historyBase;
-  if (r) r.disabled = redoStack.length === 0;
+  if (u) u.disabled = !canUndo;
+  if (r) r.disabled = !canRedo;
+  document.querySelectorAll('[data-undoproxy]').forEach((el) => (el.disabled = !canUndo));
+  document.querySelectorAll('[data-redoproxy]').forEach((el) => (el.disabled = !canRedo));
 }
+
+// Bereichsinterne ↶/↷-Buttons (z.B. im Layout-Tab) lösen denselben Verlauf aus.
+// Delegiert, damit auch neu gerenderte Buttons ohne Neu-Verdrahtung wirken.
+document.addEventListener('click', (e) => {
+  if (e.target.closest('[data-undoproxy]')) {
+    e.preventDefault();
+    undo();
+  } else if (e.target.closest('[data-redoproxy]')) {
+    e.preventDefault();
+    redo();
+  }
+});
 
 const undoBtn = $('#undoBtn');
 const redoBtn = $('#redoBtn');
