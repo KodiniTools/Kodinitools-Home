@@ -8,87 +8,6 @@
       <div class="mouse-spotlight" :style="spotlightStyle"></div>
     </div>
 
-    <!-- Global Floating Tool Icons Background -->
-    <div class="floating-icons-global" ref="floatingIcons">
-      <!-- Audio Waveform -->
-      <div class="floating-icon icon-1">
-        <svg viewBox="0 0 80 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <path d="M5 20h5v-10h5v20h5v-15h5v10h5v-5h5v10h5v-15h5v20h5v-10h5v5h5v-8h5"/>
-        </svg>
-      </div>
-      <!-- Music Note -->
-      <div class="floating-icon icon-2">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M9 18V5l12-2v13"/>
-          <circle cx="6" cy="18" r="3"/>
-          <circle cx="18" cy="16" r="3"/>
-        </svg>
-      </div>
-      <!-- Equalizer Bars -->
-      <div class="floating-icon icon-4">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <line x1="4" y1="21" x2="4" y2="14"/>
-          <line x1="9" y1="21" x2="9" y2="8"/>
-          <line x1="14" y1="21" x2="14" y2="12"/>
-          <line x1="19" y1="21" x2="19" y2="5"/>
-        </svg>
-      </div>
-      <!-- Gear/Settings -->
-      <div class="floating-icon icon-5">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <circle cx="12" cy="12" r="3"/>
-          <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
-        </svg>
-      </div>
-      <!-- Speaker/Volume -->
-      <div class="floating-icon icon-7">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-          <path d="M15.54 8.46a5 5 0 010 7.07"/>
-          <path d="M19.07 4.93a10 10 0 010 14.14"/>
-        </svg>
-      </div>
-      <!-- Crop/Edit -->
-      <div class="floating-icon icon-8">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M6 2v4h12v12h4"/>
-          <path d="M18 22v-4H6V6H2"/>
-        </svg>
-      </div>
-      <!-- Additional icons for full page coverage -->
-      <!-- Second Waveform (bottom) -->
-      <div class="floating-icon icon-9">
-        <svg viewBox="0 0 80 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <path d="M5 20h5v-10h5v20h5v-15h5v10h5v-5h5v10h5v-15h5v20h5v-10h5v5h5v-8h5"/>
-        </svg>
-      </div>
-      <!-- Second Music Note -->
-      <div class="floating-icon icon-10">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M9 18V5l12-2v13"/>
-          <circle cx="6" cy="18" r="3"/>
-          <circle cx="18" cy="16" r="3"/>
-        </svg>
-      </div>
-      <!-- Second Image Icon -->
-      <div class="floating-icon icon-11">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="3" y="3" width="18" height="18" rx="2"/>
-          <circle cx="8.5" cy="8.5" r="1.5"/>
-          <path d="M21 15l-5-5L5 21"/>
-        </svg>
-      </div>
-      <!-- Second Equalizer -->
-      <div class="floating-icon icon-12">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <line x1="4" y1="21" x2="4" y2="14"/>
-          <line x1="9" y1="21" x2="9" y2="8"/>
-          <line x1="14" y1="21" x2="14" y2="12"/>
-          <line x1="19" y1="21" x2="19" y2="5"/>
-        </svg>
-      </div>
-    </div>
-
     <TheNavbar @toggle-blog="toggleBlog" @toggle-faq="toggleFaq" @go-home="goHome" />
 
     <BlogPage v-if="showBlog" @goHome="goHome" />
@@ -170,11 +89,6 @@ const openCookieSettings = () => {
 // Mouse-following spotlight effect
 const mouseX = ref(50)
 const mouseY = ref(50)
-const floatingIcons = ref<HTMLElement | null>(null)
-
-// Store mouse offsets for each icon
-const iconMouseOffsets = ref<{x: number, y: number}[]>([])
-const iconScrollOffsets = ref<number[]>([])
 
 const spotlightStyle = computed(() => {
   // Check current theme for appropriate spotlight color
@@ -185,17 +99,6 @@ const spotlightStyle = computed(() => {
   }
 })
 
-// Update icon transforms combining mouse + scroll
-const updateIconTransforms = () => {
-  if (!floatingIcons.value) return
-  const icons = floatingIcons.value.querySelectorAll('.floating-icon')
-  icons.forEach((icon, index) => {
-    const mouseOffset = iconMouseOffsets.value[index] || { x: 0, y: 0 }
-    const scrollOffset = iconScrollOffsets.value[index] || 0
-    ;(icon as HTMLElement).style.transform = `translate(${mouseOffset.x}px, ${mouseOffset.y + scrollOffset}px)`
-  })
-}
-
 let mouseMoveRaf: number | null = null
 
 const handleMouseMove = (e: MouseEvent) => {
@@ -205,23 +108,9 @@ const handleMouseMove = (e: MouseEvent) => {
   mouseMoveRaf = requestAnimationFrame(() => {
     mouseMoveRaf = null
 
-  // Update spotlight position (percentage of viewport)
-  mouseX.value = (e.clientX / window.innerWidth) * 100
-  mouseY.value = (e.clientY / window.innerHeight) * 100
-
-  // Calculate mouse parallax offsets for floating icons
-  if (floatingIcons.value) {
-    const icons = floatingIcons.value.querySelectorAll('.floating-icon')
-    const newOffsets: {x: number, y: number}[] = []
-    icons.forEach((_, index) => {
-      const speed = 0.08 + (index * 0.015)
-      const x = (e.clientX - window.innerWidth / 2) * speed
-      const y = (e.clientY - window.innerHeight / 2) * speed
-      newOffsets.push({ x, y })
-    })
-    iconMouseOffsets.value = newOffsets
-    updateIconTransforms()
-  }
+    // Update spotlight position (percentage of viewport)
+    mouseX.value = (e.clientX / window.innerWidth) * 100
+    mouseY.value = (e.clientY / window.innerHeight) * 100
   }) // end rAF
 }
 
@@ -230,31 +119,9 @@ const searchQuery = ref('')
 
 // Scroll to top functionality
 const showScrollTop = ref(false)
-let scrollTicking = false
 
 const handleScroll = () => {
   showScrollTop.value = window.scrollY > 400
-
-  // Use requestAnimationFrame for smooth scroll parallax
-  if (!scrollTicking) {
-    requestAnimationFrame(() => {
-      // Scroll parallax for floating icons
-      if (floatingIcons.value && typeof window !== 'undefined') {
-        const scrollY = window.scrollY
-        const icons = floatingIcons.value.querySelectorAll('.floating-icon')
-        const newScrollOffsets: number[] = []
-        icons.forEach((_, index) => {
-          const speed = 0.08 + (index * 0.025)
-          const yOffset = scrollY * speed
-          newScrollOffsets.push(yOffset)
-        })
-        iconScrollOffsets.value = newScrollOffsets
-        updateIconTransforms()
-      }
-      scrollTicking = false
-    })
-    scrollTicking = true
-  }
 }
 
 const scrollToTop = () => {
@@ -366,15 +233,6 @@ onUnmounted(() => {
   }
   to {
     opacity: 1;
-  }
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
   }
 }
 
@@ -843,157 +701,6 @@ body {
 
 [data-theme="dark"] .noise-overlay {
   opacity: 0.05;
-}
-
-/* Global Floating Tool Icons */
-.floating-icons-global {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.floating-icon {
-  position: absolute;
-  color: var(--color-blue);
-  opacity: 0.12;
-  animation: float 20s ease-in-out infinite;
-  --scroll-y: 0px;
-  transition: transform 0.15s ease-out;
-  will-change: transform;
-}
-
-[data-theme="dark"] .floating-icon {
-  color: var(--color-gold);
-  opacity: 0.08;
-}
-
-.floating-icon svg {
-  width: 100%;
-  height: 100%;
-}
-
-/* Individual icon positions distributed across full viewport */
-.icon-1 {
-  width: 140px;
-  height: 70px;
-  top: 8%;
-  left: 3%;
-  animation-delay: 0s;
-  animation-duration: 25s;
-}
-
-.icon-2 {
-  width: 50px;
-  height: 50px;
-  top: 15%;
-  right: 8%;
-  animation-delay: -3s;
-  animation-duration: 22s;
-  filter: blur(1px);
-}
-
-.icon-4 {
-  width: 45px;
-  height: 45px;
-  top: 5%;
-  right: 30%;
-  animation-delay: -5s;
-  animation-duration: 20s;
-  filter: blur(0.5px);
-}
-
-.icon-5 {
-  width: 55px;
-  height: 55px;
-  top: 50%;
-  right: 5%;
-  animation-delay: -10s;
-  animation-duration: 24s;
-}
-
-.icon-7 {
-  width: 40px;
-  height: 40px;
-  top: 60%;
-  left: 12%;
-  animation-delay: -8s;
-  animation-duration: 21s;
-}
-
-.icon-8 {
-  width: 48px;
-  height: 48px;
-  top: 22%;
-  right: 15%;
-  animation-delay: -12s;
-  animation-duration: 23s;
-  filter: blur(0.5px);
-}
-
-/* Additional icons for full page coverage */
-.icon-9 {
-  width: 120px;
-  height: 60px;
-  top: 75%;
-  right: 10%;
-  animation-delay: -4s;
-  animation-duration: 27s;
-}
-
-.icon-10 {
-  width: 45px;
-  height: 45px;
-  top: 85%;
-  left: 25%;
-  animation-delay: -9s;
-  animation-duration: 19s;
-  filter: blur(0.5px);
-}
-
-.icon-11 {
-  width: 55px;
-  height: 55px;
-  top: 70%;
-  right: 35%;
-  animation-delay: -6s;
-  animation-duration: 24s;
-}
-
-.icon-12 {
-  width: 42px;
-  height: 42px;
-  top: 90%;
-  right: 20%;
-  animation-delay: -11s;
-  animation-duration: 22s;
-  filter: blur(1px);
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  25% {
-    transform: translateY(-20px) rotate(3deg);
-  }
-  50% {
-    transform: translateY(-8px) rotate(-2deg);
-  }
-  75% {
-    transform: translateY(-25px) rotate(2deg);
-  }
-}
-
-/* Hide floating icons on mobile for performance */
-@media (max-width: 768px) {
-  .floating-icons-global {
-    display: none;
-  }
 }
 
 /* Hero Content */
@@ -2311,7 +2018,6 @@ button:focus {
   }
 
   .mesh-blob,
-  .floating-icon,
   .hero-logo {
     animation: none !important;
   }
