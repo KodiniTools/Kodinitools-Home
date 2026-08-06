@@ -598,4 +598,16 @@ export function renderHeroDesign() {
       else setPath(state.overrides[lang], ['hero', 'features', key], v);
     });
   });
+
+  // Schriftarten-Galerie beim Öffnen zur aktuell aktiven Schrift scrollen, damit
+  // die gewählte Standardschrift sofort sichtbar ist (nur innerhalb der Galerie,
+  // ohne die ganze Seite zu scrollen).
+  const gallery = pane.querySelector('.hd-fonttiles');
+  const activeTile = gallery && gallery.querySelector('.hd-fonttile.active');
+  if (gallery && activeTile) {
+    const gr = gallery.getBoundingClientRect();
+    const tr = activeTile.getBoundingClientRect();
+    const centered = tr.top - gr.top - (gallery.clientHeight - activeTile.clientHeight) / 2;
+    gallery.scrollTop = Math.max(0, gallery.scrollTop + centered);
+  }
 }
