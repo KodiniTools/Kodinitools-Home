@@ -114,6 +114,9 @@ export interface MediaConfig {
   heroGridLinks: string[];
   // Per-Kachel-Design: Rahmen (Farbe/Dicke) + Hintergrund (Farbe/Transparenz).
   heroGridStyles: HeroCellStyle[];
+  // „Standard für alle Kacheln": übernimmt Werte der Master-Kachel für alle.
+  heroGridUniform: boolean;
+  heroGridUniformCell: number;
   heroGridRatio: '1:1' | '16:9' | '2:3';
   // 'cover' = auf Format zuschneiden, 'contain' = ganzes Bild zeigen (mit Rand).
   heroGridFit: 'cover' | 'contain';
@@ -208,6 +211,8 @@ const MEDIA_DEFAULTS: MediaConfig = {
     textSize: 0,
     textPos: 'center' as const,
   })),
+  heroGridUniform: false,
+  heroGridUniformCell: 0,
   heroGridRatio: '1:1',
   heroGridFit: 'cover',
   heroDesign: {
@@ -275,6 +280,30 @@ function mediaOverrideFor(locale: Locale): unknown {
     return m[locale];
   }
   return m; // alte, sprachunabhängige Struktur
+}
+
+// Eigenschaften, die „Standard für alle Kacheln" von der Master-Kachel übernimmt.
+const CELL_SYNC_PROPS = [
+  'borderWidth',
+  'bgColor',
+  'bgOpacity',
+  'font',
+  'textSize',
+  'textColor',
+] as const;
+/**
+ * Effektiver Style einer Raster-Kachel: bei aktivem „Standard für alle Kacheln"
+ * werden die synchronisierten Eigenschaften von der Master-Kachel übernommen;
+ * die eigenen Werte (Text, Position, Rahmenfarbe) bleiben erhalten.
+ */
+export function effectiveHeroCellStyle(media: MediaConfig, i: number): HeroCellStyle {
+  const styles = media.heroGridStyles || [];
+  const base = styles[i];
+  if (!media.heroGridUniform) return base;
+  const master = styles[media.heroGridUniformCell] || base;
+  const out: HeroCellStyle = { ...base };
+  for (const p of CELL_SYNC_PROPS) (out[p] as HeroCellStyle[typeof p]) = master[p];
+  return out;
 }
 
 /** Anzahl Bild-Kacheln je Hero-Raster-Layout. */

@@ -6,7 +6,7 @@ import SectionMedia from '../components/SectionMedia.astro'
 import SiteFooter from '../components/SiteFooter.astro'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
-import { getContent, getMedia, HERO_LAYOUT_CELLS } from '../content/content'
+import { getContent, getMedia, HERO_LAYOUT_CELLS, effectiveHeroCellStyle } from '../content/content'
 
 // Inhalte aus der Content-Schicht (Standard-Locale + Admin-Overrides, gemergt).
 const de = getContent('de')
@@ -220,7 +220,7 @@ const pageI18n = {
               {media.heroGrid.slice(0, HERO_LAYOUT_CELLS[media.heroLayout] ?? 3).map((src, i) => {
                 const link = (media.heroGridLinks && media.heroGridLinks[i]) || ''
                 const ext = /^https?:\/\//i.test(link)
-                const cs = (media.heroGridStyles && media.heroGridStyles[i]) || null
+                const cs = media.heroGridStyles && media.heroGridStyles[i] ? effectiveHeroCellStyle(media, i) : null
                 const cellStyle = cs
                   ? `--cell-bg:${heroHexToRgba(cs.bgColor, cs.bgOpacity) || 'transparent'};--cell-bw:${cs.borderWidth}px;--cell-bc:${cs.borderColor}`
                   : ''

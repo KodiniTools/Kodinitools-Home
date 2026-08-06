@@ -240,6 +240,8 @@ function defaultMediaLocale() {
     heroGrid: ['', '', '', '', '', ''],
     heroGridLinks: ['', '', '', '', '', ''],
     heroGridStyles: defaultCellStyles(),
+    heroGridUniform: false,
+    heroGridUniformCell: 0,
     heroGridRatio: '1:1',
     heroGridFit: 'cover',
     heroDesign: defaultHeroDesign(),
@@ -407,6 +409,9 @@ function validateMediaLocale(m, langLabel) {
   out.heroGridStyles = Array.from({ length: HERO_GRID_MAX }, (_, i) =>
     validateCellStyle(Array.isArray(m.heroGridStyles) ? m.heroGridStyles[i] : null),
   );
+  // „Standard für alle Kacheln": Master-Kachel-Werte gelten für alle.
+  out.heroGridUniform = m.heroGridUniform === true;
+  out.heroGridUniformCell = clampNum(m.heroGridUniformCell, 0, HERO_GRID_MAX - 1, 0);
   // Seitenverhältnis + Darstellung (zuschneiden vs. ganzes Bild) des Rasters.
   out.heroGridRatio = ['1:1', '16:9', '2:3'].includes(m.heroGridRatio) ? m.heroGridRatio : '1:1';
   out.heroGridFit = m.heroGridFit === 'contain' ? 'contain' : 'cover';
