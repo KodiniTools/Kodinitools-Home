@@ -265,17 +265,20 @@ const pageI18n = {
                 const cellStyle = cs
                   ? `--cell-bg:${heroHexToRgba(cs.bgColor, cs.bgOpacity) || 'transparent'};--cell-bw:${cs.borderWidth}px;--cell-bc:${cs.borderColor}`
                   : ''
+                const cellClass = `hero-grid-cell${media.heroLayout === 'mosaic' && i === 0 ? ' hero-grid-cell--big' : ''}`
+                // Leere Kachel: gestylte Box rendern, damit das Layout nicht kollabiert.
+                if (!src) return <div class={cellClass} style={cellStyle} />
                 const cell = (
                   <SectionMedia
                     src={src}
                     eager={true}
                     alt={`Bild ${i + 1}`}
-                    wrapperClass={`hero-grid-cell${media.heroLayout === 'mosaic' && i === 0 ? ' hero-grid-cell--big' : ''}`}
+                    wrapperClass={cellClass}
                     wrapperStyle={cellStyle}
                     mediaClass="hero-grid-media"
                   />
                 )
-                return src && link ? (
+                return link ? (
                   <a
                     class="hero-media-link"
                     href={link}

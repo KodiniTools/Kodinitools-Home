@@ -75,7 +75,7 @@ const VIDEO_SLOTS = [
 // Diese Slots akzeptieren Video ODER Bild – die Seite rendert je nach
 // Dateiendung automatisch <video> oder <img>.
 
-function objUrl(id) {
+export function objUrl(id) {
   if (state.objectUrls.has(id)) return state.objectUrls.get(id);
   const item = state.stagedItems.find((x) => x.id === id);
   if (!item) return '';
