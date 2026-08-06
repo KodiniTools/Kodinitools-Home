@@ -105,6 +105,20 @@
     "heroGridUniformCell": 0,
     "heroGridRatio": "2:3",
     "heroGridFit": "contain",
+    "textStyles": {
+      "tools.sectionTitle": {
+        "size": 0,
+        "color": "#29486a"
+      },
+      "imageTools.sectionTitle": {
+        "size": 0,
+        "color": "#29486a"
+      },
+      "diverseTools.sectionTitle": {
+        "size": 0,
+        "color": "#29486a"
+      }
+    },
     "heroDesign": {
       "enabled": true,
       "titleFont": "Supreme-Regular.woff2",
@@ -260,6 +274,7 @@
     "heroGridUniformCell": 0,
     "heroGridRatio": "1:1",
     "heroGridFit": "cover",
+    "textStyles": {},
     "heroDesign": {
       "enabled": false,
       "titleFont": "Supreme-Regular.woff2",
