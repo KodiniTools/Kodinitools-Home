@@ -956,7 +956,6 @@ body {
   text-align: center;
   padding: 0.6rem 1rem;
   color: #fff;
-  font-weight: 800;
   font-size: clamp(1.1rem, 3vw, 2rem);
   line-height: 1.2;
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
@@ -1056,7 +1055,6 @@ body {
   text-align: center;
   padding: 0.4rem 0.6rem;
   color: #fff;
-  font-weight: 700;
   font-size: clamp(0.9rem, 2.2vw, 1.5rem);
   line-height: 1.2;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);

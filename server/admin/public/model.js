@@ -213,6 +213,9 @@ export function defaultMediaLocale() {
     heroBannerLink: '',
     heroBannerText: '', // Text über dem Einzelbanner
     heroBannerFont: '', // Schriftart des Banner-Textes (Dateiname im /fonts-Ordner)
+    heroBannerTextColor: '#ffffff',
+    heroBannerTextSize: 0, // px (0 = automatisch)
+    heroBannerTextPos: 'center', // 'top' | 'center' | 'bottom'
     heroGrid: ['', '', '', '', '', ''],
     heroGridLinks: ['', '', '', '', '', ''],
     heroGridStyles: defaultCellStyles(),
@@ -253,7 +256,14 @@ export function defaultCellStyle() {
     bgOpacity: 8,
     text: '', // Standardtext über dem Bild / im leeren Kasten
     font: '', // Schriftart des Textes (Dateiname im /fonts-Ordner; leer = Standard)
+    textColor: '#ffffff', // Farbe des Textes
+    textSize: 0, // Schriftgröße in px (0 = automatisch)
+    textPos: 'center', // Position: 'top' | 'center' | 'bottom'
   };
+}
+// Erlaubte Text-Positionen im Overlay.
+export function normTextPos(v) {
+  return ['top', 'center', 'bottom'].includes(v) ? v : 'center';
 }
 export function defaultCellStyles() {
   return Array.from({ length: HERO_GRID_MAX }, () => defaultCellStyle());
@@ -273,6 +283,9 @@ function normCellStyle(s) {
     bgOpacity: num(s.bgOpacity, 0, 100, d.bgOpacity),
     text: typeof s.text === 'string' ? s.text.slice(0, 120) : '',
     font: normFontFile(s.font),
+    textColor: hex(s.textColor, d.textColor),
+    textSize: num(s.textSize, 0, 96, d.textSize),
+    textPos: normTextPos(s.textPos),
   };
 }
 export function normCellStyles(arr) {
@@ -333,6 +346,13 @@ export function normalizeMedia(m) {
       heroBannerLink: o && typeof o.heroBannerLink === 'string' ? o.heroBannerLink : '',
       heroBannerText: typeof o?.heroBannerText === 'string' ? o.heroBannerText.slice(0, 120) : '',
       heroBannerFont: normFontFile(o?.heroBannerFont),
+      heroBannerTextColor: /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(o?.heroBannerTextColor))
+        ? o.heroBannerTextColor
+        : '#ffffff',
+      heroBannerTextSize: Number.isFinite(Number(o?.heroBannerTextSize))
+        ? Math.max(0, Math.min(96, Math.round(Number(o.heroBannerTextSize))))
+        : 0,
+      heroBannerTextPos: normTextPos(o?.heroBannerTextPos),
       heroGrid: [0, 1, 2, 3, 4, 5].map((i) => (typeof grid[i] === 'string' ? grid[i] : '')),
       heroGridLinks: [0, 1, 2, 3, 4, 5].map((i) =>
         typeof gridLinks[i] === 'string' ? gridLinks[i] : '',
