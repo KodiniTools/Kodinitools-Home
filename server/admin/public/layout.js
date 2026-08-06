@@ -103,7 +103,7 @@ function previewHtml(lang, layout, cellsN, ratio) {
     const textOverlay = s.text
       ? `<div data-prevtext="${i}" style="${cellTextOverlayStyle(s.textColor, s.textSize, s.textPos, s.font)}">${esc(s.text)}</div>`
       : `<div data-prevtext="${i}"></div>`;
-    return `<div data-prevcell="${i}" style="position:relative;${box}${span}border-radius:8px;overflow:hidden;background:${bg};border:${s.borderWidth}px solid ${s.borderColor};display:flex;align-items:center;justify-content:center">${base}${textOverlay}</div>`;
+    return `<div data-prevcell="${i}" title="Kachel ${i + 1} bearbeiten" style="position:relative;${box}${span}border-radius:8px;overflow:hidden;background:${bg};border:${s.borderWidth}px solid ${s.borderColor};display:flex;align-items:center;justify-content:center;cursor:pointer">${base}${textOverlay}</div>`;
   }).join('');
   const rows = layout === 'mosaic' ? 'grid-template-rows:1fr 1fr;aspect-ratio:2 / 1;' : '';
   const maxW = layout === 'big2' ? '440px' : layout === 'vrow' ? '190px' : '400px';
@@ -114,7 +114,7 @@ function previewHtml(lang, layout, cellsN, ratio) {
 function cellEditor(lang, i, bigLabel) {
   const s = getCellStyle(lang, i);
   return `
-    <div class="panel" style="padding:.7rem .9rem;margin-bottom:.6rem">
+    <div class="panel" data-celleditor="${i}" style="padding:.7rem .9rem;margin-bottom:.6rem;scroll-margin-top:44vh">
       <strong style="font-size:.85rem">Kachel ${i + 1}${bigLabel ? ' (groß)' : ''}</strong>
       <div class="row" style="align-items:flex-end;margin-top:.4rem">
         <div style="flex:0 0 auto">
@@ -251,8 +251,8 @@ function layoutPanel(lang) {
   // Kompakte Live-Vorschau – bleibt beim Scrollen sichtbar (sticky), Höhe
   // begrenzt (scrollt intern), damit sie den Adminbereich nicht blockiert.
   const previewPanel = `
-    <div style="position:sticky;top:.5rem;z-index:5;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:.6rem .9rem;margin:0 0 .9rem;box-shadow:0 8px 22px rgba(0,0,0,.4);max-height:38vh;overflow:auto">
-      <p class="hint" style="margin:.1rem 0 .35rem">👁 Live-Vorschau (${cellsN} Kachel${cellsN === 1 ? '' : 'n'}):</p>
+    <div data-stickyprev style="position:sticky;top:.5rem;z-index:5;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:.6rem .9rem;margin:0 0 .9rem;box-shadow:0 8px 22px rgba(0,0,0,.4);max-height:38vh;overflow:auto">
+      <p class="hint" style="margin:.1rem 0 .35rem">👁 Live-Vorschau (${cellsN} Kachel${cellsN === 1 ? '' : 'n'}) — Kachel anklicken zum Bearbeiten:</p>
       <div data-layprev>${previewHtml(lang, layout, cellsN, ratio)}</div>
     </div>`;
   const layoutSel = `
@@ -330,10 +330,36 @@ function updatePreviewText(pane, lang, i) {
   box.setAttribute('style', cellTextOverlayStyle(s.textColor, s.textSize, s.textPos, s.font));
 }
 
+// Kachel in der Vorschau markieren + zugehörigen Editor direkt unter die sticky
+// Vorschau scrollen.
+function selectCell(pane, i) {
+  pane.querySelectorAll('[data-prevcell]').forEach((el) => {
+    const on = Number(el.dataset.prevcell) === i;
+    el.style.outline = on ? '3px solid var(--accent)' : '';
+    el.style.outlineOffset = on ? '-2px' : '';
+  });
+  const editor = pane.querySelector(`[data-celleditor="${i}"]`);
+  if (!editor) return;
+  pane.querySelectorAll('[data-celleditor]').forEach((el) => {
+    el.style.boxShadow = el === editor ? '0 0 0 2px var(--accent)' : '';
+  });
+  const sticky = pane.querySelector('[data-stickyprev]');
+  const stickyH = sticky ? sticky.getBoundingClientRect().height : 0;
+  const top = editor.getBoundingClientRect().top + window.scrollY - stickyH - 24;
+  window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+}
+
 export function renderLayout() {
   const lang = state.nav.section;
   const pane = $('#content');
   pane.innerHTML = layoutPanel(lang);
+
+  // Klick auf eine Vorschau-Kachel: markieren + Editor darunter scrollen.
+  pane
+    .querySelectorAll('[data-prevcell]')
+    .forEach((el) =>
+      el.addEventListener('click', () => selectCell(pane, Number(el.dataset.prevcell))),
+    );
 
   // Modus (Banner/Raster) + Layout: strukturelle Änderung -> neu rendern.
   pane.querySelectorAll('[data-heromode]').forEach((el) =>
