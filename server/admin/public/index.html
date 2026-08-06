@@ -82,6 +82,54 @@
         background: #33455f;
         color: var(--text);
       }
+      /* Kachel-Galerie für die globale Standard-Schrift */
+      .hd-fonttiles {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 0.5rem;
+        margin: 0.2rem 0 0.6rem;
+      }
+      button.hd-fonttile {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.6rem 0.4rem;
+        height: auto;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+      button.hd-fonttile:hover {
+        border-color: var(--accent);
+        background: var(--panel-2);
+      }
+      button.hd-fonttile.active {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 2px var(--accent) inset;
+      }
+      .hd-fonttile-sample {
+        font-size: 1.7rem;
+        line-height: 1.1;
+        color: var(--text);
+      }
+      .hd-fonttile-label {
+        font-size: 0.72rem;
+        color: var(--muted);
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: 100%;
+      }
+      .hd-fonttile-badge {
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: var(--accent-2, #4ade80);
+      }
       input,
       textarea,
       select {

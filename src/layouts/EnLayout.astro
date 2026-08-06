@@ -1,5 +1,9 @@
 ---
 import '../styles/global.css'
+import { getSiteFontStyle } from '../content/content'
+
+// Globale Basis-Schrift (im Admin per Kachel gesetzt, sprachübergreifend).
+const siteFontStyle = getSiteFontStyle()
 ---
 
 <!DOCTYPE html>
@@ -148,6 +152,9 @@ import '../styles/global.css'
     <script is:inline>
     localStorage.setItem('locale', 'en');
     </script>
+
+    <!-- Globale Basis-Schrift (Admin, sprachübergreifend) -->
+    {siteFontStyle && <style set:html={siteFontStyle}></style>}
 </head>
 <body>
     <!-- Google Tag Manager (noscript) -->

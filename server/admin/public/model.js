@@ -219,9 +219,29 @@ export function defaultMediaLocale() {
 }
 // Empfohlene Bildabmessungen je Seitenverhältnis (crisp bei ~3-spaltiger Anzeige).
 export const GRID_DIMS = { '1:1': '800 × 800 px', '16:9': '800 × 450 px', '2:3': '800 × 1200 px' };
-// Medien werden pro Sprache getrennt gepflegt: { de: {...}, en: {...} }.
+// Globale (sprachübergreifende) Seiten-Einstellungen. globalFont = Basis-
+// Schriftart der ganzen Seite (Dateiname im /fonts-Ordner; leer = Standard).
+export function defaultSite() {
+  return { globalFont: '' };
+}
+export function normSite(s) {
+  if (!s || typeof s !== 'object') return defaultSite();
+  return { globalFont: normFontFile(s.globalFont) };
+}
+// Medien werden pro Sprache getrennt gepflegt, plus globale site-Einstellungen:
+// { site: {...}, de: {...}, en: {...} }.
 export function defaultMedia() {
-  return { de: defaultMediaLocale(), en: defaultMediaLocale() };
+  return { site: defaultSite(), de: defaultMediaLocale(), en: defaultMediaLocale() };
+}
+// Aktuell gesetzte globale Basis-Schrift (Dateiname oder '').
+export function getGlobalFont() {
+  if (!state.media.site || typeof state.media.site !== 'object') state.media.site = defaultSite();
+  return state.media.site.globalFont || '';
+}
+// Globale Basis-Schrift setzen ('' = Standard).
+export function setGlobalFont(file) {
+  if (!state.media.site || typeof state.media.site !== 'object') state.media.site = defaultSite();
+  state.media.site.globalFont = normFontFile(file);
 }
 
 // Normalisiert einen geladenen Medien-Stand auf { de, en }. Akzeptiert auch die
@@ -249,9 +269,10 @@ export function normalizeMedia(m) {
       heroDesign: normHeroDesign(o?.heroDesign),
     };
   };
-  if (m && typeof m === 'object' && m.sectionVideos) return { de: mk(m), en: mk(m) };
+  if (m && typeof m === 'object' && m.sectionVideos)
+    return { site: defaultSite(), de: mk(m), en: mk(m) };
   const src = m && typeof m === 'object' ? m : {};
-  return { de: mk(src.de), en: mk(src.en) };
+  return { site: normSite(src.site), de: mk(src.de), en: mk(src.en) };
 }
 
 // Sprachen + Slots. 'heroBanner' liegt auf oberster Ebene der Sprache, die

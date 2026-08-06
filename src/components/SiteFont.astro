@@ -1,0 +1,10 @@
+---
+// Bindet die im Admin (Hero-Design → Schriften) gesetzte globale Basis-Schrift
+// ein: @font-face + Überschreiben der CSS-Variable --site-font. Ist keine (gültige)
+// globale Schrift gesetzt, wird nichts ausgegeben und der Standard bleibt.
+// In den <head> jeder eigenständigen Seite einbinden, die kein Layout nutzt.
+import { getSiteFontStyle } from '../content/content';
+const siteFontStyle = getSiteFontStyle();
+---
+
+{siteFontStyle && <style set:html={siteFontStyle} />}

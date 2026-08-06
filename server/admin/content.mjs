@@ -244,9 +244,21 @@ function defaultMediaLocale() {
   };
 }
 
-/** Medien-Standard pro Sprache ({ de, en }). */
+/** Globale (sprachübergreifende) Seiten-Einstellungen (Standard). */
+function defaultSite() {
+  // globalFont: Basis-Schriftart der ganzen Seite (Dateiname im /fonts-Ordner;
+  // leer = System-Standard 'Supreme'). Wirkt über alle Sprachen hinweg.
+  return { globalFont: '' };
+}
+/** Validiert die globalen Seiten-Einstellungen. */
+function validateSite(s) {
+  if (!isPlainObject(s)) return defaultSite();
+  return { globalFont: normFontFile(s.globalFont) };
+}
+
+/** Medien-Standard ({ site, de, en }). */
 function defaultMedia() {
-  return { de: defaultMediaLocale(), en: defaultMediaLocale() };
+  return { site: defaultSite(), de: defaultMediaLocale(), en: defaultMediaLocale() };
 }
 
 function isPlainObject(v) {
@@ -359,9 +371,10 @@ export function validateMedia(m) {
   // Alte, flache Struktur -> auf beide Sprachen anwenden.
   if (isPlainObject(m.sectionVideos)) {
     const one = validateMediaLocale(m, 'de');
-    return { de: one, en: JSON.parse(JSON.stringify(one)) };
+    return { site: defaultSite(), de: one, en: JSON.parse(JSON.stringify(one)) };
   }
   return {
+    site: validateSite(m.site),
     de: validateMediaLocale(m.de ?? {}, 'de'),
     en: validateMediaLocale(m.en ?? {}, 'en'),
   };

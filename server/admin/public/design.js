@@ -11,6 +11,8 @@ import {
   defaultHeroDesign,
   heroSideLight,
   heroSideDark,
+  getGlobalFont,
+  setGlobalFont,
   getPath,
   setPath,
   delPath,
@@ -79,7 +81,11 @@ function withReset(inputHtml, scope, key = '') {
 // Inline-Style der Vorschau-Box (zeigt die Werte des bearbeiteten Modus).
 function previewBoxStyle(s) {
   const bg = rgbaFromHex(s.bgColor, s.bgOpacity);
-  return `background:${bg};border:${s.borderWidth}px solid ${s.borderColor};border-radius:1rem;padding:1.1rem 1rem;text-align:center`;
+  // Globale Basis-Schrift als Grundschrift der Vorschau (Titel/Chips/CTA ohne
+  // eigene Schrift erben sie – wie auf der echten Seite).
+  const gf = fontFF(getGlobalFont());
+  const base = gf ? `font-family:${gf};` : '';
+  return `${base}background:${bg};border:${s.borderWidth}px solid ${s.borderColor};border-radius:1rem;padding:1.1rem 1rem;text-align:center`;
 }
 function previewChipStyle(s, hd) {
   const bg = rgbaFromHex(s.chipBgColor, s.chipBgOpacity);
@@ -177,6 +183,29 @@ function effLabel(lang, path, fallback) {
   return d != null && d !== '' ? d : fallback;
 }
 
+// Kachel-Galerie zur Wahl der GLOBALEN Basis-Schrift (sprachübergreifend, gilt
+// für die ganze Seite). Jede Kachel zeigt eine Musterschrift; die aktive Kachel
+// ist hervorgehoben. Erste Kachel = „Standard (System)" (setzt zurück).
+function globalFontTiles() {
+  const active = getGlobalFont();
+  const tile = (file, label, isActive) => {
+    const ff = fontFF(file); // lädt @font-face für die Vorschau (oder '')
+    const sampleStyle = ff ? `font-family:${ff}` : '';
+    return `<button type="button" class="hd-fonttile${isActive ? ' active' : ''}" data-hdglobalfont="${esc(
+      file,
+    )}" title="Als globale Standard-Schrift der ganzen Seite aktivieren" aria-pressed="${
+      isActive ? 'true' : 'false'
+    }">
+        <span class="hd-fonttile-sample" style="${sampleStyle}">Ag</span>
+        <span class="hd-fonttile-label">${esc(label)}</span>
+        ${isActive ? '<span class="hd-fonttile-badge">✓ Aktiv</span>' : ''}
+      </button>`;
+  };
+  const tiles = [tile('', 'Standard (System)', !active)];
+  for (const f of state.fonts) tiles.push(tile(f.name, f.label || f.name, f.name === active));
+  return `<div class="hd-fonttiles">${tiles.join('')}</div>`;
+}
+
 function heroDesignPanel(lang) {
   const hd = heroDesignOf(lang);
   const s = sideOf(lang);
@@ -228,6 +257,11 @@ function heroDesignPanel(lang) {
         </div>
       </div>
       <p class="hint" style="margin-bottom:.5rem">Aus dem Ordner <code>/fonts</code> auf dem Server. Wirkt auf beide Modi. Auch ohne „Eigenes Hero-Design" nutzbar.</p>
+
+      <p class="hint" style="margin:.6rem 0 .1rem;font-weight:600;color:var(--text)">🌐 Globale Standard-Schrift der ganzen Seite <span class="lang-badge">gilt für DE + EN</span></p>
+      <p class="hint" style="margin:.1rem 0 .4rem">Eine Kachel aktivieren, um diese Schrift als Basis-Schrift der <strong>gesamten Website</strong> zu setzen (Navigation, Tool-Karten, Texte, Footer …). Wirkt sofort überall; einzelne Hero-Schriften oben überschreiben sie im Hero. „Standard (System)" setzt auf die Werksschrift zurück.</p>
+      ${globalFontTiles()}
+
       <p class="hint" style="margin:.2rem 0">✏️ Überschriften – Buchstabenabstand &amp; Kontur (Rahmen):</p>
       <div class="row" style="align-items:flex-end">
         <div style="flex:0 0 auto">
@@ -501,6 +535,17 @@ export function renderHeroDesign() {
         hd[f] = Number.isFinite(n) && n > 0 ? Math.max(8, Math.min(96, n)) : 0;
       } else hd[f] = el.value; // Kontur-Farbe
       refreshPreview(pane, lang);
+    });
+  });
+
+  // Globale Basis-Schrift per Kachel wählen (sprachübergreifend). Aktiviert die
+  // Schrift für die ganze Seite; leere Kachel = Standard (System).
+  pane.querySelectorAll('[data-hdglobalfont]').forEach((el) => {
+    el.addEventListener('click', () => {
+      setGlobalFont(el.dataset.hdglobalfont || '');
+      renderHeroDesign();
+      const name = el.dataset.hdglobalfont || '';
+      toast(name ? 'Globale Schrift aktiviert' : 'Globale Schrift auf Standard zurückgesetzt');
     });
   });
 
