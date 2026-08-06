@@ -97,7 +97,7 @@ export interface MediaConfig {
   // Hero-Bereich: 'banner' = ein einzelnes Bild/Video, 'grid' = Kachel-Raster.
   heroMode: 'banner' | 'grid';
   // Anordnung der Kacheln im Raster-Modus.
-  heroLayout: 'grid2' | 'grid3' | 'grid4' | 'grid6' | 'big2' | 'vrow' | 'mosaic';
+  heroLayout: 'grid2' | 'grid3' | 'row4' | 'grid4' | 'grid6' | 'big2' | 'vrow' | 'mosaic';
   // Option 1: austauschbares Hero-Banner (Bild oder Video). Leer = kein Banner.
   heroBanner: string;
   // Verlinkung des Banners (interner Pfad oder http(s)). Leer = nicht klickbar.
@@ -115,12 +115,14 @@ export interface MediaConfig {
   heroDesign: HeroDesign;
 }
 
-/** Rahmen + Hintergrund einer einzelnen Raster-Kachel. */
+/** Rahmen + Hintergrund + optionaler Text einer einzelnen Raster-Kachel. */
 export interface HeroCellStyle {
   borderColor: string; // Hex – Rahmenfarbe der Kachel
   borderWidth: number; // px – Rahmendicke (0 = kein Rahmen)
   bgColor: string; // Hex – Hintergrundfarbe
   bgOpacity: number; // 0–100 (%) – Transparenz des Hintergrunds
+  text: string; // Standardtext über dem Bild / im leeren Kasten (leer = keiner)
+  font: string; // Schriftart des Textes (Dateiname im /fonts-Ordner; leer = Standard)
 }
 
 /** Ein Farb-Satz des Hero-Bereichs (für Hell- bzw. Dunkelmodus getrennt). */
@@ -186,6 +188,8 @@ const MEDIA_DEFAULTS: MediaConfig = {
     borderWidth: 0,
     bgColor: '#014f99',
     bgOpacity: 8,
+    text: '',
+    font: '',
   })),
   heroGridRatio: '1:1',
   heroGridFit: 'cover',
@@ -260,6 +264,7 @@ function mediaOverrideFor(locale: Locale): unknown {
 export const HERO_LAYOUT_CELLS: Record<MediaConfig['heroLayout'], number> = {
   grid2: 2,
   grid3: 3,
+  row4: 4,
   grid4: 4,
   grid6: 6,
   big2: 2,

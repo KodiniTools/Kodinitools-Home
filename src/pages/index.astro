@@ -122,6 +122,23 @@ function heroDesignCss(hd: typeof media.heroDesign): string | undefined {
 }
 const heroCss = heroDesignCss(media.heroDesign)
 
+// @font-face für die in den Raster-Kacheln verwendeten Textschriften laden.
+const heroCellFontCss = [
+  ...new Set(
+    (media.heroGridStyles || [])
+      .map((s) => (s && typeof s.font === 'string' ? s.font.trim() : ''))
+      .filter((f) => f && VALID_FONT_FILE.test(f)),
+  ),
+]
+  .map(heroFontFaceCss)
+  .join('')
+// Inline font-family für den Text einer Kachel (oder '').
+function cellTextFontStyle(font: string): string {
+  return font && VALID_FONT_FILE.test(font)
+    ? `font-family:"${heroFontId(font)}", var(--site-font)`
+    : ''
+}
+
 // Build focused i18n map for vanilla JS (only keys used on this page)
 const SKIP = new Set(['sectionTitle', 'sectionDescription', 'processingBadge'])
 
@@ -242,6 +259,7 @@ const pageI18n = {
 
     <!-- Hero Section with Animated Mesh Gradient -->
     {heroCss && <style is:global set:html={heroCss} />}
+    {heroCellFontCss && <style is:global set:html={heroCellFontCss} />}
     <section class="hero">
       <div class="mesh-gradient-container">
         <div class="mesh-blob mesh-blob-1"></div>
@@ -266,17 +284,25 @@ const pageI18n = {
                   ? `--cell-bg:${heroHexToRgba(cs.bgColor, cs.bgOpacity) || 'transparent'};--cell-bw:${cs.borderWidth}px;--cell-bc:${cs.borderColor}`
                   : ''
                 const cellClass = `hero-grid-cell${media.heroLayout === 'mosaic' && i === 0 ? ' hero-grid-cell--big' : ''}`
-                // Leere Kachel: gestylte Box rendern, damit das Layout nicht kollabiert.
-                if (!src) return <div class={cellClass} style={cellStyle} />
-                const cell = (
-                  <SectionMedia
-                    src={src}
-                    eager={true}
-                    alt={`Bild ${i + 1}`}
-                    wrapperClass={cellClass}
-                    wrapperStyle={cellStyle}
-                    mediaClass="hero-grid-media"
-                  />
+                // Kachel als Container: optionales Medium + optionaler Text-Overlay.
+                // Leere Kachel bleibt als gestylte Box erhalten (Layout kollabiert nicht).
+                const cellInner = (
+                  <div class={cellClass} style={cellStyle}>
+                    {src && (
+                      <SectionMedia
+                        src={src}
+                        eager={true}
+                        alt={`Bild ${i + 1}`}
+                        wrapperClass="hero-cell-media"
+                        mediaClass="hero-grid-media"
+                      />
+                    )}
+                    {cs && cs.text && (
+                      <div class="hero-cell-text" style={cellTextFontStyle(cs.font)}>
+                        {cs.text}
+                      </div>
+                    )}
+                  </div>
                 )
                 return link ? (
                   <a
@@ -285,10 +311,10 @@ const pageI18n = {
                     target={ext ? '_blank' : undefined}
                     rel={ext ? 'noopener noreferrer' : undefined}
                   >
-                    {cell}
+                    {cellInner}
                   </a>
                 ) : (
-                  cell
+                  cellInner
                 )
               })}
             </div>
