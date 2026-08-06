@@ -122,12 +122,15 @@ function heroDesignCss(hd: typeof media.heroDesign): string | undefined {
 }
 const heroCss = heroDesignCss(media.heroDesign)
 
-// @font-face für die in den Raster-Kacheln verwendeten Textschriften laden.
+// @font-face für die in Raster-Kacheln bzw. Banner verwendeten Textschriften.
 const heroCellFontCss = [
   ...new Set(
-    (media.heroGridStyles || [])
-      .map((s) => (s && typeof s.font === 'string' ? s.font.trim() : ''))
-      .filter((f) => f && VALID_FONT_FILE.test(f)),
+    [
+      ...(media.heroGridStyles || []).map((s) =>
+        s && typeof s.font === 'string' ? s.font.trim() : '',
+      ),
+      typeof media.heroBannerFont === 'string' ? media.heroBannerFont.trim() : '',
+    ].filter((f) => f && VALID_FONT_FILE.test(f)),
   ),
 ]
   .map(heroFontFaceCss)
@@ -318,30 +321,55 @@ const pageI18n = {
                 )
               })}
             </div>
-          ) : media.heroBanner && media.heroBannerLink ? (
-            <a
-              class="hero-media-link"
-              href={media.heroBannerLink}
-              target={/^https?:\/\//i.test(media.heroBannerLink) ? '_blank' : undefined}
-              rel={/^https?:\/\//i.test(media.heroBannerLink) ? 'noopener noreferrer' : undefined}
-            >
-              <SectionMedia
-                src={media.heroBanner}
-                eager={true}
-                alt="KodiniTools Banner"
-                wrapperClass="hero-banner-wrapper"
-                mediaClass="hero-banner"
-              />
-            </a>
-          ) : (
-            <SectionMedia
-              src={media.heroBanner}
-              eager={true}
-              alt="KodiniTools Banner"
-              wrapperClass="hero-banner-wrapper"
-              mediaClass="hero-banner"
-            />
-          )}
+          ) : media.heroBanner ? (
+            media.heroBannerLink ? (
+              <a
+                class="hero-media-link"
+                href={media.heroBannerLink}
+                target={/^https?:\/\//i.test(media.heroBannerLink) ? '_blank' : undefined}
+                rel={/^https?:\/\//i.test(media.heroBannerLink) ? 'noopener noreferrer' : undefined}
+              >
+                <div class="hero-banner-wrapper">
+                  <SectionMedia
+                    src={media.heroBanner}
+                    eager={true}
+                    alt="KodiniTools Banner"
+                    wrapperClass="hero-banner-inner"
+                    mediaClass="hero-banner"
+                  />
+                  {media.heroBannerText && (
+                    <div class="hero-banner-text" style={cellTextFontStyle(media.heroBannerFont)}>
+                      {media.heroBannerText}
+                    </div>
+                  )}
+                </div>
+              </a>
+            ) : (
+              <div class="hero-banner-wrapper">
+                <SectionMedia
+                  src={media.heroBanner}
+                  eager={true}
+                  alt="KodiniTools Banner"
+                  wrapperClass="hero-banner-inner"
+                  mediaClass="hero-banner"
+                />
+                {media.heroBannerText && (
+                  <div class="hero-banner-text" style={cellTextFontStyle(media.heroBannerFont)}>
+                    {media.heroBannerText}
+                  </div>
+                )}
+              </div>
+            )
+          ) : media.heroBannerText ? (
+            <div class="hero-banner-wrapper hero-banner-textonly">
+              <div
+                class="hero-banner-text hero-banner-text--static"
+                style={cellTextFontStyle(media.heroBannerFont)}
+              >
+                {media.heroBannerText}
+              </div>
+            </div>
+          ) : null}
           <h1 class="hero-title typing-title">
             <span class="typed-text" id="typedText"></span>
           </h1>

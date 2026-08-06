@@ -937,8 +937,38 @@ body {
 }
 
 .hero-banner-wrapper {
+  position: relative;
   width: 100%;
   text-align: center;
+}
+/* Wrapper des Banner-Mediums „durchsichtig" (display:contents), damit das Bild
+   direkt im .hero-banner-wrapper zentriert und der Text darüber liegt. */
+.hero-banner-inner {
+  display: contents;
+}
+/* Text über dem Banner (zentriert, gut lesbar). */
+.hero-banner-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0.6rem 1rem;
+  color: #fff;
+  font-weight: 800;
+  font-size: clamp(1.1rem, 3vw, 2rem);
+  line-height: 1.2;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  word-break: break-word;
+}
+/* Nur-Text-Banner (kein Bild): normaler, mittiger Textblock. */
+.hero-banner-text--static {
+  position: static;
+  min-height: 120px;
+  color: var(--text-color);
+  text-shadow: none;
 }
 
 .hero-banner {

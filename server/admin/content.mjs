@@ -366,6 +366,9 @@ function validateMediaLocale(m, langLabel) {
       throw new Error(`media.${langLabel}.heroBannerLink muss / oder http(s) sein`);
     out.heroBannerLink = m.heroBannerLink;
   }
+  // Text über dem Banner (optional) + dessen Schriftart.
+  out.heroBannerText = typeof m.heroBannerText === 'string' ? m.heroBannerText.slice(0, 120) : '';
+  out.heroBannerFont = normFontFile(m.heroBannerFont);
   // Option 2 – Hero-Raster: bis zu sechs Felder, je '' oder gültige URL.
   out.heroGrid = ['', '', '', '', '', ''];
   if (Array.isArray(m.heroGrid)) {
