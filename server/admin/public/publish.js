@@ -152,9 +152,14 @@ async function uploadStagedReferenced() {
 }
 
 let pollTimer;
-// Der eigentliche Veröffentlichen-Ablauf. Wird vom grünen Kopf-Button UND vom
-// Button auf der Status-Seite genutzt (beide lösen dasselbe aus).
-async function runPublish() {
+// Einstieg (Kopf-Button, Status-Seite, Tastenkürzel): zeigt zuerst die
+// Diff-Vorschau „Was ändert sich?" und startet erst nach Bestätigung.
+function runPublish() {
+  if (state.publishing) return;
+  showPublishConfirm(computePublishDiff(), doPublish);
+}
+// Der eigentliche Veröffentlichen-Ablauf.
+async function doPublish() {
   if (state.publishing) return;
   state.publishing = true;
   $('#publishBtn').disabled = true;
@@ -311,6 +316,8 @@ export async function refreshPublishStatus() {
     if (pn) pn.disabled = false;
     if (s.status === 'success') {
       toast('Veröffentlicht ✓');
+      // Diff-Basis auf den soeben veröffentlichten Stand setzen.
+      publishBaseline = JSON.parse(editSnapshot());
       // Server-Dateiliste aktualisieren (neue Uploads sind jetzt live).
       loadServerFiles().then(() => {
         if (!LANG_SECTIONS.includes(state.nav.section)) return;
@@ -343,6 +350,11 @@ let historyBase = null; // aktueller „Kopf" des Verlaufs (= sichtbarer Stand)
 const undoStack = []; // frühere Stände (Snapshots)
 const redoStack = []; // rückgängig gemachte Stände (Snapshots)
 const HISTORY_MAX = 100;
+
+// --- Veröffentlichen-Vergleich ---
+// Referenz-Stand für die Diff-Vorschau: der zuletzt geladene bzw. zuletzt
+// veröffentlichte Inhalt (overrides + ticker + media als geparster Snapshot).
+let publishBaseline = null;
 
 function editSnapshot() {
   return JSON.stringify({
@@ -435,6 +447,8 @@ export function initSaveTracking() {
   undoStack.length = 0;
   redoStack.length = 0;
   refreshUndoUi();
+  // Diff-Basis = frisch geladener Stand.
+  publishBaseline = JSON.parse(lastSavedSnapshot);
   clearInterval(saveTimer);
   saveTimer = setInterval(tick, 1000);
 }
@@ -586,3 +600,136 @@ const undoBtn = $('#undoBtn');
 const redoBtn = $('#redoBtn');
 if (undoBtn) undoBtn.addEventListener('click', undo);
 if (redoBtn) redoBtn.addEventListener('click', redo);
+
+// ============ Diff-Vorschau vor dem Veröffentlichen ============
+// Objekt rekursiv zu Punkt-Pfaden „abflachen" (Primitive/leere Container).
+function flatten(obj, prefix, out) {
+  out = out || {};
+  if (obj === null || typeof obj !== 'object') {
+    out[prefix] = obj;
+    return out;
+  }
+  if (Array.isArray(obj)) {
+    if (obj.length === 0) out[prefix] = '[]';
+    else obj.forEach((v, i) => flatten(v, `${prefix}[${i}]`, out));
+    return out;
+  }
+  const keys = Object.keys(obj);
+  if (keys.length === 0) out[prefix] = '{}';
+  else for (const k of keys) flatten(obj[k], prefix ? `${prefix}.${k}` : k, out);
+  return out;
+}
+// Zwei Objekte vergleichen -> Liste geänderter Pfade { key, from, to }.
+function diffFlat(a, b) {
+  const fa = flatten(a, '');
+  const fb = flatten(b, '');
+  const keys = new Set([...Object.keys(fa), ...Object.keys(fb)]);
+  const out = [];
+  for (const k of keys) {
+    if (fa[k] !== fb[k]) out.push({ key: k, from: fa[k], to: fb[k] });
+  }
+  return out.sort((x, y) => x.key.localeCompare(y.key));
+}
+function shortVal(v) {
+  if (v === undefined) return '—';
+  let s = typeof v === 'string' ? v : JSON.stringify(v);
+  if (typeof v === 'string' && v.startsWith('staged:')) return '(neues Medium)';
+  s = s.replace(/\s+/g, ' ').trim();
+  return s.length > 42 ? s.slice(0, 42) + '…' : s;
+}
+function fmtChange(c) {
+  if (c.from === undefined) return `＋ ${c.key} = „${shortVal(c.to)}"`;
+  if (c.to === undefined) return `－ ${c.key} entfernt`;
+  return `${c.key}: „${shortVal(c.from)}" → „${shortVal(c.to)}"`;
+}
+// Änderungen gegenüber der Diff-Basis, gruppiert nach Bereich.
+function computePublishDiff() {
+  const groups = [];
+  if (!publishBaseline) return { total: 0, groups };
+  const cur = JSON.parse(editSnapshot());
+  const add = (title, changes) => {
+    if (changes.length) groups.push({ title, items: changes.map(fmtChange) });
+  };
+  for (const lang of MEDIA_LANGS) {
+    add(
+      `Texte ${lang.toUpperCase()}`,
+      diffFlat(publishBaseline.overrides?.[lang] || {}, cur.overrides?.[lang] || {}),
+    );
+  }
+  for (const lang of MEDIA_LANGS) {
+    add(
+      `Laufband ${lang.toUpperCase()}`,
+      diffFlat(publishBaseline.ticker?.[lang] || {}, cur.ticker?.[lang] || {}),
+    );
+  }
+  add(
+    'Globale Einstellungen',
+    diffFlat({ site: publishBaseline.media?.site }, { site: cur.media?.site }),
+  );
+  for (const lang of MEDIA_LANGS) {
+    add(
+      `Medien & Design ${lang.toUpperCase()}`,
+      diffFlat(publishBaseline.media?.[lang] || {}, cur.media?.[lang] || {}),
+    );
+  }
+  const total = groups.reduce((n, g) => n + g.items.length, 0);
+  return { total, groups };
+}
+
+// Bestätigungs-Dialog mit der Änderungsübersicht. Bei „Veröffentlichen" wird
+// onConfirm() aufgerufen. Wiederverwendet die Picker-Overlay-Optik.
+const MAX_ITEMS_PER_GROUP = 20;
+function showPublishConfirm(diff, onConfirm) {
+  document.getElementById('publishConfirm')?.remove();
+  const body = diff.total
+    ? diff.groups
+        .map((g) => {
+          const shown = g.items.slice(0, MAX_ITEMS_PER_GROUP);
+          const extra = g.items.length - shown.length;
+          const li = shown.map((t) => `<li>${esc(t)}</li>`).join('');
+          const more = extra > 0 ? `<li class="hint">… und ${extra} weitere</li>` : '';
+          return `<h4 style="margin:.7rem 0 .2rem">${esc(g.title)} <span class="lang-badge">${g.items.length}</span></h4>
+            <ul style="margin:.2rem 0;padding-left:1.2rem;line-height:1.5">${li}${more}</ul>`;
+        })
+        .join('')
+    : `<p class="hint" style="margin:.6rem 0">Keine Änderungen gegenüber dem zuletzt geladenen/veröffentlichten Stand gefunden. Ein Deploy ist derzeit nicht nötig.</p>`;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'picker-overlay';
+  overlay.id = 'publishConfirm';
+  overlay.innerHTML = `
+    <div class="picker-modal" role="dialog" aria-modal="true">
+      <h3>🚀 Veröffentlichen — Was ändert sich?</h3>
+      <p class="hint" style="margin-bottom:.25rem">${
+        diff.total
+          ? `${diff.total} Änderung(en) werden nach <code>main</code> committet und deployt.`
+          : 'Übersicht der Änderungen seit dem letzten Stand.'
+      }</p>
+      <div style="max-height:52vh;overflow:auto;border-top:1px solid var(--border);margin-top:.4rem;padding-top:.2rem">${body}</div>
+      <div class="row" style="margin-top:1rem;justify-content:flex-end;gap:.5rem">
+        <button type="button" data-pubcancel style="flex:0 0 auto">Abbrechen</button>
+        <button type="button" class="success" data-pubgo style="flex:0 0 auto">${
+          diff.total ? '🚀 Veröffentlichen' : 'Trotzdem veröffentlichen'
+        }</button>
+      </div>
+    </div>`;
+
+  const onKey = (e) => {
+    if (e.key === 'Escape') close();
+  };
+  function close() {
+    overlay.remove();
+    document.removeEventListener('keydown', onKey);
+  }
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) close();
+  });
+  overlay.querySelector('[data-pubcancel]').addEventListener('click', close);
+  overlay.querySelector('[data-pubgo]').addEventListener('click', () => {
+    close();
+    onConfirm();
+  });
+  document.addEventListener('keydown', onKey);
+  document.body.appendChild(overlay);
+  overlay.querySelector('[data-pubgo]').focus();
+}
