@@ -135,11 +135,19 @@ const heroCellFontCss = [
 ]
   .map(heroFontFaceCss)
   .join('')
-// Inline font-family für den Text einer Kachel (oder '').
-function cellTextFontStyle(font: string): string {
-  return font && VALID_FONT_FILE.test(font)
-    ? `font-family:"${heroFontId(font)}", var(--site-font)`
-    : ''
+// Inline-Style des Text-Overlays: Farbe, vertikale Position, Größe, Schrift.
+const TEXT_POS_ALIGN: Record<string, string> = {
+  top: 'flex-start',
+  center: 'center',
+  bottom: 'flex-end',
+}
+function textOverlayStyle(color: string, size: number, pos: string, font: string): string {
+  const p: string[] = []
+  if (color) p.push(`color:${color}`)
+  p.push(`align-items:${TEXT_POS_ALIGN[pos] || 'center'}`)
+  if (typeof size === 'number' && size > 0) p.push(`font-size:${size}px`)
+  if (font && VALID_FONT_FILE.test(font)) p.push(`font-family:"${heroFontId(font)}", var(--site-font)`)
+  return p.join(';')
 }
 
 // Build focused i18n map for vanilla JS (only keys used on this page)
@@ -301,7 +309,10 @@ const pageI18n = {
                       />
                     )}
                     {cs && cs.text && (
-                      <div class="hero-cell-text" style={cellTextFontStyle(cs.font)}>
+                      <div
+                        class="hero-cell-text"
+                        style={textOverlayStyle(cs.textColor, cs.textSize, cs.textPos, cs.font)}
+                      >
                         {cs.text}
                       </div>
                     )}
@@ -338,7 +349,7 @@ const pageI18n = {
                     mediaClass="hero-banner"
                   />
                   {media.heroBannerText && (
-                    <div class="hero-banner-text" style={cellTextFontStyle(media.heroBannerFont)}>
+                    <div class="hero-banner-text" style={textOverlayStyle(media.heroBannerTextColor, media.heroBannerTextSize, media.heroBannerTextPos, media.heroBannerFont)}>
                       {media.heroBannerText}
                     </div>
                   )}
@@ -354,7 +365,7 @@ const pageI18n = {
                   mediaClass="hero-banner"
                 />
                 {media.heroBannerText && (
-                  <div class="hero-banner-text" style={cellTextFontStyle(media.heroBannerFont)}>
+                  <div class="hero-banner-text" style={textOverlayStyle(media.heroBannerTextColor, media.heroBannerTextSize, media.heroBannerTextPos, media.heroBannerFont)}>
                     {media.heroBannerText}
                   </div>
                 )}
@@ -364,7 +375,7 @@ const pageI18n = {
             <div class="hero-banner-wrapper hero-banner-textonly">
               <div
                 class="hero-banner-text hero-banner-text--static"
-                style={cellTextFontStyle(media.heroBannerFont)}
+                style={textOverlayStyle(media.heroBannerTextColor, media.heroBannerTextSize, media.heroBannerTextPos, media.heroBannerFont)}
               >
                 {media.heroBannerText}
               </div>

@@ -102,9 +102,12 @@ export interface MediaConfig {
   heroBanner: string;
   // Verlinkung des Banners (interner Pfad oder http(s)). Leer = nicht klickbar.
   heroBannerLink: string;
-  // Optionaler Text über dem Banner + dessen Schriftart (Dateiname im /fonts-Ordner).
+  // Optionaler Text über dem Banner + Schriftart, Farbe, Größe, Position.
   heroBannerText: string;
   heroBannerFont: string;
+  heroBannerTextColor: string;
+  heroBannerTextSize: number;
+  heroBannerTextPos: 'top' | 'center' | 'bottom';
   // Option 2: bis zu sechs Bilder fürs Raster + gewähltes Seitenverhältnis.
   heroGrid: string[];
   // Verlinkung der Rasterbilder (interner Pfad oder http(s)). Leer = nicht klickbar.
@@ -126,6 +129,9 @@ export interface HeroCellStyle {
   bgOpacity: number; // 0–100 (%) – Transparenz des Hintergrunds
   text: string; // Standardtext über dem Bild / im leeren Kasten (leer = keiner)
   font: string; // Schriftart des Textes (Dateiname im /fonts-Ordner; leer = Standard)
+  textColor: string; // Hex – Textfarbe
+  textSize: number; // px – Schriftgröße (0 = automatisch)
+  textPos: 'top' | 'center' | 'bottom'; // vertikale Position des Textes
 }
 
 /** Ein Farb-Satz des Hero-Bereichs (für Hell- bzw. Dunkelmodus getrennt). */
@@ -186,6 +192,9 @@ const MEDIA_DEFAULTS: MediaConfig = {
   heroBannerLink: '',
   heroBannerText: '',
   heroBannerFont: '',
+  heroBannerTextColor: '#ffffff',
+  heroBannerTextSize: 0,
+  heroBannerTextPos: 'center',
   heroGrid: ['', '', '', '', '', ''],
   heroGridLinks: ['', '', '', '', '', ''],
   heroGridStyles: Array.from({ length: 6 }, () => ({
@@ -195,6 +204,9 @@ const MEDIA_DEFAULTS: MediaConfig = {
     bgOpacity: 8,
     text: '',
     font: '',
+    textColor: '#ffffff',
+    textSize: 0,
+    textPos: 'center' as const,
   })),
   heroGridRatio: '1:1',
   heroGridFit: 'cover',

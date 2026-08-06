@@ -258,7 +258,14 @@ function defaultCellStyle() {
     bgOpacity: 8,
     text: '',
     font: '',
+    textColor: '#ffffff',
+    textSize: 0,
+    textPos: 'center',
   };
+}
+const TEXT_POS = ['top', 'center', 'bottom'];
+function normTextPos(v) {
+  return TEXT_POS.includes(v) ? v : 'center';
 }
 function defaultCellStyles() {
   return Array.from({ length: HERO_GRID_MAX }, () => defaultCellStyle());
@@ -273,6 +280,9 @@ function validateCellStyle(s) {
     bgOpacity: clampNum(s.bgOpacity, 0, 100, d.bgOpacity),
     text: typeof s.text === 'string' ? s.text.slice(0, 120) : '',
     font: normFontFile(s.font),
+    textColor: normHexColor(s.textColor, d.textColor),
+    textSize: clampNum(s.textSize, 0, 96, d.textSize),
+    textPos: normTextPos(s.textPos),
   };
 }
 
@@ -366,9 +376,12 @@ function validateMediaLocale(m, langLabel) {
       throw new Error(`media.${langLabel}.heroBannerLink muss / oder http(s) sein`);
     out.heroBannerLink = m.heroBannerLink;
   }
-  // Text über dem Banner (optional) + dessen Schriftart.
+  // Text über dem Banner (optional) + Schriftart, Farbe, Größe, Position.
   out.heroBannerText = typeof m.heroBannerText === 'string' ? m.heroBannerText.slice(0, 120) : '';
   out.heroBannerFont = normFontFile(m.heroBannerFont);
+  out.heroBannerTextColor = normHexColor(m.heroBannerTextColor, '#ffffff');
+  out.heroBannerTextSize = clampNum(m.heroBannerTextSize, 0, 96, 0);
+  out.heroBannerTextPos = normTextPos(m.heroBannerTextPos);
   // Option 2 – Hero-Raster: bis zu sechs Felder, je '' oder gültige URL.
   out.heroGrid = ['', '', '', '', '', ''];
   if (Array.isArray(m.heroGrid)) {
