@@ -16,6 +16,7 @@ import {
   getPath,
   setPath,
   delPath,
+  MEDIA_LANGS,
 } from './model.js';
 import { ensureFontFace, fontOptionsHtml } from './fonts.js';
 
@@ -547,9 +548,17 @@ export function renderHeroDesign() {
   // Schrift für die ganze Seite; leere Kachel = Standard (System).
   pane.querySelectorAll('[data-hdglobalfont]').forEach((el) => {
     el.addEventListener('click', () => {
-      setGlobalFont(el.dataset.hdglobalfont || '');
-      renderHeroDesign();
       const name = el.dataset.hdglobalfont || '';
+      setGlobalFont(name);
+      // Ausgewählte Schrift auch in die Hero-Schrift-Dropdowns übernehmen (DE+EN),
+      // damit die Auswahl konsistent sichtbar ist und keine Verwirrung entsteht.
+      // '' (Standard) setzt beide Dropdowns wieder auf „Standard (System)".
+      for (const l of MEDIA_LANGS) {
+        const hd = heroDesignOf(l);
+        hd.titleFont = name;
+        hd.buttonFont = name;
+      }
+      renderHeroDesign();
       toast(name ? 'Globale Schrift aktiviert' : 'Globale Schrift auf Standard zurückgesetzt');
     });
   });
