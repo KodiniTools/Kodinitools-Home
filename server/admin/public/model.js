@@ -211,8 +211,9 @@ export function defaultMediaLocale() {
     heroLayout: 'grid3',
     heroBanner: '',
     heroBannerLink: '',
-    heroGrid: ['', '', '', ''],
-    heroGridLinks: ['', '', '', ''],
+    heroGrid: ['', '', '', '', '', ''],
+    heroGridLinks: ['', '', '', '', '', ''],
+    heroGridStyles: defaultCellStyles(),
     heroGridRatio: '1:1',
     heroGridFit: 'cover',
     heroDesign: defaultHeroDesign(),
@@ -226,14 +227,53 @@ export const HERO_LAYOUTS = {
   grid2: { label: '2 nebeneinander', cells: 2 },
   grid3: { label: '3 nebeneinander', cells: 3 },
   grid4: { label: '4 im 2×2-Raster', cells: 4 },
+  grid6: { label: '6 im 3×2-Raster', cells: 6 },
+  big2: { label: '2 große nebeneinander', cells: 2 },
+  vrow: { label: 'Vertikale Reihe', cells: 3 },
   mosaic: { label: 'Mosaik (1 groß + 2 klein)', cells: 3 },
 };
-export const HERO_GRID_MAX = 4; // größtmögliche Kachelzahl über alle Layouts
+export const HERO_GRID_MAX = 6; // größtmögliche Kachelzahl über alle Layouts
 export function heroLayoutCells(layout) {
   return (HERO_LAYOUTS[layout] || HERO_LAYOUTS.grid3).cells;
 }
 function normHeroLayout(v) {
   return Object.prototype.hasOwnProperty.call(HERO_LAYOUTS, v) ? v : 'grid3';
+}
+
+// Per-Kachel-Design (Rahmen + Hintergrund). Standard entspricht dem bisherigen
+// Aussehen: kein Rahmen, leicht bläulicher Hintergrund (8 %).
+export function defaultCellStyle() {
+  return { borderColor: '#014f99', borderWidth: 0, bgColor: '#014f99', bgOpacity: 8 };
+}
+export function defaultCellStyles() {
+  return Array.from({ length: HERO_GRID_MAX }, () => defaultCellStyle());
+}
+function normCellStyle(s) {
+  const d = defaultCellStyle();
+  if (!s || typeof s !== 'object') return d;
+  const hex = (v, def) => (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? v : def);
+  const num = (v, min, max, def) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : def;
+  };
+  return {
+    borderColor: hex(s.borderColor, d.borderColor),
+    borderWidth: num(s.borderWidth, 0, 20, d.borderWidth),
+    bgColor: hex(s.bgColor, d.bgColor),
+    bgOpacity: num(s.bgOpacity, 0, 100, d.bgOpacity),
+  };
+}
+export function normCellStyles(arr) {
+  return Array.from({ length: HERO_GRID_MAX }, (_, i) =>
+    normCellStyle(Array.isArray(arr) ? arr[i] : null),
+  );
+}
+// Sichert, dass heroGridStyles existiert und gibt das Style-Objekt der Kachel i.
+export function getCellStyle(lang, i) {
+  const m = state.media[lang];
+  if (!Array.isArray(m.heroGridStyles)) m.heroGridStyles = defaultCellStyles();
+  if (!m.heroGridStyles[i]) m.heroGridStyles[i] = defaultCellStyle();
+  return m.heroGridStyles[i];
 }
 // Globale (sprachübergreifende) Seiten-Einstellungen. globalFont = Basis-
 // Schriftart der ganzen Seite (Dateiname im /fonts-Ordner; leer = Standard).
@@ -279,10 +319,11 @@ export function normalizeMedia(m) {
       heroLayout: normHeroLayout(o?.heroLayout),
       heroBanner: o && typeof o.heroBanner === 'string' ? o.heroBanner : '',
       heroBannerLink: o && typeof o.heroBannerLink === 'string' ? o.heroBannerLink : '',
-      heroGrid: [0, 1, 2, 3].map((i) => (typeof grid[i] === 'string' ? grid[i] : '')),
-      heroGridLinks: [0, 1, 2, 3].map((i) =>
+      heroGrid: [0, 1, 2, 3, 4, 5].map((i) => (typeof grid[i] === 'string' ? grid[i] : '')),
+      heroGridLinks: [0, 1, 2, 3, 4, 5].map((i) =>
         typeof gridLinks[i] === 'string' ? gridLinks[i] : '',
       ),
+      heroGridStyles: normCellStyles(o?.heroGridStyles),
       heroGridRatio: ['1:1', '16:9', '2:3'].includes(o?.heroGridRatio) ? o.heroGridRatio : '1:1',
       heroGridFit: o?.heroGridFit === 'contain' ? 'contain' : 'cover',
       heroDesign: normHeroDesign(o?.heroDesign),
@@ -297,7 +338,7 @@ export function normalizeMedia(m) {
 // Sprachen + Slots. 'heroBanner' liegt auf oberster Ebene der Sprache, die
 // anderen unter sectionVideos.
 export const MEDIA_LANGS = ['de', 'en'];
-// Slot-Schlüssel: Sektions-Videos, Einzel-Banner und die vier Rasterbilder.
+// Slot-Schlüssel: Sektions-Videos, Einzel-Banner und die sechs Rasterbilder.
 export const MEDIA_KEYS = [
   'audio',
   'image',
@@ -307,10 +348,12 @@ export const MEDIA_KEYS = [
   'grid1',
   'grid2',
   'grid3',
+  'grid4',
+  'grid5',
 ];
 export function getMediaVal(lang, key) {
   if (key === 'heroBanner') return state.media[lang].heroBanner || '';
-  const g = /^grid([0-3])$/.exec(key);
+  const g = /^grid([0-5])$/.exec(key);
   if (g) return (state.media[lang].heroGrid || [])[+g[1]] || '';
   return state.media[lang].sectionVideos[key] || '';
 }
@@ -319,16 +362,17 @@ export function setMediaVal(lang, key, val) {
     state.media[lang].heroBanner = val;
     return;
   }
-  const g = /^grid([0-3])$/.exec(key);
+  const g = /^grid([0-5])$/.exec(key);
   if (g) {
-    if (!Array.isArray(state.media[lang].heroGrid)) state.media[lang].heroGrid = ['', '', '', ''];
+    if (!Array.isArray(state.media[lang].heroGrid))
+      state.media[lang].heroGrid = ['', '', '', '', '', ''];
     state.media[lang].heroGrid[+g[1]] = val;
     return;
   }
   state.media[lang].sectionVideos[key] = val;
 }
 export function defMediaVal(key) {
-  if (key === 'heroBanner' || /^grid[0-3]$/.test(key)) return '';
+  if (key === 'heroBanner' || /^grid[0-5]$/.test(key)) return '';
   return defaultMediaLocale().sectionVideos[key];
 }
 // Ersetzt eine Medien-URL in ALLEN Slots (beide Sprachen) — z.B. nachdem eine
@@ -381,6 +425,7 @@ export const SUBTABS = [
   { key: 'ticker', label: 'Laufband' },
   { key: 'texts', label: 'Texte' },
   { key: 'media', label: 'Medien' },
+  { key: 'layout', label: 'Layout' },
   { key: 'design', label: 'Hero-Design' },
   { key: 'files', label: 'Dateien' },
   { key: 'advanced', label: 'Erweitert' },

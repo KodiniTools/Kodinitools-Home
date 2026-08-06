@@ -97,20 +97,30 @@ export interface MediaConfig {
   // Hero-Bereich: 'banner' = ein einzelnes Bild/Video, 'grid' = Kachel-Raster.
   heroMode: 'banner' | 'grid';
   // Anordnung der Kacheln im Raster-Modus.
-  heroLayout: 'grid2' | 'grid3' | 'grid4' | 'mosaic';
+  heroLayout: 'grid2' | 'grid3' | 'grid4' | 'grid6' | 'big2' | 'vrow' | 'mosaic';
   // Option 1: austauschbares Hero-Banner (Bild oder Video). Leer = kein Banner.
   heroBanner: string;
   // Verlinkung des Banners (interner Pfad oder http(s)). Leer = nicht klickbar.
   heroBannerLink: string;
-  // Option 2: drei Bilder für das Raster + gewähltes Seitenverhältnis.
+  // Option 2: bis zu sechs Bilder fürs Raster + gewähltes Seitenverhältnis.
   heroGrid: string[];
-  // Verlinkung der drei Rasterbilder (interner Pfad oder http(s)). Leer = nicht klickbar.
+  // Verlinkung der Rasterbilder (interner Pfad oder http(s)). Leer = nicht klickbar.
   heroGridLinks: string[];
+  // Per-Kachel-Design: Rahmen (Farbe/Dicke) + Hintergrund (Farbe/Transparenz).
+  heroGridStyles: HeroCellStyle[];
   heroGridRatio: '1:1' | '16:9' | '2:3';
   // 'cover' = auf Format zuschneiden, 'contain' = ganzes Bild zeigen (mit Rand).
   heroGridFit: 'cover' | 'contain';
   // Admin-einstellbares Design des Hero-Bereichs (Rahmen/Hintergrund/Buttons).
   heroDesign: HeroDesign;
+}
+
+/** Rahmen + Hintergrund einer einzelnen Raster-Kachel. */
+export interface HeroCellStyle {
+  borderColor: string; // Hex – Rahmenfarbe der Kachel
+  borderWidth: number; // px – Rahmendicke (0 = kein Rahmen)
+  bgColor: string; // Hex – Hintergrundfarbe
+  bgOpacity: number; // 0–100 (%) – Transparenz des Hintergrunds
 }
 
 /** Ein Farb-Satz des Hero-Bereichs (für Hell- bzw. Dunkelmodus getrennt). */
@@ -169,8 +179,14 @@ const MEDIA_DEFAULTS: MediaConfig = {
   heroLayout: 'grid3',
   heroBanner: '',
   heroBannerLink: '',
-  heroGrid: ['', '', '', ''],
-  heroGridLinks: ['', '', '', ''],
+  heroGrid: ['', '', '', '', '', ''],
+  heroGridLinks: ['', '', '', '', '', ''],
+  heroGridStyles: Array.from({ length: 6 }, () => ({
+    borderColor: '#014f99',
+    borderWidth: 0,
+    bgColor: '#014f99',
+    bgOpacity: 8,
+  })),
   heroGridRatio: '1:1',
   heroGridFit: 'cover',
   heroDesign: {
@@ -245,6 +261,9 @@ export const HERO_LAYOUT_CELLS: Record<MediaConfig['heroLayout'], number> = {
   grid2: 2,
   grid3: 3,
   grid4: 4,
+  grid6: 6,
+  big2: 2,
+  vrow: 3,
   mosaic: 3,
 };
 

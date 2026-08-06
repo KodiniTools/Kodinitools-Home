@@ -8,7 +8,6 @@ import {
   getMediaVal,
   setMediaVal,
   defMediaVal,
-  GRID_DIMS,
   MEDIA_LANGS,
   MEDIA_KEYS,
   HERO_LAYOUTS,
@@ -26,6 +25,8 @@ const SLOT_LABELS = {
   grid1: 'Kachel 2',
   grid2: 'Kachel 3',
   grid3: 'Kachel 4',
+  grid4: 'Kachel 5',
+  grid5: 'Kachel 6',
 };
 // Alle Plätze (Sprache · Slot), die auf eine der übergebenen Referenzen zeigen.
 function usageOf(...refs) {
@@ -176,23 +177,15 @@ function mediaSlotPanel(lang, key, { title, hint, placeholder, resetLabel, withL
       </div>`;
 }
 
-// Hero-Bereich einer Sprache: Umschalter Banner <-> 3er-Raster + passende Slots.
+// Hero-Bereich einer Sprache: die Medien-Slots passend zum im Layout-Tab
+// gewählten Modus/Layout. Anordnung, Form und Kachel-Design liegen im Layout-Tab.
 function heroPanel(lang) {
   const mode = state.media[lang].heroMode === 'grid' ? 'grid' : 'banner';
-  const toggle = `
+  const info = `
       <div class="panel">
         <h2>Hero-Bereich (oben auf der Seite)</h2>
-        <p class="hint">Wähle, was ganz oben angezeigt wird.</p>
-        <div class="row" style="gap:1.25rem;margin-top:.4rem">
-          <label style="display:flex;align-items:center;gap:.4rem;color:var(--text)">
-            <input type="radio" name="heromode-${lang}" data-heromode="banner" data-lang="${lang}" ${mode === 'banner' ? 'checked' : ''} style="width:auto" />
-            Option 1: Einzel-Banner
-          </label>
-          <label style="display:flex;align-items:center;gap:.4rem;color:var(--text)">
-            <input type="radio" name="heromode-${lang}" data-heromode="grid" data-lang="${lang}" ${mode === 'grid' ? 'checked' : ''} style="width:auto" />
-            Option 2: Bild-Raster (mehrere Kacheln)
-          </label>
-        </div>
+        <p class="hint">Anordnung, Form &amp; Kachel-Design stellst du im Tab <strong>Layout</strong> ein.
+          Hier weist du den Plätzen die Bilder/Videos zu.</p>
       </div>`;
   if (mode === 'grid') {
     const layout = Object.prototype.hasOwnProperty.call(HERO_LAYOUTS, state.media[lang].heroLayout)
@@ -200,38 +193,6 @@ function heroPanel(lang) {
       : 'grid3';
     const cellsN = heroLayoutCells(layout);
     const isMosaic = layout === 'mosaic';
-    const ratio = ['1:1', '16:9', '2:3'].includes(state.media[lang].heroGridRatio)
-      ? state.media[lang].heroGridRatio
-      : '1:1';
-    const fitContain = state.media[lang].heroGridFit === 'contain';
-    const layoutOpts = Object.entries(HERO_LAYOUTS)
-      .map(([k, v]) => `<option value="${k}" ${k === layout ? 'selected' : ''}>${v.label}</option>`)
-      .join('');
-    const layoutSel = `
-      <div class="panel">
-        <label>Layout (Anordnung der Kacheln)</label>
-        <select data-herolayout data-lang="${lang}" style="width:auto">${layoutOpts}</select>
-        <p class="hint" style="margin-top:.5rem">Bestimmt Anzahl &amp; Anordnung der Bild-Kacheln oben.
-          „Mosaik" = eine große Kachel links, zwei kleine rechts.</p>
-      </div>`;
-    // Form (Seitenverhältnis) gilt nur für die Reihen-/Raster-Layouts, nicht fürs Mosaik.
-    const ratioSel = isMosaic
-      ? ''
-      : `
-      <div class="panel">
-        <label>Form der Kacheln</label>
-        <select data-gridratio data-lang="${lang}" style="width:auto">
-          <option value="1:1" ${ratio === '1:1' ? 'selected' : ''}>Quadratisch (1:1)</option>
-          <option value="16:9" ${ratio === '16:9' ? 'selected' : ''}>Breit / Rechteck (16:9)</option>
-          <option value="2:3" ${ratio === '2:3' ? 'selected' : ''}>Hochkant (2:3)</option>
-        </select>
-        <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin-top:.7rem">
-          <input type="checkbox" data-gridfit data-lang="${lang}" ${fitContain ? 'checked' : ''} style="width:auto" />
-          Ganzes Bild zeigen (nicht beschneiden)
-        </label>
-        <p class="hint" data-griddims style="margin-top:.6rem">📐 Empfohlene Bildgröße: <strong>${GRID_DIMS[ratio]}</strong> — für alle Kacheln gleich.</p>
-        <p class="hint">Standard: Bild wird formatfüllend zugeschnitten („cover"). Mit Häkchen: das <strong>ganze Bild</strong> wird gezeigt („contain"), ggf. mit Rand.</p>
-      </div>`;
     const cells = Array.from({ length: cellsN }, (_, i) =>
       mediaSlotPanel(lang, 'grid' + i, {
         title: isMosaic && i === 0 ? 'Große Kachel (links)' : `Kachel ${i + 1}`,
@@ -241,10 +202,10 @@ function heroPanel(lang) {
         withLink: true,
       }),
     ).join('');
-    return toggle + layoutSel + ratioSel + cells;
+    return info + cells;
   }
   return (
-    toggle +
+    info +
     mediaSlotPanel(lang, 'heroBanner', {
       title: 'Banner (ein Bild oder Video)',
       hint: 'Erscheint ganz oben im Hero-Bereich. Bild oder Video. Leer lassen = kein Banner. 📐 Empfohlen: breites Format, ca. 1800 × 480 px (Anzeige bis 900 × 240 px).',
@@ -337,34 +298,7 @@ export function renderMedia() {
   const lang = state.nav.section;
   const pane = $('#content');
   pane.innerHTML = renderLangMedia(lang);
-
-  pane.querySelectorAll('[data-heromode]').forEach((el) =>
-    el.addEventListener('change', () => {
-      if (el.checked) {
-        state.media[el.dataset.lang].heroMode = el.dataset.heromode;
-        renderMedia();
-      }
-    }),
-  );
-  pane.querySelectorAll('[data-herolayout]').forEach((el) =>
-    el.addEventListener('change', () => {
-      state.media[el.dataset.lang].heroLayout = el.value;
-      renderMedia(); // Slot-Anzahl/Form-Optionen hängen vom Layout ab
-    }),
-  );
-  pane.querySelectorAll('[data-gridratio]').forEach((el) =>
-    el.addEventListener('change', () => {
-      state.media[el.dataset.lang].heroGridRatio = el.value;
-      const dims = pane.querySelector('[data-griddims]');
-      if (dims)
-        dims.innerHTML = `📐 Empfohlene Bildgröße: <strong>${GRID_DIMS[el.value] || ''}</strong> — für alle Kacheln gleich.`;
-    }),
-  );
-  pane.querySelectorAll('[data-gridfit]').forEach((el) =>
-    el.addEventListener('change', () => {
-      state.media[el.dataset.lang].heroGridFit = el.checked ? 'contain' : 'cover';
-    }),
-  );
+  // Anordnung/Form (heromode/herolayout/gridratio/gridfit) liegen jetzt im Layout-Tab.
   pane.querySelectorAll('[data-slot]').forEach((el) =>
     el.addEventListener('input', () => {
       const [l, key] = el.dataset.slot.split(':');

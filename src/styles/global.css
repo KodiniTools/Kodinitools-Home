@@ -972,8 +972,19 @@ body {
   grid-template-columns: repeat(2, 1fr);
   max-width: 520px;
 }
-.hero-grid.layout-grid3 {
+.hero-grid.layout-grid3,
+.hero-grid.layout-grid6 {
   grid-template-columns: repeat(3, 1fr);
+}
+/* 2 große Kacheln nebeneinander (breiter als grid2) */
+.hero-grid.layout-big2 {
+  grid-template-columns: repeat(2, 1fr);
+  max-width: 900px;
+}
+/* Vertikale Reihe: Kacheln untereinander */
+.hero-grid.layout-vrow {
+  grid-template-columns: 1fr;
+  max-width: 420px;
 }
 /* Mosaik: eine große Kachel links, zwei kleine rechts gestapelt */
 .hero-grid.layout-mosaic {
@@ -992,7 +1003,8 @@ body {
   aspect-ratio: var(--hero-cell-ratio, 1 / 1);
   border-radius: 14px;
   overflow: hidden;
-  background: rgba(1, 79, 153, 0.08);
+  background: var(--cell-bg, rgba(1, 79, 153, 0.08));
+  border: var(--cell-bw, 0) solid var(--cell-bc, transparent);
 }
 .hero-grid-media {
   width: 100%;
