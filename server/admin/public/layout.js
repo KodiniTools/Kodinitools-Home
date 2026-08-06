@@ -72,8 +72,8 @@ function previewHtml(lang, layout, cellsN, ratio) {
     return `<div data-prevcell="${i}" style="position:relative;${box}${span}border-radius:8px;overflow:hidden;background:${bg};border:${s.borderWidth}px solid ${s.borderColor};display:flex;align-items:center;justify-content:center">${base}${textOverlay}</div>`;
   }).join('');
   const rows = layout === 'mosaic' ? 'grid-template-rows:1fr 1fr;aspect-ratio:2 / 1;' : '';
-  const maxW = layout === 'big2' ? '380px' : layout === 'vrow' ? '170px' : '340px';
-  return `<div style="display:grid;grid-template-columns:${gridCols(layout)};${rows}gap:.45rem;max-width:${maxW};margin:.4rem 0 .2rem">${cells}</div>`;
+  const maxW = layout === 'big2' ? '560px' : layout === 'vrow' ? '260px' : '520px';
+  return `<div style="display:grid;grid-template-columns:${gridCols(layout)};${rows}gap:.5rem;max-width:${maxW};margin:.3rem auto">${cells}</div>`;
 }
 
 // Editor für Rahmen + Hintergrund einer Kachel.
@@ -149,12 +149,17 @@ function layoutPanel(lang) {
   const layoutOpts = Object.entries(HERO_LAYOUTS)
     .map(([k, v]) => `<option value="${k}" ${k === layout ? 'selected' : ''}>${v.label}</option>`)
     .join('');
+  // Große Live-Vorschau – bleibt beim Scrollen oben sichtbar (sticky).
+  const previewPanel = `
+    <div style="position:sticky;top:.5rem;z-index:5;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:.7rem .9rem;margin:0 0 .9rem;box-shadow:0 8px 22px rgba(0,0,0,.4)">
+      <p class="hint" style="margin:.1rem 0 .4rem">👁 Live-Vorschau (${cellsN} Kachel${cellsN === 1 ? '' : 'n'}) — bleibt beim Scrollen sichtbar:</p>
+      <div data-layprev>${previewHtml(lang, layout, cellsN, ratio)}</div>
+    </div>`;
   const layoutSel = `
     <div class="panel">
       <label>Anordnung der Kacheln</label>
       <select data-herolayout data-lang="${lang}" style="width:auto">${layoutOpts}</select>
-      <p class="hint" style="margin-top:.5rem">Vorschau (${cellsN} Kachel${cellsN === 1 ? '' : 'n'}):</p>
-      <div data-layprev>${previewHtml(lang, layout, cellsN, ratio)}</div>
+      <p class="hint" style="margin-top:.5rem">Wähle Anordnung &amp; Form; die Vorschau oben aktualisiert sich sofort.</p>
     </div>`;
   const ratioSel = isMosaic
     ? ''
@@ -180,7 +185,7 @@ function layoutPanel(lang) {
         Der Text erscheint über dem Bild bzw. im leeren Kasten. Rahmendicke 0 = kein Rahmen.</p>
       ${Array.from({ length: cellsN }, (_, i) => cellEditor(lang, i, isMosaic && i === 0)).join('')}
     </div>`;
-  return modePanel + layoutSel + ratioSel + editors;
+  return modePanel + previewPanel + layoutSel + ratioSel + editors;
 }
 
 // Aktualisiert eine Vorschau-Kachel live (ohne Neu-Rendern), damit Slider/Farb-
