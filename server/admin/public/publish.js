@@ -8,6 +8,7 @@ import {
   MEDIA_LANGS,
   MEDIA_KEYS,
   LANG_SECTIONS,
+  SUBTABS,
   getMediaVal,
   setMediaVal,
   defMediaVal,
@@ -101,6 +102,7 @@ async function saveDraft() {
   const r = await api('/content', { method: 'PUT', body: buildPayload() });
   if (r.ok) {
     state.loadedMedia = JSON.parse(JSON.stringify(r.data.saved.media));
+    markSaved(); // Snapshot aktualisieren -> „dirty" zurücksetzen
     return true;
   }
   toast('Speichern fehlgeschlagen: ' + (r.data?.error || r.status));
@@ -166,6 +168,7 @@ async function runPublish() {
     const put = await api('/content', { method: 'PUT', body: buildPayload(media) });
     if (!put.ok) throw new Error(put.data?.error || 'Speichern fehlgeschlagen');
     state.loadedMedia = JSON.parse(JSON.stringify(media));
+    markSaved();
     // Publish starten
     const msg = ($('#pubMsg')?.value || '').slice(0, 100);
     const pub = await api('/publish', { method: 'POST', body: { message: msg } });
@@ -207,6 +210,7 @@ $('#previewBtn').addEventListener('click', async () => {
     const put = await api('/content', { method: 'PUT', body: buildPayload(media) });
     if (!put.ok) throw new Error(put.data?.error || 'Speichern fehlgeschlagen');
     state.loadedMedia = JSON.parse(JSON.stringify(media));
+    markSaved();
     const pv = await api('/preview', { method: 'POST' });
     if (!pv.ok) throw new Error(pv.data?.error || 'Vorschau-Build fehlgeschlagen');
     pollPreview(win);
@@ -322,3 +326,161 @@ function statusLabel(s) {
   if (s.status === 'error') return 'Fehler';
   return 'bereit';
 }
+
+// ============ Änderungs-Schutz + Autosave + Tastaturkürzel ============
+// Ein einziger JSON-Snapshot des bearbeitbaren Zustands (overrides + ticker +
+// media) erkennt JEDE Änderung in ALLEN Bereichen – ohne die einzelnen
+// Handler anzufassen.
+let lastSavedSnapshot = null; // Stand beim letzten erfolgreichen Speichern
+let prevSnapshot = null; // Stand beim letzten Poll (Änderungs-Erkennung)
+let lastEditAt = 0; // Zeit der zuletzt erkannten Änderung (für Debounce)
+let dirtySince = 0; // Zeit, seit der ununterbrochen ungespeichert
+let autosaveInFlight = false;
+let saveTimer = null;
+
+function editSnapshot() {
+  return JSON.stringify({
+    overrides: state.overrides,
+    ticker: state.ticker,
+    media: state.media,
+  });
+}
+function isDirty() {
+  return lastSavedSnapshot !== null && editSnapshot() !== lastSavedSnapshot;
+}
+// Nach jedem erfolgreichen Speichern/Veröffentlichen: Snapshot als „sauber" setzen.
+function markSaved() {
+  lastSavedSnapshot = editSnapshot();
+  prevSnapshot = lastSavedSnapshot;
+  dirtySince = 0;
+  updateSaveIndicator('saved');
+}
+function pad2(n) {
+  return String(n).padStart(2, '0');
+}
+function updateSaveIndicator(kind) {
+  const btn = $('#saveBtn');
+  const st = $('#saveState');
+  if (btn) btn.classList.toggle('dirty', kind === 'dirty');
+  if (!st) return;
+  if (kind === 'saving') {
+    st.textContent = 'Speichere…';
+    st.className = 'save-state';
+  } else if (kind === 'saved') {
+    const d = new Date();
+    st.textContent = `Entwurf gespeichert ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+    st.className = 'save-state ok';
+  } else if (kind === 'dirty') {
+    st.textContent = '● Ungespeicherte Änderungen';
+    st.className = 'save-state warn';
+  } else {
+    st.textContent = '';
+    st.className = 'save-state';
+  }
+}
+
+async function autosave() {
+  autosaveInFlight = true;
+  updateSaveIndicator('saving');
+  const ok = await saveDraft(); // markSaved() passiert bei Erfolg intern
+  autosaveInFlight = false;
+  if (!ok) updateSaveIndicator('dirty'); // weiter dirty; nächster Versuch später
+}
+
+// Läuft im Sekundentakt: erkennt Änderungen, aktualisiert die Anzeige und löst
+// den debounced Autosave aus (3 s Ruhe nach der letzten Änderung, spätestens
+// aber 60 s nach der ersten ungespeicherten Änderung).
+function tick() {
+  if (lastSavedSnapshot === null) return;
+  const now = Date.now();
+  const snap = editSnapshot();
+  if (snap !== prevSnapshot) {
+    lastEditAt = now;
+    prevSnapshot = snap;
+  }
+  const dirty = snap !== lastSavedSnapshot;
+  if (!dirty) {
+    dirtySince = 0;
+    return;
+  }
+  if (!dirtySince) dirtySince = now;
+  // „busy" = ein anderer Speicher-/Publish-/Vorschau-Vorgang läuft bereits
+  // (Vorschau-Build erkennbar am deaktivierten Vorschau-Button).
+  const previewBtn = $('#previewBtn');
+  const busy = autosaveInFlight || state.publishing || (previewBtn && previewBtn.disabled);
+  if (!busy) updateSaveIndicator('dirty');
+  const idle = now - lastEditAt >= 3000;
+  const maxWait = now - dirtySince >= 60000;
+  if ((idle || maxWait) && !busy) autosave();
+}
+
+// Wird nach dem Laden (boot) aufgerufen: Basis-Snapshot setzen + Loop starten.
+export function initSaveTracking() {
+  lastSavedSnapshot = editSnapshot();
+  prevSnapshot = lastSavedSnapshot;
+  dirtySince = 0;
+  updateSaveIndicator('clean');
+  clearInterval(saveTimer);
+  saveTimer = setInterval(tick, 1000);
+}
+
+// Browser-Warnung beim Verlassen, solange ungespeicherte Änderungen bestehen.
+window.addEventListener('beforeunload', (e) => {
+  if (isDirty()) {
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
+
+// --- Tastaturkürzel ---
+function appVisible() {
+  const a = $('#appView');
+  return a && !a.classList.contains('hidden');
+}
+function isTypingTarget(el) {
+  return (
+    el &&
+    (el.tagName === 'INPUT' ||
+      el.tagName === 'TEXTAREA' ||
+      el.tagName === 'SELECT' ||
+      el.isContentEditable)
+  );
+}
+document.addEventListener('keydown', (e) => {
+  const mod = e.ctrlKey || e.metaKey;
+  const key = (e.key || '').toLowerCase();
+  // Strg/Cmd+S = Speichern (auch beim Tippen in einem Feld).
+  if (mod && !e.shiftKey && key === 's') {
+    e.preventDefault();
+    if (appVisible() && !$('#saveBtn').disabled) $('#saveBtn').click();
+    return;
+  }
+  // Strg/Cmd+Shift+P = Veröffentlichen.
+  if (mod && e.shiftKey && key === 'p') {
+    e.preventDefault();
+    if (appVisible()) runPublish();
+    return;
+  }
+  // Strg/Cmd+Shift+V = Vorschau.
+  if (mod && e.shiftKey && key === 'v') {
+    e.preventDefault();
+    if (appVisible() && !$('#previewBtn').disabled) $('#previewBtn').click();
+    return;
+  }
+  // Esc = fokussiertes Feld verlassen (offene Dialoge schließen sich selbst).
+  if (e.key === 'Escape') {
+    if (document.querySelector('.picker-overlay')) return;
+    if (isTypingTarget(document.activeElement)) document.activeElement.blur();
+    return;
+  }
+  // 1–6 = Unterbereich wechseln (nur außerhalb von Eingabefeldern, ohne Modifier).
+  if (!mod && !e.altKey && !e.shiftKey && /^[1-6]$/.test(e.key)) {
+    if (isTypingTarget(document.activeElement)) return;
+    if (!appVisible() || !LANG_SECTIONS.includes(state.nav.section)) return;
+    const t = SUBTABS[parseInt(e.key, 10) - 1];
+    if (t) {
+      e.preventDefault();
+      goto(state.nav.section, t.key);
+    }
+  }
+});
