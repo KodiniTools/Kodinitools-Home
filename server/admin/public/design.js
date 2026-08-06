@@ -4,8 +4,17 @@
 // wird in media.<lang>.heroDesign (mit .light/.dark) gespeichert; die
 // Beschriftungen laufen über die vorhandenen Overrides (hero.features.*).
 
-import { $, esc } from './core.js';
-import { state, rgbaFromHex, defaultHeroDesign, getPath, setPath, delPath } from './model.js';
+import { $, esc, toast } from './core.js';
+import {
+  state,
+  rgbaFromHex,
+  defaultHeroDesign,
+  heroSideLight,
+  heroSideDark,
+  getPath,
+  setPath,
+  delPath,
+} from './model.js';
 import { ensureFontFace, fontOptionsHtml } from './fonts.js';
 
 // Family-CSS für eine Schriftdatei (lädt @font-face für die Vorschau) oder ''.
@@ -43,6 +52,28 @@ function heroDesignOf(lang) {
 // Der aktuell bearbeitete Farb-Satz (Hell oder Dunkel).
 function sideOf(lang) {
   return heroDesignOf(lang)[editTheme];
+}
+// Standard-Werte des aktuell bearbeiteten Modus (Hell/Dunkel).
+function sideDefault() {
+  return editTheme === 'dark' ? heroSideDark() : heroSideLight();
+}
+
+// Kleiner „Zurücksetzen"-Button (↺) für ein einzelnes Feld. `scope` bestimmt,
+// worauf sich `key` bezieht: 'side' = Farb-/Zahlenwert des aktuellen Modus
+// (bei Farbe+Transparenz beide Felder als "farbe:transparenz"), 'typo'/'font'
+// = für beide Modi geltende Typografie/Schrift, 'enabled' = An-Schalter,
+// 'feat' = Button-Beschriftung (Override).
+function resetBtn(scope, key = '') {
+  return `<button type="button" class="hd-reset" data-hdreset="${esc(scope)}"${
+    key ? ` data-hdkey="${esc(key)}"` : ''
+  } title="Auf Standard zurücksetzen" aria-label="Auf Standard zurücksetzen">↺</button>`;
+}
+// Umschließt ein Eingabe-Element mit seinem Zurücksetzen-Button (nebeneinander).
+function withReset(inputHtml, scope, key = '') {
+  return `<div style="display:flex;gap:.3rem;align-items:center">${inputHtml}${resetBtn(
+    scope,
+    key,
+  )}</div>`;
 }
 
 // Inline-Style der Vorschau-Box (zeigt die Werte des bearbeiteten Modus).
@@ -101,16 +132,19 @@ function heroPreviewNote(hd) {
 // Ein Farb-/Transparenz-Paar (Color-Picker + optional Range) als Formularzeile.
 // Liest die Werte aus dem aktuell bearbeiteten Farb-Satz `s`.
 function colorField(lang, field, label, withOpacity, opacityField, s) {
+  // Bei Farbe + Transparenz setzt ein Reset beide Werte zurück.
+  const resetKey = withOpacity ? `${field}:${opacityField}` : field;
   const op = withOpacity
     ? `<div style="flex:1 1 160px">
         <label>${label} – Transparenz: <span data-hdoval="${opacityField}">${s[opacityField]}</span>%</label>
         <input type="range" data-hd="${opacityField}" data-lang="${lang}" min="0" max="100" value="${s[opacityField]}" style="width:100%" />
       </div>`
     : '';
+  const colorInput = `<input type="color" data-hd="${field}" data-lang="${lang}" value="${esc(s[field])}" style="width:56px;height:38px;padding:2px" />`;
   return `
       <div style="flex:0 0 auto">
         <label>${label}</label>
-        <input type="color" data-hd="${field}" data-lang="${lang}" value="${esc(s[field])}" style="width:56px;height:38px;padding:2px" />
+        ${withReset(colorInput, 'side', resetKey)}
       </div>${op}`;
 }
 
@@ -178,11 +212,19 @@ function heroDesignPanel(lang) {
       <div class="row">
         <div style="flex:1 1 220px">
           <label>Überschriften-Schrift (Titel/Untertitel)</label>
-          <select data-hdfont="titleFont" data-lang="${lang}">${fontOptionsHtml(hd.titleFont)}</select>
+          ${withReset(
+            `<select data-hdfont="titleFont" data-lang="${lang}">${fontOptionsHtml(hd.titleFont)}</select>`,
+            'font',
+            'titleFont',
+          )}
         </div>
         <div style="flex:1 1 220px">
           <label>Button-Schrift (Chips + „Jetzt starten")</label>
-          <select data-hdfont="buttonFont" data-lang="${lang}">${fontOptionsHtml(hd.buttonFont)}</select>
+          ${withReset(
+            `<select data-hdfont="buttonFont" data-lang="${lang}">${fontOptionsHtml(hd.buttonFont)}</select>`,
+            'font',
+            'buttonFont',
+          )}
         </div>
       </div>
       <p class="hint" style="margin-bottom:.5rem">Aus dem Ordner <code>/fonts</code> auf dem Server. Wirkt auf beide Modi. Auch ohne „Eigenes Hero-Design" nutzbar.</p>
@@ -190,30 +232,54 @@ function heroDesignPanel(lang) {
       <div class="row" style="align-items:flex-end">
         <div style="flex:0 0 auto">
           <label>Abstand (px)</label>
-          <input type="number" data-hdtypo="titleLetterSpacing" min="-5" max="20" step="0.5" value="${hd.titleLetterSpacing}" style="width:90px" />
+          ${withReset(
+            `<input type="number" data-hdtypo="titleLetterSpacing" min="-5" max="20" step="0.5" value="${hd.titleLetterSpacing}" style="width:90px" />`,
+            'typo',
+            'titleLetterSpacing',
+          )}
         </div>
         <div style="flex:0 0 auto">
           <label>Kontur-Farbe</label>
-          <input type="color" data-hdtypo="titleStrokeColor" value="${esc(hd.titleStrokeColor)}" style="width:56px;height:38px;padding:2px" />
+          ${withReset(
+            `<input type="color" data-hdtypo="titleStrokeColor" value="${esc(hd.titleStrokeColor)}" style="width:56px;height:38px;padding:2px" />`,
+            'typo',
+            'titleStrokeColor',
+          )}
         </div>
         <div style="flex:0 0 auto">
           <label>Kontur-Breite (px)</label>
-          <input type="number" data-hdtypo="titleStrokeWidth" min="0" max="5" step="0.5" value="${hd.titleStrokeWidth}" style="width:90px" />
+          ${withReset(
+            `<input type="number" data-hdtypo="titleStrokeWidth" min="0" max="5" step="0.5" value="${hd.titleStrokeWidth}" style="width:90px" />`,
+            'typo',
+            'titleStrokeWidth',
+          )}
         </div>
       </div>
       <p class="hint" style="margin:.5rem 0 .2rem">✏️ Buttons – Buchstabenabstand &amp; Kontur (Rahmen):</p>
       <div class="row" style="align-items:flex-end">
         <div style="flex:0 0 auto">
           <label>Abstand (px)</label>
-          <input type="number" data-hdtypo="buttonLetterSpacing" min="-5" max="20" step="0.5" value="${hd.buttonLetterSpacing}" style="width:90px" />
+          ${withReset(
+            `<input type="number" data-hdtypo="buttonLetterSpacing" min="-5" max="20" step="0.5" value="${hd.buttonLetterSpacing}" style="width:90px" />`,
+            'typo',
+            'buttonLetterSpacing',
+          )}
         </div>
         <div style="flex:0 0 auto">
           <label>Kontur-Farbe</label>
-          <input type="color" data-hdtypo="buttonStrokeColor" value="${esc(hd.buttonStrokeColor)}" style="width:56px;height:38px;padding:2px" />
+          ${withReset(
+            `<input type="color" data-hdtypo="buttonStrokeColor" value="${esc(hd.buttonStrokeColor)}" style="width:56px;height:38px;padding:2px" />`,
+            'typo',
+            'buttonStrokeColor',
+          )}
         </div>
         <div style="flex:0 0 auto">
           <label>Kontur-Breite (px)</label>
-          <input type="number" data-hdtypo="buttonStrokeWidth" min="0" max="5" step="0.5" value="${hd.buttonStrokeWidth}" style="width:90px" />
+          ${withReset(
+            `<input type="number" data-hdtypo="buttonStrokeWidth" min="0" max="5" step="0.5" value="${hd.buttonStrokeWidth}" style="width:90px" />`,
+            'typo',
+            'buttonStrokeWidth',
+          )}
         </div>
       </div>
       <p class="hint">Kontur-Breite 0 = keine Kontur. Buchstabenabstand 0 = normal.</p>
@@ -221,19 +287,35 @@ function heroDesignPanel(lang) {
       <div class="row" style="align-items:flex-end">
         <div style="flex:0 0 auto">
           <label>Titel</label>
-          <input type="number" data-hdtypo="titleFontSize" min="8" max="96" step="1" placeholder="Standard ≈ 40" value="${hd.titleFontSize || ''}" style="width:120px" />
+          ${withReset(
+            `<input type="number" data-hdtypo="titleFontSize" min="8" max="96" step="1" placeholder="Standard ≈ 40" value="${hd.titleFontSize || ''}" style="width:120px" />`,
+            'typo',
+            'titleFontSize',
+          )}
         </div>
         <div style="flex:0 0 auto">
           <label>Untertitel</label>
-          <input type="number" data-hdtypo="subtitleFontSize" min="8" max="96" step="1" placeholder="≈ 18" value="${hd.subtitleFontSize || ''}" style="width:100px" />
+          ${withReset(
+            `<input type="number" data-hdtypo="subtitleFontSize" min="8" max="96" step="1" placeholder="≈ 18" value="${hd.subtitleFontSize || ''}" style="width:100px" />`,
+            'typo',
+            'subtitleFontSize',
+          )}
         </div>
         <div style="flex:0 0 auto">
           <label>Chips</label>
-          <input type="number" data-hdtypo="chipFontSize" min="8" max="96" step="1" placeholder="≈ 15" value="${hd.chipFontSize || ''}" style="width:100px" />
+          ${withReset(
+            `<input type="number" data-hdtypo="chipFontSize" min="8" max="96" step="1" placeholder="≈ 15" value="${hd.chipFontSize || ''}" style="width:100px" />`,
+            'typo',
+            'chipFontSize',
+          )}
         </div>
         <div style="flex:0 0 auto">
           <label>CTA-Button</label>
-          <input type="number" data-hdtypo="ctaFontSize" min="8" max="96" step="1" placeholder="≈ 17" value="${hd.ctaFontSize || ''}" style="width:100px" />
+          ${withReset(
+            `<input type="number" data-hdtypo="ctaFontSize" min="8" max="96" step="1" placeholder="≈ 17" value="${hd.ctaFontSize || ''}" style="width:100px" />`,
+            'typo',
+            'ctaFontSize',
+          )}
         </div>
       </div>`;
 
@@ -248,7 +330,11 @@ function heroDesignPanel(lang) {
         ${colorField(lang, 'borderColor', 'Rahmenfarbe', false, null, s)}
         <div style="flex:0 0 auto">
           <label>Rahmenbreite (px)</label>
-          <input type="number" data-hd="borderWidth" data-lang="${lang}" min="0" max="8" step="1" value="${s.borderWidth}" style="width:90px" />
+          ${withReset(
+            `<input type="number" data-hd="borderWidth" data-lang="${lang}" min="0" max="8" step="1" value="${s.borderWidth}" style="width:90px" />`,
+            'side',
+            'borderWidth',
+          )}
         </div>
         ${colorField(lang, 'bgColor', 'Hintergrund', true, 'bgOpacity', s)}
       </div>`;
@@ -282,9 +368,12 @@ function heroDesignPanel(lang) {
       <h2>Hero-Design <span class="lang-badge">${lang.toUpperCase()}</span></h2>
       <p class="hint">Gestaltet den Hero-Bereich oben auf der ${lang === 'de' ? 'deutschen' : 'englischen'} Startseite –
         getrennt für Hell- und Dunkelmodus. Ausgeschaltet = Standard-Design. Sektionen zum Fokussieren zuklappen; die Vorschau bleibt oben sichtbar.</p>
-      <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin-top:.4rem">
-        <input type="checkbox" data-hd="enabled" data-lang="${lang}" ${hd.enabled ? 'checked' : ''} style="width:auto" /> Eigenes Hero-Design verwenden
-      </label>
+      <div style="display:flex;align-items:center;gap:.5rem;margin-top:.4rem">
+        <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin:0">
+          <input type="checkbox" data-hd="enabled" data-lang="${lang}" ${hd.enabled ? 'checked' : ''} style="width:auto" /> Eigenes Hero-Design verwenden
+        </label>
+        ${resetBtn('enabled')}
+      </div>
 
       <!-- Vorschau bleibt beim Scrollen oben sichtbar -->
       <div style="position:sticky;top:.5rem;z-index:5;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:.55rem .7rem;margin:.6rem 0 .8rem;box-shadow:0 6px 18px rgba(0,0,0,.35)">
@@ -317,7 +406,11 @@ function featureLabelsPanel(lang) {
       const cur = getPath(state.overrides[lang], ['hero', 'features', key]);
       const val = cur != null ? cur : '';
       return `<label>Button „${esc(def || key)}"</label>
-        <input data-feat="${esc(key)}" data-lang="${lang}" placeholder="${esc(def)}" value="${esc(val)}" />`;
+        ${withReset(
+          `<input data-feat="${esc(key)}" data-lang="${lang}" placeholder="${esc(def)}" value="${esc(val)}" />`,
+          'feat',
+          key,
+        )}`;
     })
     .join('');
   return `
@@ -408,6 +501,32 @@ export function renderHeroDesign() {
         hd[f] = Number.isFinite(n) && n > 0 ? Math.max(8, Math.min(96, n)) : 0;
       } else hd[f] = el.value; // Kontur-Farbe
       refreshPreview(pane, lang);
+    });
+  });
+
+  // Zurücksetzen-Buttons (↺): setzen genau ein Feld auf den Standard zurück
+  // und rendern das Panel neu (Eingabefelder + Vorschau aktualisieren sich).
+  pane.querySelectorAll('[data-hdreset]').forEach((el) => {
+    el.addEventListener('click', () => {
+      const scope = el.dataset.hdreset;
+      const key = el.dataset.hdkey || '';
+      if (scope === 'enabled') {
+        heroDesignOf(lang).enabled = defaultHeroDesign().enabled;
+      } else if (scope === 'side') {
+        const s = sideOf(lang);
+        const def = sideDefault();
+        // "farbe:transparenz" -> beide Werte zurücksetzen.
+        key.split(':').forEach((f) => {
+          if (f in def) s[f] = def[f];
+        });
+      } else if (scope === 'typo' || scope === 'font') {
+        const def = defaultHeroDesign();
+        if (key in def) heroDesignOf(lang)[key] = def[key];
+      } else if (scope === 'feat') {
+        delPath(state.overrides[lang], ['hero', 'features', key]);
+      }
+      renderHeroDesign();
+      toast('Auf Standard zurückgesetzt');
     });
   });
 
