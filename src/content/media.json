@@ -7,13 +7,70 @@
     },
     "heroMode": "banner",
     "heroBanner": "/uploads/de/banne-3-52b252ee.webp",
+    "heroBannerLink": "",
     "heroGrid": [
       "/uploads/strong-hard-light-cast-bronze-surface-Modern-flat-design--hi-28659819.jpg",
       "/uploads/Modern-flat-design--high-contrast--low-key-lighting--tight-c-71d64eb5.jpg",
       "/uploads/Thick-foggy-surroundings--high-angle-perspective--modern-fla-495a5a95.jpg"
     ],
+    "heroGridLinks": [
+      "",
+      "",
+      ""
+    ],
     "heroGridRatio": "2:3",
-    "heroGridFit": "contain"
+    "heroGridFit": "contain",
+    "heroDesign": {
+      "enabled": false,
+      "titleFont": "",
+      "buttonFont": "",
+      "titleLetterSpacing": 0,
+      "titleStrokeColor": "#000000",
+      "titleStrokeWidth": 0,
+      "buttonLetterSpacing": 0,
+      "buttonStrokeColor": "#000000",
+      "buttonStrokeWidth": 0,
+      "titleFontSize": 0,
+      "subtitleFontSize": 0,
+      "chipFontSize": 0,
+      "ctaFontSize": 0,
+      "light": {
+        "borderColor": "#014f99",
+        "borderWidth": 1,
+        "bgColor": "#ffffff",
+        "bgOpacity": 70,
+        "chipBgColor": "#014f99",
+        "chipBgOpacity": 15,
+        "chipTextColor": "#013f7a",
+        "chipBorderColor": "#ffffff",
+        "chipBorderOpacity": 20,
+        "chipHoverBgColor": "#0160b8",
+        "chipHoverTextColor": "#f5f4d6",
+        "ctaBgColor": "#014f99",
+        "ctaTextColor": "#ffffff",
+        "ctaHoverBgColor": "#003971",
+        "ctaHoverTextColor": "#ffffff",
+        "titleTextColor": "#520f57"
+      },
+      "dark": {
+        "borderColor": "#e8a945",
+        "borderWidth": 1,
+        "bgColor": "#0e1c32",
+        "bgOpacity": 80,
+        "chipBgColor": "#142640",
+        "chipBgOpacity": 40,
+        "chipTextColor": "#f8e1a9",
+        "chipBorderColor": "#ffffff",
+        "chipBorderOpacity": 8,
+        "chipHoverBgColor": "#142640",
+        "chipHoverTextColor": "#f5f4d6",
+        "ctaBgColor": "#e8a945",
+        "ctaTextColor": "#ffffff",
+        "ctaHoverBgColor": "#a07030",
+        "ctaHoverTextColor": "#ffffff",
+        "titleTextColor": "#f9f2d5"
+      }
+    }
   },
   "en": {
     "sectionVideos": {
@@ -23,12 +80,69 @@
     },
     "heroMode": "banner",
     "heroBanner": "/uploads/en/banne-2-e2d3654d.webp",
+    "heroBannerLink": "",
     "heroGrid": [
       "",
       "",
       ""
     ],
+    "heroGridLinks": [
+      "",
+      "",
+      ""
+    ],
     "heroGridRatio": "1:1",
-    "heroGridFit": "cover"
+    "heroGridFit": "cover",
+    "heroDesign": {
+      "enabled": false,
+      "titleFont": "",
+      "buttonFont": "",
+      "titleLetterSpacing": 0,
+      "titleStrokeColor": "#000000",
+      "titleStrokeWidth": 0,
+      "buttonLetterSpacing": 0,
+      "buttonStrokeColor": "#000000",
+      "buttonStrokeWidth": 0,
+      "titleFontSize": 0,
+      "subtitleFontSize": 0,
+      "chipFontSize": 0,
+      "ctaFontSize": 0,
+      "light": {
+        "borderColor": "#014f99",
+        "borderWidth": 1,
+        "bgColor": "#ffffff",
+        "bgOpacity": 70,
+        "chipBgColor": "#014f99",
+        "chipBgOpacity": 15,
+        "chipTextColor": "#013f7a",
+        "chipBorderColor": "#ffffff",
+        "chipBorderOpacity": 20,
+        "chipHoverBgColor": "#0160b8",
+        "chipHoverTextColor": "#f5f4d6",
+        "ctaBgColor": "#014f99",
+        "ctaTextColor": "#ffffff",
+        "ctaHoverBgColor": "#003971",
+        "ctaHoverTextColor": "#ffffff",
+        "titleTextColor": "#003971"
+      },
+      "dark": {
+        "borderColor": "#e8a945",
+        "borderWidth": 1,
+        "bgColor": "#0e1c32",
+        "bgOpacity": 80,
+        "chipBgColor": "#142640",
+        "chipBgOpacity": 40,
+        "chipTextColor": "#f8e1a9",
+        "chipBorderColor": "#ffffff",
+        "chipBorderOpacity": 8,
+        "chipHoverBgColor": "#142640",
+        "chipHoverTextColor": "#f5f4d6",
+        "ctaBgColor": "#e8a945",
+        "ctaTextColor": "#ffffff",
+        "ctaHoverBgColor": "#a07030",
+        "ctaHoverTextColor": "#ffffff",
+        "titleTextColor": "#f9f2d5"
+      }
+    }
   }
 }
