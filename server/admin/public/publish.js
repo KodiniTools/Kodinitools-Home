@@ -16,7 +16,7 @@ import {
   normTickerStyle,
 } from './model.js';
 import { loadServerFiles, renderFiles, renderMedia } from './media.js';
-import { goto } from './admin.js';
+import { goto, renderMain } from './admin.js';
 
 // ============ Veröffentlichen (Status + Aktion) ============
 export function renderPublish() {
@@ -338,6 +338,12 @@ let dirtySince = 0; // Zeit, seit der ununterbrochen ungespeichert
 let autosaveInFlight = false;
 let saveTimer = null;
 
+// --- Verlauf (Undo/Redo) ---
+let historyBase = null; // aktueller „Kopf" des Verlaufs (= sichtbarer Stand)
+const undoStack = []; // frühere Stände (Snapshots)
+const redoStack = []; // rückgängig gemachte Stände (Snapshots)
+const HISTORY_MAX = 100;
+
 function editSnapshot() {
   return JSON.stringify({
     overrides: state.overrides,
@@ -398,6 +404,10 @@ function tick() {
     lastEditAt = now;
     prevSnapshot = snap;
   }
+  // Verlaufs-Eintrag, sobald eine Änderung ~0,8 s geruht hat (Bursts werden zu
+  // EINEM Undo-Schritt zusammengefasst – ideal für Farb-Regler/Felder).
+  if (snap !== historyBase && now - lastEditAt >= 800) commitHistory(snap);
+  refreshUndoUi(snap);
   const dirty = snap !== lastSavedSnapshot;
   if (!dirty) {
     dirtySince = 0;
@@ -420,6 +430,11 @@ export function initSaveTracking() {
   prevSnapshot = lastSavedSnapshot;
   dirtySince = 0;
   updateSaveIndicator('clean');
+  // Verlauf (Undo/Redo) auf den frisch geladenen Stand zurücksetzen.
+  historyBase = lastSavedSnapshot;
+  undoStack.length = 0;
+  redoStack.length = 0;
+  refreshUndoUi();
   clearInterval(saveTimer);
   saveTimer = setInterval(tick, 1000);
 }
@@ -467,6 +482,20 @@ document.addEventListener('keydown', (e) => {
     if (appVisible() && !$('#previewBtn').disabled) $('#previewBtn').click();
     return;
   }
+  // Strg/Cmd+Z = Rückgängig, Strg/Cmd+Y bzw. +Shift+Z = Wiederherstellen.
+  // In echten Text-Eingaben bleibt die native Undo-Funktion des Browsers aktiv.
+  if (mod && !e.shiftKey && key === 'z') {
+    if (isTextEntry(document.activeElement)) return;
+    e.preventDefault();
+    if (appVisible()) undo();
+    return;
+  }
+  if (mod && (key === 'y' || (e.shiftKey && key === 'z'))) {
+    if (isTextEntry(document.activeElement)) return;
+    e.preventDefault();
+    if (appVisible()) redo();
+    return;
+  }
   // Esc = fokussiertes Feld verlassen (offene Dialoge schließen sich selbst).
   if (e.key === 'Escape') {
     if (document.querySelector('.picker-overlay')) return;
@@ -484,3 +513,76 @@ document.addEventListener('keydown', (e) => {
     }
   }
 });
+
+// Text-Eingabe? Dort soll die native Browser-Undo-Funktion Vorrang haben.
+function isTextEntry(el) {
+  if (!el) return false;
+  if (el.isContentEditable || el.tagName === 'TEXTAREA') return true;
+  if (el.tagName === 'INPUT') {
+    const t = (el.getAttribute('type') || 'text').toLowerCase();
+    return ['text', 'search', 'url', 'email', 'tel', 'password', 'number'].includes(t);
+  }
+  return false;
+}
+
+// Setzt den aktuellen Bearbeitungsstand aus einem Snapshot wieder her und
+// rendert die aktive Ansicht neu.
+function applySnapshot(json) {
+  const s = JSON.parse(json);
+  state.overrides = s.overrides;
+  state.ticker = s.ticker;
+  state.media = s.media;
+  prevSnapshot = json; // gilt nicht als neue Änderung
+  lastEditAt = Date.now();
+  renderMain();
+}
+
+// Schwebende Änderung als Verlaufsschritt festhalten (Bursts zusammengefasst).
+function commitHistory(snap) {
+  snap = snap || editSnapshot();
+  if (snap === historyBase) return;
+  undoStack.push(historyBase);
+  if (undoStack.length > HISTORY_MAX) undoStack.shift();
+  historyBase = snap;
+  redoStack.length = 0; // neue Bearbeitung verwirft den Redo-Zweig
+  refreshUndoUi(snap);
+}
+
+function undo() {
+  commitHistory(); // noch nicht erfasste Änderung zuerst sichern
+  if (!undoStack.length) {
+    toast('Nichts zum Rückgängigmachen');
+    return;
+  }
+  redoStack.push(historyBase);
+  historyBase = undoStack.pop();
+  applySnapshot(historyBase);
+  refreshUndoUi(historyBase);
+  toast('Rückgängig gemacht ↶');
+}
+
+function redo() {
+  if (!redoStack.length) {
+    toast('Nichts zum Wiederherstellen');
+    return;
+  }
+  undoStack.push(historyBase);
+  historyBase = redoStack.pop();
+  applySnapshot(historyBase);
+  refreshUndoUi(historyBase);
+  toast('Wiederhergestellt ↷');
+}
+
+// Aktiviert/deaktiviert die ↶/↷-Buttons je nach Verfügbarkeit.
+function refreshUndoUi(snap) {
+  const u = $('#undoBtn');
+  const r = $('#redoBtn');
+  const cur = snap || editSnapshot();
+  if (u) u.disabled = undoStack.length === 0 && cur === historyBase;
+  if (r) r.disabled = redoStack.length === 0;
+}
+
+const undoBtn = $('#undoBtn');
+const redoBtn = $('#redoBtn');
+if (undoBtn) undoBtn.addEventListener('click', undo);
+if (redoBtn) redoBtn.addEventListener('click', redo);

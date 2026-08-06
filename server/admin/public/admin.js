@@ -50,7 +50,7 @@ function renderNav() {
 }
 
 // Rendert den aktuellen Bereich in #content (Sprache = state.nav.section).
-function renderMain() {
+export function renderMain() {
   const { section, sub } = state.nav;
   if (LANG_SECTIONS.includes(section)) {
     if (sub === 'ticker') renderTicker();
