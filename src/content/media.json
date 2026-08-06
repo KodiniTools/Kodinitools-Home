@@ -1,6 +1,6 @@
 {
   "site": {
-    "globalFont": ""
+    "globalFont": "Supreme-Regular.woff2"
   },
   "de": {
     "sectionVideos": {
@@ -9,24 +9,106 @@
       "diverse": "/videos/diverse-tools.mp4"
     },
     "heroMode": "banner",
-    "heroBanner": "/uploads/de/banne-3-52b252ee.webp",
+    "heroLayout": "grid3",
+    "heroBanner": "/uploads/de/kodinitools-bane-2-82030339.webp",
     "heroBannerLink": "",
+    "heroBannerText": "",
+    "heroBannerFont": "Satoshi-Regular.woff2",
+    "heroBannerTextColor": "#2806d0",
+    "heroBannerTextSize": 20,
+    "heroBannerTextPos": "bottom",
     "heroGrid": [
-      "/uploads/strong-hard-light-cast-bronze-surface-Modern-flat-design--hi-28659819.jpg",
-      "/uploads/Modern-flat-design--high-contrast--low-key-lighting--tight-c-71d64eb5.jpg",
-      "/uploads/Thick-foggy-surroundings--high-angle-perspective--modern-fla-495a5a95.jpg"
-    ],
-    "heroGridLinks": [
+      "",
+      "",
+      "",
       "",
       "",
       ""
     ],
+    "heroGridLinks": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "heroGridStyles": [
+      {
+        "borderColor": "#014f99",
+        "borderWidth": 0,
+        "bgColor": "#014f99",
+        "bgOpacity": 8,
+        "text": "",
+        "font": "",
+        "textColor": "#ffffff",
+        "textSize": 0,
+        "textPos": "center"
+      },
+      {
+        "borderColor": "#014f99",
+        "borderWidth": 0,
+        "bgColor": "#014f99",
+        "bgOpacity": 8,
+        "text": "",
+        "font": "",
+        "textColor": "#ffffff",
+        "textSize": 0,
+        "textPos": "center"
+      },
+      {
+        "borderColor": "#014f99",
+        "borderWidth": 0,
+        "bgColor": "#014f99",
+        "bgOpacity": 8,
+        "text": "neu",
+        "font": "Alpino-Thin.woff2",
+        "textColor": "#ffffff",
+        "textSize": 0,
+        "textPos": "center"
+      },
+      {
+        "borderColor": "#014f99",
+        "borderWidth": 0,
+        "bgColor": "#014f99",
+        "bgOpacity": 8,
+        "text": "",
+        "font": "",
+        "textColor": "#ffffff",
+        "textSize": 0,
+        "textPos": "center"
+      },
+      {
+        "borderColor": "#014f99",
+        "borderWidth": 0,
+        "bgColor": "#014f99",
+        "bgOpacity": 8,
+        "text": "",
+        "font": "",
+        "textColor": "#ffffff",
+        "textSize": 0,
+        "textPos": "center"
+      },
+      {
+        "borderColor": "#014f99",
+        "borderWidth": 0,
+        "bgColor": "#014f99",
+        "bgOpacity": 8,
+        "text": "",
+        "font": "",
+        "textColor": "#ffffff",
+        "textSize": 0,
+        "textPos": "center"
+      }
+    ],
+    "heroGridUniform": false,
+    "heroGridUniformCell": 0,
     "heroGridRatio": "2:3",
     "heroGridFit": "contain",
     "heroDesign": {
-      "enabled": false,
-      "titleFont": "",
-      "buttonFont": "",
+      "enabled": true,
+      "titleFont": "Supreme-Regular.woff2",
+      "buttonFont": "Supreme-Regular.woff2",
       "titleLetterSpacing": 0,
       "titleStrokeColor": "#000000",
       "titleStrokeWidth": 0,
@@ -53,7 +135,7 @@
         "ctaTextColor": "#ffffff",
         "ctaHoverBgColor": "#003971",
         "ctaHoverTextColor": "#ffffff",
-        "titleTextColor": "#520f57"
+        "titleTextColor": "#051061"
       },
       "dark": {
         "borderColor": "#e8a945",
@@ -82,9 +164,18 @@
       "diverse": "/videos/diverse-tools.mp4"
     },
     "heroMode": "banner",
-    "heroBanner": "/uploads/en/banne-2-e2d3654d.webp",
+    "heroLayout": "grid3",
+    "heroBanner": "/uploads/en/kodinitools-banne-4-6d4e638c.webp",
     "heroBannerLink": "",
+    "heroBannerText": "",
+    "heroBannerFont": "",
+    "heroBannerTextColor": "#ffffff",
+    "heroBannerTextSize": 0,
+    "heroBannerTextPos": "center",
     "heroGrid": [
+      "",
+      "",
+      "",
       "",
       "",
       ""
@@ -92,14 +183,87 @@
     "heroGridLinks": [
       "",
       "",
+      "",
+      "",
+      "",
       ""
     ],
+    "heroGridStyles": [
+      {
+        "borderColor": "#014f99",
+        "borderWidth": 0,
+        "bgColor": "#014f99",
+        "bgOpacity": 8,
+        "text": "",
+        "font": "",
+        "textColor": "#ffffff",
+        "textSize": 0,
+        "textPos": "center"
+      },
+      {
+        "borderColor": "#014f99",
+        "borderWidth": 0,
+        "bgColor": "#014f99",
+        "bgOpacity": 8,
+        "text": "",
+        "font": "",
+        "textColor": "#ffffff",
+        "textSize": 0,
+        "textPos": "center"
+      },
+      {
+        "borderColor": "#014f99",
+        "borderWidth": 0,
+        "bgColor": "#014f99",
+        "bgOpacity": 8,
+        "text": "",
+        "font": "",
+        "textColor": "#ffffff",
+        "textSize": 0,
+        "textPos": "center"
+      },
+      {
+        "borderColor": "#014f99",
+        "borderWidth": 0,
+        "bgColor": "#014f99",
+        "bgOpacity": 8,
+        "text": "",
+        "font": "",
+        "textColor": "#ffffff",
+        "textSize": 0,
+        "textPos": "center"
+      },
+      {
+        "borderColor": "#014f99",
+        "borderWidth": 0,
+        "bgColor": "#014f99",
+        "bgOpacity": 8,
+        "text": "",
+        "font": "",
+        "textColor": "#ffffff",
+        "textSize": 0,
+        "textPos": "center"
+      },
+      {
+        "borderColor": "#014f99",
+        "borderWidth": 0,
+        "bgColor": "#014f99",
+        "bgOpacity": 8,
+        "text": "",
+        "font": "",
+        "textColor": "#ffffff",
+        "textSize": 0,
+        "textPos": "center"
+      }
+    ],
+    "heroGridUniform": false,
+    "heroGridUniformCell": 0,
     "heroGridRatio": "1:1",
     "heroGridFit": "cover",
     "heroDesign": {
       "enabled": false,
-      "titleFont": "",
-      "buttonFont": "",
+      "titleFont": "Supreme-Regular.woff2",
+      "buttonFont": "Supreme-Regular.woff2",
       "titleLetterSpacing": 0,
       "titleStrokeColor": "#000000",
       "titleStrokeWidth": 0,
