@@ -10,7 +10,7 @@ import { loadFonts } from './fonts.js';
 import { renderTexts, renderAdvanced } from './content.js';
 import { renderHeroDesign } from './design.js';
 import { renderMedia, renderFiles, loadServerFiles } from './media.js';
-import { renderPublish, refreshPublishStatus } from './publish.js';
+import { renderPublish, refreshPublishStatus, initSaveTracking } from './publish.js';
 
 // --- Login ---
 $('#loginForm').addEventListener('submit', async (e) => {
@@ -111,6 +111,8 @@ async function boot() {
   $('#appView').classList.remove('hidden');
   renderNav();
   renderMain();
+  // Änderungs-Schutz + Autosave starten (Basis-Snapshot = frisch geladener Stand).
+  initSaveTracking();
 }
 
 // --- Start ---

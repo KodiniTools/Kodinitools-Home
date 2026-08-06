@@ -464,6 +464,32 @@
       .hidden {
         display: none !important;
       }
+      /* Speicher-Status im Header + „Dirty"-Punkt am Speichern-Button */
+      .save-state {
+        font-size: 0.75rem;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      .save-state.warn {
+        color: var(--danger);
+      }
+      .save-state.ok {
+        color: var(--accent-2);
+      }
+      #saveBtn {
+        position: relative;
+      }
+      #saveBtn.dirty::after {
+        content: '';
+        position: absolute;
+        top: -3px;
+        right: -3px;
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--danger);
+        border: 2px solid var(--panel);
+      }
     </style>
   </head>
   <body>
@@ -485,6 +511,7 @@
       <header class="bar">
         <h1>KodiniTools · Inhalte</h1>
         <span class="pill idle" id="pubPill">bereit</span>
+        <span class="save-state" id="saveState"></span>
         <button id="saveBtn">💾 Speichern</button>
         <button id="previewBtn">👁 Vorschau</button>
         <button class="success" id="publishBtn">🚀 Veröffentlichen</button>
