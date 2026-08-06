@@ -9,8 +9,47 @@ import {
   setMediaVal,
   defMediaVal,
   GRID_DIMS,
+  MEDIA_LANGS,
+  MEDIA_KEYS,
   updateMediaUrlEverywhere,
 } from './model.js';
+
+// Anzeige-Namen der Medien-Plätze (für „wird verwendet in").
+const SLOT_LABELS = {
+  audio: 'Audio-Sektion',
+  image: 'Bild-Sektion',
+  diverse: 'Diverse-Sektion',
+  heroBanner: 'Hero-Banner',
+  grid0: 'Rasterbild 1',
+  grid1: 'Rasterbild 2',
+  grid2: 'Rasterbild 3',
+};
+// Alle Plätze (Sprache · Slot), die auf eine der übergebenen Referenzen zeigen.
+function usageOf(...refs) {
+  const set = refs.filter(Boolean);
+  const out = [];
+  if (!set.length) return out;
+  for (const lang of MEDIA_LANGS) {
+    for (const key of MEDIA_KEYS) {
+      if (set.includes(getMediaVal(lang, key))) {
+        out.push(`${lang.toUpperCase()} · ${SLOT_LABELS[key] || key}`);
+      }
+    }
+  }
+  return out;
+}
+// Datei-Endung als Format-Badge (z.B. „WEBP").
+function fileExt(name) {
+  const m = /\.([a-z0-9]+)$/i.exec(name || '');
+  return m ? m[1].toUpperCase() : '';
+}
+// „wird verwendet in"-Zeile für eine Medien-Kachel.
+function usageHtml(list) {
+  if (!list.length) return '<div class="st" style="color:var(--muted)">↪ nicht zugewiesen</div>';
+  return `<div class="st" style="color:var(--accent)" title="Zugewiesene Plätze">↪ ${esc(
+    list.join(', '),
+  )}</div>`;
+}
 
 // Server-Uploads getrennt nach Sprache laden ({ de, en, shared }).
 export async function loadServerFiles() {
@@ -236,12 +275,15 @@ function fileTilesHtml(files, loc) {
             `<button data-srvmove="${esc(f.path)}" data-tolang="${t}" style="flex:1;padding:.2rem;font-size:.68rem">→ ${LOC_LABEL[t]}</button>`,
         )
         .join('');
+      const ext = fileExt(f.name);
+      const usage = usageOf(f.url, '/uploads/' + f.path);
       return `<div class="media-tile">
         ${media}
         <div class="nm">${esc(f.name)}</div>
-        <div class="st pub">✓ auf Server · ${fmtBytes(f.bytes)}</div>
+        <div class="st pub">✓ Server${ext ? ' · ' + ext : ''} · ${fmtBytes(f.bytes)}</div>
+        ${usageHtml(usage)}
         <div class="row" style="gap:.25rem;margin-top:.35rem">${moveBtns}</div>
-        <button class="danger" data-srvdel="${esc(f.path)}" style="margin-top:.25rem;width:100%;padding:.2rem;font-size:.72rem">Löschen</button>
+        <button class="danger" data-srvdel="${esc(f.path)}" data-srvurl="${esc(f.url)}" style="margin-top:.25rem;width:100%;padding:.2rem;font-size:.72rem">Löschen</button>
       </div>`;
     })
     .join('');
@@ -357,7 +399,12 @@ export function renderFiles() {
   pane.querySelectorAll('[data-srvdel]').forEach((el) =>
     el.addEventListener('click', async () => {
       const path = el.dataset.srvdel;
-      if (!confirm(`Datei „${path}" vom Server löschen?`)) return;
+      const used = usageOf(el.dataset.srvurl, '/uploads/' + path);
+      const msg = used.length
+        ? `⚠ Diese Datei wird noch verwendet in:\n• ${used.join('\n• ')}\n\n` +
+          `Trotzdem löschen? Die betroffenen Plätze zeigen dann kein Medium mehr.`
+        : `Datei „${path}" vom Server löschen?`;
+      if (!confirm(msg)) return;
       const r = await api('/uploads/delete', { method: 'POST', body: { path } });
       if (!r.ok) {
         toast('Löschen fehlgeschlagen: ' + (r.data?.error || r.status));
@@ -386,6 +433,14 @@ export function renderFiles() {
   );
   pane.querySelectorAll('[data-mediadel]').forEach((el) =>
     el.addEventListener('click', async () => {
+      if (
+        parseInt(el.dataset.used, 10) > 0 &&
+        !confirm(
+          '⚠ Dieses Medium ist einem Platz zugewiesen. Wirklich aus dem Zwischenspeicher ' +
+            'entfernen? Der zugewiesene Platz verliert dann sein Medium.',
+        )
+      )
+        return;
       await mediaDel(el.dataset.mediadel);
       state.stagedItems = await mediaAll();
       renderFiles();
@@ -418,11 +473,17 @@ function mediaTile(item) {
   const status = item.publishedUrl
     ? `<div class="st pub">✓ veröffentlicht</div>`
     : `<div class="st local">● nur lokal</div>`;
+  const ext = fileExt(item.name);
+  const size = item.blob ? fmtBytes(item.blob.size) : '';
+  const meta = [ext, size].filter(Boolean).join(' · ');
+  const usage = usageOf('staged:' + item.id, item.publishedUrl);
   return `<div class="media-tile">
     ${tag}
     <div class="nm">${esc(item.name)}</div>
+    ${meta ? `<div class="st" style="color:var(--muted)">${esc(meta)}</div>` : ''}
     ${status}
-    <button class="danger" data-mediadel="${item.id}" style="margin-top:.35rem;width:100%;padding:.2rem;font-size:.72rem">Entfernen</button>
+    ${usageHtml(usage)}
+    <button class="danger" data-mediadel="${item.id}" data-used="${usage.length}" style="margin-top:.35rem;width:100%;padding:.2rem;font-size:.72rem">Entfernen</button>
   </div>`;
 }
 
