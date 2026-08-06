@@ -62,11 +62,11 @@ function previewCtaStyle(s, hd) {
 }
 function previewTitleStyle(s, hd) {
   const size = hd.titleFontSize > 0 ? `${hd.titleFontSize}px` : '1.1rem';
-  return `font-weight:800;font-size:${size};color:${s.chipTextColor};${titleTypo(hd)}`;
+  return `font-weight:800;font-size:${size};color:${s.titleTextColor};${titleTypo(hd)}`;
 }
 function previewSubtitleStyle(s, hd) {
   const size = hd.subtitleFontSize > 0 ? `${hd.subtitleFontSize}px` : '.8rem';
-  return `margin-top:.3rem;font-weight:500;font-size:${size};opacity:.85;color:${s.chipTextColor};${titleTypo(hd)}`;
+  return `margin-top:.3rem;font-weight:500;font-size:${size};opacity:.85;color:${s.titleTextColor};${titleTypo(hd)}`;
 }
 // Typografie-CSS (Schrift + Abstand + Kontur) für Überschriften bzw. Buttons.
 function titleTypo(hd) {
@@ -217,25 +217,31 @@ function heroDesignPanel(lang) {
         </div>
       </div>
       <p class="hint">Kontur-Breite 0 = keine Kontur. Buchstabenabstand 0 = normal.</p>
-      <p class="hint" style="margin:.5rem 0 .2rem">🔠 Schriftgröße (px, 0 = Standard):</p>
+      <p class="hint" style="margin:.5rem 0 .2rem">🔠 Schriftgröße in px – leer = Standard (die Zahl im Feld ist die Standardgröße). Größere Zahl = größerer Text.</p>
       <div class="row" style="align-items:flex-end">
         <div style="flex:0 0 auto">
           <label>Titel</label>
-          <input type="number" data-hdtypo="titleFontSize" min="0" max="96" step="1" value="${hd.titleFontSize}" style="width:80px" />
+          <input type="number" data-hdtypo="titleFontSize" min="8" max="96" step="1" placeholder="Standard ≈ 40" value="${hd.titleFontSize || ''}" style="width:120px" />
         </div>
         <div style="flex:0 0 auto">
           <label>Untertitel</label>
-          <input type="number" data-hdtypo="subtitleFontSize" min="0" max="96" step="1" value="${hd.subtitleFontSize}" style="width:80px" />
+          <input type="number" data-hdtypo="subtitleFontSize" min="8" max="96" step="1" placeholder="≈ 18" value="${hd.subtitleFontSize || ''}" style="width:100px" />
         </div>
         <div style="flex:0 0 auto">
           <label>Chips</label>
-          <input type="number" data-hdtypo="chipFontSize" min="0" max="96" step="1" value="${hd.chipFontSize}" style="width:80px" />
+          <input type="number" data-hdtypo="chipFontSize" min="8" max="96" step="1" placeholder="≈ 15" value="${hd.chipFontSize || ''}" style="width:100px" />
         </div>
         <div style="flex:0 0 auto">
           <label>CTA-Button</label>
-          <input type="number" data-hdtypo="ctaFontSize" min="0" max="96" step="1" value="${hd.ctaFontSize}" style="width:80px" />
+          <input type="number" data-hdtypo="ctaFontSize" min="8" max="96" step="1" placeholder="≈ 17" value="${hd.ctaFontSize || ''}" style="width:100px" />
         </div>
       </div>`;
+
+  const headingBody = `
+      <div class="row" style="align-items:flex-end">
+        ${colorField(lang, 'titleTextColor', 'Textfarbe (Titel &amp; Untertitel)', false, null, s)}
+      </div>
+      <p class="hint">Farbe der Überschriften. Getrennt für Hell/Dunkel.</p>`;
 
   const frameBody = `
       <div class="row" style="align-items:flex-end">
@@ -295,6 +301,7 @@ function heroDesignPanel(lang) {
       </div>
 
       ${section('🔤 Schriften &amp; Typografie <span class="hint" style="font-weight:400">(für beide Modi)</span>', typoBody)}
+      ${section(`🅰️ Überschriften-Farbe ${badge}`, headingBody)}
       ${section(`🖼️ Rahmen &amp; Hintergrund ${badge}`, frameBody)}
       ${section(`🔘 Buttons (Feature-Chips) ${badge}`, chipsBody)}
       ${section(`🚀 CTA-Button („Jetzt starten") ${badge}`, ctaBody)}

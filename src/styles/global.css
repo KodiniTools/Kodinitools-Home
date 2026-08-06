@@ -760,6 +760,7 @@ body {
   font-size: var(--hero-title-fs, 2.5rem);
   margin-bottom: 0.75rem;
   font-weight: 800;
+  color: var(--hero-title-color, #003971);
   font-family: var(--hero-title-ff, inherit);
   letter-spacing: var(--hero-title-ls, -0.02em);
   -webkit-text-stroke: var(--hero-title-stroke, 0);
@@ -784,7 +785,7 @@ body {
 
 .hero-subtitle {
   font-size: var(--hero-subtitle-fs, 1.1rem);
-  color: #014f99;
+  color: var(--hero-title-color, #014f99);
   margin-bottom: 0;
   animation: fadeInUp 1s ease 0.3s forwards;
   opacity: 0;
@@ -797,8 +798,12 @@ body {
   white-space: pre-line;
 }
 
+[data-theme="dark"] .hero-title {
+  color: var(--hero-title-color, #f9f2d5);
+}
+
 [data-theme="dark"] .hero-subtitle {
-  color: #f8e1a9;
+  color: var(--hero-title-color, #f8e1a9);
 }
 
 /* Hero CTA Button */

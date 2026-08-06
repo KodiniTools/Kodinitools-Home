@@ -96,6 +96,7 @@ export function heroSideLight() {
     ctaTextColor: '#ffffff',
     ctaHoverBgColor: '#003971',
     ctaHoverTextColor: '#ffffff',
+    titleTextColor: '#003971',
   };
 }
 export function heroSideDark() {
@@ -115,6 +116,7 @@ export function heroSideDark() {
     ctaTextColor: '#ffffff',
     ctaHoverBgColor: '#a07030',
     ctaHoverTextColor: '#ffffff',
+    titleTextColor: '#f9f2d5',
   };
 }
 export function defaultHeroDesign() {
@@ -160,6 +162,7 @@ function normHeroSide(s, def) {
     ctaTextColor: hex(s.ctaTextColor, def.ctaTextColor),
     ctaHoverBgColor: hex(s.ctaHoverBgColor, def.ctaHoverBgColor),
     ctaHoverTextColor: hex(s.ctaHoverTextColor, def.ctaHoverTextColor),
+    titleTextColor: hex(s.titleTextColor, def.titleTextColor),
   };
 }
 // Geladenes Hero-Design normalisieren (getrennt Hell/Dunkel). Migriert die alte
