@@ -211,6 +211,8 @@ export function defaultMediaLocale() {
     heroLayout: 'grid3',
     heroBanner: '',
     heroBannerLink: '',
+    heroBannerText: '', // Text über dem Einzelbanner
+    heroBannerFont: '', // Schriftart des Banner-Textes (Dateiname im /fonts-Ordner)
     heroGrid: ['', '', '', '', '', ''],
     heroGridLinks: ['', '', '', '', '', ''],
     heroGridStyles: defaultCellStyles(),
@@ -329,6 +331,8 @@ export function normalizeMedia(m) {
       heroLayout: normHeroLayout(o?.heroLayout),
       heroBanner: o && typeof o.heroBanner === 'string' ? o.heroBanner : '',
       heroBannerLink: o && typeof o.heroBannerLink === 'string' ? o.heroBannerLink : '',
+      heroBannerText: typeof o?.heroBannerText === 'string' ? o.heroBannerText.slice(0, 120) : '',
+      heroBannerFont: normFontFile(o?.heroBannerFont),
       heroGrid: [0, 1, 2, 3, 4, 5].map((i) => (typeof grid[i] === 'string' ? grid[i] : '')),
       heroGridLinks: [0, 1, 2, 3, 4, 5].map((i) =>
         typeof gridLinks[i] === 'string' ? gridLinks[i] : '',

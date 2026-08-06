@@ -102,6 +102,9 @@ export interface MediaConfig {
   heroBanner: string;
   // Verlinkung des Banners (interner Pfad oder http(s)). Leer = nicht klickbar.
   heroBannerLink: string;
+  // Optionaler Text über dem Banner + dessen Schriftart (Dateiname im /fonts-Ordner).
+  heroBannerText: string;
+  heroBannerFont: string;
   // Option 2: bis zu sechs Bilder fürs Raster + gewähltes Seitenverhältnis.
   heroGrid: string[];
   // Verlinkung der Rasterbilder (interner Pfad oder http(s)). Leer = nicht klickbar.
@@ -181,6 +184,8 @@ const MEDIA_DEFAULTS: MediaConfig = {
   heroLayout: 'grid3',
   heroBanner: '',
   heroBannerLink: '',
+  heroBannerText: '',
+  heroBannerFont: '',
   heroGrid: ['', '', '', '', '', ''],
   heroGridLinks: ['', '', '', '', '', ''],
   heroGridStyles: Array.from({ length: 6 }, () => ({

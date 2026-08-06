@@ -50,6 +50,30 @@ function cellMediaHtml(lang, i, fit) {
     : `<img src="${esc(src)}" style="${st}" />`;
 }
 
+// Das dem Einzelbanner zugewiesene Medium (Bild/Video) als <img>/<video> oder ''.
+function bannerMediaHtml(lang) {
+  const val = getMediaVal(lang, 'heroBanner');
+  if (!val) return '';
+  let src = val;
+  let isVid = /\.(mp4|webm|mov|ogg)$/i.test(val);
+  if (val.startsWith('staged:')) {
+    const id = val.slice(7);
+    const item = state.stagedItems.find((x) => x.id === id);
+    if (!item) return '';
+    src = objUrl(id);
+    isVid = /^video\//.test(item.type);
+  }
+  const st =
+    'max-width:100%;max-height:240px;width:auto;height:auto;object-fit:contain;border-radius:10px;display:block;margin:0 auto';
+  return isVid
+    ? `<video src="${src}" muted style="${st}"></video>`
+    : `<img src="${esc(src)}" style="${st}" />`;
+}
+// Inline-Style des Banner-Text-Overlays (oder '' bei leerem Text).
+function bannerTextStyle(font) {
+  return `position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:.4rem;color:#fff;font-weight:800;font-size:1.3rem;line-height:1.2;text-shadow:0 2px 6px rgba(0,0,0,.6);word-break:break-word;pointer-events:none;${fontFF(font)}`;
+}
+
 // Live-Vorschau der Anordnung: zeigt die zugewiesenen Bilder (oder eine leere,
 // gestylte Platzhalter-Kachel) im jeweiligen Per-Kachel-Design.
 function previewHtml(lang, layout, cellsN, ratio) {
@@ -134,10 +158,36 @@ function layoutPanel(lang) {
       </div>
     </div>`;
   if (mode !== 'grid') {
-    return (
-      modePanel +
-      `<div class="panel"><p class="hint">🖼️ Banner-Modus: kein Raster. Das Banner-Bild/-Video wählst du im Tab <strong>Medien</strong>.</p></div>`
-    );
+    const bText = m.heroBannerText || '';
+    const bFont = m.heroBannerFont || '';
+    const bMedia = bannerMediaHtml(lang);
+    const previewBox = `
+      <div style="position:relative;max-width:640px;margin:.3rem auto;display:flex;align-items:center;justify-content:center;min-height:90px">
+        ${bMedia || '<span class="hint">Kein Banner gewählt — im Tab „Medien" zuweisen.</span>'}
+        <div data-bannertext style="${bText ? bannerTextStyle(bFont) : ''}">${esc(bText)}</div>
+      </div>`;
+    const previewPanel = `
+      <div style="position:sticky;top:.5rem;z-index:5;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:.7rem .9rem;margin:0 0 .9rem;box-shadow:0 8px 22px rgba(0,0,0,.4)">
+        <p class="hint" style="margin:.1rem 0 .4rem">👁 Live-Vorschau (Banner) — bleibt beim Scrollen sichtbar:</p>
+        ${previewBox}
+      </div>`;
+    const textPanel = `
+      <div class="panel">
+        <h2>Banner-Text</h2>
+        <p class="hint">Optionaler Text über dem Banner mit wählbarer Schriftart (aus dem Server-Ordner
+          <code>/fonts</code>). Leer = kein Text. Das Banner-Bild/-Video wählst du im Tab <strong>Medien</strong>.</p>
+        <div class="row" style="align-items:flex-end">
+          <div style="flex:2 1 240px">
+            <label>Text</label>
+            <input data-bannerfield="text" value="${esc(bText)}" placeholder="z.B. Willkommen" maxlength="120" />
+          </div>
+          <div style="flex:1 1 200px">
+            <label>Schriftart des Textes</label>
+            <select data-bannerfont>${fontOptionsHtml(bFont)}</select>
+          </div>
+        </div>
+      </div>`;
+    return modePanel + previewPanel + textPanel;
   }
   const layout = Object.prototype.hasOwnProperty.call(HERO_LAYOUTS, m.heroLayout)
     ? m.heroLayout
@@ -196,6 +246,14 @@ function updatePreviewCell(pane, lang, i) {
   const s = getCellStyle(lang, i);
   box.style.background = rgbaFromHex(s.bgColor, s.bgOpacity);
   box.style.border = `${s.borderWidth}px solid ${s.borderColor}`;
+}
+// Banner-Text-Overlay in der Vorschau live aktualisieren.
+function updateBannerPreviewText(pane, lang) {
+  const box = pane.querySelector('[data-bannertext]');
+  if (!box) return;
+  const t = state.media[lang].heroBannerText || '';
+  box.textContent = t;
+  box.setAttribute('style', t ? bannerTextStyle(state.media[lang].heroBannerFont || '') : '');
 }
 // Text-Overlay einer Vorschau-Kachel live aktualisieren (Text/Schrift).
 function updatePreviewText(pane, lang, i) {
@@ -279,4 +337,18 @@ export function renderLayout() {
       updatePreviewText(pane, lang, i);
     });
   });
+
+  // Banner-Text + -Schriftart (Banner-Modus).
+  pane.querySelectorAll('[data-bannerfield]').forEach((el) =>
+    el.addEventListener('input', () => {
+      state.media[lang].heroBannerText = el.value.slice(0, 120);
+      updateBannerPreviewText(pane, lang);
+    }),
+  );
+  pane.querySelectorAll('[data-bannerfont]').forEach((el) =>
+    el.addEventListener('change', () => {
+      state.media[lang].heroBannerFont = el.value;
+      updateBannerPreviewText(pane, lang);
+    }),
+  );
 }
