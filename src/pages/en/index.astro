@@ -6,7 +6,7 @@ import SectionMedia from '../../components/SectionMedia.astro'
 import SiteFooter from '../../components/SiteFooter.astro'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
-import { getContent, getMedia } from '../../content/content'
+import { getContent, getMedia, HERO_LAYOUT_CELLS } from '../../content/content'
 
 // Inhalte aus der Content-Schicht (Standard-Locale + Admin-Overrides, gemergt).
 const de = getContent('de')
@@ -255,10 +255,10 @@ const pageI18n = {
         <div class="hero-promo">
           {media.heroMode === 'grid' ? (
             <div
-              class="hero-grid"
+              class={`hero-grid layout-${media.heroLayout}`}
               style={`--hero-cell-ratio:${({ '1:1': '1 / 1', '16:9': '16 / 9', '2:3': '2 / 3' })[media.heroGridRatio] || '1 / 1'};--hero-cell-fit:${media.heroGridFit === 'contain' ? 'contain' : 'cover'}`}
             >
-              {media.heroGrid.map((src, i) => {
+              {media.heroGrid.slice(0, HERO_LAYOUT_CELLS[media.heroLayout] ?? 3).map((src, i) => {
                 const link = (media.heroGridLinks && media.heroGridLinks[i]) || ''
                 const ext = /^https?:\/\//i.test(link)
                 const cell = (
@@ -266,7 +266,7 @@ const pageI18n = {
                     src={src}
                     eager={true}
                     alt={`Image ${i + 1}`}
-                    wrapperClass="hero-grid-cell"
+                    wrapperClass={`hero-grid-cell${media.heroLayout === 'mosaic' && i === 0 ? ' hero-grid-cell--big' : ''}`}
                     mediaClass="hero-grid-media"
                   />
                 )

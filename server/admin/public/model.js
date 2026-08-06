@@ -208,10 +208,11 @@ export function defaultMediaLocale() {
       diverse: '/videos/diverse-tools.mp4',
     },
     heroMode: 'banner',
+    heroLayout: 'grid3',
     heroBanner: '',
     heroBannerLink: '',
-    heroGrid: ['', '', ''],
-    heroGridLinks: ['', '', ''],
+    heroGrid: ['', '', '', ''],
+    heroGridLinks: ['', '', '', ''],
     heroGridRatio: '1:1',
     heroGridFit: 'cover',
     heroDesign: defaultHeroDesign(),
@@ -219,6 +220,21 @@ export function defaultMediaLocale() {
 }
 // Empfohlene Bildabmessungen je Seitenverhältnis (crisp bei ~3-spaltiger Anzeige).
 export const GRID_DIMS = { '1:1': '800 × 800 px', '16:9': '800 × 450 px', '2:3': '800 × 1200 px' };
+// Verfügbare Hero-Raster-Layouts (Anordnung der Kacheln). `cells` = Anzahl der
+// Bild-Plätze. 'mosaic' = eine große Kachel links + zwei kleine rechts.
+export const HERO_LAYOUTS = {
+  grid2: { label: '2 nebeneinander', cells: 2 },
+  grid3: { label: '3 nebeneinander', cells: 3 },
+  grid4: { label: '4 im 2×2-Raster', cells: 4 },
+  mosaic: { label: 'Mosaik (1 groß + 2 klein)', cells: 3 },
+};
+export const HERO_GRID_MAX = 4; // größtmögliche Kachelzahl über alle Layouts
+export function heroLayoutCells(layout) {
+  return (HERO_LAYOUTS[layout] || HERO_LAYOUTS.grid3).cells;
+}
+function normHeroLayout(v) {
+  return Object.prototype.hasOwnProperty.call(HERO_LAYOUTS, v) ? v : 'grid3';
+}
 // Globale (sprachübergreifende) Seiten-Einstellungen. globalFont = Basis-
 // Schriftart der ganzen Seite (Dateiname im /fonts-Ordner; leer = Standard).
 export function defaultSite() {
@@ -260,10 +276,13 @@ export function normalizeMedia(m) {
         diverse: sv.diverse || d.sectionVideos.diverse,
       },
       heroMode: o && o.heroMode === 'grid' ? 'grid' : 'banner',
+      heroLayout: normHeroLayout(o?.heroLayout),
       heroBanner: o && typeof o.heroBanner === 'string' ? o.heroBanner : '',
       heroBannerLink: o && typeof o.heroBannerLink === 'string' ? o.heroBannerLink : '',
-      heroGrid: [0, 1, 2].map((i) => (typeof grid[i] === 'string' ? grid[i] : '')),
-      heroGridLinks: [0, 1, 2].map((i) => (typeof gridLinks[i] === 'string' ? gridLinks[i] : '')),
+      heroGrid: [0, 1, 2, 3].map((i) => (typeof grid[i] === 'string' ? grid[i] : '')),
+      heroGridLinks: [0, 1, 2, 3].map((i) =>
+        typeof gridLinks[i] === 'string' ? gridLinks[i] : '',
+      ),
       heroGridRatio: ['1:1', '16:9', '2:3'].includes(o?.heroGridRatio) ? o.heroGridRatio : '1:1',
       heroGridFit: o?.heroGridFit === 'contain' ? 'contain' : 'cover',
       heroDesign: normHeroDesign(o?.heroDesign),
@@ -278,11 +297,20 @@ export function normalizeMedia(m) {
 // Sprachen + Slots. 'heroBanner' liegt auf oberster Ebene der Sprache, die
 // anderen unter sectionVideos.
 export const MEDIA_LANGS = ['de', 'en'];
-// Slot-Schlüssel: Sektions-Videos, Einzel-Banner und die drei Rasterbilder.
-export const MEDIA_KEYS = ['audio', 'image', 'diverse', 'heroBanner', 'grid0', 'grid1', 'grid2'];
+// Slot-Schlüssel: Sektions-Videos, Einzel-Banner und die vier Rasterbilder.
+export const MEDIA_KEYS = [
+  'audio',
+  'image',
+  'diverse',
+  'heroBanner',
+  'grid0',
+  'grid1',
+  'grid2',
+  'grid3',
+];
 export function getMediaVal(lang, key) {
   if (key === 'heroBanner') return state.media[lang].heroBanner || '';
-  const g = /^grid([0-2])$/.exec(key);
+  const g = /^grid([0-3])$/.exec(key);
   if (g) return (state.media[lang].heroGrid || [])[+g[1]] || '';
   return state.media[lang].sectionVideos[key] || '';
 }
@@ -291,16 +319,16 @@ export function setMediaVal(lang, key, val) {
     state.media[lang].heroBanner = val;
     return;
   }
-  const g = /^grid([0-2])$/.exec(key);
+  const g = /^grid([0-3])$/.exec(key);
   if (g) {
-    if (!Array.isArray(state.media[lang].heroGrid)) state.media[lang].heroGrid = ['', '', ''];
+    if (!Array.isArray(state.media[lang].heroGrid)) state.media[lang].heroGrid = ['', '', '', ''];
     state.media[lang].heroGrid[+g[1]] = val;
     return;
   }
   state.media[lang].sectionVideos[key] = val;
 }
 export function defMediaVal(key) {
-  if (key === 'heroBanner' || /^grid[0-2]$/.test(key)) return '';
+  if (key === 'heroBanner' || /^grid[0-3]$/.test(key)) return '';
   return defaultMediaLocale().sectionVideos[key];
 }
 // Ersetzt eine Medien-URL in ALLEN Slots (beide Sprachen) — z.B. nachdem eine

@@ -94,8 +94,10 @@ export function getTicker(locale: Locale): TickerConfig {
 
 export interface MediaConfig {
   sectionVideos: { audio: string; image: string; diverse: string };
-  // Hero-Bereich: 'banner' = ein einzelnes Bild/Video, 'grid' = 3er-Raster (1:1).
+  // Hero-Bereich: 'banner' = ein einzelnes Bild/Video, 'grid' = Kachel-Raster.
   heroMode: 'banner' | 'grid';
+  // Anordnung der Kacheln im Raster-Modus.
+  heroLayout: 'grid2' | 'grid3' | 'grid4' | 'mosaic';
   // Option 1: austauschbares Hero-Banner (Bild oder Video). Leer = kein Banner.
   heroBanner: string;
   // Verlinkung des Banners (interner Pfad oder http(s)). Leer = nicht klickbar.
@@ -164,10 +166,11 @@ const MEDIA_DEFAULTS: MediaConfig = {
     diverse: '/videos/diverse-tools.mp4',
   },
   heroMode: 'banner',
+  heroLayout: 'grid3',
   heroBanner: '',
   heroBannerLink: '',
-  heroGrid: ['', '', ''],
-  heroGridLinks: ['', '', ''],
+  heroGrid: ['', '', '', ''],
+  heroGridLinks: ['', '', '', ''],
   heroGridRatio: '1:1',
   heroGridFit: 'cover',
   heroDesign: {
@@ -236,6 +239,14 @@ function mediaOverrideFor(locale: Locale): unknown {
   }
   return m; // alte, sprachunabhängige Struktur
 }
+
+/** Anzahl Bild-Kacheln je Hero-Raster-Layout. */
+export const HERO_LAYOUT_CELLS: Record<MediaConfig['heroLayout'], number> = {
+  grid2: 2,
+  grid3: 3,
+  grid4: 4,
+  mosaic: 3,
+};
 
 /** Medien-Konfiguration für eine Sprache (Defaults + Admin-Override). */
 export function getMedia(locale: Locale): MediaConfig {
