@@ -27,6 +27,15 @@ function fontFF(file) {
 }
 const RATIO_AR = { '1:1': '1 / 1', '16:9': '16 / 9', '2:3': '2 / 3' };
 
+// Bereichsinterne Rückgängig/Wiederherstellen-Buttons. Sie greifen auf denselben
+// globalen Verlauf zu wie die Kopfleiste (Anbindung + Zustand in publish.js).
+function undoRedoBar() {
+  return `<span style="display:inline-flex;gap:.3rem;margin-left:auto">
+      <button type="button" class="hd-reset" data-undoproxy title="Rückgängig (Strg/Cmd+Z)" aria-label="Rückgängig">↶</button>
+      <button type="button" class="hd-reset" data-redoproxy title="Wiederherstellen (Strg/Cmd+Y)" aria-label="Wiederherstellen">↷</button>
+    </span>`;
+}
+
 // Kleiner „Zurücksetzen"-Button (↺) für ein einzelnes Feld.
 // scope: 'cell' (data-cellreset="i:feld") oder 'banner' (data-bannerreset="feld").
 function resetBtn(attr, val, disabled) {
@@ -233,7 +242,10 @@ function layoutPanel(lang) {
       </div>`;
     const previewPanel = `
       <div style="position:sticky;top:.5rem;z-index:5;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:.6rem .9rem;margin:0 0 .9rem;box-shadow:0 8px 22px rgba(0,0,0,.4);max-height:38vh;overflow:auto">
-        <p class="hint" style="margin:.1rem 0 .35rem">👁 Live-Vorschau (Banner):</p>
+        <div style="display:flex;align-items:center;gap:.5rem;margin:.1rem 0 .35rem">
+          <span class="hint" style="margin:0">👁 Live-Vorschau (Banner):</span>
+          ${undoRedoBar()}
+        </div>
         ${previewBox}
       </div>`;
     const textPanel = `
@@ -291,7 +303,10 @@ function layoutPanel(lang) {
   // begrenzt (scrollt intern), damit sie den Adminbereich nicht blockiert.
   const previewPanel = `
     <div data-stickyprev style="position:sticky;top:.5rem;z-index:5;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:.6rem .9rem;margin:0 0 .9rem;box-shadow:0 8px 22px rgba(0,0,0,.4);max-height:38vh;overflow:auto">
-      <p class="hint" style="margin:.1rem 0 .35rem">👁 Live-Vorschau (${cellsN} Kachel${cellsN === 1 ? '' : 'n'}) — Kachel anklicken zum Bearbeiten:</p>
+      <div style="display:flex;align-items:center;gap:.5rem;margin:.1rem 0 .35rem">
+        <span class="hint" style="margin:0">👁 Live-Vorschau (${cellsN} Kachel${cellsN === 1 ? '' : 'n'}) — Kachel anklicken zum Bearbeiten:</span>
+        ${undoRedoBar()}
+      </div>
       <div data-layprev>${previewHtml(lang, layout, cellsN, ratio)}</div>
     </div>`;
   const layoutSel = `
@@ -409,6 +424,17 @@ export function renderLayout() {
   const lang = state.nav.section;
   const pane = $('#content');
   pane.innerHTML = layoutPanel(lang);
+
+  // Zustand der bereichsinternen ↶/↷-Buttons sofort von der Kopfleiste
+  // übernehmen (danach hält publish.js beide synchron).
+  const hUndo = $('#undoBtn');
+  const hRedo = $('#redoBtn');
+  pane
+    .querySelectorAll('[data-undoproxy]')
+    .forEach((el) => (el.disabled = hUndo ? hUndo.disabled : true));
+  pane
+    .querySelectorAll('[data-redoproxy]')
+    .forEach((el) => (el.disabled = hRedo ? hRedo.disabled : true));
 
   // Klick auf eine Vorschau-Kachel: markieren + Editor darunter scrollen.
   pane
