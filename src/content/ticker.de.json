@@ -10,8 +10,8 @@
   "style": {
     "enabled": true,
     "fontSize": 14,
-    "textColor": "#070c5a",
-    "bgColor": "#d2e4f4",
+    "textColor": "#29486a",
+    "bgColor": "#e5eef6",
     "bgOpacity": 100,
     "fontFamily": "Supreme-Regular.woff2",
     "letterSpacing": 1.5
