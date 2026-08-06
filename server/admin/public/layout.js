@@ -70,9 +70,14 @@ function bannerMediaHtml(lang) {
     ? `<video src="${src}" muted style="${st}"></video>`
     : `<img src="${esc(src)}" style="${st}" />`;
 }
-// Inline-Style des Banner-Text-Overlays (oder '' bei leerem Text).
+// Inline-Style des Banner-Text-Overlays (oder '' bei leerem Text). Kein
+// erzwungenes Fett-Gewicht, damit die gewählte Schrift ihren Charakter behält.
 function bannerTextStyle(font) {
-  return `position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:.4rem;color:#fff;font-weight:800;font-size:1.3rem;line-height:1.2;text-shadow:0 2px 6px rgba(0,0,0,.6);word-break:break-word;pointer-events:none;${fontFF(font)}`;
+  return `position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:.4rem;color:#fff;font-size:1.3rem;line-height:1.2;text-shadow:0 2px 6px rgba(0,0,0,.6);word-break:break-word;pointer-events:none;${fontFF(font)}`;
+}
+// Inline-Style des Kachel-Text-Overlays (in der Vorschau).
+function cellTextOverlayStyle(font) {
+  return `position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:.2rem;color:#fff;font-size:.85rem;line-height:1.15;text-shadow:0 1px 3px rgba(0,0,0,.7);word-break:break-word;pointer-events:none;${fontFF(font)}`;
 }
 
 // Live-Vorschau der Anordnung: zeigt die zugewiesenen Bilder (oder eine leere,
@@ -92,7 +97,7 @@ function previewHtml(lang, layout, cellsN, ratio) {
     const media = cellMediaHtml(lang, i, fit);
     const base = media || `<span style="color:var(--muted);font-size:.72rem">${i + 1}</span>`;
     const textOverlay = s.text
-      ? `<div data-prevtext="${i}" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:.2rem;color:#fff;font-weight:700;font-size:.85rem;line-height:1.15;text-shadow:0 1px 3px rgba(0,0,0,.7);word-break:break-word;${fontFF(s.font)}">${esc(s.text)}</div>`
+      ? `<div data-prevtext="${i}" style="${cellTextOverlayStyle(s.font)}">${esc(s.text)}</div>`
       : `<div data-prevtext="${i}"></div>`;
     return `<div data-prevcell="${i}" style="position:relative;${box}${span}border-radius:8px;overflow:hidden;background:${bg};border:${s.borderWidth}px solid ${s.borderColor};display:flex;align-items:center;justify-content:center">${base}${textOverlay}</div>`;
   }).join('');
@@ -128,11 +133,11 @@ function cellEditor(lang, i, bigLabel) {
       <div class="row" style="align-items:flex-end;margin-top:.4rem">
         <div style="flex:2 1 220px">
           <label>Text (über dem Bild / im leeren Kasten)</label>
-          <input data-cellfield="${i}:text" value="${esc(s.text || '')}" placeholder="z.B. Neu" maxlength="120" />
+          <input data-cellfield="${i}:text" value="${esc(s.text || '')}" placeholder="z.B. Neu" maxlength="120" style="${fontFF(s.font || '')}" />
         </div>
         <div style="flex:1 1 200px">
           <label>Schriftart des Textes</label>
-          <select data-cellfont="${i}">${fontOptionsHtml(s.font || '')}</select>
+          <select data-cellfont="${i}" style="${fontFF(s.font || '')}">${fontOptionsHtml(s.font || '')}</select>
         </div>
       </div>
     </div>`;
@@ -180,11 +185,11 @@ function layoutPanel(lang) {
         <div class="row" style="align-items:flex-end">
           <div style="flex:2 1 240px">
             <label>Text</label>
-            <input data-bannerfield="text" value="${esc(bText)}" placeholder="z.B. Willkommen" maxlength="120" />
+            <input data-bannerfield="text" value="${esc(bText)}" placeholder="z.B. Willkommen" maxlength="120" style="${fontFF(bFont)}" />
           </div>
           <div style="flex:1 1 200px">
             <label>Schriftart des Textes</label>
-            <select data-bannerfont>${fontOptionsHtml(bFont)}</select>
+            <select data-bannerfont style="${fontFF(bFont)}">${fontOptionsHtml(bFont)}</select>
           </div>
         </div>
       </div>`;
@@ -268,10 +273,7 @@ function updatePreviewText(pane, lang, i) {
     return;
   }
   box.textContent = s.text;
-  box.setAttribute(
-    'style',
-    `position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:.2rem;color:#fff;font-weight:700;font-size:.85rem;line-height:1.15;text-shadow:0 1px 3px rgba(0,0,0,.7);word-break:break-word;${fontFF(s.font)}`,
-  );
+  box.setAttribute('style', cellTextOverlayStyle(s.font));
 }
 
 export function renderLayout() {
@@ -336,6 +338,10 @@ export function renderLayout() {
     const i = Number(el.dataset.cellfont);
     el.addEventListener('change', () => {
       getCellStyle(lang, i).font = el.value;
+      const ff = fontFF(el.value);
+      el.setAttribute('style', ff);
+      const inp = pane.querySelector(`[data-cellfield="${i}:text"]`);
+      if (inp) inp.setAttribute('style', ff);
       updatePreviewText(pane, lang, i);
     });
   });
@@ -350,6 +356,10 @@ export function renderLayout() {
   pane.querySelectorAll('[data-bannerfont]').forEach((el) =>
     el.addEventListener('change', () => {
       state.media[lang].heroBannerFont = el.value;
+      const ff = fontFF(el.value);
+      el.setAttribute('style', ff);
+      const inp = pane.querySelector('[data-bannerfield="text"]');
+      if (inp) inp.setAttribute('style', ff);
       updateBannerPreviewText(pane, lang);
     }),
   );
