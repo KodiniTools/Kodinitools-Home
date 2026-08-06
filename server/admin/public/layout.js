@@ -13,8 +13,13 @@ import {
   getMediaVal,
 } from './model.js';
 import { objUrl } from './media.js';
+import { fontOptionsHtml, ensureFontFace } from './fonts.js';
 
 const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+// font-family-CSS für eine Kachel-Textschrift (lädt @font-face für die Vorschau) oder ''.
+function fontFF(file) {
+  return file ? `font-family:'${ensureFontFace(file)}', var(--site-font, sans-serif);` : '';
+}
 const RATIO_AR = { '1:1': '1 / 1', '16:9': '16 / 9', '2:3': '2 / 3' };
 
 // CSS grid-template-columns je Layout (nur für die Vorschau).
@@ -60,8 +65,11 @@ function previewHtml(lang, layout, cellsN, ratio) {
       if (i === 0) span = 'grid-row:1 / span 2;';
     }
     const media = cellMediaHtml(lang, i, fit);
-    const inner = media || `<span style="color:var(--muted);font-size:.72rem">${i + 1}</span>`;
-    return `<div data-prevcell="${i}" style="${box}${span}border-radius:8px;overflow:hidden;background:${bg};border:${s.borderWidth}px solid ${s.borderColor};display:flex;align-items:center;justify-content:center">${inner}</div>`;
+    const base = media || `<span style="color:var(--muted);font-size:.72rem">${i + 1}</span>`;
+    const textOverlay = s.text
+      ? `<div data-prevtext="${i}" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:.2rem;color:#fff;font-weight:700;font-size:.85rem;line-height:1.15;text-shadow:0 1px 3px rgba(0,0,0,.7);word-break:break-word;${fontFF(s.font)}">${esc(s.text)}</div>`
+      : `<div data-prevtext="${i}"></div>`;
+    return `<div data-prevcell="${i}" style="position:relative;${box}${span}border-radius:8px;overflow:hidden;background:${bg};border:${s.borderWidth}px solid ${s.borderColor};display:flex;align-items:center;justify-content:center">${base}${textOverlay}</div>`;
   }).join('');
   const rows = layout === 'mosaic' ? 'grid-template-rows:1fr 1fr;aspect-ratio:2 / 1;' : '';
   const maxW = layout === 'big2' ? '380px' : layout === 'vrow' ? '170px' : '340px';
@@ -90,6 +98,16 @@ function cellEditor(lang, i, bigLabel) {
         <div style="flex:1 1 170px">
           <label>Hintergrund-Transparenz: <span data-cellopval="${i}">${s.bgOpacity}</span>%</label>
           <input type="range" data-cellfield="${i}:bgOpacity" min="0" max="100" value="${s.bgOpacity}" style="width:100%" />
+        </div>
+      </div>
+      <div class="row" style="align-items:flex-end;margin-top:.4rem">
+        <div style="flex:2 1 220px">
+          <label>Text (über dem Bild / im leeren Kasten)</label>
+          <input data-cellfield="${i}:text" value="${esc(s.text || '')}" placeholder="z.B. Neu" maxlength="120" />
+        </div>
+        <div style="flex:1 1 200px">
+          <label>Schriftart des Textes</label>
+          <select data-cellfont="${i}">${fontOptionsHtml(s.font || '')}</select>
         </div>
       </div>
     </div>`;
@@ -156,9 +174,10 @@ function layoutPanel(lang) {
     </div>`;
   const editors = `
     <div class="panel">
-      <h2>Kachel-Design (Rahmen &amp; Hintergrund)</h2>
-      <p class="hint">Pro Kachel: Rahmenfarbe &amp; -dicke sowie Hintergrundfarbe &amp; -transparenz.
-        Rahmendicke 0 = kein Rahmen. Der Hintergrund ist sichtbar, wo kein Bild ist (z.B. bei „ganzes Bild zeigen").</p>
+      <h2>Kachel-Design (Rahmen, Hintergrund &amp; Text)</h2>
+      <p class="hint">Pro Kachel: Rahmenfarbe &amp; -dicke, Hintergrundfarbe &amp; -transparenz sowie ein
+        optionaler <strong>Text</strong> mit <strong>Schriftart</strong> (aus dem Server-Ordner <code>/fonts</code>).
+        Der Text erscheint über dem Bild bzw. im leeren Kasten. Rahmendicke 0 = kein Rahmen.</p>
       ${Array.from({ length: cellsN }, (_, i) => cellEditor(lang, i, isMosaic && i === 0)).join('')}
     </div>`;
   return modePanel + layoutSel + ratioSel + editors;
@@ -172,6 +191,22 @@ function updatePreviewCell(pane, lang, i) {
   const s = getCellStyle(lang, i);
   box.style.background = rgbaFromHex(s.bgColor, s.bgOpacity);
   box.style.border = `${s.borderWidth}px solid ${s.borderColor}`;
+}
+// Text-Overlay einer Vorschau-Kachel live aktualisieren (Text/Schrift).
+function updatePreviewText(pane, lang, i) {
+  const box = pane.querySelector(`[data-prevtext="${i}"]`);
+  if (!box) return;
+  const s = getCellStyle(lang, i);
+  if (!s.text) {
+    box.textContent = '';
+    box.removeAttribute('style');
+    return;
+  }
+  box.textContent = s.text;
+  box.setAttribute(
+    'style',
+    `position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:.2rem;color:#fff;font-weight:700;font-size:.85rem;line-height:1.15;text-shadow:0 1px 3px rgba(0,0,0,.7);word-break:break-word;${fontFF(s.font)}`,
+  );
 }
 
 export function renderLayout() {
@@ -203,6 +238,7 @@ export function renderLayout() {
   pane.querySelectorAll('[data-gridfit]').forEach((el) =>
     el.addEventListener('change', () => {
       state.media[el.dataset.lang].heroGridFit = el.checked ? 'contain' : 'cover';
+      renderLayout(); // Vorschau-Medien-Zuschnitt aktualisieren
     }),
   );
 
@@ -214,14 +250,28 @@ export function renderLayout() {
       const s = getCellStyle(lang, i);
       if (field === 'borderWidth') {
         s.borderWidth = clamp(parseInt(el.value, 10) || 0, 0, 20);
+        updatePreviewCell(pane, lang, i);
       } else if (field === 'bgOpacity') {
         s.bgOpacity = clamp(parseInt(el.value, 10) || 0, 0, 100);
         const ov = pane.querySelector(`[data-cellopval="${i}"]`);
         if (ov) ov.textContent = s.bgOpacity;
+        updatePreviewCell(pane, lang, i);
+      } else if (field === 'text') {
+        s.text = el.value.slice(0, 120);
+        updatePreviewText(pane, lang, i);
       } else {
         s[field] = el.value; // Farben
+        updatePreviewCell(pane, lang, i);
       }
-      updatePreviewCell(pane, lang, i);
+    });
+  });
+
+  // Schriftart des Kachel-Textes.
+  pane.querySelectorAll('[data-cellfont]').forEach((el) => {
+    const i = Number(el.dataset.cellfont);
+    el.addEventListener('change', () => {
+      getCellStyle(lang, i).font = el.value;
+      updatePreviewText(pane, lang, i);
     });
   });
 }

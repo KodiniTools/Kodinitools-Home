@@ -976,6 +976,11 @@ body {
 .hero-grid.layout-grid6 {
   grid-template-columns: repeat(3, 1fr);
 }
+/* 4 nebeneinander (eine Reihe) */
+.hero-grid.layout-row4 {
+  grid-template-columns: repeat(4, 1fr);
+  max-width: 860px;
+}
 /* 2 große Kacheln nebeneinander (breiter als grid2) */
 .hero-grid.layout-big2 {
   grid-template-columns: repeat(2, 1fr);
@@ -1000,11 +1005,33 @@ body {
   grid-row: 1 / span 2;
 }
 .hero-grid-cell {
+  position: relative;
   aspect-ratio: var(--hero-cell-ratio, 1 / 1);
   border-radius: 14px;
   overflow: hidden;
   background: var(--cell-bg, rgba(1, 79, 153, 0.08));
   border: var(--cell-bw, 0) solid var(--cell-bc, transparent);
+}
+/* Medium füllt die Kachel; Text liegt als Overlay darüber. */
+.hero-cell-media {
+  position: absolute;
+  inset: 0;
+}
+.hero-cell-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0.4rem 0.6rem;
+  color: #fff;
+  font-weight: 700;
+  font-size: clamp(0.9rem, 2.2vw, 1.5rem);
+  line-height: 1.2;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  word-break: break-word;
 }
 .hero-grid-media {
   width: 100%;

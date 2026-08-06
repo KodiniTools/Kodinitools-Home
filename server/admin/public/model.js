@@ -226,6 +226,7 @@ export const GRID_DIMS = { '1:1': '800 × 800 px', '16:9': '800 × 450 px', '2:3
 export const HERO_LAYOUTS = {
   grid2: { label: '2 nebeneinander', cells: 2 },
   grid3: { label: '3 nebeneinander', cells: 3 },
+  row4: { label: '4 nebeneinander', cells: 4 },
   grid4: { label: '4 im 2×2-Raster', cells: 4 },
   grid6: { label: '6 im 3×2-Raster', cells: 6 },
   big2: { label: '2 große nebeneinander', cells: 2 },
@@ -240,10 +241,17 @@ function normHeroLayout(v) {
   return Object.prototype.hasOwnProperty.call(HERO_LAYOUTS, v) ? v : 'grid3';
 }
 
-// Per-Kachel-Design (Rahmen + Hintergrund). Standard entspricht dem bisherigen
-// Aussehen: kein Rahmen, leicht bläulicher Hintergrund (8 %).
+// Per-Kachel-Design (Rahmen + Hintergrund + optionaler Text/Schrift). Standard
+// entspricht dem bisherigen Aussehen: kein Rahmen, leicht bläulicher Hintergrund.
 export function defaultCellStyle() {
-  return { borderColor: '#014f99', borderWidth: 0, bgColor: '#014f99', bgOpacity: 8 };
+  return {
+    borderColor: '#014f99',
+    borderWidth: 0,
+    bgColor: '#014f99',
+    bgOpacity: 8,
+    text: '', // Standardtext über dem Bild / im leeren Kasten
+    font: '', // Schriftart des Textes (Dateiname im /fonts-Ordner; leer = Standard)
+  };
 }
 export function defaultCellStyles() {
   return Array.from({ length: HERO_GRID_MAX }, () => defaultCellStyle());
@@ -261,6 +269,8 @@ function normCellStyle(s) {
     borderWidth: num(s.borderWidth, 0, 20, d.borderWidth),
     bgColor: hex(s.bgColor, d.bgColor),
     bgOpacity: num(s.bgOpacity, 0, 100, d.bgOpacity),
+    text: typeof s.text === 'string' ? s.text.slice(0, 120) : '',
+    font: normFontFile(s.font),
   };
 }
 export function normCellStyles(arr) {

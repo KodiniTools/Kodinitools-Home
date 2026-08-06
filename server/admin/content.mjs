@@ -246,12 +246,19 @@ function defaultMediaLocale() {
   };
 }
 // Erlaubte Hero-Raster-Layouts (Anordnung der Kacheln).
-const HERO_LAYOUTS = ['grid2', 'grid3', 'grid4', 'grid6', 'big2', 'vrow', 'mosaic'];
+const HERO_LAYOUTS = ['grid2', 'grid3', 'row4', 'grid4', 'grid6', 'big2', 'vrow', 'mosaic'];
 // Größtmögliche Kachelzahl über alle Layouts (für Raster + Per-Kachel-Design).
 const HERO_GRID_MAX = 6;
 // Per-Kachel-Design (Rahmen + Hintergrund); Standard = kein Rahmen, bg 8 %.
 function defaultCellStyle() {
-  return { borderColor: '#014f99', borderWidth: 0, bgColor: '#014f99', bgOpacity: 8 };
+  return {
+    borderColor: '#014f99',
+    borderWidth: 0,
+    bgColor: '#014f99',
+    bgOpacity: 8,
+    text: '',
+    font: '',
+  };
 }
 function defaultCellStyles() {
   return Array.from({ length: HERO_GRID_MAX }, () => defaultCellStyle());
@@ -264,6 +271,8 @@ function validateCellStyle(s) {
     borderWidth: clampNum(s.borderWidth, 0, 20, d.borderWidth),
     bgColor: normHexColor(s.bgColor, d.bgColor),
     bgOpacity: clampNum(s.bgOpacity, 0, 100, d.bgOpacity),
+    text: typeof s.text === 'string' ? s.text.slice(0, 120) : '',
+    font: normFontFile(s.font),
   };
 }
 
