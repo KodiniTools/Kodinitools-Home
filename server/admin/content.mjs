@@ -116,6 +116,7 @@ function heroSideLight() {
     ctaTextColor: '#ffffff',
     ctaHoverBgColor: '#003971',
     ctaHoverTextColor: '#ffffff',
+    titleTextColor: '#003971',
   };
 }
 function heroSideDark() {
@@ -135,6 +136,7 @@ function heroSideDark() {
     ctaTextColor: '#ffffff',
     ctaHoverBgColor: '#a07030',
     ctaHoverTextColor: '#ffffff',
+    titleTextColor: '#f9f2d5',
   };
 }
 // Buchstaben-Konturbreite: [0, 5] px, auf 0,5 gerundet.
@@ -193,6 +195,7 @@ function validateHeroSide(s, def) {
     ctaTextColor: normHexColor(s.ctaTextColor, def.ctaTextColor),
     ctaHoverBgColor: normHexColor(s.ctaHoverBgColor, def.ctaHoverBgColor),
     ctaHoverTextColor: normHexColor(s.ctaHoverTextColor, def.ctaHoverTextColor),
+    titleTextColor: normHexColor(s.titleTextColor, def.titleTextColor),
   };
 }
 

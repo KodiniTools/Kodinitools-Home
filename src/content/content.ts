@@ -128,6 +128,7 @@ export interface HeroDesignSide {
   ctaTextColor: string; // Hex – Schriftfarbe des CTA-Buttons
   ctaHoverBgColor: string; // Hex – Hintergrund des CTA-Buttons beim Überfahren
   ctaHoverTextColor: string; // Hex – Schriftfarbe des CTA-Buttons beim Überfahren
+  titleTextColor: string; // Hex – Textfarbe der Überschriften (Titel + Untertitel)
 }
 
 /**
@@ -199,6 +200,7 @@ const MEDIA_DEFAULTS: MediaConfig = {
       ctaTextColor: '#ffffff',
       ctaHoverBgColor: '#003971',
       ctaHoverTextColor: '#ffffff',
+      titleTextColor: '#003971',
     },
     dark: {
       borderColor: '#e8a945',
@@ -216,6 +218,7 @@ const MEDIA_DEFAULTS: MediaConfig = {
       ctaTextColor: '#ffffff',
       ctaHoverBgColor: '#a07030',
       ctaHoverTextColor: '#ffffff',
+      titleTextColor: '#f9f2d5',
     },
   },
 };
