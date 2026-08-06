@@ -219,6 +219,8 @@ export function defaultMediaLocale() {
     heroGrid: ['', '', '', '', '', ''],
     heroGridLinks: ['', '', '', '', '', ''],
     heroGridStyles: defaultCellStyles(),
+    heroGridUniform: false, // „Standard für alle Kacheln" aktiv?
+    heroGridUniformCell: 0, // Index der Master-Kachel, deren Werte gelten
     heroGridRatio: '1:1',
     heroGridFit: 'cover',
     heroDesign: defaultHeroDesign(),
@@ -300,6 +302,27 @@ export function getCellStyle(lang, i) {
   if (!m.heroGridStyles[i]) m.heroGridStyles[i] = defaultCellStyle();
   return m.heroGridStyles[i];
 }
+// Eigenschaften, die „Standard für alle Kacheln" von der Master-Kachel übernimmt.
+export const CELL_SYNC_PROPS = [
+  'borderWidth',
+  'bgColor',
+  'bgOpacity',
+  'font',
+  'textSize',
+  'textColor',
+];
+// Effektiver Style der Kachel i: bei aktivem „Standard für alle Kacheln" werden
+// die synchronisierten Eigenschaften von der Master-Kachel übernommen; die
+// eigenen Werte (Text, Position, Rahmenfarbe, Bild) bleiben erhalten.
+export function getEffectiveCellStyle(lang, i) {
+  const m = state.media[lang];
+  const base = getCellStyle(lang, i);
+  if (!m.heroGridUniform) return base;
+  const master = getCellStyle(lang, m.heroGridUniformCell || 0);
+  const out = { ...base };
+  for (const p of CELL_SYNC_PROPS) out[p] = master[p];
+  return out;
+}
 // Globale (sprachübergreifende) Seiten-Einstellungen. globalFont = Basis-
 // Schriftart der ganzen Seite (Dateiname im /fonts-Ordner; leer = Standard).
 export function defaultSite() {
@@ -358,6 +381,10 @@ export function normalizeMedia(m) {
         typeof gridLinks[i] === 'string' ? gridLinks[i] : '',
       ),
       heroGridStyles: normCellStyles(o?.heroGridStyles),
+      heroGridUniform: o?.heroGridUniform === true,
+      heroGridUniformCell: Number.isFinite(Number(o?.heroGridUniformCell))
+        ? Math.max(0, Math.min(HERO_GRID_MAX - 1, Math.round(Number(o.heroGridUniformCell))))
+        : 0,
       heroGridRatio: ['1:1', '16:9', '2:3'].includes(o?.heroGridRatio) ? o.heroGridRatio : '1:1',
       heroGridFit: o?.heroGridFit === 'contain' ? 'contain' : 'cover',
       heroDesign: normHeroDesign(o?.heroDesign),

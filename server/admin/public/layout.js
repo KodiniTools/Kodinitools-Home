@@ -2,7 +2,7 @@
 // Form (Seitenverhältnis) und Per-Kachel-Design (Rahmen + Hintergrund) mit
 // Live-Vorschau. Die eigentliche Medien-Zuweisung passiert weiter im Medien-Tab.
 
-import { $, esc } from './core.js';
+import { $, esc, toast } from './core.js';
 import {
   state,
   rgbaFromHex,
@@ -10,6 +10,8 @@ import {
   heroLayoutCells,
   GRID_DIMS,
   getCellStyle,
+  getEffectiveCellStyle,
+  CELL_SYNC_PROPS,
   getMediaVal,
 } from './model.js';
 import { objUrl } from './media.js';
@@ -90,7 +92,7 @@ function previewHtml(lang, layout, cellsN, ratio) {
   const ar = RATIO_AR[ratio] || '1 / 1';
   const fit = state.media[lang].heroGridFit === 'contain' ? 'contain' : 'cover';
   const cells = Array.from({ length: cellsN }, (_, i) => {
-    const s = getCellStyle(lang, i);
+    const s = getEffectiveCellStyle(lang, i);
     const bg = rgbaFromHex(s.bgColor, s.bgOpacity);
     let box = `aspect-ratio:${ar};`;
     let span = '';
@@ -112,10 +114,25 @@ function previewHtml(lang, layout, cellsN, ratio) {
 
 // Editor für Rahmen + Hintergrund einer Kachel.
 function cellEditor(lang, i, bigLabel) {
-  const s = getCellStyle(lang, i);
+  const s = getEffectiveCellStyle(lang, i);
+  const m = state.media[lang];
+  const isMaster = m.heroGridUniform && (m.heroGridUniformCell || 0) === i;
+  // Von einer anderen Kachel „geerbt"? Dann Felder sperren und Hinweis zeigen.
+  const inherited = m.heroGridUniform && !isMaster;
+  const dis = inherited ? 'disabled' : '';
+  const note = inherited
+    ? `<p class="hint" style="margin:.3rem 0 0;color:var(--accent)">↳ Übernimmt Rahmendicke, Hintergrund, Transparenz, Schriftart, -größe und -farbe von Kachel ${(m.heroGridUniformCell || 0) + 1}.</p>`
+    : '';
   return `
-    <div class="panel" data-celleditor="${i}" style="padding:.7rem .9rem;margin-bottom:.6rem;scroll-margin-top:44vh">
-      <strong style="font-size:.85rem">Kachel ${i + 1}${bigLabel ? ' (groß)' : ''}</strong>
+    <div class="panel" data-celleditor="${i}" style="padding:.7rem .9rem;margin-bottom:.6rem;scroll-margin-top:44vh${inherited ? ';opacity:.75' : ''}">
+      <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
+        <strong style="font-size:.85rem">Kachel ${i + 1}${bigLabel ? ' (groß)' : ''}</strong>
+        <label style="display:flex;align-items:center;gap:.35rem;margin:0;color:${isMaster ? 'var(--accent)' : 'var(--muted)'};font-size:.75rem;cursor:pointer">
+          <input type="checkbox" data-cellmaster="${i}" ${isMaster ? 'checked' : ''} style="width:auto" />
+          Standard für alle Kacheln
+        </label>
+      </div>
+      ${note}
       <div class="row" style="align-items:flex-end;margin-top:.4rem">
         <div style="flex:0 0 auto">
           <label>Rahmenfarbe</label>
@@ -123,15 +140,15 @@ function cellEditor(lang, i, bigLabel) {
         </div>
         <div style="flex:0 0 auto">
           <label>Rahmendicke (px)</label>
-          <input type="number" data-cellfield="${i}:borderWidth" min="0" max="20" step="1" value="${s.borderWidth}" style="width:90px" />
+          <input type="number" data-cellfield="${i}:borderWidth" min="0" max="20" step="1" value="${s.borderWidth}" ${dis} style="width:90px" />
         </div>
         <div style="flex:0 0 auto">
           <label>Hintergrund</label>
-          <input type="color" data-cellfield="${i}:bgColor" value="${esc(s.bgColor)}" style="width:56px;height:38px;padding:2px" />
+          <input type="color" data-cellfield="${i}:bgColor" value="${esc(s.bgColor)}" ${dis} style="width:56px;height:38px;padding:2px" />
         </div>
         <div style="flex:1 1 170px">
           <label>Hintergrund-Transparenz: <span data-cellopval="${i}">${s.bgOpacity}</span>%</label>
-          <input type="range" data-cellfield="${i}:bgOpacity" min="0" max="100" value="${s.bgOpacity}" style="width:100%" />
+          <input type="range" data-cellfield="${i}:bgOpacity" min="0" max="100" value="${s.bgOpacity}" ${dis} style="width:100%" />
         </div>
       </div>
       <div class="row" style="align-items:flex-end;margin-top:.4rem">
@@ -141,17 +158,17 @@ function cellEditor(lang, i, bigLabel) {
         </div>
         <div style="flex:1 1 200px">
           <label>Schriftart des Textes</label>
-          <select data-cellfont="${i}" style="${fontFF(s.font || '')}">${fontOptionsHtml(s.font || '')}</select>
+          <select data-cellfont="${i}" ${dis} style="${fontFF(s.font || '')}">${fontOptionsHtml(s.font || '')}</select>
         </div>
       </div>
       <div class="row" style="align-items:flex-end;margin-top:.4rem">
         <div style="flex:0 0 auto">
           <label>Textfarbe</label>
-          <input type="color" data-cellfield="${i}:textColor" value="${esc(s.textColor || '#ffffff')}" style="width:56px;height:38px;padding:2px" />
+          <input type="color" data-cellfield="${i}:textColor" value="${esc(s.textColor || '#ffffff')}" ${dis} style="width:56px;height:38px;padding:2px" />
         </div>
         <div style="flex:0 0 auto">
           <label>Textgröße (px, 0=auto)</label>
-          <input type="number" data-cellfield="${i}:textSize" min="0" max="96" step="1" value="${s.textSize || 0}" style="width:120px" />
+          <input type="number" data-cellfield="${i}:textSize" min="0" max="96" step="1" value="${s.textSize || 0}" ${dis} style="width:120px" />
         </div>
         <div style="flex:0 0 auto">
           <label>Position</label>
@@ -293,7 +310,7 @@ function layoutPanel(lang) {
 function updatePreviewCell(pane, lang, i) {
   const box = pane.querySelector(`[data-prevcell="${i}"]`);
   if (!box) return;
-  const s = getCellStyle(lang, i);
+  const s = getEffectiveCellStyle(lang, i);
   box.style.background = rgbaFromHex(s.bgColor, s.bgOpacity);
   box.style.border = `${s.borderWidth}px solid ${s.borderColor}`;
 }
@@ -320,7 +337,7 @@ function updateBannerPreviewText(pane, lang) {
 function updatePreviewText(pane, lang, i) {
   const box = pane.querySelector(`[data-prevtext="${i}"]`);
   if (!box) return;
-  const s = getCellStyle(lang, i);
+  const s = getEffectiveCellStyle(lang, i);
   if (!s.text) {
     box.textContent = '';
     box.removeAttribute('style');
@@ -328,6 +345,20 @@ function updatePreviewText(pane, lang, i) {
   }
   box.textContent = s.text;
   box.setAttribute('style', cellTextOverlayStyle(s.textColor, s.textSize, s.textPos, s.font));
+}
+
+// Aktualisiert die Vorschau nach einer Feld-Änderung: bei „Standard für alle
+// Kacheln" und einer synchronisierten Eigenschaft alle Kacheln, sonst nur die
+// bearbeitete.
+function refreshPreviewFor(pane, lang, i, field) {
+  const all = state.media[lang].heroGridUniform && CELL_SYNC_PROPS.includes(field);
+  const idx = all
+    ? [...pane.querySelectorAll('[data-prevcell]')].map((el) => Number(el.dataset.prevcell))
+    : [i];
+  for (const n of idx) {
+    updatePreviewCell(pane, lang, n);
+    updatePreviewText(pane, lang, n);
+  }
 }
 
 // Kachel i in Vorschau UND Editor hervorheben (ohne zu scrollen).
@@ -370,6 +401,24 @@ export function renderLayout() {
       el.addEventListener('focusin', () => markCell(pane, Number(el.dataset.celleditor))),
     );
 
+  // „Standard für alle Kacheln": diese Kachel wird Vorlage für alle anderen.
+  // Ausschalten stellt die individuellen Werte wieder her – die eigenen Werte
+  // jeder Kachel werden nie überschrieben, nur beim Anzeigen überlagert.
+  pane.querySelectorAll('[data-cellmaster]').forEach((el) => {
+    const i = Number(el.dataset.cellmaster);
+    el.addEventListener('change', () => {
+      const m = state.media[lang];
+      m.heroGridUniform = el.checked;
+      if (el.checked) m.heroGridUniformCell = i;
+      renderLayout();
+      toast(
+        el.checked
+          ? `Kachel ${i + 1} ist Standard für alle Kacheln`
+          : 'Jede Kachel nutzt wieder ihre eigenen Einstellungen',
+      );
+    });
+  });
+
   // Modus (Banner/Raster) + Layout: strukturelle Änderung -> neu rendern.
   pane.querySelectorAll('[data-heromode]').forEach((el) =>
     el.addEventListener('change', () => {
@@ -406,25 +455,20 @@ export function renderLayout() {
       const s = getCellStyle(lang, i);
       if (field === 'borderWidth') {
         s.borderWidth = clamp(parseInt(el.value, 10) || 0, 0, 20);
-        updatePreviewCell(pane, lang, i);
       } else if (field === 'bgOpacity') {
         s.bgOpacity = clamp(parseInt(el.value, 10) || 0, 0, 100);
         const ov = pane.querySelector(`[data-cellopval="${i}"]`);
         if (ov) ov.textContent = s.bgOpacity;
-        updatePreviewCell(pane, lang, i);
       } else if (field === 'text') {
         s.text = el.value.slice(0, 120);
-        updatePreviewText(pane, lang, i);
-      } else if (field === 'textColor') {
-        s.textColor = el.value;
-        updatePreviewText(pane, lang, i);
       } else if (field === 'textSize') {
         s.textSize = clamp(parseInt(el.value, 10) || 0, 0, 96);
-        updatePreviewText(pane, lang, i);
       } else {
-        s[field] = el.value; // Rahmen-/Hintergrundfarbe
-        updatePreviewCell(pane, lang, i);
+        s[field] = el.value; // Farben (Rahmen/Hintergrund/Text)
       }
+      // Bei „Standard für alle Kacheln" wirkt eine synchronisierte Eigenschaft
+      // auf ALLE Kacheln -> gesamte Vorschau auffrischen, sonst nur diese.
+      refreshPreviewFor(pane, lang, i, field);
     });
   });
   // Text-Position der Kachel.
@@ -445,7 +489,7 @@ export function renderLayout() {
       el.setAttribute('style', ff);
       const inp = pane.querySelector(`[data-cellfield="${i}:text"]`);
       if (inp) inp.setAttribute('style', ff);
-      updatePreviewText(pane, lang, i);
+      refreshPreviewFor(pane, lang, i, 'font');
     });
   });
 
