@@ -284,17 +284,19 @@ function mediaOverrideFor(locale: Locale): unknown {
 
 // Eigenschaften, die „Standard für alle Kacheln" von der Master-Kachel übernimmt.
 const CELL_SYNC_PROPS = [
+  'borderColor',
   'borderWidth',
   'bgColor',
   'bgOpacity',
   'font',
   'textSize',
   'textColor',
+  'textPos',
 ] as const;
 /**
  * Effektiver Style einer Raster-Kachel: bei aktivem „Standard für alle Kacheln"
  * werden die synchronisierten Eigenschaften von der Master-Kachel übernommen;
- * die eigenen Werte (Text, Position, Rahmenfarbe) bleiben erhalten.
+ * der eigene Text bleibt je Kachel erhalten.
  */
 export function effectiveHeroCellStyle(media: MediaConfig, i: number): HeroCellStyle {
   const styles = media.heroGridStyles || [];
