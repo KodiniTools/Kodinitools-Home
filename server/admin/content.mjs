@@ -234,15 +234,18 @@ function defaultMediaLocale() {
       diverse: '/videos/diverse-tools.mp4',
     },
     heroMode: 'banner',
+    heroLayout: 'grid3',
     heroBanner: '',
     heroBannerLink: '',
-    heroGrid: ['', '', ''],
-    heroGridLinks: ['', '', ''],
+    heroGrid: ['', '', '', ''],
+    heroGridLinks: ['', '', '', ''],
     heroGridRatio: '1:1',
     heroGridFit: 'cover',
     heroDesign: defaultHeroDesign(),
   };
 }
+// Erlaubte Hero-Raster-Layouts (Anordnung der Kacheln).
+const HERO_LAYOUTS = ['grid2', 'grid3', 'grid4', 'mosaic'];
 
 /** Globale (sprachübergreifende) Seiten-Einstellungen (Standard). */
 function defaultSite() {
@@ -317,8 +320,10 @@ function validateMediaLocale(m, langLabel) {
       out.sectionVideos[key] = val;
     }
   }
-  // Hero-Modus: 'banner' (Einzelbild) oder 'grid' (3er-Raster).
+  // Hero-Modus: 'banner' (Einzelbild) oder 'grid' (Kachel-Raster).
   out.heroMode = m.heroMode === 'grid' ? 'grid' : 'banner';
+  // Raster-Layout (Anordnung der Kacheln); Fallback auf 3 nebeneinander.
+  out.heroLayout = HERO_LAYOUTS.includes(m.heroLayout) ? m.heroLayout : 'grid3';
   // Option 1 – Hero-Banner: optional. Leerer String = kein Banner; sonst gültige URL.
   out.heroBanner = '';
   if (m.heroBanner != null && m.heroBanner !== '') {
@@ -332,20 +337,20 @@ function validateMediaLocale(m, langLabel) {
       throw new Error(`media.${langLabel}.heroBannerLink muss / oder http(s) sein`);
     out.heroBannerLink = m.heroBannerLink;
   }
-  // Option 2 – Hero-Raster: genau drei Felder, je '' oder gültige URL.
-  out.heroGrid = ['', '', ''];
+  // Option 2 – Hero-Raster: bis zu vier Felder, je '' oder gültige URL.
+  out.heroGrid = ['', '', '', ''];
   if (Array.isArray(m.heroGrid)) {
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 4; i++) {
       const v = m.heroGrid[i];
       if (v == null || v === '') continue;
       if (!isValidMediaUrl(v)) throw new Error(`media.${langLabel}.heroGrid[${i}] ungültig`);
       out.heroGrid[i] = v;
     }
   }
-  // Verlinkung der drei Rasterbilder (optional): interner Pfad oder http(s).
-  out.heroGridLinks = ['', '', ''];
+  // Verlinkung der Rasterbilder (optional): interner Pfad oder http(s).
+  out.heroGridLinks = ['', '', '', ''];
   if (Array.isArray(m.heroGridLinks)) {
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 4; i++) {
       const v = m.heroGridLinks[i];
       if (v == null || v === '') continue;
       if (!isValidMediaUrl(v))

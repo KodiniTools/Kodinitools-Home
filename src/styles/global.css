@@ -958,14 +958,35 @@ body {
   }
 }
 
-/* Hero-Raster: drei quadratische (1:1) Bilder nebeneinander */
+/* Hero-Raster: Kacheln in wählbarer Anordnung (Layout) und Form (Ratio). */
 .hero-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
   width: 100%;
   max-width: 720px;
   margin: 0 auto;
+}
+/* Anordnungen */
+.hero-grid.layout-grid2,
+.hero-grid.layout-grid4 {
+  grid-template-columns: repeat(2, 1fr);
+  max-width: 520px;
+}
+.hero-grid.layout-grid3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+/* Mosaik: eine große Kachel links, zwei kleine rechts gestapelt */
+.hero-grid.layout-mosaic {
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  aspect-ratio: 2 / 1;
+}
+.hero-grid.layout-mosaic .hero-grid-cell {
+  aspect-ratio: auto;
+  height: 100%;
+}
+.hero-grid.layout-mosaic .hero-grid-cell--big {
+  grid-row: 1 / span 2;
 }
 .hero-grid-cell {
   aspect-ratio: var(--hero-cell-ratio, 1 / 1);

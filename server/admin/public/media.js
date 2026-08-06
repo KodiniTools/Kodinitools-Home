@@ -11,6 +11,8 @@ import {
   GRID_DIMS,
   MEDIA_LANGS,
   MEDIA_KEYS,
+  HERO_LAYOUTS,
+  heroLayoutCells,
   updateMediaUrlEverywhere,
 } from './model.js';
 
@@ -20,9 +22,10 @@ const SLOT_LABELS = {
   image: 'Bild-Sektion',
   diverse: 'Diverse-Sektion',
   heroBanner: 'Hero-Banner',
-  grid0: 'Rasterbild 1',
-  grid1: 'Rasterbild 2',
-  grid2: 'Rasterbild 3',
+  grid0: 'Kachel 1',
+  grid1: 'Kachel 2',
+  grid2: 'Kachel 3',
+  grid3: 'Kachel 4',
 };
 // Alle Plätze (Sprache · Slot), die auf eine der übergebenen Referenzen zeigen.
 function usageOf(...refs) {
@@ -187,42 +190,58 @@ function heroPanel(lang) {
           </label>
           <label style="display:flex;align-items:center;gap:.4rem;color:var(--text)">
             <input type="radio" name="heromode-${lang}" data-heromode="grid" data-lang="${lang}" ${mode === 'grid' ? 'checked' : ''} style="width:auto" />
-            Option 2: 3er-Bildraster (1:1)
+            Option 2: Bild-Raster (mehrere Kacheln)
           </label>
         </div>
       </div>`;
   if (mode === 'grid') {
+    const layout = Object.prototype.hasOwnProperty.call(HERO_LAYOUTS, state.media[lang].heroLayout)
+      ? state.media[lang].heroLayout
+      : 'grid3';
+    const cellsN = heroLayoutCells(layout);
+    const isMosaic = layout === 'mosaic';
     const ratio = ['1:1', '16:9', '2:3'].includes(state.media[lang].heroGridRatio)
       ? state.media[lang].heroGridRatio
       : '1:1';
     const fitContain = state.media[lang].heroGridFit === 'contain';
-    const ratioSel = `
+    const layoutOpts = Object.entries(HERO_LAYOUTS)
+      .map(([k, v]) => `<option value="${k}" ${k === layout ? 'selected' : ''}>${v.label}</option>`)
+      .join('');
+    const layoutSel = `
       <div class="panel">
-        <label>Seitenverhältnis der Rasterbilder</label>
+        <label>Layout (Anordnung der Kacheln)</label>
+        <select data-herolayout data-lang="${lang}" style="width:auto">${layoutOpts}</select>
+        <p class="hint" style="margin-top:.5rem">Bestimmt Anzahl &amp; Anordnung der Bild-Kacheln oben.
+          „Mosaik" = eine große Kachel links, zwei kleine rechts.</p>
+      </div>`;
+    // Form (Seitenverhältnis) gilt nur für die Reihen-/Raster-Layouts, nicht fürs Mosaik.
+    const ratioSel = isMosaic
+      ? ''
+      : `
+      <div class="panel">
+        <label>Form der Kacheln</label>
         <select data-gridratio data-lang="${lang}" style="width:auto">
-          <option value="1:1" ${ratio === '1:1' ? 'selected' : ''}>3 × 1:1 (quadratisch)</option>
-          <option value="16:9" ${ratio === '16:9' ? 'selected' : ''}>3 × 16:9 (breit)</option>
-          <option value="2:3" ${ratio === '2:3' ? 'selected' : ''}>3 × 2:3 (hochkant)</option>
+          <option value="1:1" ${ratio === '1:1' ? 'selected' : ''}>Quadratisch (1:1)</option>
+          <option value="16:9" ${ratio === '16:9' ? 'selected' : ''}>Breit / Rechteck (16:9)</option>
+          <option value="2:3" ${ratio === '2:3' ? 'selected' : ''}>Hochkant (2:3)</option>
         </select>
         <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin-top:.7rem">
           <input type="checkbox" data-gridfit data-lang="${lang}" ${fitContain ? 'checked' : ''} style="width:auto" />
           Ganzes Bild zeigen (nicht beschneiden)
         </label>
-        <p class="hint" data-griddims style="margin-top:.6rem">📐 Empfohlene Bildgröße für optimale Darstellung: <strong>${GRID_DIMS[ratio]}</strong> — für alle drei Bilder gleich.</p>
+        <p class="hint" data-griddims style="margin-top:.6rem">📐 Empfohlene Bildgröße: <strong>${GRID_DIMS[ratio]}</strong> — für alle Kacheln gleich.</p>
         <p class="hint">Standard: Bild wird formatfüllend zugeschnitten („cover"). Mit Häkchen: das <strong>ganze Bild</strong> wird gezeigt („contain"), ggf. mit Rand.</p>
       </div>`;
-    const cells = [0, 1, 2]
-      .map((i) =>
-        mediaSlotPanel(lang, 'grid' + i, {
-          title: `Rasterbild ${i + 1}`,
-          hint: 'Wird im 3er-Raster oben angezeigt. Leer = Feld bleibt frei.',
-          placeholder: '/uploads/bild.jpg',
-          resetLabel: '↺ Entfernen',
-          withLink: true,
-        }),
-      )
-      .join('');
-    return toggle + ratioSel + cells;
+    const cells = Array.from({ length: cellsN }, (_, i) =>
+      mediaSlotPanel(lang, 'grid' + i, {
+        title: isMosaic && i === 0 ? 'Große Kachel (links)' : `Kachel ${i + 1}`,
+        hint: 'Wird im Raster oben angezeigt. Leer = Feld bleibt frei.',
+        placeholder: '/uploads/bild.jpg',
+        resetLabel: '↺ Entfernen',
+        withLink: true,
+      }),
+    ).join('');
+    return toggle + layoutSel + ratioSel + cells;
   }
   return (
     toggle +
@@ -327,12 +346,18 @@ export function renderMedia() {
       }
     }),
   );
+  pane.querySelectorAll('[data-herolayout]').forEach((el) =>
+    el.addEventListener('change', () => {
+      state.media[el.dataset.lang].heroLayout = el.value;
+      renderMedia(); // Slot-Anzahl/Form-Optionen hängen vom Layout ab
+    }),
+  );
   pane.querySelectorAll('[data-gridratio]').forEach((el) =>
     el.addEventListener('change', () => {
       state.media[el.dataset.lang].heroGridRatio = el.value;
       const dims = pane.querySelector('[data-griddims]');
       if (dims)
-        dims.innerHTML = `📐 Empfohlene Bildgröße für optimale Darstellung: <strong>${GRID_DIMS[el.value] || ''}</strong> — für alle drei Bilder gleich.`;
+        dims.innerHTML = `📐 Empfohlene Bildgröße: <strong>${GRID_DIMS[el.value] || ''}</strong> — für alle Kacheln gleich.`;
     }),
   );
   pane.querySelectorAll('[data-gridfit]').forEach((el) =>
