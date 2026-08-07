@@ -23,10 +23,17 @@ const TEXT_FIELDS = [
 ];
 // Schlüssel für die Stil-Ablage (media.<lang>.textStyles).
 const styleKey = (f) => f.path.join('.');
+// Bei „Standard für alle Slots" wird EIN gemeinsamer Stil gepflegt: Änderungen
+// an einem beliebigen Slot schreiben in den Vorlage-Slot und gelten damit für
+// alle. Ohne die Option bearbeitet jeder Slot seinen eigenen Stil.
+function targetKey(lang, key) {
+  const m = state.media[lang];
+  return m.textStyleUniform ? m.textStyleUniformKey || key : key;
+}
 
-// Bei „Standard für alle Slots": die (gesperrten) Felder der übrigen Slots auf
-// die Werte des Vorlage-Slots nachziehen – ohne Neu-Rendern, damit der Fokus im
-// gerade bearbeiteten Feld erhalten bleibt.
+// Bei „Standard für alle Slots": die Felder der übrigen Slots auf die Werte des
+// gemeinsamen Stils nachziehen – ohne Neu-Rendern, damit der Fokus im gerade
+// bearbeiteten Feld erhalten bleibt.
 function syncInheritedFields(pane, lang) {
   const m = state.media[lang];
   if (!m.textStyleUniform) return;
@@ -68,14 +75,16 @@ export function renderTexts() {
     const key = styleKey(TEXT_FIELDS[parseInt(el.dataset.txtsize, 10)]);
     el.addEventListener('input', () => {
       const n = parseInt(el.value, 10);
-      getTextStyle(lang, key).size = Number.isFinite(n) ? Math.max(0, Math.min(120, n)) : 0;
+      getTextStyle(lang, targetKey(lang, key)).size = Number.isFinite(n)
+        ? Math.max(0, Math.min(120, n))
+        : 0;
       syncInheritedFields(pane, lang);
     });
   });
   pane.querySelectorAll('[data-txtcolor]').forEach((el) => {
     const key = styleKey(TEXT_FIELDS[parseInt(el.dataset.txtcolor, 10)]);
     el.addEventListener('input', () => {
-      getTextStyle(lang, key).color = el.value;
+      getTextStyle(lang, targetKey(lang, key)).color = el.value;
       syncInheritedFields(pane, lang);
     });
   });
@@ -84,7 +93,7 @@ export function renderTexts() {
     const idx = parseInt(el.dataset.txtfont, 10);
     const key = styleKey(TEXT_FIELDS[idx]);
     el.addEventListener('change', () => {
-      getTextStyle(lang, key).font = el.value;
+      getTextStyle(lang, targetKey(lang, key)).font = el.value;
       const ff = fontFF(el.value);
       el.setAttribute('style', ff);
       const ta = pane.querySelector(`[data-txt="${idx}"]`);
@@ -100,7 +109,20 @@ export function renderTexts() {
     el.addEventListener('change', () => {
       const m = state.media[lang];
       m.textStyleUniform = el.checked;
-      if (el.checked) m.textStyleUniformKey = styleKey(f);
+      if (el.checked) {
+        const key = styleKey(f);
+        m.textStyleUniformKey = key;
+        // Hat der gewählte Slot noch keine Einstellungen, den ersten Slot mit
+        // Einstellungen als Startwert übernehmen – sonst wirkt alles „leer".
+        const own = getTextStyle(lang, key);
+        const hasOwn = own.size > 0 || own.color || own.font;
+        if (!hasOwn) {
+          const src = TEXT_FIELDS.map((x) => getTextStyle(lang, styleKey(x))).find(
+            (s) => s.size > 0 || s.color || s.font,
+          );
+          if (src) Object.assign(own, src);
+        }
+      }
       renderTexts();
       toast(
         el.checked
@@ -117,7 +139,7 @@ export function renderTexts() {
     const field = TEXT_FIELDS[idx];
     el.addEventListener('click', () => {
       if (what === 'text') delPath(state.overrides[lang], field.path);
-      else getTextStyle(lang, styleKey(field))[what] = what === 'size' ? 0 : '';
+      else getTextStyle(lang, targetKey(lang, styleKey(field)))[what] = what === 'size' ? 0 : '';
       renderTexts();
       toast('Auf Standard zurückgesetzt');
     });
@@ -135,11 +157,15 @@ function textPanel(lang) {
     const st = getEffectiveTextStyle(lang, key);
     const isMaster = m.textStyleUniform && (m.textStyleUniformKey || '') === key;
     const inherited = m.textStyleUniform && !isMaster;
-    const dis = inherited ? 'disabled' : '';
+    // Felder bleiben bearbeitbar: bei aktiver Option pflegen alle Slots EINEN
+    // gemeinsamen Stil (Änderungen hier gelten überall).
+    const dis = '';
     const masterLabel = TEXT_FIELDS.find((x) => styleKey(x) === m.textStyleUniformKey);
     const note = inherited
-      ? `<p class="hint" style="margin:.25rem 0 0;color:var(--accent)">↳ Übernimmt Schriftart, Textgröße und Farbe von „${esc(masterLabel ? masterLabel.label : m.textStyleUniformKey)}".</p>`
-      : '';
+      ? `<p class="hint" style="margin:.25rem 0 0;color:var(--accent)">↳ Gemeinsamer Stil mit allen Slots (Vorlage: „${esc(masterLabel ? masterLabel.label : m.textStyleUniformKey)}") – Änderungen hier gelten für alle.</p>`
+      : isMaster
+        ? `<p class="hint" style="margin:.25rem 0 0;color:var(--accent)">★ Vorlage: Schriftart, Textgröße und Farbe gelten für alle Slots.</p>`
+        : '';
     // Mehrzeilig: Enter erzeugt einen echten Zeilenumbruch auf der Seite.
     const input = `<textarea data-txt="${idx}" data-lang="${lang}" rows="2" placeholder="${esc(ph)}" style="min-height:64px;font-size:.95rem;${fontFF(st.font || '')}">${esc(val)}</textarea>`;
     return `
