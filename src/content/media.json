@@ -283,7 +283,7 @@
     "textStyleUniform": false,
     "textStyleUniformKey": "hero.title",
     "heroDesign": {
-      "enabled": false,
+      "enabled": true,
       "titleFont": "Supreme-Regular.woff2",
       "buttonFont": "Supreme-Regular.woff2",
       "titleLetterSpacing": 0,
