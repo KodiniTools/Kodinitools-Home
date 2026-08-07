@@ -245,6 +245,8 @@ function defaultMediaLocale() {
     heroGridRatio: '1:1',
     heroGridFit: 'cover',
     textStyles: {},
+    textStyleUniform: false,
+    textStyleUniformKey: 'hero.title',
     heroDesign: defaultHeroDesign(),
   };
 }
@@ -266,7 +268,8 @@ function validateTextStyles(o) {
     if (!isPlainObject(s)) continue;
     const size = clampNum(s.size, 0, 120, 0);
     const color = normHexColor(s.color, '');
-    if (size > 0 || color) out[k] = { size, color };
+    const font = normFontFile(s.font);
+    if (size > 0 || color || font) out[k] = { size, color, font };
   }
   return out;
 }
@@ -438,8 +441,13 @@ function validateMediaLocale(m, langLabel) {
   // Seitenverhältnis + Darstellung (zuschneiden vs. ganzes Bild) des Rasters.
   out.heroGridRatio = ['1:1', '16:9', '2:3'].includes(m.heroGridRatio) ? m.heroGridRatio : '1:1';
   out.heroGridFit = m.heroGridFit === 'contain' ? 'contain' : 'cover';
-  // Text-Stile (Größe/Farbe) der Slots aus dem „Texte"-Tab.
+  // Text-Stile (Größe/Farbe/Schrift) der Slots aus dem „Texte"-Tab.
   out.textStyles = validateTextStyles(m.textStyles);
+  // „Standard für alle Slots": Stil eines Slots gilt für alle.
+  out.textStyleUniform = m.textStyleUniform === true;
+  out.textStyleUniformKey = TEXT_STYLE_KEYS.includes(m.textStyleUniformKey)
+    ? m.textStyleUniformKey
+    : TEXT_STYLE_KEYS[0];
   // Hero-Design (Rahmen/Hintergrund/Buttons) – optional, mit Standard-Fallback.
   out.heroDesign = validateHeroDesign(m.heroDesign);
   return out;

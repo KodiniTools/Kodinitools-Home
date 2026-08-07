@@ -2,7 +2,13 @@
 // Overrides) und der „Erweitert"-Tab (rohe Overrides als JSON).
 
 import { $, esc, toast } from './core.js';
-import { state, getPath, setPath, delPath, getTextStyle } from './model.js';
+import { state, getPath, setPath, delPath, getTextStyle, getEffectiveTextStyle } from './model.js';
+import { fontOptionsHtml, ensureFontFace } from './fonts.js';
+
+// font-family-CSS für die Feld-Vorschau (lädt @font-face) oder ''.
+function fontFF(file) {
+  return file ? `font-family:'${ensureFontFace(file)}', var(--site-font, sans-serif);` : '';
+}
 
 // ============ TAB: Texte ============
 // Alle Slots sind mehrzeilig (Zeilenumbrüche werden auf der Seite übernommen)
@@ -47,6 +53,35 @@ export function renderTexts() {
       getTextStyle(lang, key).color = el.value;
     });
   });
+  // Schriftart je Slot (Feld-Vorschau folgt der Auswahl).
+  pane.querySelectorAll('[data-txtfont]').forEach((el) => {
+    const idx = parseInt(el.dataset.txtfont, 10);
+    const key = styleKey(TEXT_FIELDS[idx]);
+    el.addEventListener('change', () => {
+      getTextStyle(lang, key).font = el.value;
+      const ff = fontFF(el.value);
+      el.setAttribute('style', ff);
+      const ta = pane.querySelector(`[data-txt="${idx}"]`);
+      if (ta) ta.setAttribute('style', `min-height:64px;font-size:.95rem;${ff}`);
+    });
+  });
+
+  // „Standard für alle Slots": Stil dieses Slots gilt für alle anderen.
+  pane.querySelectorAll('[data-txtmaster]').forEach((el) => {
+    const idx = parseInt(el.dataset.txtmaster, 10);
+    const f = TEXT_FIELDS[idx];
+    el.addEventListener('change', () => {
+      const m = state.media[lang];
+      m.textStyleUniform = el.checked;
+      if (el.checked) m.textStyleUniformKey = styleKey(f);
+      renderTexts();
+      toast(
+        el.checked
+          ? `„${f.label}" ist Standard für alle Slots`
+          : 'Jeder Slot nutzt wieder seinen eigenen Stil',
+      );
+    });
+  });
 
   // ↺ Zurücksetzen: Größe, Farbe oder Text des Slots.
   pane.querySelectorAll('[data-txtreset]').forEach((el) => {
@@ -68,25 +103,48 @@ function textPanel(lang) {
     const def = getPath(state.defaults[lang], f.path);
     const val = cur != null ? cur : '';
     const ph = def != null ? String(def) : '';
-    const st = getTextStyle(lang, styleKey(f));
+    const key = styleKey(f);
+    const m = state.media[lang];
+    const st = getEffectiveTextStyle(lang, key);
+    const isMaster = m.textStyleUniform && (m.textStyleUniformKey || '') === key;
+    const inherited = m.textStyleUniform && !isMaster;
+    const dis = inherited ? 'disabled' : '';
+    const masterLabel = TEXT_FIELDS.find((x) => styleKey(x) === m.textStyleUniformKey);
+    const note = inherited
+      ? `<p class="hint" style="margin:.25rem 0 0;color:var(--accent)">↳ Übernimmt Schriftart, Textgröße und Farbe von „${esc(masterLabel ? masterLabel.label : m.textStyleUniformKey)}".</p>`
+      : '';
     // Mehrzeilig: Enter erzeugt einen echten Zeilenumbruch auf der Seite.
-    const input = `<textarea data-txt="${idx}" data-lang="${lang}" rows="2" placeholder="${esc(ph)}" style="min-height:64px;font-family:inherit;font-size:.95rem">${esc(val)}</textarea>`;
+    const input = `<textarea data-txt="${idx}" data-lang="${lang}" rows="2" placeholder="${esc(ph)}" style="min-height:64px;font-size:.95rem;${fontFF(st.font || '')}">${esc(val)}</textarea>`;
     return `
-      <label>${f.label}</label>
+      <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;margin-top:.75rem">
+        <label style="margin:0">${f.label}</label>
+        <label style="display:flex;align-items:center;gap:.35rem;margin:0;color:${isMaster ? 'var(--accent)' : 'var(--muted)'};font-size:.75rem;cursor:pointer">
+          <input type="checkbox" data-txtmaster="${idx}" ${isMaster ? 'checked' : ''} style="width:auto" />
+          Standard für alle Slots
+        </label>
+      </div>
+      ${note}
       ${input}
       <div class="row" style="align-items:flex-end;margin-top:.35rem">
+        <div style="flex:1 1 200px">
+          <label style="margin-top:0">Schriftart</label>
+          <div style="display:flex;gap:.3rem;align-items:center">
+            <select data-txtfont="${idx}" ${dis} style="${fontFF(st.font || '')}">${fontOptionsHtml(st.font || '')}</select>
+            <button type="button" class="hd-reset" data-txtreset="${idx}:font" ${dis} title="Schriftart zurücksetzen" aria-label="Schriftart zurücksetzen">↺</button>
+          </div>
+        </div>
         <div style="flex:0 0 auto">
           <label style="margin-top:0">Textgröße (px, 0=Standard)</label>
           <div style="display:flex;gap:.3rem;align-items:center">
-            <input type="number" data-txtsize="${idx}" min="0" max="120" step="1" value="${st.size || 0}" style="width:120px" />
-            <button type="button" class="hd-reset" data-txtreset="${idx}:size" title="Auf Standard zurücksetzen" aria-label="Größe zurücksetzen">↺</button>
+            <input type="number" data-txtsize="${idx}" min="0" max="120" step="1" value="${st.size || 0}" ${dis} style="width:120px" />
+            <button type="button" class="hd-reset" data-txtreset="${idx}:size" ${dis} title="Auf Standard zurücksetzen" aria-label="Größe zurücksetzen">↺</button>
           </div>
         </div>
         <div style="flex:0 0 auto">
           <label style="margin-top:0">Textfarbe</label>
           <div style="display:flex;gap:.3rem;align-items:center">
-            <input type="color" data-txtcolor="${idx}" value="${esc(st.color || '#ffffff')}" style="width:56px;height:38px;padding:2px" />
-            <button type="button" class="hd-reset" data-txtreset="${idx}:color" title="Farbe auf Standard zurücksetzen" aria-label="Farbe zurücksetzen">↺</button>
+            <input type="color" data-txtcolor="${idx}" value="${esc(st.color || '#ffffff')}" ${dis} style="width:56px;height:38px;padding:2px" />
+            <button type="button" class="hd-reset" data-txtreset="${idx}:color" ${dis} title="Farbe auf Standard zurücksetzen" aria-label="Farbe zurücksetzen">↺</button>
           </div>
         </div>
         <div style="flex:0 0 auto">
@@ -94,8 +152,7 @@ function textPanel(lang) {
           <button type="button" class="hd-reset" data-txtreset="${idx}:text" title="Text auf Standard zurücksetzen" aria-label="Text zurücksetzen">↺ Text</button>
         </div>
       </div>
-      <p class="hint">Leer lassen = Standardtext. Mehrere Zeilen mit Enter; Größe 0 = Standard,
-        Farbe erst nach Änderung aktiv.</p>`;
+      <p class="hint">Leer lassen = Standardtext. Mehrere Zeilen mit Enter; Größe 0 = Standard.</p>`;
   }).join('');
   return `<div class="panel"><h2>Texte <span class="lang-badge">${lang.toUpperCase()}</span></h2>${fields}</div>`;
 }
