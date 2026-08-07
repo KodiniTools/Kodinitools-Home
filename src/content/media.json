@@ -303,16 +303,16 @@
         "bgOpacity": 70,
         "chipBgColor": "#014f99",
         "chipBgOpacity": 15,
-        "chipTextColor": "#013f7a",
+        "chipTextColor": "#29486a",
         "chipBorderColor": "#ffffff",
         "chipBorderOpacity": 20,
         "chipHoverBgColor": "#0160b8",
         "chipHoverTextColor": "#f5f4d6",
-        "ctaBgColor": "#014f99",
+        "ctaBgColor": "#29486a",
         "ctaTextColor": "#ffffff",
-        "ctaHoverBgColor": "#003971",
+        "ctaHoverBgColor": "#486789",
         "ctaHoverTextColor": "#ffffff",
-        "titleTextColor": "#003971"
+        "titleTextColor": "#29486a"
       },
       "dark": {
         "borderColor": "#e8a945",
