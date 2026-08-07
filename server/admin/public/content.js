@@ -24,6 +24,30 @@ const TEXT_FIELDS = [
 // Schlüssel für die Stil-Ablage (media.<lang>.textStyles).
 const styleKey = (f) => f.path.join('.');
 
+// Bei „Standard für alle Slots": die (gesperrten) Felder der übrigen Slots auf
+// die Werte des Vorlage-Slots nachziehen – ohne Neu-Rendern, damit der Fokus im
+// gerade bearbeiteten Feld erhalten bleibt.
+function syncInheritedFields(pane, lang) {
+  const m = state.media[lang];
+  if (!m.textStyleUniform) return;
+  const master = getTextStyle(lang, m.textStyleUniformKey || '');
+  const ff = fontFF(master.font || '');
+  TEXT_FIELDS.forEach((f, idx) => {
+    if (styleKey(f) === m.textStyleUniformKey) return; // Vorlage selbst auslassen
+    const size = pane.querySelector(`[data-txtsize="${idx}"]`);
+    if (size) size.value = master.size || 0;
+    const color = pane.querySelector(`[data-txtcolor="${idx}"]`);
+    if (color) color.value = master.color || '#ffffff';
+    const font = pane.querySelector(`[data-txtfont="${idx}"]`);
+    if (font) {
+      font.value = master.font || '';
+      font.setAttribute('style', ff);
+    }
+    const ta = pane.querySelector(`[data-txt="${idx}"]`);
+    if (ta) ta.setAttribute('style', `min-height:64px;font-size:.95rem;${ff}`);
+  });
+}
+
 export function renderTexts() {
   const pane = $('#content');
   pane.innerHTML = textPanel(state.nav.section);
@@ -45,12 +69,14 @@ export function renderTexts() {
     el.addEventListener('input', () => {
       const n = parseInt(el.value, 10);
       getTextStyle(lang, key).size = Number.isFinite(n) ? Math.max(0, Math.min(120, n)) : 0;
+      syncInheritedFields(pane, lang);
     });
   });
   pane.querySelectorAll('[data-txtcolor]').forEach((el) => {
     const key = styleKey(TEXT_FIELDS[parseInt(el.dataset.txtcolor, 10)]);
     el.addEventListener('input', () => {
       getTextStyle(lang, key).color = el.value;
+      syncInheritedFields(pane, lang);
     });
   });
   // Schriftart je Slot (Feld-Vorschau folgt der Auswahl).
@@ -63,6 +89,7 @@ export function renderTexts() {
       el.setAttribute('style', ff);
       const ta = pane.querySelector(`[data-txt="${idx}"]`);
       if (ta) ta.setAttribute('style', `min-height:64px;font-size:.95rem;${ff}`);
+      syncInheritedFields(pane, lang);
     });
   });
 
