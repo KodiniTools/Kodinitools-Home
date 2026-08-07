@@ -215,7 +215,9 @@ export function defaultMediaLocale() {
     heroBannerFont: '', // Schriftart des Banner-Textes (Dateiname im /fonts-Ordner)
     heroBannerTextColor: '#ffffff',
     heroBannerTextSize: 0, // px (0 = automatisch)
-    heroBannerTextPos: 'center', // 'top' | 'center' | 'bottom'
+    heroBannerTextPos: 'center', // Alt: 'top'|'center'|'bottom' (nur noch Migration)
+    heroBannerTextX: 50, // Freie Position in % (0=links, 100=rechts) – per Maus ziehbar
+    heroBannerTextY: 50, // Freie Position in % (0=oben, 100=unten)
     heroGrid: ['', '', '', '', '', ''],
     heroGridLinks: ['', '', '', '', '', ''],
     heroGridStyles: defaultCellStyles(),
@@ -303,12 +305,21 @@ export function defaultCellStyle() {
     font: '', // Schriftart des Textes (Dateiname im /fonts-Ordner; leer = Standard)
     textColor: '#ffffff', // Farbe des Textes
     textSize: 0, // Schriftgröße in px (0 = automatisch)
-    textPos: 'center', // Position: 'top' | 'center' | 'bottom'
+    textPos: 'center', // Alt: 'top'|'center'|'bottom' (nur noch Migration)
+    textX: 50, // Freie Position in % (0=links, 100=rechts) – per Maus ziehbar
+    textY: 50, // Freie Position in % (0=oben, 100=unten)
   };
 }
-// Erlaubte Text-Positionen im Overlay.
+// Erlaubte Text-Positionen im Overlay (Alt-Format, nur noch für Migration).
 export function normTextPos(v) {
   return ['top', 'center', 'bottom'].includes(v) ? v : 'center';
+}
+// Freie Position (0–100 %). Fehlt sie, wird sie aus der alten top/center/bottom-
+// Angabe abgeleitet, damit bestehende Layouts erhalten bleiben.
+export function normPosPct(v, legacyPos, axisDefault) {
+  const n = Number(v);
+  if (Number.isFinite(n)) return Math.max(0, Math.min(100, Math.round(n)));
+  return { top: 10, center: 50, bottom: 90 }[legacyPos] ?? axisDefault;
 }
 export function defaultCellStyles() {
   return Array.from({ length: HERO_GRID_MAX }, () => defaultCellStyle());
@@ -331,6 +342,8 @@ function normCellStyle(s) {
     textColor: hex(s.textColor, d.textColor),
     textSize: num(s.textSize, 0, 96, d.textSize),
     textPos: normTextPos(s.textPos),
+    textX: normPosPct(s.textX, undefined, 50),
+    textY: normPosPct(s.textY, normTextPos(s.textPos), 50),
   };
 }
 export function normCellStyles(arr) {
@@ -354,7 +367,8 @@ export const CELL_SYNC_PROPS = [
   'font',
   'textSize',
   'textColor',
-  'textPos',
+  'textX',
+  'textY',
 ];
 // Effektiver Style der Kachel i: bei aktivem „Standard für alle Kacheln" werden
 // die synchronisierten Eigenschaften von der Master-Kachel übernommen; der
@@ -421,6 +435,8 @@ export function normalizeMedia(m) {
         ? Math.max(0, Math.min(96, Math.round(Number(o.heroBannerTextSize))))
         : 0,
       heroBannerTextPos: normTextPos(o?.heroBannerTextPos),
+      heroBannerTextX: normPosPct(o?.heroBannerTextX, undefined, 50),
+      heroBannerTextY: normPosPct(o?.heroBannerTextY, normTextPos(o?.heroBannerTextPos), 50),
       heroGrid: [0, 1, 2, 3, 4, 5].map((i) => (typeof grid[i] === 'string' ? grid[i] : '')),
       heroGridLinks: [0, 1, 2, 3, 4, 5].map((i) =>
         typeof gridLinks[i] === 'string' ? gridLinks[i] : '',

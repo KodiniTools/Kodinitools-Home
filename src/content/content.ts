@@ -108,6 +108,9 @@ export interface MediaConfig {
   heroBannerTextColor: string;
   heroBannerTextSize: number;
   heroBannerTextPos: 'top' | 'center' | 'bottom';
+  // Freie Position des Banner-Textes in % (per Maus im Admin ziehbar).
+  heroBannerTextX: number;
+  heroBannerTextY: number;
   // Option 2: bis zu sechs Bilder fürs Raster + gewähltes Seitenverhältnis.
   heroGrid: string[];
   // Verlinkung der Rasterbilder (interner Pfad oder http(s)). Leer = nicht klickbar.
@@ -139,7 +142,9 @@ export interface HeroCellStyle {
   font: string; // Schriftart des Textes (Dateiname im /fonts-Ordner; leer = Standard)
   textColor: string; // Hex – Textfarbe
   textSize: number; // px – Schriftgröße (0 = automatisch)
-  textPos: 'top' | 'center' | 'bottom'; // vertikale Position des Textes
+  textPos: 'top' | 'center' | 'bottom'; // Alt: vertikale Position (nur Migration)
+  textX: number; // Freie Position in % (0=links … 100=rechts), per Maus ziehbar
+  textY: number; // Freie Position in % (0=oben … 100=unten)
 }
 
 /** Ein Farb-Satz des Hero-Bereichs (für Hell- bzw. Dunkelmodus getrennt). */
@@ -203,6 +208,8 @@ const MEDIA_DEFAULTS: MediaConfig = {
   heroBannerTextColor: '#ffffff',
   heroBannerTextSize: 0,
   heroBannerTextPos: 'center',
+  heroBannerTextX: 50,
+  heroBannerTextY: 50,
   heroGrid: ['', '', '', '', '', ''],
   heroGridLinks: ['', '', '', '', '', ''],
   heroGridStyles: Array.from({ length: 6 }, () => ({
@@ -215,6 +222,8 @@ const MEDIA_DEFAULTS: MediaConfig = {
     textColor: '#ffffff',
     textSize: 0,
     textPos: 'center' as const,
+    textX: 50,
+    textY: 50,
   })),
   heroGridUniform: false,
   heroGridUniformCell: 0,
@@ -299,7 +308,8 @@ const CELL_SYNC_PROPS = [
   'font',
   'textSize',
   'textColor',
-  'textPos',
+  'textX',
+  'textY',
 ] as const;
 /**
  * Effektiver Style einer Raster-Kachel: bei aktivem „Standard für alle Kacheln"

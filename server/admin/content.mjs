@@ -289,11 +289,19 @@ function defaultCellStyle() {
     textColor: '#ffffff',
     textSize: 0,
     textPos: 'center',
+    textX: 50,
+    textY: 50,
   };
 }
 const TEXT_POS = ['top', 'center', 'bottom'];
 function normTextPos(v) {
   return TEXT_POS.includes(v) ? v : 'center';
+}
+// Freie Position (0–100 %). Fehlt sie, aus altem top/center/bottom ableiten.
+function normPosPct(v, legacyPos, axisDefault) {
+  const n = Number(v);
+  if (Number.isFinite(n)) return Math.max(0, Math.min(100, Math.round(n)));
+  return { top: 10, center: 50, bottom: 90 }[legacyPos] ?? axisDefault;
 }
 function defaultCellStyles() {
   return Array.from({ length: HERO_GRID_MAX }, () => defaultCellStyle());
@@ -311,6 +319,8 @@ function validateCellStyle(s) {
     textColor: normHexColor(s.textColor, d.textColor),
     textSize: clampNum(s.textSize, 0, 96, d.textSize),
     textPos: normTextPos(s.textPos),
+    textX: normPosPct(s.textX, undefined, 50),
+    textY: normPosPct(s.textY, normTextPos(s.textPos), 50),
   };
 }
 
@@ -410,6 +420,8 @@ function validateMediaLocale(m, langLabel) {
   out.heroBannerTextColor = normHexColor(m.heroBannerTextColor, '#ffffff');
   out.heroBannerTextSize = clampNum(m.heroBannerTextSize, 0, 96, 0);
   out.heroBannerTextPos = normTextPos(m.heroBannerTextPos);
+  out.heroBannerTextX = normPosPct(m.heroBannerTextX, undefined, 50);
+  out.heroBannerTextY = normPosPct(m.heroBannerTextY, normTextPos(m.heroBannerTextPos), 50);
   // Option 2 – Hero-Raster: bis zu sechs Felder, je '' oder gültige URL.
   out.heroGrid = ['', '', '', '', '', ''];
   if (Array.isArray(m.heroGrid)) {

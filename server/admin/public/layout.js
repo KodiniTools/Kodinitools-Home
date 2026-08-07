@@ -19,8 +19,8 @@ import { objUrl } from './media.js';
 import { fontOptionsHtml, ensureFontFace } from './fonts.js';
 
 const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
-// Text-Position -> flex align-items (vertikal).
-const POS_ALIGN = { top: 'flex-start', center: 'center', bottom: 'flex-end' };
+// Preset-Positionen (⤒ Oben / ◎ Mitte / ⤓ Unten) als y-Wert in %.
+const POS_PRESET_Y = { top: 10, center: 50, bottom: 90 };
 // font-family-CSS für eine Kachel-Textschrift (lädt @font-face für die Vorschau) oder ''.
 function fontFF(file) {
   return file ? `font-family:'${ensureFontFace(file)}', var(--site-font, sans-serif);` : '';
@@ -94,16 +94,21 @@ function bannerMediaHtml(lang) {
     ? `<video src="${src}" muted style="${st}"></video>`
     : `<img src="${esc(src)}" style="${st}" />`;
 }
-// Inline-Style des Banner-Text-Overlays (Farbe, Position, Größe, Schrift). Kein
-// erzwungenes Fett-Gewicht, damit die gewählte Schrift ihren Charakter behält.
-function bannerTextStyle(color, size, pos, font) {
-  const fs = size > 0 ? `${size}px` : '1.3rem';
-  return `position:absolute;inset:0;display:flex;align-items:${POS_ALIGN[pos] || 'center'};justify-content:center;text-align:center;padding:.4rem;color:${color || '#fff'};font-size:${fs};line-height:1.2;text-shadow:0 2px 6px rgba(0,0,0,.6);word-break:break-word;pointer-events:none;${fontFF(font)}`;
+// Gemeinsamer Overlay-Style: der Text wird an (x,y) in % verankert (Mittelpunkt)
+// und lässt sich in der Vorschau mit der Maus frei verschieben (cursor:move).
+function overlayStyle(color, size, x, y, font, fsDefault, shadow) {
+  const fs = size > 0 ? `${size}px` : fsDefault;
+  const cx = clamp(Number(x) || 0, 0, 100);
+  const cy = clamp(Number(y) || 0, 0, 100);
+  return `position:absolute;left:${cx}%;top:${cy}%;transform:translate(-50%,-50%);max-width:92%;text-align:center;padding:.1rem .3rem;color:${color || '#fff'};font-size:${fs};line-height:1.2;text-shadow:${shadow};word-break:break-word;cursor:move;pointer-events:auto;user-select:none;touch-action:none;${fontFF(font)}`;
+}
+// Inline-Style des Banner-Text-Overlays (Farbe, freie Position, Größe, Schrift).
+function bannerTextStyle(color, size, x, y, font) {
+  return overlayStyle(color, size, x, y, font, '1.3rem', '0 2px 6px rgba(0,0,0,.6)');
 }
 // Inline-Style des Kachel-Text-Overlays (in der Vorschau).
-function cellTextOverlayStyle(color, size, pos, font) {
-  const fs = size > 0 ? `${size}px` : '.85rem';
-  return `position:absolute;inset:0;display:flex;align-items:${POS_ALIGN[pos] || 'center'};justify-content:center;text-align:center;padding:.2rem;color:${color || '#fff'};font-size:${fs};line-height:1.15;text-shadow:0 1px 3px rgba(0,0,0,.7);word-break:break-word;pointer-events:none;${fontFF(font)}`;
+function cellTextOverlayStyle(color, size, x, y, font) {
+  return overlayStyle(color, size, x, y, font, '.85rem', '0 1px 3px rgba(0,0,0,.7)');
 }
 
 // Live-Vorschau der Anordnung: zeigt die zugewiesenen Bilder (oder eine leere,
@@ -123,7 +128,7 @@ function previewHtml(lang, layout, cellsN, ratio) {
     const media = cellMediaHtml(lang, i, fit);
     const base = media || `<span style="color:var(--muted);font-size:.72rem">${i + 1}</span>`;
     const textOverlay = s.text
-      ? `<div data-prevtext="${i}" style="${cellTextOverlayStyle(s.textColor, s.textSize, s.textPos, s.font)}">${esc(s.text)}</div>`
+      ? `<div data-prevtext="${i}" title="Zum Verschieben ziehen" style="${cellTextOverlayStyle(s.textColor, s.textSize, s.textX, s.textY, s.font)}">${esc(s.text)}</div>`
       : `<div data-prevtext="${i}"></div>`;
     return `<div data-prevcell="${i}" title="Kachel ${i + 1} bearbeiten" style="position:relative;${box}${span}border-radius:8px;overflow:hidden;background:${bg};border:${s.borderWidth}px solid ${s.borderColor};display:flex;align-items:center;justify-content:center;cursor:pointer">${base}${textOverlay}</div>`;
   }).join('');
@@ -191,18 +196,15 @@ function cellEditor(lang, i, bigLabel) {
           <label>Textgröße (px, 0=auto)</label>
           ${withReset(`<input type="number" data-cellfield="${i}:textSize" min="0" max="96" step="1" value="${s.textSize || 0}" ${dis} style="width:120px" />`, 'data-cellreset', `${i}:textSize`, inherited)}
         </div>
-        <div style="flex:0 0 auto">
-          <label>Position</label>
-          ${withReset(
-            `<select data-cellpos="${i}" ${dis} style="width:auto">
-            <option value="top" ${s.textPos === 'top' ? 'selected' : ''}>Oben</option>
-            <option value="center" ${s.textPos === 'bottom' || s.textPos === 'top' ? '' : 'selected'}>Mitte</option>
-            <option value="bottom" ${s.textPos === 'bottom' ? 'selected' : ''}>Unten</option>
-          </select>`,
-            'data-cellreset',
-            `${i}:textPos`,
-            inherited,
-          )}
+        <div style="flex:1 1 auto">
+          <label>Textposition <span style="color:var(--muted);font-weight:400">— in der Vorschau mit der Maus ziehen</span></label>
+          <div style="display:flex;gap:.3rem;align-items:center;flex-wrap:wrap">
+            <button type="button" class="hd-reset" data-cellpospreset="${i}:top" ${dis} title="Oben" aria-label="Oben">⤒</button>
+            <button type="button" class="hd-reset" data-cellpospreset="${i}:center" ${dis} title="Mitte" aria-label="Mitte">◎</button>
+            <button type="button" class="hd-reset" data-cellpospreset="${i}:bottom" ${dis} title="Unten" aria-label="Unten">⤓</button>
+            <span class="hint" data-cellposval="${i}" style="margin:0 .2rem">${s.textX} / ${s.textY} %</span>
+            ${resetBtn('data-cellreset', `${i}:pos`, inherited)}
+          </div>
         </div>
       </div>
     </div>`;
@@ -233,12 +235,13 @@ function layoutPanel(lang) {
     const bFont = m.heroBannerFont || '';
     const bColor = m.heroBannerTextColor || '#ffffff';
     const bSize = m.heroBannerTextSize || 0;
-    const bPos = m.heroBannerTextPos || 'center';
+    const bX = Number.isFinite(m.heroBannerTextX) ? m.heroBannerTextX : 50;
+    const bY = Number.isFinite(m.heroBannerTextY) ? m.heroBannerTextY : 50;
     const bMedia = bannerMediaHtml(lang);
     const previewBox = `
-      <div style="position:relative;max-width:520px;margin:.2rem auto;display:flex;align-items:center;justify-content:center;min-height:80px">
+      <div data-bannerbox style="position:relative;max-width:520px;margin:.2rem auto;display:flex;align-items:center;justify-content:center;min-height:80px">
         ${bMedia || '<span class="hint">Kein Banner gewählt — im Tab „Medien" zuweisen.</span>'}
-        <div data-bannertext style="${bText ? bannerTextStyle(bColor, bSize, bPos, bFont) : ''}">${esc(bText)}</div>
+        <div data-bannertext ${bText ? 'title="Zum Verschieben ziehen"' : ''} style="${bText ? bannerTextStyle(bColor, bSize, bX, bY, bFont) : ''}">${esc(bText)}</div>
       </div>`;
     const previewPanel = `
       <div style="position:sticky;top:.5rem;z-index:5;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:.6rem .9rem;margin:0 0 .9rem;box-shadow:0 8px 22px rgba(0,0,0,.4);max-height:38vh;overflow:auto">
@@ -272,18 +275,15 @@ function layoutPanel(lang) {
             <label>Textgröße (px, 0=auto)</label>
             ${withReset(`<input type="number" data-bannerfield="textSize" min="0" max="96" step="1" value="${bSize}" style="width:120px" />`, 'data-bannerreset', 'textSize', false)}
           </div>
-          <div style="flex:0 0 auto">
-            <label>Position</label>
-            ${withReset(
-              `<select data-bannerpos style="width:auto">
-              <option value="top" ${bPos === 'top' ? 'selected' : ''}>Oben</option>
-              <option value="center" ${bPos === 'bottom' || bPos === 'top' ? '' : 'selected'}>Mitte</option>
-              <option value="bottom" ${bPos === 'bottom' ? 'selected' : ''}>Unten</option>
-            </select>`,
-              'data-bannerreset',
-              'textPos',
-              false,
-            )}
+          <div style="flex:1 1 auto">
+            <label>Textposition <span style="color:var(--muted);font-weight:400">— in der Vorschau mit der Maus ziehen</span></label>
+            <div style="display:flex;gap:.3rem;align-items:center;flex-wrap:wrap">
+              <button type="button" class="hd-reset" data-bannerpospreset="top" title="Oben" aria-label="Oben">⤒</button>
+              <button type="button" class="hd-reset" data-bannerpospreset="center" title="Mitte" aria-label="Mitte">◎</button>
+              <button type="button" class="hd-reset" data-bannerpospreset="bottom" title="Unten" aria-label="Unten">⤓</button>
+              <span class="hint" data-bannerposval style="margin:0 .2rem">${bX} / ${bY} %</span>
+              ${resetBtn('data-bannerreset', 'pos', false)}
+            </div>
           </div>
         </div>
       </div>`;
@@ -364,11 +364,19 @@ function updateBannerPreviewText(pane, lang) {
       ? bannerTextStyle(
           m.heroBannerTextColor,
           m.heroBannerTextSize,
-          m.heroBannerTextPos,
+          m.heroBannerTextX,
+          m.heroBannerTextY,
           m.heroBannerFont,
         )
       : '',
   );
+}
+// „x / y %"-Anzeige des Banner-Textes aktualisieren.
+function updateBannerPosLabel(pane, lang) {
+  const el = pane.querySelector('[data-bannerposval]');
+  if (!el) return;
+  const m = state.media[lang];
+  el.textContent = `${m.heroBannerTextX} / ${m.heroBannerTextY} %`;
 }
 // Text-Overlay einer Vorschau-Kachel live aktualisieren (Text/Schrift).
 function updatePreviewText(pane, lang, i) {
@@ -381,7 +389,18 @@ function updatePreviewText(pane, lang, i) {
     return;
   }
   box.textContent = s.text;
-  box.setAttribute('style', cellTextOverlayStyle(s.textColor, s.textSize, s.textPos, s.font));
+  box.setAttribute(
+    'style',
+    cellTextOverlayStyle(s.textColor, s.textSize, s.textX, s.textY, s.font),
+  );
+}
+// „x / y %"-Anzeige aller Kachel-Editoren aktualisieren (berücksichtigt „Standard
+// für alle Kacheln": geerbte Kacheln zeigen die Werte der Master-Kachel).
+function updateCellPosLabels(pane, lang) {
+  pane.querySelectorAll('[data-cellposval]').forEach((el) => {
+    const s = getEffectiveCellStyle(lang, Number(el.dataset.cellposval));
+    el.textContent = `${s.textX} / ${s.textY} %`;
+  });
 }
 
 // Aktualisiert die Vorschau nach einer Feld-Änderung: bei „Standard für alle
@@ -418,6 +437,89 @@ function selectCell(pane, i) {
   const stickyH = sticky ? sticky.getBoundingClientRect().height : 0;
   const top = editor.getBoundingClientRect().top + window.scrollY - stickyH - 24;
   window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+}
+
+// Macht ein Text-Overlay (handle) innerhalb seines Containers per Maus/Touch
+// ziehbar. onMove(x,y) bekommt die neue Position in % (0–100). onTap() wird bei
+// einem Klick ohne Bewegung ausgelöst (z. B. um die Kachel auszuwählen).
+function dragHandle(handle, container, onMove, onTap) {
+  if (!handle || !container) return;
+  let active = false;
+  let moved = false;
+  let sx = 0;
+  let sy = 0;
+  handle.addEventListener('pointerdown', (e) => {
+    active = true;
+    moved = false;
+    sx = e.clientX;
+    sy = e.clientY;
+    try {
+      handle.setPointerCapture(e.pointerId);
+    } catch (_) {
+      /* ignore */
+    }
+    e.preventDefault();
+  });
+  handle.addEventListener('pointermove', (e) => {
+    if (!active) return;
+    if (Math.abs(e.clientX - sx) > 3 || Math.abs(e.clientY - sy) > 3) moved = true;
+    const r = container.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+    const x = Math.round(clamp(((e.clientX - r.left) / r.width) * 100, 0, 100));
+    const y = Math.round(clamp(((e.clientY - r.top) / r.height) * 100, 0, 100));
+    onMove(x, y);
+  });
+  const end = (e) => {
+    if (!active) return;
+    active = false;
+    try {
+      handle.releasePointerCapture(e.pointerId);
+    } catch (_) {
+      /* ignore */
+    }
+    if (!moved && onTap) onTap();
+  };
+  handle.addEventListener('pointerup', end);
+  handle.addEventListener('pointercancel', end);
+}
+
+// Verdrahtet das freie Ziehen der Text-Overlays (Banner + Kacheln) in der Vorschau.
+function wireDrag(pane, lang) {
+  const m = state.media[lang];
+  // Banner-Text ziehen. Ohne Text ist das Overlay 0 px groß und nicht greifbar –
+  // die Verdrahtung greift automatisch, sobald ein Text eingegeben wurde.
+  const bt = pane.querySelector('[data-bannertext]');
+  if (bt) {
+    dragHandle(bt, pane.querySelector('[data-bannerbox]'), (x, y) => {
+      m.heroBannerTextX = x;
+      m.heroBannerTextY = y;
+      updateBannerPreviewText(pane, lang);
+      updateBannerPosLabel(pane, lang);
+    });
+  }
+  // Kachel-Texte ziehen. Geerbte Kacheln („Standard für alle Kacheln") sind
+  // gesperrt – nur die Master-Kachel bzw. freie Kacheln lassen sich verschieben.
+  pane.querySelectorAll('[data-prevtext]').forEach((handle) => {
+    const i = Number(handle.dataset.prevtext);
+    const inherited = m.heroGridUniform && (m.heroGridUniformCell || 0) !== i;
+    if (inherited) {
+      handle.style.cursor = 'default';
+      handle.style.pointerEvents = 'none';
+      return;
+    }
+    dragHandle(
+      handle,
+      pane.querySelector(`[data-prevcell="${i}"]`),
+      (x, y) => {
+        const s = getCellStyle(lang, i);
+        s.textX = x;
+        s.textY = y;
+        refreshPreviewFor(pane, lang, i, 'textX');
+        updateCellPosLabels(pane, lang);
+      },
+      () => selectCell(pane, i),
+    );
+  });
 }
 
 export function renderLayout() {
@@ -473,7 +575,13 @@ export function renderLayout() {
     const i = Number(iStr);
     el.addEventListener('click', () => {
       const d = defaultCellStyle();
-      if (field in d) getCellStyle(lang, i)[field] = d[field];
+      const s = getCellStyle(lang, i);
+      if (field === 'pos') {
+        s.textX = d.textX;
+        s.textY = d.textY;
+      } else if (field in d) {
+        s[field] = d[field];
+      }
       renderLayout();
       toast('Auf Standard zurückgesetzt');
     });
@@ -491,10 +599,15 @@ export function renderLayout() {
   // ↺ Banner-Textfeld auf Standard zurücksetzen.
   pane.querySelectorAll('[data-bannerreset]').forEach((el) => {
     const field = el.dataset.bannerreset;
-    const defs = { text: '', font: '', textColor: '#ffffff', textSize: 0, textPos: 'center' };
+    const defs = { text: '', font: '', textColor: '#ffffff', textSize: 0 };
     el.addEventListener('click', () => {
-      const key = 'heroBanner' + field.charAt(0).toUpperCase() + field.slice(1);
-      if (field in defs) state.media[lang][key] = defs[field];
+      const m = state.media[lang];
+      if (field === 'pos') {
+        m.heroBannerTextX = 50;
+        m.heroBannerTextY = 50;
+      } else if (field in defs) {
+        m['heroBanner' + field.charAt(0).toUpperCase() + field.slice(1)] = defs[field];
+      }
       renderLayout();
       toast('Auf Standard zurückgesetzt');
     });
@@ -552,12 +665,16 @@ export function renderLayout() {
       refreshPreviewFor(pane, lang, i, field);
     });
   });
-  // Text-Position der Kachel.
-  pane.querySelectorAll('[data-cellpos]').forEach((el) => {
-    const i = Number(el.dataset.cellpos);
-    el.addEventListener('change', () => {
-      getCellStyle(lang, i).textPos = el.value;
-      refreshPreviewFor(pane, lang, i, 'textPos');
+  // Text-Position der Kachel: Presets (Oben/Mitte/Unten) setzen x=50 und y.
+  pane.querySelectorAll('[data-cellpospreset]').forEach((el) => {
+    const [iStr, pos] = el.dataset.cellpospreset.split(':');
+    const i = Number(iStr);
+    el.addEventListener('click', () => {
+      const s = getCellStyle(lang, i);
+      s.textX = 50;
+      s.textY = POS_PRESET_Y[pos] ?? 50;
+      refreshPreviewFor(pane, lang, i, 'textX');
+      updateCellPosLabels(pane, lang);
     });
   });
 
@@ -585,10 +702,12 @@ export function renderLayout() {
       updateBannerPreviewText(pane, lang);
     }),
   );
-  pane.querySelectorAll('[data-bannerpos]').forEach((el) =>
-    el.addEventListener('change', () => {
-      state.media[lang].heroBannerTextPos = el.value;
+  pane.querySelectorAll('[data-bannerpospreset]').forEach((el) =>
+    el.addEventListener('click', () => {
+      state.media[lang].heroBannerTextX = 50;
+      state.media[lang].heroBannerTextY = POS_PRESET_Y[el.dataset.bannerpospreset] ?? 50;
       updateBannerPreviewText(pane, lang);
+      updateBannerPosLabel(pane, lang);
     }),
   );
   pane.querySelectorAll('[data-bannerfont]').forEach((el) =>
@@ -601,4 +720,7 @@ export function renderLayout() {
       updateBannerPreviewText(pane, lang);
     }),
   );
+
+  // Freies Verschieben der Text-Overlays per Maus (Banner + Kacheln).
+  wireDrag(pane, lang);
 }

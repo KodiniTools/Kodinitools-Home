@@ -946,15 +946,16 @@ body {
 .hero-banner-inner {
   display: contents;
 }
-/* Text über dem Banner (zentriert, gut lesbar). */
+/* Text über dem Banner: an frei wählbarer Position (left/top per Inline-Style,
+   Standard 50%/50%) verankert; der Mittelpunkt sitzt auf dem Ankerpunkt. */
 .hero-banner-text {
   position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  max-width: calc(100% - 1.2rem);
   text-align: center;
-  padding: 0.6rem 1rem;
+  padding: 0.2rem 0.4rem;
   color: #fff;
   font-size: clamp(1.1rem, 3vw, 2rem);
   line-height: 1.2;
@@ -965,7 +966,12 @@ body {
 /* Nur-Text-Banner (kein Bild): normaler, mittiger Textblock. */
 .hero-banner-text--static {
   position: static;
+  transform: none;
+  max-width: 100%;
   min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: var(--text-color);
   text-shadow: none;
 }
@@ -1048,12 +1054,12 @@ body {
 }
 .hero-cell-text {
   position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  max-width: calc(100% - 0.8rem);
   text-align: center;
-  padding: 0.4rem 0.6rem;
+  padding: 0.1rem 0.3rem;
   color: #fff;
   font-size: clamp(0.9rem, 2.2vw, 1.5rem);
   line-height: 1.2;
