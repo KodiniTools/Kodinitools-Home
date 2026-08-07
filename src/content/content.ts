@@ -120,8 +120,11 @@ export interface MediaConfig {
   heroGridRatio: '1:1' | '16:9' | '2:3';
   // 'cover' = auf Format zuschneiden, 'contain' = ganzes Bild zeigen (mit Rand).
   heroGridFit: 'cover' | 'contain';
-  // Größe/Farbe einzelner Text-Slots aus dem „Texte"-Tab (Schlüssel = i18n-Key).
-  textStyles: Record<string, { size: number; color: string }>;
+  // Größe/Farbe/Schrift einzelner Text-Slots aus dem „Texte"-Tab (Schlüssel = i18n-Key).
+  textStyles: Record<string, { size: number; color: string; font?: string }>;
+  // „Standard für alle Slots": Stil des gewählten Slots gilt für alle.
+  textStyleUniform?: boolean;
+  textStyleUniformKey?: string;
   // Admin-einstellbares Design des Hero-Bereichs (Rahmen/Hintergrund/Buttons).
   heroDesign: HeroDesign;
 }
@@ -218,6 +221,8 @@ const MEDIA_DEFAULTS: MediaConfig = {
   heroGridRatio: '1:1',
   heroGridFit: 'cover',
   textStyles: {},
+  textStyleUniform: false,
+  textStyleUniformKey: 'hero.title',
   heroDesign: {
     enabled: false,
     titleFont: '',
@@ -311,6 +316,21 @@ export function effectiveHeroCellStyle(media: MediaConfig, i: number): HeroCellS
   return out;
 }
 
+// Schrift-Helfer für die Text-Slots (Dateiname -> Family-Name + @font-face).
+const TEXT_FONT_FILE = /^[a-zA-Z0-9][a-zA-Z0-9._ -]*\.(woff2|woff|ttf|otf)$/i;
+function textFontId(file: string): string {
+  return 'kodini-font-' + file.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9]+/g, '-');
+}
+function textFontFaceCss(file: string): string {
+  const ext = (file.split('.').pop() || '').toLowerCase();
+  const fmt =
+    ({ woff2: 'woff2', woff: 'woff', ttf: 'truetype', otf: 'opentype' } as Record<string, string>)[
+      ext
+    ] || '';
+  const src = `url("/fonts/${encodeURIComponent(file)}")${fmt ? ` format("${fmt}")` : ''}`;
+  return `@font-face{font-family:"${textFontId(file)}";src:${src};font-display:swap;}`;
+}
+
 // CSS-Selektor je Text-Slot. Alle Slots außer dem Hero-Titel (wird per
 // Tipp-Animation gefüllt) sind über ihr data-i18n-Attribut erreichbar.
 const TEXT_STYLE_SELECTORS: Record<string, string> = {
@@ -330,12 +350,16 @@ const TEXT_STYLE_SELECTORS: Record<string, string> = {
 export function getTextStylesCss(media: MediaConfig): string | undefined {
   const ts = media.textStyles;
   if (!ts) return undefined;
+  // „Standard für alle Slots": Stil des gewählten Slots gilt für jeden Slot.
+  const uniform = media.textStyleUniform === true;
+  const master = uniform ? ts[media.textStyleUniformKey || ''] : undefined;
   // Zeilenumbrüche in allen Text-Slots respektieren (mehrzeilige Texte).
   const rules: string[] = [
     `${Object.values(TEXT_STYLE_SELECTORS).join(',')}{white-space:pre-line}`,
   ];
+  const faces = new Set<string>();
   for (const [key, sel] of Object.entries(TEXT_STYLE_SELECTORS)) {
-    const s = ts[key];
+    const s = uniform ? master : ts[key];
     if (!s) continue;
     const decl: string[] = [];
     if (typeof s.size === 'number' && s.size > 0) decl.push(`font-size:${s.size}px`);
@@ -343,9 +367,14 @@ export function getTextStylesCss(media: MediaConfig): string | undefined {
       // -webkit-text-fill-color überschreibt auch Verlaufs-Überschriften.
       decl.push(`color:${s.color}`, `-webkit-text-fill-color:${s.color}`, 'background:none');
     }
+    const font = (s.font || '').trim();
+    if (font && TEXT_FONT_FILE.test(font)) {
+      faces.add(textFontFaceCss(font));
+      decl.push(`font-family:"${textFontId(font)}", var(--site-font)`);
+    }
     if (decl.length) rules.push(`${sel}{${decl.join(';')}}`);
   }
-  return rules.length ? rules.join('') : undefined;
+  return [...faces].join('') + rules.join('');
 }
 
 /** Anzahl Bild-Kacheln je Hero-Raster-Layout. */

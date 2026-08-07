@@ -223,7 +223,9 @@ export function defaultMediaLocale() {
     heroGridUniformCell: 0, // Index der Master-Kachel, deren Werte gelten
     heroGridRatio: '1:1',
     heroGridFit: 'cover',
-    textStyles: {}, // { "<textKey>": { size: px (0=auto), color: Hex|'' } }
+    textStyles: {}, // { "<textKey>": { size: px (0=auto), color: Hex|'', font: Datei|'' } }
+    textStyleUniform: false, // „Standard für alle Slots" aktiv?
+    textStyleUniformKey: 'hero.title', // Slot, dessen Stil dann für alle gilt
     heroDesign: defaultHeroDesign(),
   };
 }
@@ -245,7 +247,8 @@ export function normTextStyles(o) {
     const size = Number(s.size);
     const color = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(s.color)) ? s.color : '';
     const px = Number.isFinite(size) ? Math.max(0, Math.min(120, Math.round(size))) : 0;
-    if (px > 0 || color) out[k] = { size: px, color };
+    const font = normFontFile(s.font);
+    if (px > 0 || color || font) out[k] = { size: px, color, font };
   }
   return out;
 }
@@ -253,8 +256,18 @@ export function normTextStyles(o) {
 export function getTextStyle(lang, key) {
   const m = state.media[lang];
   if (!m.textStyles || typeof m.textStyles !== 'object') m.textStyles = {};
-  if (!m.textStyles[key]) m.textStyles[key] = { size: 0, color: '' };
-  return m.textStyles[key];
+  if (!m.textStyles[key]) m.textStyles[key] = { size: 0, color: '', font: '' };
+  const s = m.textStyles[key];
+  if (typeof s.font !== 'string') s.font = '';
+  return s;
+}
+// Effektiver Stil eines Text-Slots: bei aktivem „Standard für alle Slots"
+// gelten die Werte des gewählten Slots für alle (Größe, Farbe, Schriftart).
+export function getEffectiveTextStyle(lang, key) {
+  const m = state.media[lang];
+  const own = getTextStyle(lang, key);
+  if (!m.textStyleUniform) return own;
+  return { ...getTextStyle(lang, m.textStyleUniformKey || TEXT_STYLE_KEYS[0]) };
 }
 // Empfohlene Bildabmessungen je Seitenverhältnis (crisp bei ~3-spaltiger Anzeige).
 export const GRID_DIMS = { '1:1': '800 × 800 px', '16:9': '800 × 450 px', '2:3': '800 × 1200 px' };
@@ -420,6 +433,10 @@ export function normalizeMedia(m) {
       heroGridRatio: ['1:1', '16:9', '2:3'].includes(o?.heroGridRatio) ? o.heroGridRatio : '1:1',
       heroGridFit: o?.heroGridFit === 'contain' ? 'contain' : 'cover',
       textStyles: normTextStyles(o?.textStyles),
+      textStyleUniform: o?.textStyleUniform === true,
+      textStyleUniformKey: TEXT_STYLE_KEYS.includes(o?.textStyleUniformKey)
+        ? o.textStyleUniformKey
+        : TEXT_STYLE_KEYS[0],
       heroDesign: normHeroDesign(o?.heroDesign),
     };
   };
