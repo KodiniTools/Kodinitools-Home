@@ -279,7 +279,23 @@
     "heroGridUniformCell": 0,
     "heroGridRatio": "1:1",
     "heroGridFit": "cover",
-    "textStyles": {},
+    "textStyles": {
+      "tools.sectionTitle": {
+        "size": 0,
+        "color": "#29486a",
+        "font": ""
+      },
+      "imageTools.sectionTitle": {
+        "size": 0,
+        "color": "#29486a",
+        "font": ""
+      },
+      "diverseTools.sectionTitle": {
+        "size": 0,
+        "color": "#29486a",
+        "font": ""
+      }
+    },
     "textStyleUniform": false,
     "textStyleUniformKey": "hero.title",
     "heroDesign": {
