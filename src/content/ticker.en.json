@@ -4,16 +4,16 @@
   "items": [
     {
       "id": "1785207549904",
-      "text": "Always the best tools for your workflow – Constantly updated, verified, and ready to use - Check back regularly - Last update: 06.08.2026"
+      "text": "Always the best tools for your workflow – Constantly updated, verified, and ready to use - Check back regularly - Last update: 07.08.2026"
     }
   ],
   "style": {
     "enabled": true,
     "fontSize": 14,
-    "textColor": "#ebf4f4",
-    "bgColor": "#014f99",
+    "textColor": "#29486a",
+    "bgColor": "#e5eef5",
     "bgOpacity": 100,
     "fontFamily": "Supreme-Regular.woff2",
-    "letterSpacing": 1
+    "letterSpacing": 1.5
   }
 }

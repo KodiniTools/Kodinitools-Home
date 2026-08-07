@@ -108,17 +108,22 @@
     "textStyles": {
       "tools.sectionTitle": {
         "size": 0,
-        "color": "#29486a"
+        "color": "#29486a",
+        "font": ""
       },
       "imageTools.sectionTitle": {
         "size": 0,
-        "color": "#29486a"
+        "color": "#29486a",
+        "font": ""
       },
       "diverseTools.sectionTitle": {
         "size": 0,
-        "color": "#29486a"
+        "color": "#29486a",
+        "font": ""
       }
     },
+    "textStyleUniform": false,
+    "textStyleUniformKey": "hero.subtitle",
     "heroDesign": {
       "enabled": true,
       "titleFont": "Supreme-Regular.woff2",
@@ -275,6 +280,8 @@
     "heroGridRatio": "1:1",
     "heroGridFit": "cover",
     "textStyles": {},
+    "textStyleUniform": false,
+    "textStyleUniformKey": "hero.title",
     "heroDesign": {
       "enabled": false,
       "titleFont": "Supreme-Regular.woff2",
