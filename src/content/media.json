@@ -14,9 +14,11 @@
     "heroBannerLink": "",
     "heroBannerText": "",
     "heroBannerFont": "Satoshi-Regular.woff2",
-    "heroBannerTextColor": "#1d242c",
+    "heroBannerTextColor": "#e4e8ec",
     "heroBannerTextSize": 20,
     "heroBannerTextPos": "bottom",
+    "heroBannerTextX": 74,
+    "heroBannerTextY": 17,
     "heroGrid": [
       "",
       "",
@@ -39,11 +41,13 @@
         "borderWidth": 0,
         "bgColor": "#014f99",
         "bgOpacity": 8,
-        "text": "",
+        "text": "Neu",
         "font": "",
         "textColor": "#ffffff",
         "textSize": 0,
-        "textPos": "center"
+        "textPos": "center",
+        "textX": 46,
+        "textY": 12
       },
       {
         "borderColor": "#014f99",
@@ -54,7 +58,9 @@
         "font": "",
         "textColor": "#ffffff",
         "textSize": 0,
-        "textPos": "center"
+        "textPos": "center",
+        "textX": 50,
+        "textY": 50
       },
       {
         "borderColor": "#014f99",
@@ -65,7 +71,9 @@
         "font": "Alpino-Thin.woff2",
         "textColor": "#ffffff",
         "textSize": 0,
-        "textPos": "center"
+        "textPos": "center",
+        "textX": 50,
+        "textY": 50
       },
       {
         "borderColor": "#014f99",
@@ -76,7 +84,9 @@
         "font": "",
         "textColor": "#ffffff",
         "textSize": 0,
-        "textPos": "center"
+        "textPos": "center",
+        "textX": 50,
+        "textY": 50
       },
       {
         "borderColor": "#014f99",
@@ -87,7 +97,9 @@
         "font": "",
         "textColor": "#ffffff",
         "textSize": 0,
-        "textPos": "center"
+        "textPos": "center",
+        "textX": 50,
+        "textY": 50
       },
       {
         "borderColor": "#014f99",
@@ -98,7 +110,9 @@
         "font": "",
         "textColor": "#ffffff",
         "textSize": 0,
-        "textPos": "center"
+        "textPos": "center",
+        "textX": 50,
+        "textY": 50
       }
     ],
     "heroGridUniform": false,
@@ -191,6 +205,8 @@
     "heroBannerTextColor": "#ffffff",
     "heroBannerTextSize": 0,
     "heroBannerTextPos": "center",
+    "heroBannerTextX": 50,
+    "heroBannerTextY": 50,
     "heroGrid": [
       "",
       "",
@@ -217,7 +233,9 @@
         "font": "",
         "textColor": "#ffffff",
         "textSize": 0,
-        "textPos": "center"
+        "textPos": "center",
+        "textX": 50,
+        "textY": 50
       },
       {
         "borderColor": "#014f99",
@@ -228,7 +246,9 @@
         "font": "",
         "textColor": "#ffffff",
         "textSize": 0,
-        "textPos": "center"
+        "textPos": "center",
+        "textX": 50,
+        "textY": 50
       },
       {
         "borderColor": "#014f99",
@@ -239,7 +259,9 @@
         "font": "",
         "textColor": "#ffffff",
         "textSize": 0,
-        "textPos": "center"
+        "textPos": "center",
+        "textX": 50,
+        "textY": 50
       },
       {
         "borderColor": "#014f99",
@@ -250,7 +272,9 @@
         "font": "",
         "textColor": "#ffffff",
         "textSize": 0,
-        "textPos": "center"
+        "textPos": "center",
+        "textX": 50,
+        "textY": 50
       },
       {
         "borderColor": "#014f99",
@@ -261,7 +285,9 @@
         "font": "",
         "textColor": "#ffffff",
         "textSize": 0,
-        "textPos": "center"
+        "textPos": "center",
+        "textX": 50,
+        "textY": 50
       },
       {
         "borderColor": "#014f99",
@@ -272,7 +298,9 @@
         "font": "",
         "textColor": "#ffffff",
         "textSize": 0,
-        "textPos": "center"
+        "textPos": "center",
+        "textX": 50,
+        "textY": 50
       }
     ],
     "heroGridUniform": false,
