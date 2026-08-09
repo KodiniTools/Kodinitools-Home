@@ -328,36 +328,6 @@ const pageI18n = {
           ))}
         </div>
 
-        <!-- Spotlight Search Box -->
-        <div class="search-container">
-          <div class="search-box spotlight-search">
-            <svg class="search-icon-svg" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="11" cy="11" r="8"></circle>
-              <path d="m21 21-4.35-4.35"></path>
-            </svg>
-            <input
-              type="text"
-              id="searchInput"
-              placeholder="Tools durchsuchen..."
-              data-i18n-placeholder="search.placeholder"
-              class="search-input"
-            />
-            <kbd class="search-kbd" id="searchKbd">&#x2318;K</kbd>
-            <button
-              id="searchClear"
-              class="search-clear"
-              aria-label="Suche löschen"
-              data-i18n-aria="search.clear"
-              style="display: none;"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M18 6 6 18"></path>
-                <path d="m6 6 12 12"></path>
-              </svg>
-            </button>
-          </div>
-        </div>
-
         <!-- Hero CTA -->
         <div class="hero-cta-wrap">
           <a href="#audio-tools" class="hero-cta-btn" data-i18n="hero.cta">Jetzt starten</a>
@@ -370,15 +340,6 @@ const pageI18n = {
           <path d="M12 5v14M5 12l7 7 7-7"/>
         </svg>
       </div>
-    </section>
-
-    <!-- Search Results Section (hidden by default, shown via JS) -->
-    <section id="searchResults" class="tools-section search-results-section" style="display: none;">
-      <div class="section-header">
-        <h2 data-i18n="search.resultsTitle">Suchergebnisse</h2>
-        <p id="searchResultsCount"></p>
-      </div>
-      <div id="searchResultsGrid" class="svg-card-grid"></div>
     </section>
 
     <!-- Favorites Section (hidden until at least one favorite is saved) -->
@@ -613,64 +574,6 @@ const pageI18n = {
         const color = isDark ? 'rgba(201, 152, 77, 0.15)' : 'rgba(1, 79, 153, 0.20)';
         spotlight.style.background = 'radial-gradient(1200px circle at ' + xPct + '% ' + yPct + '%, ' + color + ', transparent 45%)';
       });
-    }
-
-    // --- Search Functionality ---
-    var searchInput = document.getElementById('searchInput');
-    var searchKbd = document.getElementById('searchKbd');
-    var searchClear = document.getElementById('searchClear');
-    var searchResults = document.getElementById('searchResults');
-    var searchResultsCount = document.getElementById('searchResultsCount');
-    var searchResultsGrid = document.getElementById('searchResultsGrid');
-
-    var allToolCards = document.querySelectorAll('.svg-card-link[data-title]');
-
-    if (searchInput) {
-      searchInput.addEventListener('input', function() {
-        var query = searchInput.value.toLowerCase().trim();
-
-        if (searchKbd) searchKbd.style.display = query ? 'none' : 'flex';
-        if (searchClear) searchClear.style.display = query ? 'flex' : 'none';
-
-        if (!query) {
-          if (searchResults) searchResults.style.display = 'none';
-          return;
-        }
-
-        var matches = [];
-        allToolCards.forEach(function(card) {
-          var title = (card.getAttribute('data-title') || '').toLowerCase();
-          var desc = (card.getAttribute('data-description') || '').toLowerCase();
-          if (title.includes(query) || desc.includes(query)) {
-            matches.push(card);
-          }
-        });
-
-        if (searchResults && searchResultsCount && searchResultsGrid) {
-          searchResults.style.display = 'block';
-          if (matches.length === 0) {
-            searchResultsCount.textContent = pageT['search.noResults'] || 'Keine Tools gefunden. Versuchen Sie einen anderen Suchbegriff.';
-            searchResultsCount.className = 'no-results';
-            searchResultsGrid.innerHTML = '';
-          } else {
-            searchResultsCount.textContent = matches.length + ' ' + (pageT['search.resultsFound'] || 'Tools gefunden');
-            searchResultsCount.className = '';
-            searchResultsGrid.innerHTML = '';
-            matches.forEach(function(card) {
-              var clone = card.cloneNode(true);
-              clone.className = 'svg-card-link';
-              searchResultsGrid.appendChild(clone);
-            });
-          }
-        }
-      });
-
-      if (searchClear) {
-        searchClear.addEventListener('click', function() {
-          searchInput.value = '';
-          searchInput.dispatchEvent(new Event('input'));
-        });
-      }
     }
 
     // --- Scroll to Top ---
