@@ -220,7 +220,10 @@ export interface HeroDesignSide {
   chipHoverBgColor: string; // Hex – Hintergrund der Buttons beim Überfahren
   chipHoverTextColor: string; // Hex – Schriftfarbe der Buttons beim Überfahren
   ctaBgColor: string; // Hex – Hintergrund des CTA-Buttons ("Jetzt starten")
+  ctaBgOpacity: number; // 0–100 (%) – Transparenz des CTA-Hintergrunds
   ctaTextColor: string; // Hex – Schriftfarbe des CTA-Buttons
+  ctaBorderColor: string; // Hex – Rahmenfarbe des CTA-Buttons
+  ctaBorderOpacity: number; // 0–100 (%) – Transparenz der CTA-Rahmenfarbe (0 = kein Rahmen)
   ctaHoverBgColor: string; // Hex – Hintergrund des CTA-Buttons beim Überfahren
   ctaHoverTextColor: string; // Hex – Schriftfarbe des CTA-Buttons beim Überfahren
   titleTextColor: string; // Hex – Textfarbe der Überschriften (Titel + Untertitel)
@@ -318,7 +321,10 @@ const MEDIA_DEFAULTS: MediaConfig = {
       chipHoverBgColor: '#0160b8',
       chipHoverTextColor: '#f5f4d6',
       ctaBgColor: '#014f99',
+      ctaBgOpacity: 100,
       ctaTextColor: '#ffffff',
+      ctaBorderColor: '#ffffff',
+      ctaBorderOpacity: 0,
       ctaHoverBgColor: '#003971',
       ctaHoverTextColor: '#ffffff',
       titleTextColor: '#003971',
@@ -336,7 +342,10 @@ const MEDIA_DEFAULTS: MediaConfig = {
       chipHoverBgColor: '#142640',
       chipHoverTextColor: '#f5f4d6',
       ctaBgColor: '#e8a945',
+      ctaBgOpacity: 100,
       ctaTextColor: '#ffffff',
+      ctaBorderColor: '#ffffff',
+      ctaBorderOpacity: 0,
       ctaHoverBgColor: '#a07030',
       ctaHoverTextColor: '#ffffff',
       titleTextColor: '#f9f2d5',

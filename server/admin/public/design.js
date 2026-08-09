@@ -99,7 +99,12 @@ function previewChipStyle(s, hd) {
 }
 function previewCtaStyle(s, hd) {
   const size = hd.ctaFontSize > 0 ? `${hd.ctaFontSize}px` : '.9rem';
-  return `display:inline-block;margin-top:.9rem;padding:.55rem 1.6rem;border-radius:50px;background:${s.ctaBgColor};color:${s.ctaTextColor};font-weight:700;font-size:${size};cursor:pointer;${buttonTypo(hd)}`;
+  const bg = rgbaFromHex(s.ctaBgColor, s.ctaBgOpacity);
+  const bd =
+    s.ctaBorderOpacity > 0
+      ? `border:1px solid ${rgbaFromHex(s.ctaBorderColor, s.ctaBorderOpacity)};`
+      : '';
+  return `display:inline-block;margin-top:.9rem;padding:.55rem 1.6rem;border-radius:50px;background:${bg};color:${s.ctaTextColor};${bd}font-weight:700;font-size:${size};cursor:pointer;${buttonTypo(hd)}`;
 }
 function previewTitleStyle(s, hd) {
   const size = hd.titleFontSize > 0 ? `${hd.titleFontSize}px` : '1.1rem';
@@ -393,9 +398,11 @@ function heroDesignPanel(lang) {
 
   const ctaBody = `
       <div class="row" style="align-items:flex-end">
-        ${colorField(lang, 'ctaBgColor', 'Hintergrund', false, null, s)}
+        ${colorField(lang, 'ctaBgColor', 'Hintergrund', true, 'ctaBgOpacity', s)}
         ${colorField(lang, 'ctaTextColor', 'Textfarbe', false, null, s)}
+        ${colorField(lang, 'ctaBorderColor', 'Rahmenfarbe', true, 'ctaBorderOpacity', s)}
       </div>
+      <p class="hint" style="margin:.2rem 0 0">Rahmen-Transparenz 0 % = kein Rahmen.</p>
       <p class="hint" style="margin-top:.6rem">Hover (beim Überfahren) – zwei Farben:</p>
       <div class="row" style="align-items:flex-end">
         ${colorField(lang, 'ctaHoverBgColor', 'Hover-Hintergrund', false, null, s)}
