@@ -177,15 +177,12 @@ body {
   position: relative;
 }
 
-/* Global Background Effects */
+/* Global Background Effects – deaktiviert.
+   Die farbigen Hintergrund-Effekte (Aurora-Verläufe, Noise-Textur, Maus-
+   Spotlight) werden nicht mehr angezeigt; die Seite behält ihre flache
+   Hauptfarbe (--bg-color, passt sich Hell-/Dunkelmodus an). */
 .global-background {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-  z-index: -1;
+  display: none;
 }
 
 .global-gradient {
@@ -484,15 +481,11 @@ body {
               0 0 0 1px rgba(232, 169, 69, 0.1) inset;
 }
 
-/* Animated Mesh Gradient Background */
+/* Animated Mesh Gradient Background – deaktiviert.
+   Die farbigen Mesh-Verlaufs-„Blobs" im Hero werden nicht mehr angezeigt; der
+   Hero behält seine Hauptfarbe (--hero-bg). */
 .mesh-gradient-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  overflow: hidden;
-  z-index: 0;
+  display: none;
 }
 
 .mesh-blob {
@@ -577,17 +570,9 @@ body {
   opacity: 0.4;
 }
 
-/* Noise Texture Overlay */
+/* Noise Texture Overlay – deaktiviert (flacher Hero-Hintergrund). */
 .noise-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  opacity: 0.03;
-  pointer-events: none;
-  z-index: 1;
+  display: none;
 }
 
 [data-theme="dark"] .noise-overlay {
