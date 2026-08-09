@@ -316,19 +316,19 @@
       "tools.sectionTitle": {
         "size": 0,
         "colorLight": "#29486a",
-        "colorDark": "#29486a",
+        "colorDark": "#ffffff",
         "font": ""
       },
       "imageTools.sectionTitle": {
         "size": 0,
         "colorLight": "#29486a",
-        "colorDark": "#29486a",
+        "colorDark": "#ffffff",
         "font": ""
       },
       "diverseTools.sectionTitle": {
         "size": 0,
         "colorLight": "#29486a",
-        "colorDark": "#29486a",
+        "colorDark": "#ffffff",
         "font": ""
       }
     },
@@ -367,7 +367,7 @@
         "titleTextColor": "#29486a"
       },
       "dark": {
-        "borderColor": "#e8a945",
+        "borderColor": "#ffffff",
         "borderWidth": 1,
         "bgColor": "#0e1c32",
         "bgOpacity": 80,
