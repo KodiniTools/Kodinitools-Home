@@ -57,15 +57,23 @@ export interface TickerItem {
   text: string;
   link?: string;
 }
-/** Admin-einstellbares Aussehen des Laufbands. enabled=false -> Standard-Design. */
-export interface TickerStyle {
-  enabled: boolean;
-  fontSize: number; // px
+/** Farbsatz des Laufbands für einen Modus (Hell oder Dunkel). */
+export interface TickerColorSet {
   textColor: string; // Hex
   bgColor: string; // Hex
   bgOpacity: number; // 0–100 (%)
-  fontFamily: string; // Dateiname im /fonts-Ordner (z.B. "Chillax-Variable.woff2"); leer = Standardschrift
-  letterSpacing: number; // Buchstabenabstand in px (0 = normal)
+}
+/**
+ * Admin-einstellbares Aussehen des Laufbands. enabled=false -> Standard-Design.
+ * Typografie gilt für beide Modi; die Farben sind getrennt nach Hell/Dunkel.
+ */
+export interface TickerStyle {
+  enabled: boolean;
+  fontSize: number; // px (geteilt)
+  fontFamily: string; // Dateiname im /fonts-Ordner; leer = Standardschrift (geteilt)
+  letterSpacing: number; // px (geteilt)
+  light: TickerColorSet; // Farben für Hellmodus
+  dark: TickerColorSet; // Farben für Dunkelmodus
 }
 export interface TickerConfig {
   enabled: boolean;
@@ -74,20 +82,66 @@ export interface TickerConfig {
   style?: TickerStyle;
 }
 
-const TICKER_STYLE_DEFAULTS: TickerStyle = {
-  enabled: false,
-  fontSize: 14,
+// Standard-Farben je Modus (entsprechen dem eingebauten Aussehen in TickerBar.astro).
+const TICKER_LIGHT_DEFAULT: TickerColorSet = {
   textColor: '#ffffff',
   bgColor: '#014f99',
   bgOpacity: 100,
-  fontFamily: '',
-  letterSpacing: 0,
 };
+const TICKER_DARK_DEFAULT: TickerColorSet = {
+  textColor: '#e2e8f0',
+  bgColor: '#111827',
+  bgOpacity: 100,
+};
+const TICKER_FONT_FILE = /^[a-zA-Z0-9][a-zA-Z0-9._ -]*\.(woff2|woff|ttf|otf)$/i;
+const TICKER_HEX = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
+
+/**
+ * Normalisiert das (evtl. veraltete) Laufband-Design auf die neue Struktur mit
+ * getrennten Farb-Sätzen light/dark. Die alte flache Struktur (Farben oben, für
+ * beide Modi gleich) wird auf beide Modi übernommen — verhaltensneutral.
+ */
+export function normalizeTickerStyle(raw: unknown): TickerStyle {
+  const s: Record<string, unknown> = isPlainObject(raw) ? raw : {};
+  const hasSides = isPlainObject(s.light) || isPlainObject(s.dark);
+  const flat: Record<string, unknown> | null =
+    !hasSides && (typeof s.textColor === 'string' || typeof s.bgColor === 'string') ? s : null;
+  const int = (v: unknown, min: number, max: number, d: number): number => {
+    const n = Number(v);
+    return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : d;
+  };
+  const spacing = (v: unknown, d: number): number => {
+    const n = Number(v);
+    return Number.isFinite(n) ? Math.max(-5, Math.min(20, Math.round(n * 2) / 2)) : d;
+  };
+  const colors = (side: unknown, def: TickerColorSet): TickerColorSet => {
+    const o: Record<string, unknown> = isPlainObject(side) ? side : flat ?? {};
+    const hex = (v: unknown, d: string) => (TICKER_HEX.test(String(v)) ? String(v) : d);
+    return {
+      textColor: hex(o.textColor, def.textColor),
+      bgColor: hex(o.bgColor, def.bgColor),
+      bgOpacity: int(o.bgOpacity, 0, 100, def.bgOpacity),
+    };
+  };
+  const font = typeof s.fontFamily === 'string' && TICKER_FONT_FILE.test(s.fontFamily.trim())
+    ? s.fontFamily.trim()
+    : '';
+  return {
+    enabled: s.enabled === true,
+    fontSize: int(s.fontSize, 8, 48, 14),
+    fontFamily: font,
+    letterSpacing: spacing(s.letterSpacing, 0),
+    light: colors(s.light, TICKER_LIGHT_DEFAULT),
+    dark: colors(s.dark, TICKER_DARK_DEFAULT),
+  };
+}
 
 /** Laufband-Konfiguration für eine Sprache (mit vollständig aufgefülltem style). */
 export function getTicker(locale: Locale): TickerConfig {
-  const raw = (locale === 'en' ? enTicker : deTicker) as TickerConfig;
-  return { ...raw, style: { ...TICKER_STYLE_DEFAULTS, ...(raw.style ?? {}) } };
+  // Die JSON-Dateien können noch die alte flache style-Struktur enthalten; daher
+  // erst über unknown casten und den style anschließend normalisieren/migrieren.
+  const raw = (locale === 'en' ? enTicker : deTicker) as unknown as TickerConfig;
+  return { ...raw, style: normalizeTickerStyle((raw as { style?: unknown }).style) };
 }
 
 // --- Medien (pro Sprache; admin-editierbar über media.json) ---

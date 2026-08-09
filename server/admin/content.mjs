@@ -33,15 +33,22 @@ export async function loadContent() {
   };
 }
 
+// Standard-Farben des Laufbands je Modus (entsprechen dem eingebauten Aussehen).
+function defaultTickerColors(mode) {
+  return mode === 'dark'
+    ? { textColor: '#e2e8f0', bgColor: '#111827', bgOpacity: 100 }
+    : { textColor: '#ffffff', bgColor: '#014f99', bgOpacity: 100 };
+}
 function defaultTickerStyle() {
   return {
     enabled: false,
+    // Geteilte Typografie (gilt für Hell- und Dunkelmodus).
     fontSize: 14,
-    textColor: '#ffffff',
-    bgColor: '#014f99',
-    bgOpacity: 100,
     fontFamily: '', // Dateiname im Fonts-Ordner; leer = Standardschrift
     letterSpacing: 0, // Buchstabenabstand in px (0 = normal)
+    // Farben getrennt je Modus.
+    light: defaultTickerColors('light'),
+    dark: defaultTickerColors('dark'),
   };
 }
 
@@ -81,18 +88,31 @@ function clampNum(v, min, max, def) {
   return Math.max(min, Math.min(max, Math.round(n)));
 }
 
-/** Validiert/normalisiert das Laufband-Design (fehlerhafte Werte -> Standard). */
+/**
+ * Validiert/normalisiert das Laufband-Design (fehlerhafte Werte -> Standard).
+ * Migriert die alte flache Struktur (Farben oben, für beide Modi gleich) auf
+ * getrennte Farb-Sätze light/dark — verhaltensneutral.
+ */
 export function validateTickerStyle(s) {
   const d = defaultTickerStyle();
   if (!isPlainObject(s)) return d;
+  const hasSides = isPlainObject(s.light) || isPlainObject(s.dark);
+  const flat = !hasSides && typeof s.textColor === 'string' ? s : null;
+  const colors = (side, def) => {
+    const o = isPlainObject(side) ? side : flat || {};
+    return {
+      textColor: normHexColor(o.textColor, def.textColor),
+      bgColor: normHexColor(o.bgColor, def.bgColor),
+      bgOpacity: clampNum(o.bgOpacity, 0, 100, def.bgOpacity),
+    };
+  };
   return {
     enabled: s.enabled === true,
     fontSize: clampNum(s.fontSize, 8, 48, d.fontSize),
-    textColor: normHexColor(s.textColor, d.textColor),
-    bgColor: normHexColor(s.bgColor, d.bgColor),
-    bgOpacity: clampNum(s.bgOpacity, 0, 100, d.bgOpacity),
     fontFamily: normFontFile(s.fontFamily),
     letterSpacing: clampSpacing(s.letterSpacing, d.letterSpacing),
+    light: colors(s.light, d.light),
+    dark: colors(s.dark, d.dark),
   };
 }
 

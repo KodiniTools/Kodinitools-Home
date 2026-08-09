@@ -83,13 +83,21 @@ function bindInlineLinkHelper(pane) {
   });
 }
 
-// Vorschau-Style des Laufbands. Zeigt IMMER die aktuell eingestellten Werte
-// (reagiert also live auf jede Änderung), unabhängig vom „Eigenes Design"-Schalter.
-// Der Schalter entscheidet nur, ob dieses Design auf der Seite angewandt wird
-// (siehe tickerPreviewNote); die Vorschau ist das Design-Werkzeug dafür.
-function tickerPreviewStyle(s) {
-  const bg = rgbaFromHex(s.bgColor, s.bgOpacity);
-  const fg = s.textColor;
+// Aktuell im Design-Editor bearbeiteter Farb-Modus (reiner UI-Zustand, nicht
+// gespeichert). Schriftgröße/Abstand/Schriftart gelten für beide Modi; nur die
+// Farben sind getrennt nach Hell/Dunkel – analog zum Hero-Design.
+let tkEditTheme = 'light';
+function tkModeLabel() {
+  return tkEditTheme === 'dark' ? 'Dunkel' : 'Hell';
+}
+
+// Vorschau-Style des Laufbands für den gerade bearbeiteten Farb-Modus. Zeigt IMMER
+// die aktuell eingestellten Werte (reagiert live auf jede Änderung), unabhängig
+// vom „Eigenes Design"-Schalter (siehe tickerPreviewNote).
+function tickerPreviewStyle(s, mode) {
+  const c = s[mode] || s.light;
+  const bg = rgbaFromHex(c.bgColor, c.bgOpacity);
+  const fg = c.textColor;
   const fs = `${s.fontSize}px`;
   let ff = '';
   if (s.fontFamily) {
@@ -110,6 +118,9 @@ function tickerPreviewNote(s) {
 // Design-Abschnitt für EINE Sprache (in tickerPanel eingebettet).
 function tickerStyleSection(lang) {
   const s = state.ticker[lang].style;
+  const mode = tkEditTheme;
+  const c = s[mode];
+  const ml = tkModeLabel();
   return `
       <details style="margin-top:1rem;border-top:1px solid var(--border);padding-top:.75rem">
         <summary style="cursor:pointer;font-weight:600">🎨 Design (${lang.toUpperCase()})</summary>
@@ -117,6 +128,14 @@ function tickerStyleSection(lang) {
         <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin-top:.4rem">
           <input type="checkbox" data-tks="enabled" data-lang="${lang}" ${s.enabled ? 'checked' : ''} style="width:auto" /> Eigenes Design verwenden
         </label>
+        <div style="margin-top:.7rem">
+          <label>Farben für Modus</label>
+          <div class="row" style="gap:.4rem">
+            <button type="button" data-tkmode="light" data-lang="${lang}" class="${mode === 'light' ? 'primary' : ''}" style="flex:0 0 auto">☀️ Hell</button>
+            <button type="button" data-tkmode="dark" data-lang="${lang}" class="${mode === 'dark' ? 'primary' : ''}" style="flex:0 0 auto">🌙 Dunkel</button>
+          </div>
+          <p class="hint" style="margin-top:.35rem">Du bearbeitest die Farben für <strong data-tksmode-label data-lang="${lang}">${ml}</strong>. Schriftgröße, Buchstabenabstand und Schriftart gelten für <strong>beide</strong> Modi.</p>
+        </div>
         <div class="row" style="margin-top:.6rem;align-items:flex-end">
           <div style="flex:0 0 auto">
             <label>Schriftgröße (px)</label>
@@ -128,15 +147,15 @@ function tickerStyleSection(lang) {
           </div>
           <div style="flex:0 0 auto">
             <label>Schriftfarbe</label>
-            <input type="color" data-tks="textColor" data-lang="${lang}" value="${esc(s.textColor)}" style="width:56px;height:38px;padding:2px" />
+            <input type="color" data-tksc="textColor" data-lang="${lang}" value="${esc(c.textColor)}" style="width:56px;height:38px;padding:2px" />
           </div>
           <div style="flex:0 0 auto">
             <label>Hintergrundfarbe</label>
-            <input type="color" data-tks="bgColor" data-lang="${lang}" value="${esc(s.bgColor)}" style="width:56px;height:38px;padding:2px" />
+            <input type="color" data-tksc="bgColor" data-lang="${lang}" value="${esc(c.bgColor)}" style="width:56px;height:38px;padding:2px" />
           </div>
           <div style="flex:1 1 180px">
-            <label>Transparenz Hintergrund: <span data-tks-oval data-lang="${lang}">${s.bgOpacity}</span>% <span class="hint">(0 = ganz durchsichtig)</span></label>
-            <input type="range" data-tks="bgOpacity" data-lang="${lang}" min="0" max="100" value="${s.bgOpacity}" style="width:100%" />
+            <label>Transparenz Hintergrund: <span data-tks-oval data-lang="${lang}">${c.bgOpacity}</span>% <span class="hint">(0 = ganz durchsichtig)</span></label>
+            <input type="range" data-tksc="bgOpacity" data-lang="${lang}" min="0" max="100" value="${c.bgOpacity}" style="width:100%" />
           </div>
         </div>
         <div class="row" style="margin-top:.6rem">
@@ -146,13 +165,51 @@ function tickerStyleSection(lang) {
             <p class="hint">Aus dem Ordner <code>/fonts</code> auf dem Server. Eigene Schriften einfach dorthin legen.</p>
           </div>
         </div>
-        <p class="hint" style="margin-top:.8rem">Vorschau:</p>
-        <div data-tks-preview data-lang="${lang}" style="${tickerPreviewStyle(s)}">Immer die besten Tools für deine Aufgaben – Beispieltext</div>
+        <p class="hint" style="margin-top:.8rem">Vorschau (<span data-tksmode-label data-lang="${lang}">${ml}</span>):</p>
+        <div data-tks-preview data-lang="${lang}" style="${tickerPreviewStyle(s, mode)}">Immer die besten Tools für deine Aufgaben – Beispieltext</div>
         <p class="hint" data-tks-note data-lang="${lang}" style="margin-top:.4rem">${tickerPreviewNote(s)}</p>
       </details>`;
 }
 
+// Vorschau + Hinweis der aktuellen Sprache aktualisieren.
+function updateTickerPreview(pane, lang) {
+  const s = state.ticker[lang].style;
+  const preview = pane.querySelector(`[data-tks-preview][data-lang="${lang}"]`);
+  if (preview) preview.setAttribute('style', tickerPreviewStyle(s, tkEditTheme));
+  const note = pane.querySelector(`[data-tks-note][data-lang="${lang}"]`);
+  if (note) note.textContent = tickerPreviewNote(s);
+}
+
+// Farb-Modus (Hell/Dunkel) wechseln, ohne das ganze Panel neu zu rendern (damit
+// der geöffnete Design-Bereich erhalten bleibt): Buttons, Farb-Felder und Vorschau
+// werden direkt aktualisiert.
+function switchTickerMode(pane, lang, mode) {
+  tkEditTheme = mode === 'dark' ? 'dark' : 'light';
+  const c = state.ticker[lang].style[tkEditTheme];
+  pane.querySelectorAll(`[data-tkmode][data-lang="${lang}"]`).forEach((b) => {
+    b.classList.toggle('primary', b.dataset.tkmode === tkEditTheme);
+  });
+  const set = (sel, val) => {
+    const el = pane.querySelector(sel);
+    if (el) el.value = val;
+  };
+  set(`[data-tksc="textColor"][data-lang="${lang}"]`, c.textColor);
+  set(`[data-tksc="bgColor"][data-lang="${lang}"]`, c.bgColor);
+  set(`[data-tksc="bgOpacity"][data-lang="${lang}"]`, c.bgOpacity);
+  const oval = pane.querySelector(`[data-tks-oval][data-lang="${lang}"]`);
+  if (oval) oval.textContent = c.bgOpacity;
+  pane.querySelectorAll(`[data-tksmode-label][data-lang="${lang}"]`).forEach((el) => {
+    el.textContent = tkModeLabel();
+  });
+  updateTickerPreview(pane, lang);
+}
+
 function bindTickerStyle(pane) {
+  // Modus-Umschalter (Hell/Dunkel)
+  pane.querySelectorAll('[data-tkmode]').forEach((btn) => {
+    btn.addEventListener('click', () => switchTickerMode(pane, btn.dataset.lang, btn.dataset.tkmode));
+  });
+  // Geteilte Felder (Typografie) + „Eigenes Design"-Schalter
   pane.querySelectorAll('[data-tks]').forEach((el) => {
     const field = el.dataset.tks;
     const lang = el.dataset.lang;
@@ -163,15 +220,22 @@ function bindTickerStyle(pane) {
       else if (field === 'fontSize')
         s.fontSize = Math.max(8, Math.min(48, parseInt(el.value, 10) || 14));
       else if (field === 'letterSpacing') s.letterSpacing = clampSpacing(el.value, 0);
-      else if (field === 'bgOpacity') {
-        s.bgOpacity = Math.max(0, Math.min(100, parseInt(el.value, 10) || 0));
+      else s[field] = el.value; // fontFamily
+      updateTickerPreview(pane, lang);
+    });
+  });
+  // Farb-Felder des aktuell gewählten Modus
+  pane.querySelectorAll('[data-tksc]').forEach((el) => {
+    const field = el.dataset.tksc;
+    const lang = el.dataset.lang;
+    el.addEventListener('input', () => {
+      const c = state.ticker[lang].style[tkEditTheme];
+      if (field === 'bgOpacity') {
+        c.bgOpacity = Math.max(0, Math.min(100, parseInt(el.value, 10) || 0));
         const oval = pane.querySelector(`[data-tks-oval][data-lang="${lang}"]`);
-        if (oval) oval.textContent = s.bgOpacity;
-      } else s[field] = el.value; // Farben
-      const preview = pane.querySelector(`[data-tks-preview][data-lang="${lang}"]`);
-      if (preview) preview.setAttribute('style', tickerPreviewStyle(s));
-      const note = pane.querySelector(`[data-tks-note][data-lang="${lang}"]`);
-      if (note) note.textContent = tickerPreviewNote(s);
+        if (oval) oval.textContent = c.bgOpacity;
+      } else c[field] = el.value; // textColor / bgColor
+      updateTickerPreview(pane, lang);
     });
   });
 }

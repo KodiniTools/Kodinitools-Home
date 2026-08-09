@@ -76,14 +76,16 @@ function parseInline(text: string): { text: string; href?: string }[] {
 const isExternal = (u: string) => /^https?:\/\//i.test(u);
 
 const s = ticker.style;
+// Geteilte Typografie kommt als Inline-Style (theme-unabhängig). Die Farben je
+// Modus kommen als eigener <style>-Block, der über einen id-Selektor gescopt ist –
+// so lässt sich der Dunkelmodus getrennt setzen (Inline-Style könnte das nicht).
 const styleVars: string[] = [];
 let fontFace: string | undefined;
+let colorCss: string | undefined;
+const tickerId = `ticker-${lang}`;
 if (s && s.enabled) {
   if (s.fontSize) styleVars.push(`--ticker-fs:${s.fontSize}px`);
   if (typeof s.letterSpacing === 'number') styleVars.push(`--ticker-ls:${s.letterSpacing}px`);
-  if (s.textColor) styleVars.push(`--ticker-fg:${s.textColor}`);
-  const bg = s.bgColor ? hexToRgba(s.bgColor, s.bgOpacity ?? 100) : null;
-  if (bg) styleVars.push(`--ticker-bg:${bg}`);
   const font = typeof s.fontFamily === 'string' ? s.fontFamily.trim() : '';
   if (font && VALID_FONT.test(font)) {
     const fam = fontFamilyId(font);
@@ -92,16 +94,34 @@ if (s && s.enabled) {
     fontFace = `@font-face{font-family:"${fam}";src:${src};font-display:swap;}`;
     styleVars.push(`--ticker-ff:"${fam}", system-ui, sans-serif`);
   }
+  const colorVars = (c: { textColor: string; bgColor: string; bgOpacity: number }): string => {
+    const parts: string[] = [];
+    if (c.textColor) parts.push(`--ticker-fg:${c.textColor}`);
+    const bg = c.bgColor ? hexToRgba(c.bgColor, c.bgOpacity ?? 100) : null;
+    if (bg) parts.push(`--ticker-bg:${bg}`);
+    return parts.join(';');
+  };
+  const lightVars = colorVars(s.light);
+  const darkVars = colorVars(s.dark);
+  const rules: string[] = [];
+  // id-Selektor (Spezifität 1,0,0) gewinnt gegen die Klassen-Defaults unten – in
+  // beiden Modi; der Dunkel-Selektor (1,1,0) gewinnt zusätzlich im Dunkelmodus.
+  if (lightVars) rules.push(`#${tickerId}{${lightVars}}`);
+  if (darkVars) rules.push(`[data-theme="dark"] #${tickerId}{${darkVars}}`);
+  colorCss = rules.join('');
 }
 const tickerStyle = styleVars.length ? styleVars.join(';') : undefined;
+// @font-face + die modusabhängigen Farb-Regeln zusammen als globaler Style.
+const headCss = [fontFace, colorCss].filter(Boolean).join('');
 ---
 
-{fontFace && <style is:global set:html={fontFace} />}
+{headCss && <style is:global set:html={headCss} />}
 
 {
   show && (
     <div
       class="ticker"
+      id={tickerId}
       role="region"
       aria-label={lang === 'en' ? 'Announcements' : 'Ankündigungen'}
       data-ticker
