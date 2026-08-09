@@ -104,7 +104,7 @@ html {
     --accent-color: #014f99;
 }
 
-[data-theme="dark"] .global-nav {
+:global([data-theme="dark"]) .global-nav {
     --nav-bg: rgba(26, 32, 44, 0.9);
     --nav-text: #e2e8f0;
     --nav-text-hover: #f7fafc;
@@ -120,10 +120,10 @@ html {
     box-shadow: 0 1px 20px rgba(0, 0, 0, 0.3);
 }
 
-[data-theme="dark"] .global-nav .global-nav-brand,
-[data-theme="dark"] .global-nav .global-nav-link,
-[data-theme="dark"] .global-nav .global-nav-dropdown-toggle,
-[data-theme="dark"] .global-nav .global-nav-dropdown-item {
+:global([data-theme="dark"]) .global-nav .global-nav-brand,
+:global([data-theme="dark"]) .global-nav .global-nav-link,
+:global([data-theme="dark"]) .global-nav .global-nav-dropdown-toggle,
+:global([data-theme="dark"]) .global-nav .global-nav-dropdown-item {
     color: #e2e8f0;
 }
 
@@ -403,7 +403,7 @@ html {
         max-height: none;
     }
 
-    [data-theme="dark"] .global-nav-dropdown .global-nav-dropdown-menu {
+    :global([data-theme="dark"]) .global-nav-dropdown .global-nav-dropdown-menu {
         background: rgba(255, 255, 255, 0.05);
     }
 
@@ -425,8 +425,8 @@ html {
 
     .global-nav-dropdown-item:hover { padding-left: 1.5rem; }
 
-    [data-theme="dark"] .global-nav-links { background: rgba(26, 32, 44, 0.95); }
-    [data-theme="dark"] .global-nav-dropdown .global-nav-dropdown-menu { background: rgba(26, 32, 44, 0.95); }
+    :global([data-theme="dark"]) .global-nav-links { background: rgba(26, 32, 44, 0.95); }
+    :global([data-theme="dark"]) .global-nav-dropdown .global-nav-dropdown-menu { background: rgba(26, 32, 44, 0.95); }
 
     .global-nav-controls-desktop { display: none; }
 
@@ -441,7 +441,7 @@ html {
 
 @supports not (backdrop-filter: blur(20px)) {
     .global-nav { background: rgba(250, 250, 250, 0.97); }
-    [data-theme="dark"] .global-nav { background: rgba(26, 32, 44, 0.95); }
+    :global([data-theme="dark"]) .global-nav { background: rgba(26, 32, 44, 0.95); }
     .global-nav-dropdown-menu { background: var(--dropdown-bg); }
 }
 
@@ -532,7 +532,7 @@ html {
     color: #ffffff;
 }
 
-[data-theme="dark"] .global-nav-lang-btn.active { color: #0C0C10; }
+:global([data-theme="dark"]) .global-nav-lang-btn.active { color: #0C0C10; }
 
 @media (max-width: 768px) {
     .global-nav-lang-btn {
