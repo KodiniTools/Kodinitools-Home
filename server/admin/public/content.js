@@ -10,6 +10,13 @@ function fontFF(file) {
   return file ? `font-family:'${ensureFontFace(file)}', var(--site-font, sans-serif);` : '';
 }
 
+// Aktuell im „Texte"-Tab bearbeiteter Farb-Modus (reiner UI-Zustand). Textgröße
+// und Schriftart gelten für beide Modi; nur die Textfarbe ist getrennt nach
+// Hell/Dunkel – analog zum Laufband/Hero-Design.
+let txtEditTheme = 'light';
+const txtColorField = () => (txtEditTheme === 'dark' ? 'colorDark' : 'colorLight');
+const txtModeLabel = () => (txtEditTheme === 'dark' ? 'Dunkel' : 'Hell');
+
 // ============ TAB: Texte ============
 // Alle Slots sind mehrzeilig (Zeilenumbrüche werden auf der Seite übernommen)
 // und haben eine einstellbare Textgröße + Textfarbe.
@@ -37,7 +44,7 @@ function syncInheritedFields(pane, lang) {
     const size = pane.querySelector(`[data-txtsize="${idx}"]`);
     if (size) size.value = master.size || 0;
     const color = pane.querySelector(`[data-txtcolor="${idx}"]`);
-    if (color) color.value = master.color || '#ffffff';
+    if (color) color.value = master[txtColorField()] || '#ffffff';
     const font = pane.querySelector(`[data-txtfont="${idx}"]`);
     if (font) {
       font.value = master.font || '';
@@ -75,8 +82,17 @@ export function renderTexts() {
   pane.querySelectorAll('[data-txtcolor]').forEach((el) => {
     const key = styleKey(TEXT_FIELDS[parseInt(el.dataset.txtcolor, 10)]);
     el.addEventListener('input', () => {
-      getTextStyle(lang, key).color = el.value;
+      getTextStyle(lang, key)[txtColorField()] = el.value;
       syncInheritedFields(pane, lang);
+    });
+  });
+
+  // Farb-Modus umschalten (Hell/Dunkel) – Panel neu rendern zeigt die Farben
+  // des gewählten Modus (Größe/Schrift bleiben gleich).
+  pane.querySelectorAll('[data-txtmode]').forEach((el) => {
+    el.addEventListener('click', () => {
+      txtEditTheme = el.dataset.txtmode === 'dark' ? 'dark' : 'light';
+      renderTexts();
     });
   });
   // Schriftart je Slot (Feld-Vorschau folgt der Auswahl).
@@ -117,7 +133,9 @@ export function renderTexts() {
     const field = TEXT_FIELDS[idx];
     el.addEventListener('click', () => {
       if (what === 'text') delPath(state.overrides[lang], field.path);
-      else getTextStyle(lang, styleKey(field))[what] = what === 'size' ? 0 : '';
+      else if (what === 'size') getTextStyle(lang, styleKey(field)).size = 0;
+      else if (what === 'color') getTextStyle(lang, styleKey(field))[txtColorField()] = '';
+      else getTextStyle(lang, styleKey(field))[what] = ''; // font
       renderTexts();
       toast('Auf Standard zurückgesetzt');
     });
@@ -173,10 +191,10 @@ function textPanel(lang) {
           </div>
         </div>
         <div style="flex:0 0 auto">
-          <label style="margin-top:0">Textfarbe</label>
+          <label style="margin-top:0">Textfarbe (${txtModeLabel()})</label>
           <div style="display:flex;gap:.3rem;align-items:center">
-            <input type="color" data-txtcolor="${idx}" value="${esc(st.color || '#ffffff')}" ${dis} style="width:56px;height:38px;padding:2px" />
-            <button type="button" class="hd-reset" data-txtreset="${idx}:color" ${dis} title="Farbe auf Standard zurücksetzen" aria-label="Farbe zurücksetzen">↺</button>
+            <input type="color" data-txtcolor="${idx}" value="${esc(st[txtColorField()] || '#ffffff')}" ${dis} style="width:56px;height:38px;padding:2px" />
+            <button type="button" class="hd-reset" data-txtreset="${idx}:color" ${dis} title="Farbe (${txtModeLabel()}) auf Standard zurücksetzen" aria-label="Farbe zurücksetzen">↺</button>
           </div>
         </div>
         <div style="flex:0 0 auto">
@@ -186,7 +204,16 @@ function textPanel(lang) {
       </div>
       <p class="hint">Leer lassen = Standardtext. Mehrere Zeilen mit Enter; Größe 0 = Standard.</p>`;
   }).join('');
-  return `<div class="panel"><h2>Texte <span class="lang-badge">${lang.toUpperCase()}</span></h2>${fields}</div>`;
+  const modeToggle = `
+    <div style="margin:.25rem 0 .5rem;border-bottom:1px solid var(--border);padding-bottom:.6rem">
+      <label style="margin-top:0">Farb-Modus</label>
+      <div class="row" style="gap:.4rem">
+        <button type="button" data-txtmode="light" class="${txtEditTheme === 'light' ? 'primary' : ''}" style="flex:0 0 auto">☀️ Hell</button>
+        <button type="button" data-txtmode="dark" class="${txtEditTheme === 'dark' ? 'primary' : ''}" style="flex:0 0 auto">🌙 Dunkel</button>
+      </div>
+      <p class="hint" style="margin-top:.35rem">Du bearbeitest die <strong>Textfarben</strong> für <strong>${txtModeLabel()}</strong>. Textgröße und Schriftart gelten für <strong>beide</strong> Modi.</p>
+    </div>`;
+  return `<div class="panel"><h2>Texte <span class="lang-badge">${lang.toUpperCase()}</span></h2>${modeToggle}${fields}</div>`;
 }
 
 // ============ Erweitert (rohe Overrides, eine Sprache) ============

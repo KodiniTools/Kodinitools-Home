@@ -178,7 +178,12 @@ export interface MediaConfig {
   // 'cover' = auf Format zuschneiden, 'contain' = ganzes Bild zeigen (mit Rand).
   heroGridFit: 'cover' | 'contain';
   // Größe/Farbe/Schrift einzelner Text-Slots aus dem „Texte"-Tab (Schlüssel = i18n-Key).
-  textStyles: Record<string, { size: number; color: string; font?: string }>;
+  // Farbe getrennt nach Hell/Dunkel (colorLight/colorDark); `color` nur noch als
+  // Alt-Format für die Migration.
+  textStyles: Record<
+    string,
+    { size: number; colorLight?: string; colorDark?: string; color?: string; font?: string }
+  >;
   // „Standard für alle Slots": Stil des gewählten Slots gilt für alle.
   textStyleUniform?: boolean;
   textStyleUniformKey?: string;
@@ -422,21 +427,28 @@ export function getTextStylesCss(media: MediaConfig): string | undefined {
     `${Object.values(TEXT_STYLE_SELECTORS).join(',')}{white-space:pre-line}`,
   ];
   const faces = new Set<string>();
+  const isHex = (v: unknown): v is string => /^#[0-9a-fA-F]{3,6}$/.test(String(v ?? ''));
+  // -webkit-text-fill-color überschreibt auch Verlaufs-Überschriften.
+  const colorDecl = (c: string) => `color:${c};-webkit-text-fill-color:${c};background:none`;
   for (const [key, sel] of Object.entries(TEXT_STYLE_SELECTORS)) {
     const s = uniform ? master : ts[key];
     if (!s) continue;
+    // Migration: altes einzelnes color gilt für beide Modi.
+    const legacy = isHex(s.color) ? s.color : '';
+    const light = isHex(s.colorLight) ? s.colorLight : legacy;
+    const dark = isHex(s.colorDark) ? s.colorDark : legacy;
+    // Basis-Regel: geteilte Größe + Schrift + Hell-Farbe.
     const decl: string[] = [];
     if (typeof s.size === 'number' && s.size > 0) decl.push(`font-size:${s.size}px`);
-    if (/^#[0-9a-fA-F]{3,6}$/.test(s.color || '')) {
-      // -webkit-text-fill-color überschreibt auch Verlaufs-Überschriften.
-      decl.push(`color:${s.color}`, `-webkit-text-fill-color:${s.color}`, 'background:none');
-    }
     const font = (s.font || '').trim();
     if (font && TEXT_FONT_FILE.test(font)) {
       faces.add(textFontFaceCss(font));
       decl.push(`font-family:"${textFontId(font)}", var(--site-font)`);
     }
+    if (light) decl.push(colorDecl(light));
     if (decl.length) rules.push(`${sel}{${decl.join(';')}}`);
+    // Dunkelmodus-Farbe (höhere Spezifität durch [data-theme="dark"]).
+    if (dark) rules.push(`[data-theme="dark"] ${sel}{${colorDecl(dark)}}`);
   }
   return [...faces].join('') + rules.join('');
 }
