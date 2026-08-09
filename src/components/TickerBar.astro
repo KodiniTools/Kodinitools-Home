@@ -10,7 +10,13 @@ interface Props {
 }
 const { lang } = Astro.props;
 const ticker = getTicker(lang);
-const items = Array.isArray(ticker.items) ? ticker.items.filter((i) => i && i.text) : [];
+// Mehrzeiliger Eintragstext wird einzeilig dargestellt: Zeilenumbrüche werden zu
+// Leerzeichen. So darf im Admin mehrzeilig getippt werden, das Laufband bleibt
+// aber eine durchlaufende Zeile.
+const oneLine = (t: string): string => t.replace(/\s*[\r\n]+\s*/g, ' ');
+const items = Array.isArray(ticker.items)
+  ? ticker.items.filter((i) => i && i.text).map((i) => ({ ...i, text: oneLine(i.text) }))
+  : [];
 const show = ticker.enabled === true && items.length > 0;
 
 // Geschwindigkeit -> gleichmäßige Scroll-Geschwindigkeit in Pixel/Sekunde.

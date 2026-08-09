@@ -8,7 +8,14 @@ import { ensureFontFace, fontOptionsHtml } from './fonts.js';
 // Laufband-Text mit Inline-Links [Wort](url) in sichere HTML-Vorschau wandeln
 // (gleiche Regel wie TickerBar.astro; Klicks in der Vorschau navigieren nicht).
 const VALID_LINK = /^(\/[^\s]*|https?:\/\/[^\s]+)$/;
+// Mehrzeilige Eingabe -> eine Zeile: Zeilenumbrüche werden zu Leerzeichen (so wie
+// die Anzeige auf der Website). Das Eingabefeld darf mehrzeilig sein, das Laufband
+// läuft aber immer einzeilig.
+function oneLine(text) {
+  return String(text ?? '').replace(/\s*[\r\n]+\s*/g, ' ');
+}
 function tickerTextToHtml(text) {
+  text = oneLine(text);
   const re = /\[([^\]]+)\]\(([^)\s]+)\)/g;
   let out = '';
   let last = 0;
@@ -177,7 +184,7 @@ function tickerPanel(lang) {
       <div class="tick-item">
         <div class="idx">${i + 1}</div>
         <div class="grow">
-          <input data-tk="text" data-lang="${lang}" data-i="${i}" placeholder="Text" value="${esc(it.text)}" />
+          <textarea data-tk="text" data-lang="${lang}" data-i="${i}" placeholder="Text" rows="3">${esc(it.text)}</textarea>
           <div class="hint" style="margin:.35rem 0 0">So sieht der Eintrag aus: <span data-tkprev data-lang="${lang}" data-i="${i}" style="color:var(--text)">${tickerTextToHtml(it.text) || '—'}</span></div>
           <div style="border:1px dashed var(--border);border-radius:8px;padding:.5rem;margin-top:.4rem">
             <div class="hint" style="margin:0 0 .3rem">🔗 Ein Wort im Text verlinken:</div>
@@ -218,7 +225,9 @@ function tickerPanel(lang) {
       </div>
       <label>Einträge</label>
       <p class="hint" style="margin-top:0">
-        Schreibe oben den Text. Um <strong>ein Wort</strong> anklickbar zu machen: das Wort und das Ziel im
+        Schreibe oben den Text – so lang wie du möchtest, gern auch <strong>mehrzeilig</strong>
+        (Zeilenumbrüche werden auf der Seite zu Leerzeichen, das Laufband läuft immer einzeilig durch).
+        Um <strong>ein Wort</strong> anklickbar zu machen: das Wort und das Ziel im
         Kasten „🔗 Ein Wort im Text verlinken" eintragen und auf <strong>Wort verlinken</strong> klicken –
         die Vorschau zeigt sofort das Ergebnis. Das unterste Feld macht dagegen den <strong>ganzen</strong> Eintrag klickbar.
       </p>

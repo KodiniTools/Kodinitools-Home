@@ -354,7 +354,9 @@ export function validateTicker(t) {
     if (!isPlainObject(it)) throw new Error(`ticker.items[${i}] ungültig`);
     if (typeof it.text !== 'string' || it.text.length === 0)
       throw new Error(`ticker.items[${i}].text fehlt`);
-    if (it.text.length > 300) throw new Error(`ticker.items[${i}].text zu lang`);
+    // Keine Wort-/Längenbegrenzung mehr für den Laufband-Text – nur eine großzügige
+    // Sicherheitsgrenze gegen versehentlich riesige Eingaben (mehrzeilig erlaubt).
+    if (it.text.length > 10000) throw new Error(`ticker.items[${i}].text zu lang`);
     const out = { id: String(it.id ?? i + 1), text: it.text };
     if (it.link != null) {
       if (typeof it.link !== 'string') throw new Error(`ticker.items[${i}].link ungültig`);
