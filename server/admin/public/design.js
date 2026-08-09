@@ -422,6 +422,16 @@ function heroDesignPanel(lang) {
         ${resetBtn('enabled')}
       </div>
 
+      <!-- Komplettes Hero-Design (Hell + Dunkel) von Deutsch nach Englisch übernehmen -->
+      <div style="margin:.6rem 0 .2rem;padding:.5rem .6rem;border:1px dashed var(--border);border-radius:8px">
+        <button data-hdcopy type="button" style="width:auto">${
+          lang === 'de'
+            ? '➡️ Dieses Hero-Design auf Englisch (EN) übernehmen'
+            : '⬅️ Hero-Design von Deutsch (DE) übernehmen'
+        }</button>
+        <p class="hint" style="margin:.35rem 0 0">Kopiert <strong>alle</strong> Hero-Design-Einstellungen (Hell + Dunkel: Schriften, Typografie, Farben, Transparenzen) von Deutsch nach Englisch. Die Button-<em>Beschriftungen</em> bleiben je Sprache erhalten.</p>
+      </div>
+
       <!-- Vorschau bleibt beim Scrollen oben sichtbar -->
       <div style="position:sticky;top:.5rem;z-index:5;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:.55rem .7rem;margin:.6rem 0 .8rem;box-shadow:0 6px 18px rgba(0,0,0,.35)">
         ${themeSwitch()}
@@ -501,6 +511,22 @@ export function renderHeroDesign() {
     el.addEventListener('click', () => {
       editTheme = el.dataset.hdtheme === 'dark' ? 'dark' : 'light';
       renderHeroDesign();
+    });
+  });
+
+  // Komplettes Hero-Design (Hell + Dunkel, alle Einstellungen) von Deutsch nach
+  // Englisch übernehmen. Die Button-Beschriftungen (Overrides) bleiben je Sprache.
+  pane.querySelectorAll('[data-hdcopy]').forEach((el) => {
+    el.addEventListener('click', () => {
+      if (
+        !confirm(
+          'Alle Hero-Design-Einstellungen für Englisch werden mit den deutschen überschrieben (Hell + Dunkel). Fortfahren?',
+        )
+      )
+        return;
+      state.media.en.heroDesign = JSON.parse(JSON.stringify(heroDesignOf('de')));
+      renderHeroDesign();
+      toast('Hero-Design von Deutsch nach Englisch übernommen (Hell + Dunkel)');
     });
   });
 
