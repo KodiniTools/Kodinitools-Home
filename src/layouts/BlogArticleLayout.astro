@@ -3,12 +3,14 @@ import '../styles/global.css'
 import GlobalNav from '../components/GlobalNav.astro'
 import TickerBar from '../components/TickerBar.astro'
 import SiteFooter from '../components/SiteFooter.astro'
-import { getSiteFontStyle } from '../content/content'
+import { getSiteFontStyle, getSiteBackgroundStyle } from '../content/content'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
 
 // Globale Basis-Schrift (im Admin per Kachel gesetzt, sprachübergreifend).
 const siteFontStyle = getSiteFontStyle()
+// Globale Seiten-Hintergrundfarbe (Admin-Tab „Hintergrund", sprachübergreifend).
+const siteBgStyle = getSiteBackgroundStyle()
 
 interface Props {
   title: string
@@ -495,6 +497,8 @@ const schemaBreadcrumb = {
 
   <!-- Globale Basis-Schrift (Admin, sprachübergreifend) -->
   {siteFontStyle && <style set:html={siteFontStyle}></style>}
+  <!-- Globale Seiten-Hintergrundfarbe (Admin, sprachübergreifend) -->
+  {siteBgStyle && <style set:html={siteBgStyle}></style>}
 </head>
 <body>
   <div class="global-background" aria-hidden="true">
