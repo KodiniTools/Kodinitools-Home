@@ -245,7 +245,7 @@ export function defaultMediaLocale() {
     heroGridUniformCell: 0, // Index der Master-Kachel, deren Werte gelten
     heroGridRatio: '1:1',
     heroGridFit: 'cover',
-    textStyles: {}, // { "<textKey>": { size: px (0=auto), color: Hex|'', font: Datei|'' } }
+    textStyles: {}, // { "<textKey>": { size: px (0=auto), colorLight: Hex|'', colorDark: Hex|'', font: Datei|'' } }
     textStyleUniform: false, // „Standard für alle Slots" aktiv?
     textStyleUniformKey: 'hero.title', // Slot, dessen Stil dann für alle gilt
     heroDesign: defaultHeroDesign(),
@@ -260,6 +260,7 @@ export const TEXT_STYLE_KEYS = [
   'imageTools.sectionTitle',
   'diverseTools.sectionTitle',
 ];
+const textHex = (v) => (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? v : '');
 export function normTextStyles(o) {
   const out = {};
   if (!o || typeof o !== 'object') return out;
@@ -267,20 +268,32 @@ export function normTextStyles(o) {
     const s = o[k];
     if (!s || typeof s !== 'object') continue;
     const size = Number(s.size);
-    const color = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(s.color)) ? s.color : '';
     const px = Number.isFinite(size) ? Math.max(0, Math.min(120, Math.round(size))) : 0;
     const font = normFontFile(s.font);
-    if (px > 0 || color || font) out[k] = { size: px, color, font };
+    // Migration: altes einzelnes color gilt für beide Modi.
+    const legacy = textHex(s.color);
+    const colorLight = textHex(s.colorLight) || legacy;
+    const colorDark = textHex(s.colorDark) || legacy;
+    if (px > 0 || colorLight || colorDark || font)
+      out[k] = { size: px, colorLight, colorDark, font };
   }
   return out;
 }
-// Style-Objekt eines Text-Slots (legt es bei Bedarf an).
+// Style-Objekt eines Text-Slots (legt es bei Bedarf an). Farben getrennt nach
+// Hell/Dunkel; ein evtl. noch flaches color wird auf beide Modi migriert.
 export function getTextStyle(lang, key) {
   const m = state.media[lang];
   if (!m.textStyles || typeof m.textStyles !== 'object') m.textStyles = {};
-  if (!m.textStyles[key]) m.textStyles[key] = { size: 0, color: '', font: '' };
+  if (!m.textStyles[key]) m.textStyles[key] = { size: 0, colorLight: '', colorDark: '', font: '' };
   const s = m.textStyles[key];
   if (typeof s.font !== 'string') s.font = '';
+  if (typeof s.color === 'string' && s.color) {
+    if (!s.colorLight) s.colorLight = s.color;
+    if (!s.colorDark) s.colorDark = s.color;
+    delete s.color;
+  }
+  if (typeof s.colorLight !== 'string') s.colorLight = '';
+  if (typeof s.colorDark !== 'string') s.colorDark = '';
   return s;
 }
 // Effektiver Stil eines Text-Slots: bei aktivem „Standard für alle Slots"

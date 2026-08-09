@@ -279,7 +279,10 @@ const TEXT_STYLE_KEYS = [
   'imageTools.sectionTitle',
   'diverseTools.sectionTitle',
 ];
-/** Validiert die Text-Stile: nur bekannte Schlüssel, Größe 0–120, Hex-Farbe. */
+/**
+ * Validiert die Text-Stile: nur bekannte Schlüssel, Größe 0–120, Hex-Farben.
+ * Farbe getrennt nach Hell/Dunkel; ein altes einzelnes color wird migriert.
+ */
 function validateTextStyles(o) {
   const out = {};
   if (!isPlainObject(o)) return out;
@@ -287,9 +290,12 @@ function validateTextStyles(o) {
     const s = o[k];
     if (!isPlainObject(s)) continue;
     const size = clampNum(s.size, 0, 120, 0);
-    const color = normHexColor(s.color, '');
     const font = normFontFile(s.font);
-    if (size > 0 || color || font) out[k] = { size, color, font };
+    const legacy = normHexColor(s.color, '');
+    const colorLight = normHexColor(s.colorLight, '') || legacy;
+    const colorDark = normHexColor(s.colorDark, '') || legacy;
+    if (size > 0 || colorLight || colorDark || font)
+      out[k] = { size, colorLight, colorDark, font };
   }
   return out;
 }
