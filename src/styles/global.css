@@ -657,15 +657,15 @@ body {
   font-weight: 700;
   border-radius: 50px;
   text-decoration: none;
-  box-shadow: 0 4px 20px rgba(1, 79, 153, 0.35);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  /* Schatten/Glow entfernt */
+  box-shadow: none;
+  transition: transform 0.2s ease;
   animation: fadeInUp 1s ease 0.6s forwards;
   opacity: 0;
 }
 
 .hero-cta-btn:hover {
   transform: translateY(-3px) scale(1.03);
-  box-shadow: 0 8px 28px rgba(1, 79, 153, 0.5);
   background: var(--hero-cta-hover-bg, var(--hero-cta-bg, linear-gradient(135deg, #014f99 0%, #003971 100%)));
   color: var(--hero-cta-hover-text, var(--hero-cta-text, #fff));
 }
@@ -676,11 +676,9 @@ body {
 
 [data-theme="dark"] .hero-cta-btn {
   background: var(--hero-cta-bg, linear-gradient(135deg, #e8a945 0%, #a07030 100%));
-  box-shadow: 0 4px 20px rgba(232, 169, 69, 0.35);
 }
 
 [data-theme="dark"] .hero-cta-btn:hover {
-  box-shadow: 0 8px 28px rgba(232, 169, 69, 0.5);
   background: var(--hero-cta-hover-bg, var(--hero-cta-bg, linear-gradient(135deg, #e8a945 0%, #a07030 100%)));
 }
 
