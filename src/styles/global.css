@@ -657,6 +657,8 @@ body {
   font-weight: 700;
   border-radius: 50px;
   text-decoration: none;
+  /* Rahmen optional (Admin: Hero-Design → CTA). Standard = kein Rahmen. */
+  border: var(--hero-cta-border-width, 0) solid var(--hero-cta-border, transparent);
   /* Schatten/Glow entfernt */
   box-shadow: none;
   transition: transform 0.2s ease;

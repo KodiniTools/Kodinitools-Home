@@ -65,8 +65,15 @@ function heroSideVars(side: typeof media.heroDesign.light): string {
   if (cbd) v.push(`--hero-chip-border:${cbd}`)
   if (side.chipHoverBgColor) v.push(`--hero-chip-hover-bg:${side.chipHoverBgColor}`)
   if (side.chipHoverTextColor) v.push(`--hero-chip-hover-text:${side.chipHoverTextColor}`)
-  if (side.ctaBgColor) v.push(`--hero-cta-bg:${side.ctaBgColor}`)
+  const ctabg = heroHexToRgba(side.ctaBgColor, side.ctaBgOpacity)
+  if (ctabg) v.push(`--hero-cta-bg:${ctabg}`)
   if (side.ctaTextColor) v.push(`--hero-cta-text:${side.ctaTextColor}`)
+  // Rahmen des CTA nur, wenn Transparenz > 0 (sonst kein Rahmen -> Standard-Look).
+  const ctabd = heroHexToRgba(side.ctaBorderColor, side.ctaBorderOpacity)
+  if (ctabd && side.ctaBorderOpacity > 0) {
+    v.push(`--hero-cta-border:${ctabd}`)
+    v.push(`--hero-cta-border-width:1px`)
+  }
   if (side.ctaHoverBgColor) v.push(`--hero-cta-hover-bg:${side.ctaHoverBgColor}`)
   if (side.ctaHoverTextColor) v.push(`--hero-cta-hover-text:${side.ctaHoverTextColor}`)
   if (side.titleTextColor) v.push(`--hero-title-color:${side.titleTextColor}`)
