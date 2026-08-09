@@ -410,9 +410,13 @@ export interface SiteConfig {
   // Basis-Schriftart der ganzen Seite (Dateiname im /fonts-Ordner; leer =
   // System-Standard). Wird im Admin per Kachel gesetzt und gilt für alle Sprachen.
   globalFont: string;
+  // Seiten-Hintergrundfarbe für Hell-/Dunkelmodus (Hex; leer = Standardfarbe des
+  // jeweiligen Modus). Wird im Admin im Tab „Hintergrund" gesetzt, gilt global.
+  bgColor: string;
+  bgColorDark: string;
 }
 
-const SITE_DEFAULTS: SiteConfig = { globalFont: '' };
+const SITE_DEFAULTS: SiteConfig = { globalFont: '', bgColor: '', bgColorDark: '' };
 
 /**
  * Globale Seiten-Einstellungen aus media.json (`site`-Zweig, sprachübergreifend).
@@ -451,4 +455,24 @@ export function getSiteFontStyle(): string | undefined {
   const id = siteFontId(file);
   // html:root gewinnt gegen global.css :root (höhere Spezifität), unabhängig von der Reihenfolge.
   return `@font-face{font-family:"${id}";src:${src};font-display:swap;}html:root{--site-font:"${id}", ${SITE_FONT_FALLBACK};}`;
+}
+
+// Gültige Hex-Farbe (#rgb oder #rrggbb).
+const SITE_HEX = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
+
+/**
+ * CSS zum Überschreiben der Seiten-Hintergrundfarbe (CSS-Variable --bg-color),
+ * getrennt für Hell- und Dunkelmodus. Gibt `undefined` zurück, wenn keine
+ * (gültige) Farbe gesetzt ist – dann bleibt die Standardfarbe aus global.css.
+ * Die Selektoren `html:root` bzw. `html[data-theme="dark"]` haben höhere
+ * Spezifität als die Standardregeln (:root / [data-theme="dark"]) und gewinnen
+ * unabhängig von der Reihenfolge. Wird von allen Layouts im <head> eingebunden.
+ */
+export function getSiteBackgroundStyle(): string | undefined {
+  const site = getSite();
+  const rules: string[] = [];
+  if (SITE_HEX.test(site.bgColor || '')) rules.push(`html:root{--bg-color:${site.bgColor};}`);
+  if (SITE_HEX.test(site.bgColorDark || ''))
+    rules.push(`html[data-theme="dark"]{--bg-color:${site.bgColorDark};}`);
+  return rules.length ? rules.join('') : undefined;
 }

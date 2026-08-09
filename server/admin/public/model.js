@@ -382,14 +382,38 @@ export function getEffectiveCellStyle(lang, i) {
   for (const p of CELL_SYNC_PROPS) out[p] = master[p];
   return out;
 }
+// Hex-Farbe (#rgb oder #rrggbb) oder '' (= Standard/keine eigene Farbe).
+export function normHexOrEmpty(v) {
+  return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? v : '';
+}
 // Globale (sprachübergreifende) Seiten-Einstellungen. globalFont = Basis-
 // Schriftart der ganzen Seite (Dateiname im /fonts-Ordner; leer = Standard).
+// bgColor/bgColorDark = Seiten-Hintergrundfarbe für Hell-/Dunkelmodus
+// (leer = Standardfarbe des jeweiligen Modus).
 export function defaultSite() {
-  return { globalFont: '' };
+  return { globalFont: '', bgColor: '', bgColorDark: '' };
 }
 export function normSite(s) {
   if (!s || typeof s !== 'object') return defaultSite();
-  return { globalFont: normFontFile(s.globalFont) };
+  return {
+    globalFont: normFontFile(s.globalFont),
+    bgColor: normHexOrEmpty(s.bgColor),
+    bgColorDark: normHexOrEmpty(s.bgColorDark),
+  };
+}
+// Standard-Hintergrundfarben je Modus (identisch zu global.css --bg-color).
+export const PAGE_BG_DEFAULT = { light: '#fafafa', dark: '#091428' };
+// Seiten-Hintergrundfarbe (global) lesen. mode: 'light' | 'dark'. '' = Standard.
+export function getPageBg(mode) {
+  if (!state.media.site || typeof state.media.site !== 'object') state.media.site = defaultSite();
+  return (mode === 'dark' ? state.media.site.bgColorDark : state.media.site.bgColor) || '';
+}
+// Seiten-Hintergrundfarbe (global) setzen ('' = Standard des Modus).
+export function setPageBg(mode, val) {
+  if (!state.media.site || typeof state.media.site !== 'object') state.media.site = defaultSite();
+  const hex = normHexOrEmpty(val);
+  if (mode === 'dark') state.media.site.bgColorDark = hex;
+  else state.media.site.bgColor = hex;
 }
 // Medien werden pro Sprache getrennt gepflegt, plus globale site-Einstellungen:
 // { site: {...}, de: {...}, en: {...} }.
@@ -554,6 +578,7 @@ export const SUBTABS = [
   { key: 'media', label: 'Medien' },
   { key: 'layout', label: 'Layout' },
   { key: 'design', label: 'Hero-Design' },
+  { key: 'background', label: 'Hintergrund' },
   { key: 'files', label: 'Dateien' },
   { key: 'advanced', label: 'Erweitert' },
 ];

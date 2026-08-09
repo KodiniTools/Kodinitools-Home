@@ -328,12 +328,19 @@ function validateCellStyle(s) {
 function defaultSite() {
   // globalFont: Basis-Schriftart der ganzen Seite (Dateiname im /fonts-Ordner;
   // leer = System-Standard 'Supreme'). Wirkt über alle Sprachen hinweg.
-  return { globalFont: '' };
+  // bgColor/bgColorDark: Seiten-Hintergrundfarbe für Hell-/Dunkelmodus
+  // (leer = Standardfarbe des jeweiligen Modus).
+  return { globalFont: '', bgColor: '', bgColorDark: '' };
 }
 /** Validiert die globalen Seiten-Einstellungen. */
 function validateSite(s) {
   if (!isPlainObject(s)) return defaultSite();
-  return { globalFont: normFontFile(s.globalFont) };
+  return {
+    globalFont: normFontFile(s.globalFont),
+    // Ungültige/fehlende Farbe -> '' (= Standard); gültige Werte auf #rrggbb normiert.
+    bgColor: normHexColor(s.bgColor, ''),
+    bgColorDark: normHexColor(s.bgColorDark, ''),
+  };
 }
 
 /** Medien-Standard ({ site, de, en }). */
