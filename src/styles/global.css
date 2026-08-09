@@ -922,7 +922,7 @@ body {
   padding: 0.85rem 0.5rem;
   border-radius: 0.75rem;
   text-align: center;
-  transition: transform 0.15s ease, box-shadow 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+  transition: transform 0.15s ease, background 0.3s ease, border-color 0.3s ease;
   animation: fadeInUp 0.8s ease forwards;
   animation-fill-mode: both;
   transform-style: preserve-3d;
@@ -963,7 +963,6 @@ body {
 .feature-card:hover {
   background: var(--hero-chip-hover-bg, linear-gradient(135deg, #0160b8 0%, #014f99 100%));
   border-color: rgba(232, 169, 69, 0.5);
-  box-shadow: 0 10px 30px rgba(0, 57, 113, 0.3), 0 0 15px rgba(232, 169, 69, 0.15);
   transform: translateY(-2px);
 }
 
@@ -987,7 +986,6 @@ body {
 [data-theme="dark"] .feature-card:hover {
   background: var(--hero-chip-hover-bg, rgba(20, 38, 64, 0.95));
   border-color: rgba(232, 169, 69, 0.3);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 5px 15px rgba(232, 169, 69, 0.1);
 }
 
 [data-theme="dark"] .feature-text {
@@ -1021,28 +1019,21 @@ body {
   background: rgba(255, 255, 255, 0.95);
   border: 1px solid rgba(1, 79, 153, 0.15);
   border-radius: 1rem;
-  box-shadow: 0 4px 20px rgba(0, 57, 113, 0.08),
-              0 0 0 1px rgba(255, 255, 255, 0.5) inset;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .spotlight-search:focus-within {
   border-color: rgba(1, 79, 153, 0.35);
-  box-shadow: 0 8px 30px rgba(0, 57, 113, 0.12),
-              0 0 0 3px rgba(1, 79, 153, 0.1);
   transform: scale(1.02);
 }
 
 [data-theme="dark"] .spotlight-search {
   background: rgba(14, 28, 50, 0.95);
   border-color: rgba(232, 169, 69, 0.15);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 [data-theme="dark"] .spotlight-search:focus-within {
   border-color: rgba(232, 169, 69, 0.4);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4),
-              0 0 0 3px rgba(232, 169, 69, 0.1);
 }
 
 .search-icon-svg {
@@ -2152,7 +2143,6 @@ button:focus {
 
 .search-box:focus-within {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(1, 79, 153, 0.12);
   background: rgba(1, 79, 153, 0.08);
 }
 
@@ -2163,7 +2153,6 @@ button:focus {
 
 [data-theme="dark"] .search-box:focus-within {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(232, 169, 69, 0.15);
   background: rgba(232, 169, 69, 0.1);
 }
 
