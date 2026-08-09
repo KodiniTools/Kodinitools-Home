@@ -10,10 +10,17 @@
   "style": {
     "enabled": true,
     "fontSize": 14,
-    "textColor": "#29486a",
-    "bgColor": "#e5eef5",
-    "bgOpacity": 100,
     "fontFamily": "Supreme-Regular.woff2",
-    "letterSpacing": 1.5
+    "letterSpacing": 1.5,
+    "light": {
+      "textColor": "#29486a",
+      "bgColor": "#e5eef5",
+      "bgOpacity": 100
+    },
+    "dark": {
+      "textColor": "#fafafa",
+      "bgColor": "#111e34",
+      "bgOpacity": 30
+    }
   }
 }

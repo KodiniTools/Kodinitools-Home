@@ -1,6 +1,8 @@
 {
   "site": {
-    "globalFont": "Supreme-Regular.woff2"
+    "globalFont": "Supreme-Regular.woff2",
+    "bgColor": "",
+    "bgColorDark": ""
   },
   "de": {
     "sectionVideos": {
@@ -177,16 +179,16 @@
         "bgOpacity": 80,
         "chipBgColor": "#142640",
         "chipBgOpacity": 40,
-        "chipTextColor": "#f8e1a9",
+        "chipTextColor": "#f8f8f7",
         "chipBorderColor": "#ffffff",
         "chipBorderOpacity": 8,
         "chipHoverBgColor": "#142640",
         "chipHoverTextColor": "#f5f4d6",
-        "ctaBgColor": "#e8a945",
+        "ctaBgColor": "#111e34",
         "ctaTextColor": "#ffffff",
-        "ctaHoverBgColor": "#a07030",
-        "ctaHoverTextColor": "#ffffff",
-        "titleTextColor": "#f9f2d5"
+        "ctaHoverBgColor": "#14243e",
+        "ctaHoverTextColor": "#f5f4d6",
+        "titleTextColor": "#f9f8f6"
       }
     }
   },
@@ -365,16 +367,16 @@
         "bgOpacity": 80,
         "chipBgColor": "#142640",
         "chipBgOpacity": 40,
-        "chipTextColor": "#f8e1a9",
+        "chipTextColor": "#fafafa",
         "chipBorderColor": "#ffffff",
         "chipBorderOpacity": 8,
         "chipHoverBgColor": "#142640",
         "chipHoverTextColor": "#f5f4d6",
-        "ctaBgColor": "#e8a945",
+        "ctaBgColor": "#111e34",
         "ctaTextColor": "#ffffff",
-        "ctaHoverBgColor": "#a07030",
+        "ctaHoverBgColor": "#14243e",
         "ctaHoverTextColor": "#ffffff",
-        "titleTextColor": "#f9f2d5"
+        "titleTextColor": "#ffffff"
       }
     }
   }
