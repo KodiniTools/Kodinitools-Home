@@ -2290,9 +2290,9 @@ button:focus {
 }
 
 [data-theme="dark"] .tool-card-badge {
-  color: var(--accent-color);
-  background: rgba(232, 169, 69, 0.1);
-  border-color: rgba(232, 169, 69, 0.2);
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
 .tool-card-title {
