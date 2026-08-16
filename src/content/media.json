@@ -11,9 +11,9 @@
       "diverse": "/videos/diverse-tools.mp4"
     },
     "heroMode": "banner",
-    "heroLayout": "grid3",
-    "heroBanner": "/uploads/de/kodinitools-bane-2-82030339.webp",
-    "heroBannerLink": "",
+    "heroLayout": "row4",
+    "heroBanner": "/uploads/de/banner-texteditor-deutsch-c34e3446.webp",
+    "heroBannerLink": "https://kodinitools.com/texteditor/",
     "heroBannerText": "",
     "heroBannerFont": "Satoshi-Regular.woff2",
     "heroBannerTextColor": "#e4e8ec",
@@ -119,7 +119,7 @@
     ],
     "heroGridUniform": false,
     "heroGridUniformCell": 0,
-    "heroGridRatio": "2:3",
+    "heroGridRatio": "1:1",
     "heroGridFit": "contain",
     "textStyles": {
       "tools.sectionTitle": {
@@ -209,8 +209,8 @@
     },
     "heroMode": "banner",
     "heroLayout": "grid3",
-    "heroBanner": "/uploads/en/kodinitools-banne-4-6d4e638c.webp",
-    "heroBannerLink": "",
+    "heroBanner": "/uploads/en/banner-texteditor-english-c83b0b37.webp",
+    "heroBannerLink": "https://kodinitools.com/texteditor/",
     "heroBannerText": "",
     "heroBannerFont": "",
     "heroBannerTextColor": "#ffffff",
