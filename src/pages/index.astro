@@ -476,19 +476,19 @@ const pageI18n = {
   <script is:inline define:vars={{ pageI18n }}>
   document.addEventListener('DOMContentLoaded', function() {
     // --- Page i18n ---
-    var PAGE_I18N = pageI18n;
+    const PAGE_I18N = pageI18n;
 
     // Wiederverwendbare Übersetzungsfunktion
-    var pageT; // wird von applyPageTranslations gesetzt
+    let pageT; // wird von applyPageTranslations gesetzt
     function applyPageTranslations() {
-      var pageLang = 'de';
+      const pageLang = 'de';
       pageT = PAGE_I18N[pageLang] || PAGE_I18N['de'];
 
       // Apply text translations
       document.querySelectorAll('#app [data-i18n]').forEach(function(el) {
-        var key = el.getAttribute('data-i18n');
+        const key = el.getAttribute('data-i18n');
         if (pageT[key]) {
-          var v = pageT[key];
+          const v = pageT[key];
           if (v.indexOf('\n') !== -1) {
             // Mehrzeilig: sicher escapen, dann Umbrüche als <br/> ausgeben.
             el.innerHTML = v
@@ -502,49 +502,49 @@ const pageI18n = {
 
       // Apply placeholder translations
       document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el) {
-        var key = el.getAttribute('data-i18n-placeholder');
+        const key = el.getAttribute('data-i18n-placeholder');
         if (pageT[key]) el.placeholder = pageT[key];
       });
 
       // Apply aria-label translations
       document.querySelectorAll('#app [data-i18n-aria]').forEach(function(el) {
-        var key = el.getAttribute('data-i18n-aria');
+        const key = el.getAttribute('data-i18n-aria');
         if (pageT[key]) el.setAttribute('aria-label', pageT[key]);
       });
 
       // Update SVG images on tool cards based on language
       document.querySelectorAll('.svg-card-link[data-i18n-key]').forEach(function(card) {
-        var key = card.getAttribute('data-i18n-key');
-        var svgPath = pageT[key + '.svg'];
+        const key = card.getAttribute('data-i18n-key');
+        const svgPath = pageT[key + '.svg'];
         if (svgPath) {
-          var img = card.querySelector('img');
+          const img = card.querySelector('img');
           if (img && img.getAttribute('src') !== svgPath) {
             img.setAttribute('src', svgPath);
           }
-          var titleText = pageT[key + '.title'];
+          const titleText = pageT[key + '.title'];
           if (titleText && img) {
             img.setAttribute('alt', titleText);
           }
         }
         // Update data-title and data-description for search
-        var titleKey = key + '.title';
-        var descKey = key + '.description';
+        const titleKey = key + '.title';
+        const descKey = key + '.description';
         if (pageT[titleKey]) {
           card.setAttribute('data-title', pageT[titleKey]);
-          var titleEl = card.querySelector('.tool-card-title');
+          const titleEl = card.querySelector('.tool-card-title');
           if (titleEl) titleEl.textContent = pageT[titleKey];
         }
         if (pageT[descKey]) {
           card.setAttribute('data-description', pageT[descKey]);
-          var descEl = card.querySelector('.tool-card-desc');
+          const descEl = card.querySelector('.tool-card-desc');
           if (descEl) descEl.textContent = pageT[descKey];
-          var popupDescEl = card.querySelector('.tool-popup-desc');
+          const popupDescEl = card.querySelector('.tool-popup-desc');
           if (popupDescEl) popupDescEl.textContent = pageT[descKey];
         }
       });
 
       // Typing-Text aktualisieren (sofort, ohne Animation bei Sprachwechsel)
-      var typedEl = document.getElementById('typedText');
+      const typedEl = document.getElementById('typedText');
       if (typedEl && typedEl.textContent.length > 0) {
         typedEl.textContent = pageT['hero.title'] || '';
       }
@@ -557,10 +557,10 @@ const pageI18n = {
     window.addEventListener('locale-changed', applyPageTranslations);
 
     // --- Typing Animation ---
-    var typedTextEl = document.getElementById('typedText');
+    const typedTextEl = document.getElementById('typedText');
     if (typedTextEl) {
-      var fullTitle = pageT['hero.title'] || 'Kostenlose Online-Tools für Audio & Bild';
-      var currentIndex = 0;
+      const fullTitle = pageT['hero.title'] || 'Kostenlose Online-Tools für Audio & Bild';
+      let currentIndex = 0;
       function typeNextChar() {
         if (currentIndex < fullTitle.length) {
           typedTextEl.textContent += fullTitle[currentIndex];
@@ -585,14 +585,14 @@ const pageI18n = {
 
     // --- Scroll to Top ---
     // --- Scroll Indicator hide on scroll ---
-    var scrollIndicator = document.getElementById('scrollIndicator');
+    const scrollIndicator = document.getElementById('scrollIndicator');
     if (scrollIndicator) {
       scrollIndicator.addEventListener('click', function() {
         document.getElementById('audio-tools')?.scrollIntoView({ behavior: 'smooth' });
       });
     }
 
-    var scrollBtn = document.getElementById('scrollToTop');
+    const scrollBtn = document.getElementById('scrollToTop');
     if (scrollBtn) {
       window.addEventListener('scroll', function() {
         scrollBtn.style.display = window.scrollY > 400 ? 'flex' : 'none';
@@ -605,28 +605,28 @@ const pageI18n = {
     }
 
     // --- 3D Tilt Effect for SVG Cards ---
-    var isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     if (!isTouchDevice) {
       document.addEventListener('mousemove', function(e) {
-        var target = e.target;
+        const target = e.target;
         if (!target || typeof target.closest !== 'function') return;
-        var card = target.closest('.tool-card');
+        const card = target.closest('.tool-card');
         if (!card) return;
 
-        var rect = card.getBoundingClientRect();
-        var x = e.clientX - rect.left;
-        var y = e.clientY - rect.top;
-        var centerX = rect.width / 2;
-        var centerY = rect.height / 2;
-        var rotateX = (y - centerY) / 18;
-        var rotateY = (centerX - x) / 18;
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = (y - centerY) / 18;
+        const rotateY = (centerX - x) / 18;
 
         card.style.transform = 'perspective(1000px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) translateY(-5px)';
       });
 
       document.addEventListener('mouseout', function(e) {
-        var target = e.target;
-        var relatedTarget = e.relatedTarget;
+        const target = e.target;
+        const relatedTarget = e.relatedTarget;
         if (target && target.classList && target.classList.contains('tool-card') &&
             (!relatedTarget || !target.contains(relatedTarget))) {
           target.style.transform = '';
@@ -635,19 +635,19 @@ const pageI18n = {
     }
 
     // --- Intersection Observer for Scroll Animations ---
-    var observer = new IntersectionObserver(function(entries) {
-      entries.forEach(function(entry) {
-        if (entry.isIntersecting) {
-          var parent = entry.target.parentElement;
-          if (parent) {
-            var siblings = Array.from(parent.children);
-            var index = siblings.indexOf(entry.target);
-            entry.target.style.transitionDelay = (index * 0.08) + 's';
-          }
-          entry.target.classList.add('is-visible');
+    const observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        const parent = entry.target.parentElement;
+        if (parent) {
+          const siblings = Array.from(parent.children);
+          const index = siblings.indexOf(entry.target);
+          entry.target.style.transitionDelay = (index * 0.08) + 's';
         }
-      });
-    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+        entry.target.classList.add('is-visible');
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
     document.querySelectorAll('.tools-section, .svg-card-link').forEach(function(el) {
       el.classList.add('scroll-reveal');
@@ -656,16 +656,16 @@ const pageI18n = {
 
     // --- Feature Card 3D Tilt ---
     if (!isTouchDevice) {
-      var featuresGrid = document.querySelector('.features-grid');
+      const featuresGrid = document.querySelector('.features-grid');
       if (featuresGrid) {
         featuresGrid.addEventListener('mousemove', function(e) {
-          var card = e.target.closest('.feature-card');
+          const card = e.target.closest('.feature-card');
           if (!card) return;
-          var rect = card.getBoundingClientRect();
-          var x = e.clientX - rect.left;
-          var y = e.clientY - rect.top;
-          var rotateX = (y - rect.height / 2) / 12;
-          var rotateY = (rect.width / 2 - x) / 12;
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          const rotateX = (y - rect.height / 2) / 12;
+          const rotateY = (rect.width / 2 - x) / 12;
           card.style.transform = 'perspective(800px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) translateY(-5px) scale(1.02)';
           card.style.setProperty('--feature-mouse-x', (x / rect.width * 100) + '%');
           card.style.setProperty('--feature-mouse-y', (y / rect.height * 100) + '%');
@@ -690,14 +690,14 @@ const pageI18n = {
     }
 
     // --- Favorites ---
-    var FAV_KEY = 'kdt-favorites';
+    const FAV_KEY = 'kdt-favorites';
 
     function getFavorites() {
       try {
-        var raw = JSON.parse(localStorage.getItem(FAV_KEY)) || [];
+        const raw = JSON.parse(localStorage.getItem(FAV_KEY)) || [];
         // filter out legacy string-only entries from old format
         return raw.filter(function(f) { return f && typeof f === 'object' && f.key; });
-      } catch(e) { return []; }
+      } catch { return []; }
     }
 
     function saveFavorites(favs) {
@@ -705,39 +705,39 @@ const pageI18n = {
     }
 
     function buildFavCard(item) {
-      var a = document.createElement('a');
+      const a = document.createElement('a');
       a.href = item.link;
       a.className = 'svg-card-link';
       a.setAttribute('data-i18n-key', item.key);
       a.setAttribute('data-title', item.title);
       a.setAttribute('data-description', item.description);
 
-      var card = document.createElement('div');
+      const card = document.createElement('div');
       card.className = 'tool-card';
 
       if (item.badge) {
-        var badge = document.createElement('span');
+        const badge = document.createElement('span');
         badge.className = 'tool-card-badge';
         badge.textContent = item.badge;
         card.appendChild(badge);
       }
 
-      var h3 = document.createElement('h3');
+      const h3 = document.createElement('h3');
       h3.className = 'tool-card-title';
       h3.textContent = item.title;
       card.appendChild(h3);
 
-      var footer = document.createElement('div');
+      const footer = document.createElement('div');
       footer.className = 'tool-card-footer';
 
-      var favBtn = document.createElement('button');
+      const favBtn = document.createElement('button');
       favBtn.className = 'fav-btn is-active';
       favBtn.setAttribute('aria-label', 'Aus Favoriten entfernen');
       favBtn.title = 'Favorit';
       favBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>';
       footer.appendChild(favBtn);
 
-      var openSpan = document.createElement('span');
+      const openSpan = document.createElement('span');
       openSpan.className = 'tool-card-open';
       openSpan.innerHTML = 'Öffnen <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
       footer.appendChild(openSpan);
@@ -745,10 +745,10 @@ const pageI18n = {
       card.appendChild(footer);
       a.appendChild(card);
 
-      var popup = document.createElement('div');
+      const popup = document.createElement('div');
       popup.className = 'tool-popup';
       popup.setAttribute('role', 'tooltip');
-      var popupDesc = document.createElement('p');
+      const popupDesc = document.createElement('p');
       popupDesc.className = 'tool-popup-desc';
       popupDesc.textContent = item.description;
       popup.appendChild(popupDesc);
@@ -758,9 +758,9 @@ const pageI18n = {
     }
 
     function renderFavorites() {
-      var favs = getFavorites();
-      var section = document.getElementById('favoritesSection');
-      var grid = document.getElementById('favoritesGrid');
+      const favs = getFavorites();
+      const section = document.getElementById('favoritesSection');
+      const grid = document.getElementById('favoritesGrid');
       if (!section || !grid) return;
       grid.innerHTML = '';
       if (favs.length === 0) {
@@ -769,29 +769,29 @@ const pageI18n = {
       }
       section.style.display = 'block';
       favs.forEach(function(item) {
-        var cardEl = buildFavCard(item);
+        const cardEl = buildFavCard(item);
         attachFavBtn(cardEl);
         grid.appendChild(cardEl);
       });
     }
 
     function updateAllFavButtons() {
-      var favs = getFavorites();
-      var favKeys = favs.map(function(f) { return f.key; });
+      const favs = getFavorites();
+      const favKeys = favs.map(function(f) { return f.key; });
       document.querySelectorAll('.svg-card-link[data-i18n-key]').forEach(function(card) {
-        var key = card.getAttribute('data-i18n-key');
-        var btn = card.querySelector('.fav-btn');
+        const key = card.getAttribute('data-i18n-key');
+        const btn = card.querySelector('.fav-btn');
         if (!btn) return;
-        var inFavSection = !!card.closest('#favoritesSection');
+        const inFavSection = !!card.closest('#favoritesSection');
         btn.classList.toggle('is-active', inFavSection || favKeys.indexOf(key) !== -1);
       });
     }
 
     function toggleFavorite(key, btnEl, cardEl) {
-      var favs = getFavorites();
-      var idx = favs.findIndex(function(f) { return f.key === key; });
+      const favs = getFavorites();
+      const idx = favs.findIndex(function(f) { return f.key === key; });
       if (idx === -1) {
-        var badgeEl = cardEl ? cardEl.querySelector('.tool-card-badge') : null;
+        const badgeEl = cardEl ? cardEl.querySelector('.tool-card-badge') : null;
         favs.push({
           key: key,
           title: cardEl ? (cardEl.getAttribute('data-title') || '') : key,
@@ -812,12 +812,12 @@ const pageI18n = {
     }
 
     function attachFavBtn(cardEl) {
-      var btn = cardEl.querySelector('.fav-btn');
+      const btn = cardEl.querySelector('.fav-btn');
       if (!btn) return;
       btn.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        var key = cardEl.getAttribute('data-i18n-key');
+        const key = cardEl.getAttribute('data-i18n-key');
         toggleFavorite(key, btn, cardEl);
       });
     }
@@ -826,7 +826,7 @@ const pageI18n = {
       attachFavBtn(card);
     });
 
-    var favClearBtn = document.getElementById('favClearAll');
+    const favClearBtn = document.getElementById('favClearAll');
     if (favClearBtn) {
       favClearBtn.addEventListener('click', function() {
         saveFavorites([]);
@@ -847,12 +847,12 @@ const pageI18n = {
 
   <script>
     // Lazy-load videos below the fold via IntersectionObserver
-    var lazyVideos = document.querySelectorAll('video.lazy-video');
+    const lazyVideos = document.querySelectorAll('video.lazy-video');
     if ('IntersectionObserver' in window && lazyVideos.length) {
-      var videoObserver = new IntersectionObserver(function(entries) {
+      const videoObserver = new IntersectionObserver(function(entries) {
         entries.forEach(function(entry) {
           if (entry.isIntersecting) {
-            var video = entry.target;
+            const video = entry.target;
             video.load();
             video.play().catch(function() {});
             videoObserver.unobserve(video);

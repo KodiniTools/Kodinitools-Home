@@ -1,5 +1,5 @@
 <template>
-  <button @click="toggleTheme" class="theme-toggle" :aria-label="$t('common.toggleTheme')">
+  <button class="theme-toggle" :aria-label="$t('common.toggleTheme')" @click="toggleTheme">
     <span class="theme-icon">{{ theme === 'light' ? '🌙' : '☀️' }}</span>
   </button>
 </template>

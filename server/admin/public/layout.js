@@ -455,7 +455,7 @@ function dragHandle(handle, container, onMove, onTap) {
     sy = e.clientY;
     try {
       handle.setPointerCapture(e.pointerId);
-    } catch (_) {
+    } catch {
       /* ignore */
     }
     e.preventDefault();
@@ -474,7 +474,7 @@ function dragHandle(handle, container, onMove, onTap) {
     active = false;
     try {
       handle.releasePointerCapture(e.pointerId);
-    } catch (_) {
+    } catch {
       /* ignore */
     }
     if (!moved && onTap) onTap();

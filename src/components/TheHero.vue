@@ -59,12 +59,12 @@
             :placeholder="$t('search.placeholder')"
             class="search-input"
           />
-          <kbd class="search-kbd" v-if="!searchQueryModel">⌘K</kbd>
+          <kbd v-if="!searchQueryModel" class="search-kbd">⌘K</kbd>
           <button
             v-if="searchQueryModel"
-            @click="searchQueryModel = ''"
             class="search-clear"
             :aria-label="$t('search.clear')"
+            @click="searchQueryModel = ''"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M18 6 6 18"></path>

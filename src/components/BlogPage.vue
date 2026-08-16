@@ -568,16 +568,12 @@
 
     <!-- Back to Home -->
     <div class="blog-footer">
-      <a @click.prevent="handleGoHome" href="#" class="back-link">← {{ $t('blog.backToHome') }}</a>
+      <a href="#" class="back-link" @click.prevent="handleGoHome">← {{ $t('blog.backToHome') }}</a>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-
-const { t } = useI18n()
-
 const emit = defineEmits<{
   (e: 'goHome'): void
 }>()

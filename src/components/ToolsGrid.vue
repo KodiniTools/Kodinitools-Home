@@ -1,5 +1,4 @@
 <template>
-  <template>
     <!-- Video Showcase Section -->
     <section class="video-showcase">
       <div class="video-showcase-header">
@@ -167,7 +166,6 @@
         </a>
       </div>
     </section>
-  </template>
 </template>
 
 <script setup lang="ts">

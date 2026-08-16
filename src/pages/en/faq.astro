@@ -1,5 +1,4 @@
 ---
-import EnLayout from '../../layouts/EnLayout.astro'
 import GlobalNav from '../../components/GlobalNav.astro'
 import TickerBar from '../../components/TickerBar.astro'
 import SiteFooter from '../../components/SiteFooter.astro'
@@ -30,7 +29,7 @@ const schemaFaq = {
   <!-- Google Consent Mode v2 -->
   <script is:inline>
   window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
+  function gtag(){dataLayer.push(arguments);} // eslint-disable-line prefer-rest-params -- offizielles Google-Snippet, arguments bewusst
   gtag('consent', 'default', {
     'ad_storage': 'denied', 'ad_user_data': 'denied', 'ad_personalization': 'denied',
     'analytics_storage': 'denied', 'functionality_storage': 'denied',
@@ -38,14 +37,14 @@ const schemaFaq = {
   });
   (function() {
     try {
-      var c = JSON.parse(localStorage.getItem('cookieConsent') || '{}');
+      const c = JSON.parse(localStorage.getItem('cookieConsent') || '{}');
       if (c.analytics) gtag('consent', 'update', { 'analytics_storage': 'granted', 'functionality_storage': 'granted', 'personalization_storage': 'granted' });
       if (c.marketing) gtag('consent', 'update', { 'ad_storage': 'granted', 'ad_user_data': 'granted', 'ad_personalization': 'granted' });
-    } catch(e) {}
+    } catch { /* Consent optional – Fehler bewusst ignorieren */ }
   })();
   </script>
   <!-- Google Tag Manager -->
-  <script is:inline>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-T7NS656K');</script>
+  <script is:inline>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});const f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-T7NS656K');</script>
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -330,23 +329,23 @@ const schemaFaq = {
 
   <script is:inline>
   (function() {
-    var theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     document.documentElement.setAttribute('data-theme', theme);
 
     document.addEventListener('DOMContentLoaded', function() {
-      var items = document.querySelectorAll('.faq-item');
+      const items = document.querySelectorAll('.faq-item');
       items.forEach(function(item) {
-        var btn = item.querySelector('.faq-question');
-        var answer = item.querySelector('.faq-answer');
+        const btn = item.querySelector('.faq-question');
+        const answer = item.querySelector('.faq-answer');
         if (!btn || !answer) return;
 
         btn.addEventListener('click', function() {
-          var isOpen = item.classList.contains('is-open');
+          const isOpen = item.classList.contains('is-open');
           items.forEach(function(other) {
             if (other !== item) {
               other.classList.remove('is-open');
-              var otherBtn = other.querySelector('.faq-question');
-              var otherAnswer = other.querySelector('.faq-answer');
+              const otherBtn = other.querySelector('.faq-question');
+              const otherAnswer = other.querySelector('.faq-answer');
               if (otherBtn) otherBtn.setAttribute('aria-expanded', 'false');
               if (otherAnswer) otherAnswer.hidden = true;
             }
@@ -358,10 +357,10 @@ const schemaFaq = {
       });
 
       if (items.length > 0) {
-        var first = items[0];
+        const first = items[0];
         first.classList.add('is-open');
-        var firstBtn = first.querySelector('.faq-question');
-        var firstAnswer = first.querySelector('.faq-answer');
+        const firstBtn = first.querySelector('.faq-question');
+        const firstAnswer = first.querySelector('.faq-answer');
         if (firstBtn) firstBtn.setAttribute('aria-expanded', 'true');
         if (firstAnswer) firstAnswer.hidden = false;
       }

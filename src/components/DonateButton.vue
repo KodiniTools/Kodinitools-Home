@@ -15,9 +15,9 @@ onMounted(() => {
   script.async = true
 
   script.onload = () => {
-    // @ts-ignore - PayPal ist global verfügbar nach dem Laden des Scripts
+    // @ts-expect-error - PayPal ist global verfügbar nach dem Laden des Scripts
     if (window.PayPal && window.PayPal.Donation) {
-      // @ts-ignore
+      // @ts-expect-error - PayPal-Global ist nicht typisiert
       window.PayPal.Donation.Button({
         env: 'production',
         hosted_button_id: '3TP3LXWDVBA4E',
