@@ -10,10 +10,10 @@
 
     <TheNavbar @toggle-blog="toggleBlog" @toggle-faq="toggleFaq" @go-home="goHome" />
 
-    <BlogPage v-if="showBlog" @goHome="goHome" />
-    <FaqPage v-else-if="showFaq" @goHome="goHome" />
+    <BlogPage v-if="showBlog" @go-home="goHome" />
+    <FaqPage v-else-if="showFaq" @go-home="goHome" />
     <template v-else>
-      <TheHero v-model:searchQuery="searchQuery" />
+      <TheHero v-model:search-query="searchQuery" />
       <ToolsGrid :search-query="searchQuery" />
     </template>
 
@@ -21,9 +21,9 @@
     <Transition name="fade-slide">
       <button
         v-if="showScrollTop"
-        @click="scrollToTop"
         class="scroll-to-top"
         :aria-label="$t('search.scrollTop')"
+        @click="scrollToTop"
       >
         ↑
       </button>
@@ -33,7 +33,7 @@
     <DonateButton />
 
     <!-- Footer with Cookie Settings Link -->
-    <AppFooter @openCookieSettings="openCookieSettings" />
+    <AppFooter @open-cookie-settings="openCookieSettings" />
 
     <!-- Cookie Banner -->
     <CookieBanner ref="cookieBannerRef" />

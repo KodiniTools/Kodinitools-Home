@@ -1,4 +1,5 @@
 import js from '@eslint/js';
+import globals from 'globals';
 import tseslint from 'typescript-eslint';
 import pluginVue from 'eslint-plugin-vue';
 import pluginAstro from 'eslint-plugin-astro';
@@ -33,18 +34,47 @@ export default tseslint.config(
     },
   },
 
+  // Vue-SFCs: <script setup lang="ts"> mit dem TypeScript-Parser lesen. Ohne das
+  // reicht vue-eslint-parser die Skript-Blöcke an den Standard-Parser weiter, der
+  // an TS-Syntax (interface, `as`, Typannotationen) scheitert. Die Komponenten
+  // laufen im Browser (window, document, localStorage, navigator …).
+  {
+    files: ['**/*.vue'],
+    languageOptions: {
+      parserOptions: { parser: tseslint.parser },
+      globals: { ...globals.browser },
+    },
+  },
+
+  // Astro-Seiten: der Client-`<script>`-Teil läuft im Browser, der Frontmatter-
+  // Teil zur Build-Zeit in Node. Beide Global-Sets bereitstellen.
+  // Hinweis: Das offizielle Google-gtag-Snippet nutzt bewusst das
+  // `arguments`-Objekt (`function gtag(){dataLayer.push(arguments);}`). Eine
+  // Umschreibung auf Rest-Parameter würde das an den Tag Manager übergebene
+  // Objekt verändern; die Regel `prefer-rest-params` wird deshalb direkt an
+  // diesen Stellen per Inline-Kommentar deaktiviert (ein Datei-Override greift
+  // hier nicht, da eslint-plugin-astro die <script>-Blöcke als virtuelle
+  // Dateien ohne .astro-Endung lintet).
+  {
+    files: ['**/*.astro'],
+    languageOptions: {
+      globals: { ...globals.browser, ...globals.node },
+    },
+  },
+
+  // Build-/Hilfsskripte laufen in Node.
+  {
+    files: ['scripts/**/*.mjs'],
+    languageOptions: {
+      globals: { ...globals.node },
+    },
+  },
+
   // Node-Server (Admin-Dienst) + Build-Config — Node-Built-in-Globals bereitstellen
   {
-    files: ['server/**/*.mjs', 'astro.config.mjs'],
+    files: ['server/**/*.mjs', 'astro.config.mjs', 'single-sitemap.mjs'],
     languageOptions: {
-      globals: {
-        process: 'readonly',
-        console: 'readonly',
-        Buffer: 'readonly',
-        URL: 'readonly',
-        setTimeout: 'readonly',
-        clearTimeout: 'readonly',
-      },
+      globals: { ...globals.node },
     },
   },
 
@@ -52,25 +82,7 @@ export default tseslint.config(
   {
     files: ['server/admin/public/**/*.js'],
     languageOptions: {
-      globals: {
-        window: 'readonly',
-        document: 'readonly',
-        location: 'readonly',
-        fetch: 'readonly',
-        URL: 'readonly',
-        prompt: 'readonly',
-        alert: 'readonly',
-        confirm: 'readonly',
-        console: 'readonly',
-        setTimeout: 'readonly',
-        clearTimeout: 'readonly',
-        setInterval: 'readonly',
-        clearInterval: 'readonly',
-        indexedDB: 'readonly',
-        FileReader: 'readonly',
-        Blob: 'readonly',
-        FormData: 'readonly',
-      },
+      globals: { ...globals.browser },
     },
   },
 

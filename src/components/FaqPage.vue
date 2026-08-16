@@ -19,8 +19,8 @@
         >
           <button
             class="faq-question"
-            @click="toggleItem(index)"
             :aria-expanded="String(openItems.includes(index))"
+            @click="toggleItem(index)"
           >
             <span class="question-text">{{ $t(`faq.questions.q${index + 1}.question`) }}</span>
             <span class="question-icon">
@@ -29,7 +29,7 @@
               </svg>
             </span>
           </button>
-          <div class="faq-answer" v-show="openItems.includes(index)">
+          <div v-show="openItems.includes(index)" class="faq-answer">
             <p>{{ $t(`faq.questions.q${index + 1}.answer`) }}</p>
           </div>
         </div>
@@ -38,7 +38,7 @@
 
     <!-- Back to Home Button -->
     <div class="faq-footer">
-      <button @click="$emit('goHome')" class="back-home-btn">
+      <button class="back-home-btn" @click="$emit('goHome')">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="m12 19-7-7 7-7"/>
           <path d="M19 12H5"/>
@@ -53,7 +53,7 @@
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-const emit = defineEmits(['goHome'])
+defineEmits(['goHome'])
 const { t, locale } = useI18n()
 
 const openItems = ref<number[]>([0])

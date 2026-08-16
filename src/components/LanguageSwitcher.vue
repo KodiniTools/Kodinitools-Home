@@ -1,18 +1,18 @@
 <template>
   <div class="language-switcher">
     <button
-      @click="setLocale('de')"
       :class="{ active: currentLocale === 'de' }"
       class="locale-btn"
       aria-label="Deutsch"
+      @click="setLocale('de')"
     >
       DE
     </button>
     <button
-      @click="setLocale('en')"
       :class="{ active: currentLocale === 'en' }"
       class="locale-btn"
       aria-label="English"
+      @click="setLocale('en')"
     >
       EN
     </button>

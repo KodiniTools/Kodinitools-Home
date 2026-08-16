@@ -43,7 +43,7 @@ import SiteFont from '../components/SiteFont.astro'
   <script is:inline>
     // Apply language from stored locale
     (function () {
-      var locale = localStorage.getItem('locale') || 'de';
+      const locale = localStorage.getItem('locale') || 'de';
       if (locale === 'en') {
         document.getElementById('html404').setAttribute('lang', 'en');
         document.getElementById('errorTitle').textContent = 'Page not found';
@@ -55,7 +55,7 @@ import SiteFont from '../components/SiteFont.astro'
       }
 
       // Apply saved theme
-      var theme = localStorage.getItem('theme') || 'light';
+      const theme = localStorage.getItem('theme') || 'light';
       document.documentElement.setAttribute('data-theme', theme);
     })();
   </script>

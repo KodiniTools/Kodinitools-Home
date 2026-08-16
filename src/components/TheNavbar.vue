@@ -1,14 +1,14 @@
 <template>
   <header class="header">
     <nav class="nav-container">
-      <div class="logo" @click="emit('goHome')" style="cursor: pointer;">
+      <div class="logo" style="cursor: pointer;" @click="emit('goHome')">
         <img src="/android-chrome-192x192.png" alt="KodiniTools Logo" class="logo-icon">
         <span>{{ $t('footer.company') }}</span>
         <img src="/images/schweiz-192x192.png" alt="Made in Switzerland" class="logo-flag-icon">
       </div>
 
       <!-- Hamburger Button for Mobile -->
-      <button class="hamburger-btn" @click="toggleMobileMenu" :class="{ 'is-active': mobileMenuOpen }" aria-label="Toggle menu">
+      <button class="hamburger-btn" :class="{ 'is-active': mobileMenuOpen }" aria-label="Toggle menu" @click="toggleMobileMenu">
         <span class="hamburger-line"></span>
         <span class="hamburger-line"></span>
         <span class="hamburger-line"></span>
@@ -91,8 +91,8 @@
         </div>
 
         <a href="https://kodinitools.com/kontaktformular/" class="nav-link" @click="closeMobileMenu">{{ $t('navigation.contact') }}</a>
-        <a @click.prevent="emit('toggleFaq'); closeMobileMenu()" href="#faq" class="nav-link faq-link">FAQ</a>
-        <a @click.prevent="emit('toggleBlog'); closeMobileMenu()" href="#blog" class="nav-link blog-link">{{ $t('navigation.blog') }}</a>
+        <a href="#faq" class="nav-link faq-link" @click.prevent="emit('toggleFaq'); closeMobileMenu()">FAQ</a>
+        <a href="#blog" class="nav-link blog-link" @click.prevent="emit('toggleBlog'); closeMobileMenu()">{{ $t('navigation.blog') }}</a>
 
         <!-- Mobile: Controls inside menu -->
         <div class="nav-controls-mobile">

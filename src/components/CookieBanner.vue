@@ -7,19 +7,19 @@
           <div class="cookie-text">
             <h3>{{ $t('cookies.bannerTitle') }}</h3>
             <p>{{ $t('cookies.bannerText') }}</p>
-            <button @click="showDetails = true" class="cookie-link">
+            <button class="cookie-link" @click="showDetails = true">
               {{ $t('cookies.moreInfo') }}
             </button>
           </div>
 
           <div class="cookie-actions">
-            <button @click="rejectAll" class="cookie-btn cookie-btn-reject">
+            <button class="cookie-btn cookie-btn-reject" @click="rejectAll">
               {{ $t('cookies.rejectAll') }}
             </button>
-            <button @click="showDetails = true" class="cookie-btn cookie-btn-settings">
+            <button class="cookie-btn cookie-btn-settings" @click="showDetails = true">
               {{ $t('cookies.settings') }}
             </button>
-            <button @click="acceptAll" class="cookie-btn cookie-btn-accept">
+            <button class="cookie-btn cookie-btn-accept" @click="acceptAll">
               {{ $t('cookies.acceptAll') }}
             </button>
           </div>
@@ -33,7 +33,7 @@
         <div class="cookie-modal" role="dialog" aria-modal="true" :aria-label="$t('cookies.settingsTitle')">
           <div class="cookie-modal-header">
             <h2>{{ $t('cookies.settingsTitle') }}</h2>
-            <button @click="showDetails = false" class="cookie-modal-close" :aria-label="$t('cookies.close')">
+            <button class="cookie-modal-close" :aria-label="$t('cookies.close')" @click="showDetails = false">
               &times;
             </button>
           </div>
@@ -49,7 +49,7 @@
                   <p>{{ $t('cookies.essential.description') }}</p>
                 </div>
                 <div class="cookie-toggle cookie-toggle-disabled">
-                  <input type="checkbox" checked disabled id="essential-cookies">
+                  <input id="essential-cookies" type="checkbox" checked disabled>
                   <label for="essential-cookies">{{ $t('cookies.alwaysActive') }}</label>
                 </div>
               </div>
@@ -64,9 +64,9 @@
                 </div>
                 <div class="cookie-toggle">
                   <input
-                    type="checkbox"
-                    v-model="consent.analytics"
                     id="analytics-cookies"
+                    v-model="consent.analytics"
+                    type="checkbox"
                   >
                   <label for="analytics-cookies" class="toggle-switch"></label>
                 </div>
@@ -82,9 +82,9 @@
                 </div>
                 <div class="cookie-toggle">
                   <input
-                    type="checkbox"
-                    v-model="consent.marketing"
                     id="marketing-cookies"
+                    v-model="consent.marketing"
+                    type="checkbox"
                   >
                   <label for="marketing-cookies" class="toggle-switch"></label>
                 </div>
@@ -93,13 +93,13 @@
           </div>
 
           <div class="cookie-modal-footer">
-            <button @click="rejectAll" class="cookie-btn cookie-btn-reject">
+            <button class="cookie-btn cookie-btn-reject" @click="rejectAll">
               {{ $t('cookies.rejectAll') }}
             </button>
-            <button @click="saveSettings" class="cookie-btn cookie-btn-save">
+            <button class="cookie-btn cookie-btn-save" @click="saveSettings">
               {{ $t('cookies.saveSettings') }}
             </button>
-            <button @click="acceptAll" class="cookie-btn cookie-btn-accept">
+            <button class="cookie-btn cookie-btn-accept" @click="acceptAll">
               {{ $t('cookies.acceptAll') }}
             </button>
           </div>
@@ -150,8 +150,9 @@ onMounted(() => {
 
 // Update Google Consent Mode
 const updateGoogleConsent = () => {
-  if (typeof window !== 'undefined' && typeof (window as any).gtag === 'function') {
-    const gtag = (window as any).gtag
+  const w = window as Window & { gtag?: (...args: unknown[]) => void }
+  if (typeof window !== 'undefined' && typeof w.gtag === 'function') {
+    const gtag = w.gtag
 
     // Update analytics consent
     gtag('consent', 'update', {
