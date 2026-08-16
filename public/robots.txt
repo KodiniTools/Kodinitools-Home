@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://kodinitools.com/sitemap-index.xml
+Sitemap: https://kodinitools.com/sitemap.xml
