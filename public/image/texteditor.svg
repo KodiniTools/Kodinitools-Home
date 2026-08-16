@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="667" height="349" viewBox="0 0 667.5 348.75" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Texteditor">
+  <rect width="667.5" height="348.75" fill="#eaf2fb"/>
+  <g transform="translate(233.75 64.375)">
+    <rect x="0" y="0" width="200" height="220" rx="14" fill="#ffffff" stroke="#014f99" stroke-width="6"/>
+    <rect x="0" y="0" width="200" height="42" rx="14" fill="#014f99"/>
+    <rect x="0" y="28" width="200" height="14" fill="#014f99"/>
+    <circle cx="22" cy="21" r="6" fill="#ffffff"/>
+    <circle cx="44" cy="21" r="6" fill="#ffffff" opacity="0.7"/>
+    <circle cx="66" cy="21" r="6" fill="#ffffff" opacity="0.5"/>
+    <rect x="28" y="72" width="144" height="12" rx="6" fill="#014f99"/>
+    <rect x="28" y="102" width="120" height="10" rx="5" fill="#7ba7d4"/>
+    <rect x="28" y="128" width="144" height="10" rx="5" fill="#7ba7d4"/>
+    <rect x="28" y="154" width="96" height="10" rx="5" fill="#7ba7d4"/>
+    <rect x="28" y="180" width="130" height="10" rx="5" fill="#7ba7d4"/>
+  </g>
+  <g transform="translate(360 150)">
+    <path d="M0 118 L12 84 L92 4 L128 40 L48 120 L14 132 Z" fill="#ffd23f" stroke="#014f99" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M84 12 L120 48" stroke="#014f99" stroke-width="6" stroke-linecap="round"/>
+    <path d="M12 84 L48 120" stroke="#014f99" stroke-width="6"/>
+  </g>
+</svg>

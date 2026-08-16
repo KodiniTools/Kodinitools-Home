@@ -169,6 +169,14 @@
       "processing": "server",
       "link": "https://kodinitools.com/videokonverter/",
       "svg": "/image/videokonverter.svg"
+    },
+    "textEditor": {
+      "title": "Texteditor",
+      "description": "Texte online schreiben und bearbeiten – direkt im Browser. Formatieren, speichern und exportieren Sie Ihre Dokumente einfach und schnell.",
+      "badge": "Text",
+      "processing": "browser",
+      "link": "https://kodinitools.com/texteditor/",
+      "svg": "/image/texteditor.svg"
     }
   },
   "imageTools": {
