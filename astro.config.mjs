@@ -1,7 +1,7 @@
 import { defineConfig } from 'astro/config';
 import { readFileSync } from 'node:fs';
 import vue from '@astrojs/vue';
-import sitemap from '@astrojs/sitemap';
+import singleSitemap from './single-sitemap.mjs';
 
 // Tool pages live as standalone apps in sub-directories (e.g. /audiokonverter/),
 // so Astro does not build them and they are missing from the generated sitemap.
@@ -25,18 +25,11 @@ export default defineConfig({
     vue({
       appEntrypoint: '/src/pages/_app',
     }),
-    sitemap({
-      customPages: toolPages,
-      i18n: {
-        defaultLocale: 'de',
-        // Generic language codes to match the in-page hreflang tags and reach all
-        // German/English speakers (not just CH/US regional variants).
-        locales: {
-          de: 'de',
-          en: 'en',
-        },
-      },
-    }),
+    // Eigene Integration: erzeugt EINE flache sitemap.xml statt des von
+    // @astrojs/sitemap erzwungenen Paars sitemap-index.xml + sitemap-0.xml.
+    // Die Tool-Apps (toolPages) und die hreflang-Alternates (de/en) bleiben
+    // erhalten. Siehe single-sitemap.mjs.
+    singleSitemap({ extraPages: toolPages }),
   ],
   vite: {
     define: {

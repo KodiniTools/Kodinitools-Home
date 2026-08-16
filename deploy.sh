@@ -72,8 +72,9 @@ fi
 log "Stand: $(git rev-parse --short HEAD) — $(git log -1 --pretty=%s)"
 
 # --- 2. Bauen ---
-# --include=dev erzwingt die devDependencies (z.B. @astrojs/sitemap), die der
-# Build braucht. Ohne das lässt npm sie unter NODE_ENV=production weg — der
+# --include=dev erzwingt die devDependencies (z.B. eslint/prettier-Plugins,
+# vite), die der Build/Toolchain braucht. Ohne das lässt npm sie unter
+# NODE_ENV=production weg — der
 # Admin-Dienst läuft mit NODE_ENV=production, daher ist das Flag hier Pflicht.
 log "npm ci (inkl. devDependencies) ..."
 npm ci --include=dev
@@ -103,6 +104,10 @@ if [ -n "$DRY_RUN" ]; then
     log "(b) _astro/ Bereinigung veralteter Bundles:"
     rsync $RSYNC_OPTS --delete --itemize-changes --dry-run dist/_astro/ "$WEBROOT/_astro/"
   fi
+  log "(c) Entfernen alter Sitemap-Index-/Chunk-Dateien (ersetzt durch sitemap.xml):"
+  for f in sitemap-index.xml sitemap-0.xml; do
+    [ -e "$WEBROOT/$f" ] && log "    würde löschen: $WEBROOT/$f"
+  done
   log "DRY-RUN beendet."
   exit 0
 fi
@@ -125,5 +130,12 @@ rsync $RSYNC_OPTS dist/ "$WEBROOT/"
 
 log "(b) Bereinige veraltete Bundles in _astro/ ..."
 rsync $RSYNC_OPTS --delete dist/_astro/ "$WEBROOT/_astro/"
+
+# (c) Alte Sitemap-Dateien entfernen: Der Build erzeugt jetzt eine einzelne
+# sitemap.xml statt sitemap-index.xml + sitemap-0.xml. Da die Spiegelung in (a)
+# additiv ist, würden die alten Dateien sonst im Webroot verbleiben und von
+# Suchmaschinen weiter gelesen. Einmalig gezielt entfernen (idempotent).
+log "(c) Entferne alte Sitemap-Index-/Chunk-Dateien (ersetzt durch sitemap.xml) ..."
+rm -f "$WEBROOT/sitemap-index.xml" "$WEBROOT/sitemap-0.xml"
 
 log "Fertig. Live-Stand: $(git rev-parse --short HEAD)"
