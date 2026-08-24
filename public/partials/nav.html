@@ -649,7 +649,16 @@ html:not(.custom-nav-page) {
                 <div class="global-nav-dropdown-menu" role="menu">
                     <a href="https://kodinitools.com/kodini-color-extractor/" class="global-nav-dropdown-item" role="menuitem" data-i18n="nav.colorExtractor">Kodini Farbextraktor</a>
                     <a href="https://kodinitools.com/videokonverter/" class="global-nav-dropdown-item" role="menuitem" data-i18n="nav.videoConverter">Videokonverter</a>
+                    <a href="https://kodinitools.com/texteditor/" class="global-nav-dropdown-item" role="menuitem" data-i18n="nav.textEditor">Texteditor</a>
                 </div>
+            </div>
+
+            <div class="global-nav-item">
+                <a href="https://kodinitools.com/blog/" data-href-de="https://kodinitools.com/blog/" data-href-en="https://kodinitools.com/en/blog/" class="global-nav-link" data-i18n="nav.blog">Blog</a>
+            </div>
+
+            <div class="global-nav-item">
+                <a href="https://kodinitools.com/faq/" data-href-de="https://kodinitools.com/faq/" data-href-en="https://kodinitools.com/en/faq/" class="global-nav-link" data-i18n="nav.faq">FAQ</a>
             </div>
 
             <div class="global-nav-item">
@@ -693,6 +702,21 @@ html:not(.custom-nav-page) {
     'use strict';
 
     // ==========================================
+    // Versteckter Admin-Zugang
+    // ==========================================
+    // Kein sichtbarer Button. Tastenkombination Strg+Shift+Alt+K
+    // (bzw. Cmd+Shift+Alt+K) öffnet den Adminbereich.
+    // e.code === 'KeyK' = physische K-Taste, unabhängig vom Tastaturlayout
+    // (bei gedrücktem Alt/AltGr liefert e.key sonst je nach Layout ein anderes
+    // Zeichen). Capture-Phase, um vor anderen Handlern zu greifen.
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.altKey && e.code === 'KeyK') {
+            e.preventDefault();
+            window.location.href = '/admin/';
+        }
+    }, true);
+
+    // ==========================================
     // i18n Übersetzungen (synchron mit locales/de.json & en.json)
     // ==========================================
     var NAV_TRANSLATIONS = {
@@ -700,6 +724,8 @@ html:not(.custom-nav-page) {
             'nav.audioTools': 'Audiotools',
             'nav.imageTools': 'Bildtools',
             'nav.tools': 'Tools',
+            'nav.blog': 'Blog',
+            'nav.faq': 'FAQ',
             'nav.contact': 'Kontakt',
             'nav.mp3Converter': 'MP3 Konverter',
             'nav.audioEqualizer': 'Interaktiver Audio Equalizer',
@@ -717,6 +743,7 @@ html:not(.custom-nav-page) {
             'nav.photoCollage': 'Fotocollage',
             'nav.colorExtractor': 'Kodini Farbextraktor',
             'nav.videoConverter': 'Videokonverter',
+            'nav.textEditor': 'Texteditor',
             'aria.toggleTheme': 'Theme wechseln',
             'aria.selectLanguage': 'Sprache wählen',
             'aria.menuOpen': 'Menü öffnen',
@@ -727,6 +754,8 @@ html:not(.custom-nav-page) {
             'nav.audioTools': 'Audio Tools',
             'nav.imageTools': 'Image Tools',
             'nav.tools': 'Tools',
+            'nav.blog': 'Blog',
+            'nav.faq': 'FAQ',
             'nav.contact': 'Contact',
             'nav.mp3Converter': 'MP3 Converter',
             'nav.audioEqualizer': 'Interactive Audio Equalizer',
@@ -744,6 +773,7 @@ html:not(.custom-nav-page) {
             'nav.photoCollage': 'Photo Collage',
             'nav.colorExtractor': 'Kodini Color Extractor',
             'nav.videoConverter': 'Video Converter',
+            'nav.textEditor': 'Text Editor',
             'aria.toggleTheme': 'Toggle theme',
             'aria.selectLanguage': 'Select language',
             'aria.menuOpen': 'Open menu',
@@ -968,6 +998,14 @@ html:not(.custom-nav-page) {
             var key = el.getAttribute('data-i18n-aria');
             if (translations[key]) {
                 el.setAttribute('aria-label', translations[key]);
+            }
+        });
+
+        // Sprachabhängige Links (z. B. Blog, FAQ mit /en/-Route) umschalten
+        document.querySelectorAll('[data-href-de][data-href-en]').forEach(function(el) {
+            var href = el.getAttribute(lang === 'en' ? 'data-href-en' : 'data-href-de');
+            if (href) {
+                el.setAttribute('href', href);
             }
         });
 
