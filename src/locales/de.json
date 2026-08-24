@@ -19,15 +19,15 @@
       "videoConverter": "Videokonverter"
     },
     "audioToolsMenu": {
-      "audioConverter": "Audiokonverter",
+      "audioConverter": "Audio Konverter",
       "mp3Converter": "MP3 Konverter",
       "equalizer19": "19-Band Equalizer",
       "audioEqualizer": "Interaktiver Audio Equalizer",
       "audioNormalizer": "Audio Normalizer",
       "modernPlayer": "Moderner Musikplayer",
       "ultimatePlayer": "Ultimativer Musikplayer",
-      "playlistGenerator": "Audioplaylist Generator",
-      "playlistConverter": "Playlist zu WebM Konverter",
+      "playlistGenerator": "Wiedergabeliste Generator",
+      "playlistConverter": "Wiedergabeliste Konverter",
       "visualizer": "Visualizer",
       "alarmTool": "Alarmtool"
     },
@@ -119,7 +119,7 @@
       "svg": "/image/moderner-musikplayer.svg"
     },
     "playlistGenerator": {
-      "title": "Audioplaylist Generator",
+      "title": "Wiedergabeliste Generator",
       "description": "Erstellen Sie automatisch Playlists aus Ihren Audiodateien. Mit Sortier- und Filterfunktionen.",
       "badge": "Playlist",
       "processing": "browser",
@@ -143,7 +143,7 @@
       "svg": "/image/audio-normalizer.svg"
     },
     "playlistToWebm": {
-      "title": "Playlist zu WebM Konverter",
+      "title": "Wiedergabeliste Konverter",
       "description": "Bis zu 50 Audio-Tracks in eine WebM-Datei konvertieren",
       "badge": "WebM",
       "processing": "server",
@@ -373,8 +373,8 @@
           "usecase": "Für alle, die Wert auf Ästhetik legen und einen stilvollen Player für ihre Musiksammlung suchen."
         },
         "playlistGenerator": {
-          "title": "Audioplaylist Generator",
-          "description": "Organisieren Sie Ihre Musiksammlung automatisch! Der Audioplaylist Generator analysiert Ihre Audiodateien und erstellt intelligent sortierte Playlists. Mit umfangreichen Sortier- und Filterfunktionen haben Sie die volle Kontrolle über Ihre Musikorganisation.",
+          "title": "Wiedergabeliste Generator",
+          "description": "Organisieren Sie Ihre Musiksammlung automatisch! Der Wiedergabeliste Generator analysiert Ihre Audiodateien und erstellt intelligent sortierte Playlists. Mit umfangreichen Sortier- und Filterfunktionen haben Sie die volle Kontrolle über Ihre Musikorganisation.",
           "feature1": "Automatische Playlist-Erstellung",
           "feature2": "Vielfältige Sortieroptionen",
           "feature3": "Filterfunktionen nach verschiedenen Kriterien",
@@ -397,7 +397,7 @@
           "usecase": "Ein Must-Have für Podcaster, Hörbuch-Ersteller und alle, die eine konsistente Lautstärke über mehrere Dateien benötigen."
         },
         "playlistWebm": {
-          "title": "Playlist zu WebM Konverter",
+          "title": "Wiedergabeliste Konverter",
           "description": "Ein einzigartiges Tool für spezielle Anforderungen: Konvertieren Sie bis zu 50 Audio-Tracks in eine einzige WebM-Datei. Ideal für die Erstellung von Hintergrundmusik-Compilations oder langen Audio-Sammlungen in einem websicheren Format.",
           "feature1": "Bis zu 50 Tracks in einer Datei",
           "feature2": "WebM-Format für maximale Web-Kompatibilität",
