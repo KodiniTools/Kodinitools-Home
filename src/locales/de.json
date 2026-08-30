@@ -149,6 +149,14 @@
       "processing": "server",
       "link": "https://kodinitools.com/playlistkonverter/",
       "svg": "/image/playlist-konverter.svg"
+    },
+    "audioCutter": {
+      "title": "Audio-Schneider",
+      "description": "Audio schneiden online kostenlos – Musik und Sounddateien präzise zuschneiden, kürzen und trimmen. Ideal für Klingeltöne, Podcasts und Samples.",
+      "badge": "Schneiden",
+      "processing": "browser",
+      "link": "https://kodinitools.com/audio-cutter/",
+      "svg": "/image/audio-schneider.svg"
     }
   },
   "diverseTools": {
