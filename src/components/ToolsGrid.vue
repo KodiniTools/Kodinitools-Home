@@ -114,6 +114,12 @@
             <span class="svg-card-label">{{ $t('tools.playlistToWebm.title') }}</span>
           </div>
         </a>
+        <a :href="$t('tools.audioCutter.link')" class="svg-card-link">
+          <div class="svg-card">
+            <img :src="$t('tools.audioCutter.svg')" :alt="$t('tools.audioCutter.title')" />
+            <span class="svg-card-label">{{ $t('tools.audioCutter.title') }}</span>
+          </div>
+        </a>
       </div>
     </section>
 
@@ -187,6 +193,7 @@ const allTools = computed(() => [
   { key: 'tools.alarmTool', section: 'audio' },
   { key: 'tools.audioNormalizer', section: 'audio' },
   { key: 'tools.playlistToWebm', section: 'audio' },
+  { key: 'tools.audioCutter', section: 'audio' },
   { key: 'imageTools.imageConverter', section: 'image' },
   { key: 'imageTools.batchImageEditor', section: 'image' },
   { key: 'imageTools.photoCollage', section: 'image' },

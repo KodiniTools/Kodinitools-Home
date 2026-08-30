@@ -149,6 +149,14 @@
       "processing": "server",
       "link": "https://kodinitools.com/playlistkonverter/",
       "svg": "/image/playlist-converter.svg"
+    },
+    "audioCutter": {
+      "title": "Audio Cutter",
+      "description": "Cut audio online free – trim, crop and shorten music and sound files with precision. Perfect for ringtones, podcasts and samples.",
+      "badge": "Cutter",
+      "processing": "browser",
+      "link": "https://kodinitools.com/audio-cutter/",
+      "svg": "/image/audio-cutter-en.svg"
     }
   },
   "diverseTools": {

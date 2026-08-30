@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="890" viewBox="0 0 667.5 348.749994" height="465" preserveAspectRatio="xMidYMid meet" version="1.0">
+  <defs>
+    <clipPath id="cut-frame-de">
+      <path d="M 0 0.00390625 L 666.25 0.00390625 L 666.25 348.496094 L 0 348.496094 Z M 0 0.00390625" clip-rule="nonzero"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#cut-frame-de)">
+    <path fill="#07569f" d="M 631.273438 33.328125 C 622.691406 13.730469 603.113281 0.0078125 580.386719 0.0078125 L 55.527344 0.0078125 C 24.910156 0.0078125 0 24.917969 0 55.53125 L 0 267.367188 C 0 293.203125 17.738281 314.972656 41.671875 321.144531 C 50.777344 337.449219 68.199219 348.480469 88.203125 348.480469 L 613.0625 348.480469 C 642.476562 348.480469 666.320312 324.636719 666.320312 295.222656 L 666.320312 83.386719 C 666.320312 60.371094 651.71875 40.765625 631.273438 33.328125 Z M 631.273438 33.328125" fill-opacity="1" fill-rule="nonzero"/>
+  </g>
+  <path fill="#f3eed3" d="M 55.527344 4.542969 L 580.386719 4.542969 C 608.527344 4.542969 631.375 27.390625 631.375 55.535156 L 631.375 267.367188 C 631.375 295.507812 608.527344 318.355469 580.386719 318.355469 L 55.527344 318.355469 C 27.382812 318.355469 4.535156 295.507812 4.535156 267.367188 L 4.535156 55.53125 C 4.539062 27.390625 27.382812 4.542969 55.527344 4.542969 Z M 55.527344 4.542969" fill-opacity="1" fill-rule="nonzero"/>
+
+  <!-- Waveform (audio) -->
+  <g fill="#07569f" fill-opacity="1">
+    <rect x="196" y="120" width="12" height="34" rx="6"/>
+    <rect x="224" y="102" width="12" height="70" rx="6"/>
+    <rect x="252" y="82" width="12" height="110" rx="6"/>
+    <rect x="280" y="112" width="12" height="50" rx="6"/>
+    <rect x="308" y="92" width="12" height="90" rx="6"/>
+    <rect x="336" y="72" width="12" height="130" rx="6"/>
+    <rect x="364" y="106" width="12" height="62" rx="6"/>
+    <rect x="392" y="90" width="12" height="94" rx="6"/>
+    <rect x="420" y="116" width="12" height="42" rx="6"/>
+    <rect x="448" y="98" width="12" height="78" rx="6"/>
+    <rect x="476" y="124" width="12" height="26" rx="6"/>
+  </g>
+
+  <!-- Cut line -->
+  <line x1="150" y1="137" x2="520" y2="137" stroke="#07569f" stroke-width="5" stroke-dasharray="14 12" stroke-linecap="round" fill="none"/>
+
+  <!-- Scissors -->
+  <g fill="none" stroke="#07569f" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="332" cy="243" r="15"/>
+    <circle cx="392" cy="243" r="15"/>
+    <path d="M 342 232 L 470 143"/>
+    <path d="M 382 232 L 254 143"/>
+  </g>
+  <circle cx="362" cy="197" r="6" fill="#07569f"/>
+
+  <!-- Label -->
+  <text x="333" y="300" text-anchor="middle" fill="#07569f" font-family="'Segoe UI', Arial, sans-serif" font-size="42" font-weight="700" letter-spacing="1">AUDIO-SCHNEIDER</text>
+</svg>
