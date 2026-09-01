@@ -476,6 +476,8 @@ function validateMediaLocale(m, langLabel) {
   // Textschatten (Standard: an, rückwärtskompatibel), Umriss (Kontur) und Deckkraft.
   out.heroBannerTextShadow = m.heroBannerTextShadow !== false;
   out.heroBannerTextShadowColor = normHexColor(m.heroBannerTextShadowColor, '#000000');
+  out.heroBannerTextShadowX = clampNum(m.heroBannerTextShadowX, -50, 50, 0);
+  out.heroBannerTextShadowY = clampNum(m.heroBannerTextShadowY, -50, 50, 2);
   out.heroBannerTextShadowBlur = clampNum(m.heroBannerTextShadowBlur, 0, 40, 6);
   out.heroBannerTextStrokeColor = normHexColor(m.heroBannerTextStrokeColor, '#000000');
   out.heroBannerTextStrokeWidth = clampHalf(m.heroBannerTextStrokeWidth, 0, 10, 0);

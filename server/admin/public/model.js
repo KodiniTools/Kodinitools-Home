@@ -249,6 +249,8 @@ export function defaultMediaLocale() {
     heroBannerTextY: 50, // Freie Position in % (0=oben, 100=unten)
     heroBannerTextShadow: true, // Textschatten an/aus (Standard: an)
     heroBannerTextShadowColor: '#000000', // Farbe des Schattens
+    heroBannerTextShadowX: 0, // Horizontaler Versatz des Schattens in px (-50–50)
+    heroBannerTextShadowY: 2, // Vertikaler Versatz des Schattens in px (-50–50)
     heroBannerTextShadowBlur: 6, // Weichzeichnung des Schattens in px (0–40)
     heroBannerTextStrokeColor: '#000000', // Farbe des Umrisses (Kontur)
     heroBannerTextStrokeWidth: 0, // Dicke des Umrisses in px (0 = kein Umriss)
@@ -516,6 +518,12 @@ export function normalizeMedia(m) {
       )
         ? o.heroBannerTextShadowColor
         : '#000000',
+      heroBannerTextShadowX: Number.isFinite(Number(o?.heroBannerTextShadowX))
+        ? Math.max(-50, Math.min(50, Math.round(Number(o.heroBannerTextShadowX))))
+        : 0,
+      heroBannerTextShadowY: Number.isFinite(Number(o?.heroBannerTextShadowY))
+        ? Math.max(-50, Math.min(50, Math.round(Number(o.heroBannerTextShadowY))))
+        : 2,
       heroBannerTextShadowBlur: Number.isFinite(Number(o?.heroBannerTextShadowBlur))
         ? Math.max(0, Math.min(40, Math.round(Number(o.heroBannerTextShadowBlur))))
         : 6,

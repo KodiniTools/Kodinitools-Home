@@ -171,9 +171,11 @@ function bannerTextOverlayStyle(m: typeof media): string {
     p.push('text-shadow:none')
   } else {
     const col = (m.heroBannerTextShadowColor || '#000000').toLowerCase()
+    const sx = typeof m.heroBannerTextShadowX === 'number' ? m.heroBannerTextShadowX : 0
+    const sy = typeof m.heroBannerTextShadowY === 'number' ? m.heroBannerTextShadowY : 2
     const blur = typeof m.heroBannerTextShadowBlur === 'number' ? m.heroBannerTextShadowBlur : 6
     // Nur bei abweichenden Werten inline setzen; der Standard kommt aus global.css.
-    if (col !== '#000000' || blur !== 6) p.push(`text-shadow:0 2px ${blur}px ${heroHexToRgba(col, 60) || 'rgba(0, 0, 0, 0.6)'}`)
+    if (col !== '#000000' || sx !== 0 || sy !== 2 || blur !== 6) p.push(`text-shadow:${sx}px ${sy}px ${blur}px ${heroHexToRgba(col, 60) || 'rgba(0, 0, 0, 0.6)'}`)
   }
   return p.filter(Boolean).join(';')
 }

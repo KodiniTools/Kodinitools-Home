@@ -109,9 +109,11 @@ function overlayStyle(color, size, x, y, font, fsDefault, shadow, extra) {
 // Der Standard (an, #000000, 6 px) reproduziert das bisherige Aussehen exakt.
 function bannerShadowCss(m) {
   if (m.heroBannerTextShadow === false) return 'none';
+  const x = Number.isFinite(m.heroBannerTextShadowX) ? m.heroBannerTextShadowX : 0;
+  const y = Number.isFinite(m.heroBannerTextShadowY) ? m.heroBannerTextShadowY : 2;
   const blur = Number.isFinite(m.heroBannerTextShadowBlur) ? m.heroBannerTextShadowBlur : 6;
   const col = rgbaFromHex(m.heroBannerTextShadowColor || '#000000', 60);
-  return `0 2px ${blur}px ${col}`;
+  return `${x}px ${y}px ${blur}px ${col}`;
 }
 // Umriss (Kontur) + Deckkraft des Banner-Textes als zusätzliche CSS-Deklarationen.
 function bannerExtraCss(m) {
@@ -271,6 +273,8 @@ function layoutPanel(lang) {
     const bY = Number.isFinite(m.heroBannerTextY) ? m.heroBannerTextY : 50;
     const bShadow = m.heroBannerTextShadow !== false;
     const bShadowColor = m.heroBannerTextShadowColor || '#000000';
+    const bShadowX = Number.isFinite(m.heroBannerTextShadowX) ? m.heroBannerTextShadowX : 0;
+    const bShadowY = Number.isFinite(m.heroBannerTextShadowY) ? m.heroBannerTextShadowY : 2;
     const bShadowBlur = Number.isFinite(m.heroBannerTextShadowBlur)
       ? m.heroBannerTextShadowBlur
       : 6;
@@ -339,6 +343,14 @@ function layoutPanel(lang) {
           <div style="flex:0 0 auto">
             <label>Schattenfarbe</label>
             ${withReset(`<input type="color" data-bannerfield="textShadowColor" value="${esc(bShadowColor)}" style="width:56px;height:38px;padding:2px" />`, 'data-bannerreset', 'textShadowColor', false)}
+          </div>
+          <div style="flex:0 0 auto">
+            <label>Schatten-Versatz X (px)</label>
+            ${withReset(`<input type="number" data-bannerfield="textShadowX" min="-50" max="50" step="1" value="${bShadowX}" style="width:110px" />`, 'data-bannerreset', 'textShadowX', false)}
+          </div>
+          <div style="flex:0 0 auto">
+            <label>Schatten-Versatz Y (px)</label>
+            ${withReset(`<input type="number" data-bannerfield="textShadowY" min="-50" max="50" step="1" value="${bShadowY}" style="width:110px" />`, 'data-bannerreset', 'textShadowY', false)}
           </div>
           <div style="flex:1 1 200px">
             <label>Schatten-Weichzeichnung: <span data-bannershadowblurval>${bShadowBlur}</span> px</label>
@@ -668,6 +680,8 @@ export function renderLayout() {
       textSize: 0,
       textShadow: true,
       textShadowColor: '#000000',
+      textShadowX: 0,
+      textShadowY: 2,
       textShadowBlur: 6,
       textStrokeColor: '#000000',
       textStrokeWidth: 0,
@@ -774,6 +788,10 @@ export function renderLayout() {
       else if (f === 'textSize') m.heroBannerTextSize = clamp(parseInt(el.value, 10) || 0, 0, 96);
       else if (f === 'textShadow') m.heroBannerTextShadow = el.checked;
       else if (f === 'textShadowColor') m.heroBannerTextShadowColor = el.value;
+      else if (f === 'textShadowX')
+        m.heroBannerTextShadowX = clamp(parseInt(el.value, 10) || 0, -50, 50);
+      else if (f === 'textShadowY')
+        m.heroBannerTextShadowY = clamp(parseInt(el.value, 10) || 0, -50, 50);
       else if (f === 'textShadowBlur') {
         m.heroBannerTextShadowBlur = clamp(parseInt(el.value, 10) || 0, 0, 40);
         const v = pane.querySelector('[data-bannershadowblurval]');
