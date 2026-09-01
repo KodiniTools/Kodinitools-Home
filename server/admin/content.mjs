@@ -88,6 +88,13 @@ function clampNum(v, min, max, def) {
   return Math.max(min, Math.min(max, Math.round(n)));
 }
 
+// Wie clampNum, aber auf 0,5er-Schritte gerundet (z. B. Umriss-/Konturdicke).
+function clampHalf(v, min, max, def) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return def;
+  return Math.max(min, Math.min(max, Math.round(n * 2) / 2));
+}
+
 /**
  * Validiert/normalisiert das Laufband-Design (fehlerhafte Werte -> Standard).
  * Migriert die alte flache Struktur (Farben oben, für beide Modi gleich) auf
@@ -466,6 +473,13 @@ function validateMediaLocale(m, langLabel) {
   out.heroBannerTextPos = normTextPos(m.heroBannerTextPos);
   out.heroBannerTextX = normPosPct(m.heroBannerTextX, undefined, 50);
   out.heroBannerTextY = normPosPct(m.heroBannerTextY, normTextPos(m.heroBannerTextPos), 50);
+  // Textschatten (Standard: an, rückwärtskompatibel), Umriss (Kontur) und Deckkraft.
+  out.heroBannerTextShadow = m.heroBannerTextShadow !== false;
+  out.heroBannerTextShadowColor = normHexColor(m.heroBannerTextShadowColor, '#000000');
+  out.heroBannerTextShadowBlur = clampNum(m.heroBannerTextShadowBlur, 0, 40, 6);
+  out.heroBannerTextStrokeColor = normHexColor(m.heroBannerTextStrokeColor, '#000000');
+  out.heroBannerTextStrokeWidth = clampHalf(m.heroBannerTextStrokeWidth, 0, 10, 0);
+  out.heroBannerTextOpacity = clampNum(m.heroBannerTextOpacity, 0, 100, 100);
   // Option 2 – Hero-Raster: bis zu sechs Felder, je '' oder gültige URL.
   out.heroGrid = ['', '', '', '', '', ''];
   if (Array.isArray(m.heroGrid)) {
