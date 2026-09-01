@@ -19,6 +19,9 @@ import { objUrl } from './media.js';
 import { fontOptionsHtml, ensureFontFace } from './fonts.js';
 
 const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+// Wie clamp, aber auf 0,5er-Schritte gerundet (z. B. Umriss-/Konturdicke).
+const clampHalf = (v, min, max) =>
+  Math.max(min, Math.min(max, Math.round((Number(v) || 0) * 2) / 2));
 // Preset-Positionen (⤒ Oben / ◎ Mitte / ⤓ Unten) als y-Wert in %.
 const POS_PRESET_Y = { top: 10, center: 50, bottom: 90 };
 // font-family-CSS für eine Kachel-Textschrift (lädt @font-face für die Vorschau) oder ''.
@@ -96,15 +99,44 @@ function bannerMediaHtml(lang) {
 }
 // Gemeinsamer Overlay-Style: der Text wird an (x,y) in % verankert (Mittelpunkt)
 // und lässt sich in der Vorschau mit der Maus frei verschieben (cursor:move).
-function overlayStyle(color, size, x, y, font, fsDefault, shadow) {
+function overlayStyle(color, size, x, y, font, fsDefault, shadow, extra) {
   const fs = size > 0 ? `${size}px` : fsDefault;
   const cx = clamp(Number(x) || 0, 0, 100);
   const cy = clamp(Number(y) || 0, 0, 100);
-  return `position:absolute;left:${cx}%;top:${cy}%;transform:translate(-50%,-50%);max-width:92%;text-align:center;padding:.1rem .3rem;color:${color || '#fff'};font-size:${fs};line-height:1.2;text-shadow:${shadow};word-break:break-word;cursor:move;pointer-events:auto;user-select:none;touch-action:none;${fontFF(font)}`;
+  return `position:absolute;left:${cx}%;top:${cy}%;transform:translate(-50%,-50%);max-width:92%;text-align:center;padding:.1rem .3rem;color:${color || '#fff'};font-size:${fs};line-height:1.2;text-shadow:${shadow};word-break:break-word;cursor:move;pointer-events:auto;user-select:none;touch-action:none;${fontFF(font)}${extra || ''}`;
 }
-// Inline-Style des Banner-Text-Overlays (Farbe, freie Position, Größe, Schrift).
-function bannerTextStyle(color, size, x, y, font) {
-  return overlayStyle(color, size, x, y, font, '1.3rem', '0 2px 6px rgba(0,0,0,.6)');
+// Textschatten des Banners aus den einstellbaren Feldern (oder 'none' bei „aus").
+// Der Standard (an, #000000, 6 px) reproduziert das bisherige Aussehen exakt.
+function bannerShadowCss(m) {
+  if (m.heroBannerTextShadow === false) return 'none';
+  const blur = Number.isFinite(m.heroBannerTextShadowBlur) ? m.heroBannerTextShadowBlur : 6;
+  const col = rgbaFromHex(m.heroBannerTextShadowColor || '#000000', 60);
+  return `0 2px ${blur}px ${col}`;
+}
+// Umriss (Kontur) + Deckkraft des Banner-Textes als zusätzliche CSS-Deklarationen.
+function bannerExtraCss(m) {
+  const parts = [];
+  const sw = Number.isFinite(m.heroBannerTextStrokeWidth) ? m.heroBannerTextStrokeWidth : 0;
+  if (sw > 0) parts.push(`-webkit-text-stroke:${sw}px ${m.heroBannerTextStrokeColor || '#000000'}`);
+  const op = Number.isFinite(m.heroBannerTextOpacity) ? m.heroBannerTextOpacity : 100;
+  if (op < 100) parts.push(`opacity:${clamp(op, 0, 100) / 100}`);
+  return parts.length ? ';' + parts.join(';') : '';
+}
+// Inline-Style des Banner-Text-Overlays (Farbe, Position, Größe, Schrift, Schatten,
+// Umriss, Deckkraft) – liest alle Werte aus dem Medien-Objekt der Sprache.
+function bannerTextStyle(m) {
+  const x = Number.isFinite(m.heroBannerTextX) ? m.heroBannerTextX : 50;
+  const y = Number.isFinite(m.heroBannerTextY) ? m.heroBannerTextY : 50;
+  return overlayStyle(
+    m.heroBannerTextColor || '#ffffff',
+    m.heroBannerTextSize || 0,
+    x,
+    y,
+    m.heroBannerFont || '',
+    '1.3rem',
+    bannerShadowCss(m),
+    bannerExtraCss(m),
+  );
 }
 // Inline-Style des Kachel-Text-Overlays (in der Vorschau).
 function cellTextOverlayStyle(color, size, x, y, font) {
@@ -237,11 +269,21 @@ function layoutPanel(lang) {
     const bSize = m.heroBannerTextSize || 0;
     const bX = Number.isFinite(m.heroBannerTextX) ? m.heroBannerTextX : 50;
     const bY = Number.isFinite(m.heroBannerTextY) ? m.heroBannerTextY : 50;
+    const bShadow = m.heroBannerTextShadow !== false;
+    const bShadowColor = m.heroBannerTextShadowColor || '#000000';
+    const bShadowBlur = Number.isFinite(m.heroBannerTextShadowBlur)
+      ? m.heroBannerTextShadowBlur
+      : 6;
+    const bStrokeColor = m.heroBannerTextStrokeColor || '#000000';
+    const bStrokeWidth = Number.isFinite(m.heroBannerTextStrokeWidth)
+      ? m.heroBannerTextStrokeWidth
+      : 0;
+    const bOpacity = Number.isFinite(m.heroBannerTextOpacity) ? m.heroBannerTextOpacity : 100;
     const bMedia = bannerMediaHtml(lang);
     const previewBox = `
       <div data-bannerbox style="position:relative;max-width:520px;margin:.2rem auto;display:flex;align-items:center;justify-content:center;min-height:80px">
         ${bMedia || '<span class="hint">Kein Banner gewählt — im Tab „Medien" zuweisen.</span>'}
-        <div data-bannertext ${bText ? 'title="Zum Verschieben ziehen"' : ''} style="${bText ? bannerTextStyle(bColor, bSize, bX, bY, bFont) : ''}">${esc(bText)}</div>
+        <div data-bannertext ${bText ? 'title="Zum Verschieben ziehen"' : ''} style="${bText ? bannerTextStyle(m) : ''}">${esc(bText)}</div>
       </div>`;
     const previewPanel = `
       <div style="position:sticky;top:.5rem;z-index:5;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:.6rem .9rem;margin:0 0 .9rem;box-shadow:0 8px 22px rgba(0,0,0,.4);max-height:38vh;overflow:auto">
@@ -284,6 +326,37 @@ function layoutPanel(lang) {
               <span class="hint" data-bannerposval style="margin:0 .2rem">${bX} / ${bY} %</span>
               ${resetBtn('data-bannerreset', 'pos', false)}
             </div>
+          </div>
+        </div>
+        <div class="row" style="align-items:flex-end;margin-top:.4rem">
+          <div style="flex:0 0 auto">
+            <label>Schatten</label>
+            <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);cursor:pointer;height:38px;margin:0">
+              <input type="checkbox" data-bannerfield="textShadow" ${bShadow ? 'checked' : ''} style="width:auto" />
+              Textschatten anzeigen
+            </label>
+          </div>
+          <div style="flex:0 0 auto">
+            <label>Schattenfarbe</label>
+            ${withReset(`<input type="color" data-bannerfield="textShadowColor" value="${esc(bShadowColor)}" style="width:56px;height:38px;padding:2px" />`, 'data-bannerreset', 'textShadowColor', false)}
+          </div>
+          <div style="flex:1 1 200px">
+            <label>Schatten-Weichzeichnung: <span data-bannershadowblurval>${bShadowBlur}</span> px</label>
+            ${withReset(`<input type="range" data-bannerfield="textShadowBlur" min="0" max="40" step="1" value="${bShadowBlur}" style="width:100%" />`, 'data-bannerreset', 'textShadowBlur', false)}
+          </div>
+        </div>
+        <div class="row" style="align-items:flex-end;margin-top:.4rem">
+          <div style="flex:0 0 auto">
+            <label>Umriss-Farbe</label>
+            ${withReset(`<input type="color" data-bannerfield="textStrokeColor" value="${esc(bStrokeColor)}" style="width:56px;height:38px;padding:2px" />`, 'data-bannerreset', 'textStrokeColor', false)}
+          </div>
+          <div style="flex:0 0 auto">
+            <label>Umriss-Dicke (px, 0=aus)</label>
+            ${withReset(`<input type="number" data-bannerfield="textStrokeWidth" min="0" max="10" step="0.5" value="${bStrokeWidth}" style="width:120px" />`, 'data-bannerreset', 'textStrokeWidth', false)}
+          </div>
+          <div style="flex:1 1 200px">
+            <label>Deckkraft: <span data-banneropacityval>${bOpacity}</span> %</label>
+            ${withReset(`<input type="range" data-bannerfield="textOpacity" min="0" max="100" step="1" value="${bOpacity}" style="width:100%" />`, 'data-bannerreset', 'textOpacity', false)}
           </div>
         </div>
       </div>`;
@@ -358,18 +431,7 @@ function updateBannerPreviewText(pane, lang) {
   const m = state.media[lang];
   const t = m.heroBannerText || '';
   box.textContent = t;
-  box.setAttribute(
-    'style',
-    t
-      ? bannerTextStyle(
-          m.heroBannerTextColor,
-          m.heroBannerTextSize,
-          m.heroBannerTextX,
-          m.heroBannerTextY,
-          m.heroBannerFont,
-        )
-      : '',
-  );
+  box.setAttribute('style', t ? bannerTextStyle(m) : '');
 }
 // „x / y %"-Anzeige des Banner-Textes aktualisieren.
 function updateBannerPosLabel(pane, lang) {
@@ -599,7 +661,18 @@ export function renderLayout() {
   // ↺ Banner-Textfeld auf Standard zurücksetzen.
   pane.querySelectorAll('[data-bannerreset]').forEach((el) => {
     const field = el.dataset.bannerreset;
-    const defs = { text: '', font: '', textColor: '#ffffff', textSize: 0 };
+    const defs = {
+      text: '',
+      font: '',
+      textColor: '#ffffff',
+      textSize: 0,
+      textShadow: true,
+      textShadowColor: '#000000',
+      textShadowBlur: 6,
+      textStrokeColor: '#000000',
+      textStrokeWidth: 0,
+      textOpacity: 100,
+    };
     el.addEventListener('click', () => {
       const m = state.media[lang];
       if (field === 'pos') {
@@ -691,7 +764,7 @@ export function renderLayout() {
     });
   });
 
-  // Banner-Text: Text / Farbe / Größe (Banner-Modus).
+  // Banner-Text: Text / Farbe / Größe / Schatten / Umriss / Deckkraft (Banner-Modus).
   pane.querySelectorAll('[data-bannerfield]').forEach((el) =>
     el.addEventListener('input', () => {
       const f = el.dataset.bannerfield;
@@ -699,6 +772,19 @@ export function renderLayout() {
       if (f === 'text') m.heroBannerText = el.value.slice(0, 120);
       else if (f === 'textColor') m.heroBannerTextColor = el.value;
       else if (f === 'textSize') m.heroBannerTextSize = clamp(parseInt(el.value, 10) || 0, 0, 96);
+      else if (f === 'textShadow') m.heroBannerTextShadow = el.checked;
+      else if (f === 'textShadowColor') m.heroBannerTextShadowColor = el.value;
+      else if (f === 'textShadowBlur') {
+        m.heroBannerTextShadowBlur = clamp(parseInt(el.value, 10) || 0, 0, 40);
+        const v = pane.querySelector('[data-bannershadowblurval]');
+        if (v) v.textContent = m.heroBannerTextShadowBlur;
+      } else if (f === 'textStrokeColor') m.heroBannerTextStrokeColor = el.value;
+      else if (f === 'textStrokeWidth') m.heroBannerTextStrokeWidth = clampHalf(el.value, 0, 10);
+      else if (f === 'textOpacity') {
+        m.heroBannerTextOpacity = clamp(parseInt(el.value, 10) || 0, 0, 100);
+        const v = pane.querySelector('[data-banneropacityval]');
+        if (v) v.textContent = m.heroBannerTextOpacity;
+      }
       updateBannerPreviewText(pane, lang);
     }),
   );

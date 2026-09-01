@@ -165,6 +165,14 @@ export interface MediaConfig {
   // Freie Position des Banner-Textes in % (per Maus im Admin ziehbar).
   heroBannerTextX: number;
   heroBannerTextY: number;
+  // Textschatten (an/aus + Farbe + Weichzeichnung), Umriss (Kontur) und Deckkraft
+  // des Banner-Textes – im Admin unter „Banner-Text" einstellbar.
+  heroBannerTextShadow: boolean;
+  heroBannerTextShadowColor: string;
+  heroBannerTextShadowBlur: number;
+  heroBannerTextStrokeColor: string;
+  heroBannerTextStrokeWidth: number;
+  heroBannerTextOpacity: number;
   // Option 2: bis zu sechs Bilder fürs Raster + gewähltes Seitenverhältnis.
   heroGrid: string[];
   // Verlinkung der Rasterbilder (interner Pfad oder http(s)). Leer = nicht klickbar.
@@ -272,6 +280,12 @@ const MEDIA_DEFAULTS: MediaConfig = {
   heroBannerTextPos: 'center',
   heroBannerTextX: 50,
   heroBannerTextY: 50,
+  heroBannerTextShadow: true,
+  heroBannerTextShadowColor: '#000000',
+  heroBannerTextShadowBlur: 6,
+  heroBannerTextStrokeColor: '#000000',
+  heroBannerTextStrokeWidth: 0,
+  heroBannerTextOpacity: 100,
   heroGrid: ['', '', '', '', '', ''],
   heroGridLinks: ['', '', '', '', '', ''],
   heroGridStyles: Array.from({ length: 6 }, () => ({

@@ -247,6 +247,12 @@ export function defaultMediaLocale() {
     heroBannerTextPos: 'center', // Alt: 'top'|'center'|'bottom' (nur noch Migration)
     heroBannerTextX: 50, // Freie Position in % (0=links, 100=rechts) – per Maus ziehbar
     heroBannerTextY: 50, // Freie Position in % (0=oben, 100=unten)
+    heroBannerTextShadow: true, // Textschatten an/aus (Standard: an)
+    heroBannerTextShadowColor: '#000000', // Farbe des Schattens
+    heroBannerTextShadowBlur: 6, // Weichzeichnung des Schattens in px (0–40)
+    heroBannerTextStrokeColor: '#000000', // Farbe des Umrisses (Kontur)
+    heroBannerTextStrokeWidth: 0, // Dicke des Umrisses in px (0 = kein Umriss)
+    heroBannerTextOpacity: 100, // Deckkraft des Textes in % (0–100)
     heroGrid: ['', '', '', '', '', ''],
     heroGridLinks: ['', '', '', '', '', ''],
     heroGridStyles: defaultCellStyles(),
@@ -503,6 +509,27 @@ export function normalizeMedia(m) {
       heroBannerTextPos: normTextPos(o?.heroBannerTextPos),
       heroBannerTextX: normPosPct(o?.heroBannerTextX, undefined, 50),
       heroBannerTextY: normPosPct(o?.heroBannerTextY, normTextPos(o?.heroBannerTextPos), 50),
+      // Textschatten (Standard: an, rückwärtskompatibel), Umriss (Kontur), Deckkraft.
+      heroBannerTextShadow: o?.heroBannerTextShadow !== false,
+      heroBannerTextShadowColor: /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(
+        String(o?.heroBannerTextShadowColor),
+      )
+        ? o.heroBannerTextShadowColor
+        : '#000000',
+      heroBannerTextShadowBlur: Number.isFinite(Number(o?.heroBannerTextShadowBlur))
+        ? Math.max(0, Math.min(40, Math.round(Number(o.heroBannerTextShadowBlur))))
+        : 6,
+      heroBannerTextStrokeColor: /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(
+        String(o?.heroBannerTextStrokeColor),
+      )
+        ? o.heroBannerTextStrokeColor
+        : '#000000',
+      heroBannerTextStrokeWidth: Number.isFinite(Number(o?.heroBannerTextStrokeWidth))
+        ? Math.max(0, Math.min(10, Math.round(Number(o.heroBannerTextStrokeWidth) * 2) / 2))
+        : 0,
+      heroBannerTextOpacity: Number.isFinite(Number(o?.heroBannerTextOpacity))
+        ? Math.max(0, Math.min(100, Math.round(Number(o.heroBannerTextOpacity))))
+        : 100,
       heroGrid: [0, 1, 2, 3, 4, 5].map((i) => (typeof grid[i] === 'string' ? grid[i] : '')),
       heroGridLinks: [0, 1, 2, 3, 4, 5].map((i) =>
         typeof gridLinks[i] === 'string' ? gridLinks[i] : '',

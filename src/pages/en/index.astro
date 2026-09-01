@@ -157,6 +157,26 @@ function textOverlayStyle(color: string, size: number, x: number, y: number, fon
   if (font && VALID_FONT_FILE.test(font)) p.push(`font-family:"${heroFontId(font)}", var(--site-font)`)
   return p.join(';')
 }
+// Banner-Text-Overlay: wie textOverlayStyle, zusätzlich mit einstellbarem Schatten,
+// Umriss (Kontur) und Deckkraft. Standardwerte (Schatten an/#000000/6px, Umriss aus,
+// Deckkraft 100 %) erzeugen KEINE Inline-Overrides -> das bisherige Aussehen aus
+// global.css bleibt unverändert erhalten (kein Regress, auch beim Nur-Text-Banner).
+function bannerTextOverlayStyle(m: typeof media): string {
+  const p: string[] = [textOverlayStyle(m.heroBannerTextColor, m.heroBannerTextSize, m.heroBannerTextX, m.heroBannerTextY, m.heroBannerFont)]
+  const op = typeof m.heroBannerTextOpacity === 'number' ? m.heroBannerTextOpacity : 100
+  if (op < 100) p.push(`opacity:${Math.max(0, Math.min(100, op)) / 100}`)
+  const sw = typeof m.heroBannerTextStrokeWidth === 'number' ? m.heroBannerTextStrokeWidth : 0
+  if (sw > 0) p.push(`-webkit-text-stroke:${sw}px ${m.heroBannerTextStrokeColor || '#000000'}`)
+  if (m.heroBannerTextShadow === false) {
+    p.push('text-shadow:none')
+  } else {
+    const col = (m.heroBannerTextShadowColor || '#000000').toLowerCase()
+    const blur = typeof m.heroBannerTextShadowBlur === 'number' ? m.heroBannerTextShadowBlur : 6
+    // Nur bei abweichenden Werten inline setzen; der Standard kommt aus global.css.
+    if (col !== '#000000' || blur !== 6) p.push(`text-shadow:0 2px ${blur}px ${heroHexToRgba(col, 60) || 'rgba(0, 0, 0, 0.6)'}`)
+  }
+  return p.filter(Boolean).join(';')
+}
 
 // Build focused i18n map for vanilla JS (only keys used on this page)
 const SKIP = new Set(['sectionTitle', 'sectionDescription', 'processingBadge'])
@@ -288,7 +308,7 @@ const pageI18n = {
                     mediaClass="hero-banner"
                   />
                   {media.heroBannerText && (
-                    <div class="hero-banner-text" style={textOverlayStyle(media.heroBannerTextColor, media.heroBannerTextSize, media.heroBannerTextX, media.heroBannerTextY, media.heroBannerFont)}>
+                    <div class="hero-banner-text" style={bannerTextOverlayStyle(media)}>
                       {media.heroBannerText}
                     </div>
                   )}
@@ -304,7 +324,7 @@ const pageI18n = {
                   mediaClass="hero-banner"
                 />
                 {media.heroBannerText && (
-                  <div class="hero-banner-text" style={textOverlayStyle(media.heroBannerTextColor, media.heroBannerTextSize, media.heroBannerTextX, media.heroBannerTextY, media.heroBannerFont)}>
+                  <div class="hero-banner-text" style={bannerTextOverlayStyle(media)}>
                     {media.heroBannerText}
                   </div>
                 )}
@@ -314,7 +334,7 @@ const pageI18n = {
             <div class="hero-banner-wrapper hero-banner-textonly">
               <div
                 class="hero-banner-text hero-banner-text--static"
-                style={textOverlayStyle(media.heroBannerTextColor, media.heroBannerTextSize, media.heroBannerTextX, media.heroBannerTextY, media.heroBannerFont)}
+                style={bannerTextOverlayStyle(media)}
               >
                 {media.heroBannerText}
               </div>
