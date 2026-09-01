@@ -169,6 +169,8 @@ export interface MediaConfig {
   // des Banner-Textes – im Admin unter „Banner-Text" einstellbar.
   heroBannerTextShadow: boolean;
   heroBannerTextShadowColor: string;
+  heroBannerTextShadowX: number;
+  heroBannerTextShadowY: number;
   heroBannerTextShadowBlur: number;
   heroBannerTextStrokeColor: string;
   heroBannerTextStrokeWidth: number;
@@ -282,6 +284,8 @@ const MEDIA_DEFAULTS: MediaConfig = {
   heroBannerTextY: 50,
   heroBannerTextShadow: true,
   heroBannerTextShadowColor: '#000000',
+  heroBannerTextShadowX: 0,
+  heroBannerTextShadowY: 2,
   heroBannerTextShadowBlur: 6,
   heroBannerTextStrokeColor: '#000000',
   heroBannerTextStrokeWidth: 0,
