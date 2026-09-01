@@ -175,6 +175,9 @@ export interface MediaConfig {
   heroBannerTextStrokeColor: string;
   heroBannerTextStrokeWidth: number;
   heroBannerTextOpacity: number;
+  // Pulsierende Animation (zuschaltbar) + Intensität (1–10, steuert die Amplitude).
+  heroBannerTextPulse: boolean;
+  heroBannerTextPulseIntensity: number;
   // Option 2: bis zu sechs Bilder fürs Raster + gewähltes Seitenverhältnis.
   heroGrid: string[];
   // Verlinkung der Rasterbilder (interner Pfad oder http(s)). Leer = nicht klickbar.
@@ -290,6 +293,8 @@ const MEDIA_DEFAULTS: MediaConfig = {
   heroBannerTextStrokeColor: '#000000',
   heroBannerTextStrokeWidth: 0,
   heroBannerTextOpacity: 100,
+  heroBannerTextPulse: false,
+  heroBannerTextPulseIntensity: 5,
   heroGrid: ['', '', '', '', '', ''],
   heroGridLinks: ['', '', '', '', '', ''],
   heroGridStyles: Array.from({ length: 6 }, () => ({

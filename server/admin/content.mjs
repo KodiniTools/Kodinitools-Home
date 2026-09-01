@@ -482,6 +482,9 @@ function validateMediaLocale(m, langLabel) {
   out.heroBannerTextStrokeColor = normHexColor(m.heroBannerTextStrokeColor, '#000000');
   out.heroBannerTextStrokeWidth = clampHalf(m.heroBannerTextStrokeWidth, 0, 10, 0);
   out.heroBannerTextOpacity = clampNum(m.heroBannerTextOpacity, 0, 100, 100);
+  // Pulsierende Animation (zuschaltbar) + Intensität (1–10).
+  out.heroBannerTextPulse = m.heroBannerTextPulse === true;
+  out.heroBannerTextPulseIntensity = clampNum(m.heroBannerTextPulseIntensity, 1, 10, 5);
   // Option 2 – Hero-Raster: bis zu sechs Felder, je '' oder gültige URL.
   out.heroGrid = ['', '', '', '', '', ''];
   if (Array.isArray(m.heroGrid)) {

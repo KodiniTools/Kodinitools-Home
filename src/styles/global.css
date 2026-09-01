@@ -788,6 +788,29 @@ body {
   pointer-events: none;
   word-break: break-word;
 }
+/* Pulsierender Banner-Text (zuschaltbar). Nutzt die eigenständige scale-Eigenschaft,
+   damit die Zentrier-Translation (transform), die Deckkraft (opacity) und der
+   Textschatten unberührt bleiben. --pulse-scale (Amplitude) kommt aus dem Inline-
+   Style; die Intensität aus dem Admin bestimmt den Wert. */
+@keyframes kodini-banner-pulse {
+  0%,
+  100% {
+    scale: 1;
+  }
+  50% {
+    scale: var(--pulse-scale, 1.08);
+  }
+}
+.hero-banner-text--pulse {
+  animation: kodini-banner-pulse 1.8s ease-in-out infinite;
+  will-change: scale;
+}
+/* Barrierefreiheit: Nutzer mit reduzierter Bewegung sehen keinen Puls. */
+@media (prefers-reduced-motion: reduce) {
+  .hero-banner-text--pulse {
+    animation: none;
+  }
+}
 /* Nur-Text-Banner (kein Bild): normaler, mittiger Textblock. */
 .hero-banner-text--static {
   position: static;

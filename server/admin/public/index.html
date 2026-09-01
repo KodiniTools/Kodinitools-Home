@@ -490,6 +490,25 @@
         background: var(--danger);
         border: 2px solid var(--panel);
       }
+      /* Pulsierender Banner-Text in der Live-Vorschau (entspricht global.css der Seite).
+         Nutzt die eigenständige scale-Eigenschaft, damit Zentrierung/Deckkraft bleiben. */
+      @keyframes kodini-banner-pulse {
+        0%,
+        100% {
+          scale: 1;
+        }
+        50% {
+          scale: var(--pulse-scale, 1.08);
+        }
+      }
+      .kt-pulse {
+        animation: kodini-banner-pulse 1.8s ease-in-out infinite;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .kt-pulse {
+          animation: none;
+        }
+      }
     </style>
   </head>
   <body>
