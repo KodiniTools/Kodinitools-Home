@@ -115,13 +115,18 @@ function bannerShadowCss(m) {
   const col = rgbaFromHex(m.heroBannerTextShadowColor || '#000000', 60);
   return `${x}px ${y}px ${blur}px ${col}`;
 }
-// Umriss (Kontur) + Deckkraft des Banner-Textes als zusätzliche CSS-Deklarationen.
+// Umriss (Kontur) + Deckkraft + Puls-Amplitude des Banner-Textes als zusätzliche
+// CSS-Deklarationen. Die Pulsanimation selbst kommt über die Klasse kt-pulse.
 function bannerExtraCss(m) {
   const parts = [];
   const sw = Number.isFinite(m.heroBannerTextStrokeWidth) ? m.heroBannerTextStrokeWidth : 0;
   if (sw > 0) parts.push(`-webkit-text-stroke:${sw}px ${m.heroBannerTextStrokeColor || '#000000'}`);
   const op = Number.isFinite(m.heroBannerTextOpacity) ? m.heroBannerTextOpacity : 100;
   if (op < 100) parts.push(`opacity:${clamp(op, 0, 100) / 100}`);
+  if (m.heroBannerTextPulse) {
+    const it = Number.isFinite(m.heroBannerTextPulseIntensity) ? m.heroBannerTextPulseIntensity : 5;
+    parts.push(`--pulse-scale:${(1 + clamp(it, 1, 10) * 0.02).toFixed(3)}`);
+  }
   return parts.length ? ';' + parts.join(';') : '';
 }
 // Inline-Style des Banner-Text-Overlays (Farbe, Position, Größe, Schrift, Schatten,
@@ -283,11 +288,15 @@ function layoutPanel(lang) {
       ? m.heroBannerTextStrokeWidth
       : 0;
     const bOpacity = Number.isFinite(m.heroBannerTextOpacity) ? m.heroBannerTextOpacity : 100;
+    const bPulse = m.heroBannerTextPulse === true;
+    const bPulseIntensity = Number.isFinite(m.heroBannerTextPulseIntensity)
+      ? m.heroBannerTextPulseIntensity
+      : 5;
     const bMedia = bannerMediaHtml(lang);
     const previewBox = `
       <div data-bannerbox style="position:relative;max-width:520px;margin:.2rem auto;display:flex;align-items:center;justify-content:center;min-height:80px">
         ${bMedia || '<span class="hint">Kein Banner gewählt — im Tab „Medien" zuweisen.</span>'}
-        <div data-bannertext ${bText ? 'title="Zum Verschieben ziehen"' : ''} style="${bText ? bannerTextStyle(m) : ''}">${esc(bText)}</div>
+        <div data-bannertext class="${bText && bPulse ? 'kt-pulse' : ''}" ${bText ? 'title="Zum Verschieben ziehen"' : ''} style="${bText ? bannerTextStyle(m) : ''}">${esc(bText)}</div>
       </div>`;
     const previewPanel = `
       <div style="position:sticky;top:.5rem;z-index:5;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:.6rem .9rem;margin:0 0 .9rem;box-shadow:0 8px 22px rgba(0,0,0,.4);max-height:38vh;overflow:auto">
@@ -371,6 +380,19 @@ function layoutPanel(lang) {
             ${withReset(`<input type="range" data-bannerfield="textOpacity" min="0" max="100" step="1" value="${bOpacity}" style="width:100%" />`, 'data-bannerreset', 'textOpacity', false)}
           </div>
         </div>
+        <div class="row" style="align-items:flex-end;margin-top:.4rem">
+          <div style="flex:0 0 auto">
+            <label>Animation</label>
+            <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);cursor:pointer;height:38px;margin:0">
+              <input type="checkbox" data-bannerfield="textPulse" ${bPulse ? 'checked' : ''} style="width:auto" />
+              Pulsierender Text
+            </label>
+          </div>
+          <div style="flex:0 0 auto">
+            <label>Puls-Intensität (1–10)</label>
+            ${withReset(`<input type="number" data-bannerfield="textPulseIntensity" min="1" max="10" step="1" value="${bPulseIntensity}" style="width:110px" />`, 'data-bannerreset', 'textPulseIntensity', false)}
+          </div>
+        </div>
       </div>`;
     return modePanel + previewPanel + textPanel;
   }
@@ -444,6 +466,7 @@ function updateBannerPreviewText(pane, lang) {
   const t = m.heroBannerText || '';
   box.textContent = t;
   box.setAttribute('style', t ? bannerTextStyle(m) : '');
+  box.classList.toggle('kt-pulse', !!t && m.heroBannerTextPulse === true);
 }
 // „x / y %"-Anzeige des Banner-Textes aktualisieren.
 function updateBannerPosLabel(pane, lang) {
@@ -686,6 +709,8 @@ export function renderLayout() {
       textStrokeColor: '#000000',
       textStrokeWidth: 0,
       textOpacity: 100,
+      textPulse: false,
+      textPulseIntensity: 5,
     };
     el.addEventListener('click', () => {
       const m = state.media[lang];
@@ -802,6 +827,10 @@ export function renderLayout() {
         m.heroBannerTextOpacity = clamp(parseInt(el.value, 10) || 0, 0, 100);
         const v = pane.querySelector('[data-banneropacityval]');
         if (v) v.textContent = m.heroBannerTextOpacity;
+      } else if (f === 'textPulse') m.heroBannerTextPulse = el.checked;
+      else if (f === 'textPulseIntensity') {
+        const n = parseInt(el.value, 10);
+        m.heroBannerTextPulseIntensity = clamp(Number.isFinite(n) ? n : 5, 1, 10);
       }
       updateBannerPreviewText(pane, lang);
     }),

@@ -255,6 +255,8 @@ export function defaultMediaLocale() {
     heroBannerTextStrokeColor: '#000000', // Farbe des Umrisses (Kontur)
     heroBannerTextStrokeWidth: 0, // Dicke des Umrisses in px (0 = kein Umriss)
     heroBannerTextOpacity: 100, // Deckkraft des Textes in % (0–100)
+    heroBannerTextPulse: false, // Pulsierende Animation (zuschaltbar)
+    heroBannerTextPulseIntensity: 5, // Stärke der Pulsanimation (1–10)
     heroGrid: ['', '', '', '', '', ''],
     heroGridLinks: ['', '', '', '', '', ''],
     heroGridStyles: defaultCellStyles(),
@@ -538,6 +540,10 @@ export function normalizeMedia(m) {
       heroBannerTextOpacity: Number.isFinite(Number(o?.heroBannerTextOpacity))
         ? Math.max(0, Math.min(100, Math.round(Number(o.heroBannerTextOpacity))))
         : 100,
+      heroBannerTextPulse: o?.heroBannerTextPulse === true,
+      heroBannerTextPulseIntensity: Number.isFinite(Number(o?.heroBannerTextPulseIntensity))
+        ? Math.max(1, Math.min(10, Math.round(Number(o.heroBannerTextPulseIntensity))))
+        : 5,
       heroGrid: [0, 1, 2, 3, 4, 5].map((i) => (typeof grid[i] === 'string' ? grid[i] : '')),
       heroGridLinks: [0, 1, 2, 3, 4, 5].map((i) =>
         typeof gridLinks[i] === 'string' ? gridLinks[i] : '',

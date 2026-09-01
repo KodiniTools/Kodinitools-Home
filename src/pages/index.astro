@@ -177,7 +177,17 @@ function bannerTextOverlayStyle(m: typeof media): string {
     // Nur bei abweichenden Werten inline setzen; der Standard kommt aus global.css.
     if (col !== '#000000' || sx !== 0 || sy !== 2 || blur !== 6) p.push(`text-shadow:${sx}px ${sy}px ${blur}px ${heroHexToRgba(col, 60) || 'rgba(0, 0, 0, 0.6)'}`)
   }
+  // Pulsanimation: Amplitude (--pulse-scale) aus der Intensität 1–10 ableiten.
+  // Die Animation selbst kommt aus der Klasse hero-banner-text--pulse (global.css).
+  if (m.heroBannerTextPulse) {
+    const it = typeof m.heroBannerTextPulseIntensity === 'number' ? m.heroBannerTextPulseIntensity : 5
+    p.push(`--pulse-scale:${(1 + Math.max(1, Math.min(10, it)) * 0.02).toFixed(3)}`)
+  }
   return p.filter(Boolean).join(';')
+}
+// CSS-Klassen des Banner-Textes: Basis + optional Pulsanimation (zuschaltbar).
+function bannerTextClass(base: string): string {
+  return media.heroBannerTextPulse ? `${base} hero-banner-text--pulse` : base
 }
 
 // Build focused i18n map for vanilla JS (only keys used on this page)
@@ -310,7 +320,7 @@ const pageI18n = {
                     mediaClass="hero-banner"
                   />
                   {media.heroBannerText && (
-                    <div class="hero-banner-text" style={bannerTextOverlayStyle(media)}>
+                    <div class={bannerTextClass('hero-banner-text')} style={bannerTextOverlayStyle(media)}>
                       {media.heroBannerText}
                     </div>
                   )}
@@ -326,7 +336,7 @@ const pageI18n = {
                   mediaClass="hero-banner"
                 />
                 {media.heroBannerText && (
-                  <div class="hero-banner-text" style={bannerTextOverlayStyle(media)}>
+                  <div class={bannerTextClass('hero-banner-text')} style={bannerTextOverlayStyle(media)}>
                     {media.heroBannerText}
                   </div>
                 )}
@@ -335,7 +345,7 @@ const pageI18n = {
           ) : media.heroBannerText ? (
             <div class="hero-banner-wrapper hero-banner-textonly">
               <div
-                class="hero-banner-text hero-banner-text--static"
+                class={bannerTextClass('hero-banner-text hero-banner-text--static')}
                 style={bannerTextOverlayStyle(media)}
               >
                 {media.heroBannerText}
