@@ -14,6 +14,8 @@ import {
   CELL_SYNC_PROPS,
   defaultCellStyle,
   getMediaVal,
+  BANNER_ANIM_TYPES,
+  BANNER_ANIM_SPEEDS,
 } from './model.js';
 import { objUrl } from './media.js';
 import { fontOptionsHtml, ensureFontFace } from './fonts.js';
@@ -115,18 +117,49 @@ function bannerShadowCss(m) {
   const col = rgbaFromHex(m.heroBannerTextShadowColor || '#000000', 60);
   return `${x}px ${y}px ${blur}px ${col}`;
 }
-// Umriss (Kontur) + Deckkraft + Puls-Amplitude des Banner-Textes als zusätzliche
-// CSS-Deklarationen. Die Pulsanimation selbst kommt über die Klasse kt-pulse.
+// Tempo (Animationsdauer) je Geschwindigkeitsstufe.
+const ANIM_DUR = { slow: '2.6s', normal: '1.8s', fast: '1s' };
+// Deutsche Beschriftungen der Animationstypen und Tempo-Stufen (nur für die UI).
+const ANIM_LABELS = {
+  none: 'Keine',
+  pulse: 'Puls',
+  float: 'Schweben',
+  shake: 'Wackeln',
+  wobble: 'Kippen',
+  glow: 'Glühen',
+};
+const ANIM_SPEED_LABELS = { slow: 'Langsam', normal: 'Normal', fast: 'Schnell' };
+// Inline-CSS-Variablen der aktiven Text-Animation (leer bei 'none'). Intensität 1–10
+// steuert die Amplitude je Typ; die Keyframes stehen in index.html (Admin).
+function bannerAnimVars(m) {
+  const type = m.heroBannerTextAnim;
+  if (!type || type === 'none') return [];
+  const it = clamp(
+    Number.isFinite(m.heroBannerTextAnimIntensity) ? m.heroBannerTextAnimIntensity : 5,
+    1,
+    10,
+  );
+  const out = [`--anim-dur:${ANIM_DUR[m.heroBannerTextAnimSpeed] || '1.8s'}`];
+  if (type === 'pulse') out.push(`--anim-scale:${(1 + it * 0.02).toFixed(3)}`);
+  else if (type === 'float' || type === 'shake') out.push(`--anim-shift:${it}px`);
+  else if (type === 'wobble') out.push(`--anim-rot:${it}deg`);
+  else if (type === 'glow') out.push(`--anim-glow:${it * 2}px`);
+  return out;
+}
+// Animationsklasse für das Vorschau-Element (kt-<type>) oder '' bei 'none'.
+function bannerAnimClass(m) {
+  const type = m.heroBannerTextAnim;
+  return type && type !== 'none' ? 'kt-' + type : '';
+}
+// Umriss (Kontur) + Deckkraft + Animations-Amplitude des Banner-Textes als
+// zusätzliche CSS-Deklarationen. Die Animation selbst kommt über die kt-*-Klasse.
 function bannerExtraCss(m) {
   const parts = [];
   const sw = Number.isFinite(m.heroBannerTextStrokeWidth) ? m.heroBannerTextStrokeWidth : 0;
   if (sw > 0) parts.push(`-webkit-text-stroke:${sw}px ${m.heroBannerTextStrokeColor || '#000000'}`);
   const op = Number.isFinite(m.heroBannerTextOpacity) ? m.heroBannerTextOpacity : 100;
   if (op < 100) parts.push(`opacity:${clamp(op, 0, 100) / 100}`);
-  if (m.heroBannerTextPulse) {
-    const it = Number.isFinite(m.heroBannerTextPulseIntensity) ? m.heroBannerTextPulseIntensity : 5;
-    parts.push(`--pulse-scale:${(1 + clamp(it, 1, 10) * 0.02).toFixed(3)}`);
-  }
+  for (const v of bannerAnimVars(m)) parts.push(v);
   return parts.length ? ';' + parts.join(';') : '';
 }
 // Inline-Style des Banner-Text-Overlays (Farbe, Position, Größe, Schrift, Schatten,
@@ -288,15 +321,18 @@ function layoutPanel(lang) {
       ? m.heroBannerTextStrokeWidth
       : 0;
     const bOpacity = Number.isFinite(m.heroBannerTextOpacity) ? m.heroBannerTextOpacity : 100;
-    const bPulse = m.heroBannerTextPulse === true;
-    const bPulseIntensity = Number.isFinite(m.heroBannerTextPulseIntensity)
-      ? m.heroBannerTextPulseIntensity
+    const bAnim = BANNER_ANIM_TYPES.includes(m.heroBannerTextAnim) ? m.heroBannerTextAnim : 'none';
+    const bAnimIntensity = Number.isFinite(m.heroBannerTextAnimIntensity)
+      ? m.heroBannerTextAnimIntensity
       : 5;
+    const bAnimSpeed = BANNER_ANIM_SPEEDS.includes(m.heroBannerTextAnimSpeed)
+      ? m.heroBannerTextAnimSpeed
+      : 'normal';
     const bMedia = bannerMediaHtml(lang);
     const previewBox = `
       <div data-bannerbox style="position:relative;max-width:520px;margin:.2rem auto;display:flex;align-items:center;justify-content:center;min-height:80px">
         ${bMedia || '<span class="hint">Kein Banner gewählt — im Tab „Medien" zuweisen.</span>'}
-        <div data-bannertext class="${bText && bPulse ? 'kt-pulse' : ''}" ${bText ? 'title="Zum Verschieben ziehen"' : ''} style="${bText ? bannerTextStyle(m) : ''}">${esc(bText)}</div>
+        <div data-bannertext class="${bText ? bannerAnimClass(m) : ''}" ${bText ? 'title="Zum Verschieben ziehen"' : ''} style="${bText ? bannerTextStyle(m) : ''}">${esc(bText)}</div>
       </div>`;
     const previewPanel = `
       <div style="position:sticky;top:.5rem;z-index:5;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:.6rem .9rem;margin:0 0 .9rem;box-shadow:0 8px 22px rgba(0,0,0,.4);max-height:38vh;overflow:auto">
@@ -383,14 +419,15 @@ function layoutPanel(lang) {
         <div class="row" style="align-items:flex-end;margin-top:.4rem">
           <div style="flex:0 0 auto">
             <label>Animation</label>
-            <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);cursor:pointer;height:38px;margin:0">
-              <input type="checkbox" data-bannerfield="textPulse" ${bPulse ? 'checked' : ''} style="width:auto" />
-              Pulsierender Text
-            </label>
+            ${withReset(`<select data-bannerfield="textAnim" style="width:auto;height:38px">${BANNER_ANIM_TYPES.map((t) => `<option value="${t}" ${t === bAnim ? 'selected' : ''}>${ANIM_LABELS[t] || t}</option>`).join('')}</select>`, 'data-bannerreset', 'textAnim', false)}
           </div>
           <div style="flex:0 0 auto">
-            <label>Puls-Intensität (1–10)</label>
-            ${withReset(`<input type="number" data-bannerfield="textPulseIntensity" min="1" max="10" step="1" value="${bPulseIntensity}" style="width:110px" />`, 'data-bannerreset', 'textPulseIntensity', false)}
+            <label>Intensität (1–10)</label>
+            ${withReset(`<input type="number" data-bannerfield="textAnimIntensity" min="1" max="10" step="1" value="${bAnimIntensity}" style="width:110px" />`, 'data-bannerreset', 'textAnimIntensity', false)}
+          </div>
+          <div style="flex:0 0 auto">
+            <label>Geschwindigkeit</label>
+            ${withReset(`<select data-bannerfield="textAnimSpeed" style="width:auto;height:38px">${BANNER_ANIM_SPEEDS.map((s) => `<option value="${s}" ${s === bAnimSpeed ? 'selected' : ''}>${ANIM_SPEED_LABELS[s] || s}</option>`).join('')}</select>`, 'data-bannerreset', 'textAnimSpeed', false)}
           </div>
         </div>
       </div>`;
@@ -466,7 +503,10 @@ function updateBannerPreviewText(pane, lang) {
   const t = m.heroBannerText || '';
   box.textContent = t;
   box.setAttribute('style', t ? bannerTextStyle(m) : '');
-  box.classList.toggle('kt-pulse', !!t && m.heroBannerTextPulse === true);
+  // Animationsklasse (kt-*) neu setzen: erst alle entfernen, dann die aktive.
+  box.classList.remove('kt-pulse', 'kt-float', 'kt-shake', 'kt-wobble', 'kt-glow');
+  const cls = t ? bannerAnimClass(m) : '';
+  if (cls) box.classList.add(cls);
 }
 // „x / y %"-Anzeige des Banner-Textes aktualisieren.
 function updateBannerPosLabel(pane, lang) {
@@ -709,8 +749,9 @@ export function renderLayout() {
       textStrokeColor: '#000000',
       textStrokeWidth: 0,
       textOpacity: 100,
-      textPulse: false,
-      textPulseIntensity: 5,
+      textAnim: 'none',
+      textAnimIntensity: 5,
+      textAnimSpeed: 'normal',
     };
     el.addEventListener('click', () => {
       const m = state.media[lang];
@@ -827,10 +868,11 @@ export function renderLayout() {
         m.heroBannerTextOpacity = clamp(parseInt(el.value, 10) || 0, 0, 100);
         const v = pane.querySelector('[data-banneropacityval]');
         if (v) v.textContent = m.heroBannerTextOpacity;
-      } else if (f === 'textPulse') m.heroBannerTextPulse = el.checked;
-      else if (f === 'textPulseIntensity') {
+      } else if (f === 'textAnim') m.heroBannerTextAnim = el.value;
+      else if (f === 'textAnimSpeed') m.heroBannerTextAnimSpeed = el.value;
+      else if (f === 'textAnimIntensity') {
         const n = parseInt(el.value, 10);
-        m.heroBannerTextPulseIntensity = clamp(Number.isFinite(n) ? n : 5, 1, 10);
+        m.heroBannerTextAnimIntensity = clamp(Number.isFinite(n) ? n : 5, 1, 10);
       }
       updateBannerPreviewText(pane, lang);
     }),

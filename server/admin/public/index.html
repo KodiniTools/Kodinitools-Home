@@ -490,22 +490,89 @@
         background: var(--danger);
         border: 2px solid var(--panel);
       }
-      /* Pulsierender Banner-Text in der Live-Vorschau (entspricht global.css der Seite).
-         Nutzt die eigenständige scale-Eigenschaft, damit Zentrierung/Deckkraft bleiben. */
+      /* Text-Animationen in der Live-Vorschau (entsprechen global.css der Seite).
+         Amplitude via Inline-Variablen, Tempo via --anim-dur. */
+      .kt-pulse,
+      .kt-float,
+      .kt-shake,
+      .kt-wobble,
+      .kt-glow {
+        animation-duration: var(--anim-dur, 1.8s);
+        animation-timing-function: ease-in-out;
+        animation-iteration-count: infinite;
+      }
+      .kt-pulse {
+        animation-name: kodini-banner-pulse;
+      }
+      .kt-float {
+        animation-name: kodini-banner-float;
+      }
+      .kt-shake {
+        animation-name: kodini-banner-shake;
+      }
+      .kt-wobble {
+        animation-name: kodini-banner-wobble;
+      }
+      .kt-glow {
+        animation-name: kodini-banner-glow;
+      }
       @keyframes kodini-banner-pulse {
         0%,
         100% {
           scale: 1;
         }
         50% {
-          scale: var(--pulse-scale, 1.08);
+          scale: var(--anim-scale, 1.08);
         }
       }
-      .kt-pulse {
-        animation: kodini-banner-pulse 1.8s ease-in-out infinite;
+      @keyframes kodini-banner-float {
+        0%,
+        100% {
+          translate: 0 0;
+        }
+        50% {
+          translate: 0 calc(-1 * var(--anim-shift, 4px));
+        }
+      }
+      @keyframes kodini-banner-shake {
+        0%,
+        100% {
+          translate: 0 0;
+        }
+        25% {
+          translate: calc(-1 * var(--anim-shift, 3px)) 0;
+        }
+        75% {
+          translate: var(--anim-shift, 3px) 0;
+        }
+      }
+      @keyframes kodini-banner-wobble {
+        0%,
+        100% {
+          rotate: 0deg;
+        }
+        25% {
+          rotate: calc(-1 * var(--anim-rot, 3deg));
+        }
+        75% {
+          rotate: var(--anim-rot, 3deg);
+        }
+      }
+      @keyframes kodini-banner-glow {
+        0%,
+        100% {
+          filter: drop-shadow(0 0 0 transparent);
+        }
+        50% {
+          filter: drop-shadow(0 0 var(--anim-glow, 8px) currentColor);
+        }
       }
       @media (prefers-reduced-motion: reduce) {
-        .kt-pulse {
+        .kt-pulse,
+        .kt-float,
+        .kt-shake,
+        .kt-wobble,
+        .kt-glow {
           animation: none;
         }
       }

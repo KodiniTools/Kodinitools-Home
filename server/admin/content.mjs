@@ -317,6 +317,9 @@ function validateTextStyles(o) {
 }
 // Erlaubte Hero-Raster-Layouts (Anordnung der Kacheln).
 const HERO_LAYOUTS = ['grid2', 'grid3', 'row4', 'grid4', 'grid6', 'big2', 'vrow', 'mosaic'];
+// Verfügbare Text-Animationen des Banner-Textes und Tempo-Stufen.
+const BANNER_ANIM_TYPES = ['none', 'pulse', 'float', 'shake', 'wobble', 'glow'];
+const BANNER_ANIM_SPEEDS = ['slow', 'normal', 'fast'];
 // Größtmögliche Kachelzahl über alle Layouts (für Raster + Per-Kachel-Design).
 const HERO_GRID_MAX = 6;
 // Per-Kachel-Design (Rahmen + Hintergrund); Standard = kein Rahmen, bg 8 %.
@@ -482,9 +485,22 @@ function validateMediaLocale(m, langLabel) {
   out.heroBannerTextStrokeColor = normHexColor(m.heroBannerTextStrokeColor, '#000000');
   out.heroBannerTextStrokeWidth = clampHalf(m.heroBannerTextStrokeWidth, 0, 10, 0);
   out.heroBannerTextOpacity = clampNum(m.heroBannerTextOpacity, 0, 100, 100);
-  // Pulsierende Animation (zuschaltbar) + Intensität (1–10).
-  out.heroBannerTextPulse = m.heroBannerTextPulse === true;
-  out.heroBannerTextPulseIntensity = clampNum(m.heroBannerTextPulseIntensity, 1, 10, 5);
+  // Text-Animation (zuschaltbar) + Intensität (1–10) + Tempo. Migration: die alte
+  // boolean heroBannerTextPulse=true wird zu anim='pulse'.
+  out.heroBannerTextAnim = BANNER_ANIM_TYPES.includes(m.heroBannerTextAnim)
+    ? m.heroBannerTextAnim
+    : m.heroBannerTextPulse === true
+      ? 'pulse'
+      : 'none';
+  out.heroBannerTextAnimIntensity = clampNum(
+    m.heroBannerTextAnimIntensity ?? m.heroBannerTextPulseIntensity,
+    1,
+    10,
+    5,
+  );
+  out.heroBannerTextAnimSpeed = BANNER_ANIM_SPEEDS.includes(m.heroBannerTextAnimSpeed)
+    ? m.heroBannerTextAnimSpeed
+    : 'normal';
   // Option 2 – Hero-Raster: bis zu sechs Felder, je '' oder gültige URL.
   out.heroGrid = ['', '', '', '', '', ''];
   if (Array.isArray(m.heroGrid)) {
