@@ -29,7 +29,7 @@
     "heroBannerTextStrokeColor": "#fafafa",
     "heroBannerTextStrokeWidth": 0.5,
     "heroBannerTextOpacity": 100,
-    "heroBannerTextAnim": "glow",
+    "heroBannerTextAnim": "pulse",
     "heroBannerTextAnimIntensity": 7,
     "heroBannerTextAnimSpeed": "fast",
     "heroGrid": [
@@ -237,7 +237,7 @@
     "heroBannerTextStrokeColor": "#fcfcfc",
     "heroBannerTextStrokeWidth": 0.5,
     "heroBannerTextOpacity": 100,
-    "heroBannerTextAnim": "glow",
+    "heroBannerTextAnim": "pulse",
     "heroBannerTextAnimIntensity": 7,
     "heroBannerTextAnimSpeed": "fast",
     "heroGrid": [
