@@ -1,0 +1,539 @@
+/* Hero with Animated Mesh Gradient */
+.hero {
+  position: relative;
+  max-width: 1200px;
+  margin: 2rem auto 0;
+  padding: 4rem 2rem;
+  text-align: center;
+  background: var(--hero-bg, rgba(255, 255, 255, 0.7));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 2rem;
+  margin-bottom: 2.5rem;
+  overflow: hidden;
+  border: var(--hero-border-width, 1px) solid var(--hero-border-color, rgba(1, 79, 153, 0.25));
+  box-shadow: 0 8px 32px rgba(0, 57, 113, 0.1),
+              0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+}
+
+[data-theme="dark"] .hero {
+  background: var(--hero-bg, rgba(14, 28, 50, 0.8));
+  border: var(--hero-border-width, 1px) solid var(--hero-border-color, rgba(232, 169, 69, 0.28));
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+              0 0 0 1px rgba(232, 169, 69, 0.1) inset;
+}
+
+/* Animated Mesh Gradient Background – deaktiviert.
+   Die farbigen Mesh-Verlaufs-„Blobs" im Hero werden nicht mehr angezeigt; der
+   Hero behält seine Hauptfarbe (--hero-bg). */
+.mesh-gradient-container {
+  display: none;
+}
+
+.mesh-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.6;
+  animation: meshFloat 20s ease-in-out infinite;
+}
+
+.mesh-blob-1 {
+  width: 400px;
+  height: 400px;
+  background: linear-gradient(135deg, #014f99 0%, #3a7bc8 100%);
+  top: -100px;
+  left: -100px;
+  animation-delay: 0s;
+}
+
+.mesh-blob-2 {
+  width: 350px;
+  height: 350px;
+  background: linear-gradient(135deg, #e8a945 0%, #f8e1a9 100%);
+  top: -50px;
+  right: -80px;
+  animation-delay: -5s;
+  animation-duration: 25s;
+}
+
+.mesh-blob-3 {
+  width: 300px;
+  height: 300px;
+  background: linear-gradient(135deg, #003971 0%, #2a6db5 100%);
+  bottom: -100px;
+  left: 30%;
+  animation-delay: -10s;
+  animation-duration: 22s;
+}
+
+.mesh-blob-4 {
+  width: 250px;
+  height: 250px;
+  background: linear-gradient(135deg, #f8e1a9 0%, #f9f2d5 100%);
+  bottom: -80px;
+  right: 10%;
+  animation-delay: -15s;
+  animation-duration: 18s;
+}
+
+@keyframes meshFloat {
+  0%, 100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  25% {
+    transform: translate(30px, -30px) scale(1.1) rotate(5deg);
+  }
+  50% {
+    transform: translate(-20px, 20px) scale(0.95) rotate(-5deg);
+  }
+  75% {
+    transform: translate(20px, 10px) scale(1.05) rotate(3deg);
+  }
+}
+
+[data-theme="dark"] .mesh-blob-1 {
+  background: linear-gradient(135deg, #e8a945 0%, #a67d3d 100%);
+  opacity: 0.4;
+}
+
+[data-theme="dark"] .mesh-blob-2 {
+  background: linear-gradient(135deg, #014f99 0%, #3a7bc8 100%);
+  opacity: 0.35;
+}
+
+[data-theme="dark"] .mesh-blob-3 {
+  background: linear-gradient(135deg, #e8a945 0%, #f8e1a9 100%);
+  opacity: 0.3;
+}
+
+[data-theme="dark"] .mesh-blob-4 {
+  background: linear-gradient(135deg, #014f99 0%, #0a2e5c 100%);
+  opacity: 0.4;
+}
+
+/* Noise Texture Overlay – deaktiviert (flacher Hero-Hintergrund). */
+.noise-overlay {
+  display: none;
+}
+
+[data-theme="dark"] .noise-overlay {
+  opacity: 0.05;
+}
+
+/* Hero Content */
+.hero-content {
+  position: relative;
+  z-index: 3;
+}
+
+/* Hero Title */
+.hero-title {
+  font-size: var(--hero-title-fs, 2.5rem);
+  margin-bottom: 0.75rem;
+  font-weight: 800;
+  color: var(--hero-title-color, #003971);
+  font-family: var(--hero-title-ff, inherit);
+  letter-spacing: var(--hero-title-ls, -0.02em);
+  -webkit-text-stroke: var(--hero-title-stroke, 0);
+  line-height: 1.2;
+  text-align: center;
+  animation: fadeInUp 0.7s ease forwards;
+}
+
+.gradient-title {
+  background: linear-gradient(135deg, #014f99 0%, #003971 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+[data-theme="dark"] .gradient-title {
+  background: linear-gradient(135deg, #e8a945 0%, #f8e1a9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-subtitle {
+  font-size: var(--hero-subtitle-fs, 1.1rem);
+  color: var(--hero-title-color, #014f99);
+  margin-bottom: 0;
+  animation: fadeInUp 1s ease 0.3s forwards;
+  opacity: 0;
+  font-weight: 500;
+  font-family: var(--hero-title-ff, inherit);
+  letter-spacing: var(--hero-title-ls, normal);
+  -webkit-text-stroke: var(--hero-title-stroke, 0);
+  max-width: 600px;
+  margin: 0 auto;
+  white-space: pre-line;
+}
+
+[data-theme="dark"] .hero-title {
+  color: var(--hero-title-color, #f9f2d5);
+}
+
+[data-theme="dark"] .hero-subtitle {
+  color: var(--hero-title-color, #f8e1a9);
+}
+
+/* Hero CTA Button */
+.hero-cta-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.hero-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 2.2rem;
+  background: var(--hero-cta-bg, linear-gradient(135deg, #014f99 0%, #003971 100%));
+  color: var(--hero-cta-text, #fff);
+  font-family: var(--hero-btn-ff, inherit);
+  letter-spacing: var(--hero-btn-ls, normal);
+  -webkit-text-stroke: var(--hero-btn-stroke, 0);
+  font-size: var(--hero-cta-fs, 1.05rem);
+  font-weight: 700;
+  border-radius: 50px;
+  text-decoration: none;
+  /* Rahmen optional (Admin: Hero-Design → CTA). Standard = kein Rahmen. */
+  border: var(--hero-cta-border-width, 0) solid var(--hero-cta-border, transparent);
+  /* Schatten/Glow entfernt */
+  box-shadow: none;
+  transition: transform 0.2s ease;
+  animation: fadeInUp 1s ease 0.6s forwards;
+  opacity: 0;
+}
+
+.hero-cta-btn:hover {
+  transform: translateY(-3px) scale(1.03);
+  background: var(--hero-cta-hover-bg, var(--hero-cta-bg, linear-gradient(135deg, #014f99 0%, #003971 100%)));
+  color: var(--hero-cta-hover-text, var(--hero-cta-text, #fff));
+}
+
+.hero-cta-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+[data-theme="dark"] .hero-cta-btn {
+  background: var(--hero-cta-bg, linear-gradient(135deg, #e8a945 0%, #a07030 100%));
+}
+
+[data-theme="dark"] .hero-cta-btn:hover {
+  background: var(--hero-cta-hover-bg, var(--hero-cta-bg, linear-gradient(135deg, #e8a945 0%, #a07030 100%)));
+}
+
+/* Scroll Indicator */
+.scroll-indicator {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #014f99;
+  opacity: 0.7;
+  animation: scrollBounce 2s ease-in-out infinite;
+  cursor: pointer;
+  z-index: 5;
+  transition: opacity 0.4s ease;
+}
+
+[data-theme="dark"] .scroll-indicator {
+  color: #e8a945;
+}
+
+@keyframes scrollBounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(8px); }
+}
+
+/* Hero Promo Section with Logo */
+.hero-promo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.hero-logo {
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: logoFloat 3s ease-in-out infinite;
+}
+
+@keyframes logoFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.hero-logo:hover {
+  transform: scale(1.08) rotate(3deg);
+}
+
+.hero-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Austauschbares Hero-Banner (ersetzt das frühere Logo) */
+/* WICHTIG: kein Flexbox um das Bild. Ein <img> mit width/height:auto als
+   Flex-Item kollabiert in iOS-Safari auf 0 Höhe (bekannter WebKit-Bug) und
+   wird dort nicht angezeigt. Block-Zentrierung ist zuverlässig überall. */
+/* Verlinktes Hero-Medium: der Anker erzeugt keinen eigenen Kasten
+   (display:contents), damit Raster-/Banner-Layout unverändert bleibt; Klicks
+   auf Bild/Banner öffnen dennoch den Link. */
+.hero-media-link {
+  display: contents;
+}
+.hero-media-link img,
+.hero-media-link video {
+  cursor: pointer;
+}
+
+.hero-banner-wrapper {
+  position: relative;
+  width: 100%;
+  text-align: center;
+}
+/* Wrapper des Banner-Mediums „durchsichtig" (display:contents), damit das Bild
+   direkt im .hero-banner-wrapper zentriert und der Text darüber liegt. */
+.hero-banner-inner {
+  display: contents;
+}
+/* Text über dem Banner: an frei wählbarer Position (left/top per Inline-Style,
+   Standard 50%/50%) verankert; der Mittelpunkt sitzt auf dem Ankerpunkt. */
+.hero-banner-text {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  max-width: calc(100% - 1.2rem);
+  text-align: center;
+  padding: 0.2rem 0.4rem;
+  color: #fff;
+  font-size: clamp(1.1rem, 3vw, 2rem);
+  line-height: 1.2;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  word-break: break-word;
+}
+/* Text-Animationen des Banner-Textes (zuschaltbar). Amplitude kommt aus dem
+   Inline-Style (Intensität aus dem Admin), Tempo über --anim-dur. Alle nutzen die
+   eigenständigen Transform-Properties (scale/translate/rotate) bzw. filter, damit
+   Zentrierung (transform), Deckkraft (opacity) und Textschatten unberührt bleiben. */
+.hero-banner-text--pulse,
+.hero-banner-text--float,
+.hero-banner-text--shake,
+.hero-banner-text--wobble,
+.hero-banner-text--glow {
+  animation-duration: var(--anim-dur, 1.8s);
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  will-change: transform, filter;
+}
+.hero-banner-text--pulse {
+  animation-name: kodini-banner-pulse;
+}
+.hero-banner-text--float {
+  animation-name: kodini-banner-float;
+}
+.hero-banner-text--shake {
+  animation-name: kodini-banner-shake;
+}
+.hero-banner-text--wobble {
+  animation-name: kodini-banner-wobble;
+}
+.hero-banner-text--glow {
+  animation-name: kodini-banner-glow;
+}
+@keyframes kodini-banner-pulse {
+  0%,
+  100% {
+    scale: 1;
+  }
+  50% {
+    scale: var(--anim-scale, 1.08);
+  }
+}
+@keyframes kodini-banner-float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 calc(-1 * var(--anim-shift, 4px));
+  }
+}
+@keyframes kodini-banner-shake {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  25% {
+    translate: calc(-1 * var(--anim-shift, 3px)) 0;
+  }
+  75% {
+    translate: var(--anim-shift, 3px) 0;
+  }
+}
+@keyframes kodini-banner-wobble {
+  0%,
+  100% {
+    rotate: 0deg;
+  }
+  25% {
+    rotate: calc(-1 * var(--anim-rot, 3deg));
+  }
+  75% {
+    rotate: var(--anim-rot, 3deg);
+  }
+}
+@keyframes kodini-banner-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  50% {
+    filter: drop-shadow(0 0 var(--anim-glow, 8px) currentColor);
+  }
+}
+/* Barrierefreiheit: Nutzer mit reduzierter Bewegung sehen keine Animation. */
+@media (prefers-reduced-motion: reduce) {
+  .hero-banner-text--pulse,
+  .hero-banner-text--float,
+  .hero-banner-text--shake,
+  .hero-banner-text--wobble,
+  .hero-banner-text--glow {
+    animation: none;
+  }
+}
+/* Nur-Text-Banner (kein Bild): normaler, mittiger Textblock. */
+.hero-banner-text--static {
+  position: static;
+  transform: none;
+  max-width: 100%;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-color);
+  text-shadow: none;
+}
+
+.hero-banner {
+  display: block;
+  margin: 0 auto;
+  max-width: min(100%, 900px);
+  max-height: 240px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 14px;
+}
+
+@media (max-width: 640px) {
+  .hero-banner {
+    max-height: 150px;
+  }
+}
+
+/* Hero-Raster: Kacheln in wählbarer Anordnung (Layout) und Form (Ratio). */
+.hero-grid {
+  display: grid;
+  gap: 1rem;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+}
+/* Anordnungen */
+.hero-grid.layout-grid2,
+.hero-grid.layout-grid4 {
+  grid-template-columns: repeat(2, 1fr);
+  max-width: 520px;
+}
+.hero-grid.layout-grid3,
+.hero-grid.layout-grid6 {
+  grid-template-columns: repeat(3, 1fr);
+}
+/* 4 nebeneinander (eine Reihe) */
+.hero-grid.layout-row4 {
+  grid-template-columns: repeat(4, 1fr);
+  max-width: 860px;
+}
+/* 2 große Kacheln nebeneinander (breiter als grid2) */
+.hero-grid.layout-big2 {
+  grid-template-columns: repeat(2, 1fr);
+  max-width: 900px;
+}
+/* Vertikale Reihe: Kacheln untereinander */
+.hero-grid.layout-vrow {
+  grid-template-columns: 1fr;
+  max-width: 420px;
+}
+/* Mosaik: eine große Kachel links, zwei kleine rechts gestapelt */
+.hero-grid.layout-mosaic {
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  aspect-ratio: 2 / 1;
+}
+.hero-grid.layout-mosaic .hero-grid-cell {
+  aspect-ratio: auto;
+  height: 100%;
+}
+.hero-grid.layout-mosaic .hero-grid-cell--big {
+  grid-row: 1 / span 2;
+}
+.hero-grid-cell {
+  position: relative;
+  aspect-ratio: var(--hero-cell-ratio, 1 / 1);
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--cell-bg, rgba(1, 79, 153, 0.08));
+  border: var(--cell-bw, 0) solid var(--cell-bc, transparent);
+}
+/* Medium füllt die Kachel; Text liegt als Overlay darüber. */
+.hero-cell-media {
+  position: absolute;
+  inset: 0;
+}
+.hero-cell-text {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  max-width: calc(100% - 0.8rem);
+  text-align: center;
+  padding: 0.1rem 0.3rem;
+  color: #fff;
+  font-size: clamp(0.9rem, 2.2vw, 1.5rem);
+  line-height: 1.2;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  word-break: break-word;
+}
+.hero-grid-media {
+  width: 100%;
+  height: 100%;
+  object-fit: var(--hero-cell-fit, cover);
+  display: block;
+}
+@media (max-width: 640px) {
+  .hero-grid {
+    gap: 0.5rem;
+  }
+}
+
+
