@@ -320,6 +320,27 @@ export function renderTexts() {
     });
   });
 
+  // Alle Text-Stil-Einstellungen (Hell + Dunkel + Effekte + „Standard für alle
+  // Slots") von Deutsch nach Englisch übernehmen. Die Texte bleiben je Sprache.
+  pane.querySelectorAll('[data-txtcopy]').forEach((el) => {
+    el.addEventListener('click', () => {
+      if (
+        !confirm(
+          'Alle Text-Einstellungen für Englisch werden mit den deutschen überschrieben ' +
+            '(Schriftart, Größe, Farbe Hell + Dunkel, Schatten, Umriss, Deckkraft, Animation, ' +
+            '„Standard für alle Slots"). Die Texte selbst bleiben unverändert. Fortfahren?',
+        )
+      )
+        return;
+      const de = state.media.de;
+      state.media.en.textStyles = JSON.parse(JSON.stringify(de.textStyles || {}));
+      state.media.en.textStyleUniform = de.textStyleUniform === true;
+      state.media.en.textStyleUniformKey = de.textStyleUniformKey || 'hero.title';
+      renderTexts();
+      toast('Text-Einstellungen von Deutsch nach Englisch übernommen (Hell + Dunkel + Effekte)');
+    });
+  });
+
   // „Standard für alle Slots": Stil dieses Slots gilt für alle anderen.
   pane.querySelectorAll('[data-txtmaster]').forEach((el) => {
     const idx = parseInt(el.dataset.txtmaster, 10);
@@ -431,7 +452,20 @@ function textPanel(lang) {
       </div>
       <p class="hint" style="margin-top:.35rem">Du bearbeitest die <strong>Textfarben</strong> für <strong>${txtModeLabel()}</strong>. Textgröße und Schriftart gelten für <strong>beide</strong> Modi.</p>
     </div>`;
-  return `<div class="panel"><h2>Texte <span class="lang-badge">${lang.toUpperCase()}</span></h2>${modeToggle}${fields}</div>`;
+  // Alle Text-Stil-Einstellungen (Hell + Dunkel + Effekte) von Deutsch nach
+  // Englisch übernehmen. Die Texte selbst bleiben je Sprache erhalten.
+  const copyBox = `
+    <div style="margin:.2rem 0 .7rem;padding:.5rem .6rem;border:1px dashed var(--border);border-radius:8px">
+      <button data-txtcopy type="button" style="width:auto">${
+        lang === 'de'
+          ? '➡️ Diese Text-Einstellungen auf Englisch (EN) übernehmen'
+          : '⬅️ Text-Einstellungen von Deutsch (DE) übernehmen'
+      }</button>
+      <p class="hint" style="margin:.35rem 0 0">Kopiert <strong>alle</strong> Text-Einstellungen aller Slots
+        (Schriftart, Größe, Farbe <strong>Hell + Dunkel</strong>, Schatten, Umriss, Deckkraft, Animation
+        sowie „Standard für alle Slots") von Deutsch nach Englisch. Die <em>Texte</em> selbst bleiben je Sprache erhalten.</p>
+    </div>`;
+  return `<div class="panel"><h2>Texte <span class="lang-badge">${lang.toUpperCase()}</span></h2>${modeToggle}${copyBox}${fields}</div>`;
 }
 
 // ============ Erweitert (rohe Overrides, eine Sprache) ============
