@@ -284,21 +284,49 @@ export const TEXT_STYLE_KEYS = [
   'diverseTools.sectionTitle',
 ];
 const textHex = (v) => (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? v : '');
+const textNum = (v, min, max, def) => {
+  const n = Number(v);
+  return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : def;
+};
+const textHalf = (v, min, max, def) => {
+  const n = Number(v);
+  return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n * 2) / 2)) : def;
+};
 export function normTextStyles(o) {
   const out = {};
   if (!o || typeof o !== 'object') return out;
   for (const k of TEXT_STYLE_KEYS) {
     const s = o[k];
     if (!s || typeof s !== 'object') continue;
-    const size = Number(s.size);
-    const px = Number.isFinite(size) ? Math.max(0, Math.min(120, Math.round(size))) : 0;
+    const px = textNum(s.size, 0, 120, 0);
     const font = normFontFile(s.font);
     // Migration: altes einzelnes color gilt für beide Modi.
     const legacy = textHex(s.color);
     const colorLight = textHex(s.colorLight) || legacy;
     const colorDark = textHex(s.colorDark) || legacy;
-    if (px > 0 || colorLight || colorDark || font)
-      out[k] = { size: px, colorLight, colorDark, font };
+    // Effekte (Schatten, Umriss, Deckkraft, Animation) – analog Banner-Text.
+    const shadow = s.shadow === true;
+    const strokeWidth = textHalf(s.strokeWidth, 0, 10, 0);
+    const opacity = textNum(s.opacity, 0, 100, 100);
+    const anim = BANNER_ANIM_TYPES.includes(s.anim) ? s.anim : 'none';
+    const hasFx = shadow || strokeWidth > 0 || opacity < 100 || anim !== 'none';
+    if (px > 0 || colorLight || colorDark || font || hasFx) {
+      const entry = { size: px, colorLight, colorDark, font };
+      if (hasFx) {
+        entry.shadow = shadow;
+        entry.shadowColor = textHex(s.shadowColor) || '#000000';
+        entry.shadowX = textNum(s.shadowX, -50, 50, 0);
+        entry.shadowY = textNum(s.shadowY, -50, 50, 2);
+        entry.shadowBlur = textNum(s.shadowBlur, 0, 40, 6);
+        entry.strokeColor = textHex(s.strokeColor) || '#000000';
+        entry.strokeWidth = strokeWidth;
+        entry.opacity = opacity;
+        entry.anim = anim;
+        entry.animIntensity = textNum(s.animIntensity, 1, 10, 5);
+        entry.animSpeed = BANNER_ANIM_SPEEDS.includes(s.animSpeed) ? s.animSpeed : 'normal';
+      }
+      out[k] = entry;
+    }
   }
   return out;
 }
@@ -317,6 +345,19 @@ export function getTextStyle(lang, key) {
   }
   if (typeof s.colorLight !== 'string') s.colorLight = '';
   if (typeof s.colorDark !== 'string') s.colorDark = '';
+  // Effekt-Defaults ergänzen (für ältere Einträge ohne diese Felder). Entsprechen
+  // dem „aus"-Zustand, sodass sich am Standardaussehen nichts ändert.
+  if (typeof s.shadow !== 'boolean') s.shadow = false;
+  if (typeof s.shadowColor !== 'string') s.shadowColor = '#000000';
+  if (!Number.isFinite(s.shadowX)) s.shadowX = 0;
+  if (!Number.isFinite(s.shadowY)) s.shadowY = 2;
+  if (!Number.isFinite(s.shadowBlur)) s.shadowBlur = 6;
+  if (typeof s.strokeColor !== 'string') s.strokeColor = '#000000';
+  if (!Number.isFinite(s.strokeWidth)) s.strokeWidth = 0;
+  if (!Number.isFinite(s.opacity)) s.opacity = 100;
+  if (!BANNER_ANIM_TYPES.includes(s.anim)) s.anim = 'none';
+  if (!Number.isFinite(s.animIntensity)) s.animIntensity = 5;
+  if (!BANNER_ANIM_SPEEDS.includes(s.animSpeed)) s.animSpeed = 'normal';
   return s;
 }
 // Effektiver Stil eines Text-Slots: bei aktivem „Standard für alle Slots"

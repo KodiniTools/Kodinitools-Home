@@ -310,8 +310,29 @@ function validateTextStyles(o) {
     const legacy = normHexColor(s.color, '');
     const colorLight = normHexColor(s.colorLight, '') || legacy;
     const colorDark = normHexColor(s.colorDark, '') || legacy;
-    if (size > 0 || colorLight || colorDark || font)
-      out[k] = { size, colorLight, colorDark, font };
+    // Effekte (Schatten, Umriss, Deckkraft, Animation) – analog Banner-Text.
+    const shadow = s.shadow === true;
+    const strokeWidth = clampHalf(s.strokeWidth, 0, 10, 0);
+    const opacity = clampNum(s.opacity, 0, 100, 100);
+    const anim = BANNER_ANIM_TYPES.includes(s.anim) ? s.anim : 'none';
+    const hasFx = shadow || strokeWidth > 0 || opacity < 100 || anim !== 'none';
+    if (size > 0 || colorLight || colorDark || font || hasFx) {
+      const entry = { size, colorLight, colorDark, font };
+      if (hasFx) {
+        entry.shadow = shadow;
+        entry.shadowColor = normHexColor(s.shadowColor, '#000000');
+        entry.shadowX = clampNum(s.shadowX, -50, 50, 0);
+        entry.shadowY = clampNum(s.shadowY, -50, 50, 2);
+        entry.shadowBlur = clampNum(s.shadowBlur, 0, 40, 6);
+        entry.strokeColor = normHexColor(s.strokeColor, '#000000');
+        entry.strokeWidth = strokeWidth;
+        entry.opacity = opacity;
+        entry.anim = anim;
+        entry.animIntensity = clampNum(s.animIntensity, 1, 10, 5);
+        entry.animSpeed = BANNER_ANIM_SPEEDS.includes(s.animSpeed) ? s.animSpeed : 'normal';
+      }
+      out[k] = entry;
+    }
   }
   return out;
 }

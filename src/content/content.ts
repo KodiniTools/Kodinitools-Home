@@ -196,7 +196,25 @@ export interface MediaConfig {
   // Alt-Format für die Migration.
   textStyles: Record<
     string,
-    { size: number; colorLight?: string; colorDark?: string; color?: string; font?: string }
+    {
+      size: number;
+      colorLight?: string;
+      colorDark?: string;
+      color?: string;
+      font?: string;
+      // Effekte (analog Banner-Text): Schatten, Umriss, Deckkraft, Animation.
+      shadow?: boolean;
+      shadowColor?: string;
+      shadowX?: number;
+      shadowY?: number;
+      shadowBlur?: number;
+      strokeColor?: string;
+      strokeWidth?: number;
+      opacity?: number;
+      anim?: 'none' | 'pulse' | 'float' | 'shake' | 'wobble' | 'glow';
+      animIntensity?: number;
+      animSpeed?: 'slow' | 'normal' | 'fast';
+    }
   >;
   // „Standard für alle Slots": Stil des gewählten Slots gilt für alle.
   textStyleUniform?: boolean;
@@ -436,6 +454,55 @@ function textFontFaceCss(file: string): string {
 
 // CSS-Selektor je Text-Slot. Alle Slots außer dem Hero-Titel (wird per
 // Tipp-Animation gefüllt) sind über ihr data-i18n-Attribut erreichbar.
+// Tempo (Animationsdauer) je Geschwindigkeitsstufe – identisch zum Banner-Text.
+const TEXT_ANIM_DUR: Record<string, string> = { slow: '2.6s', normal: '1.8s', fast: '1s' };
+// Hex (#rgb/#rrggbb) -> rgba() mit fester Deckkraft (für den Textschatten).
+function textHexToRgba(hex: string, alpha: number): string {
+  const m = /^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.exec((hex || '').trim());
+  if (!m) return `rgba(0, 0, 0, ${alpha})`;
+  let h = m[1];
+  if (h.length === 3)
+    h = h
+      .split('')
+      .map((c) => c + c)
+      .join('');
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+// Effekt-CSS-Deklarationen (Deckkraft, Umriss, Schatten, Animation) eines Text-Slots.
+// Analog zum Banner-Text; `none`/Standardwerte erzeugen nichts (kein Regress).
+function textFxDecls(s: MediaConfig['textStyles'][string]): string[] {
+  const isHex = (v: unknown): v is string => /^#[0-9a-fA-F]{3,6}$/.test(String(v ?? ''));
+  const decl: string[] = [];
+  const strokeW = typeof s.strokeWidth === 'number' ? s.strokeWidth : 0;
+  if (strokeW > 0)
+    decl.push(`-webkit-text-stroke:${strokeW}px ${isHex(s.strokeColor) ? s.strokeColor : '#000000'}`);
+  if (s.shadow === true) {
+    const sc = isHex(s.shadowColor) ? s.shadowColor : '#000000';
+    const sx = typeof s.shadowX === 'number' ? s.shadowX : 0;
+    const sy = typeof s.shadowY === 'number' ? s.shadowY : 2;
+    const sb = typeof s.shadowBlur === 'number' ? s.shadowBlur : 6;
+    decl.push(`text-shadow:${sx}px ${sy}px ${sb}px ${textHexToRgba(sc, 0.6)}`);
+  }
+  const anim = s.anim && s.anim !== 'none' ? s.anim : '';
+  if (anim) {
+    const it = Math.max(1, Math.min(10, typeof s.animIntensity === 'number' ? s.animIntensity : 5));
+    const dur = TEXT_ANIM_DUR[s.animSpeed || 'normal'] || '1.8s';
+    decl.push(`animation:kodini-banner-${anim} ${dur} ease-in-out infinite`);
+    if (anim === 'pulse') decl.push(`--anim-scale:${(1 + it * 0.02).toFixed(3)}`);
+    else if (anim === 'float' || anim === 'shake') decl.push(`--anim-shift:${it}px`);
+    else if (anim === 'wobble') decl.push(`--anim-rot:${it}deg`);
+    else if (anim === 'glow') decl.push(`--anim-glow:${it * 2}px`);
+  }
+  // Deckkraft: <100 explizit; bei aktiver Animation opacity:1 erzwingen, weil die
+  // Loop-Animation den Entrance ersetzt und manche Slots mit opacity:0 starten.
+  const op = typeof s.opacity === 'number' ? s.opacity : 100;
+  if (op < 100) decl.push(`opacity:${op / 100}`);
+  else if (anim) decl.push('opacity:1');
+  return decl;
+}
 const TEXT_STYLE_SELECTORS: Record<string, string> = {
   'hero.title': '#app .hero-title',
   'hero.subtitle': '#app [data-i18n="hero.subtitle"]',
@@ -480,6 +547,8 @@ export function getTextStylesCss(media: MediaConfig): string | undefined {
       decl.push(`font-family:"${textFontId(font)}", var(--site-font)`);
     }
     if (light) decl.push(colorDecl(light));
+    // Effekte (Deckkraft, Umriss, Schatten, Animation) anhängen.
+    for (const d of textFxDecls(s)) decl.push(d);
     if (decl.length) rules.push(`${sel}{${decl.join(';')}}`);
     // Dunkelmodus-Farbe (höhere Spezifität durch [data-theme="dark"]).
     if (dark) rules.push(`[data-theme="dark"] ${sel}{${colorDecl(dark)}}`);
