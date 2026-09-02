@@ -2,12 +2,108 @@
 // Overrides) und der „Erweitert"-Tab (rohe Overrides als JSON).
 
 import { $, esc, toast } from './core.js';
-import { state, getPath, setPath, delPath, getTextStyle, getEffectiveTextStyle } from './model.js';
+import {
+  state,
+  getPath,
+  setPath,
+  delPath,
+  getTextStyle,
+  getEffectiveTextStyle,
+  BANNER_ANIM_TYPES,
+  BANNER_ANIM_SPEEDS,
+} from './model.js';
 import { fontOptionsHtml, ensureFontFace } from './fonts.js';
 
 // font-family-CSS für die Feld-Vorschau (lädt @font-face) oder ''.
 function fontFF(file) {
   return file ? `font-family:'${ensureFontFace(file)}', var(--site-font, sans-serif);` : '';
+}
+// Deutsche Beschriftungen der Animationstypen und Tempo-Stufen (nur UI).
+const ANIM_LABELS = {
+  none: 'Keine',
+  pulse: 'Puls',
+  float: 'Schweben',
+  shake: 'Wackeln',
+  wobble: 'Kippen',
+  glow: 'Glühen',
+};
+const ANIM_SPEED_LABELS = { slow: 'Langsam', normal: 'Normal', fast: 'Schnell' };
+// Standardwerte der Text-Effekte (entsprechen dem „aus"-Zustand).
+const TEXT_FX_DEFAULTS = {
+  shadow: false,
+  shadowColor: '#000000',
+  shadowX: 0,
+  shadowY: 2,
+  shadowBlur: 6,
+  strokeColor: '#000000',
+  strokeWidth: 0,
+  opacity: 100,
+  anim: 'none',
+  animIntensity: 5,
+  animSpeed: 'normal',
+};
+const clampI = (v, min, max, def) => {
+  const n = parseInt(v, 10);
+  return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : def;
+};
+const clampH = (v, min, max, def) => {
+  const n = parseFloat(v);
+  return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n * 2) / 2)) : def;
+};
+// Effekt-Bedienfeld eines Slots (Schatten, Umriss, Deckkraft, Animation) als
+// aufklappbarer Bereich. `dis` sperrt die Felder bei „Standard für alle Slots".
+function fxControls(idx, st, dis) {
+  const active =
+    st.shadow ||
+    (st.strokeWidth || 0) > 0 ||
+    (st.opacity ?? 100) < 100 ||
+    (st.anim && st.anim !== 'none');
+  const animOpts = BANNER_ANIM_TYPES.map(
+    (t) =>
+      `<option value="${t}" ${t === (st.anim || 'none') ? 'selected' : ''}>${ANIM_LABELS[t] || t}</option>`,
+  ).join('');
+  const speedOpts = BANNER_ANIM_SPEEDS.map(
+    (sp) =>
+      `<option value="${sp}" ${sp === (st.animSpeed || 'normal') ? 'selected' : ''}>${ANIM_SPEED_LABELS[sp] || sp}</option>`,
+  ).join('');
+  return `
+    <details ${active ? 'open' : ''} style="margin-top:.4rem">
+      <summary style="cursor:pointer;color:${active ? 'var(--accent)' : 'var(--muted)'};font-size:.82rem;user-select:none">Effekte — Schatten, Umriss, Deckkraft, Animation${active ? ' •' : ''}</summary>
+      <div class="row" style="align-items:flex-end;margin-top:.4rem">
+        <div style="flex:0 0 auto">
+          <label style="margin-top:0">Schatten</label>
+          <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);cursor:pointer;height:38px;margin:0">
+            <input type="checkbox" data-txtfx="${idx}:shadow" ${st.shadow ? 'checked' : ''} ${dis} style="width:auto" /> anzeigen
+          </label>
+        </div>
+        <div style="flex:0 0 auto"><label style="margin-top:0">Schattenfarbe</label>
+          <input type="color" data-txtfx="${idx}:shadowColor" value="${esc(st.shadowColor || '#000000')}" ${dis} style="width:56px;height:38px;padding:2px" /></div>
+        <div style="flex:0 0 auto"><label style="margin-top:0">Versatz X (px)</label>
+          <input type="number" data-txtfx="${idx}:shadowX" min="-50" max="50" step="1" value="${st.shadowX ?? 0}" ${dis} style="width:90px" /></div>
+        <div style="flex:0 0 auto"><label style="margin-top:0">Versatz Y (px)</label>
+          <input type="number" data-txtfx="${idx}:shadowY" min="-50" max="50" step="1" value="${st.shadowY ?? 2}" ${dis} style="width:90px" /></div>
+        <div style="flex:0 0 auto"><label style="margin-top:0">Weichzeichnung (px)</label>
+          <input type="number" data-txtfx="${idx}:shadowBlur" min="0" max="40" step="1" value="${st.shadowBlur ?? 6}" ${dis} style="width:110px" /></div>
+      </div>
+      <div class="row" style="align-items:flex-end;margin-top:.4rem">
+        <div style="flex:0 0 auto"><label style="margin-top:0">Umriss-Farbe</label>
+          <input type="color" data-txtfx="${idx}:strokeColor" value="${esc(st.strokeColor || '#000000')}" ${dis} style="width:56px;height:38px;padding:2px" /></div>
+        <div style="flex:0 0 auto"><label style="margin-top:0">Umriss-Dicke (px, 0=aus)</label>
+          <input type="number" data-txtfx="${idx}:strokeWidth" min="0" max="10" step="0.5" value="${st.strokeWidth ?? 0}" ${dis} style="width:120px" /></div>
+        <div style="flex:0 0 auto"><label style="margin-top:0">Deckkraft (%)</label>
+          <input type="number" data-txtfx="${idx}:opacity" min="0" max="100" step="1" value="${st.opacity ?? 100}" ${dis} style="width:110px" /></div>
+      </div>
+      <div class="row" style="align-items:flex-end;margin-top:.4rem">
+        <div style="flex:0 0 auto"><label style="margin-top:0">Animation</label>
+          <select data-txtfx="${idx}:anim" ${dis} style="width:auto;height:38px">${animOpts}</select></div>
+        <div style="flex:0 0 auto"><label style="margin-top:0">Intensität (1–10)</label>
+          <input type="number" data-txtfx="${idx}:animIntensity" min="1" max="10" step="1" value="${st.animIntensity ?? 5}" ${dis} style="width:110px" /></div>
+        <div style="flex:0 0 auto"><label style="margin-top:0">Geschwindigkeit</label>
+          <select data-txtfx="${idx}:animSpeed" ${dis} style="width:auto;height:38px">${speedOpts}</select></div>
+        <div style="flex:0 0 auto"><label style="margin-top:0">&nbsp;</label>
+          <button type="button" class="hd-reset" data-txtreset="${idx}:fx" ${dis} title="Effekte zurücksetzen" aria-label="Effekte zurücksetzen">↺ Effekte</button></div>
+      </div>
+    </details>`;
 }
 
 // Aktuell im „Texte"-Tab bearbeiteter Farb-Modus (reiner UI-Zustand). Textgröße
@@ -87,6 +183,30 @@ export function renderTexts() {
     });
   });
 
+  // Effekt-Felder je Slot: Schatten, Umriss, Deckkraft, Animation (analog Banner).
+  pane.querySelectorAll('[data-txtfx]').forEach((el) => {
+    const [idxStr, field] = el.dataset.txtfx.split(':');
+    const key = styleKey(TEXT_FIELDS[parseInt(idxStr, 10)]);
+    const evt = el.tagName === 'SELECT' || el.type === 'checkbox' ? 'change' : 'input';
+    el.addEventListener(evt, () => {
+      const s = getTextStyle(lang, key);
+      if (field === 'shadow') s.shadow = el.checked;
+      else if (
+        field === 'shadowColor' ||
+        field === 'strokeColor' ||
+        field === 'anim' ||
+        field === 'animSpeed'
+      )
+        s[field] = el.value;
+      else if (field === 'shadowX') s.shadowX = clampI(el.value, -50, 50, 0);
+      else if (field === 'shadowY') s.shadowY = clampI(el.value, -50, 50, 2);
+      else if (field === 'shadowBlur') s.shadowBlur = clampI(el.value, 0, 40, 6);
+      else if (field === 'strokeWidth') s.strokeWidth = clampH(el.value, 0, 10, 0);
+      else if (field === 'opacity') s.opacity = clampI(el.value, 0, 100, 100);
+      else if (field === 'animIntensity') s.animIntensity = clampI(el.value, 1, 10, 5);
+    });
+  });
+
   // Farb-Modus umschalten (Hell/Dunkel) – Panel neu rendern zeigt die Farben
   // des gewählten Modus (Größe/Schrift bleiben gleich).
   pane.querySelectorAll('[data-txtmode]').forEach((el) => {
@@ -135,6 +255,7 @@ export function renderTexts() {
       if (what === 'text') delPath(state.overrides[lang], field.path);
       else if (what === 'size') getTextStyle(lang, styleKey(field)).size = 0;
       else if (what === 'color') getTextStyle(lang, styleKey(field))[txtColorField()] = '';
+      else if (what === 'fx') Object.assign(getTextStyle(lang, styleKey(field)), TEXT_FX_DEFAULTS);
       else getTextStyle(lang, styleKey(field))[what] = ''; // font
       renderTexts();
       toast('Auf Standard zurückgesetzt');
@@ -159,9 +280,9 @@ function textPanel(lang) {
     const dis = inherited ? 'disabled' : '';
     const masterLabel = TEXT_FIELDS.find((x) => styleKey(x) === m.textStyleUniformKey);
     const note = inherited
-      ? `<p class="hint" style="margin:.25rem 0 0;color:var(--accent)">🔒 Übernimmt Schriftart, Textgröße und Farbe von „${esc(masterLabel ? masterLabel.label : m.textStyleUniformKey)}" und ist gesperrt.</p>`
+      ? `<p class="hint" style="margin:.25rem 0 0;color:var(--accent)">🔒 Übernimmt Schriftart, Textgröße, Farbe und Effekte von „${esc(masterLabel ? masterLabel.label : m.textStyleUniformKey)}" und ist gesperrt.</p>`
       : isMaster
-        ? `<p class="hint" style="margin:.25rem 0 0;color:var(--accent)">★ Master: Schriftart, Textgröße und Farbe gelten für alle Slots (alle anderen sind gesperrt).</p>`
+        ? `<p class="hint" style="margin:.25rem 0 0;color:var(--accent)">★ Master: Schriftart, Textgröße, Farbe und Effekte gelten für alle Slots (alle anderen sind gesperrt).</p>`
         : '';
     // Mehrzeilig: Enter erzeugt einen echten Zeilenumbruch auf der Seite.
     const input = `<textarea data-txt="${idx}" data-lang="${lang}" rows="2" placeholder="${esc(ph)}" style="min-height:64px;font-size:.95rem;${fontFF(st.font || '')}">${esc(val)}</textarea>`;
@@ -202,7 +323,9 @@ function textPanel(lang) {
           <button type="button" class="hd-reset" data-txtreset="${idx}:text" title="Text auf Standard zurücksetzen" aria-label="Text zurücksetzen">↺ Text</button>
         </div>
       </div>
-      <p class="hint">Leer lassen = Standardtext. Mehrere Zeilen mit Enter; Größe 0 = Standard.</p>`;
+      ${fxControls(idx, st, dis)}
+      <p class="hint">Leer lassen = Standardtext. Mehrere Zeilen mit Enter; Größe 0 = Standard.
+        Effekte (Schatten/Umriss/Deckkraft/Animation) wirken auf der veröffentlichten Seite.</p>`;
   }).join('');
   const modeToggle = `
     <div style="margin:.25rem 0 .5rem;border-bottom:1px solid var(--border);padding-bottom:.6rem">
