@@ -1,0 +1,77 @@
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(232, 169, 69, 0.15),
+                0 0 40px rgba(232, 169, 69, 0.1),
+                0 0 60px rgba(232, 169, 69, 0.05);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(232, 169, 69, 0.25),
+                0 0 60px rgba(232, 169, 69, 0.15),
+                0 0 90px rgba(232, 169, 69, 0.1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(200%) rotate(45deg);
+  }
+}
+
+@keyframes borderGlow {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+body {
+  font-family: var(--site-font);
+  background: var(--bg-color);
+  color: var(--text-color);
+  transition: background 0.3s ease, color 0.3s ease;
+  line-height: 1.6;
+}
+
+#app {
+  min-height: 100vh;
+  animation: fadeIn 0.6s ease-in;
+  position: relative;
+}
+
