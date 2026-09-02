@@ -788,26 +788,93 @@ body {
   pointer-events: none;
   word-break: break-word;
 }
-/* Pulsierender Banner-Text (zuschaltbar). Nutzt die eigenständige scale-Eigenschaft,
-   damit die Zentrier-Translation (transform), die Deckkraft (opacity) und der
-   Textschatten unberührt bleiben. --pulse-scale (Amplitude) kommt aus dem Inline-
-   Style; die Intensität aus dem Admin bestimmt den Wert. */
+/* Text-Animationen des Banner-Textes (zuschaltbar). Amplitude kommt aus dem
+   Inline-Style (Intensität aus dem Admin), Tempo über --anim-dur. Alle nutzen die
+   eigenständigen Transform-Properties (scale/translate/rotate) bzw. filter, damit
+   Zentrierung (transform), Deckkraft (opacity) und Textschatten unberührt bleiben. */
+.hero-banner-text--pulse,
+.hero-banner-text--float,
+.hero-banner-text--shake,
+.hero-banner-text--wobble,
+.hero-banner-text--glow {
+  animation-duration: var(--anim-dur, 1.8s);
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  will-change: transform, filter;
+}
+.hero-banner-text--pulse {
+  animation-name: kodini-banner-pulse;
+}
+.hero-banner-text--float {
+  animation-name: kodini-banner-float;
+}
+.hero-banner-text--shake {
+  animation-name: kodini-banner-shake;
+}
+.hero-banner-text--wobble {
+  animation-name: kodini-banner-wobble;
+}
+.hero-banner-text--glow {
+  animation-name: kodini-banner-glow;
+}
 @keyframes kodini-banner-pulse {
   0%,
   100% {
     scale: 1;
   }
   50% {
-    scale: var(--pulse-scale, 1.08);
+    scale: var(--anim-scale, 1.08);
   }
 }
-.hero-banner-text--pulse {
-  animation: kodini-banner-pulse 1.8s ease-in-out infinite;
-  will-change: scale;
+@keyframes kodini-banner-float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 calc(-1 * var(--anim-shift, 4px));
+  }
 }
-/* Barrierefreiheit: Nutzer mit reduzierter Bewegung sehen keinen Puls. */
+@keyframes kodini-banner-shake {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  25% {
+    translate: calc(-1 * var(--anim-shift, 3px)) 0;
+  }
+  75% {
+    translate: var(--anim-shift, 3px) 0;
+  }
+}
+@keyframes kodini-banner-wobble {
+  0%,
+  100% {
+    rotate: 0deg;
+  }
+  25% {
+    rotate: calc(-1 * var(--anim-rot, 3deg));
+  }
+  75% {
+    rotate: var(--anim-rot, 3deg);
+  }
+}
+@keyframes kodini-banner-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  50% {
+    filter: drop-shadow(0 0 var(--anim-glow, 8px) currentColor);
+  }
+}
+/* Barrierefreiheit: Nutzer mit reduzierter Bewegung sehen keine Animation. */
 @media (prefers-reduced-motion: reduce) {
-  .hero-banner-text--pulse {
+  .hero-banner-text--pulse,
+  .hero-banner-text--float,
+  .hero-banner-text--shake,
+  .hero-banner-text--wobble,
+  .hero-banner-text--glow {
     animation: none;
   }
 }

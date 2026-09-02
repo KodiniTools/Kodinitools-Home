@@ -177,17 +177,30 @@ function bannerTextOverlayStyle(m: typeof media): string {
     // Nur bei abweichenden Werten inline setzen; der Standard kommt aus global.css.
     if (col !== '#000000' || sx !== 0 || sy !== 2 || blur !== 6) p.push(`text-shadow:${sx}px ${sy}px ${blur}px ${heroHexToRgba(col, 60) || 'rgba(0, 0, 0, 0.6)'}`)
   }
-  // Pulsanimation: Amplitude (--pulse-scale) aus der Intensität 1–10 ableiten.
-  // Die Animation selbst kommt aus der Klasse hero-banner-text--pulse (global.css).
-  if (m.heroBannerTextPulse) {
-    const it = typeof m.heroBannerTextPulseIntensity === 'number' ? m.heroBannerTextPulseIntensity : 5
-    p.push(`--pulse-scale:${(1 + Math.max(1, Math.min(10, it)) * 0.02).toFixed(3)}`)
-  }
+  // Animation: Amplituden-/Tempo-Variablen (Klasse kommt aus bannerTextClass).
+  for (const v of bannerAnimVars(m)) p.push(v)
   return p.filter(Boolean).join(';')
 }
-// CSS-Klassen des Banner-Textes: Basis + optional Pulsanimation (zuschaltbar).
+// Tempo (Animationsdauer) je Geschwindigkeitsstufe.
+const ANIM_DUR: Record<string, string> = { slow: '2.6s', normal: '1.8s', fast: '1s' }
+// Inline-CSS-Variablen der aktiven Text-Animation (leer bei 'none'). Intensität 1–10
+// steuert die Amplitude je Typ; global.css enthält die Keyframes.
+function bannerAnimVars(m: typeof media): string[] {
+  const type = m.heroBannerTextAnim
+  if (!type || type === 'none') return []
+  const raw = typeof m.heroBannerTextAnimIntensity === 'number' ? m.heroBannerTextAnimIntensity : 5
+  const it = Math.max(1, Math.min(10, raw))
+  const out = [`--anim-dur:${ANIM_DUR[m.heroBannerTextAnimSpeed] || '1.8s'}`]
+  if (type === 'pulse') out.push(`--anim-scale:${(1 + it * 0.02).toFixed(3)}`)
+  else if (type === 'float' || type === 'shake') out.push(`--anim-shift:${it}px`)
+  else if (type === 'wobble') out.push(`--anim-rot:${it}deg`)
+  else if (type === 'glow') out.push(`--anim-glow:${it * 2}px`)
+  return out
+}
+// CSS-Klassen des Banner-Textes: Basis + optionale Animationsklasse (zuschaltbar).
 function bannerTextClass(base: string): string {
-  return media.heroBannerTextPulse ? `${base} hero-banner-text--pulse` : base
+  const type = media.heroBannerTextAnim
+  return type && type !== 'none' ? `${base} hero-banner-text--${type}` : base
 }
 
 // Build focused i18n map for vanilla JS (only keys used on this page)
