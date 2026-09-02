@@ -149,6 +149,92 @@ function syncInheritedFields(pane, lang) {
     const ta = pane.querySelector(`[data-txt="${idx}"]`);
     if (ta) ta.setAttribute('style', `min-height:64px;font-size:.95rem;${ff}`);
   });
+  refreshTxtPreviews(pane, lang);
+}
+
+// ---- Live-Vorschau je Slot -------------------------------------------------
+// Zeigt den Text mit Schrift, Größe (für die Vorschau auf 12–40 px begrenzt),
+// Farbe des aktuellen Modus und allen Effekten (Schatten/Umriss/Deckkraft/
+// Animation). Nutzt dieselben kt-*-Animationsklassen wie die Banner-Vorschau.
+const PREVIEW_ANIM_DUR = { slow: '2.6s', normal: '1.8s', fast: '1s' };
+function previewRgba(hex, a) {
+  const m = /^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.exec(String(hex || '').trim());
+  if (!m) return `rgba(0,0,0,${a})`;
+  let h = m[1];
+  if (h.length === 3)
+    h = h
+      .split('')
+      .map((c) => c + c)
+      .join('');
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${a})`;
+}
+// Animationsklasse (kt-<type>) oder '' bei 'none'.
+function slotAnimClass(st) {
+  return st.anim && st.anim !== 'none' ? 'kt-' + st.anim : '';
+}
+// Inline-Style der Slot-Vorschau (Farbe des aktuell bearbeiteten Modus + Effekte).
+function slotPreviewStyle(st) {
+  const dark = txtEditTheme === 'dark';
+  const color = (dark ? st.colorDark : st.colorLight) || (dark ? '#f9f2d5' : '#013f7a');
+  const size = st.size > 0 ? Math.max(12, Math.min(40, st.size)) : 22;
+  const parts = [
+    `font-size:${size}px`,
+    'line-height:1.25',
+    'font-weight:700',
+    'display:inline-block',
+    'max-width:100%',
+    'white-space:pre-line',
+    'word-break:break-word',
+    `color:${color}`,
+    `-webkit-text-fill-color:${color}`,
+  ];
+  if (st.font) parts.push(`font-family:'${ensureFontFace(st.font)}', var(--site-font, sans-serif)`);
+  const op = st.opacity ?? 100;
+  if (op < 100) parts.push(`opacity:${op / 100}`);
+  const sw = st.strokeWidth ?? 0;
+  if (sw > 0) parts.push(`-webkit-text-stroke:${sw}px ${st.strokeColor || '#000000'}`);
+  if (st.shadow) {
+    const sx = st.shadowX ?? 0;
+    const sy = st.shadowY ?? 2;
+    const sb = st.shadowBlur ?? 6;
+    parts.push(
+      `text-shadow:${sx}px ${sy}px ${sb}px ${previewRgba(st.shadowColor || '#000000', 0.6)}`,
+    );
+  }
+  if (st.anim && st.anim !== 'none') {
+    const it = Math.max(1, Math.min(10, st.animIntensity ?? 5));
+    parts.push(`--anim-dur:${PREVIEW_ANIM_DUR[st.animSpeed] || '1.8s'}`);
+    if (st.anim === 'pulse') parts.push(`--anim-scale:${(1 + it * 0.02).toFixed(3)}`);
+    else if (st.anim === 'float' || st.anim === 'shake') parts.push(`--anim-shift:${it}px`);
+    else if (st.anim === 'wobble') parts.push(`--anim-rot:${it}deg`);
+    else if (st.anim === 'glow') parts.push(`--anim-glow:${it * 2}px`);
+  }
+  return parts.join(';');
+}
+// Vorschau-Text: aktueller Override, sonst Standardtext, sonst das Slot-Label.
+function previewText(lang, f) {
+  const cur = getPath(state.overrides[lang], f.path);
+  const def = getPath(state.defaults[lang], f.path);
+  const t = cur != null && String(cur).trim() !== '' ? String(cur) : def != null ? String(def) : '';
+  return t || f.label;
+}
+// Hintergrund der Vorschau je Modus, damit die Farbe sichtbar ist.
+const previewBg = () => (txtEditTheme === 'dark' ? '#0e1c32' : '#f5f6f8');
+function updateTxtPreview(pane, lang, idx) {
+  const el = pane.querySelector(`[data-txtprev="${idx}"]`);
+  if (!el) return;
+  const st = getEffectiveTextStyle(lang, styleKey(TEXT_FIELDS[idx]));
+  el.textContent = previewText(lang, TEXT_FIELDS[idx]);
+  el.setAttribute('style', slotPreviewStyle(st));
+  el.classList.remove('kt-pulse', 'kt-float', 'kt-shake', 'kt-wobble', 'kt-glow');
+  const c = slotAnimClass(st);
+  if (c) el.classList.add(c);
+}
+function refreshTxtPreviews(pane, lang) {
+  TEXT_FIELDS.forEach((_, idx) => updateTxtPreview(pane, lang, idx));
 }
 
 export function renderTexts() {
@@ -163,6 +249,7 @@ export function renderTexts() {
       const v = el.value;
       if (v.trim() === '') delPath(state.overrides[l], field.path);
       else setPath(state.overrides[l], field.path, v);
+      updateTxtPreview(pane, lang, idx);
     });
   });
 
@@ -173,6 +260,7 @@ export function renderTexts() {
       const n = parseInt(el.value, 10);
       getTextStyle(lang, key).size = Number.isFinite(n) ? Math.max(0, Math.min(120, n)) : 0;
       syncInheritedFields(pane, lang);
+      refreshTxtPreviews(pane, lang);
     });
   });
   pane.querySelectorAll('[data-txtcolor]').forEach((el) => {
@@ -180,6 +268,7 @@ export function renderTexts() {
     el.addEventListener('input', () => {
       getTextStyle(lang, key)[txtColorField()] = el.value;
       syncInheritedFields(pane, lang);
+      refreshTxtPreviews(pane, lang);
     });
   });
 
@@ -204,6 +293,7 @@ export function renderTexts() {
       else if (field === 'strokeWidth') s.strokeWidth = clampH(el.value, 0, 10, 0);
       else if (field === 'opacity') s.opacity = clampI(el.value, 0, 100, 100);
       else if (field === 'animIntensity') s.animIntensity = clampI(el.value, 1, 10, 5);
+      refreshTxtPreviews(pane, lang);
     });
   });
 
@@ -226,6 +316,7 @@ export function renderTexts() {
       const ta = pane.querySelector(`[data-txt="${idx}"]`);
       if (ta) ta.setAttribute('style', `min-height:64px;font-size:.95rem;${ff}`);
       syncInheritedFields(pane, lang);
+      refreshTxtPreviews(pane, lang);
     });
   });
 
@@ -296,6 +387,10 @@ function textPanel(lang) {
       </div>
       ${note}
       ${input}
+      <div style="margin-top:.4rem;border:1px solid var(--border);border-radius:8px;padding:.5rem .7rem;background:${previewBg()};overflow:hidden">
+        <span class="hint" style="margin:0 0 .3rem;display:block">👁 Vorschau (${txtModeLabel()}):</span>
+        <div data-txtprev="${idx}" class="${slotAnimClass(st)}" style="${slotPreviewStyle(st)}">${esc(previewText(lang, f))}</div>
+      </div>
       <div class="row" style="align-items:flex-end;margin-top:.35rem">
         <div style="flex:1 1 200px">
           <label style="margin-top:0">Schriftart</label>
