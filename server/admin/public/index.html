@@ -623,6 +623,44 @@
         line-height: 1;
         padding: 0.1rem;
       }
+      /* „Design übertragen": Ziel-Auswahl als kompakte Checkbox-Liste je Bereich */
+      .tc-target-group {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.45rem 0.6rem 0.5rem;
+        margin-top: 0.45rem;
+        background: var(--bg);
+      }
+      .tc-target-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        font-size: 0.82rem;
+        margin-bottom: 0.25rem;
+      }
+      .tc-targets {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 0.15rem 0.6rem;
+      }
+      .tc-target {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin: 0;
+        font-size: 0.82rem;
+        color: var(--text);
+        cursor: pointer;
+      }
+      .tc-target input {
+        width: auto;
+        margin: 0;
+      }
+      .tc-target.src {
+        color: var(--muted);
+        cursor: default;
+      }
       @media (max-width: 640px) {
         .tc-previews {
           grid-template-columns: 1fr;

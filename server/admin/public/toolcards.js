@@ -27,6 +27,8 @@ import { ensureFontFace } from './fonts.js';
 // ('' = Standard für alle Karten, sonst "section.key").
 let editTheme = 'light';
 let selected = '';
+// Zielkarten für „Design übertragen" (Karten-IDs); wird nach dem Anwenden geleert.
+const targets = new Set();
 
 const SECTIONS = ['tools', 'imageTools', 'diverseTools'];
 const SECTION_LABEL = {
@@ -358,7 +360,58 @@ function fieldsBlock(lang) {
     </div>
     ${section(`🖼️ Rahmen ${badge}`, frameBody)}
     ${section(`🎨 Hintergrund ${badge}`, bgBody)}
-    ${section(`✨ Hover (beim Überfahren) ${badge}`, hoverBody)}`;
+    ${section(`✨ Hover (beim Überfahren) ${badge}`, hoverBody)}
+    ${section('📋 Design übertragen <span class="hint" style="font-weight:400">(Hell + Dunkel)</span>', applyBody(lang))}`;
+}
+
+// „Design übertragen": das Design der Quelle (gewählte Karte oder Standard) auf
+// ausgewählte Zielkarten anwenden. Quelle = Standard bedeutet: die Zielkarten
+// verlieren ihr eigenes Design und nutzen wieder den Standard. Bei einer Karte
+// als Quelle kann ihr Design zusätzlich zum neuen Standard für alle werden.
+function applyBody(lang) {
+  const tc = getToolCards(lang);
+  const src = selected ? cardById(lang, selected) : null;
+  const srcLabel = src ? `„${esc(src.title)}"` : 'Standard (alle Karten)';
+  const groups = SECTIONS.map((sec) => {
+    const cards = cardList(lang).filter((c) => c.section === sec);
+    if (!cards.length) return '';
+    const items = cards
+      .map((c) => {
+        const isSrc = c.id === selected;
+        const own = !!tc.cards[c.id];
+        return `<label class="tc-target${isSrc ? ' src' : ''}" title="${isSrc ? 'Quelle (kann nicht Ziel sein)' : own ? 'Hat eigenes Design – wird ersetzt' : 'Nutzt Standard-Design'}">
+            <input type="checkbox" data-tctarget="${esc(c.id)}" ${targets.has(c.id) ? 'checked' : ''} ${isSrc ? 'disabled' : ''} />
+            <span>${esc(c.title)}${own ? ' ●' : ''}${isSrc ? ' (Quelle)' : ''}</span>
+          </label>`;
+      })
+      .join('');
+    return `<div class="tc-target-group">
+        <div class="tc-target-head">
+          <strong>${esc(SECTION_LABEL[sec])}</strong>
+          <button type="button" class="hd-reset" data-tctargetsec="${sec}" title="Alle Karten dieses Bereichs auswählen/abwählen">Alle</button>
+        </div>
+        <div class="tc-targets">${items}</div>
+      </div>`;
+  }).join('');
+  const n = [...targets].filter((id) => id !== selected).length;
+  const applyLabel = src
+    ? `➡️ Design von ${srcLabel} auf <span data-tcapplycount>${n}</span> Karte(n) anwenden`
+    : `↺ <span data-tcapplycount>${n}</span> Karte(n) auf das Standard-Design zurücksetzen`;
+  const asDefault = src
+    ? `<button type="button" data-tcasdefault style="flex:0 0 auto">★ Design von ${srcLabel} als Standard für alle Karten übernehmen</button>
+       <span class="hint" style="margin:0">Karten mit eigenem Design (●) behalten ihres.</span>`
+    : '';
+  return `
+    <p class="hint" style="margin:0 0 .4rem">Quelle: <strong style="color:var(--text)">${srcLabel}</strong> – Rahmen, Hintergrund und Hover (Hell + Dunkel) werden auf die angehakten Karten übertragen; sie erhalten damit ein eigenes Design (●).${
+      src ? '' : ' Beim Standard als Quelle wird das eigene Design der angehakten Karten entfernt.'
+    }</p>
+    ${groups}
+    <div class="row" style="align-items:center;gap:.5rem;margin-top:.6rem">
+      <button type="button" class="hd-reset" data-tctargetall="1">Alle auswählen</button>
+      <button type="button" class="hd-reset" data-tctargetall="0">Auswahl leeren</button>
+      <button type="button" class="primary" data-tcapply style="flex:0 0 auto" ${n ? '' : 'disabled'}>${applyLabel}</button>
+    </div>
+    ${asDefault ? `<div class="row" style="align-items:center;gap:.5rem;margin-top:.6rem">${asDefault}</div>` : ''}`;
 }
 
 // Übersicht aller Karten mit effektivem Design im bearbeiteten Modus.
@@ -534,6 +587,74 @@ export function renderToolCards() {
     if (!state.media.en.toolCards) state.media.en.toolCards = defaultToolCards();
     rerender();
     toast('Tool-Karten-Design von Deutsch nach Englisch übernommen');
+  });
+  // „Design übertragen": Ziel-Auswahl (einzeln / Bereich / alle) + Anwenden.
+  const applyBtn = pane.querySelector('[data-tcapply]');
+  const refreshApplyBtn = () => {
+    const n = [...targets].filter((id) => id !== selected).length;
+    const cnt = pane.querySelector('[data-tcapplycount]');
+    if (cnt) cnt.textContent = String(n);
+    if (applyBtn) applyBtn.disabled = n === 0;
+  };
+  pane.querySelectorAll('[data-tctarget]').forEach((cb) =>
+    cb.addEventListener('change', () => {
+      if (cb.checked) targets.add(cb.dataset.tctarget);
+      else targets.delete(cb.dataset.tctarget);
+      refreshApplyBtn();
+    }),
+  );
+  pane.querySelectorAll('[data-tctargetsec]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      const ids = cardList(lang)
+        .filter((c) => c.section === btn.dataset.tctargetsec && c.id !== selected)
+        .map((c) => c.id);
+      const allOn = ids.every((id) => targets.has(id));
+      ids.forEach((id) => (allOn ? targets.delete(id) : targets.add(id)));
+      rerender();
+    }),
+  );
+  pane.querySelectorAll('[data-tctargetall]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      targets.clear();
+      if (btn.dataset.tctargetall === '1')
+        cardList(lang).forEach((c) => c.id !== selected && targets.add(c.id));
+      rerender();
+    }),
+  );
+  applyBtn?.addEventListener('click', () => {
+    const tc = getToolCards(lang);
+    const valid = new Set(cardList(lang).map((c) => c.id));
+    const ids = [...targets].filter((id) => id !== selected && valid.has(id));
+    if (!ids.length) return;
+    if (selected) {
+      const srcStyle = effectiveStyle(lang, selected);
+      for (const id of ids) tc.cards[id] = JSON.parse(JSON.stringify(srcStyle));
+    } else {
+      for (const id of ids) delete tc.cards[id];
+    }
+    targets.clear();
+    rerender();
+    toast(
+      selected
+        ? `Design auf ${ids.length} Karte(n) angewendet`
+        : `${ids.length} Karte(n) auf Standard-Design zurückgesetzt`,
+    );
+  });
+  pane.querySelector('[data-tcasdefault]')?.addEventListener('click', () => {
+    const src = cardById(lang, selected);
+    if (!src) return;
+    if (
+      !confirm(
+        `Das Design von „${src.title}" wird zum Standard für alle Karten ohne eigenes Design (Hell + Dunkel). Fortfahren?`,
+      )
+    )
+      return;
+    const tc = getToolCards(lang);
+    tc.default = JSON.parse(JSON.stringify(effectiveStyle(lang, selected)));
+    // Die Quelle selbst entspricht jetzt dem Standard -> eigenes Design überflüssig.
+    delete tc.cards[selected];
+    rerender();
+    toast(`Design von „${src.title}" ist jetzt der Standard`);
   });
   pane.querySelectorAll('[data-tcpick]').forEach((el) =>
     el.addEventListener('click', () => {
