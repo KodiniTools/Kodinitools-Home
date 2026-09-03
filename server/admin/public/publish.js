@@ -103,10 +103,37 @@ async function saveDraft() {
   if (r.ok) {
     state.loadedMedia = JSON.parse(JSON.stringify(r.data.saved.media));
     markSaved(); // Snapshot aktualisieren -> „dirty" zurücksetzen
+    warnIfServerDroppedFields(r.data.saved.media);
     return true;
   }
   toast('Speichern fehlgeschlagen: ' + (r.data?.error || r.status));
   return false;
+}
+
+// Läuft der Admin-Dienst noch mit altem Server-Code, kennt seine Validierung
+// neue Felder (z. B. toolCards) nicht und verwirft sie beim Speichern – dann
+// zeigt auch die Vorschau nichts davon. Erkennbar am Vergleich mit der Antwort.
+let droppedWarned = false;
+function warnIfServerDroppedFields(savedMedia) {
+  const dropped = MEDIA_LANGS.some(
+    (l) =>
+      state.media[l] &&
+      state.media[l].toolCards &&
+      !(savedMedia && savedMedia[l] && savedMedia[l].toolCards),
+  );
+  const hint = $('#codeHint');
+  if (!dropped) return;
+  if (hint) {
+    hint.classList.remove('hidden');
+    hint.textContent =
+      '⚠️ Der Admin-Dienst läuft mit altem Server-Code und verwirft neue Einstellungen (z. B. Tool-Karten) – bitte neu starten: sudo systemctl restart kodini-admin';
+  }
+  if (!droppedWarned) {
+    droppedWarned = true;
+    toast(
+      'Server-Dienst veraltet: Tool-Karten-Design wurde beim Speichern verworfen – Neustart nötig',
+    );
+  }
 }
 
 $('#saveBtn').addEventListener('click', async () => {

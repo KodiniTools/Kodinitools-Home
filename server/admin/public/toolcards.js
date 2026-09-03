@@ -134,6 +134,16 @@ function effectiveStyle(lang, id) {
 function editSide(lang) {
   return effectiveStyle(lang, selected)[editTheme];
 }
+// Jede Bearbeitung schaltet das Design ein (sonst wirkt nichts auf der Seite,
+// obwohl die Vorschau es zeigt – häufige Stolperfalle). Hält die Checkbox synchron.
+function ensureEnabled(lang, pane) {
+  const tc = getToolCards(lang);
+  if (tc.enabled) return;
+  tc.enabled = true;
+  const cb = pane && pane.querySelector('[data-tcenabled]');
+  if (cb) cb.checked = true;
+  toast('Tool-Karten-Design aktiviert – Änderungen wirken nach Speichern/Vorschau');
+}
 // Zielwerte für „Zurücksetzen": beim Standard die Werkswerte, bei einer Karte
 // die Werte des Standard-Designs (= „wie alle anderen Karten").
 function resetSource(lang) {
@@ -259,7 +269,7 @@ function cardSelect(lang) {
 function noteText(lang) {
   const tc = getToolCards(lang);
   if (!tc.enabled)
-    return '⚠️ „Eigenes Tool-Karten-Design verwenden" ist aus – auf der Seite bleibt das Standard-Aussehen. Die Vorschau zeigt dein eingestelltes Design.';
+    return '⚠️ „Eigenes Tool-Karten-Design verwenden" ist aus – auf der Seite bleibt das Standard-Aussehen. Sobald du etwas änderst, wird es automatisch aktiviert.';
   if (selected && !tc.cards[selected])
     return 'ℹ️ Diese Karte nutzt das Standard-Design. Aktiviere unten „Eigenes Design für diese Karte", um sie einzeln zu gestalten.';
   const n = Object.keys(tc.cards).length;
@@ -523,6 +533,7 @@ export function renderToolCards() {
   );
   pane.querySelector('[data-tcown]')?.addEventListener('change', (e) => {
     const tc = getToolCards(lang);
+    if (e.target.checked) ensureEnabled(lang, pane);
     if (e.target.checked) tc.cards[selected] = JSON.parse(JSON.stringify(tc.default));
     else delete tc.cards[selected];
     rerender();
@@ -537,6 +548,7 @@ export function renderToolCards() {
     const field = el.dataset.tcf;
     const evt = el.type === 'checkbox' || el.tagName === 'SELECT' ? 'change' : 'input';
     el.addEventListener(evt, () => {
+      ensureEnabled(lang, pane);
       const s = editSide(lang);
       if (field === 'gradient') {
         s.gradient = el.checked;
@@ -570,6 +582,7 @@ export function renderToolCards() {
     }),
   );
   pane.querySelector('[data-tccopyside]')?.addEventListener('click', () => {
+    ensureEnabled(lang, pane);
     const st = effectiveStyle(lang, selected);
     const other = editTheme === 'light' ? 'dark' : 'light';
     st[other] = JSON.parse(JSON.stringify(st[editTheme]));
@@ -626,6 +639,7 @@ export function renderToolCards() {
     const valid = new Set(cardList(lang).map((c) => c.id));
     const ids = [...targets].filter((id) => id !== selected && valid.has(id));
     if (!ids.length) return;
+    ensureEnabled(lang, pane);
     if (selected) {
       const srcStyle = effectiveStyle(lang, selected);
       for (const id of ids) tc.cards[id] = JSON.parse(JSON.stringify(srcStyle));
@@ -650,6 +664,7 @@ export function renderToolCards() {
     )
       return;
     const tc = getToolCards(lang);
+    ensureEnabled(lang, pane);
     tc.default = JSON.parse(JSON.stringify(effectiveStyle(lang, selected)));
     // Die Quelle selbst entspricht jetzt dem Standard -> eigenes Design überflüssig.
     delete tc.cards[selected];
