@@ -19,7 +19,7 @@ const HERO_CELLS = 6; // Kachel 1..6 (größtmögliche Kachelzahl über alle Lay
 // Modul-Zustand (bleibt über Tab-Wechsel erhalten).
 let ICONS = null; // { solid:[], regular:[], brands:[] } oder null (noch nicht geladen)
 let loading = false;
-const ui = { q: '', cat: '', sel: null, link: '' }; // Suche, Filter, gewähltes Icon, Link
+const ui = { q: '', cat: '', sel: null, link: '', target: 'banner' }; // Suche, Filter, Icon, Link, Ziel
 let searchTimer = null;
 
 const iconUrl = (cat, name) => `/fontawesome/svgs/${cat}/${encodeURIComponent(name)}`;
@@ -68,20 +68,37 @@ function tileHtml({ cat, name }) {
 
 // Ziel-Auswahl (Banner / Kacheln / Tool-Icons) als <optgroup>-Struktur.
 function targetOptions() {
+  const sel = (v) => (ui.target === v ? 'selected' : '');
   const cells = Array.from(
     { length: HERO_CELLS },
-    (_, i) => `<option value="grid${i}">Kachel ${i + 1}</option>`,
+    (_, i) => `<option value="grid${i}" ${sel('grid' + i)}>Kachel ${i + 1}</option>`,
   ).join('');
   const tools = toolList()
-    .map(
-      (t) =>
-        `<option value="tool:${esc(t.section)}:${esc(t.key)}">${esc(SECTION_LABEL[t.section] || t.section)} – ${esc(t.title)}</option>`,
-    )
+    .map((t) => {
+      const v = `tool:${t.section}:${t.key}`;
+      return `<option value="${esc(v)}" ${sel(v)}>${esc(SECTION_LABEL[t.section] || t.section)} – ${esc(t.title)}</option>`;
+    })
     .join('');
   return `
-    <optgroup label="Banner"><option value="banner">Einzel-Banner</option></optgroup>
+    <optgroup label="Banner"><option value="banner" ${sel('banner')}>Einzel-Banner</option></optgroup>
     <optgroup label="Raster-Kacheln">${cells}</optgroup>
     ${tools ? `<optgroup label="Tool-Karten-Icon">${tools}</optgroup>` : ''}`;
+}
+
+// Mini-Vorschau der Tool-Karte (nur wenn Ziel ein Tool ist) – zeigt das Icon so,
+// wie es auf der Karte erscheint, schon vor dem Veröffentlichen.
+function toolPrevHtml() {
+  if (!ui.sel || !(ui.target || '').startsWith('tool:')) return '';
+  const parts = ui.target.split(':');
+  const key = parts.slice(2).join(':');
+  const t = toolList().find((x) => x.section === parts[1] && x.key === key);
+  const url = iconUrl(ui.sel.cat, ui.sel.name);
+  return `
+    <span class="hint" style="margin:.1rem 0 .3rem;display:block">Vorschau Tool-Karte (vor dem Veröffentlichen):</span>
+    <div style="display:inline-flex;align-items:center;gap:.6rem;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:.7rem .9rem;max-width:340px">
+      <span style="width:44px;height:44px;border-radius:.6rem;background:#fff;box-sizing:border-box;padding:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><img src="${url}" alt="" style="width:100%;height:100%;object-fit:contain" /></span>
+      <strong style="font-size:.9rem">${esc(t ? t.title : key)}</strong>
+    </div>`;
 }
 
 function detailHtml() {
@@ -122,6 +139,7 @@ function detailHtml() {
         </div>
         <p class="hint" style="margin:.4rem 0 0">Banner/Kachel stellen den Hero-Modus passend um und weisen das Icon als Bild zu.
           „Tool-Karten-Icon" ersetzt das Icon der gewählten Tool-Karte. Wirkt nach dem Speichern/Veröffentlichen.</p>
+        <div data-icontoolprev style="margin-top:.5rem">${toolPrevHtml()}</div>
       </div>
     </div>`;
 }
@@ -309,6 +327,14 @@ export function renderIcons() {
     detail.addEventListener('input', (e) => {
       const el = e.target.closest('[data-iconlink]');
       if (el) ui.link = el.value;
+    });
+    // Ziel merken + Tool-Karten-Vorschau live aktualisieren.
+    detail.addEventListener('change', (e) => {
+      const el = e.target.closest('[data-icontarget]');
+      if (!el) return;
+      ui.target = el.value;
+      const tp = pane.querySelector('[data-icontoolprev]');
+      if (tp) tp.innerHTML = toolPrevHtml();
     });
   }
 }

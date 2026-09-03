@@ -79,18 +79,22 @@
   height: 44px;
   border-radius: 0.6rem;
   overflow: hidden;
-  background: rgba(1, 79, 153, 0.05);
+  /* Heller Grund in beiden Themes, damit auch einfarbige (z. B. Font-Awesome-)
+     Icons sichtbar sind – nicht nur farbige Illustrationen. */
+  background: #ffffff;
+  box-sizing: border-box;
+  padding: 5px;
   flex-shrink: 0;
 }
 
 [data-theme="dark"] .tool-card-icon {
-  background: rgba(232, 169, 69, 0.07);
+  background: #eef1f5;
 }
 
 .tool-card-icon img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
 }
 
