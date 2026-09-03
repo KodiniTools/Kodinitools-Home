@@ -5,7 +5,7 @@
 // oder seine URL zu kopieren. Die Icon-Liste wird beim ersten Öffnen geladen.
 
 import { $, api, esc, toast } from './core.js';
-import { state, setMediaVal, setPath } from './model.js';
+import { state, setMediaVal, setPath, getPath, delPath } from './model.js';
 
 const ICON_CATS = ['solid', 'regular', 'brands'];
 const CAT_LABEL = { solid: 'Solid', regular: 'Regular', brands: 'Brands' };
@@ -39,6 +39,43 @@ function toolList() {
     }
   }
   return out;
+}
+
+// Effektiver svg-Wert einer Tool-Karte in der Sprache: Override falls gesetzt
+// (auch '' = bewusst entfernt), sonst der Standard aus den Locales.
+function toolSvg(lang, section, key) {
+  const ov = getPath(state.overrides[lang], [section, key, 'svg']);
+  if (ov !== undefined) return typeof ov === 'string' ? ov : '';
+  const def = getPath(state.defaults[lang], [section, key, 'svg']);
+  return typeof def === 'string' ? def : '';
+}
+
+// Eine Zeile der Tool-Karten-Icon-Verwaltung (Vorschau + Aktionen) für eine Sprache.
+function toolRowHtml(lang, t) {
+  const svg = toolSvg(lang, t.section, t.key);
+  const id = `${t.section}:${t.key}`;
+  const thumb = svg
+    ? `<span style="width:34px;height:34px;border-radius:7px;background:#fff;box-sizing:border-box;padding:3px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0"><img src="${esc(svg)}" alt="" style="width:100%;height:100%;object-fit:contain" /></span>`
+    : `<span style="width:34px;height:34px;border-radius:7px;border:1px dashed var(--border);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--muted);font-size:.7rem">—</span>`;
+  return `<div style="display:flex;align-items:center;gap:.6rem;padding:.35rem 0;border-top:1px solid var(--border)">
+      ${thumb}
+      <span style="flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+        <strong style="font-weight:600">${esc(t.title)}</strong>
+        <span class="hint" style="margin-left:.35rem">${esc(SECTION_LABEL[t.section] || t.section)}</span>
+      </span>
+      <button type="button" class="hd-reset" data-tooladd="${esc(id)}" title="Oben gewähltes Icon dieser Karte zuweisen">➕ Zuweisen</button>
+      <button type="button" class="hd-reset" data-toolremove="${esc(id)}" title="Icon dieser Karte entfernen (kein Icon)"${svg ? '' : ' disabled'}>✕ Entfernen</button>
+      <button type="button" class="hd-reset" data-toolreset="${esc(id)}" title="Auf Standard-Icon zurücksetzen">↺ Standard</button>
+    </div>`;
+}
+
+function renderToolList(pane) {
+  const box = pane.querySelector('[data-icontoollist]');
+  if (!box) return;
+  const lang = state.nav.section === 'en' ? 'en' : 'de';
+  box.innerHTML = toolList()
+    .map((t) => toolRowHtml(lang, t))
+    .join('');
 }
 
 // Gefilterte Icons (nach Kategorie + Suche) – ALLE Treffer (scrollbare Bibliothek).
@@ -286,6 +323,12 @@ export function renderIcons() {
         <label style="margin-top:0">Vorschau &amp; Hinzufügen</label>
         <div data-icondetail></div>
       </div>
+      <div style="border-top:1px solid var(--border);margin-top:.9rem;padding-top:.7rem">
+        <label style="margin-top:0">Tool-Karten-Icons verwalten <span class="lang-badge">${(state.nav.section === 'en' ? 'en' : 'de').toUpperCase()}</span></label>
+        <p class="hint" style="margin:.15rem 0 .3rem">Icon einer Karte <strong>entfernen</strong> (kein Icon), auf <strong>Standard</strong> zurücksetzen
+          oder das oben in der Bibliothek gewählte Icon <strong>zuweisen</strong>. Gilt für die Sprache des aktuellen Bereichs.</p>
+        <div data-icontoollist></div>
+      </div>
     </div>`;
 
   updateGrid(pane);
@@ -337,4 +380,36 @@ export function renderIcons() {
       if (tp) tp.innerHTML = toolPrevHtml();
     });
   }
+
+  // Tool-Karten-Icons verwalten: Zuweisen / Entfernen / Standard je Tool.
+  renderToolList(pane);
+  const toolBox = pane.querySelector('[data-icontoollist]');
+  if (toolBox)
+    toolBox.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-tooladd],[data-toolremove],[data-toolreset]');
+      if (!btn) return;
+      const lang = state.nav.section === 'en' ? 'en' : 'de';
+      const parseId = (id) => {
+        const p = id.split(':');
+        return { section: p[0], key: p.slice(1).join(':') };
+      };
+      if (btn.dataset.tooladd !== undefined) {
+        if (!ui.sel) {
+          toast('Zuerst oben in der Bibliothek ein Icon auswählen');
+          return;
+        }
+        const { section, key } = parseId(btn.dataset.tooladd);
+        setPath(state.overrides[lang], [section, key, 'svg'], iconUrl(ui.sel.cat, ui.sel.name));
+        toast(`Icon der Karte „${key}" (${lang.toUpperCase()}) zugewiesen`);
+      } else if (btn.dataset.toolremove !== undefined) {
+        const { section, key } = parseId(btn.dataset.toolremove);
+        setPath(state.overrides[lang], [section, key, 'svg'], '');
+        toast(`Icon der Karte „${key}" (${lang.toUpperCase()}) entfernt`);
+      } else if (btn.dataset.toolreset !== undefined) {
+        const { section, key } = parseId(btn.dataset.toolreset);
+        delPath(state.overrides[lang], [section, key, 'svg']);
+        toast(`Karte „${key}" (${lang.toUpperCase()}) auf Standard-Icon zurückgesetzt`);
+      }
+      renderToolList(pane);
+    });
 }
