@@ -1,17 +1,24 @@
-// Auflistung der auf dem Server verfügbaren Font-Awesome-Icons (SVG-Dateien).
-// Der Admin kann im „Icons"-Tab ein Icon auswählen, in der Vorschau ansehen und
-// zur Seite hinzufügen. Gelesen wird aus dem Webroot
-// (/var/www/kodinitools.com/public/fontawesome/svgs — die tatsächlich
-// ausgelieferten Dateien) und zusätzlich aus public/fontawesome/svgs im Repo
-// (git-gesichert, als Fallback für die lokale Entwicklung). Ausgeliefert werden
-// die Icons unter der öffentlichen URL /fontawesome/svgs/<kategorie>/<datei>.
+// Auflistung der auf dem Server verfügbaren Icon-SVGs für den „Icons"-Tab.
+// Gelesen wird aus dem Webroot (/var/www/kodinitools.com/public/fontawesome/… —
+// die tatsächlich ausgelieferten Dateien) und zusätzlich aus public/fontawesome
+// im Repo (git-gesichert, Fallback für die lokale Entwicklung).
+//
+// Sets:
+//   solid/regular/brands -> Font-Awesome unter svgs/<set>, URL /fontawesome/svgs/<set>/<datei>
+//   admin                -> eigener Ordner admin-svgs,       URL /fontawesome/admin-svgs/<datei>
+// Rückgabe: nur Dateinamen je Set; Label und URL baut der Client (kleine Nutzlast).
 
 import { readdir } from 'node:fs/promises';
 import { resolve, basename } from 'node:path';
 import { config } from './config.mjs';
 
-// Unterstützte Icon-Sets (Unterordner von svgs/).
-export const ICON_CATEGORIES = ['solid', 'regular', 'brands'];
+// Icon-Sets mit ihrem Ordner unterhalb von fontawesome/. `key` = Set-Schlüssel.
+export const ICON_SETS = [
+  { key: 'solid', dir: 'svgs/solid' },
+  { key: 'regular', dir: 'svgs/regular' },
+  { key: 'brands', dir: 'svgs/brands' },
+  { key: 'admin', dir: 'admin-svgs' },
+];
 
 /** Nur einfache SVG-Dateinamen (kein Pfad/Traversal, keine versteckten Dateien). */
 export function isValidIconFile(name) {
@@ -35,23 +42,22 @@ async function readIconDir(dir) {
 }
 
 /**
- * Verfügbare Icons je Kategorie (nach Dateiname vereinigt, alphabetisch sortiert).
+ * Verfügbare Icons je Set (nach Dateiname vereinigt, alphabetisch sortiert).
  * Webroot hat Vorrang; public/fontawesome füllt in der Entwicklung auf.
- * Rückgabe: { solid: string[], regular: string[], brands: string[] } (nur Dateinamen;
- * Label und URL baut der Client, um die Nutzlast klein zu halten).
+ * Rückgabe: { solid: string[], regular: string[], brands: string[], admin: string[] }.
  */
 export async function listFontAwesome() {
   const bases = [
-    resolve(config.webroot, 'public/fontawesome/svgs'),
-    resolve(config.repoDir, 'public/fontawesome/svgs'),
+    resolve(config.webroot, 'public/fontawesome'),
+    resolve(config.repoDir, 'public/fontawesome'),
   ];
   const out = {};
-  for (const cat of ICON_CATEGORIES) {
+  for (const set of ICON_SETS) {
     const seen = new Set();
     for (const base of bases) {
-      for (const name of await readIconDir(resolve(base, cat))) seen.add(name);
+      for (const name of await readIconDir(resolve(base, set.dir))) seen.add(name);
     }
-    out[cat] = [...seen].sort((a, b) => a.localeCompare(b));
+    out[set.key] = [...seen].sort((a, b) => a.localeCompare(b));
   }
   return out;
 }
