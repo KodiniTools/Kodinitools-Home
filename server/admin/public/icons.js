@@ -19,7 +19,7 @@ const HERO_CELLS = 6; // Kachel 1..6 (größtmögliche Kachelzahl über alle Lay
 // Modul-Zustand (bleibt über Tab-Wechsel erhalten).
 let ICONS = null; // { solid:[], regular:[], brands:[] } oder null (noch nicht geladen)
 let loading = false;
-const ui = { q: '', cat: '', sel: null }; // Suche, Kategorie-Filter, gewähltes Icon
+const ui = { q: '', cat: '', sel: null, link: '' }; // Suche, Filter, gewähltes Icon, Link
 let searchTimer = null;
 
 const iconUrl = (cat, name) => `/fontawesome/svgs/${cat}/${encodeURIComponent(name)}`;
@@ -97,6 +97,10 @@ function detailHtml() {
       <div style="flex:1 1 260px;min-width:0">
         <strong style="display:block">${esc(iconLabel(s.name))} <span class="hint" style="font-weight:400">(${CAT_LABEL[s.cat]})</span></strong>
         <input data-iconurl type="text" readonly value="${esc(url)}" style="width:100%;margin-top:.35rem;font-size:.8rem" />
+        <div style="margin-top:.4rem">
+          <label style="margin-top:0">Link (optional) — für Banner/Kachel</label>
+          <input data-iconlink type="text" placeholder="/pfad oder https://… (leer = kein Link)" value="${esc(ui.link || '')}" style="width:100%" />
+        </div>
         <div class="row" style="align-items:flex-end;gap:.4rem;margin-top:.5rem">
           <div style="flex:0 0 auto">
             <label style="margin-top:0">Sprache</label>
@@ -162,23 +166,41 @@ async function ensureLoaded(pane) {
   if (pane.querySelector('[data-icongrid]')) updateGrid(pane);
 }
 
-// Gewähltes Icon dem gewählten Ziel zuweisen.
+// Nur '' oder ein interner Pfad (/…) bzw. eine http(s)-URL sind gültige Links
+// (entspricht der Server-Validierung isValidMediaUrl -> vermeidet Fehler beim
+// Veröffentlichen).
+function validLink(v) {
+  return v === '' || /^(\/|https?:\/\/)/.test(v);
+}
+
+// Gewähltes Icon dem gewählten Ziel zuweisen (optional mit Link für Banner/Kachel).
 function addIcon(pane) {
   if (!ui.sel) return;
   const url = iconUrl(ui.sel.cat, ui.sel.name);
   const langSel = pane.querySelector('[data-iconlang]');
   const tgtSel = pane.querySelector('[data-icontarget]');
+  const linkInp = pane.querySelector('[data-iconlink]');
   const lang = langSel && langSel.value === 'en' ? 'en' : 'de';
   const target = tgtSel ? tgtSel.value : 'banner';
+  const link = (linkInp ? linkInp.value : ui.link || '').trim();
   const langUp = lang.toUpperCase();
+  if (!validLink(link)) {
+    toast('Ungültiger Link: bitte / (interner Pfad) oder https://… verwenden');
+    return;
+  }
   if (target === 'banner') {
     setMediaVal(lang, 'heroBanner', url);
+    state.media[lang].heroBannerLink = link;
     state.media[lang].heroMode = 'banner';
-    toast(`Icon als Einzel-Banner (${langUp}) gesetzt`);
+    toast(`Icon als Einzel-Banner (${langUp}) gesetzt${link ? ' + Link' : ''}`);
   } else if (/^grid[0-5]$/.test(target)) {
+    const i = Number(target.slice(4));
     setMediaVal(lang, target, url);
+    if (!Array.isArray(state.media[lang].heroGridLinks))
+      state.media[lang].heroGridLinks = ['', '', '', '', '', ''];
+    state.media[lang].heroGridLinks[i] = link;
     state.media[lang].heroMode = 'grid';
-    toast(`Icon in Kachel ${Number(target.slice(4)) + 1} (${langUp}) gesetzt`);
+    toast(`Icon in Kachel ${i + 1} (${langUp}) gesetzt${link ? ' + Link' : ''}`);
   } else if (target.startsWith('tool:')) {
     const parts = target.split(':');
     const section = parts[1];
@@ -278,9 +300,15 @@ export function renderIcons() {
 
   // Aktionen im Detailbereich (delegiert, da der Inhalt neu gerendert wird).
   const detail = pane.querySelector('[data-icondetail]');
-  if (detail)
+  if (detail) {
     detail.addEventListener('click', (e) => {
       if (e.target.closest('[data-iconadd]')) addIcon(pane);
       else if (e.target.closest('[data-iconcopy]')) copyUrl(pane);
     });
+    // Getippten Link merken, damit er ein Neu-Rendern des Detailbereichs übersteht.
+    detail.addEventListener('input', (e) => {
+      const el = e.target.closest('[data-iconlink]');
+      if (el) ui.link = el.value;
+    });
+  }
 }
