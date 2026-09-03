@@ -490,6 +490,144 @@
         background: var(--danger);
         border: 2px solid var(--panel);
       }
+      /* Tool-Karten-Tab: Sticky-Vorschau der bearbeiteten Karte (Hell + Dunkel),
+         Vorschau-Karten im Look der echten Tool-Karte, Übersichts-Raster. */
+      .tc-sticky {
+        position: sticky;
+        top: 0.5rem;
+        z-index: 5;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0.55rem 0.7rem 0.6rem;
+        margin: 0.6rem 0 0.8rem;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+      }
+      .tc-previews {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.6rem;
+      }
+      .tc-page {
+        position: relative;
+        border: 2px solid transparent;
+        border-radius: 10px;
+        padding: 1.2rem 0.9rem 0.9rem;
+        cursor: pointer;
+      }
+      .tc-page.active {
+        border-color: var(--accent);
+      }
+      .tc-page-label {
+        position: absolute;
+        top: 0.25rem;
+        left: 0.5rem;
+        font-size: 0.68rem;
+        font-weight: 700;
+        color: var(--muted);
+        background: var(--panel);
+        border-radius: 5px;
+        padding: 0 0.35rem;
+      }
+      .tc-card {
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+        padding: 1.1rem 1.1rem 0.85rem;
+        box-sizing: border-box;
+        max-width: 240px;
+        margin: 0 auto;
+        transition:
+          transform 0.22s ease,
+          box-shadow 0.22s ease,
+          border-color 0.22s ease,
+          background-color 0.22s ease;
+      }
+      .tc-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 0.6rem;
+        padding: 5px;
+        box-sizing: border-box;
+        overflow: hidden;
+      }
+      .tc-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+      }
+      .tc-badge {
+        display: inline-block;
+        align-self: flex-start;
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        border: 1px solid transparent;
+        border-radius: 0.35rem;
+        padding: 0.15rem 0.42rem;
+        white-space: nowrap;
+      }
+      .tc-title {
+        font-size: 0.88rem;
+        font-weight: 700;
+        line-height: 1.3;
+        margin: 0;
+      }
+      .tc-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 0.55rem;
+        padding-top: 0.55rem;
+        border-top: 1px solid transparent;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+      .tc-open {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+      }
+      .tc-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+        gap: 0.7rem;
+      }
+      .tc-pick {
+        position: relative;
+        border: 2px solid transparent;
+        border-radius: 12px;
+        padding: 0.35rem;
+        cursor: pointer;
+      }
+      .tc-pick:hover {
+        border-color: var(--border);
+      }
+      .tc-pick.active {
+        border-color: var(--accent);
+      }
+      .tc-pick .tc-card {
+        max-width: none;
+      }
+      .tc-own {
+        position: absolute;
+        top: -0.35rem;
+        right: -0.2rem;
+        z-index: 1;
+        color: var(--accent);
+        font-size: 0.9rem;
+        background: var(--panel);
+        border-radius: 50%;
+        line-height: 1;
+        padding: 0.1rem;
+      }
+      @media (max-width: 640px) {
+        .tc-previews {
+          grid-template-columns: 1fr;
+        }
+      }
       /* Text-Animationen in der Live-Vorschau (entsprechen global.css der Seite).
          Amplitude via Inline-Variablen, Tempo via --anim-dur. */
       .kt-pulse,

@@ -262,6 +262,99 @@ function validateHeroDesign(hd) {
   };
 }
 
+// --- Tool-Karten-Design (Tab „Tool-Karten") ---
+// Standard je Modus = eingebautes Aussehen aus tool-cards.css (verhaltensneutral).
+function toolCardSideLight() {
+  return {
+    borderColor: '#e5e7eb',
+    borderOpacity: 100,
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderRadius: 16,
+    bgColor: '#ffffff',
+    bgOpacity: 100,
+    gradient: false,
+    bgColor2: '#f1f5f9',
+    gradientAngle: 135,
+    hoverBorderColor: '#014f99',
+    hoverBorderOpacity: 22,
+    hoverBgColor: '#ffffff',
+    hoverBgOpacity: 0,
+  };
+}
+function toolCardSideDark() {
+  return {
+    borderColor: '#1d3a5c',
+    borderOpacity: 100,
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderRadius: 16,
+    bgColor: '#142640',
+    bgOpacity: 100,
+    gradient: false,
+    bgColor2: '#0e1c32',
+    gradientAngle: 135,
+    hoverBorderColor: '#e8a945',
+    hoverBorderOpacity: 22,
+    hoverBgColor: '#142640',
+    hoverBgOpacity: 0,
+  };
+}
+function defaultToolCards() {
+  return {
+    enabled: false,
+    default: { light: toolCardSideLight(), dark: toolCardSideDark() },
+    cards: {},
+  };
+}
+const TOOL_CARD_KEY = /^(tools|imageTools|diverseTools)\.[a-zA-Z0-9_-]+$/;
+const TOOL_CARD_BORDER_STYLES = ['solid', 'dashed', 'dotted', 'double'];
+const TOOL_CARDS_MAX = 200; // Sicherheitsgrenze für Einzel-Designs
+/** Validiert einen Farb-Satz (Hell oder Dunkel) einer Tool-Karte. */
+function validateToolCardSide(s, def) {
+  if (!isPlainObject(s)) return def;
+  return {
+    borderColor: normHexColor(s.borderColor, def.borderColor),
+    borderOpacity: clampNum(s.borderOpacity, 0, 100, def.borderOpacity),
+    borderWidth: clampNum(s.borderWidth, 0, 8, def.borderWidth),
+    borderStyle: TOOL_CARD_BORDER_STYLES.includes(s.borderStyle) ? s.borderStyle : def.borderStyle,
+    borderRadius: clampNum(s.borderRadius, 0, 40, def.borderRadius),
+    bgColor: normHexColor(s.bgColor, def.bgColor),
+    bgOpacity: clampNum(s.bgOpacity, 0, 100, def.bgOpacity),
+    gradient: s.gradient === true,
+    bgColor2: normHexColor(s.bgColor2, def.bgColor2),
+    gradientAngle: clampNum(s.gradientAngle, 0, 360, def.gradientAngle),
+    hoverBorderColor: normHexColor(s.hoverBorderColor, def.hoverBorderColor),
+    hoverBorderOpacity: clampNum(s.hoverBorderOpacity, 0, 100, def.hoverBorderOpacity),
+    hoverBgColor: normHexColor(s.hoverBgColor, def.hoverBgColor),
+    hoverBgOpacity: clampNum(s.hoverBgOpacity, 0, 100, def.hoverBgOpacity),
+  };
+}
+function validateToolCardStyle(st) {
+  const o = isPlainObject(st) ? st : {};
+  return {
+    light: validateToolCardSide(o.light, toolCardSideLight()),
+    dark: validateToolCardSide(o.dark, toolCardSideDark()),
+  };
+}
+/**
+ * Validiert das Tool-Karten-Design: Standard (alle Karten) + Einzel-Designs
+ * (nur bekannte Schlüssel-Form "section.key", begrenzte Anzahl).
+ */
+function validateToolCards(tc) {
+  if (!isPlainObject(tc)) return defaultToolCards();
+  const cards = {};
+  if (isPlainObject(tc.cards)) {
+    let n = 0;
+    for (const [key, val] of Object.entries(tc.cards)) {
+      if (!TOOL_CARD_KEY.test(key) || !isPlainObject(val)) continue;
+      if (++n > TOOL_CARDS_MAX) break;
+      cards[key] = validateToolCardStyle(val);
+    }
+  }
+  return { enabled: tc.enabled === true, default: validateToolCardStyle(tc.default), cards };
+}
+
 function defaultMediaLocale() {
   return {
     sectionVideos: {
@@ -284,6 +377,7 @@ function defaultMediaLocale() {
     textStyleUniform: false,
     textStyleUniformKey: 'hero.title',
     heroDesign: defaultHeroDesign(),
+    toolCards: defaultToolCards(),
   };
 }
 // Text-Slots des „Texte"-Tabs mit einstellbarer Größe/Farbe.
@@ -562,6 +656,8 @@ function validateMediaLocale(m, langLabel) {
     : TEXT_STYLE_KEYS[0];
   // Hero-Design (Rahmen/Hintergrund/Buttons) – optional, mit Standard-Fallback.
   out.heroDesign = validateHeroDesign(m.heroDesign);
+  // Tool-Karten-Design (Rahmen/Hintergrund je Karte) – optional, mit Standard.
+  out.toolCards = validateToolCards(m.toolCards);
   return out;
 }
 

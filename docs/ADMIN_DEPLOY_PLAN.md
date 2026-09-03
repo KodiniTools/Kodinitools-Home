@@ -311,6 +311,7 @@ cd /opt/kodini/repo && ./deploy.sh
   - **Text-Editor** (DE/EN): Hero-Titel/-Untertitel/-Button, Video-Bereich-Titel/-Untertitel (leer = Standard).
   - **Videos & Medien:** 3 Sektions-Video-Slots + **Medien-Zwischenspeicher via IndexedDB** (Drag&Drop, Vorschau, übersteht Reload) → Upload auf den Server erst beim **Veröffentlichen**.
   - **Erweitert:** roher Overrides-JSON-Editor (Escape-Hatch).
+  - **Tool-Karten** (DE/EN): Rahmen (Farbe/Transparenz/Breite/Linienart/Radius), Hintergrund (Farbe/Transparenz/Verlauf) und Hover-Farben der Tool-Karten – Standard für alle Karten plus Einzel-Designs je Karte, getrennt Hell/Dunkel; die bearbeitete Karte bleibt als Sticky-Live-Vorschau sichtbar, darunter eine Übersicht aller Karten. Speicherort `media.<lang>.toolCards`; die Seite rendert daraus `--tc-*`-CSS-Variablen (`content.ts` → `getToolCardsCss`, `tool-cards.css`).
   - **Speichern** (Draft) + **Veröffentlichen** mit Live-Status (Polling).
 - Cookie-Pfad konfigurierbar (`COOKIE_PATH`, Default `/admin`); Prod braucht nichts zu setzen.
 - **Getestet** (headless Chromium): Login (falsch/richtig), Laufband-/Text-/Video-Bearbeitung, Speichern → korrekte Dateien geschrieben, keine JS-Fehler.

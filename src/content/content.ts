@@ -221,7 +221,82 @@ export interface MediaConfig {
   textStyleUniformKey?: string;
   // Admin-einstellbares Design des Hero-Bereichs (Rahmen/Hintergrund/Buttons).
   heroDesign: HeroDesign;
+  // Admin-einstellbares Design der Tool-Karten (Rahmen/Hintergrund), Standard
+  // für alle Karten + optionale Einzel-Designs je Karte (Tab „Tool-Karten").
+  toolCards: ToolCardsConfig;
 }
+
+/** Rahmen + Hintergrund einer Tool-Karte für EINEN Modus (Hell oder Dunkel). */
+export interface ToolCardSide {
+  borderColor: string; // Hex – Rahmenfarbe
+  borderOpacity: number; // 0–100 (%) – Transparenz der Rahmenfarbe
+  borderWidth: number; // px – Rahmendicke (0 = kein Rahmen)
+  borderStyle: 'solid' | 'dashed' | 'dotted' | 'double'; // Linienart
+  borderRadius: number; // px – Eckenradius
+  bgColor: string; // Hex – Hintergrundfarbe (bei Verlauf: Startfarbe)
+  bgOpacity: number; // 0–100 (%) – Transparenz des Hintergrunds
+  gradient: boolean; // Farbverlauf statt einfarbig?
+  bgColor2: string; // Hex – Endfarbe des Verlaufs
+  gradientAngle: number; // 0–360 (Grad) – Richtung des Verlaufs
+  hoverBorderColor: string; // Hex – Rahmenfarbe beim Überfahren
+  hoverBorderOpacity: number; // 0–100 (%)
+  hoverBgColor: string; // Hex – Hintergrund beim Überfahren
+  hoverBgOpacity: number; // 0–100 (%); 0 = Hintergrund bleibt beim Überfahren unverändert
+}
+
+/** Design einer Karte bzw. der Standard-Karte: getrennt Hell/Dunkel. */
+export interface ToolCardStyle {
+  light: ToolCardSide;
+  dark: ToolCardSide;
+}
+
+/**
+ * Tool-Karten-Design. enabled=false -> Standard-Aussehen aus tool-cards.css.
+ * `default` gilt für alle Karten; `cards` enthält Einzel-Designs je Karte
+ * (Schlüssel = i18n-Key der Karte, z. B. "tools.audioCutter").
+ */
+export interface ToolCardsConfig {
+  enabled: boolean;
+  default: ToolCardStyle;
+  cards: Record<string, ToolCardStyle>;
+}
+
+// Standard-Werte je Modus – entsprechen exakt dem eingebauten Aussehen in
+// tool-cards.css (Rahmen 1px --border-color, Hintergrund --bg-secondary bzw.
+// --card-bg, Radius 1rem, Hover-Rahmen Blau/Gold 22 %), sodass ein aktiviertes
+// Design mit Standardwerten verhaltensneutral bleibt.
+const TOOL_CARD_LIGHT_DEFAULT: ToolCardSide = {
+  borderColor: '#e5e7eb',
+  borderOpacity: 100,
+  borderWidth: 1,
+  borderStyle: 'solid',
+  borderRadius: 16,
+  bgColor: '#ffffff',
+  bgOpacity: 100,
+  gradient: false,
+  bgColor2: '#f1f5f9',
+  gradientAngle: 135,
+  hoverBorderColor: '#014f99',
+  hoverBorderOpacity: 22,
+  hoverBgColor: '#ffffff',
+  hoverBgOpacity: 0,
+};
+const TOOL_CARD_DARK_DEFAULT: ToolCardSide = {
+  borderColor: '#1d3a5c',
+  borderOpacity: 100,
+  borderWidth: 1,
+  borderStyle: 'solid',
+  borderRadius: 16,
+  bgColor: '#142640',
+  bgOpacity: 100,
+  gradient: false,
+  bgColor2: '#0e1c32',
+  gradientAngle: 135,
+  hoverBorderColor: '#e8a945',
+  hoverBorderOpacity: 22,
+  hoverBgColor: '#142640',
+  hoverBgOpacity: 0,
+};
 
 /** Rahmen + Hintergrund + optionaler Text einer einzelnen Raster-Kachel. */
 export interface HeroCellStyle {
@@ -394,6 +469,11 @@ const MEDIA_DEFAULTS: MediaConfig = {
       titleTextColor: '#f9f2d5',
     },
   },
+  toolCards: {
+    enabled: false,
+    default: { light: { ...TOOL_CARD_LIGHT_DEFAULT }, dark: { ...TOOL_CARD_DARK_DEFAULT } },
+    cards: {},
+  },
 };
 
 /**
@@ -554,6 +634,75 @@ export function getTextStylesCss(media: MediaConfig): string | undefined {
     if (dark) rules.push(`[data-theme="dark"] ${sel}{${colorDecl(dark)}}`);
   }
   return [...faces].join('') + rules.join('');
+}
+
+// --- Tool-Karten-Design (Tab „Tool-Karten") ---
+
+const TOOL_CARD_KEY = /^(tools|imageTools|diverseTools)\.[a-zA-Z0-9_-]+$/;
+const TOOL_CARD_HEX = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
+const TOOL_CARD_BORDER_STYLES: readonly string[] = ['solid', 'dashed', 'dotted', 'double'];
+
+/**
+ * CSS-Variablen (--tc-*) eines Farb-Satzes. tool-cards.css liest diese
+ * Variablen mit den Standardwerten als Fallback – fehlt eine Variable, bleibt
+ * das eingebaute Aussehen. Ungültige Farben werden übersprungen.
+ */
+function toolCardSideVars(side: ToolCardSide): string {
+  const v: string[] = [];
+  const isHex = (h: unknown): h is string => TOOL_CARD_HEX.test(String(h ?? ''));
+  const num = (n: unknown, min: number, max: number, d: number) =>
+    typeof n === 'number' && Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : d;
+  if (isHex(side.borderColor))
+    v.push(`--tc-bc:${textHexToRgba(side.borderColor, num(side.borderOpacity, 0, 100, 100) / 100)}`);
+  v.push(`--tc-bw:${num(side.borderWidth, 0, 8, 1)}px`);
+  const bs = TOOL_CARD_BORDER_STYLES.includes(side.borderStyle) ? side.borderStyle : 'solid';
+  v.push(`--tc-bs:${bs}`);
+  v.push(`--tc-radius:${num(side.borderRadius, 0, 40, 16)}px`);
+  if (isHex(side.bgColor)) {
+    const a = num(side.bgOpacity, 0, 100, 100) / 100;
+    const c1 = textHexToRgba(side.bgColor, a);
+    if (side.gradient === true && isHex(side.bgColor2)) {
+      const c2 = textHexToRgba(side.bgColor2, a);
+      v.push(`--tc-bg:linear-gradient(${num(side.gradientAngle, 0, 360, 135)}deg, ${c1}, ${c2})`);
+    } else {
+      v.push(`--tc-bg:${c1}`);
+    }
+  }
+  if (isHex(side.hoverBorderColor))
+    v.push(
+      `--tc-hover-bc:${textHexToRgba(side.hoverBorderColor, num(side.hoverBorderOpacity, 0, 100, 22) / 100)}`,
+    );
+  // Hover-Hintergrund nur bei Transparenz > 0 (0 = unverändert lassen).
+  const hbo = num(side.hoverBgOpacity, 0, 100, 0);
+  if (hbo > 0 && isHex(side.hoverBgColor))
+    v.push(`--tc-hover-bg:${textHexToRgba(side.hoverBgColor, hbo / 100)}`);
+  return v.join(';');
+}
+
+/**
+ * CSS für das im Admin eingestellte Tool-Karten-Design (Standard für alle
+ * Karten + Einzel-Designs je Karte, getrennt Hell/Dunkel). Gibt `undefined`
+ * zurück, wenn das Design nicht aktiviert ist (dann bleibt tool-cards.css).
+ * Einzel-Karten werden über ihr data-i18n-Key-Attribut adressiert; die
+ * Selektoren sind so gestaffelt, dass Dunkel > Hell und Karte > Standard gilt.
+ */
+export function getToolCardsCss(media: MediaConfig): string | undefined {
+  const tc = media.toolCards;
+  if (!tc || tc.enabled !== true || !isPlainObject(tc.default)) return undefined;
+  const rules: string[] = [];
+  const def = tc.default;
+  if (isPlainObject(def.light)) rules.push(`#app .tool-card{${toolCardSideVars(def.light)}}`);
+  if (isPlainObject(def.dark))
+    rules.push(`[data-theme="dark"] #app .tool-card{${toolCardSideVars(def.dark)}}`);
+  const cards = isPlainObject(tc.cards) ? tc.cards : {};
+  for (const [key, style] of Object.entries(cards)) {
+    if (!TOOL_CARD_KEY.test(key) || !isPlainObject(style)) continue;
+    const sel = `#app .svg-card-link[data-i18n-key="${key}"] .tool-card`;
+    if (isPlainObject(style.light)) rules.push(`${sel}{${toolCardSideVars(style.light)}}`);
+    if (isPlainObject(style.dark))
+      rules.push(`[data-theme="dark"] ${sel}{${toolCardSideVars(style.dark)}}`);
+  }
+  return rules.length ? rules.join('') : undefined;
 }
 
 /** Anzahl Bild-Kacheln je Hero-Raster-Layout. */
