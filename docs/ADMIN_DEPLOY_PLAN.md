@@ -313,6 +313,7 @@ cd /opt/kodini/repo && ./deploy.sh
   - **Erweitert:** roher Overrides-JSON-Editor (Escape-Hatch).
   - **Tool-Karten** (DE/EN): Rahmen (Farbe/Transparenz/Breite/Linienart/Radius), Hintergrund (Farbe/Transparenz/Verlauf) und Hover-Farben der Tool-Karten – Standard für alle Karten plus Einzel-Designs je Karte, getrennt Hell/Dunkel; die bearbeitete Karte bleibt als Sticky-Live-Vorschau sichtbar, darunter eine Übersicht aller Karten. „Design übertragen": Design einer Karte per Checkbox-Liste auf ausgewählte Karten anwenden, als neuen Standard übernehmen oder Karten auf den Standard zurücksetzen. Speicherort `media.<lang>.toolCards`; die Seite rendert daraus `--tc-*`-CSS-Variablen (`content.ts` → `getToolCardsCss`, `tool-cards.css`).
   - **Speichern** (Draft) + **Veröffentlichen** mit Live-Status (Polling).
+  - **Vorschau mit Code-Update:** vor dem Vorschau-Build holt der Dienst den aktuellen `main`-Stand per fast-forward (Entwürfe bleiben unangetastet), ggf. `npm ci`; bei geändertem Server-Code Selbst-Neustart unter systemd, Status wird in `.kodini-admin/` persistiert (`server/admin/codeupdate.mjs`).
 - Cookie-Pfad konfigurierbar (`COOKIE_PATH`, Default `/admin`); Prod braucht nichts zu setzen.
 - **Getestet** (headless Chromium): Login (falsch/richtig), Laufband-/Text-/Video-Bearbeitung, Speichern → korrekte Dateien geschrieben, keine JS-Fehler.
 - Sektions-Videos der Startseite (`index.astro` DE/EN) lesen jetzt aus `media.json` (Defaults = bisherige Pfade → verhaltensneutral).

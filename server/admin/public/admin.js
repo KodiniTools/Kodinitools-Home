@@ -103,6 +103,15 @@ async function boot() {
     $('#appView').classList.add('hidden');
     return;
   }
+  // Läuft der Dienst mit veraltetem Server-Code (nach einem Code-Update)?
+  // Vorschau/Veröffentlichen starten ihn unter systemd automatisch neu.
+  const codeHint = $('#codeHint');
+  if (codeHint) {
+    codeHint.classList.toggle('hidden', !sess.data?.serverCodeChanged);
+    codeHint.textContent = sess.data?.serverCodeChanged
+      ? '⚠️ Neuer Server-Code – Neustart nötig (Vorschau/Veröffentlichen erledigt das)'
+      : '';
+  }
   state.overrides = { de: r.data.overrides?.de || {}, en: r.data.overrides?.en || {} };
   state.ticker = {
     de: normTicker(r.data.ticker?.de),

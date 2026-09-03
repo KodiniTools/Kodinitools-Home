@@ -166,6 +166,17 @@ Backend daher einmalig:
 sudo systemctl restart kodini-admin
 ```
 
+**Automatisch:** Seit `codeupdate.mjs` holt die **Vorschau** vor dem Build den
+aktuellen `main`-Stand (`git merge --ff-only origin/main`, bei geänderten
+Abhängigkeiten `npm ci`). Wurde dabei – oder durch `deploy.sh` beim
+Veröffentlichen – Server-Code geändert, beendet sich der Dienst nach Abschluss
+selbst; systemd (`Restart=on-failure`) startet ihn neu, der Adminbereich lädt
+sich danach automatisch neu. Voraussetzung: der Dienst läuft unter systemd
+(`INVOCATION_ID` gesetzt); mit `ADMIN_AUTO_RESTART=0` lässt sich das abschalten,
+dann erscheint nur der Hinweis. Der laufende **alte** Prozess (ohne dieses
+Modul) muss einmalig noch von Hand neu gestartet werden, nachdem der Code im
+Klon liegt (`git pull` oder Veröffentlichen).
+
 Symptom, wenn das vergessen wird: das neue Frontend ruft eine neue Route auf,
 der alte Prozess kennt sie nicht → **„Unbekannter Endpunkt"**.
 

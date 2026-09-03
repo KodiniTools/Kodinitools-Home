@@ -8,19 +8,31 @@ import { execFile } from 'node:child_process';
 import { mkdir } from 'node:fs/promises';
 import { resolve, dirname } from 'node:path';
 import { config } from './config.mjs';
+import {
+  updateCodeFromRemote,
+  restartIfServerCodeChanged,
+  persistState,
+  restoreState,
+} from './codeupdate.mjs';
 
 // Öffentlicher Pfad der Vorschau (hinter nginx) und lokales Ausgabeverzeichnis.
 export const PREVIEW_BASE = '/admin/preview/';
 export const PREVIEW_DIR = resolve(config.repoDir, 'dist-preview');
 
-let state = {
-  status: 'idle', // idle | running | success | error
-  step: '',
-  log: [],
-  startedAt: null,
-  finishedAt: null,
-  error: null,
-};
+function initialState() {
+  return {
+    status: 'idle', // idle | running | success | error
+    step: '',
+    log: [],
+    startedAt: null,
+    finishedAt: null,
+    error: null,
+    codeUpdate: null, // { updated, from, to, files } – Ergebnis des Code-Updates
+    restarting: false, // Dienst startet nach diesem Vorgang neu (neuer Server-Code)
+  };
+}
+// Letzten Stand wiederherstellen (überlebt den Selbst-Neustart des Dienstes).
+let state = restoreState('preview', initialState());
 
 export function getPreviewState() {
   return state;
@@ -51,31 +63,27 @@ export function startPreview() {
   if (state.status === 'running') {
     return { ok: false, reason: 'Es läuft bereits ein Vorschau-Build.' };
   }
-  state = {
-    status: 'running',
-    step: 'start',
-    log: [],
-    startedAt: Date.now(),
-    finishedAt: null,
-    error: null,
-  };
-  doPreview().catch((err) => {
-    state.status = 'error';
-    state.error = err?.message || String(err);
-    if (err?.output) log(err.output);
-    state.finishedAt = Date.now();
-  });
+  state = { ...initialState(), status: 'running', step: 'start', startedAt: Date.now() };
+  doPreview()
+    .catch((err) => {
+      state.status = 'error';
+      state.error = err?.message || String(err);
+      if (err?.output) log(err.output);
+      state.finishedAt = Date.now();
+    })
+    .then(finishPreview);
   return { ok: true };
 }
 
-async function doPreview() {
-  state.step = 'build';
-  log('astro build (Vorschau) -> dist-preview/');
+// Abschluss: Status sichern und – falls der Server-Code aktualisiert wurde –
+// den Dienst neu starten lassen (systemd), damit der neue Code aktiv wird.
+async function finishPreview() {
+  state.restarting = await restartIfServerCodeChanged(log);
+  await persistState('preview', state);
+}
 
-  // Build-Umgebung exakt wie im Deploy (deploy.sh) robust machen: Telemetrie
-  // aus und ein sicher beschreibbares HOME (npm-/Astro-Cache) — das vom Dienst
-  // geerbte HOME (z.B. /var/www) ist im systemd-Sandbox nicht beschreibbar.
-  // Zusätzlich base + Ausgabeverzeichnis der Vorschau.
+async function doPreview() {
+  // Build-Umgebung (siehe unten) wird auch für npm ci beim Code-Update gebraucht.
   const buildHome = resolve(dirname(config.repoDir), '.build-home');
   await mkdir(buildHome, { recursive: true });
   const env = {
@@ -87,6 +95,19 @@ async function doPreview() {
     HOME: buildHome,
   };
 
+  // 1. Aktuellen Code von origin/main holen (fast-forward; lokale Entwürfe
+  //    bleiben unangetastet). So zeigt die Vorschau immer den neuesten Stand.
+  state.step = 'code-update';
+  state.codeUpdate = await updateCodeFromRemote(run, log, env);
+
+  // 2. Bauen.
+  state.step = 'build';
+  log('astro build (Vorschau) -> dist-preview/');
+
+  // Build-Umgebung exakt wie im Deploy (deploy.sh) robust: Telemetrie aus und
+  // ein sicher beschreibbares HOME (npm-/Astro-Cache) — das vom Dienst geerbte
+  // HOME (z.B. /var/www) ist im systemd-Sandbox nicht beschreibbar. Zusätzlich
+  // base + Ausgabeverzeichnis der Vorschau (env siehe oben).
   const out = await run('npm', ['run', 'build'], { env });
   log(out);
 
