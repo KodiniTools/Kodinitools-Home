@@ -415,6 +415,9 @@ const pageI18n = {
         {audioTools.map((tool) => (
           <a href={tool.link} class="svg-card-link" data-title={tool.title} data-description={tool.description} data-svg-en={tool.svg} data-i18n-key={tool.i18nKey}>
             <div class="tool-card">
+              {tool.svg && (
+                <div class="tool-card-icon"><img src={tool.svg} alt={tool.title} loading="lazy" decoding="async" /></div>
+              )}
               {tool.badge && <span class="tool-card-badge">{tool.badge}</span>}
               <h3 class="tool-card-title">{tool.title}</h3>
               <div class="tool-card-footer">
@@ -448,6 +451,9 @@ const pageI18n = {
         {imageTools.map((tool) => (
           <a href={tool.link} class="svg-card-link" data-title={tool.title} data-description={tool.description} data-svg-en={tool.svg} data-i18n-key={tool.i18nKey}>
             <div class="tool-card">
+              {tool.svg && (
+                <div class="tool-card-icon"><img src={tool.svg} alt={tool.title} loading="lazy" decoding="async" /></div>
+              )}
               {tool.badge && <span class="tool-card-badge">{tool.badge}</span>}
               <h3 class="tool-card-title">{tool.title}</h3>
               <div class="tool-card-footer">
@@ -481,6 +487,9 @@ const pageI18n = {
         {diverseTools.map((tool) => (
           <a href={tool.link} class="svg-card-link" data-title={tool.title} data-description={tool.description} data-svg-en={tool.svg} data-i18n-key={tool.i18nKey}>
             <div class="tool-card">
+              {tool.svg && (
+                <div class="tool-card-icon"><img src={tool.svg} alt={tool.title} loading="lazy" decoding="async" /></div>
+              )}
               {tool.badge && <span class="tool-card-badge">{tool.badge}</span>}
               <h3 class="tool-card-title">{tool.title}</h3>
               <div class="tool-card-footer">
@@ -759,6 +768,17 @@ const pageI18n = {
       const card = document.createElement('div');
       card.className = 'tool-card';
 
+      if (item.svg) {
+        const iconWrap = document.createElement('div');
+        iconWrap.className = 'tool-card-icon';
+        const iconImg = document.createElement('img');
+        iconImg.src = item.svg;
+        iconImg.alt = item.title || '';
+        iconImg.loading = 'lazy';
+        iconWrap.appendChild(iconImg);
+        card.appendChild(iconWrap);
+      }
+
       if (item.badge) {
         const badge = document.createElement('span');
         badge.className = 'tool-card-badge';
@@ -841,7 +861,8 @@ const pageI18n = {
           title: cardEl ? (cardEl.getAttribute('data-title') || '') : key,
           description: cardEl ? (cardEl.getAttribute('data-description') || '') : '',
           link: cardEl ? (cardEl.getAttribute('href') || '#') : '#',
-          badge: badgeEl ? badgeEl.textContent : ''
+          badge: badgeEl ? badgeEl.textContent : '',
+          svg: cardEl ? (cardEl.getAttribute('data-svg-de') || '') : ''
         });
       } else {
         favs.splice(idx, 1);
