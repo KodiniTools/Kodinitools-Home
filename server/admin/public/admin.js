@@ -12,6 +12,7 @@ import { renderHeroDesign } from './design.js';
 import { renderBackground } from './background.js';
 import { renderLayout } from './layout.js';
 import { renderMedia, renderFiles, loadServerFiles } from './media.js';
+import { renderIcons } from './icons.js';
 import { renderPublish, refreshPublishStatus, initSaveTracking } from './publish.js';
 
 // --- Login ---
@@ -62,6 +63,7 @@ export function renderMain() {
     else if (sub === 'design') renderHeroDesign();
     else if (sub === 'background') renderBackground();
     else if (sub === 'files') renderFiles();
+    else if (sub === 'icons') renderIcons();
     else if (sub === 'advanced') renderAdvanced();
   } else if (section === 'publish') {
     renderPublish();
