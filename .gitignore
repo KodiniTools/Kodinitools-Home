@@ -4,6 +4,9 @@ node_modules/
 # Build output
 dist/
 dist-preview/
+
+# Admin-Dienst: persistierter Vorgangs-Status (Vorschau/Veröffentlichung)
+.kodini-admin/
 .vite-ssg-temp/
 
 # Astro

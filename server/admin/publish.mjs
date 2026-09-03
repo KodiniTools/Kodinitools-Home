@@ -7,6 +7,7 @@ import { readFile, copyFile, mkdir, stat } from 'node:fs/promises';
 import { resolve, dirname } from 'node:path';
 import { config } from './config.mjs';
 import { UPLOADS_GIT_MAX_BYTES } from './uploads.mjs';
+import { restartIfServerCodeChanged, persistState, restoreState } from './codeupdate.mjs';
 
 /**
  * Nachsicherung: In media.json referenzierte /uploads-Dateien, die nur im
@@ -60,15 +61,20 @@ async function backfillReferencedUploads() {
   }
 }
 
-let state = {
-  status: 'idle', // idle | running | success | error
-  step: '',
-  log: [],
-  startedAt: null,
-  finishedAt: null,
-  commit: null,
-  error: null,
-};
+function initialState() {
+  return {
+    status: 'idle', // idle | running | success | error
+    step: '',
+    log: [],
+    startedAt: null,
+    finishedAt: null,
+    commit: null,
+    error: null,
+    restarting: false, // Dienst startet nach diesem Vorgang neu (neuer Server-Code)
+  };
+}
+// Letzten Stand wiederherstellen (überlebt den Selbst-Neustart des Dienstes).
+let state = restoreState('publish', initialState());
 
 export function getPublishState() {
   return state;
@@ -105,23 +111,24 @@ export function startPublish(message) {
   if (state.status === 'running') {
     return { ok: false, reason: 'Es läuft bereits eine Veröffentlichung.' };
   }
-  state = {
-    status: 'running',
-    step: 'start',
-    log: [],
-    startedAt: Date.now(),
-    finishedAt: null,
-    commit: null,
-    error: null,
-  };
+  state = { ...initialState(), status: 'running', step: 'start', startedAt: Date.now() };
   // Nicht awaiten — im Hintergrund laufen lassen.
-  doPublish(message).catch((err) => {
-    state.status = 'error';
-    state.error = err?.message || String(err);
-    if (err?.output) log(err.output);
-    state.finishedAt = Date.now();
-  });
+  doPublish(message)
+    .catch((err) => {
+      state.status = 'error';
+      state.error = err?.message || String(err);
+      if (err?.output) log(err.output);
+      state.finishedAt = Date.now();
+    })
+    .then(finishPublish);
   return { ok: true };
+}
+
+// Abschluss: Status sichern; hat deploy.sh neuen Server-Code geholt
+// (git reset auf origin/main), startet der Dienst unter systemd neu.
+async function finishPublish() {
+  state.restarting = await restartIfServerCodeChanged(log);
+  await persistState('publish', state);
 }
 
 async function doPublish(message) {

@@ -24,6 +24,7 @@ import { listFonts } from './fonts.mjs';
 import { listFontAwesome } from './fontawesome.mjs';
 import { startPublish, getPublishState } from './publish.mjs';
 import { startPreview, getPreviewState, PREVIEW_DIR } from './preview.mjs';
+import { serverCodeChanged } from './codeupdate.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = resolve(__dirname, 'public');
@@ -167,9 +168,13 @@ async function handleApi(req, res, path) {
     return sendJson(res, 200, { ok: true }, { 'Set-Cookie': clearCookie() });
   }
 
-  // Session-Status
+  // Session-Status (+ Hinweis, falls der laufende Prozess veralteten Server-Code hat)
   if (path === '/api/session' && method === 'GET') {
-    return sendJson(res, 200, { authenticated: isAuthenticated(req) });
+    const authenticated = isAuthenticated(req);
+    return sendJson(res, 200, {
+      authenticated,
+      serverCodeChanged: authenticated ? await serverCodeChanged() : false,
+    });
   }
 
   // Ab hier: Auth erforderlich

@@ -232,21 +232,31 @@ $('#previewBtn').addEventListener('click', async () => {
   }
 });
 
+// Schritt-Beschriftung im Status-Pill (Code-Update + Build).
+const PREVIEW_STEP_LABEL = { 'code-update': 'holt Code…', build: 'baut…' };
 function pollPreview(win) {
   clearInterval(previewPollTimer);
   previewPollTimer = setInterval(async () => {
-    const r = await api('/preview/status');
-    if (!r.ok) return;
+    // Während eines Selbst-Neustarts des Dienstes schlägt die Anfrage kurz
+    // fehl – dann einfach beim nächsten Tick erneut versuchen.
+    const r = await api('/preview/status').catch(() => null);
+    if (!r || !r.ok) return;
     const s = r.data;
-    setPill(s.status, s.status === 'running' ? 'Vorschau… (' + (s.step || '') + ')' : s.status);
+    setPill(
+      s.status,
+      s.status === 'running'
+        ? 'Vorschau… (' + (PREVIEW_STEP_LABEL[s.step] || s.step || '') + ')'
+        : s.status,
+    );
     if (s.status !== 'success' && s.status !== 'error') return;
     clearInterval(previewPollTimer);
     $('#previewBtn').disabled = false;
     $('#publishBtn').disabled = false;
     if (s.status === 'success') {
       setPill('idle', 'bereit');
-      showPreviewChooser(win);
+      showPreviewChooser(win, s);
       toast('Vorschau bereit ✓');
+      handleCodeUpdate(s);
     } else {
       if (win)
         win.document.body.innerHTML =
@@ -258,9 +268,33 @@ function pollPreview(win) {
   }, 2000);
 }
 
+// Nach einem Vorgang, der neuen Code geholt hat: Admin-Oberfläche neu laden,
+// damit neue Frontend-Module (z. B. neue Tabs) aktiv werden. Startet der
+// Dienst neu (neuer Server-Code), etwas länger warten, bis er wieder da ist.
+function handleCodeUpdate(s) {
+  if (s.restarting) {
+    toast('Neuer Server-Code – Admin-Dienst startet neu, Seite lädt gleich neu…');
+    setTimeout(() => location.reload(), 6000);
+  } else if (s.codeUpdate && s.codeUpdate.updated) {
+    toast(`Code aktualisiert (${s.codeUpdate.from} → ${s.codeUpdate.to}) – Seite lädt neu…`);
+    setTimeout(() => location.reload(), 2000);
+  }
+}
+// Hinweistext zum Code-Stand für das Vorschau-Fenster.
+function codeUpdateNote(s) {
+  const cu = s && s.codeUpdate;
+  if (s && s.restarting)
+    return '<p style="color:#fde68a;font-size:.85rem;margin-top:1rem">🔄 Neuer Server-Code geholt – der Admin-Dienst startet automatisch neu; der Adminbereich lädt sich gleich neu.</p>';
+  if (cu && cu.updated)
+    return `<p style="color:#6ee7b7;font-size:.85rem;margin-top:1rem">⬆️ Code aktualisiert (${esc(cu.from)} → ${esc(cu.to)}) – diese Vorschau zeigt den neuesten Stand.</p>`;
+  if (cu && cu.error)
+    return '<p style="color:#fde68a;font-size:.85rem;margin-top:1rem">⚠️ Code-Update übersprungen (Details im Vorschau-Log) – die Vorschau zeigt den lokalen Code-Stand.</p>';
+  return '';
+}
+
 // Nach erfolgreichem Vorschau-Build: Auswahl beider Sprachen anbieten
 // (die DE- und die EN-Startseite haben getrennte Medien/Inhalte).
-function showPreviewChooser(win) {
+function showPreviewChooser(win, s) {
   const base = '/admin/preview/';
   if (!win) {
     // Popup wurde blockiert -> beide Seiten direkt öffnen.
@@ -280,7 +314,9 @@ function showPreviewChooser(win) {
       `<p><a href="${base}" style="${btn}">🇩🇪 Deutsche Startseite</a>` +
       `<a href="${base}en/" style="${btn}">🇬🇧 English homepage</a></p>` +
       '<p style="color:#94a3b8;font-size:.85rem;margin-top:1.5rem">' +
-      'Dies ist dein aktueller Entwurf – noch nicht veröffentlicht.</p></body>',
+      'Dies ist dein aktueller Entwurf – noch nicht veröffentlicht.</p>' +
+      codeUpdateNote(s) +
+      '</body>',
   );
   win.document.close();
 }
@@ -302,8 +338,9 @@ function startPolling() {
 }
 
 export async function refreshPublishStatus() {
-  const r = await api('/publish/status');
-  if (!r.ok) return;
+  // Während eines Selbst-Neustarts des Dienstes kurz nicht erreichbar -> später erneut.
+  const r = await api('/publish/status').catch(() => null);
+  if (!r || !r.ok) return;
   const s = r.data;
   setPill(s.status, statusLabel(s));
   const log = $('#pubLog');
@@ -316,6 +353,7 @@ export async function refreshPublishStatus() {
     if (pn) pn.disabled = false;
     if (s.status === 'success') {
       toast('Veröffentlicht ✓');
+      handleCodeUpdate(s);
       // Diff-Basis auf den soeben veröffentlichten Stand setzen.
       publishBaseline = JSON.parse(editSnapshot());
       // Server-Dateiliste aktualisieren (neue Uploads sind jetzt live).

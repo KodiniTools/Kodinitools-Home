@@ -16,6 +16,7 @@ bzw. `/admin/api` (nginx entfernt das `/admin`-Präfix). Voller Kontext:
 | `uploads.mjs` | Datei-Uploads → `UPLOADS_DIR` (Raw-Body + `X-Filename`) |
 | `publish.mjs` | Commit → Push → `deploy.sh` (asynchron, Status-Polling) |
 | `hash-password.mjs` | Erzeugt den scrypt-Hash für `ADMIN_PASSWORD_HASH` |
+| `codeupdate.mjs` | Vorschau holt vorher den aktuellen `main`-Code (fast-forward, `npm ci` bei geänderten Abhängigkeiten); erkennt geänderten Server-Code und startet den Dienst unter systemd nach Vorschau/Veröffentlichung selbst neu; persistiert den Vorgangs-Status in `.kodini-admin/` |
 | `public/` | Admin-Frontend (Phase 4); u. a. `design.js` (Hero-Design), `background.js` (Seiten-Hintergrund), `toolcards.js` (Tab „Tool-Karten“: Rahmen/Hintergrund der Tool-Karten je Karte, Hell/Dunkel, Sticky-Live-Vorschau) |
 
 ## Konfiguration
@@ -34,7 +35,7 @@ Weitere (Defaults siehe `config.mjs` / [`../../deploy/.env.example`](../../deplo
 |---|---|---|---|
 | POST | `/api/login` | – | Passwort prüfen, Session-Cookie setzen |
 | POST | `/api/logout` | – | Session beenden |
-| GET  | `/api/session` | – | `{ authenticated: bool }` |
+| GET  | `/api/session` | – | `{ authenticated: bool, serverCodeChanged: bool }` (letzteres: Prozess läuft mit veraltetem Server-Code) |
 | GET  | `/api/content` | ✓ | Overrides + Ticker + Standard-Locales laden |
 | PUT  | `/api/content` | ✓ +CSRF | Draft speichern (schreibt Dateien, kein Commit) |
 | POST | `/api/upload` | ✓ +CSRF | Datei hochladen (`X-Filename`, Raw-Body) |
