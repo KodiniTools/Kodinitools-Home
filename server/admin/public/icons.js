@@ -7,8 +7,20 @@
 import { $, api, esc, toast } from './core.js';
 import { state, setMediaVal, setPath, getPath, delPath } from './model.js';
 
-const ICON_CATS = ['solid', 'regular', 'brands'];
-const CAT_LABEL = { solid: 'Solid', regular: 'Regular', brands: 'Brands' };
+const ICON_CATS = ['solid', 'regular', 'brands', 'admin'];
+const CAT_LABEL = {
+  solid: 'Solid',
+  regular: 'Regular',
+  brands: 'Brands',
+  admin: 'Eigene (admin-svgs)',
+};
+// Öffentliche URL-Basis je Set (admin-svgs liegt direkt unter fontawesome/).
+const ICON_BASE = {
+  solid: '/fontawesome/svgs/solid',
+  regular: '/fontawesome/svgs/regular',
+  brands: '/fontawesome/svgs/brands',
+  admin: '/fontawesome/admin-svgs',
+};
 const SECTION_LABEL = {
   tools: 'Audio-Tools',
   imageTools: 'Bild-Tools',
@@ -22,7 +34,8 @@ let loading = false;
 const ui = { q: '', cat: '', sel: null, link: '', target: 'banner' }; // Suche, Filter, Icon, Link, Ziel
 let searchTimer = null;
 
-const iconUrl = (cat, name) => `/fontawesome/svgs/${cat}/${encodeURIComponent(name)}`;
+const iconUrl = (cat, name) =>
+  `${ICON_BASE[cat] || '/fontawesome/svgs/' + cat}/${encodeURIComponent(name)}`;
 const iconLabel = (name) => name.replace(/\.svg$/i, '');
 
 // Alle Tools (section+key+Titel) aus den Standard-Locales – für das Ziel-Dropdown.
@@ -216,6 +229,7 @@ async function ensureLoaded(pane) {
     solid: Array.isArray(data.solid) ? data.solid : [],
     regular: Array.isArray(data.regular) ? data.regular : [],
     brands: Array.isArray(data.brands) ? data.brands : [],
+    admin: Array.isArray(data.admin) ? data.admin : [],
   };
   loading = false;
   if (pane.querySelector('[data-icongrid]')) updateGrid(pane);
@@ -303,7 +317,8 @@ export function renderIcons() {
   pane.innerHTML = `
     <div class="panel">
       <h2>Icons <span class="lang-badge">Font Awesome</span></h2>
-      <p class="hint">Icons aus dem Serverordner <code>/fontawesome/svgs</code> (Solid, Regular, Brands).
+      <p class="hint">Icons aus dem Serverordner <code>/fontawesome</code>: Font Awesome (Solid, Regular, Brands)
+        sowie eigene SVGs aus <code>/fontawesome/admin-svgs</code> (Set „Eigene").
         Icon anklicken für die Vorschau, dann als Banner, Raster-Kachel oder Tool-Icon setzen bzw. die URL kopieren.</p>
       <div class="row" style="align-items:flex-end;gap:.5rem">
         <div style="flex:2 1 240px">
