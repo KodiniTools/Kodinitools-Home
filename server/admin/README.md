@@ -16,7 +16,7 @@ bzw. `/admin/api` (nginx entfernt das `/admin`-Präfix). Voller Kontext:
 | `uploads.mjs` | Datei-Uploads → `UPLOADS_DIR` (Raw-Body + `X-Filename`) |
 | `publish.mjs` | Commit → Push → `deploy.sh` (asynchron, Status-Polling) |
 | `hash-password.mjs` | Erzeugt den scrypt-Hash für `ADMIN_PASSWORD_HASH` |
-| `public/` | Admin-Frontend (Phase 4) |
+| `public/` | Admin-Frontend (Phase 4); u. a. `design.js` (Hero-Design), `background.js` (Seiten-Hintergrund), `toolcards.js` (Tab „Tool-Karten“: Rahmen/Hintergrund der Tool-Karten je Karte, Hell/Dunkel, Sticky-Live-Vorschau) |
 
 ## Konfiguration
 

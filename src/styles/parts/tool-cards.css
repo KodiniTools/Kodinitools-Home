@@ -22,17 +22,21 @@
   justify-content: center;
 }
 
+/* Rahmen/Hintergrund/Radius über --tc-*-Variablen steuerbar (Admin-Tab
+   „Tool-Karten", CSS aus content.ts → getToolCardsCss). Ohne gesetzte
+   Variablen greifen die Fallbacks = bisheriges Aussehen (kein Regress). */
 .tool-card {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 1rem;
+  background: var(--tc-bg, var(--bg-secondary));
+  border: var(--tc-bw, 1px) var(--tc-bs, solid) var(--tc-bc, var(--border-color));
+  border-radius: var(--tc-radius, 1rem);
   padding: 1.1rem 1.1rem 0.85rem;
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
   height: 100%;
   box-sizing: border-box;
-  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease,
+    background-color 0.22s ease;
   position: relative;
   overflow: hidden;
 }
@@ -50,7 +54,8 @@
 .svg-card-link:hover .tool-card {
   transform: translateY(-5px);
   box-shadow: 0 14px 36px rgba(0, 57, 113, 0.13), 0 0 0 1px rgba(1, 79, 153, 0.1);
-  border-color: rgba(1, 79, 153, 0.22);
+  border-color: var(--tc-hover-bc, rgba(1, 79, 153, 0.22));
+  background: var(--tc-hover-bg, var(--tc-bg, var(--bg-secondary)));
 }
 
 .svg-card-link:hover .tool-card::after {
@@ -58,12 +63,13 @@
 }
 
 [data-theme="dark"] .tool-card {
-  background: var(--card-bg, #142640);
+  background: var(--tc-bg, var(--card-bg, #142640));
 }
 
 [data-theme="dark"] .svg-card-link:hover .tool-card {
   box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45), 0 0 24px rgba(232, 169, 69, 0.07);
-  border-color: rgba(232, 169, 69, 0.22);
+  border-color: var(--tc-hover-bc, rgba(232, 169, 69, 0.22));
+  background: var(--tc-hover-bg, var(--tc-bg, var(--card-bg, #142640)));
 }
 
 .tool-card-top {

@@ -10,6 +10,7 @@ import { loadFonts } from './fonts.js';
 import { renderTexts, renderAdvanced } from './content.js';
 import { renderHeroDesign } from './design.js';
 import { renderBackground } from './background.js';
+import { renderToolCards } from './toolcards.js';
 import { renderLayout } from './layout.js';
 import { renderMedia, renderFiles, loadServerFiles } from './media.js';
 import { renderIcons } from './icons.js';
@@ -62,6 +63,7 @@ export function renderMain() {
     else if (sub === 'layout') renderLayout();
     else if (sub === 'design') renderHeroDesign();
     else if (sub === 'background') renderBackground();
+    else if (sub === 'cards') renderToolCards();
     else if (sub === 'files') renderFiles();
     else if (sub === 'icons') renderIcons();
     else if (sub === 'advanced') renderAdvanced();
