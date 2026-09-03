@@ -724,6 +724,7 @@ export const SUBTABS = [
   { key: 'design', label: 'Hero-Design' },
   { key: 'background', label: 'Hintergrund' },
   { key: 'files', label: 'Dateien' },
+  { key: 'icons', label: 'Icons' },
   { key: 'advanced', label: 'Erweitert' },
 ];
 export const LANG_SECTIONS = ['de', 'en'];
