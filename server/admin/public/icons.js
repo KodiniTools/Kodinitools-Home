@@ -1,38 +1,59 @@
 // „Icons"-Tab: durchsucht die Font-Awesome-Icons aus dem Serverordner
-// /fontawesome/svgs (Solid, Regular, Brands), zeigt sie in einer Vorschau und
-// erlaubt, ein Icon zur Seite hinzuzufügen (als Einzel-Banner DE/EN) oder seine
-// URL zu kopieren. Die Icon-Liste wird beim ersten Öffnen einmalig geladen.
+// /fontawesome/svgs (Solid, Regular, Brands), zeigt ALLE Treffer in einer
+// scrollbaren Bibliothek und erlaubt, ein Icon zur Seite hinzuzufügen –
+// als Einzel-Banner, als Raster-Kachel oder als Tool-Karten-Icon (je Sprache)
+// oder seine URL zu kopieren. Die Icon-Liste wird beim ersten Öffnen geladen.
 
 import { $, api, esc, toast } from './core.js';
-import { state, setMediaVal } from './model.js';
+import { state, setMediaVal, setPath } from './model.js';
 
 const ICON_CATS = ['solid', 'regular', 'brands'];
 const CAT_LABEL = { solid: 'Solid', regular: 'Regular', brands: 'Brands' };
-const MAX_TILES = 240; // maximale Anzahl gleichzeitig gerenderter Kacheln (Performance)
+const SECTION_LABEL = {
+  tools: 'Audio-Tools',
+  imageTools: 'Bild-Tools',
+  diverseTools: 'Diverse Tools',
+};
+const HERO_CELLS = 6; // Kachel 1..6 (größtmögliche Kachelzahl über alle Layouts)
 
 // Modul-Zustand (bleibt über Tab-Wechsel erhalten).
 let ICONS = null; // { solid:[], regular:[], brands:[] } oder null (noch nicht geladen)
 let loading = false;
 const ui = { q: '', cat: '', sel: null }; // Suche, Kategorie-Filter, gewähltes Icon
+let searchTimer = null;
 
 const iconUrl = (cat, name) => `/fontawesome/svgs/${cat}/${encodeURIComponent(name)}`;
 const iconLabel = (name) => name.replace(/\.svg$/i, '');
 
-// Gefilterte Icons (nach Kategorie + Suche), begrenzt auf MAX_TILES fürs Rendern.
+// Alle Tools (section+key+Titel) aus den Standard-Locales – für das Ziel-Dropdown.
+function toolList() {
+  const out = [];
+  const defs = (state.defaults && state.defaults.de) || {};
+  for (const section of ['tools', 'imageTools', 'diverseTools']) {
+    const sec = defs[section];
+    if (!sec || typeof sec !== 'object') continue;
+    for (const [key, entry] of Object.entries(sec)) {
+      if (entry && typeof entry === 'object' && (entry.link || entry.svg)) {
+        out.push({ section, key, title: entry.title || key });
+      }
+    }
+  }
+  return out;
+}
+
+// Gefilterte Icons (nach Kategorie + Suche) – ALLE Treffer (scrollbare Bibliothek).
 function filtered() {
-  if (!ICONS) return { items: [], total: 0 };
+  if (!ICONS) return [];
   const q = ui.q.trim().toLowerCase();
   const cats = ui.cat ? [ui.cat] : ICON_CATS;
   const items = [];
-  let total = 0;
   for (const cat of cats) {
     for (const name of ICONS[cat] || []) {
       if (q && !iconLabel(name).toLowerCase().includes(q)) continue;
-      total++;
-      if (items.length < MAX_TILES) items.push({ cat, name });
+      items.push({ cat, name });
     }
   }
-  return { items, total };
+  return items;
 }
 
 function tileHtml({ cat, name }) {
@@ -45,30 +66,63 @@ function tileHtml({ cat, name }) {
     </button>`;
 }
 
+// Ziel-Auswahl (Banner / Kacheln / Tool-Icons) als <optgroup>-Struktur.
+function targetOptions() {
+  const cells = Array.from(
+    { length: HERO_CELLS },
+    (_, i) => `<option value="grid${i}">Kachel ${i + 1}</option>`,
+  ).join('');
+  const tools = toolList()
+    .map(
+      (t) =>
+        `<option value="tool:${esc(t.section)}:${esc(t.key)}">${esc(SECTION_LABEL[t.section] || t.section)} – ${esc(t.title)}</option>`,
+    )
+    .join('');
+  return `
+    <optgroup label="Banner"><option value="banner">Einzel-Banner</option></optgroup>
+    <optgroup label="Raster-Kacheln">${cells}</optgroup>
+    ${tools ? `<optgroup label="Tool-Karten-Icon">${tools}</optgroup>` : ''}`;
+}
+
 function detailHtml() {
   const s = ui.sel;
   if (!s)
-    return '<p class="hint" style="margin:.2rem 0 0">Kein Icon gewählt — oben ein Icon anklicken.</p>';
+    return '<p class="hint" style="margin:.2rem 0 0">Kein Icon gewählt — oben in der Bibliothek ein Icon anklicken.</p>';
   const url = iconUrl(s.cat, s.name);
   return `
-    <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap">
+    <div style="display:flex;gap:1rem;align-items:flex-start;flex-wrap:wrap">
       <div style="flex:0 0 auto;width:96px;height:96px;border:1px solid var(--border);border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center">
         <img src="${url}" alt="${esc(iconLabel(s.name))}" style="width:64px;height:64px;object-fit:contain" />
       </div>
-      <div style="flex:1 1 240px;min-width:0">
+      <div style="flex:1 1 260px;min-width:0">
         <strong style="display:block">${esc(iconLabel(s.name))} <span class="hint" style="font-weight:400">(${CAT_LABEL[s.cat]})</span></strong>
         <input data-iconurl type="text" readonly value="${esc(url)}" style="width:100%;margin-top:.35rem;font-size:.8rem" />
-        <div class="row" style="gap:.4rem;margin-top:.5rem">
-          <button type="button" data-iconbanner="de" style="flex:0 0 auto">➕ Als Banner (Deutsch)</button>
-          <button type="button" data-iconbanner="en" style="flex:0 0 auto">➕ Als Banner (Englisch)</button>
-          <button type="button" class="hd-reset" data-iconcopy style="flex:0 0 auto">🔗 URL kopieren</button>
+        <div class="row" style="align-items:flex-end;gap:.4rem;margin-top:.5rem">
+          <div style="flex:0 0 auto">
+            <label style="margin-top:0">Sprache</label>
+            <select data-iconlang style="width:auto;height:38px">
+              <option value="de" ${state.nav.section === 'en' ? '' : 'selected'}>Deutsch</option>
+              <option value="en" ${state.nav.section === 'en' ? 'selected' : ''}>Englisch</option>
+            </select>
+          </div>
+          <div style="flex:1 1 220px">
+            <label style="margin-top:0">Ziel</label>
+            <select data-icontarget style="width:100%;height:38px">${targetOptions()}</select>
+          </div>
+          <div style="flex:0 0 auto">
+            <button type="button" data-iconadd style="flex:0 0 auto">➕ Hinzufügen</button>
+          </div>
+          <div style="flex:0 0 auto">
+            <button type="button" class="hd-reset" data-iconcopy style="flex:0 0 auto">🔗 URL kopieren</button>
+          </div>
         </div>
-        <p class="hint" style="margin:.4rem 0 0">„Als Banner" setzt das Icon als Einzel-Banner der jeweiligen Sprache (Hero-Modus wird auf Banner gestellt). Position/Größe des Banner-Textes bleiben unter <strong>Layout</strong> einstellbar.</p>
+        <p class="hint" style="margin:.4rem 0 0">Banner/Kachel stellen den Hero-Modus passend um und weisen das Icon als Bild zu.
+          „Tool-Karten-Icon" ersetzt das Icon der gewählten Tool-Karte. Wirkt nach dem Speichern/Veröffentlichen.</p>
       </div>
     </div>`;
 }
 
-// Nur das Raster + Anzahl + Detail aktualisieren (ohne das ganze Panel neu zu bauen).
+// Nur Bibliothek + Anzahl + Detail aktualisieren (ohne das ganze Panel neu zu bauen).
 function updateGrid(pane) {
   const grid = pane.querySelector('[data-icongrid]');
   const count = pane.querySelector('[data-iconcount]');
@@ -87,13 +141,9 @@ function updateGrid(pane) {
     if (detail) detail.innerHTML = detailHtml();
     return;
   }
-  const { items, total: matches } = filtered();
+  const items = filtered();
   grid.innerHTML = items.map(tileHtml).join('') || '<p class="hint">Keine Treffer.</p>';
-  if (count)
-    count.textContent =
-      matches > items.length
-        ? `${items.length} von ${matches} Treffern (Suche verfeinern für mehr)`
-        : `${matches} Treffer`;
+  if (count) count.textContent = `${items.length} Treffer`;
   if (detail) detail.innerHTML = detailHtml();
 }
 
@@ -109,8 +159,59 @@ async function ensureLoaded(pane) {
     brands: Array.isArray(data.brands) ? data.brands : [],
   };
   loading = false;
-  // Nur aktualisieren, wenn der Icons-Tab noch offen ist.
   if (pane.querySelector('[data-icongrid]')) updateGrid(pane);
+}
+
+// Gewähltes Icon dem gewählten Ziel zuweisen.
+function addIcon(pane) {
+  if (!ui.sel) return;
+  const url = iconUrl(ui.sel.cat, ui.sel.name);
+  const langSel = pane.querySelector('[data-iconlang]');
+  const tgtSel = pane.querySelector('[data-icontarget]');
+  const lang = langSel && langSel.value === 'en' ? 'en' : 'de';
+  const target = tgtSel ? tgtSel.value : 'banner';
+  const langUp = lang.toUpperCase();
+  if (target === 'banner') {
+    setMediaVal(lang, 'heroBanner', url);
+    state.media[lang].heroMode = 'banner';
+    toast(`Icon als Einzel-Banner (${langUp}) gesetzt`);
+  } else if (/^grid[0-5]$/.test(target)) {
+    setMediaVal(lang, target, url);
+    state.media[lang].heroMode = 'grid';
+    toast(`Icon in Kachel ${Number(target.slice(4)) + 1} (${langUp}) gesetzt`);
+  } else if (target.startsWith('tool:')) {
+    const parts = target.split(':');
+    const section = parts[1];
+    const key = parts.slice(2).join(':');
+    setPath(state.overrides[lang], [section, key, 'svg'], url);
+    toast(`Tool-Icon „${key}" (${langUp}) gesetzt`);
+  }
+}
+
+function copyUrl(pane) {
+  if (!ui.sel) return;
+  const url = iconUrl(ui.sel.cat, ui.sel.name);
+  const inp = pane.querySelector('[data-iconurl]');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(
+      () => toast('URL kopiert'),
+      () => {
+        if (inp) {
+          inp.focus();
+          inp.select();
+        }
+      },
+    );
+  } else if (inp) {
+    inp.focus();
+    inp.select();
+    try {
+      document.execCommand('copy');
+      toast('URL kopiert');
+    } catch {
+      /* Auswahl bleibt zum manuellen Kopieren */
+    }
+  }
 }
 
 export function renderIcons() {
@@ -126,7 +227,7 @@ export function renderIcons() {
     <div class="panel">
       <h2>Icons <span class="lang-badge">Font Awesome</span></h2>
       <p class="hint">Icons aus dem Serverordner <code>/fontawesome/svgs</code> (Solid, Regular, Brands).
-        Icon anklicken für die Vorschau, dann als Banner setzen oder die URL kopieren.</p>
+        Icon anklicken für die Vorschau, dann als Banner, Raster-Kachel oder Tool-Icon setzen bzw. die URL kopieren.</p>
       <div class="row" style="align-items:flex-end;gap:.5rem">
         <div style="flex:2 1 240px">
           <label style="margin-top:0">Suche</label>
@@ -140,7 +241,7 @@ export function renderIcons() {
           <span class="hint" data-iconcount style="margin:0"></span>
         </div>
       </div>
-      <div data-icongrid style="display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:.5rem;margin-top:.7rem"></div>
+      <div data-icongrid style="display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:.5rem;margin-top:.7rem;max-height:52vh;overflow-y:auto;padding:.15rem;border:1px solid var(--border);border-radius:8px"></div>
       <div style="border-top:1px solid var(--border);margin-top:.9rem;padding-top:.7rem">
         <label style="margin-top:0">Vorschau &amp; Hinzufügen</label>
         <div data-icondetail></div>
@@ -154,7 +255,8 @@ export function renderIcons() {
   if (search)
     search.addEventListener('input', () => {
       ui.q = search.value;
-      updateGrid(pane);
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => updateGrid(pane), 120); // entlastet das Tippen bei vielen Icons
     });
   const cat = pane.querySelector('[data-iconcat]');
   if (cat)
@@ -178,38 +280,7 @@ export function renderIcons() {
   const detail = pane.querySelector('[data-icondetail]');
   if (detail)
     detail.addEventListener('click', (e) => {
-      if (!ui.sel) return;
-      const url = iconUrl(ui.sel.cat, ui.sel.name);
-      const bannerBtn = e.target.closest('[data-iconbanner]');
-      if (bannerBtn) {
-        const lang = bannerBtn.dataset.iconbanner === 'en' ? 'en' : 'de';
-        setMediaVal(lang, 'heroBanner', url);
-        state.media[lang].heroMode = 'banner';
-        toast(
-          `Icon als Banner (${lang.toUpperCase()}) gesetzt — im Tab „Layout"/„Medien" sichtbar`,
-        );
-        return;
-      }
-      if (e.target.closest('[data-iconcopy]')) {
-        const inp = detail.querySelector('[data-iconurl]');
-        const copy = () => toast('URL kopiert');
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(url).then(copy, () => {
-            if (inp) {
-              inp.focus();
-              inp.select();
-            }
-          });
-        } else if (inp) {
-          inp.focus();
-          inp.select();
-          try {
-            document.execCommand('copy');
-            copy();
-          } catch {
-            /* Auswahl bleibt zum manuellen Kopieren */
-          }
-        }
-      }
+      if (e.target.closest('[data-iconadd]')) addIcon(pane);
+      else if (e.target.closest('[data-iconcopy]')) copyUrl(pane);
     });
 }
