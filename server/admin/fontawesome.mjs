@@ -47,7 +47,11 @@ async function readIconDir(dir) {
  * Rückgabe: { solid: string[], regular: string[], brands: string[], admin: string[] }.
  */
 export async function listFontAwesome() {
+  // Mehrere mögliche Basis-Orte (je nach nginx-Root/Deploy): direkt im Webroot,
+  // unter public/ oder im Repo (Dev). Fehlende Pfade werden ignoriert, gefunden
+  // wird vereinigt – so ist die Auflistung unabhängig vom konkreten Layout.
   const bases = [
+    resolve(config.webroot, 'fontawesome'),
     resolve(config.webroot, 'public/fontawesome'),
     resolve(config.repoDir, 'public/fontawesome'),
   ];
