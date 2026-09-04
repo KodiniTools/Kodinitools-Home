@@ -106,6 +106,14 @@ export function colorPicker({ id, attrs, value, resetHtml = '', disabled = false
     </div>`;
 }
 
+/** Hex-Feld und Regler aller Farbwähler in pane an die (programmatisch
+ * geänderten) Werte der nativen Farbfelder angleichen. */
+export function refreshColorPickers(pane) {
+  pane.querySelectorAll('[data-cp]').forEach((box) => {
+    if (typeof box._cpSync === 'function') box._cpSync();
+  });
+}
+
 /** Verdrahtung aller Farbwähler in pane (nach den Feld-Handlern des Tabs aufrufen). */
 export function bindColorPickers(pane) {
   pane.querySelectorAll('[data-cp]').forEach((box) => {
@@ -124,6 +132,7 @@ export function bindColorPickers(pane) {
     let fromPanel = false;
     // Regler + Spuren + Hex-Feld an den aktuellen Farbwert anpassen.
     const sync = (skipNums = false) => {
+      if (fromPanel) return; // Änderung kommt gerade aus dem Panel: HSL der Regler bleibt Quelle
       const hsl = hexToHsl(native.value);
       if (!hsl) return;
       for (const c of CHANNELS) {
@@ -152,17 +161,21 @@ export function bindColorPickers(pane) {
     hexInp.addEventListener('change', () => {
       hexInp.value = native.value; // ungültige Eingabe verwerfen
     });
+    // Regler-Änderung: HSL der Regler ist die Quelle; NICHT aus dem Hex zurück-
+    // rechnen, sonst gehen Farbton/Sättigung bei Weiß/Schwarz (Sättigung 0 bzw.
+    // Helligkeit 0/100) verloren und lassen sich nicht nacheinander einstellen.
     const fromHsl = (src) => {
-      const hsl = {
-        h: ranges.h.value,
-        s: ranges.s.value,
-        l: ranges.l.value,
-      };
-      if (src) hsl[src.key] = src.el.value;
+      if (src) {
+        if (src.el.type === 'number')
+          ranges[src.key].value = src.el.value; // Range begrenzt
+        else nums[src.key].value = ranges[src.key].value;
+      }
+      const hsl = { h: ranges.h.value, s: ranges.s.value, l: ranges.l.value };
       fromPanel = true;
       apply(hslToHex(hsl));
       fromPanel = false;
-      sync(src && src.el.type === 'number');
+      for (const c of CHANNELS) ranges[c.key].setAttribute('style', trackStyle(c.key, hsl));
+      if (document.activeElement !== hexInp) hexInp.value = native.value;
     };
     for (const c of CHANNELS) {
       ranges[c.key].addEventListener('input', () => fromHsl({ key: c.key, el: ranges[c.key] }));
@@ -174,6 +187,7 @@ export function bindColorPickers(pane) {
         nums[c.key].value = ranges[c.key].value;
       });
     }
+    box._cpSync = sync; // für refreshColorPickers (programmatische Wertänderungen)
     toggle.addEventListener('click', () => {
       const open = panel.hidden;
       // Nur ein Panel offen halten.

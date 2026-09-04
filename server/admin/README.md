@@ -18,7 +18,7 @@ bzw. `/admin/api` (nginx entfernt das `/admin`-Präfix). Voller Kontext:
 | `util.mjs` | HTTP-Helfer + `runStreaming` (Prozess mit zeilenweiser Live-Ausgabe und Timeout) |
 | `hash-password.mjs` | Erzeugt den scrypt-Hash für `ADMIN_PASSWORD_HASH` |
 | `codeupdate.mjs` | Vorschau holt vorher den aktuellen `main`-Code (fast-forward, `npm ci` bei geänderten Abhängigkeiten); erkennt geänderten Server-Code und startet den Dienst unter systemd nach Vorschau/Veröffentlichung selbst neu; persistiert den Vorgangs-Status in `.kodini-admin/` |
-| `public/` | Admin-Frontend (Phase 4); u. a. `design.js` (Hero-Design; Regler mit Zahlenfeld + „↺“), `background.js` (Seiten-Hintergrund: Farbe/Verlauf, Muster, Hintergrundbild, abgesetzte Sektionen, Effekte), `toolcards.js` (Tab „Tool-Karten“: Rahmen/Hintergrund der Tool-Karten je Karte, Hell/Dunkel, Sticky-Live-Vorschau), `slider.js` (gemeinsamer Regler: Slider + Zahlenfeld + „↺“), `color.js` (Farbwähler: Farbfeld + Hex + HSL-Regler) |
+| `public/` | Admin-Frontend (Phase 4); u. a. `design.js` (Hero-Design; Regler mit Zahlenfeld + „↺“), `background.js` (Seiten-Hintergrund: Farbe/Verlauf, Muster, Hintergrundbild, abgesetzte Sektionen, Effekte), `toolcards.js` (Tab „Tool-Karten“: Rahmen/Hintergrund der Tool-Karten je Karte, Hell/Dunkel, Sticky-Live-Vorschau), `slider.js` (gemeinsamer Regler: Slider + Zahlenfeld + „↺“), `color.js` (Farbwähler: Farbfeld + Hex + HSL-Regler; in Hintergrund, Tool-Karten, Hero-Design, Texte, Laufband) |
 
 ## Konfiguration
 
