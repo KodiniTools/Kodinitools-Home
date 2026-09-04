@@ -4,7 +4,7 @@
   },
   "tools": {
     "audioConverter": {
-      "svg": "/fontawesome/svgs/solid/angles-left.svg"
+      "svg": ""
     },
     "audioEqualizer": {
       "svg": ""
@@ -13,6 +13,52 @@
       "svg": ""
     },
     "audioVisualizer": {
+      "svg": ""
+    },
+    "mp3Converter": {
+      "svg": ""
+    },
+    "interactiveEqualizer": {
+      "svg": ""
+    },
+    "modernPlayer": {
+      "svg": ""
+    },
+    "playlistGenerator": {
+      "svg": ""
+    },
+    "alarmTool": {
+      "svg": ""
+    },
+    "audioNormalizer": {
+      "svg": ""
+    },
+    "playlistToWebm": {
+      "svg": ""
+    },
+    "audioCutter": {
+      "svg": ""
+    }
+  },
+  "imageTools": {
+    "imageConverter": {
+      "svg": ""
+    },
+    "batchImageEditor": {
+      "svg": ""
+    },
+    "photoCollage": {
+      "svg": ""
+    }
+  },
+  "diverseTools": {
+    "colorExtractor": {
+      "svg": ""
+    },
+    "videoConverter": {
+      "svg": ""
+    },
+    "textEditor": {
       "svg": ""
     }
   }
