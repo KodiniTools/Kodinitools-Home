@@ -10,6 +10,7 @@
 // Dunkelmodus); leer = Standardfarbe des jeweiligen Modus (wie bisher).
 
 import { $, esc, toast } from './core.js';
+import { slider, bindSliders } from './slider.js';
 import {
   state,
   getSiteBg,
@@ -71,68 +72,6 @@ const GRADIENT_TYPE_LABEL = {
 };
 const PATTERN_LABEL = { none: 'Kein Muster', dots: 'Punktraster', grid: 'Feines Gitter' };
 
-// Generischer Regler: Slider + Zahlenfeld (Spinner) + „↺" (Standardwert).
-// attrs = Attribute des Range-Inputs (Feld-/Modus-Kennung, auf die die bestehenden
-// input-Handler hören); id = Schlüssel für data-num / data-reset (Tests, Sync).
-function slider({
-  id,
-  label,
-  hint = '',
-  unit,
-  min,
-  max,
-  step = 1,
-  value,
-  def,
-  attrs,
-  disabled = false,
-  labelStyle = '',
-}) {
-  const dis = disabled ? 'disabled' : '';
-  return `
-    <div class="slider" data-slider="${id}">
-      <label${labelStyle ? ` style="${labelStyle}"` : ''}>${label}${hint ? ` <span class="hint" style="margin:0">${hint}</span>` : ''}</label>
-      <div class="slider-row">
-        <input type="range" ${attrs} min="${min}" max="${max}" step="${step}" value="${value}" ${dis} />
-        <input type="number" class="slider-num" data-num="${id}" min="${min}" max="${max}" step="${step}" value="${value}" ${dis} aria-label="${esc(label)} (Zahl)" />
-        <span class="slider-unit">${unit}</span>
-        <button type="button" class="hd-reset slider-reset" data-reset="${id}" data-def="${def}" title="Auf Standard (${def} ${unit}) zurücksetzen" ${dis}>↺</button>
-      </div>
-    </div>`;
-}
-// Verdrahtung aller Regler: Zahlenfeld und „↺" schreiben in den Slider und lösen
-// dessen input-Event aus, sodass die Feld-Handler (Modell + Vorschau) wie beim
-// Ziehen laufen. Beim Tippen wird das Zahlenfeld nicht überschrieben (Fokus/Cursor
-// bleiben erhalten); beim Verlassen wird es auf den gültigen Bereich gesetzt.
-function bindSliders(pane) {
-  pane.querySelectorAll('[data-slider]').forEach((box) => {
-    const range = box.querySelector('input[type="range"]');
-    const num = box.querySelector('[data-num]');
-    const reset = box.querySelector('[data-reset]');
-    if (!range || !num || !reset) return;
-    let typing = false;
-    const push = (v) => {
-      range.value = v; // Range begrenzt selbst auf min/max
-      range.dispatchEvent(new Event('input', { bubbles: true }));
-    };
-    range.addEventListener('input', () => {
-      if (!typing) num.value = range.value;
-    });
-    num.addEventListener('input', () => {
-      if (num.value === '') return;
-      typing = true;
-      push(num.value);
-      typing = false;
-    });
-    num.addEventListener('change', () => {
-      num.value = range.value;
-    });
-    reset.addEventListener('click', () => {
-      push(reset.dataset.def);
-      num.value = range.value;
-    });
-  });
-}
 // Sektionen: Vorschlag für die Tönungsfarbe je Modus (Markenfarben) und Stil-Beschriftung.
 const SECTION_TINT_DEFAULT = { light: '#014f99', dark: '#e8a945' };
 const SECTION_STYLE_LABEL = {

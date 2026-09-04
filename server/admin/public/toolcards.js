@@ -21,6 +21,7 @@ import {
   getPath,
 } from './model.js';
 import { ensureFontFace } from './fonts.js';
+import { slider, bindSliders } from './slider.js';
 
 // UI-Zustand (nicht gespeichert): bearbeiteter Modus + gewählte Karte
 // ('' = Standard für alle Karten, sonst "section.key").
@@ -222,21 +223,28 @@ function withReset(inputHtml, key) {
 }
 // Farbe (+ optional Transparenz-Regler) als Formularzeile.
 function colorField(s, field, label, opacityField) {
-  const resetKey = opacityField ? `${field}:${opacityField}` : field;
   const colorInput = `<input type="color" data-tcf="${field}" value="${esc(s[field])}" style="width:56px;height:38px;padding:2px" />`;
   const op = opacityField
-    ? `<div style="flex:1 1 160px">
-        <label>${label} – Transparenz: <span data-tcoval="${opacityField}">${s[opacityField]}</span>%</label>
-        <input type="range" data-tcf="${opacityField}" min="0" max="100" value="${s[opacityField]}" style="width:100%" />
-      </div>`
+    ? `<div style="flex:1 1 220px">${rangeField(s, opacityField, `${label} – Transparenz`, 0, 100, '%')}</div>`
     : '';
-  return `<div style="flex:0 0 auto"><label>${label}</label>${withReset(colorInput, resetKey)}</div>${op}`;
+  return `<div style="flex:0 0 auto"><label>${label}</label>${withReset(colorInput, field)}</div>${op}`;
 }
-function numberField(s, field, label, min, max, width = 90) {
-  return `<div style="flex:0 0 auto"><label>${label}</label>${withReset(
-    `<input type="number" data-tcf="${field}" min="${min}" max="${max}" step="1" value="${s[field]}" style="width:${width}px" />`,
-    field,
-  )}</div>`;
+// Zahlenwert als Regler (Slider + Zahlenfeld + „↺" auf die Quelle, siehe resetSource).
+function rangeField(s, field, label, min, max, unit, disabled = false) {
+  return slider({
+    id: `tc:${field}`,
+    label,
+    unit,
+    min,
+    max,
+    value: s[field],
+    attrs: `data-tcf="${field}"`,
+    resetAttrs: `data-tcreset="${field}"`,
+    disabled,
+  });
+}
+function numberField(s, field, label, min, max, unit) {
+  return `<div style="flex:1 1 200px">${rangeField(s, field, label, min, max, unit)}</div>`;
 }
 function section(title, body, open = true) {
   return `<details ${open ? 'open' : ''} style="border-top:1px solid var(--border);margin-top:.5rem;padding-top:.4rem">
@@ -326,12 +334,12 @@ function fieldsBlock(lang) {
   const frameBody = `
     <div class="row" style="align-items:flex-end">
       ${colorField(s, 'borderColor', 'Rahmenfarbe', 'borderOpacity')}
-      ${numberField(s, 'borderWidth', 'Breite (px)', 0, 8)}
+      ${numberField(s, 'borderWidth', 'Breite', 0, 8, 'px')}
       <div style="flex:0 0 auto"><label>Linienart</label>${withReset(
         `<select data-tcf="borderStyle" style="width:auto">${styleOpts}</select>`,
         'borderStyle',
       )}</div>
-      ${numberField(s, 'borderRadius', 'Eckenradius (px)', 0, 40, 100)}
+      ${numberField(s, 'borderRadius', 'Eckenradius', 0, 40, 'px')}
     </div>
     <p class="hint">Breite 0 = kein Rahmen. Transparenz 0 % = unsichtbarer Rahmen (Platz bleibt erhalten).</p>`;
   const bgBody = `
@@ -346,10 +354,7 @@ function fieldsBlock(lang) {
     </div>
     <div class="row" style="align-items:flex-end;${s.gradient ? '' : 'opacity:.45;pointer-events:none'}" data-tcgradrow>
       ${colorField(s, 'bgColor2', 'Endfarbe', null)}
-      <div style="flex:1 1 160px">
-        <label>Richtung: <span data-tcoval="gradientAngle">${s.gradientAngle}</span>°</label>
-        <input type="range" data-tcf="gradientAngle" min="0" max="360" value="${s.gradientAngle}" style="width:100%" />
-      </div>
+      <div style="flex:1 1 220px">${rangeField(s, 'gradientAngle', 'Richtung', 0, 360, '°', !s.gradient)}</div>
     </div>
     <p class="hint">Die Transparenz gilt für beide Verlaufsfarben. 0° = von unten nach oben, 90° = von links nach rechts.</p>`;
   const hoverBody = `
@@ -565,8 +570,6 @@ export function renderToolCards() {
         s.gradientAngle = clampInt(el.value, 0, 360, s.gradientAngle);
       else if (/Opacity$/.test(field)) s[field] = clampInt(el.value, 0, 100, s[field]);
       else s[field] = el.value; // Farben
-      const oval = pane.querySelector(`[data-tcoval="${field}"]`);
-      if (oval) oval.textContent = s[field];
       refreshPreview(pane, lang);
     });
   });
@@ -681,6 +684,7 @@ export function renderToolCards() {
       pane.querySelector('.tc-sticky')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }),
   );
+  bindSliders(pane); // nach den Feld-Handlern: Zahlenfeld löst deren input-Event aus
 }
 
 function clampInt(v, min, max, def) {
