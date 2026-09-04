@@ -10,6 +10,7 @@
 #     cd /opt/kodini/repo && ./deploy.sh              # normaler Deploy
 #     ./deploy.sh --dry-run                           # nur anzeigen, nichts ändern
 #     ./deploy.sh --no-pull                           # ohne git reset (lokalen Stand bauen)
+#     ./deploy.sh --full                              # npm ci erzwingen (sonst nur bei geändertem Lockfile)
 #
 # Konfigurierbar über Umgebungsvariablen:
 #     REPO_DIR   (Default: Verzeichnis dieses Skripts)
@@ -36,10 +37,12 @@ mkdir -p "$HOME"
 
 DRY_RUN=""
 DO_PULL=1
+FULL_INSTALL=0
 for arg in "$@"; do
   case "$arg" in
     --dry-run) DRY_RUN="--dry-run" ;;
     --no-pull) DO_PULL=0 ;;
+    --full) FULL_INSTALL=1 ;;
     *) echo "Unbekannte Option: $arg" >&2; exit 2 ;;
   esac
 done
@@ -76,8 +79,20 @@ log "Stand: $(git rev-parse --short HEAD) — $(git log -1 --pretty=%s)"
 # vite), die der Build/Toolchain braucht. Ohne das lässt npm sie unter
 # NODE_ENV=production weg — der
 # Admin-Dienst läuft mit NODE_ENV=production, daher ist das Flag hier Pflicht.
-log "npm ci (inkl. devDependencies) ..."
-npm ci --include=dev
+# npm ci löscht node_modules komplett und installiert neu – auf dem VPS mehrere
+# Minuten. Das ist nur nötig, wenn sich package-lock.json geändert hat. Ein
+# Stempel mit der Prüfsumme des Lockfiles in node_modules/ erkennt das; mit
+# --full (oder fehlendem/unvollständigem node_modules) wird immer installiert.
+LOCK_SUM="$(sha256sum package-lock.json | cut -d' ' -f1)"
+STAMP="node_modules/.kodini-lock-sha256"
+if [ "$FULL_INSTALL" -eq 0 ] && [ -x node_modules/.bin/astro ] && [ -f "$STAMP" ] \
+   && [ "$(cat "$STAMP")" = "$LOCK_SUM" ]; then
+  log "npm ci übersprungen: package-lock.json unverändert (node_modules aktuell)."
+else
+  log "npm ci (inkl. devDependencies) ..."
+  npm ci --include=dev
+  printf '%s' "$LOCK_SUM" > "$STAMP"
+fi
 log "npm run build ..."
 npm run build   # -> dist/
 

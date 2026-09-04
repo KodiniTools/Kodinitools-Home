@@ -144,7 +144,14 @@ darüberschreiben (`rsync … Permission denied`).
 ```bash
 sudo -u www-data /opt/kodini/repo/deploy.sh            # baut main, deployt
 sudo -u www-data /opt/kodini/repo/deploy.sh --dry-run  # nur Vorschau
+sudo -u www-data /opt/kodini/repo/deploy.sh --full     # npm ci erzwingen
 ```
+
+`npm ci` (der langsamste Schritt, auf dem VPS mehrere Minuten) läuft nur noch,
+wenn sich `package-lock.json` seit dem letzten Deploy geändert hat oder
+`node_modules` fehlt/unvollständig ist. Die Prüfsumme des Lockfiles wird in
+`node_modules/.kodini-lock-sha256` gemerkt; `--full` erzwingt die Installation
+(z. B. bei defektem `node_modules`).
 
 Falls die Rechte bereits verstellt sind (Deploy meldet „Permission denied"),
 einmalig als root reparieren:
