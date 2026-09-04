@@ -70,6 +70,69 @@ const GRADIENT_TYPE_LABEL = {
   radial: 'Radial (von oben Mitte)',
 };
 const PATTERN_LABEL = { none: 'Kein Muster', dots: 'Punktraster', grid: 'Feines Gitter' };
+
+// Generischer Regler: Slider + Zahlenfeld (Spinner) + „↺" (Standardwert).
+// attrs = Attribute des Range-Inputs (Feld-/Modus-Kennung, auf die die bestehenden
+// input-Handler hören); id = Schlüssel für data-num / data-reset (Tests, Sync).
+function slider({
+  id,
+  label,
+  hint = '',
+  unit,
+  min,
+  max,
+  step = 1,
+  value,
+  def,
+  attrs,
+  disabled = false,
+  labelStyle = '',
+}) {
+  const dis = disabled ? 'disabled' : '';
+  return `
+    <div class="slider" data-slider="${id}">
+      <label${labelStyle ? ` style="${labelStyle}"` : ''}>${label}${hint ? ` <span class="hint" style="margin:0">${hint}</span>` : ''}</label>
+      <div class="slider-row">
+        <input type="range" ${attrs} min="${min}" max="${max}" step="${step}" value="${value}" ${dis} />
+        <input type="number" class="slider-num" data-num="${id}" min="${min}" max="${max}" step="${step}" value="${value}" ${dis} aria-label="${esc(label)} (Zahl)" />
+        <span class="slider-unit">${unit}</span>
+        <button type="button" class="hd-reset slider-reset" data-reset="${id}" data-def="${def}" title="Auf Standard (${def} ${unit}) zurücksetzen" ${dis}>↺</button>
+      </div>
+    </div>`;
+}
+// Verdrahtung aller Regler: Zahlenfeld und „↺" schreiben in den Slider und lösen
+// dessen input-Event aus, sodass die Feld-Handler (Modell + Vorschau) wie beim
+// Ziehen laufen. Beim Tippen wird das Zahlenfeld nicht überschrieben (Fokus/Cursor
+// bleiben erhalten); beim Verlassen wird es auf den gültigen Bereich gesetzt.
+function bindSliders(pane) {
+  pane.querySelectorAll('[data-slider]').forEach((box) => {
+    const range = box.querySelector('input[type="range"]');
+    const num = box.querySelector('[data-num]');
+    const reset = box.querySelector('[data-reset]');
+    if (!range || !num || !reset) return;
+    let typing = false;
+    const push = (v) => {
+      range.value = v; // Range begrenzt selbst auf min/max
+      range.dispatchEvent(new Event('input', { bubbles: true }));
+    };
+    range.addEventListener('input', () => {
+      if (!typing) num.value = range.value;
+    });
+    num.addEventListener('input', () => {
+      if (num.value === '') return;
+      typing = true;
+      push(num.value);
+      typing = false;
+    });
+    num.addEventListener('change', () => {
+      num.value = range.value;
+    });
+    reset.addEventListener('click', () => {
+      push(reset.dataset.def);
+      num.value = range.value;
+    });
+  });
+}
 // Sektionen: Vorschlag für die Tönungsfarbe je Modus (Markenfarben) und Stil-Beschriftung.
 const SECTION_TINT_DEFAULT = { light: '#014f99', dark: '#e8a945' };
 const SECTION_STYLE_LABEL = {
@@ -155,18 +218,9 @@ function patternRow(mode) {
           <label>Farbe</label>
           <input type="color" data-bgf="patternColor" data-mode="${mode}" value="${esc(s.patternColor)}" ${dis} style="width:64px;height:40px;padding:2px" />
         </div>
-        <div style="flex:1 1 140px">
-          <label>Abstand: <span data-bgoval="patternSpacing" data-mode="${mode}">${s.patternSpacing}</span> px</label>
-          <input type="range" data-bgf="patternSpacing" data-mode="${mode}" min="4" max="200" value="${s.patternSpacing}" ${dis} style="width:100%" />
-        </div>
-        <div style="flex:1 1 120px">
-          <label>Stärke: <span data-bgoval="patternThickness" data-mode="${mode}">${s.patternThickness}</span> px</label>
-          <input type="range" data-bgf="patternThickness" data-mode="${mode}" min="1" max="6" value="${s.patternThickness}" ${dis} style="width:100%" />
-        </div>
-        <div style="flex:1 1 140px">
-          <label>Deckkraft: <span data-bgoval="patternOpacity" data-mode="${mode}">${s.patternOpacity}</span> %</label>
-          <input type="range" data-bgf="patternOpacity" data-mode="${mode}" min="0" max="100" value="${s.patternOpacity}" ${dis} style="width:100%" />
-        </div>
+        <div style="flex:1 1 200px">${slider({ id: `bg:patternSpacing:${mode}`, label: 'Abstand', unit: 'px', min: 4, max: 200, value: s.patternSpacing, def: 24, attrs: `data-bgf="patternSpacing" data-mode="${mode}"`, disabled: !on })}</div>
+        <div style="flex:1 1 180px">${slider({ id: `bg:patternThickness:${mode}`, label: 'Stärke', unit: 'px', min: 1, max: 6, value: s.patternThickness, def: 1, attrs: `data-bgf="patternThickness" data-mode="${mode}"`, disabled: !on })}</div>
+        <div style="flex:1 1 200px">${slider({ id: `bg:patternOpacity:${mode}`, label: 'Deckkraft', unit: '%', min: 0, max: 100, value: s.patternOpacity, def: 12, attrs: `data-bgf="patternOpacity" data-mode="${mode}"`, disabled: !on })}</div>
       </div>
     </div>`;
 }
@@ -196,18 +250,9 @@ function imageRow(mode) {
         </div>
       </div>
       <div class="row" style="align-items:flex-end;margin-top:.2rem;${on ? '' : 'opacity:.45'}">
-        <div style="flex:1 1 140px">
-          <label>Abdunkelung: <span data-bgoval="imageDarken" data-mode="${mode}">${s.imageDarken}</span> %</label>
-          <input type="range" data-bgf="imageDarken" data-mode="${mode}" min="0" max="100" value="${s.imageDarken}" ${dis} style="width:100%" />
-        </div>
-        <div style="flex:1 1 140px">
-          <label>Weichzeichner: <span data-bgoval="imageBlur" data-mode="${mode}">${s.imageBlur}</span> px</label>
-          <input type="range" data-bgf="imageBlur" data-mode="${mode}" min="0" max="40" value="${s.imageBlur}" ${dis} style="width:100%" />
-        </div>
-        <div style="flex:1 1 140px">
-          <label>Deckkraft: <span data-bgoval="imageOpacity" data-mode="${mode}">${s.imageOpacity}</span> %</label>
-          <input type="range" data-bgf="imageOpacity" data-mode="${mode}" min="0" max="100" value="${s.imageOpacity}" ${dis} style="width:100%" />
-        </div>
+        <div style="flex:1 1 200px">${slider({ id: `bg:imageDarken:${mode}`, label: 'Abdunkelung', unit: '%', min: 0, max: 100, value: s.imageDarken, def: 0, attrs: `data-bgf="imageDarken" data-mode="${mode}"`, disabled: !on })}</div>
+        <div style="flex:1 1 200px">${slider({ id: `bg:imageBlur:${mode}`, label: 'Weichzeichner', unit: 'px', min: 0, max: 40, value: s.imageBlur, def: 0, attrs: `data-bgf="imageBlur" data-mode="${mode}"`, disabled: !on })}</div>
+        <div style="flex:1 1 200px">${slider({ id: `bg:imageOpacity:${mode}`, label: 'Deckkraft', unit: '%', min: 0, max: 100, value: s.imageOpacity, def: 100, attrs: `data-bgf="imageOpacity" data-mode="${mode}"`, disabled: !on })}</div>
         <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin:0 0 .5rem;flex:0 0 auto">
           <input type="checkbox" data-bgf="imageFixed" data-mode="${mode}" ${s.imageFixed ? 'checked' : ''} ${dis} style="width:auto" /> Fixiert beim Scrollen
         </label>
@@ -241,10 +286,7 @@ function modeRow(mode, label) {
           <label>${s.gradient ? 'Startfarbe' : 'Farbe'}</label>
           <input type="color" data-bgf="color" data-mode="${mode}" value="${esc(colorVal)}" ${dis} style="width:64px;height:40px;padding:2px" />
         </div>
-        <div style="flex:1 1 180px">
-          <label>Deckkraft: <span data-bgoval="opacity" data-mode="${mode}">${s.opacity}</span>% <span class="hint" style="margin:0">(mischt mit der Standardfarbe ${PAGE_BG_DEFAULT[mode]})</span></label>
-          <input type="range" data-bgf="opacity" data-mode="${mode}" min="0" max="100" value="${s.opacity}" ${dis} style="width:100%" />
-        </div>
+        <div style="flex:1 1 260px">${slider({ id: `bg:opacity:${mode}`, label: 'Deckkraft', hint: `(mischt mit der Standardfarbe ${PAGE_BG_DEFAULT[mode]})`, unit: '%', min: 0, max: 100, value: s.opacity, def: 100, attrs: `data-bgf="opacity" data-mode="${mode}"`, disabled: !on })}</div>
       </div>
       <div style="display:flex;align-items:center;gap:.5rem;margin-top:.6rem">
         <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin:0">
@@ -260,10 +302,7 @@ function modeRow(mode, label) {
           <label>Art</label>
           <select data-bgf="type" data-mode="${mode}" ${gradDis} style="width:auto">${typeOpts}</select>
         </div>
-        <div style="flex:1 1 160px">
-          <label>Richtung: <span data-bgoval="angle" data-mode="${mode}">${s.angle}</span>° <span class="hint" style="margin:0">(0° = von unten nach oben, 180° = von oben nach unten)</span></label>
-          <input type="range" data-bgf="angle" data-mode="${mode}" min="0" max="360" value="${s.angle}" ${gradDis} ${s.type === 'radial' ? 'disabled' : ''} style="width:100%" />
-        </div>
+        <div style="flex:1 1 260px">${slider({ id: `bg:angle:${mode}`, label: 'Richtung', hint: '(0° = von unten nach oben, 180° = von oben nach unten)', unit: '°', min: 0, max: 360, value: s.angle, def: 180, attrs: `data-bgf="angle" data-mode="${mode}"`, disabled: !(on && s.gradient) || s.type === 'radial' })}</div>
       </div>
       <p class="hint" data-bgnote="${mode}" style="margin-top:.6rem">${noteFor(mode)}</p>
       ${patternRow(mode)}
@@ -346,10 +385,7 @@ function sectionCol(key, mode) {
         <div style="flex:0 0 auto">
           <input type="color" data-secf="color" ${a} value="${esc(c.color || SECTION_TINT_DEFAULT[mode])}" ${dis} style="width:52px;height:36px;padding:2px" />
         </div>
-        <div style="flex:1 1 100px">
-          <label style="margin-top:0">Deckkraft: <span data-secoval="opacity" ${a}>${c.opacity}</span> %</label>
-          <input type="range" data-secf="opacity" ${a} min="0" max="100" value="${c.opacity}" ${dis} style="width:100%" />
-        </div>
+        <div style="flex:1 1 160px">${slider({ id: `sec:${key}:${mode}:opacity`, label: 'Deckkraft', unit: '%', min: 0, max: 100, value: c.opacity, def: 8, attrs: `data-secf="opacity" ${a}`, disabled: !on, labelStyle: 'margin-top:0' })}</div>
       </div>
       <div class="row" style="align-items:center;margin-top:.4rem">
         <div class="bg-thumb sm" data-secthumb="${key}" data-mode="${mode}">${thumb}</div>
@@ -359,18 +395,9 @@ function sectionCol(key, mode) {
         </div>
       </div>
       <div class="row" style="align-items:flex-end;margin-top:.2rem;${c.image ? '' : 'display:none'}">
-        <div style="flex:1 1 70px">
-          <label style="margin-top:0">Dunkler: <span data-secoval="imageDarken" ${a}>${c.imageDarken}</span> %</label>
-          <input type="range" data-secf="imageDarken" ${a} min="0" max="100" value="${c.imageDarken}" ${imgDis} style="width:100%" />
-        </div>
-        <div style="flex:1 1 70px">
-          <label style="margin-top:0">Weich: <span data-secoval="imageBlur" ${a}>${c.imageBlur}</span> px</label>
-          <input type="range" data-secf="imageBlur" ${a} min="0" max="40" value="${c.imageBlur}" ${imgDis} style="width:100%" />
-        </div>
-        <div style="flex:1 1 70px">
-          <label style="margin-top:0">Deckkraft: <span data-secoval="imageOpacity" ${a}>${c.imageOpacity}</span> %</label>
-          <input type="range" data-secf="imageOpacity" ${a} min="0" max="100" value="${c.imageOpacity}" ${imgDis} style="width:100%" />
-        </div>
+        <div style="flex:1 1 150px">${slider({ id: `sec:${key}:${mode}:imageDarken`, label: 'Dunkler', unit: '%', min: 0, max: 100, value: c.imageDarken, def: 0, attrs: `data-secf="imageDarken" ${a}`, disabled: !c.image, labelStyle: 'margin-top:0' })}</div>
+        <div style="flex:1 1 150px">${slider({ id: `sec:${key}:${mode}:imageBlur`, label: 'Weich', unit: 'px', min: 0, max: 40, value: c.imageBlur, def: 0, attrs: `data-secf="imageBlur" ${a}`, disabled: !c.image, labelStyle: 'margin-top:0' })}</div>
+        <div style="flex:1 1 150px">${slider({ id: `sec:${key}:${mode}:imageOpacity`, label: 'Deckkraft', unit: '%', min: 0, max: 100, value: c.imageOpacity, def: 100, attrs: `data-secf="imageOpacity" ${a}`, disabled: !c.image, labelStyle: 'margin-top:0' })}</div>
       </div>
     </div>`;
 }
@@ -396,14 +423,7 @@ function sectionsPanel() {
           <label>Darstellung</label>
           <select data-secstyle>${opts}</select>
         </div>
-        <div style="flex:1 1 220px">
-          <label>Abstand zwischen den Sektionen <span class="hint" style="margin:0">(px Seitenhintergrund zwischen zwei Bändern)</span></label>
-          <div style="display:flex;align-items:center;gap:.5rem">
-            <input type="range" data-secgap="range" min="0" max="${SECTION_GAP_MAX}" step="1" value="${getSectionGap()}" style="flex:1 1 auto" />
-            <input type="number" data-secgap="number" min="0" max="${SECTION_GAP_MAX}" step="1" value="${getSectionGap()}" style="width:5.5rem" aria-label="Abstand in Pixel" />
-            <span class="hint" style="margin:0">px</span>
-          </div>
-        </div>
+        <div style="flex:1 1 260px">${slider({ id: 'gap', label: 'Abstand zwischen den Sektionen', hint: '(px Seitenhintergrund zwischen zwei Bändern)', unit: 'px', min: 0, max: SECTION_GAP_MAX, value: getSectionGap(), def: 0, attrs: 'data-secgap' })}</div>
         <div style="flex:0 0 auto;display:flex;gap:.4rem;flex-wrap:wrap">
           <button type="button" class="primary" data-secalt title="Audio- und Diverse-Tools dezent tönen, Bild-Tools frei lassen (Hell + Dunkel)">✨ Abwechselnd anwenden</button>
           <button type="button" data-secclear title="Alle Sektionen auf Standard (keine Tönung, kein Bild)">↺ Alle zurücksetzen</button>
@@ -436,22 +456,11 @@ function refreshSections(pane) {
   if (note) note.textContent = sectionNote();
 }
 function bindSections(pane) {
-  // Abstand: Slider und Zahlenfeld halten sich gegenseitig synchron (ohne Neu-Rendern,
-  // damit der Fokus im Zahlenfeld beim Tippen erhalten bleibt).
   pane.querySelectorAll('[data-secgap]').forEach((inp) => {
     inp.addEventListener('input', () => {
-      if (inp.type === 'number' && inp.value === '') return; // leeres Feld: noch kein Wert
       setSectionGap(inp.value);
-      const v = String(getSectionGap());
-      pane.querySelectorAll('[data-secgap]').forEach((other) => {
-        if (other !== inp) other.value = v;
-      });
       refreshSections(pane);
     });
-    if (inp.type === 'number')
-      inp.addEventListener('change', () => {
-        inp.value = String(getSectionGap()); // Wert nach Verlassen auf gültigen Bereich setzen
-      });
   });
   const sel = pane.querySelector('[data-secstyle]');
   if (sel)
@@ -491,10 +500,6 @@ function bindSections(pane) {
     const { key, mode, secf: field } = inp.dataset;
     inp.addEventListener('input', () => {
       setSiteSection(key, mode, { [field]: inp.value });
-      const oval = pane.querySelector(
-        `[data-secoval="${field}"][data-key="${key}"][data-mode="${mode}"]`,
-      );
-      if (oval) oval.textContent = getSiteSection(key, mode)[field];
       refreshSections(pane);
     });
   });
@@ -572,8 +577,7 @@ function fxRow(fx) {
         <input type="checkbox" data-fxon="${fx.key}" ${s.on ? 'checked' : ''} style="width:auto" /> ${esc(fx.label)}
       </label>
       <p class="hint" style="margin:.2rem 0 .4rem">${FX_DESC[fx.key] || ''}</p>
-      <label style="margin-top:0">Intensität: <span data-fxoval="${fx.key}">${s.intensity}</span> %</label>
-      <input type="range" data-fxint="${fx.key}" min="0" max="100" value="${s.intensity}" ${s.on ? '' : 'disabled'} style="width:100%" />
+      ${slider({ id: `fx:${fx.key}`, label: 'Intensität', unit: '%', min: 0, max: 100, value: s.intensity, def: 50, attrs: `data-fxint="${fx.key}"`, disabled: !s.on, labelStyle: 'margin-top:0' })}
     </div>`;
 }
 function fxPreview(mode) {
@@ -632,8 +636,6 @@ function bindEffects(pane) {
     inp.addEventListener('input', () => {
       const key = inp.dataset.fxint;
       setSiteFx(key, { intensity: inp.value });
-      const oval = pane.querySelector(`[data-fxoval="${key}"]`);
-      if (oval) oval.textContent = getSiteFx(key).intensity;
       refreshFx(pane);
     });
   });
@@ -662,6 +664,7 @@ export function renderBackground() {
   bindBackground(pane);
   bindSections(pane);
   bindEffects(pane);
+  bindSliders(pane); // nach den Feld-Handlern: Zahlenfeld/„↺" lösen deren input-Event aus
 }
 
 function refreshMode(pane, mode) {
@@ -714,8 +717,6 @@ function bindBackground(pane) {
         return;
       }
       setSiteBg(mode, { [field]: inp.type === 'checkbox' ? inp.checked : inp.value });
-      const oval = pane.querySelector(`[data-bgoval="${field}"][data-mode="${mode}"]`);
-      if (oval) oval.textContent = getSiteBg(mode)[field];
       refreshMode(pane, mode);
     });
   });
