@@ -71,7 +71,7 @@ function layerCss(mode) {
 }
 
 function previewStyle(mode) {
-  return `background:${layerCss(mode)};color:${PREVIEW_FG[mode]};border:1px solid var(--border);border-radius:8px;padding:1rem 1.1rem;min-height:120px;font-weight:500`;
+  return `background:${layerCss(mode)};color:${PREVIEW_FG[mode]}`;
 }
 
 function noteFor(mode) {
@@ -134,29 +134,40 @@ function modeRow(mode, label) {
           <input type="range" data-bgf="angle" data-mode="${mode}" min="0" max="360" value="${s.angle}" ${gradDis} ${s.type === 'radial' ? 'disabled' : ''} style="width:100%" />
         </div>
       </div>
-      <label>Vorschau</label>
-      <div data-bgprev="${mode}" style="${previewStyle(mode)}">
-        <div style="font-weight:700;font-size:1.05rem">Beispiel: So sieht die Seite aus</div>
-        <div style="opacity:.8;font-size:.85rem;margin-top:.3rem">Überschrift, Text und Karten liegen auf diesem Hintergrund.</div>
-      </div>
-      <p class="hint" data-bgnote="${mode}" style="margin-top:.4rem">${noteFor(mode)}</p>
+      <p class="hint" data-bgnote="${mode}" style="margin-top:.6rem">${noteFor(mode)}</p>
     </div>`;
 }
 
 function backgroundPanel() {
   return `
+    ${stickyPreview()}
     <div class="panel">
       <h2>Seiten-Hintergrund</h2>
       <p class="hint" style="margin-top:0">
         Legt den <strong>Hintergrund der gesamten Website</strong> fest (beide Sprachen).
         Getrennt einstellbar für <strong>Hell-</strong> und <strong>Dunkelmodus</strong>: Farbe,
-        <strong>Deckkraft</strong> (Mischung mit der Standardfarbe) und optional ein <strong>Farbverlauf</strong>.
-        Ausgeschaltet = Standardfarbe des jeweiligen Modus.
+        <strong>Deckkraft</strong> (Mischung mit der Standardfarbe) und optional ein <strong>Farbverlauf</strong>;
+        darunter die zuschaltbaren <strong>Effekte</strong>. Die Vorschau bleibt beim Scrollen oben sichtbar.
       </p>
       ${modeRow('light', 'den Hellmodus')}
       ${modeRow('dark', 'den Dunkelmodus')}
     </div>
     ${effectsPanel()}`;
+}
+
+// Sticky-Live-Vorschau (Hell + Dunkel nebeneinander): Seitenfarbe/Verlauf/
+// Deckkraft als Grund, darüber die Effekt-Ebenen (Aurora, Rauschen, Spotlight
+// folgt der Maus) und Beispiel-Inhalt (Überschrift, Text, Karte) wie auf der Seite.
+// Liegt direkt in #content (nicht im Panel), damit sie über den ganzen Tab klebt.
+function stickyPreview() {
+  const anyFx = SITE_FX.some((fx) => getSiteFx(fx.key).on);
+  return `
+    <div class="tc-sticky">
+      <p class="hint" style="margin:.1rem 0 .4rem">Live-Vorschau Hell + Dunkel <em>(inkl. Effekte${
+        anyFx ? '; Maus über die Vorschau bewegen zeigt das Spotlight' : ' – derzeit alle aus'
+      })</em>:</p>
+      <div class="fx-prevs">${fxPreview('light')}${fxPreview('dark')}</div>
+    </div>`;
 }
 
 // --- Effekte: je Effekt Schalter + Intensität, darunter Live-Vorschau Hell/Dunkel ---
@@ -176,28 +187,28 @@ function fxPreview(mode) {
   const a = getSiteFx('fxAurora');
   const n = getSiteFx('fxNoise');
   const sp = getSiteFx('fxSpotlight');
-  const fg = PREVIEW_FG[mode];
   return `
-    <div class="fx-prev" data-fxprev="${mode}" style="background:${layerCss(mode)};color:${fg}" title="${sp.on ? 'Maus bewegen: Spotlight folgt dem Zeiger' : ''}">
+    <div class="fx-prev" data-fxprev="${mode}" data-bgprev="${mode}" style="${previewStyle(mode)}" title="${sp.on ? 'Maus bewegen: Spotlight folgt dem Zeiger' : ''}">
       <div class="fx-prev-layer" data-fxlayer="aurora" style="background:${AURORA_BG[mode]};opacity:${a.on ? a.intensity / 100 : 0}"></div>
       <div class="fx-prev-layer" data-fxlayer="noise" style="opacity:${n.on ? (n.intensity / 100) * FX_NOISE_MAX : 0}"></div>
       <div class="fx-prev-layer" data-fxlayer="spot"></div>
       <div class="fx-prev-content">
         <span class="fx-prev-label">${mode === 'dark' ? 'Dunkel 🌙' : 'Hell ☀️'}</span>
-        <div style="font-weight:700;font-size:1.05rem">Beispiel: Seite mit Effekten</div>
-        <div style="opacity:.8;font-size:.85rem;margin-top:.3rem">Aurora, Rauschen und Spotlight liegen unter dem Inhalt.</div>
+        <div class="fx-prev-title">Kostenlose Online-Tools</div>
+        <div class="fx-prev-text">Überschrift, Text und Karten liegen auf diesem Hintergrund.</div>
+        <div class="fx-prev-card ${mode}">
+          <span class="fx-prev-badge">Beispiel</span>
+          <div class="fx-prev-card-title">Tool-Karte</div>
+        </div>
       </div>
     </div>`;
 }
 function effectsPanel() {
-  const anyOn = SITE_FX.some((fx) => getSiteFx(fx.key).on);
   return `
     <div class="panel">
       <h2>Effekte <span class="lang-badge">gilt für Hell + Dunkel</span></h2>
-      <p class="hint" style="margin-top:0">Zuschaltbare Hintergrund-Effekte für die ganze Website. Jeder Effekt einzeln ein-/ausschaltbar mit eigener Intensität; die Farben passen sich dem Modus an. Alles aus = wie bisher.</p>
+      <p class="hint" style="margin-top:0">Zuschaltbare Hintergrund-Effekte für die ganze Website. Jeder Effekt einzeln ein-/ausschaltbar mit eigener Intensität; die Farben passen sich dem Modus an. Alles aus = wie bisher. Wirkung oben in der Sticky-Vorschau.</p>
       ${SITE_FX.map(fxRow).join('')}
-      <p class="hint" style="margin:.8rem 0 .3rem;font-weight:600;color:var(--text)">Live-Vorschau ${anyOn ? '' : '<span class="hint" style="font-weight:400">(alle Effekte aus)</span>'}</p>
-      <div class="fx-prevs">${fxPreview('light')}${fxPreview('dark')}</div>
     </div>`;
 }
 // Vorschau-Ebenen nach Regler-Änderung aktualisieren (ohne Neu-Rendern).
@@ -259,7 +270,7 @@ export function renderBackground() {
 
 function refreshMode(pane, mode) {
   const prev = pane.querySelector(`[data-bgprev="${mode}"]`);
-  if (prev) prev.setAttribute('style', previewStyle(mode));
+  if (prev) prev.setAttribute('style', previewStyle(mode)); // nur Grund; Ebenen sind Kinder
   const note = pane.querySelector(`[data-bgnote="${mode}"]`);
   if (note) note.textContent = noteFor(mode);
 }
