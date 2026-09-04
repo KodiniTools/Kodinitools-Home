@@ -746,6 +746,14 @@ export interface SiteConfig {
   bgGradientTypeDark: 'linear' | 'radial';
   bgAngle: number;
   bgAngleDark: number;
+  // Hintergrund-Effekte (global, Farben folgen dem Modus): Aurora-Farbflecken,
+  // feines Rauschen, Maus-Spotlight – je an/aus + Intensität 0–100.
+  fxAurora: boolean;
+  fxAuroraIntensity: number;
+  fxNoise: boolean;
+  fxNoiseIntensity: number;
+  fxSpotlight: boolean;
+  fxSpotlightIntensity: number;
 }
 
 const SITE_DEFAULTS: SiteConfig = {
@@ -762,8 +770,18 @@ const SITE_DEFAULTS: SiteConfig = {
   bgGradientTypeDark: 'linear',
   bgAngle: 180,
   bgAngleDark: 180,
+  fxAurora: false,
+  fxAuroraIntensity: 50,
+  fxNoise: false,
+  fxNoiseIntensity: 50,
+  fxSpotlight: false,
+  fxSpotlightIntensity: 50,
 };
 // Standard-Hintergrundfarben je Modus (identisch zu base.css --bg-color).
+// Skalierung der Effekt-Intensität (0–100) auf CSS-Deckkraft: Aurora 0–1,
+// Rauschen 0–0,08, Spotlight-Faktor 0–1 (index.astro multipliziert mit der
+// Grundfarbe). Intensität 50 entspricht dem früheren eingebauten Aussehen.
+const FX_NOISE_MAX = 0.08;
 const PAGE_BG_BASE: Record<'light' | 'dark', string> = { light: '#fafafa', dark: '#091428' };
 
 /**
@@ -818,8 +836,43 @@ const SITE_HEX = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
  */
 export function getSiteBackgroundStyle(): string | undefined {
   const site = getSite();
-  const rules = [...siteBgRules(site, 'light'), ...siteBgRules(site, 'dark')];
+  const rules = [...siteBgRules(site, 'light'), ...siteBgRules(site, 'dark'), ...siteFxRules(site)];
   return rules.length ? rules.join('') : undefined;
+}
+
+/**
+ * CSS für die Hintergrund-Effekte. Die Ebene .global-background (in den Seiten
+ * vorhanden, per background.css ausgeblendet) wird nur eingeblendet, wenn
+ * mindestens ein Effekt aktiv ist; inaktive Effekte bleiben ausgeblendet.
+ * Ohne aktive Effekte entstehen keine Regeln (Aussehen wie bisher).
+ */
+function siteFxRules(site: SiteConfig): string[] {
+  const num = (v: unknown, d: number) =>
+    typeof v === 'number' && Number.isFinite(v) ? Math.max(0, Math.min(100, v)) : d;
+  const aurora = site.fxAurora === true;
+  const noise = site.fxNoise === true;
+  const spot = site.fxSpotlight === true;
+  if (!aurora && !noise && !spot) return [];
+  const fmt = (n: number) => String(Math.round(n * 1000) / 1000);
+  // Präfix `html` erhöht die Spezifität über die Klassenregeln in background.css
+  // (das Inline-<style> steht im <head> VOR dem gebündelten Stylesheet).
+  const rules: string[] = ['html .global-background{display:block;}'];
+  rules.push(
+    aurora
+      ? `html .global-gradient{opacity:${fmt(num(site.fxAuroraIntensity, 50) / 100)};}`
+      : 'html .global-gradient{display:none;}',
+  );
+  rules.push(
+    noise
+      ? `html .global-noise{opacity:${fmt((num(site.fxNoiseIntensity, 50) / 100) * FX_NOISE_MAX)};}`
+      : 'html .global-noise{display:none;}',
+  );
+  rules.push(
+    spot
+      ? `html:root{--fx-spotlight:${fmt(num(site.fxSpotlightIntensity, 50) / 100)};}`
+      : 'html .mouse-spotlight{display:none;}',
+  );
+  return rules;
 }
 
 // Hex (#rgb/#rrggbb) -> [r,g,b].

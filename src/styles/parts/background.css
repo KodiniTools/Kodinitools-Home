@@ -1,9 +1,18 @@
-/* Global Background Effects – deaktiviert.
-   Die farbigen Hintergrund-Effekte (Aurora-Verläufe, Noise-Textur, Maus-
-   Spotlight) werden nicht mehr angezeigt; die Seite behält ihre flache
-   Hauptfarbe (--bg-color, passt sich Hell-/Dunkelmodus an). */
+/* Global Background Effects – standardmäßig ausgeblendet.
+   Die Effekte (Aurora-Farbflecken, Noise-Textur, Maus-Spotlight) werden im
+   Admin (Tab „Hintergrund" → Effekte) einzeln ein-/ausgeschaltet; content.ts
+   (getSiteBackgroundStyle) blendet die Ebene dann ein und setzt die Deckkraft
+   je Effekt aus der Intensität. Ohne aktive Effekte bleibt alles wie bisher:
+   flache Hauptfarbe (--bg-color, passt sich Hell-/Dunkelmodus an).
+   Die Ebene liegt fest im Viewport UNTER dem Inhalt (z-index -1) und über der
+   Seitenfarbe; pointer-events: none, damit Klicks durchgehen. */
 .global-background {
   display: none;
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
 }
 
 .global-gradient {
@@ -12,19 +21,21 @@
   left: 0;
   width: 100%;
   height: 100%;
+  /* Deckkraft = Intensität aus dem Admin (0–1); 0.5 entspricht dem früheren Look. */
+  opacity: 0.5;
   /* Aurora Mesh (light) – soft brand-coloured blooms over the page ground */
   background:
-    radial-gradient(ellipse 75% 60% at 12% -5%, rgba(1, 79, 153, 0.12), transparent 55%),
-    radial-gradient(ellipse 55% 45% at 92% 8%, rgba(232, 169, 69, 0.13), transparent 55%),
-    radial-gradient(ellipse 65% 55% at 85% 105%, rgba(58, 123, 200, 0.11), transparent 55%);
+    radial-gradient(ellipse 75% 60% at 12% -5%, rgba(1, 79, 153, 0.24), transparent 55%),
+    radial-gradient(ellipse 55% 45% at 92% 8%, rgba(232, 169, 69, 0.26), transparent 55%),
+    radial-gradient(ellipse 65% 55% at 85% 105%, rgba(58, 123, 200, 0.22), transparent 55%);
 }
 
 [data-theme="dark"] .global-gradient {
   /* Aurora Mesh (dark) */
   background:
-    radial-gradient(ellipse 75% 60% at 12% -5%, rgba(232, 169, 69, 0.13), transparent 55%),
-    radial-gradient(ellipse 55% 45% at 92% 8%, rgba(1, 79, 153, 0.22), transparent 55%),
-    radial-gradient(ellipse 65% 55% at 85% 105%, rgba(232, 169, 69, 0.07), transparent 55%);
+    radial-gradient(ellipse 75% 60% at 12% -5%, rgba(232, 169, 69, 0.26), transparent 55%),
+    radial-gradient(ellipse 55% 45% at 92% 8%, rgba(1, 79, 153, 0.44), transparent 55%),
+    radial-gradient(ellipse 65% 55% at 85% 105%, rgba(232, 169, 69, 0.14), transparent 55%);
 }
 
 .global-noise {
@@ -34,10 +45,7 @@
   width: 100%;
   height: 100%;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  opacity: 0.025;
-}
-
-[data-theme="dark"] .global-noise {
+  /* Deckkraft = Intensität aus dem Admin (0–0.08); 0.04 = früherer Dunkel-Look. */
   opacity: 0.04;
 }
 

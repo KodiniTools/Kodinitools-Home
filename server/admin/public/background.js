@@ -10,10 +10,38 @@ import { $, esc, toast } from './core.js';
 import {
   getSiteBg,
   setSiteBg,
+  getSiteFx,
+  setSiteFx,
+  SITE_FX,
   PAGE_BG_DEFAULT,
   rgbaFromHex,
   SITE_GRADIENT_TYPES,
 } from './model.js';
+
+// --- Effekte (Aurora / Rauschen / Spotlight): Beschreibung + Vorschau-Werte ---
+// Die Vorschau bildet background.css + index.astro nach (gleiche Verläufe,
+// gleiche Skalierung der Intensität), damit sie dem Ergebnis auf der Seite entspricht.
+const FX_DESC = {
+  fxAurora:
+    'Weiche Farbflecken in den Markenfarben (Blau/Gold) über dem Seitenhintergrund. Farben folgen automatisch dem Hell-/Dunkelmodus.',
+  fxNoise:
+    'Feine Körnung, die großen Flächen den sterilen Eindruck nimmt und Verläufe weicher macht.',
+  fxSpotlight:
+    'Sanfter Lichtkegel, der dem Mauszeiger folgt (nur Startseiten; auf Touch-Geräten unsichtbar).',
+};
+const AURORA_BG = {
+  light:
+    'radial-gradient(ellipse 75% 60% at 12% -5%, rgba(1, 79, 153, 0.24), transparent 55%),' +
+    'radial-gradient(ellipse 55% 45% at 92% 8%, rgba(232, 169, 69, 0.26), transparent 55%),' +
+    'radial-gradient(ellipse 65% 55% at 85% 105%, rgba(58, 123, 200, 0.22), transparent 55%)',
+  dark:
+    'radial-gradient(ellipse 75% 60% at 12% -5%, rgba(232, 169, 69, 0.26), transparent 55%),' +
+    'radial-gradient(ellipse 55% 45% at 92% 8%, rgba(1, 79, 153, 0.44), transparent 55%),' +
+    'radial-gradient(ellipse 65% 55% at 85% 105%, rgba(232, 169, 69, 0.14), transparent 55%)',
+};
+const FX_NOISE_MAX = 0.08;
+const SPOT_BASE = { light: 'rgba(1, 79, 153, A)', dark: 'rgba(201, 152, 77, A)' };
+const SPOT_ALPHA = { light: 0.4, dark: 0.3 };
 
 // Beispiel-Textfarbe für die Vorschau, passend zum jeweiligen Modus (nur Vorschau).
 const PREVIEW_FG = { light: '#003971', dark: '#e2e8f0' };
@@ -127,13 +155,106 @@ function backgroundPanel() {
       </p>
       ${modeRow('light', 'den Hellmodus')}
       ${modeRow('dark', 'den Dunkelmodus')}
+    </div>
+    ${effectsPanel()}`;
+}
+
+// --- Effekte: je Effekt Schalter + Intensität, darunter Live-Vorschau Hell/Dunkel ---
+function fxRow(fx) {
+  const s = getSiteFx(fx.key);
+  return `
+    <div style="border:1px solid var(--border);border-radius:8px;padding:.7rem .8rem;margin-top:.6rem">
+      <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin:0;font-weight:600">
+        <input type="checkbox" data-fxon="${fx.key}" ${s.on ? 'checked' : ''} style="width:auto" /> ${esc(fx.label)}
+      </label>
+      <p class="hint" style="margin:.2rem 0 .4rem">${FX_DESC[fx.key] || ''}</p>
+      <label style="margin-top:0">Intensität: <span data-fxoval="${fx.key}">${s.intensity}</span> %</label>
+      <input type="range" data-fxint="${fx.key}" min="0" max="100" value="${s.intensity}" ${s.on ? '' : 'disabled'} style="width:100%" />
     </div>`;
+}
+function fxPreview(mode) {
+  const a = getSiteFx('fxAurora');
+  const n = getSiteFx('fxNoise');
+  const sp = getSiteFx('fxSpotlight');
+  const fg = PREVIEW_FG[mode];
+  return `
+    <div class="fx-prev" data-fxprev="${mode}" style="background:${layerCss(mode)};color:${fg}" title="${sp.on ? 'Maus bewegen: Spotlight folgt dem Zeiger' : ''}">
+      <div class="fx-prev-layer" data-fxlayer="aurora" style="background:${AURORA_BG[mode]};opacity:${a.on ? a.intensity / 100 : 0}"></div>
+      <div class="fx-prev-layer" data-fxlayer="noise" style="opacity:${n.on ? (n.intensity / 100) * FX_NOISE_MAX : 0}"></div>
+      <div class="fx-prev-layer" data-fxlayer="spot"></div>
+      <div class="fx-prev-content">
+        <span class="fx-prev-label">${mode === 'dark' ? 'Dunkel 🌙' : 'Hell ☀️'}</span>
+        <div style="font-weight:700;font-size:1.05rem">Beispiel: Seite mit Effekten</div>
+        <div style="opacity:.8;font-size:.85rem;margin-top:.3rem">Aurora, Rauschen und Spotlight liegen unter dem Inhalt.</div>
+      </div>
+    </div>`;
+}
+function effectsPanel() {
+  const anyOn = SITE_FX.some((fx) => getSiteFx(fx.key).on);
+  return `
+    <div class="panel">
+      <h2>Effekte <span class="lang-badge">gilt für Hell + Dunkel</span></h2>
+      <p class="hint" style="margin-top:0">Zuschaltbare Hintergrund-Effekte für die ganze Website. Jeder Effekt einzeln ein-/ausschaltbar mit eigener Intensität; die Farben passen sich dem Modus an. Alles aus = wie bisher.</p>
+      ${SITE_FX.map(fxRow).join('')}
+      <p class="hint" style="margin:.8rem 0 .3rem;font-weight:600;color:var(--text)">Live-Vorschau ${anyOn ? '' : '<span class="hint" style="font-weight:400">(alle Effekte aus)</span>'}</p>
+      <div class="fx-prevs">${fxPreview('light')}${fxPreview('dark')}</div>
+    </div>`;
+}
+// Vorschau-Ebenen nach Regler-Änderung aktualisieren (ohne Neu-Rendern).
+function refreshFx(pane) {
+  const a = getSiteFx('fxAurora');
+  const n = getSiteFx('fxNoise');
+  for (const mode of ['light', 'dark']) {
+    const box = pane.querySelector(`[data-fxprev="${mode}"]`);
+    if (!box) continue;
+    box.querySelector('[data-fxlayer="aurora"]').style.opacity = a.on ? a.intensity / 100 : 0;
+    box.querySelector('[data-fxlayer="noise"]').style.opacity = n.on
+      ? (n.intensity / 100) * FX_NOISE_MAX
+      : 0;
+    const sp = box.querySelector('[data-fxlayer="spot"]');
+    if (sp && !getSiteFx('fxSpotlight').on) sp.style.background = '';
+  }
+}
+function bindEffects(pane) {
+  pane.querySelectorAll('[data-fxon]').forEach((cb) => {
+    cb.addEventListener('change', () => {
+      setSiteFx(cb.dataset.fxon, { on: cb.checked });
+      renderBackground();
+    });
+  });
+  pane.querySelectorAll('[data-fxint]').forEach((inp) => {
+    inp.addEventListener('input', () => {
+      const key = inp.dataset.fxint;
+      setSiteFx(key, { intensity: inp.value });
+      const oval = pane.querySelector(`[data-fxoval="${key}"]`);
+      if (oval) oval.textContent = getSiteFx(key).intensity;
+      refreshFx(pane);
+    });
+  });
+  // Spotlight in der Vorschau: folgt der Maus innerhalb der Box.
+  pane.querySelectorAll('[data-fxprev]').forEach((box) => {
+    const mode = box.dataset.fxprev;
+    const spot = box.querySelector('[data-fxlayer="spot"]');
+    box.addEventListener('mousemove', (e) => {
+      const s = getSiteFx('fxSpotlight');
+      if (!s.on || !spot) return;
+      const r = box.getBoundingClientRect();
+      const x = ((e.clientX - r.left) / r.width) * 100;
+      const y = ((e.clientY - r.top) / r.height) * 100;
+      const alpha = (SPOT_ALPHA[mode] * (s.intensity / 100)).toFixed(3);
+      spot.style.background = `radial-gradient(420px circle at ${x}% ${y}%, ${SPOT_BASE[mode].replace('A', alpha)}, transparent 45%)`;
+    });
+    box.addEventListener('mouseleave', () => {
+      if (spot) spot.style.background = '';
+    });
+  });
 }
 
 export function renderBackground() {
   const pane = $('#content');
   pane.innerHTML = backgroundPanel();
   bindBackground(pane);
+  bindEffects(pane);
 }
 
 function refreshMode(pane, mode) {

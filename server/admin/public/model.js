@@ -603,9 +603,22 @@ export function defaultSite() {
     bgGradientTypeDark: 'linear',
     bgAngle: 180,
     bgAngleDark: 180,
+    // Hintergrund-Effekte (global): an/aus + Intensität 0–100.
+    fxAurora: false,
+    fxAuroraIntensity: 50,
+    fxNoise: false,
+    fxNoiseIntensity: 50,
+    fxSpotlight: false,
+    fxSpotlightIntensity: 50,
   };
 }
 export const SITE_GRADIENT_TYPES = ['linear', 'radial'];
+// Effekt-Schlüssel (Feldpräfix in media.site) mit Beschriftung.
+export const SITE_FX = [
+  { key: 'fxAurora', label: 'Aurora-Farbflecken' },
+  { key: 'fxNoise', label: 'Feines Rauschen' },
+  { key: 'fxSpotlight', label: 'Maus-Spotlight' },
+];
 export function normSite(s) {
   if (!s || typeof s !== 'object') return defaultSite();
   const num = (v, min, max, d) => {
@@ -627,7 +640,27 @@ export function normSite(s) {
     bgGradientTypeDark: gtype(s.bgGradientTypeDark),
     bgAngle: num(s.bgAngle, 0, 360, 180),
     bgAngleDark: num(s.bgAngleDark, 0, 360, 180),
+    fxAurora: s.fxAurora === true,
+    fxAuroraIntensity: num(s.fxAuroraIntensity, 0, 100, 50),
+    fxNoise: s.fxNoise === true,
+    fxNoiseIntensity: num(s.fxNoiseIntensity, 0, 100, 50),
+    fxSpotlight: s.fxSpotlight === true,
+    fxSpotlightIntensity: num(s.fxSpotlightIntensity, 0, 100, 50),
   };
+}
+// Effekt lesen: { on, intensity } für key aus SITE_FX.
+export function getSiteFx(key) {
+  const s = siteObj();
+  return { on: s[key] === true, intensity: s[`${key}Intensity`] };
+}
+// Effekt setzen (Teilobjekt { on?, intensity? }).
+export function setSiteFx(key, patch) {
+  const s = siteObj();
+  if ('on' in patch) s[key] = patch.on === true;
+  if ('intensity' in patch) {
+    const n = Number(patch.intensity);
+    s[`${key}Intensity`] = Number.isFinite(n) ? Math.max(0, Math.min(100, Math.round(n))) : 50;
+  }
 }
 // Sichert, dass media.site vollständig (mit allen Feldern) vorliegt.
 function siteObj() {

@@ -506,6 +506,13 @@ function defaultSite() {
     bgGradientTypeDark: 'linear',
     bgAngle: 180,
     bgAngleDark: 180,
+    // Hintergrund-Effekte (global): an/aus + Intensität 0–100.
+    fxAurora: false,
+    fxAuroraIntensity: 50,
+    fxNoise: false,
+    fxNoiseIntensity: 50,
+    fxSpotlight: false,
+    fxSpotlightIntensity: 50,
   };
 }
 const SITE_GRADIENT_TYPES = ['linear', 'radial'];
@@ -528,6 +535,12 @@ function validateSite(s) {
     bgGradientTypeDark: gtype(s.bgGradientTypeDark),
     bgAngle: clampNum(s.bgAngle, 0, 360, 180),
     bgAngleDark: clampNum(s.bgAngleDark, 0, 360, 180),
+    fxAurora: s.fxAurora === true,
+    fxAuroraIntensity: clampNum(s.fxAuroraIntensity, 0, 100, 50),
+    fxNoise: s.fxNoise === true,
+    fxNoiseIntensity: clampNum(s.fxNoiseIntensity, 0, 100, 50),
+    fxSpotlight: s.fxSpotlight === true,
+    fxSpotlightIntensity: clampNum(s.fxSpotlightIntensity, 0, 100, 50),
   };
 }
 

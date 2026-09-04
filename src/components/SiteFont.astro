@@ -1,10 +1,15 @@
 ---
-// Bindet die im Admin (Hero-Design → Schriften) gesetzte globale Basis-Schrift
-// ein: @font-face + Überschreiben der CSS-Variable --site-font. Ist keine (gültige)
-// globale Schrift gesetzt, wird nichts ausgegeben und der Standard bleibt.
-// In den <head> jeder eigenständigen Seite einbinden, die kein Layout nutzt.
-import { getSiteFontStyle } from '../content/content';
+// Bindet die im Admin gesetzten GLOBALEN Seiten-Styles ein:
+//  - globale Basis-Schrift (Hero-Design → Schriften): @font-face + --site-font
+//  - Seiten-Hintergrund (Tab „Hintergrund"): Farbe/Deckkraft/Verlauf je Modus
+//    sowie die zuschaltbaren Effekte (Aurora, Rauschen, Spotlight)
+// Ist nichts (Gültiges) gesetzt, wird nichts ausgegeben und der Standard bleibt.
+// In den <head> jeder eigenständigen Seite einbinden, die kein Layout nutzt
+// (FAQ, Blog-Index); die Layouts binden dieselben Funktionen direkt ein.
+import { getSiteFontStyle, getSiteBackgroundStyle } from '../content/content';
 const siteFontStyle = getSiteFontStyle();
+const siteBgStyle = getSiteBackgroundStyle();
 ---
 
 {siteFontStyle && <style set:html={siteFontStyle} />}
+{siteBgStyle && <style set:html={siteBgStyle} />}
