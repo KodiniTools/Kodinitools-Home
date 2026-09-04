@@ -754,6 +754,31 @@ export interface SiteConfig {
   fxNoiseIntensity: number;
   fxSpotlight: boolean;
   fxSpotlightIntensity: number;
+  // Muster je Modus (reines CSS): Punktraster oder feines Gitter – Farbe,
+  // Abstand (px), Stärke (px) und Deckkraft (%). 'none' = kein Muster.
+  bgPattern: 'none' | 'dots' | 'grid';
+  bgPatternDark: 'none' | 'dots' | 'grid';
+  bgPatternColor: string;
+  bgPatternColorDark: string;
+  bgPatternSpacing: number;
+  bgPatternSpacingDark: number;
+  bgPatternThickness: number;
+  bgPatternThicknessDark: number;
+  bgPatternOpacity: number;
+  bgPatternOpacityDark: number;
+  // Hintergrundbild je Modus (URL aus der Mediathek; leer = keins) mit
+  // Abdunkelung (%), Weichzeichner (px), Deckkraft (%) und „fixiert beim
+  // Scrollen" (sonst deckt es die erste Bildschirmhöhe ab und läuft aus).
+  bgImage: string;
+  bgImageDark: string;
+  bgImageDarken: number;
+  bgImageDarkenDark: number;
+  bgImageBlur: number;
+  bgImageBlurDark: number;
+  bgImageOpacity: number;
+  bgImageOpacityDark: number;
+  bgImageFixed: boolean;
+  bgImageFixedDark: boolean;
 }
 
 const SITE_DEFAULTS: SiteConfig = {
@@ -776,7 +801,29 @@ const SITE_DEFAULTS: SiteConfig = {
   fxNoiseIntensity: 50,
   fxSpotlight: false,
   fxSpotlightIntensity: 50,
+  bgPattern: 'none',
+  bgPatternDark: 'none',
+  bgPatternColor: '#014f99',
+  bgPatternColorDark: '#e8a945',
+  bgPatternSpacing: 24,
+  bgPatternSpacingDark: 24,
+  bgPatternThickness: 1,
+  bgPatternThicknessDark: 1,
+  bgPatternOpacity: 12,
+  bgPatternOpacityDark: 12,
+  bgImage: '',
+  bgImageDark: '',
+  bgImageDarken: 0,
+  bgImageDarkenDark: 0,
+  bgImageBlur: 0,
+  bgImageBlurDark: 0,
+  bgImageOpacity: 100,
+  bgImageOpacityDark: 100,
+  bgImageFixed: true,
+  bgImageFixedDark: true,
 };
+// Erlaubte Bild-URL (interner Pfad oder http(s)), ohne Zeichen, die url("…") brechen.
+const SITE_MEDIA_URL = /^(\/[^\s"'()\\]*|https?:\/\/[^\s"'()\\]+)$/;
 // Standard-Hintergrundfarben je Modus (identisch zu base.css --bg-color).
 // Skalierung der Effekt-Intensität (0–100) auf CSS-Deckkraft: Aurora 0–1,
 // Rauschen 0–0,08, Spotlight-Faktor 0–1 (index.astro multipliziert mit der
@@ -836,8 +883,23 @@ const SITE_HEX = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
  */
 export function getSiteBackgroundStyle(): string | undefined {
   const site = getSite();
-  const rules = [...siteBgRules(site, 'light'), ...siteBgRules(site, 'dark'), ...siteFxRules(site)];
+  const light = siteBgRules(site, 'light');
+  const dark = siteBgRules(site, 'dark');
+  const rules = [...light.rules, ...dark.rules];
+  // Die Hell-Regeln (html:root) gelten auch im Dunkelmodus; hat Dunkel selbst
+  // kein Muster/Bild, muss es das helle ausdrücklich abschalten.
+  if (light.bodyBg && !dark.bodyBg)
+    rules.push('html[data-theme="dark"] body{background:var(--bg-color);}');
+  if (light.image && !dark.image) rules.push('html[data-theme="dark"] body::before{content:none;}');
+  rules.push(...siteFxRules(site));
   return rules.length ? rules.join('') : undefined;
+}
+// Ergebnis von siteBgRules: CSS-Regeln plus, ob ein body-Hintergrund bzw. ein
+// Hintergrundbild (body::before) für den Modus ausgegeben wurde.
+interface SiteBgRules {
+  rules: string[];
+  bodyBg: boolean;
+  image: boolean;
 }
 
 /**
@@ -899,33 +961,107 @@ function siteMixHex(top: string, base: string, a: number): string {
  * Modus (body: <Ebene>, <Standardfarbe>); --bg-color wird auf die flache
  * Mischfarbe gesetzt, damit weitere Verbraucher der Variable passend bleiben.
  */
-function siteBgRules(site: SiteConfig, mode: 'light' | 'dark'): string[] {
+function siteBgRules(site: SiteConfig, mode: 'light' | 'dark'): SiteBgRules {
   const sfx = mode === 'dark' ? 'Dark' : '';
   const s = site as unknown as Record<string, unknown>;
-  const color = String(s[`bgColor${sfx}`] ?? '');
-  if (!SITE_HEX.test(color)) return [];
   const sel = mode === 'dark' ? 'html[data-theme="dark"]' : 'html:root';
   const num = (v: unknown, min: number, max: number, d: number) =>
     typeof v === 'number' && Number.isFinite(v) ? Math.max(min, Math.min(max, v)) : d;
+  const base = PAGE_BG_BASE[mode];
+  const rules: string[] = [];
+
+  // 1. Eigene Farbe / Verlauf mit Deckkraft (wie bisher).
+  const color = String(s[`bgColor${sfx}`] ?? '');
+  const hasColor = SITE_HEX.test(color);
   const opacity = num(s[`bgOpacity${sfx}`], 0, 100, 100);
   const color2 = String(s[`bgColor2${sfx}`] ?? '');
-  const gradient = s[`bgGradient${sfx}`] === true && SITE_HEX.test(color2);
-  if (!gradient && opacity >= 100) return [`${sel}{--bg-color:${color};}`];
-  const base = PAGE_BG_BASE[mode];
-  const a = opacity / 100;
-  const c1 = textHexToRgba(color, a);
-  let layer: string;
-  if (gradient) {
-    const c2 = textHexToRgba(color2, a);
-    layer =
-      s[`bgGradientType${sfx}`] === 'radial'
-        ? `radial-gradient(ellipse at 50% 0%, ${c1}, ${c2})`
-        : `linear-gradient(${num(s[`bgAngle${sfx}`], 0, 360, 180)}deg, ${c1}, ${c2})`;
-  } else {
-    layer = `linear-gradient(${c1}, ${c1})`;
+  const gradient = hasColor && s[`bgGradient${sfx}`] === true && SITE_HEX.test(color2);
+  let colorLayer: string | null = null;
+  if (hasColor) {
+    if (!gradient && opacity >= 100) {
+      rules.push(`${sel}{--bg-color:${color};}`); // flach + deckend: nur die Variable
+    } else {
+      const a = opacity / 100;
+      const c1 = textHexToRgba(color, a);
+      if (gradient) {
+        const c2 = textHexToRgba(color2, a);
+        colorLayer =
+          s[`bgGradientType${sfx}`] === 'radial'
+            ? `radial-gradient(ellipse at 50% 0%, ${c1}, ${c2})`
+            : `linear-gradient(${num(s[`bgAngle${sfx}`], 0, 360, 180)}deg, ${c1}, ${c2})`;
+      } else {
+        colorLayer = `linear-gradient(${c1}, ${c1})`;
+      }
+      rules.push(`${sel}{--bg-color:${siteMixHex(color, base, a)};}`);
+    }
   }
+
+  // 2. Muster (Punktraster / Gitter) als sich wiederholende Ebene(n) über der Farbe.
+  const layers = [
+    ...sitePatternLayers(
+      String(s[`bgPattern${sfx}`] ?? 'none'),
+      String(s[`bgPatternColor${sfx}`] ?? ''),
+      num(s[`bgPatternSpacing${sfx}`], 4, 200, 24),
+      num(s[`bgPatternThickness${sfx}`], 1, 6, 1),
+      num(s[`bgPatternOpacity${sfx}`], 0, 100, 12),
+    ),
+  ];
+  if (colorLayer) layers.push(colorLayer);
+  const bodyBg = layers.length > 0;
+  if (bodyBg) {
+    // Grund: flache deckende eigene Farbe (falls gesetzt), sonst Standardfarbe.
+    const ground = hasColor && !colorLayer ? color : base;
+    rules.push(`${sel} body{background:${layers.join(', ')}, ${ground};}`);
+  }
+
+  // 3. Hintergrundbild als body::before (eigene Ebene, damit Weichzeichner und
+  //    Abdunkelung per filter möglich sind), unter der Effekt-Ebene (z-index -2).
+  //    Alle Eigenschaften werden ausdrücklich gesetzt, damit im Dunkelmodus
+  //    nichts aus der Hell-Regel (html:root) durchscheint.
+  const img = String(s[`bgImage${sfx}`] ?? '');
+  const image = img !== '' && SITE_MEDIA_URL.test(img);
+  if (image) {
+    const darken = num(s[`bgImageDarken${sfx}`], 0, 100, 0) / 100;
+    const blur = num(s[`bgImageBlur${sfx}`], 0, 40, 0);
+    const op = num(s[`bgImageOpacity${sfx}`], 0, 100, 100) / 100;
+    const fixed = s[`bgImageFixed${sfx}`] !== false;
+    const filters: string[] = [];
+    if (blur > 0) filters.push(`blur(${blur}px)`);
+    if (darken > 0) filters.push(`brightness(${(1 - darken).toFixed(3)})`);
+    // Weichzeichner franst am Rand aus -> Ebene etwas über den Rand hinaus vergrößern.
+    const grow = blur > 0 ? blur * 2 : 0;
+    const box = fixed
+      ? `position:fixed;inset:-${grow}px;height:auto`
+      : `position:absolute;left:-${grow}px;right:-${grow}px;top:-${grow}px;bottom:auto;height:calc(100vh + ${grow * 2}px)`;
+    // Nicht fixiert: Bild deckt die erste Bildschirmhöhe ab und läuft nach unten aus.
+    const mask = fixed ? 'none' : 'linear-gradient(#000 60%, transparent)';
+    if (!fixed) rules.push(`${sel} body{position:relative;}`);
+    rules.push(
+      `${sel} body::before{content:"";${box};z-index:-2;pointer-events:none;background:url("${img}") center / cover no-repeat;` +
+        `filter:${filters.join(' ') || 'none'};opacity:${op};mask-image:${mask};-webkit-mask-image:${mask};}`,
+    );
+  }
+  return { rules, bodyBg, image };
+}
+
+/**
+ * CSS-Hintergrund-Ebenen für ein Muster (als Einträge einer background-Liste
+ * mit Position/Größe/Wiederholung). Leer bei 'none' oder ungültiger Farbe.
+ */
+function sitePatternLayers(
+  type: string,
+  color: string,
+  spacing: number,
+  thickness: number,
+  opacityPct: number,
+): string[] {
+  if ((type !== 'dots' && type !== 'grid') || !SITE_HEX.test(color)) return [];
+  const c = textHexToRgba(color, opacityPct / 100);
+  const size = `${spacing}px ${spacing}px`;
+  if (type === 'dots')
+    return [`radial-gradient(circle, ${c} ${thickness}px, transparent ${thickness + 0.5}px) 0 0 / ${size} repeat`];
   return [
-    `${sel}{--bg-color:${siteMixHex(color, base, a)};}`,
-    `${sel} body{background:${layer}, ${base};}`,
+    `linear-gradient(${c} ${thickness}px, transparent ${thickness}px) 0 0 / ${size} repeat`,
+    `linear-gradient(90deg, ${c} ${thickness}px, transparent ${thickness}px) 0 0 / ${size} repeat`,
   ];
 }

@@ -10,6 +10,8 @@ import {
   defMediaVal,
   MEDIA_LANGS,
   MEDIA_KEYS,
+  SITE_MEDIA_KEYS,
+  getSiteMediaVal,
   HERO_LAYOUTS,
   heroLayoutCells,
   updateMediaUrlEverywhere,
@@ -39,6 +41,10 @@ function usageOf(...refs) {
         out.push(`${lang.toUpperCase()} · ${SLOT_LABELS[key] || key}`);
       }
     }
+  }
+  for (const key of SITE_MEDIA_KEYS) {
+    if (set.includes(getSiteMediaVal(key)))
+      out.push(`Global · Seiten-Hintergrund (${key.endsWith('Dark') ? 'Dunkel' : 'Hell'})`);
   }
   return out;
 }
@@ -480,11 +486,21 @@ function pickFromLibrary(lang, key) {
 
 // Anklickbares Auswahlfenster: zeigt die Server-Dateien DIESER Sprache (+
 // gemeinsame) UND den Browser-Zwischenspeicher. Kachel klicken -> zuweisen.
-function openMediaPicker(lang, key) {
+// opts (optional, für andere Tabs wie den Seiten-Hintergrund):
+//   onPick(url)  statt Slot-Zuweisung aufrufen (url = Server-URL oder 'staged:<id>')
+//   allLangs     Dateien aller Sprachen anzeigen (global genutztes Medium)
+//   imagesOnly   nur Bilder anbieten (keine Videos)
+//   title        Fenstertitel
+export function openMediaPicker(lang, key, opts = {}) {
   document.getElementById('mediaPicker')?.remove();
-  const items = state.stagedItems;
+  const isVideoName = (name) => /\.(mp4|webm|mov|ogg)$/i.test(name);
+  const items = opts.imagesOnly
+    ? state.stagedItems.filter((i) => !/^video\//.test(i.type) && !isVideoName(i.name))
+    : state.stagedItems;
 
-  const serverList = [...(state.serverFiles[lang] || []), ...(state.serverFiles.shared || [])];
+  const langs = opts.allLangs ? ['de', 'en', 'shared'] : [lang, 'shared'];
+  let serverList = langs.flatMap((l) => state.serverFiles[l] || []);
+  if (opts.imagesOnly) serverList = serverList.filter((f) => !isVideoName(f.name));
   const serverTiles = serverList
     .map((f) => {
       const media = /\.(mp4|webm|mov|ogg)$/i.test(f.name)
@@ -520,7 +536,7 @@ function openMediaPicker(lang, key) {
   overlay.id = 'mediaPicker';
   overlay.innerHTML = `
     <div class="picker-modal" role="dialog" aria-modal="true">
-      <h3>Medium auswählen</h3>
+      <h3>${esc(opts.title || 'Medium auswählen')}</h3>
       <p class="hint" style="margin-bottom:.25rem">Auf eine Datei klicken, um sie diesem Platz zuzuweisen.</p>
       ${section('📂 Auf dem Server', serverTiles, 'Noch nichts auf dem Server.')}
       ${section('🖥️ Zwischenspeicher (Browser)', stagedTiles, 'Zwischenspeicher leer.')}
@@ -541,20 +557,23 @@ function openMediaPicker(lang, key) {
     if (e.target === overlay) close(); // Klick auf den abgedunkelten Hintergrund
   });
   overlay.querySelector('[data-pickcancel]').addEventListener('click', close);
+  const assign = (url) => {
+    if (opts.onPick) opts.onPick(url);
+    else {
+      setMediaVal(lang, key, url);
+      renderMedia();
+    }
+  };
   overlay.querySelectorAll('[data-pick]').forEach((el) =>
     el.addEventListener('click', () => {
       const item = items.find((x) => x.id === el.dataset.pick);
-      if (item) {
-        setMediaVal(lang, key, item.publishedUrl || 'staged:' + item.id);
-        renderMedia();
-      }
+      if (item) assign(item.publishedUrl || 'staged:' + item.id);
       close();
     }),
   );
   overlay.querySelectorAll('[data-picksrv]').forEach((el) =>
     el.addEventListener('click', () => {
-      setMediaVal(lang, key, el.dataset.picksrv); // direkt die Server-URL zuweisen
-      renderMedia();
+      assign(el.dataset.picksrv); // direkt die Server-URL zuweisen
       close();
     }),
   );

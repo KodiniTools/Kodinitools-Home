@@ -7,6 +7,9 @@ import {
   state,
   MEDIA_LANGS,
   MEDIA_KEYS,
+  SITE_MEDIA_KEYS,
+  getSiteMediaVal,
+  setSiteMediaVal,
   LANG_SECTIONS,
   SUBTABS,
   getMediaVal,
@@ -66,6 +69,17 @@ function resolveMediaForSave() {
           lm.heroGrid[i] =
             (item && item.publishedUrl) || (loaded.heroGrid && loaded.heroGrid[i]) || '';
         }
+      }
+    }
+  }
+  // Globales Hintergrundbild (Hell/Dunkel): noch nicht hochgeladen -> zuletzt
+  // gespeicherter Wert (oder leer), damit media.json nie eine staged:-Referenz enthält.
+  if (m.site && typeof m.site === 'object') {
+    for (const key of SITE_MEDIA_KEYS) {
+      const v = m.site[key];
+      if (typeof v === 'string' && v.startsWith('staged:')) {
+        const item = state.stagedItems.find((x) => x.id === v.slice(7));
+        m.site[key] = (item && item.publishedUrl) || state.loadedMedia.site?.[key] || '';
       }
     }
   }
@@ -174,6 +188,30 @@ async function uploadStagedReferenced() {
       }
       setMediaVal(lang, key, url);
     }
+  }
+  // Globales Hintergrundbild -> gemeinsamer Ordner (/uploads/, beide Sprachen).
+  for (const key of SITE_MEDIA_KEYS) {
+    const v = getSiteMediaVal(key);
+    if (!v.startsWith('staged:')) continue;
+    const id = v.slice(7);
+    let url = cache.get('shared:' + id);
+    if (!url) {
+      const item = await mediaGet(id);
+      if (!item) continue;
+      const r = await api('/upload', {
+        method: 'POST',
+        raw: item.blob,
+        headers: {
+          'X-Filename': item.name,
+          'X-Lang': 'shared',
+          'Content-Type': item.type || 'application/octet-stream',
+        },
+      });
+      if (!r.ok) throw new Error(`Upload ${item.name}: ${r.data?.error || r.status}`);
+      url = r.data.url;
+      cache.set('shared:' + id, url);
+    }
+    setSiteMediaVal(key, url);
   }
   await loadServerFiles();
 }

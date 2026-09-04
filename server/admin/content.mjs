@@ -513,9 +513,33 @@ function defaultSite() {
     fxNoiseIntensity: 50,
     fxSpotlight: false,
     fxSpotlightIntensity: 50,
+    // Muster je Modus (Punktraster/Gitter): Art, Farbe, Abstand, Stärke, Deckkraft.
+    bgPattern: 'none',
+    bgPatternDark: 'none',
+    bgPatternColor: '#014f99',
+    bgPatternColorDark: '#e8a945',
+    bgPatternSpacing: 24,
+    bgPatternSpacingDark: 24,
+    bgPatternThickness: 1,
+    bgPatternThicknessDark: 1,
+    bgPatternOpacity: 12,
+    bgPatternOpacityDark: 12,
+    // Hintergrundbild je Modus: URL, Abdunkelung, Weichzeichner, Deckkraft, fixiert.
+    bgImage: '',
+    bgImageDark: '',
+    bgImageDarken: 0,
+    bgImageDarkenDark: 0,
+    bgImageBlur: 0,
+    bgImageBlurDark: 0,
+    bgImageOpacity: 100,
+    bgImageOpacityDark: 100,
+    bgImageFixed: true,
+    bgImageFixedDark: true,
   };
 }
 const SITE_GRADIENT_TYPES = ['linear', 'radial'];
+const SITE_PATTERNS = ['none', 'dots', 'grid'];
+const SITE_IMAGE_URL = /^(\/[^\s"'()\\]*|https?:\/\/[^\s"'()\\]+)$/;
 /** Validiert die globalen Seiten-Einstellungen. */
 function validateSite(s) {
   if (!isPlainObject(s)) return defaultSite();
@@ -541,6 +565,27 @@ function validateSite(s) {
     fxNoiseIntensity: clampNum(s.fxNoiseIntensity, 0, 100, 50),
     fxSpotlight: s.fxSpotlight === true,
     fxSpotlightIntensity: clampNum(s.fxSpotlightIntensity, 0, 100, 50),
+    bgPattern: SITE_PATTERNS.includes(s.bgPattern) ? s.bgPattern : 'none',
+    bgPatternDark: SITE_PATTERNS.includes(s.bgPatternDark) ? s.bgPatternDark : 'none',
+    bgPatternColor: normHexColor(s.bgPatternColor, '#014f99'),
+    bgPatternColorDark: normHexColor(s.bgPatternColorDark, '#e8a945'),
+    bgPatternSpacing: clampNum(s.bgPatternSpacing, 4, 200, 24),
+    bgPatternSpacingDark: clampNum(s.bgPatternSpacingDark, 4, 200, 24),
+    bgPatternThickness: clampNum(s.bgPatternThickness, 1, 6, 1),
+    bgPatternThicknessDark: clampNum(s.bgPatternThicknessDark, 1, 6, 1),
+    bgPatternOpacity: clampNum(s.bgPatternOpacity, 0, 100, 12),
+    bgPatternOpacityDark: clampNum(s.bgPatternOpacityDark, 0, 100, 12),
+    // Bild-URL: interner Pfad oder http(s) ohne Zeichen, die CSS url("…") brechen.
+    bgImage: SITE_IMAGE_URL.test(String(s.bgImage ?? '')) ? s.bgImage : '',
+    bgImageDark: SITE_IMAGE_URL.test(String(s.bgImageDark ?? '')) ? s.bgImageDark : '',
+    bgImageDarken: clampNum(s.bgImageDarken, 0, 100, 0),
+    bgImageDarkenDark: clampNum(s.bgImageDarkenDark, 0, 100, 0),
+    bgImageBlur: clampNum(s.bgImageBlur, 0, 40, 0),
+    bgImageBlurDark: clampNum(s.bgImageBlurDark, 0, 40, 0),
+    bgImageOpacity: clampNum(s.bgImageOpacity, 0, 100, 100),
+    bgImageOpacityDark: clampNum(s.bgImageOpacityDark, 0, 100, 100),
+    bgImageFixed: s.bgImageFixed !== false,
+    bgImageFixedDark: s.bgImageFixedDark !== false,
   };
 }
 
