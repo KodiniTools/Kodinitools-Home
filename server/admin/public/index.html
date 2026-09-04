@@ -623,6 +623,46 @@
         line-height: 1;
         padding: 0.1rem;
       }
+      /* Hintergrund-Effekte: Live-Vorschau Hell/Dunkel mit Ebenen (Aurora/Noise/Spot) */
+      .fx-prevs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.6rem;
+      }
+      .fx-prev {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        min-height: 150px;
+        cursor: crosshair;
+      }
+      .fx-prev-layer {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+      /* Rausch-Textur wie in background.css (Data-URL hier, nicht im style-Attribut) */
+      .fx-prev-layer[data-fxlayer='noise'] {
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      }
+      .fx-prev-content {
+        position: relative;
+        padding: 1.4rem 1rem 1rem;
+      }
+      .fx-prev-label {
+        position: absolute;
+        top: 0.3rem;
+        left: 0.5rem;
+        font-size: 0.68rem;
+        font-weight: 700;
+        opacity: 0.7;
+      }
+      @media (max-width: 640px) {
+        .fx-prevs {
+          grid-template-columns: 1fr;
+        }
+      }
       /* „Design übertragen": Ziel-Auswahl als kompakte Checkbox-Liste je Bereich */
       .tc-target-group {
         border: 1px solid var(--border);

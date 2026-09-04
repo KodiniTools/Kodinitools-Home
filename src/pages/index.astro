@@ -629,13 +629,19 @@ const pageI18n = {
     }
 
     // --- Mouse Spotlight ---
+    // Nur aktiv, wenn im Admin eingeschaltet (--fx-spotlight = Intensität 0–1,
+    // gesetzt von content.ts); Grund-Deckkraft 0.4 (hell) / 0.3 (dunkel) × Faktor.
     const spotlight = document.getElementById('mouseSpotlight');
-    if (spotlight) {
+    const spotFx = spotlight
+      ? parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--fx-spotlight')) || 0
+      : 0;
+    if (spotlight && spotFx > 0) {
       document.addEventListener('mousemove', function(e) {
         const xPct = (e.clientX / window.innerWidth) * 100;
         const yPct = (e.clientY / window.innerHeight) * 100;
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        const color = isDark ? 'rgba(201, 152, 77, 0.15)' : 'rgba(1, 79, 153, 0.20)';
+        const alpha = ((isDark ? 0.3 : 0.4) * spotFx).toFixed(3);
+        const color = isDark ? 'rgba(201, 152, 77, ' + alpha + ')' : 'rgba(1, 79, 153, ' + alpha + ')';
         spotlight.style.background = 'radial-gradient(1200px circle at ' + xPct + '% ' + yPct + '%, ' + color + ', transparent 45%)';
       });
     }

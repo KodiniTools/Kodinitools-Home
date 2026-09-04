@@ -490,16 +490,57 @@ function defaultSite() {
   // leer = System-Standard 'Supreme'). Wirkt über alle Sprachen hinweg.
   // bgColor/bgColorDark: Seiten-Hintergrundfarbe für Hell-/Dunkelmodus
   // (leer = Standardfarbe des jeweiligen Modus).
-  return { globalFont: '', bgColor: '', bgColorDark: '' };
+  // bgOpacity*: Deckkraft (0–100 %) über der Standardfarbe; bgGradient*/bgColor2*/
+  // bgGradientType*/bgAngle*: optionaler Farbverlauf je Modus.
+  return {
+    globalFont: '',
+    bgColor: '',
+    bgColorDark: '',
+    bgOpacity: 100,
+    bgOpacityDark: 100,
+    bgGradient: false,
+    bgGradientDark: false,
+    bgColor2: '',
+    bgColor2Dark: '',
+    bgGradientType: 'linear',
+    bgGradientTypeDark: 'linear',
+    bgAngle: 180,
+    bgAngleDark: 180,
+    // Hintergrund-Effekte (global): an/aus + Intensität 0–100.
+    fxAurora: false,
+    fxAuroraIntensity: 50,
+    fxNoise: false,
+    fxNoiseIntensity: 50,
+    fxSpotlight: false,
+    fxSpotlightIntensity: 50,
+  };
 }
+const SITE_GRADIENT_TYPES = ['linear', 'radial'];
 /** Validiert die globalen Seiten-Einstellungen. */
 function validateSite(s) {
   if (!isPlainObject(s)) return defaultSite();
+  const gtype = (v) => (SITE_GRADIENT_TYPES.includes(v) ? v : 'linear');
   return {
     globalFont: normFontFile(s.globalFont),
     // Ungültige/fehlende Farbe -> '' (= Standard); gültige Werte auf #rrggbb normiert.
     bgColor: normHexColor(s.bgColor, ''),
     bgColorDark: normHexColor(s.bgColorDark, ''),
+    bgOpacity: clampNum(s.bgOpacity, 0, 100, 100),
+    bgOpacityDark: clampNum(s.bgOpacityDark, 0, 100, 100),
+    bgGradient: s.bgGradient === true,
+    bgGradientDark: s.bgGradientDark === true,
+    bgColor2: normHexColor(s.bgColor2, ''),
+    bgColor2Dark: normHexColor(s.bgColor2Dark, ''),
+    bgGradientType: gtype(s.bgGradientType),
+    bgGradientTypeDark: gtype(s.bgGradientTypeDark),
+    bgAngle: clampNum(s.bgAngle, 0, 360, 180),
+    bgAngleDark: clampNum(s.bgAngleDark, 0, 360, 180),
+    fxAurora: s.fxAurora === true,
+    fxAuroraIntensity: clampNum(s.fxAuroraIntensity, 0, 100, 50),
+    fxNoise: s.fxNoise === true,
+    fxNoiseIntensity: clampNum(s.fxNoiseIntensity, 0, 100, 50),
+    fxSpotlight: s.fxSpotlight === true,
+    fxSpotlightIntensity: clampNum(s.fxSpotlightIntensity, 0, 100, 50),
   };
 }
 
