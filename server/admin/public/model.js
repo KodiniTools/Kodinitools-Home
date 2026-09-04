@@ -586,16 +586,86 @@ export function normHexOrEmpty(v) {
 // Schriftart der ganzen Seite (Dateiname im /fonts-Ordner; leer = Standard).
 // bgColor/bgColorDark = Seiten-Hintergrundfarbe für Hell-/Dunkelmodus
 // (leer = Standardfarbe des jeweiligen Modus).
+// bgOpacity*: Deckkraft (0–100 %) über der Standardfarbe; bgGradient*/bgColor2*/
+// bgGradientType*/bgAngle*: optionaler Farbverlauf je Modus (Suffix Dark = Dunkel).
 export function defaultSite() {
-  return { globalFont: '', bgColor: '', bgColorDark: '' };
+  return {
+    globalFont: '',
+    bgColor: '',
+    bgColorDark: '',
+    bgOpacity: 100,
+    bgOpacityDark: 100,
+    bgGradient: false,
+    bgGradientDark: false,
+    bgColor2: '',
+    bgColor2Dark: '',
+    bgGradientType: 'linear',
+    bgGradientTypeDark: 'linear',
+    bgAngle: 180,
+    bgAngleDark: 180,
+  };
 }
+export const SITE_GRADIENT_TYPES = ['linear', 'radial'];
 export function normSite(s) {
   if (!s || typeof s !== 'object') return defaultSite();
+  const num = (v, min, max, d) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : d;
+  };
+  const gtype = (v) => (SITE_GRADIENT_TYPES.includes(v) ? v : 'linear');
   return {
     globalFont: normFontFile(s.globalFont),
     bgColor: normHexOrEmpty(s.bgColor),
     bgColorDark: normHexOrEmpty(s.bgColorDark),
+    bgOpacity: num(s.bgOpacity, 0, 100, 100),
+    bgOpacityDark: num(s.bgOpacityDark, 0, 100, 100),
+    bgGradient: s.bgGradient === true,
+    bgGradientDark: s.bgGradientDark === true,
+    bgColor2: normHexOrEmpty(s.bgColor2),
+    bgColor2Dark: normHexOrEmpty(s.bgColor2Dark),
+    bgGradientType: gtype(s.bgGradientType),
+    bgGradientTypeDark: gtype(s.bgGradientTypeDark),
+    bgAngle: num(s.bgAngle, 0, 360, 180),
+    bgAngleDark: num(s.bgAngleDark, 0, 360, 180),
   };
+}
+// Sichert, dass media.site vollständig (mit allen Feldern) vorliegt.
+function siteObj() {
+  if (!state.media.site || typeof state.media.site !== 'object') state.media.site = defaultSite();
+  const s = state.media.site;
+  const d = defaultSite();
+  for (const k of Object.keys(d)) if (!(k in s)) s[k] = d[k];
+  return s;
+}
+// Hintergrund-Einstellungen eines Modus als einheitliches Objekt
+// { color, opacity, gradient, color2, type, angle } (color '' = Standard).
+export function getSiteBg(mode) {
+  const s = siteObj();
+  const k = (key) => (mode === 'dark' ? key + 'Dark' : key);
+  return {
+    color: s[k('bgColor')] || '',
+    opacity: s[k('bgOpacity')],
+    gradient: s[k('bgGradient')] === true,
+    color2: s[k('bgColor2')] || '',
+    type: s[k('bgGradientType')],
+    angle: s[k('bgAngle')],
+  };
+}
+// Teilweise setzen (nur übergebene Felder), Werte werden normalisiert.
+export function setSiteBg(mode, patch) {
+  const s = siteObj();
+  const k = (key) => (mode === 'dark' ? key + 'Dark' : key);
+  const num = (v, min, max, d) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : d;
+  };
+  if ('color' in patch) s[k('bgColor')] = normHexOrEmpty(patch.color);
+  if ('opacity' in patch) s[k('bgOpacity')] = num(patch.opacity, 0, 100, 100);
+  if ('gradient' in patch) s[k('bgGradient')] = patch.gradient === true;
+  if ('color2' in patch) s[k('bgColor2')] = normHexOrEmpty(patch.color2);
+  if ('type' in patch)
+    s[k('bgGradientType')] = SITE_GRADIENT_TYPES.includes(patch.type) ? patch.type : 'linear';
+  if ('angle' in patch) s[k('bgAngle')] = num(patch.angle, 0, 360, 180);
 }
 // Standard-Hintergrundfarben je Modus (identisch zu global.css --bg-color).
 export const PAGE_BG_DEFAULT = { light: '#fafafa', dark: '#091428' };

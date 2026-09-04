@@ -732,9 +732,39 @@ export interface SiteConfig {
   // jeweiligen Modus). Wird im Admin im Tab „Hintergrund" gesetzt, gilt global.
   bgColor: string;
   bgColorDark: string;
+  // Deckkraft (0–100 %) der eigenen Farbe bzw. des Verlaufs über der
+  // Standardfarbe des Modus (100 = deckend, wie bisher).
+  bgOpacity: number;
+  bgOpacityDark: number;
+  // Farbverlauf: an/aus, Endfarbe (Hex), Art (linear = Winkel, radial = von
+  // oben Mitte nach außen) und Richtung in Grad (nur linear).
+  bgGradient: boolean;
+  bgGradientDark: boolean;
+  bgColor2: string;
+  bgColor2Dark: string;
+  bgGradientType: 'linear' | 'radial';
+  bgGradientTypeDark: 'linear' | 'radial';
+  bgAngle: number;
+  bgAngleDark: number;
 }
 
-const SITE_DEFAULTS: SiteConfig = { globalFont: '', bgColor: '', bgColorDark: '' };
+const SITE_DEFAULTS: SiteConfig = {
+  globalFont: '',
+  bgColor: '',
+  bgColorDark: '',
+  bgOpacity: 100,
+  bgOpacityDark: 100,
+  bgGradient: false,
+  bgGradientDark: false,
+  bgColor2: '',
+  bgColor2Dark: '',
+  bgGradientType: 'linear',
+  bgGradientTypeDark: 'linear',
+  bgAngle: 180,
+  bgAngleDark: 180,
+};
+// Standard-Hintergrundfarben je Modus (identisch zu base.css --bg-color).
+const PAGE_BG_BASE: Record<'light' | 'dark', string> = { light: '#fafafa', dark: '#091428' };
 
 /**
  * Globale Seiten-Einstellungen aus media.json (`site`-Zweig, sprachübergreifend).
@@ -788,9 +818,61 @@ const SITE_HEX = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
  */
 export function getSiteBackgroundStyle(): string | undefined {
   const site = getSite();
-  const rules: string[] = [];
-  if (SITE_HEX.test(site.bgColor || '')) rules.push(`html:root{--bg-color:${site.bgColor};}`);
-  if (SITE_HEX.test(site.bgColorDark || ''))
-    rules.push(`html[data-theme="dark"]{--bg-color:${site.bgColorDark};}`);
+  const rules = [...siteBgRules(site, 'light'), ...siteBgRules(site, 'dark')];
   return rules.length ? rules.join('') : undefined;
+}
+
+// Hex (#rgb/#rrggbb) -> [r,g,b].
+function siteHexRgb(hex: string): [number, number, number] {
+  let h = hex.replace('#', '');
+  if (h.length === 3)
+    h = h
+      .split('')
+      .map((c) => c + c)
+      .join('');
+  return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+}
+// Farbe `top` mit Deckkraft `a` über `base` gemischt -> flacher Hex-Wert.
+function siteMixHex(top: string, base: string, a: number): string {
+  const t = siteHexRgb(top);
+  const b = siteHexRgb(base);
+  const mix = (i: number) => Math.round(t[i] * a + b[i] * (1 - a));
+  return '#' + [0, 1, 2].map((i) => mix(i).toString(16).padStart(2, '0')).join('');
+}
+/**
+ * CSS-Regeln für einen Modus. Deckend und ohne Verlauf bleibt es bei der
+ * bisherigen Variable --bg-color (kein Regress). Mit Deckkraft < 100 % oder
+ * Verlauf liegt der eigene Hintergrund als Ebene ÜBER der Standardfarbe des
+ * Modus (body: <Ebene>, <Standardfarbe>); --bg-color wird auf die flache
+ * Mischfarbe gesetzt, damit weitere Verbraucher der Variable passend bleiben.
+ */
+function siteBgRules(site: SiteConfig, mode: 'light' | 'dark'): string[] {
+  const sfx = mode === 'dark' ? 'Dark' : '';
+  const s = site as unknown as Record<string, unknown>;
+  const color = String(s[`bgColor${sfx}`] ?? '');
+  if (!SITE_HEX.test(color)) return [];
+  const sel = mode === 'dark' ? 'html[data-theme="dark"]' : 'html:root';
+  const num = (v: unknown, min: number, max: number, d: number) =>
+    typeof v === 'number' && Number.isFinite(v) ? Math.max(min, Math.min(max, v)) : d;
+  const opacity = num(s[`bgOpacity${sfx}`], 0, 100, 100);
+  const color2 = String(s[`bgColor2${sfx}`] ?? '');
+  const gradient = s[`bgGradient${sfx}`] === true && SITE_HEX.test(color2);
+  if (!gradient && opacity >= 100) return [`${sel}{--bg-color:${color};}`];
+  const base = PAGE_BG_BASE[mode];
+  const a = opacity / 100;
+  const c1 = textHexToRgba(color, a);
+  let layer: string;
+  if (gradient) {
+    const c2 = textHexToRgba(color2, a);
+    layer =
+      s[`bgGradientType${sfx}`] === 'radial'
+        ? `radial-gradient(ellipse at 50% 0%, ${c1}, ${c2})`
+        : `linear-gradient(${num(s[`bgAngle${sfx}`], 0, 360, 180)}deg, ${c1}, ${c2})`;
+  } else {
+    layer = `linear-gradient(${c1}, ${c1})`;
+  }
+  return [
+    `${sel}{--bg-color:${siteMixHex(color, base, a)};}`,
+    `${sel} body{background:${layer}, ${base};}`,
+  ];
 }
