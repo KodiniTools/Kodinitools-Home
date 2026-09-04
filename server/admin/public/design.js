@@ -19,6 +19,7 @@ import {
   MEDIA_LANGS,
 } from './model.js';
 import { ensureFontFace, fontOptionsHtml } from './fonts.js';
+import { slider, bindSliders } from './slider.js';
 
 // Family-CSS für eine Schriftdatei (lädt @font-face für die Vorschau) oder ''.
 // Einfache Anführungszeichen um den Family-Namen, damit der Wert gefahrlos in
@@ -147,20 +148,43 @@ function heroPreviewNote(hd) {
 // Ein Farb-/Transparenz-Paar (Color-Picker + optional Range) als Formularzeile.
 // Liest die Werte aus dem aktuell bearbeiteten Farb-Satz `s`.
 function colorField(lang, field, label, withOpacity, opacityField, s) {
-  // Bei Farbe + Transparenz setzt ein Reset beide Werte zurück.
-  const resetKey = withOpacity ? `${field}:${opacityField}` : field;
   const op = withOpacity
-    ? `<div style="flex:1 1 160px">
-        <label>${label} – Transparenz: <span data-hdoval="${opacityField}">${s[opacityField]}</span>%</label>
-        <input type="range" data-hd="${opacityField}" data-lang="${lang}" min="0" max="100" value="${s[opacityField]}" style="width:100%" />
-      </div>`
+    ? `<div style="flex:1 1 220px">${sideRange(lang, s, opacityField, `${label} – Transparenz`, 0, 100, '%')}</div>`
     : '';
   const colorInput = `<input type="color" data-hd="${field}" data-lang="${lang}" value="${esc(s[field])}" style="width:56px;height:38px;padding:2px" />`;
   return `
       <div style="flex:0 0 auto">
         <label>${label}</label>
-        ${withReset(colorInput, 'side', resetKey)}
+        ${withReset(colorInput, 'side', field)}
       </div>${op}`;
+}
+// Zahlenwert des aktuellen Modus als Regler (Slider + Zahlenfeld + „↺" auf den Werkswert).
+function sideRange(lang, s, field, label, min, max, unit, step = 1) {
+  return slider({
+    id: `hd:${field}`,
+    label,
+    unit,
+    min,
+    max,
+    step,
+    value: s[field],
+    attrs: `data-hd="${field}" data-lang="${lang}"`,
+    resetAttrs: `data-hdreset="side" data-hdkey="${field}"`,
+  });
+}
+// Typografie-Wert (gilt für beide Modi) als Regler.
+function typoRange(hd, field, label, min, max, unit, step = 1) {
+  return slider({
+    id: `hd:${field}`,
+    label,
+    unit,
+    min,
+    max,
+    step,
+    value: hd[field],
+    attrs: `data-hdtypo="${field}"`,
+    resetAttrs: `data-hdreset="typo" data-hdkey="${field}"`,
+  });
 }
 
 // Umschalter Hell/Dunkel für den bearbeiteten Modus.
@@ -275,14 +299,7 @@ function heroDesignPanel(lang) {
 
       <p class="hint" style="margin:.2rem 0">✏️ Überschriften – Buchstabenabstand &amp; Kontur (Rahmen):</p>
       <div class="row" style="align-items:flex-end">
-        <div style="flex:0 0 auto">
-          <label>Abstand (px)</label>
-          ${withReset(
-            `<input type="number" data-hdtypo="titleLetterSpacing" min="-5" max="20" step="0.5" value="${hd.titleLetterSpacing}" style="width:90px" />`,
-            'typo',
-            'titleLetterSpacing',
-          )}
-        </div>
+        <div style="flex:1 1 200px">${typoRange(hd, 'titleLetterSpacing', 'Abstand', -5, 20, 'px', 0.5)}</div>
         <div style="flex:0 0 auto">
           <label>Kontur-Farbe</label>
           ${withReset(
@@ -291,25 +308,11 @@ function heroDesignPanel(lang) {
             'titleStrokeColor',
           )}
         </div>
-        <div style="flex:0 0 auto">
-          <label>Kontur-Breite (px)</label>
-          ${withReset(
-            `<input type="number" data-hdtypo="titleStrokeWidth" min="0" max="5" step="0.5" value="${hd.titleStrokeWidth}" style="width:90px" />`,
-            'typo',
-            'titleStrokeWidth',
-          )}
-        </div>
+        <div style="flex:1 1 200px">${typoRange(hd, 'titleStrokeWidth', 'Kontur-Breite', 0, 5, 'px', 0.5)}</div>
       </div>
       <p class="hint" style="margin:.5rem 0 .2rem">✏️ Buttons – Buchstabenabstand &amp; Kontur (Rahmen):</p>
       <div class="row" style="align-items:flex-end">
-        <div style="flex:0 0 auto">
-          <label>Abstand (px)</label>
-          ${withReset(
-            `<input type="number" data-hdtypo="buttonLetterSpacing" min="-5" max="20" step="0.5" value="${hd.buttonLetterSpacing}" style="width:90px" />`,
-            'typo',
-            'buttonLetterSpacing',
-          )}
-        </div>
+        <div style="flex:1 1 200px">${typoRange(hd, 'buttonLetterSpacing', 'Abstand', -5, 20, 'px', 0.5)}</div>
         <div style="flex:0 0 auto">
           <label>Kontur-Farbe</label>
           ${withReset(
@@ -318,14 +321,7 @@ function heroDesignPanel(lang) {
             'buttonStrokeColor',
           )}
         </div>
-        <div style="flex:0 0 auto">
-          <label>Kontur-Breite (px)</label>
-          ${withReset(
-            `<input type="number" data-hdtypo="buttonStrokeWidth" min="0" max="5" step="0.5" value="${hd.buttonStrokeWidth}" style="width:90px" />`,
-            'typo',
-            'buttonStrokeWidth',
-          )}
-        </div>
+        <div style="flex:1 1 200px">${typoRange(hd, 'buttonStrokeWidth', 'Kontur-Breite', 0, 5, 'px', 0.5)}</div>
       </div>
       <p class="hint">Kontur-Breite 0 = keine Kontur. Buchstabenabstand 0 = normal.</p>
       <p class="hint" style="margin:.5rem 0 .2rem">🔠 Schriftgröße in px – leer = Standard (die Zahl im Feld ist die Standardgröße). Größere Zahl = größerer Text.</p>
@@ -373,14 +369,7 @@ function heroDesignPanel(lang) {
   const frameBody = `
       <div class="row" style="align-items:flex-end">
         ${colorField(lang, 'borderColor', 'Rahmenfarbe', false, null, s)}
-        <div style="flex:0 0 auto">
-          <label>Rahmenbreite (px)</label>
-          ${withReset(
-            `<input type="number" data-hd="borderWidth" data-lang="${lang}" min="0" max="8" step="1" value="${s.borderWidth}" style="width:90px" />`,
-            'side',
-            'borderWidth',
-          )}
-        </div>
+        <div style="flex:1 1 200px">${sideRange(lang, s, 'borderWidth', 'Rahmenbreite', 0, 8, 'px')}</div>
         ${colorField(lang, 'bgColor', 'Hintergrund', true, 'bgOpacity', s)}
       </div>`;
 
@@ -542,11 +531,9 @@ export function renderHeroDesign() {
         const s = sideOf(lang);
         if (field === 'borderWidth')
           s.borderWidth = Math.max(0, Math.min(8, parseInt(el.value, 10) || 0));
-        else if (/Opacity$/.test(field)) {
+        else if (/Opacity$/.test(field))
           s[field] = Math.max(0, Math.min(100, parseInt(el.value, 10) || 0));
-          const oval = pane.querySelector(`[data-hdoval="${field}"]`);
-          if (oval) oval.textContent = s[field];
-        } else s[field] = el.value; // Farben
+        else s[field] = el.value; // Farben
       }
       refreshPreview(pane, lang);
     });
@@ -643,4 +630,5 @@ export function renderHeroDesign() {
     const centered = tr.top - gr.top - (gallery.clientHeight - activeTile.clientHeight) / 2;
     gallery.scrollTop = Math.max(0, gallery.scrollTop + centered);
   }
+  bindSliders(pane); // nach den Feld-Handlern: Zahlenfeld löst deren input-Event aus
 }
