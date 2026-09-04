@@ -13,7 +13,7 @@
 
 ## 1. Ist-Zustand
 
-- **Stack:** Astro 5 + Vue 3 + vue-i18n, statischer Build (`npm run build` → `dist/`).
+- **Stack:** Astro 5 (statische Seiten, Vanilla-JS im Browser), statischer Build (`npm run build` → `dist/`). Die frühere Vue-3-/vue-i18n-Schicht wurde entfernt (ungenutzt).
 - **Inhalte** kommen heute aus:
   - `src/locales/de.json` & `src/locales/en.json` (Texte, Tool-Karten, Hero, Footer, `videoShowcase`, FAQ, Blog …) – **Single Source of Truth**, wird beim Build fest eingebacken.
   - `.astro`-Seiten (`src/pages/index.astro`, `faq.astro`, `blog/*`, `en/*`).

@@ -31,8 +31,7 @@ const de = getContent('de')   // = deepMerge(de.json, overrides.de.json)
 ```
 
 `getContent()` liefert dieselbe Struktur wie die Locale-Datei — bestehender Code
-funktioniert unverändert. `messages` (gemergt) speist die vue-i18n-Instanz in
-`src/pages/_app.ts`.
+funktioniert unverändert.
 
 ## Override-Format
 
@@ -63,7 +62,7 @@ Auslieferungszustand). Das Rendering (`TickerBar`) kommt in Phase 3b.
 
 ## Grenzen (aktuell)
 
-- Overrides greifen überall dort, wo Inhalte über `getContent()` / `messages`
-  laufen (Home DE/EN, FAQ DE/EN, vue-i18n). Direkt in `.astro` hartkodierte
+- Overrides greifen überall dort, wo Inhalte über `getContent()` laufen
+  (Home DE/EN, FAQ DE/EN, Blog). Direkt in `.astro` hartkodierte
   Texte sind (noch) nicht editierbar — sie werden bei Bedarf schrittweise an die
   Content-Schicht angebunden.

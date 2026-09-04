@@ -107,7 +107,7 @@ button:focus {
   box-shadow: 0 6px 20px rgba(232, 169, 69, 0.4);
 }
 
-/* Vue Transition for Scroll to Top */
+/* Ein-/Ausblend-Transition (Scroll-to-Top) */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
   transition: all 0.3s ease;
