@@ -7,9 +7,9 @@ import {
   state,
   MEDIA_LANGS,
   MEDIA_KEYS,
-  SITE_MEDIA_KEYS,
-  getSiteMediaVal,
-  setSiteMediaVal,
+  siteImageSlots,
+  getPath,
+  setPath,
   LANG_SECTIONS,
   SUBTABS,
   getMediaVal,
@@ -72,14 +72,20 @@ function resolveMediaForSave() {
       }
     }
   }
-  // Globales Hintergrundbild (Hell/Dunkel): noch nicht hochgeladen -> zuletzt
-  // gespeicherter Wert (oder leer), damit media.json nie eine staged:-Referenz enthält.
+  // Globale Bilder (Seiten-Hintergrund, Sektionen): noch nicht hochgeladen ->
+  // zuletzt gespeicherter Wert (oder leer), damit media.json nie eine
+  // staged:-Referenz enthält.
   if (m.site && typeof m.site === 'object') {
-    for (const key of SITE_MEDIA_KEYS) {
-      const v = m.site[key];
+    for (const slot of siteImageSlots()) {
+      const v = getPath(m.site, slot.path);
       if (typeof v === 'string' && v.startsWith('staged:')) {
         const item = state.stagedItems.find((x) => x.id === v.slice(7));
-        m.site[key] = (item && item.publishedUrl) || state.loadedMedia.site?.[key] || '';
+        const loaded = getPath(state.loadedMedia.site || {}, slot.path);
+        setPath(
+          m.site,
+          slot.path,
+          (item && item.publishedUrl) || (typeof loaded === 'string' ? loaded : '') || '',
+        );
       }
     }
   }
@@ -189,9 +195,10 @@ async function uploadStagedReferenced() {
       setMediaVal(lang, key, url);
     }
   }
-  // Globales Hintergrundbild -> gemeinsamer Ordner (/uploads/, beide Sprachen).
-  for (const key of SITE_MEDIA_KEYS) {
-    const v = getSiteMediaVal(key);
+  // Globale Bilder (Seiten-Hintergrund, Sektionen) -> gemeinsamer Ordner
+  // (/uploads/, beide Sprachen).
+  for (const slot of siteImageSlots()) {
+    const v = slot.get();
     if (!v.startsWith('staged:')) continue;
     const id = v.slice(7);
     let url = cache.get('shared:' + id);
@@ -211,7 +218,7 @@ async function uploadStagedReferenced() {
       url = r.data.url;
       cache.set('shared:' + id, url);
     }
-    setSiteMediaVal(key, url);
+    slot.set(url);
   }
   await loadServerFiles();
 }

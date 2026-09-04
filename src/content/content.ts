@@ -779,6 +779,40 @@ export interface SiteConfig {
   bgImageOpacityDark: number;
   bgImageFixed: boolean;
   bgImageFixedDark: boolean;
+  // Abgesetzte Tool-Sektionen (Audio / Bild / Diverse): je Sektion und Modus
+  // eine Tönung (Farbe + Deckkraft) und/oder ein Bild; style = Vollbreite-Band
+  // oder abgerundete Fläche innerhalb der Sektion.
+  sections: SiteSections;
+}
+export interface SiteSectionSide {
+  color: string; // '' = keine Tönung
+  opacity: number; // 0–100 %
+  image: string; // '' = kein Bild
+  imageDarken: number;
+  imageBlur: number;
+  imageOpacity: number;
+}
+export interface SiteSectionCfg {
+  light: SiteSectionSide;
+  dark: SiteSectionSide;
+}
+export interface SiteSections {
+  style: 'band' | 'card';
+  audio: SiteSectionCfg;
+  image: SiteSectionCfg;
+  diverse: SiteSectionCfg;
+}
+export const SITE_SECTION_KEYS = ['audio', 'image', 'diverse'] as const;
+const EMPTY_SECTION_SIDE: SiteSectionSide = {
+  color: '',
+  opacity: 8,
+  image: '',
+  imageDarken: 0,
+  imageBlur: 0,
+  imageOpacity: 100,
+};
+function emptySectionCfg(): SiteSectionCfg {
+  return { light: { ...EMPTY_SECTION_SIDE }, dark: { ...EMPTY_SECTION_SIDE } };
 }
 
 const SITE_DEFAULTS: SiteConfig = {
@@ -821,6 +855,12 @@ const SITE_DEFAULTS: SiteConfig = {
   bgImageOpacityDark: 100,
   bgImageFixed: true,
   bgImageFixedDark: true,
+  sections: {
+    style: 'band',
+    audio: emptySectionCfg(),
+    image: emptySectionCfg(),
+    diverse: emptySectionCfg(),
+  },
 };
 // Erlaubte Bild-URL (interner Pfad oder http(s)), ohne Zeichen, die url("…") brechen.
 const SITE_MEDIA_URL = /^(\/[^\s"'()\\]*|https?:\/\/[^\s"'()\\]+)$/;
@@ -892,7 +932,68 @@ export function getSiteBackgroundStyle(): string | undefined {
     rules.push('html[data-theme="dark"] body{background:var(--bg-color);}');
   if (light.image && !dark.image) rules.push('html[data-theme="dark"] body::before{content:none;}');
   rules.push(...siteFxRules(site));
+  rules.push(...siteSectionRules(site));
   return rules.length ? rules.join('') : undefined;
+}
+
+/**
+ * CSS für abgesetzte Tool-Sektionen. Das Markup enthält je Sektion
+ * <section data-bgsection="…"><div class="section-bg"> (components.css:
+ * absolute Ebene hinter dem Inhalt; ::before = Bild, ::after = Tönung, beide
+ * über CSS-Variablen gesteuert). Hier werden nur die Variablen je Sektion und
+ * Modus gesetzt; ohne Tönung/Bild bleibt die Ebene ausgeblendet (wie bisher).
+ * Die Hell-Regeln (html:root) gelten auch im Dunkelmodus, deshalb wird für
+ * Dunkel immer eine vollständige Regel ausgegeben, sobald Hell eine hat.
+ */
+function siteSectionRules(site: SiteConfig): string[] {
+  const secs = site.sections;
+  if (!isPlainObject(secs)) return [];
+  const num = (v: unknown, min: number, max: number, d: number) =>
+    typeof v === 'number' && Number.isFinite(v) ? Math.max(min, Math.min(max, v)) : d;
+  const rules: string[] = [];
+  let any = false;
+  const decl = (side: Partial<SiteSectionSide> | undefined): string | null => {
+    if (!isPlainObject(side)) return null;
+    const color = String(side.color ?? '');
+    const tint = SITE_HEX.test(color) ? textHexToRgba(color, num(side.opacity, 0, 100, 8) / 100) : '';
+    const img = String(side.image ?? '');
+    const hasImg = img !== '' && SITE_MEDIA_URL.test(img);
+    if (!tint && !hasImg) return null;
+    const out = [`display:block`, `--sec-tint:${tint || 'transparent'}`];
+    if (hasImg) {
+      const blur = num(side.imageBlur, 0, 40, 0);
+      const darken = num(side.imageDarken, 0, 100, 0) / 100;
+      const f: string[] = [];
+      if (blur > 0) f.push(`blur(${blur}px)`);
+      if (darken > 0) f.push(`brightness(${(1 - darken).toFixed(3)})`);
+      out.push(
+        `--sec-img:url("${img}")`,
+        `--sec-img-filter:${f.join(' ') || 'none'}`,
+        `--sec-img-opacity:${num(side.imageOpacity, 0, 100, 100) / 100}`,
+        `--sec-img-inset:-${blur * 2}px`,
+      );
+    } else out.push('--sec-img:none');
+    return out.join(';');
+  };
+  for (const key of SITE_SECTION_KEYS) {
+    const cfg = (secs as unknown as Record<string, SiteSectionCfg | undefined>)[key];
+    const light = decl(cfg?.light);
+    const dark = decl(cfg?.dark);
+    if (!light && !dark) continue;
+    any = true;
+    const sel = (mode: 'light' | 'dark') =>
+      `${mode === 'dark' ? 'html[data-theme="dark"]' : 'html:root'} .tools-section[data-bgsection="${key}"] .section-bg`;
+    if (light) rules.push(`${sel('light')}{${light};}`);
+    if (dark) rules.push(`${sel('dark')}{${dark};}`);
+    else if (light) rules.push(`${sel('dark')}{display:none;}`);
+  }
+  if (any)
+    rules.push(
+      secs.style === 'card'
+        ? 'html:root{--sec-bleed:0px;--sec-radius:1.5rem;}'
+        : 'html:root{--sec-bleed:calc(50% - 50vw);--sec-radius:0px;}',
+    );
+  return rules;
 }
 // Ergebnis von siteBgRules: CSS-Regeln plus, ob ein body-Hintergrund bzw. ein
 // Hintergrundbild (body::before) für den Modus ausgegeben wurde.

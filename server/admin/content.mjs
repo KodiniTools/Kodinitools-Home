@@ -535,7 +535,38 @@ function defaultSite() {
     bgImageOpacityDark: 100,
     bgImageFixed: true,
     bgImageFixedDark: true,
+    // Abgesetzte Tool-Sektionen: style 'band' | 'card', je Sektion Hell/Dunkel.
+    sections: defaultSections(),
   };
+}
+const SECTION_KEYS = ['audio', 'image', 'diverse'];
+function defaultSectionSide() {
+  return { color: '', opacity: 8, image: '', imageDarken: 0, imageBlur: 0, imageOpacity: 100 };
+}
+function defaultSections() {
+  const o = { style: 'band' };
+  for (const k of SECTION_KEYS) o[k] = { light: defaultSectionSide(), dark: defaultSectionSide() };
+  return o;
+}
+/** Validiert die Sektions-Einstellungen (Tönung/Bild je Sektion und Modus). */
+function validateSections(v) {
+  const out = defaultSections();
+  if (!isPlainObject(v)) return out;
+  out.style = v.style === 'card' ? 'card' : 'band';
+  for (const k of SECTION_KEYS) {
+    for (const mode of ['light', 'dark']) {
+      const side = isPlainObject(v[k]) && isPlainObject(v[k][mode]) ? v[k][mode] : {};
+      out[k][mode] = {
+        color: normHexColor(side.color, ''),
+        opacity: clampNum(side.opacity, 0, 100, 8),
+        image: SITE_IMAGE_URL.test(String(side.image ?? '')) ? side.image : '',
+        imageDarken: clampNum(side.imageDarken, 0, 100, 0),
+        imageBlur: clampNum(side.imageBlur, 0, 40, 0),
+        imageOpacity: clampNum(side.imageOpacity, 0, 100, 100),
+      };
+    }
+  }
+  return out;
 }
 const SITE_GRADIENT_TYPES = ['linear', 'radial'];
 const SITE_PATTERNS = ['none', 'dots', 'grid'];
@@ -586,6 +617,7 @@ function validateSite(s) {
     bgImageOpacityDark: clampNum(s.bgImageOpacityDark, 0, 100, 100),
     bgImageFixed: s.bgImageFixed !== false,
     bgImageFixedDark: s.bgImageFixedDark !== false,
+    sections: validateSections(s.sections),
   };
 }
 

@@ -22,6 +22,14 @@ import {
   siteBgImageLayer,
   SITE_GRADIENT_TYPES,
   SITE_PATTERNS,
+  SITE_SECTION_KEYS,
+  SECTION_LABELS,
+  getSectionStyle,
+  setSectionStyle,
+  getSiteSection,
+  setSiteSection,
+  defaultSectionSide,
+  rgbaFromHex,
 } from './model.js';
 import { objUrl, openMediaPicker } from './media.js';
 
@@ -59,6 +67,12 @@ const GRADIENT_TYPE_LABEL = {
   radial: 'Radial (von oben Mitte)',
 };
 const PATTERN_LABEL = { none: 'Kein Muster', dots: 'Punktraster', grid: 'Feines Gitter' };
+// Sektionen: Vorschlag für die Tönungsfarbe je Modus (Markenfarben) und Stil-Beschriftung.
+const SECTION_TINT_DEFAULT = { light: '#014f99', dark: '#e8a945' };
+const SECTION_STYLE_LABEL = {
+  band: 'Volle Breite (Band bis zum Seitenrand)',
+  card: 'Abgerundete Fläche innerhalb der Sektion',
+};
 
 // Bild-URL für die Vorschau auflösen (staged:<id> -> Objekt-URL des Browsers).
 function previewUrl(val) {
@@ -254,6 +268,231 @@ function modeRow(mode, label) {
     </div>`;
 }
 
+// --- Abgesetzte Sektionen (Audio / Bild / Diverse), je Sektion Hell + Dunkel ---
+// Bild-Ebene einer Sektion für die Vorschau: { url, filter, opacity } oder null.
+function sectionImageLayer(key, mode) {
+  const c = getSiteSection(key, mode);
+  const url = previewUrl(c.image);
+  if (!url) return null;
+  const f = [];
+  if (c.imageBlur > 0) f.push(`blur(${c.imageBlur}px)`);
+  if (c.imageDarken > 0) f.push(`brightness(${(1 - c.imageDarken / 100).toFixed(3)})`);
+  return { url, filter: f.join(' ') || 'none', opacity: c.imageOpacity / 100 };
+}
+function sectionTint(key, mode) {
+  const c = getSiteSection(key, mode);
+  return c.color ? rgbaFromHex(c.color, c.opacity) : 'transparent';
+}
+function sectionImgStyle(key, mode) {
+  const l = sectionImageLayer(key, mode);
+  if (!l) return 'display:none';
+  return `background:url('${l.url.replace(/['"]/g, '')}') center / cover no-repeat;filter:${l.filter};opacity:${l.opacity}`;
+}
+// Drei Streifen (Audio/Bild/Diverse) unter dem Beispielinhalt der Vorschau.
+function sectionStrips(mode) {
+  return `
+    <div class="fx-prev-secs ${getSectionStyle()}">
+      ${SITE_SECTION_KEYS.map(
+        (k) => `
+        <div class="fx-prev-sec" data-secprev="${k}" data-mode="${mode}">
+          <div class="fx-prev-sec-img" style="${sectionImgStyle(k, mode)}"></div>
+          <div class="fx-prev-sec-tint" style="background:${sectionTint(k, mode)}"></div>
+          <span>${SECTION_LABELS[k]}</span>
+        </div>`,
+      ).join('')}
+    </div>`;
+}
+function sectionNote() {
+  const parts = [];
+  for (const k of SITE_SECTION_KEYS) {
+    const bits = [];
+    for (const mode of ['light', 'dark']) {
+      const c = getSiteSection(k, mode);
+      const what = [c.color ? `Tönung ${c.opacity} %` : '', c.image ? 'Bild' : ''].filter(Boolean);
+      if (what.length) bits.push(`${mode === 'dark' ? 'Dunkel' : 'Hell'}: ${what.join(' + ')}`);
+    }
+    if (bits.length) parts.push(`${SECTION_LABELS[k]} (${bits.join(', ')})`);
+  }
+  return parts.length
+    ? `✅ Abgesetzt: ${parts.join(' · ')}.`
+    : 'Keine Sektion abgesetzt – die Sektionen liegen wie bisher direkt auf dem Seitenhintergrund.';
+}
+// Eine Spalte (Hell oder Dunkel) einer Sektion: Tönung + Bild.
+function sectionCol(key, mode) {
+  const c = getSiteSection(key, mode);
+  const on = c.color !== '';
+  const dis = on ? '' : 'disabled';
+  const a = `data-key="${key}" data-mode="${mode}"`;
+  const url = previewUrl(c.image);
+  const thumb = url
+    ? `<img src="${esc(url)}" alt="" />`
+    : '<span class="hint" style="margin:0">Kein Bild</span>';
+  const imgDis = c.image ? '' : 'disabled';
+  return `
+    <div class="sec-col" data-seccol="${key}" data-mode="${mode}">
+      <div class="sec-col-title">${mode === 'dark' ? 'Dunkel 🌙' : 'Hell ☀️'}</div>
+      <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin:0">
+        <input type="checkbox" data-secen="${key}" data-mode="${mode}" ${on ? 'checked' : ''} style="width:auto" /> Tönung
+      </label>
+      <div class="row" style="align-items:flex-end;margin-top:.3rem">
+        <div style="flex:0 0 auto">
+          <input type="color" data-secf="color" ${a} value="${esc(c.color || SECTION_TINT_DEFAULT[mode])}" ${dis} style="width:52px;height:36px;padding:2px" />
+        </div>
+        <div style="flex:1 1 100px">
+          <label style="margin-top:0">Deckkraft: <span data-secoval="opacity" ${a}>${c.opacity}</span> %</label>
+          <input type="range" data-secf="opacity" ${a} min="0" max="100" value="${c.opacity}" ${dis} style="width:100%" />
+        </div>
+      </div>
+      <div class="row" style="align-items:center;margin-top:.4rem">
+        <div class="bg-thumb sm" data-secthumb="${key}" data-mode="${mode}">${thumb}</div>
+        <div class="row" style="margin:0;flex:1 1 auto;gap:.3rem">
+          <button type="button" data-secpick="${key}" data-mode="${mode}" style="flex:0 0 auto;padding:.3rem .5rem;font-size:.8rem">📂 Bild</button>
+          <button type="button" class="danger" data-secimgclear="${key}" data-mode="${mode}" ${imgDis} style="flex:0 0 auto;padding:.3rem .5rem;font-size:.8rem" title="Bild entfernen">✕</button>
+        </div>
+      </div>
+      <div class="row" style="align-items:flex-end;margin-top:.2rem;${c.image ? '' : 'display:none'}">
+        <div style="flex:1 1 70px">
+          <label style="margin-top:0">Dunkler: <span data-secoval="imageDarken" ${a}>${c.imageDarken}</span> %</label>
+          <input type="range" data-secf="imageDarken" ${a} min="0" max="100" value="${c.imageDarken}" ${imgDis} style="width:100%" />
+        </div>
+        <div style="flex:1 1 70px">
+          <label style="margin-top:0">Weich: <span data-secoval="imageBlur" ${a}>${c.imageBlur}</span> px</label>
+          <input type="range" data-secf="imageBlur" ${a} min="0" max="40" value="${c.imageBlur}" ${imgDis} style="width:100%" />
+        </div>
+        <div style="flex:1 1 70px">
+          <label style="margin-top:0">Deckkraft: <span data-secoval="imageOpacity" ${a}>${c.imageOpacity}</span> %</label>
+          <input type="range" data-secf="imageOpacity" ${a} min="0" max="100" value="${c.imageOpacity}" ${imgDis} style="width:100%" />
+        </div>
+      </div>
+    </div>`;
+}
+function sectionsPanel() {
+  const style = getSectionStyle();
+  const opts = Object.keys(SECTION_STYLE_LABEL)
+    .map(
+      (v) =>
+        `<option value="${v}" ${style === v ? 'selected' : ''}>${SECTION_STYLE_LABEL[v]}</option>`,
+    )
+    .join('');
+  return `
+    <div class="panel">
+      <h2>Abgesetzte Sektionen <span class="lang-badge">gilt für Hell + Dunkel</span></h2>
+      <p class="hint" style="margin-top:0">
+        <strong>Audio-, Bild- und Diverse-Tools</strong> abwechselnd mit leicht anderer <strong>Tönung</strong>
+        oder einem <strong>Bild</strong> absetzen, damit die Startseite beim Scrollen Struktur bekommt.
+        Je Sektion getrennt für Hell und Dunkel; ohne Tönung und Bild bleibt alles wie bisher.
+        Wirkung unten in der Vorschau (drei Streifen).
+      </p>
+      <div class="row" style="align-items:flex-end">
+        <div style="flex:1 1 260px">
+          <label>Darstellung</label>
+          <select data-secstyle>${opts}</select>
+        </div>
+        <div style="flex:0 0 auto;display:flex;gap:.4rem;flex-wrap:wrap">
+          <button type="button" class="primary" data-secalt title="Audio- und Diverse-Tools dezent tönen, Bild-Tools frei lassen (Hell + Dunkel)">✨ Abwechselnd anwenden</button>
+          <button type="button" data-secclear title="Alle Sektionen auf Standard (keine Tönung, kein Bild)">↺ Alle zurücksetzen</button>
+        </div>
+      </div>
+      ${SITE_SECTION_KEYS.map(
+        (k) => `
+        <div class="sec-box">
+          <div class="bg-sub-title">${SECTION_LABELS[k]}</div>
+          <div class="sec-cols">${sectionCol(k, 'light')}${sectionCol(k, 'dark')}</div>
+        </div>`,
+      ).join('')}
+      <p class="hint" data-secnote style="margin-top:.6rem">${sectionNote()}</p>
+    </div>`;
+}
+// Vorschau-Streifen + Hinweis nach Regler-Änderung aktualisieren (ohne Neu-Rendern).
+function refreshSections(pane) {
+  for (const k of SITE_SECTION_KEYS) {
+    for (const mode of ['light', 'dark']) {
+      const strip = pane.querySelector(`[data-secprev="${k}"][data-mode="${mode}"]`);
+      if (!strip) continue;
+      strip.querySelector('.fx-prev-sec-img').setAttribute('style', sectionImgStyle(k, mode));
+      strip.querySelector('.fx-prev-sec-tint').style.background = sectionTint(k, mode);
+    }
+  }
+  const note = pane.querySelector('[data-secnote]');
+  if (note) note.textContent = sectionNote();
+}
+function bindSections(pane) {
+  const sel = pane.querySelector('[data-secstyle]');
+  if (sel)
+    sel.addEventListener('change', () => {
+      setSectionStyle(sel.value);
+      renderBackground();
+    });
+  pane.querySelector('[data-secalt]')?.addEventListener('click', () => {
+    for (const mode of ['light', 'dark']) {
+      setSiteSection('audio', mode, { color: SECTION_TINT_DEFAULT[mode], opacity: 8 });
+      setSiteSection('image', mode, { color: '' });
+      setSiteSection('diverse', mode, { color: SECTION_TINT_DEFAULT[mode], opacity: 8 });
+    }
+    renderBackground();
+    toast('Abwechselnde Tönung angewandt (Audio + Diverse)');
+  });
+  pane.querySelector('[data-secclear]')?.addEventListener('click', () => {
+    for (const k of SITE_SECTION_KEYS)
+      for (const mode of ['light', 'dark']) setSiteSection(k, mode, defaultSectionSide());
+    renderBackground();
+    toast('Alle Sektionen zurückgesetzt');
+  });
+  pane.querySelectorAll('[data-secen]').forEach((cb) => {
+    cb.addEventListener('change', () => {
+      const key = cb.dataset.secen;
+      const mode = cb.dataset.mode;
+      if (cb.checked) {
+        const inp = pane.querySelector(
+          `[data-secf="color"][data-key="${key}"][data-mode="${mode}"]`,
+        );
+        setSiteSection(key, mode, { color: (inp && inp.value) || SECTION_TINT_DEFAULT[mode] });
+      } else setSiteSection(key, mode, { color: '' });
+      renderBackground();
+    });
+  });
+  pane.querySelectorAll('[data-secf]').forEach((inp) => {
+    const { key, mode, secf: field } = inp.dataset;
+    inp.addEventListener('input', () => {
+      setSiteSection(key, mode, { [field]: inp.value });
+      const oval = pane.querySelector(
+        `[data-secoval="${field}"][data-key="${key}"][data-mode="${mode}"]`,
+      );
+      if (oval) oval.textContent = getSiteSection(key, mode)[field];
+      refreshSections(pane);
+    });
+  });
+  pane.querySelectorAll('[data-secpick]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.secpick;
+      const mode = btn.dataset.mode;
+      const srv = ['de', 'en', 'shared'].reduce(
+        (n, l) => n + (state.serverFiles[l] || []).length,
+        0,
+      );
+      if (!state.stagedItems.length && !srv) {
+        toast('Keine Medien vorhanden — zuerst im Tab „Mediathek" eine Datei hinzufügen.');
+        return;
+      }
+      openMediaPicker('de', 'section', {
+        allLangs: true,
+        imagesOnly: true,
+        title: `Bild für ${SECTION_LABELS[key]} (${mode === 'dark' ? 'Dunkelmodus' : 'Hellmodus'}) wählen`,
+        onPick: (url) => {
+          setSiteSection(key, mode, { image: url });
+          renderBackground();
+        },
+      });
+    });
+  });
+  pane.querySelectorAll('[data-secimgclear]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      setSiteSection(btn.dataset.secimgclear, btn.dataset.mode, { image: '' });
+      renderBackground();
+    });
+  });
+}
+
 function backgroundPanel() {
   return `
     ${stickyPreview()}
@@ -269,6 +508,7 @@ function backgroundPanel() {
       ${modeRow('light', 'den Hellmodus')}
       ${modeRow('dark', 'den Dunkelmodus')}
     </div>
+    ${sectionsPanel()}
     ${effectsPanel()}`;
 }
 
@@ -318,6 +558,7 @@ function fxPreview(mode) {
           <span class="fx-prev-badge">Beispiel</span>
           <div class="fx-prev-card-title">Tool-Karte</div>
         </div>
+        ${sectionStrips(mode)}
       </div>
     </div>`;
 }
@@ -383,6 +624,7 @@ export function renderBackground() {
   const pane = $('#content');
   pane.innerHTML = backgroundPanel();
   bindBackground(pane);
+  bindSections(pane);
   bindEffects(pane);
 }
 
