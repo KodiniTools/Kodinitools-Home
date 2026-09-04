@@ -14,7 +14,8 @@ bzw. `/admin/api` (nginx entfernt das `/admin`-Präfix). Voller Kontext:
 | `auth.mjs` | Passwort (scrypt), Session-Cookies (HMAC), Login-Bruteforce-Schutz |
 | `content.mjs` | Lesen/Schreiben + Validierung von `overrides.*.json` / `ticker.*.json` |
 | `uploads.mjs` | Datei-Uploads → `UPLOADS_DIR` (Raw-Body + `X-Filename`) |
-| `publish.mjs` | Commit → Push → `deploy.sh` (asynchron, Status-Polling) |
+| `publish.mjs` | Commit → Push → `deploy.sh` (asynchron, Status-Polling; Deploy-Ausgabe live im Log, Abbruch nach 20 min) |
+| `util.mjs` | HTTP-Helfer + `runStreaming` (Prozess mit zeilenweiser Live-Ausgabe und Timeout) |
 | `hash-password.mjs` | Erzeugt den scrypt-Hash für `ADMIN_PASSWORD_HASH` |
 | `codeupdate.mjs` | Vorschau holt vorher den aktuellen `main`-Code (fast-forward, `npm ci` bei geänderten Abhängigkeiten); erkennt geänderten Server-Code und startet den Dienst unter systemd nach Vorschau/Veröffentlichung selbst neu; persistiert den Vorgangs-Status in `.kodini-admin/` |
 | `public/` | Admin-Frontend (Phase 4); u. a. `design.js` (Hero-Design), `background.js` (Seiten-Hintergrund), `toolcards.js` (Tab „Tool-Karten“: Rahmen/Hintergrund der Tool-Karten je Karte, Hell/Dunkel, Sticky-Live-Vorschau) |

@@ -135,6 +135,9 @@ export function restoreState(name, fallback) {
       s.error = 'Vorgang durch Neustart des Admin-Dienstes abgebrochen – bitte erneut starten.';
       s.finishedAt = Date.now();
     }
+    // Merker fürs Frontend: dieser Stand stammt aus der Zeit vor dem Neustart
+    // (Frontend lädt sich dann einmalig neu, um neue Module zu laden).
+    s.restarted = s.restarting === true;
     s.restarting = false;
     return { ...fallback, ...s };
   } catch {

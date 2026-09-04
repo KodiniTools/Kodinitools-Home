@@ -1,4 +1,6 @@
-// Kleine HTTP-Helfer (ohne externe Deps).
+// Kleine HTTP-/Prozess-Helfer (ohne externe Deps).
+
+import { spawn } from 'node:child_process';
 
 /** Liest den kompletten Request-Body als Buffer, mit Größenlimit. */
 export function readBody(req, maxBytes) {
@@ -56,4 +58,55 @@ export function clientIp(req) {
  */
 export function csrfOk(req) {
   return req.headers['x-kodini-admin'] === '1';
+}
+
+/**
+ * Startet einen Prozess und liefert seine Ausgabe ZEILENWEISE über `onLine`
+ * (Live-Log für lange Schritte wie deploy.sh / astro build), statt sie erst am
+ * Ende am Stück zurückzugeben. ANSI-Farbcodes werden entfernt. Nach `timeoutMs`
+ * wird der Prozess beendet (SIGTERM, dann SIGKILL) und die Promise verworfen.
+ * Löst mit der gesamten (gekürzten) Ausgabe auf; Exit-Code != 0 -> Fehler.
+ */
+export function runStreaming(cmd, args, { cwd, env, timeoutMs = 20 * 60 * 1000, onLine } = {}) {
+  return new Promise((resolvePromise, reject) => {
+    const child = spawn(cmd, args, { cwd, env, stdio: ['ignore', 'pipe', 'pipe'] });
+    const MAX_KEEP = 2 * 1024 * 1024;
+    let all = '';
+    let buf = '';
+    let timedOut = false;
+    // eslint-disable-next-line no-control-regex -- ANSI-Escape (ESC) gezielt entfernen
+    const strip = (t) => t.replace(/\x1b\[[0-9;]*m/g, '');
+    const feed = (chunk) => {
+      const text = strip(chunk.toString());
+      all += text;
+      if (all.length > MAX_KEEP) all = all.slice(-MAX_KEEP);
+      buf += text;
+      let i;
+      while ((i = buf.indexOf('\n')) >= 0) {
+        const line = buf.slice(0, i).trimEnd();
+        buf = buf.slice(i + 1);
+        if (line.trim() && onLine) onLine(line);
+      }
+    };
+    child.stdout.on('data', feed);
+    child.stderr.on('data', feed);
+    const timer = setTimeout(() => {
+      timedOut = true;
+      child.kill('SIGTERM');
+      setTimeout(() => child.kill('SIGKILL'), 5000).unref();
+    }, timeoutMs);
+    child.on('error', (err) => {
+      clearTimeout(timer);
+      reject(err);
+    });
+    child.on('close', (code, signal) => {
+      clearTimeout(timer);
+      if (buf.trim() && onLine) onLine(buf.trimEnd());
+      if (timedOut)
+        reject(new Error(`Zeitüberschreitung nach ${Math.round(timeoutMs / 60000)} min: ${cmd}`));
+      else if (code !== 0)
+        reject(new Error(`${cmd} beendet mit Code ${code}${signal ? ` (${signal})` : ''}`));
+      else resolvePromise(all.trim());
+    });
+  });
 }
