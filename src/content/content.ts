@@ -925,8 +925,12 @@ export function getSiteBackgroundStyle(): string | undefined {
   const light = siteBgRules(site, 'light');
   const dark = siteBgRules(site, 'dark');
   const rules = [...light.rules, ...dark.rules];
-  // Die Hell-Regeln (html:root) gelten auch im Dunkelmodus; hat Dunkel selbst
-  // kein Muster/Bild, muss es das helle ausdrücklich abschalten.
+  // Die Hell-Regeln (html:root, Spezifität 0,1,1) gelten auch im Dunkelmodus und
+  // schlagen dort die Standardwerte aus base.css ([data-theme="dark"], 0,1,0).
+  // Hat Dunkel selbst keine Farbe / kein Muster / kein Bild, muss es die hellen
+  // Werte ausdrücklich zurücksetzen.
+  if (light.bgVar && !dark.bgVar)
+    rules.push(`html[data-theme="dark"]{--bg-color:${PAGE_BG_BASE.dark};}`);
   if (light.bodyBg && !dark.bodyBg)
     rules.push('html[data-theme="dark"] body{background:var(--bg-color);}');
   if (light.image && !dark.image) rules.push('html[data-theme="dark"] body::before{content:none;}');
@@ -1002,6 +1006,7 @@ function siteSectionRules(site: SiteConfig): string[] {
 // Hintergrundbild (body::before) für den Modus ausgegeben wurde.
 interface SiteBgRules {
   rules: string[];
+  bgVar: boolean; // eigene --bg-color gesetzt
   bodyBg: boolean;
   image: boolean;
 }
@@ -1145,7 +1150,7 @@ function siteBgRules(site: SiteConfig, mode: 'light' | 'dark'): SiteBgRules {
         `filter:${filters.join(' ') || 'none'};opacity:${op};mask-image:${mask};-webkit-mask-image:${mask};}`,
     );
   }
-  return { rules, bodyBg, image };
+  return { rules, bgVar: hasColor, bodyBg, image };
 }
 
 /**
