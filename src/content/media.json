@@ -2,7 +2,23 @@
   "site": {
     "globalFont": "Supreme-Regular.woff2",
     "bgColor": "",
-    "bgColorDark": ""
+    "bgColorDark": "",
+    "bgOpacity": 100,
+    "bgOpacityDark": 100,
+    "bgGradient": false,
+    "bgGradientDark": false,
+    "bgColor2": "",
+    "bgColor2Dark": "",
+    "bgGradientType": "linear",
+    "bgGradientTypeDark": "linear",
+    "bgAngle": 180,
+    "bgAngleDark": 180,
+    "fxAurora": false,
+    "fxAuroraIntensity": 50,
+    "fxNoise": false,
+    "fxNoiseIntensity": 50,
+    "fxSpotlight": false,
+    "fxSpotlightIntensity": 50
   },
   "de": {
     "sectionVideos": {
@@ -216,19 +232,19 @@
       "default": {
         "light": {
           "borderColor": "#103ab7",
-          "borderOpacity": 20,
-          "borderWidth": 2,
-          "borderStyle": "solid",
+          "borderOpacity": 7,
+          "borderWidth": 4,
+          "borderStyle": "double",
           "borderRadius": 8,
-          "bgColor": "#4f5e78",
-          "bgOpacity": 12,
+          "bgColor": "#d0daec",
+          "bgOpacity": 27,
           "gradient": true,
-          "bgColor2": "#f1f5f9",
-          "gradientAngle": 0,
-          "hoverBorderColor": "#051829",
-          "hoverBorderOpacity": 20,
-          "hoverBgColor": "#025bc0",
-          "hoverBgOpacity": 12
+          "bgColor2": "#97b5d3",
+          "gradientAngle": 78,
+          "hoverBorderColor": "#014f99",
+          "hoverBorderOpacity": 8,
+          "hoverBgColor": "#5d6874",
+          "hoverBgOpacity": 11
         },
         "dark": {
           "borderColor": "#1d3a5c",
@@ -458,23 +474,23 @@
       }
     },
     "toolCards": {
-      "enabled": false,
+      "enabled": true,
       "default": {
         "light": {
-          "borderColor": "#e5e7eb",
-          "borderOpacity": 100,
-          "borderWidth": 1,
-          "borderStyle": "solid",
-          "borderRadius": 16,
-          "bgColor": "#ffffff",
-          "bgOpacity": 100,
-          "gradient": false,
-          "bgColor2": "#f1f5f9",
-          "gradientAngle": 135,
+          "borderColor": "#103ab7",
+          "borderOpacity": 7,
+          "borderWidth": 4,
+          "borderStyle": "double",
+          "borderRadius": 8,
+          "bgColor": "#d0daec",
+          "bgOpacity": 27,
+          "gradient": true,
+          "bgColor2": "#97b5d3",
+          "gradientAngle": 78,
           "hoverBorderColor": "#014f99",
-          "hoverBorderOpacity": 22,
-          "hoverBgColor": "#ffffff",
-          "hoverBgOpacity": 0
+          "hoverBorderOpacity": 8,
+          "hoverBgColor": "#5d6874",
+          "hoverBgOpacity": 11
         },
         "dark": {
           "borderColor": "#1d3a5c",
