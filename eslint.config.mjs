@@ -1,7 +1,6 @@
 import js from '@eslint/js';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
-import pluginVue from 'eslint-plugin-vue';
 import pluginAstro from 'eslint-plugin-astro';
 import configPrettier from 'eslint-config-prettier';
 
@@ -12,9 +11,6 @@ export default tseslint.config(
   // TypeScript rules
   ...tseslint.configs.recommended,
 
-  // Vue 3 rules
-  ...pluginVue.configs['flat/recommended'],
-
   // Astro rules
   ...pluginAstro.configs.recommended,
 
@@ -22,27 +18,11 @@ export default tseslint.config(
   configPrettier,
 
   {
-    files: ['**/*.{ts,tsx,vue,astro}'],
+    files: ['**/*.{ts,tsx,astro}'],
     rules: {
       // TypeScript
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/no-explicit-any': 'warn',
-
-      // Vue
-      'vue/multi-word-component-names': 'off',
-      'vue/component-name-in-template-casing': ['error', 'PascalCase'],
-    },
-  },
-
-  // Vue-SFCs: <script setup lang="ts"> mit dem TypeScript-Parser lesen. Ohne das
-  // reicht vue-eslint-parser die Skript-Blöcke an den Standard-Parser weiter, der
-  // an TS-Syntax (interface, `as`, Typannotationen) scheitert. Die Komponenten
-  // laufen im Browser (window, document, localStorage, navigator …).
-  {
-    files: ['**/*.vue'],
-    languageOptions: {
-      parserOptions: { parser: tseslint.parser },
-      globals: { ...globals.browser },
     },
   },
 

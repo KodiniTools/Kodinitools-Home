@@ -47,9 +47,6 @@ export function getContent(locale: Locale) {
   return locale === 'en' ? mergedEn : mergedDe;
 }
 
-/** Fertig gemergte Nachrichten für die vue-i18n-Instanz (Client + SSR). */
-export const messages = { de: mergedDe, en: mergedEn };
-
 // --- Laufband / Ticker (neues, admin-editierbares Feature; Rendering in Phase 3b) ---
 
 export interface TickerItem {
