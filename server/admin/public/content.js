@@ -2,6 +2,7 @@
 // Overrides) und der „Erweitert"-Tab (rohe Overrides als JSON).
 
 import { $, esc, toast } from './core.js';
+import { colorPicker, bindColorPickers, refreshColorPickers } from './color.js';
 import {
   state,
   getPath,
@@ -77,7 +78,7 @@ function fxControls(idx, st, dis) {
           </label>
         </div>
         <div style="flex:0 0 auto"><label style="margin-top:0">Schattenfarbe</label>
-          <input type="color" data-txtfx="${idx}:shadowColor" value="${esc(st.shadowColor || '#000000')}" ${dis} style="width:56px;height:38px;padding:2px" /></div>
+          ${colorPicker({ id: `txt:${idx}:shadowColor`, attrs: `data-txtfx="${idx}:shadowColor"`, value: st.shadowColor || '#000000', disabled: dis === 'disabled' })}</div>
         <div style="flex:0 0 auto"><label style="margin-top:0">Versatz X (px)</label>
           <input type="number" data-txtfx="${idx}:shadowX" min="-50" max="50" step="1" value="${st.shadowX ?? 0}" ${dis} style="width:90px" /></div>
         <div style="flex:0 0 auto"><label style="margin-top:0">Versatz Y (px)</label>
@@ -87,7 +88,7 @@ function fxControls(idx, st, dis) {
       </div>
       <div class="row" style="align-items:flex-end;margin-top:.4rem">
         <div style="flex:0 0 auto"><label style="margin-top:0">Umriss-Farbe</label>
-          <input type="color" data-txtfx="${idx}:strokeColor" value="${esc(st.strokeColor || '#000000')}" ${dis} style="width:56px;height:38px;padding:2px" /></div>
+          ${colorPicker({ id: `txt:${idx}:strokeColor`, attrs: `data-txtfx="${idx}:strokeColor"`, value: st.strokeColor || '#000000', disabled: dis === 'disabled' })}</div>
         <div style="flex:0 0 auto"><label style="margin-top:0">Umriss-Dicke (px, 0=aus)</label>
           <input type="number" data-txtfx="${idx}:strokeWidth" min="0" max="10" step="0.5" value="${st.strokeWidth ?? 0}" ${dis} style="width:120px" /></div>
         <div style="flex:0 0 auto"><label style="margin-top:0">Deckkraft (%)</label>
@@ -268,6 +269,7 @@ export function renderTexts() {
     el.addEventListener('input', () => {
       getTextStyle(lang, key)[txtColorField()] = el.value;
       syncInheritedFields(pane, lang);
+      refreshColorPickers(pane); // nachgezogene Farbfelder der übrigen Slots
       refreshTxtPreviews(pane, lang);
     });
   });
@@ -373,6 +375,7 @@ export function renderTexts() {
       toast('Auf Standard zurückgesetzt');
     });
   });
+  bindColorPickers(pane);
 }
 
 function textPanel(lang) {
@@ -429,10 +432,13 @@ function textPanel(lang) {
         </div>
         <div style="flex:0 0 auto">
           <label style="margin-top:0">Textfarbe (${txtModeLabel()})</label>
-          <div style="display:flex;gap:.3rem;align-items:center">
-            <input type="color" data-txtcolor="${idx}" value="${esc(st[txtColorField()] || '#ffffff')}" ${dis} style="width:56px;height:38px;padding:2px" />
-            <button type="button" class="hd-reset" data-txtreset="${idx}:color" ${dis} title="Farbe (${txtModeLabel()}) auf Standard zurücksetzen" aria-label="Farbe zurücksetzen">↺</button>
-          </div>
+          ${colorPicker({
+            id: `txt:${idx}:color`,
+            attrs: `data-txtcolor="${idx}"`,
+            value: st[txtColorField()] || '#ffffff',
+            disabled: dis === 'disabled',
+            resetHtml: `<button type="button" class="hd-reset" data-txtreset="${idx}:color" ${dis} title="Farbe (${txtModeLabel()}) auf Standard zurücksetzen" aria-label="Farbe zurücksetzen">↺</button>`,
+          })}
         </div>
         <div style="flex:0 0 auto">
           <label style="margin-top:0">&nbsp;</label>

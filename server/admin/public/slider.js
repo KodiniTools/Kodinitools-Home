@@ -43,6 +43,13 @@ export function slider({
     </div>`;
 }
 
+/** Zahlenfelder aller Regler in pane an programmatisch geänderte Slider-Werte angleichen. */
+export function refreshSliders(pane) {
+  pane.querySelectorAll('[data-slider]').forEach((box) => {
+    if (typeof box._slSync === 'function') box._slSync();
+  });
+}
+
 /**
  * Verdrahtung aller Regler in pane: Zahlenfeld und „↺" (mit data-def) schreiben
  * in den Slider und lösen dessen input-Event aus, sodass die Feld-Handler
@@ -57,6 +64,9 @@ export function bindSliders(pane) {
     const num = box.querySelector('[data-num]');
     const reset = box.querySelector('[data-reset]');
     if (!range || !num) return;
+    box._slSync = () => {
+      num.value = range.value;
+    };
     let typing = false;
     const push = (v) => {
       range.value = v;

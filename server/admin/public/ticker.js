@@ -4,6 +4,8 @@
 import { $, esc, toast } from './core.js';
 import { state, rgbaFromHex, clampSpacing } from './model.js';
 import { ensureFontFace, fontOptionsHtml } from './fonts.js';
+import { slider, bindSliders, refreshSliders } from './slider.js';
+import { colorPicker, bindColorPickers, refreshColorPickers } from './color.js';
 
 // Laufband-Text mit Inline-Links [Wort](url) in sichere HTML-Vorschau wandeln
 // (gleiche Regel wie TickerBar.astro; Klicks in der Vorschau navigieren nicht).
@@ -62,6 +64,8 @@ export function renderTicker() {
   pane.querySelectorAll('[data-tk]').forEach(bindTickerControl);
   bindInlineLinkHelper(pane);
   bindTickerStyle(pane);
+  bindSliders(pane);
+  bindColorPickers(pane);
 }
 
 // „Wort verlinken"-Helfer je Eintrag: fügt [Wort](url) in den Text ein.
@@ -147,15 +151,14 @@ function tickerStyleSection(lang) {
           </div>
           <div style="flex:0 0 auto">
             <label>Schriftfarbe</label>
-            <input type="color" data-tksc="textColor" data-lang="${lang}" value="${esc(c.textColor)}" style="width:56px;height:38px;padding:2px" />
+            ${colorPicker({ id: `tk:textColor:${lang}`, attrs: `data-tksc="textColor" data-lang="${lang}"`, value: c.textColor })}
           </div>
           <div style="flex:0 0 auto">
             <label>Hintergrundfarbe</label>
-            <input type="color" data-tksc="bgColor" data-lang="${lang}" value="${esc(c.bgColor)}" style="width:56px;height:38px;padding:2px" />
+            ${colorPicker({ id: `tk:bgColor:${lang}`, attrs: `data-tksc="bgColor" data-lang="${lang}"`, value: c.bgColor })}
           </div>
-          <div style="flex:1 1 180px">
-            <label>Transparenz Hintergrund: <span data-tks-oval data-lang="${lang}">${c.bgOpacity}</span>% <span class="hint">(0 = ganz durchsichtig)</span></label>
-            <input type="range" data-tksc="bgOpacity" data-lang="${lang}" min="0" max="100" value="${c.bgOpacity}" style="width:100%" />
+          <div style="flex:1 1 240px">
+            ${slider({ id: `tk:bgOpacity:${lang}`, label: 'Transparenz Hintergrund', hint: '(0 = ganz durchsichtig)', unit: '%', min: 0, max: 100, value: c.bgOpacity, def: 100, attrs: `data-tksc="bgOpacity" data-lang="${lang}"` })}
           </div>
         </div>
         <div class="row" style="margin-top:.6rem">
@@ -196,8 +199,8 @@ function switchTickerMode(pane, lang, mode) {
   set(`[data-tksc="textColor"][data-lang="${lang}"]`, c.textColor);
   set(`[data-tksc="bgColor"][data-lang="${lang}"]`, c.bgColor);
   set(`[data-tksc="bgOpacity"][data-lang="${lang}"]`, c.bgOpacity);
-  const oval = pane.querySelector(`[data-tks-oval][data-lang="${lang}"]`);
-  if (oval) oval.textContent = c.bgOpacity;
+  refreshSliders(pane);
+  refreshColorPickers(pane);
   pane.querySelectorAll(`[data-tksmode-label][data-lang="${lang}"]`).forEach((el) => {
     el.textContent = tkModeLabel();
   });
@@ -207,7 +210,9 @@ function switchTickerMode(pane, lang, mode) {
 function bindTickerStyle(pane) {
   // Modus-Umschalter (Hell/Dunkel)
   pane.querySelectorAll('[data-tkmode]').forEach((btn) => {
-    btn.addEventListener('click', () => switchTickerMode(pane, btn.dataset.lang, btn.dataset.tkmode));
+    btn.addEventListener('click', () =>
+      switchTickerMode(pane, btn.dataset.lang, btn.dataset.tkmode),
+    );
   });
   // Geteilte Felder (Typografie) + „Eigenes Design"-Schalter
   pane.querySelectorAll('[data-tks]').forEach((el) => {
@@ -230,11 +235,9 @@ function bindTickerStyle(pane) {
     const lang = el.dataset.lang;
     el.addEventListener('input', () => {
       const c = state.ticker[lang].style[tkEditTheme];
-      if (field === 'bgOpacity') {
+      if (field === 'bgOpacity')
         c.bgOpacity = Math.max(0, Math.min(100, parseInt(el.value, 10) || 0));
-        const oval = pane.querySelector(`[data-tks-oval][data-lang="${lang}"]`);
-        if (oval) oval.textContent = c.bgOpacity;
-      } else c[field] = el.value; // textColor / bgColor
+      else c[field] = el.value; // textColor / bgColor
       updateTickerPreview(pane, lang);
     });
   });
