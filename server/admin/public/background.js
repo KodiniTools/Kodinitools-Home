@@ -11,6 +11,7 @@
 
 import { $, esc, toast } from './core.js';
 import { slider, bindSliders } from './slider.js';
+import { colorPicker, bindColorPickers } from './color.js';
 import {
   state,
   getSiteBg,
@@ -141,7 +142,6 @@ function extrasNote(mode) {
 function patternRow(mode) {
   const s = getSiteBg(mode);
   const on = s.pattern !== 'none';
-  const dis = on ? '' : 'disabled';
   const opts = SITE_PATTERNS.map(
     (t) => `<option value="${t}" ${s.pattern === t ? 'selected' : ''}>${PATTERN_LABEL[t]}</option>`,
   ).join('');
@@ -155,7 +155,7 @@ function patternRow(mode) {
         </div>
         <div style="flex:0 0 auto">
           <label>Farbe</label>
-          <input type="color" data-bgf="patternColor" data-mode="${mode}" value="${esc(s.patternColor)}" ${dis} style="width:64px;height:40px;padding:2px" />
+          ${colorPicker({ id: `bg:patternColor:${mode}`, attrs: `data-bgf="patternColor" data-mode="${mode}"`, value: s.patternColor, disabled: !on })}
         </div>
         <div style="flex:1 1 200px">${slider({ id: `bg:patternSpacing:${mode}`, label: 'Abstand', unit: 'px', min: 4, max: 200, value: s.patternSpacing, def: 24, attrs: `data-bgf="patternSpacing" data-mode="${mode}"`, disabled: !on })}</div>
         <div style="flex:1 1 180px">${slider({ id: `bg:patternThickness:${mode}`, label: 'Stärke', unit: 'px', min: 1, max: 6, value: s.patternThickness, def: 1, attrs: `data-bgf="patternThickness" data-mode="${mode}"`, disabled: !on })}</div>
@@ -223,7 +223,7 @@ function modeRow(mode, label) {
       <div class="row" style="margin-top:.6rem;align-items:flex-end">
         <div style="flex:0 0 auto">
           <label>${s.gradient ? 'Startfarbe' : 'Farbe'}</label>
-          <input type="color" data-bgf="color" data-mode="${mode}" value="${esc(colorVal)}" ${dis} style="width:64px;height:40px;padding:2px" />
+          ${colorPicker({ id: `bg:color:${mode}`, attrs: `data-bgf="color" data-mode="${mode}"`, value: colorVal, disabled: !on })}
         </div>
         <div style="flex:1 1 260px">${slider({ id: `bg:opacity:${mode}`, label: 'Deckkraft', hint: `(mischt mit der Standardfarbe ${PAGE_BG_DEFAULT[mode]})`, unit: '%', min: 0, max: 100, value: s.opacity, def: 100, attrs: `data-bgf="opacity" data-mode="${mode}"`, disabled: !on })}</div>
       </div>
@@ -235,7 +235,7 @@ function modeRow(mode, label) {
       <div class="row" style="align-items:flex-end;${on && s.gradient ? '' : 'opacity:.45'}">
         <div style="flex:0 0 auto">
           <label>Endfarbe</label>
-          <input type="color" data-bgf="color2" data-mode="${mode}" value="${esc(s.color2 || GRADIENT_END_DEFAULT[mode])}" ${gradDis} style="width:64px;height:40px;padding:2px" />
+          ${colorPicker({ id: `bg:color2:${mode}`, attrs: `data-bgf="color2" data-mode="${mode}"`, value: s.color2 || GRADIENT_END_DEFAULT[mode], disabled: !(on && s.gradient) })}
         </div>
         <div style="flex:0 0 auto">
           <label>Art</label>
@@ -307,7 +307,6 @@ function sectionNote() {
 function sectionCol(key, mode) {
   const c = getSiteSection(key, mode);
   const on = c.color !== '';
-  const dis = on ? '' : 'disabled';
   const a = `data-key="${key}" data-mode="${mode}"`;
   const url = previewUrl(c.image);
   const thumb = url
@@ -322,7 +321,7 @@ function sectionCol(key, mode) {
       </label>
       <div class="row" style="align-items:flex-end;margin-top:.3rem">
         <div style="flex:0 0 auto">
-          <input type="color" data-secf="color" ${a} value="${esc(c.color || SECTION_TINT_DEFAULT[mode])}" ${dis} style="width:52px;height:36px;padding:2px" />
+          ${colorPicker({ id: `sec:${key}:${mode}:color`, attrs: `data-secf="color" ${a}`, value: c.color || SECTION_TINT_DEFAULT[mode], disabled: !on })}
         </div>
         <div style="flex:1 1 160px">${slider({ id: `sec:${key}:${mode}:opacity`, label: 'Deckkraft', unit: '%', min: 0, max: 100, value: c.opacity, def: 8, attrs: `data-secf="opacity" ${a}`, disabled: !on, labelStyle: 'margin-top:0' })}</div>
       </div>
@@ -604,6 +603,7 @@ export function renderBackground() {
   bindSections(pane);
   bindEffects(pane);
   bindSliders(pane); // nach den Feld-Handlern: Zahlenfeld/„↺" lösen deren input-Event aus
+  bindColorPickers(pane);
 }
 
 function refreshMode(pane, mode) {
