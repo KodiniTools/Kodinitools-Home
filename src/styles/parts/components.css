@@ -96,6 +96,42 @@
   margin: 0 auto;
   padding: 5rem 2rem;
   animation: fadeIn 1s ease;
+  position: relative;
+}
+
+/* Abgesetzte Sektion (Admin > Hintergrund > Sektionen): Ebene hinter dem
+   Inhalt, ::before = Bild (mit Weichzeichner/Abdunkelung), ::after = Tönung.
+   Variablen werden vom Admin-CSS (content.ts) gesetzt; ohne sie: unsichtbar.
+   --sec-bleed: 0 = innerhalb der Sektion, calc(50% - 50vw) = volle Breite. */
+.section-bg {
+  display: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--sec-bleed, 0px);
+  right: var(--sec-bleed, 0px);
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  border-radius: var(--sec-radius, 0px);
+}
+
+.section-bg::before,
+.section-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.section-bg::before {
+  inset: var(--sec-img-inset, 0px);
+  background: var(--sec-img, none) center / cover no-repeat;
+  filter: var(--sec-img-filter, none);
+  opacity: var(--sec-img-opacity, 1);
+}
+
+.section-bg::after {
+  background: var(--sec-tint, transparent);
 }
 
 .section-alt {

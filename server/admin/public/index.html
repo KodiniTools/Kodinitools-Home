@@ -712,8 +712,10 @@
         color: var(--text);
         margin-bottom: 0.3rem;
       }
-      .bg-thumb {
+      .bg-thumb,
+      .row > .bg-thumb {
         flex: 0 0 auto;
+        min-width: 0;
         width: 120px;
         height: 76px;
         border: 1px solid var(--border);
@@ -729,6 +731,72 @@
         height: 100%;
         object-fit: cover;
         display: block;
+      }
+      .bg-thumb.sm,
+      .row > .bg-thumb.sm {
+        width: 72px;
+        height: 46px;
+      }
+      /* Abgesetzte Sektionen: je Sektion zwei Spalten (Hell / Dunkel) */
+      .sec-box {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.6rem 0.8rem 0.7rem;
+        margin-top: 0.6rem;
+      }
+      .sec-cols {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.8rem;
+      }
+      .sec-col-title {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--muted);
+        margin-bottom: 0.3rem;
+      }
+      /* Vorschau: drei Sektions-Streifen (Audio / Bild / Diverse) */
+      .fx-prev-secs {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin: 0.7rem -1.1rem 0;
+      }
+      .fx-prev-secs.card {
+        margin-left: 0;
+        margin-right: 0;
+      }
+      .fx-prev-sec {
+        position: relative;
+        overflow: hidden;
+        height: 26px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        padding: 0 1.1rem;
+      }
+      .fx-prev-secs.card .fx-prev-sec {
+        border-radius: 7px;
+        padding: 0 0.6rem;
+      }
+      .fx-prev-sec-img,
+      .fx-prev-sec-tint {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+      .fx-prev-sec-img {
+        inset: -30px;
+      }
+      .fx-prev-sec span {
+        position: relative;
+        opacity: 0.85;
+      }
+      @media (max-width: 700px) {
+        .sec-cols {
+          grid-template-columns: 1fr;
+        }
       }
       .fx-prev-label {
         position: absolute;

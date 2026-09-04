@@ -634,7 +634,48 @@ export function defaultSite() {
     bgImageOpacityDark: 100,
     bgImageFixed: true,
     bgImageFixedDark: true,
+    // Abgesetzte Tool-Sektionen (Audio/Bild/Diverse): style 'band' (volle
+    // Breite) | 'card' (abgerundet in der Sektion); je Sektion Hell/Dunkel mit
+    // Tönung (color '' = keine, opacity %) und optionalem Bild.
+    sections: defaultSections(),
   };
+}
+export const SITE_SECTION_KEYS = ['audio', 'image', 'diverse'];
+export const SECTION_LABELS = { audio: 'Audio-Tools', image: 'Bild-Tools', diverse: 'Diverse Tools' };
+export const SECTION_STYLES = ['band', 'card'];
+export function defaultSectionSide() {
+  return { color: '', opacity: 8, image: '', imageDarken: 0, imageBlur: 0, imageOpacity: 100 };
+}
+export function defaultSections() {
+  const o = { style: 'band' };
+  for (const k of SITE_SECTION_KEYS) o[k] = { light: defaultSectionSide(), dark: defaultSectionSide() };
+  return o;
+}
+function normSectionSide(v) {
+  const d = defaultSectionSide();
+  if (!v || typeof v !== 'object') return d;
+  const num = (x, min, max, def) => {
+    const n = Number(x);
+    return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : def;
+  };
+  return {
+    color: normHexOrEmpty(v.color),
+    opacity: num(v.opacity, 0, 100, 8),
+    image: normSiteMediaUrl(v.image),
+    imageDarken: num(v.imageDarken, 0, 100, 0),
+    imageBlur: num(v.imageBlur, 0, 40, 0),
+    imageOpacity: num(v.imageOpacity, 0, 100, 100),
+  };
+}
+export function normSections(v) {
+  const o = defaultSections();
+  if (!v || typeof v !== 'object') return o;
+  o.style = SECTION_STYLES.includes(v.style) ? v.style : 'band';
+  for (const k of SITE_SECTION_KEYS) {
+    const c = v[k] && typeof v[k] === 'object' ? v[k] : {};
+    o[k] = { light: normSectionSide(c.light), dark: normSectionSide(c.dark) };
+  }
+  return o;
 }
 export const SITE_GRADIENT_TYPES = ['linear', 'radial'];
 export const SITE_PATTERNS = ['none', 'dots', 'grid'];
@@ -700,6 +741,7 @@ export function normSite(s) {
     bgImageOpacityDark: num(s.bgImageOpacityDark, 0, 100, 100),
     bgImageFixed: s.bgImageFixed !== false,
     bgImageFixedDark: s.bgImageFixedDark !== false,
+    sections: normSections(s.sections),
   };
 }
 // Seiten-Hintergrund eines Modus als CSS-background-Wert – identisch zur
@@ -834,6 +876,75 @@ export function getSiteMediaVal(key) {
 }
 export function setSiteMediaVal(key, val) {
   if (SITE_MEDIA_KEYS.includes(key)) siteObj()[key] = normSiteMediaUrl(val);
+}
+// Sichert die vollständige Sektions-Struktur in media.site.sections.
+function sectionsObj() {
+  const s = siteObj();
+  if (!s.sections || typeof s.sections !== 'object') s.sections = defaultSections();
+  const o = s.sections;
+  if (!SECTION_STYLES.includes(o.style)) o.style = 'band';
+  for (const k of SITE_SECTION_KEYS) {
+    if (!o[k] || typeof o[k] !== 'object') o[k] = {};
+    for (const mode of ['light', 'dark']) {
+      if (!o[k][mode] || typeof o[k][mode] !== 'object') o[k][mode] = defaultSectionSide();
+      const d = defaultSectionSide();
+      for (const f of Object.keys(d)) if (!(f in o[k][mode])) o[k][mode][f] = d[f];
+    }
+  }
+  return o;
+}
+export function getSectionStyle() {
+  return sectionsObj().style;
+}
+export function setSectionStyle(v) {
+  sectionsObj().style = SECTION_STYLES.includes(v) ? v : 'band';
+}
+// Einstellungen einer Sektion (key aus SITE_SECTION_KEYS) für einen Modus.
+export function getSiteSection(key, mode) {
+  return { ...sectionsObj()[key][mode] };
+}
+// Teilweise setzen (nur übergebene Felder), Werte werden normalisiert.
+export function setSiteSection(key, mode, patch) {
+  if (!SITE_SECTION_KEYS.includes(key)) return;
+  const side = sectionsObj()[key][mode];
+  const num = (v, min, max, d) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : d;
+  };
+  if ('color' in patch) side.color = normHexOrEmpty(patch.color);
+  if ('opacity' in patch) side.opacity = num(patch.opacity, 0, 100, 8);
+  if ('image' in patch) side.image = normSiteMediaUrl(patch.image);
+  if ('imageDarken' in patch) side.imageDarken = num(patch.imageDarken, 0, 100, 0);
+  if ('imageBlur' in patch) side.imageBlur = num(patch.imageBlur, 0, 40, 0);
+  if ('imageOpacity' in patch) side.imageOpacity = num(patch.imageOpacity, 0, 100, 100);
+}
+// Alle Bild-Plätze in media.site (Seiten-Hintergrund + Sektionen) als
+// { path, label, get(), set(v) } – für Upload beim Veröffentlichen, Auflösen
+// von staged:-Referenzen und „wird verwendet in" der Mediathek.
+export function siteImageSlots() {
+  const modeLabel = (m) => (m === 'dark' ? 'Dunkel' : 'Hell');
+  const slots = SITE_MEDIA_KEYS.map((key) => ({
+    path: [key],
+    label: `Global · Seiten-Hintergrund (${modeLabel(key.endsWith('Dark') ? 'dark' : 'light')})`,
+  }));
+  for (const k of SITE_SECTION_KEYS)
+    for (const mode of ['light', 'dark'])
+      slots.push({
+        path: ['sections', k, mode, 'image'],
+        label: `Global · Sektion ${SECTION_LABELS[k]} (${modeLabel(mode)})`,
+      });
+  for (const slot of slots) {
+    slot.get = () => {
+      sectionsObj();
+      const v = getPath(siteObj(), slot.path);
+      return typeof v === 'string' ? v : '';
+    };
+    slot.set = (v) => {
+      sectionsObj();
+      setPath(siteObj(), slot.path, normSiteMediaUrl(v));
+    };
+  }
+  return slots;
 }
 // Standard-Hintergrundfarben je Modus (identisch zu global.css --bg-color).
 export const PAGE_BG_DEFAULT = { light: '#fafafa', dark: '#091428' };
@@ -1016,8 +1127,8 @@ export function updateMediaUrlEverywhere(oldUrl, newUrl) {
       if (getMediaVal(lang, key) === oldUrl) setMediaVal(lang, key, newUrl);
     }
   }
-  for (const key of SITE_MEDIA_KEYS) {
-    if (getSiteMediaVal(key) === oldUrl) setSiteMediaVal(key, newUrl);
+  for (const slot of siteImageSlots()) {
+    if (slot.get() === oldUrl) slot.set(newUrl);
   }
 }
 

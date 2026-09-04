@@ -10,8 +10,7 @@ import {
   defMediaVal,
   MEDIA_LANGS,
   MEDIA_KEYS,
-  SITE_MEDIA_KEYS,
-  getSiteMediaVal,
+  siteImageSlots,
   HERO_LAYOUTS,
   heroLayoutCells,
   updateMediaUrlEverywhere,
@@ -42,9 +41,8 @@ function usageOf(...refs) {
       }
     }
   }
-  for (const key of SITE_MEDIA_KEYS) {
-    if (set.includes(getSiteMediaVal(key)))
-      out.push(`Global · Seiten-Hintergrund (${key.endsWith('Dark') ? 'Dunkel' : 'Hell'})`);
+  for (const slot of siteImageSlots()) {
+    if (set.includes(slot.get())) out.push(slot.label);
   }
   return out;
 }
