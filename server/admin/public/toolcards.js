@@ -16,8 +16,7 @@ import {
   toolCardSideLight,
   toolCardSideDark,
   TOOL_CARD_BORDER_STYLES,
-  getPageBg,
-  PAGE_BG_DEFAULT,
+  siteBgLayerCss,
   getGlobalFont,
   getPath,
 } from './model.js';
@@ -184,8 +183,11 @@ function overviewHoverCss(lang) {
     )
     .join('');
 }
+// Seiten-Hintergrund der Vorschau = dieselbe Ebene wie auf der Seite (Farbe mit
+// Deckkraft bzw. Verlauf über der Standardfarbe aus dem Tab „Hintergrund"), damit
+// der Kontrast der Karten dem echten Ergebnis entspricht.
 function pageBg(theme) {
-  return getPageBg(theme) || PAGE_BG_DEFAULT[theme];
+  return siteBgLayerCss(theme);
 }
 function fontCss() {
   const gf = getGlobalFont();
