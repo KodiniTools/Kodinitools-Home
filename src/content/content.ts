@@ -795,6 +795,7 @@ export interface SiteSectionCfg {
 }
 export interface SiteSections {
   style: 'band' | 'card';
+  gap: number; // Abstand zwischen abgesetzten Sektionen in px (0–160)
   audio: SiteSectionCfg;
   image: SiteSectionCfg;
   diverse: SiteSectionCfg;
@@ -854,6 +855,7 @@ const SITE_DEFAULTS: SiteConfig = {
   bgImageFixedDark: true,
   sections: {
     style: 'band',
+    gap: 0,
     audio: emptySectionCfg(),
     image: emptySectionCfg(),
     diverse: emptySectionCfg(),
@@ -984,12 +986,16 @@ function siteSectionRules(site: SiteConfig): string[] {
     if (dark) rules.push(`${sel('dark')}{${dark};}`);
     else if (light) rules.push(`${sel('dark')}{display:none;}`);
   }
-  if (any)
+  if (any) {
+    // Abstand: jedes Band wird oben und unten um die Hälfte eingerückt, sodass
+    // zwischen zwei Bändern genau `gap` px Seitenhintergrund sichtbar bleiben.
+    const gap = num(secs.gap, 0, 160, 0);
     rules.push(
-      secs.style === 'card'
-        ? 'html:root{--sec-bleed:0px;--sec-radius:1.5rem;}'
-        : 'html:root{--sec-bleed:calc(50% - 50vw);--sec-radius:0px;}',
+      (secs.style === 'card'
+        ? 'html:root{--sec-bleed:0px;--sec-radius:1.5rem;'
+        : 'html:root{--sec-bleed:calc(50% - 50vw);--sec-radius:0px;') + `--sec-gap:${gap}px;}`,
     );
+  }
   return rules;
 }
 // Ergebnis von siteBgRules: CSS-Regeln plus, ob ein body-Hintergrund bzw. ein

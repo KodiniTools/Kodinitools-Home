@@ -646,10 +646,15 @@ export const SECTION_STYLES = ['band', 'card'];
 export function defaultSectionSide() {
   return { color: '', opacity: 8, image: '', imageDarken: 0, imageBlur: 0, imageOpacity: 100 };
 }
+export const SECTION_GAP_MAX = 160;
 export function defaultSections() {
-  const o = { style: 'band' };
+  const o = { style: 'band', gap: 0 };
   for (const k of SITE_SECTION_KEYS) o[k] = { light: defaultSectionSide(), dark: defaultSectionSide() };
   return o;
+}
+function normGap(v) {
+  const n = Number(v);
+  return Number.isFinite(n) ? Math.max(0, Math.min(SECTION_GAP_MAX, Math.round(n))) : 0;
 }
 function normSectionSide(v) {
   const d = defaultSectionSide();
@@ -671,6 +676,7 @@ export function normSections(v) {
   const o = defaultSections();
   if (!v || typeof v !== 'object') return o;
   o.style = SECTION_STYLES.includes(v.style) ? v.style : 'band';
+  o.gap = normGap(v.gap);
   for (const k of SITE_SECTION_KEYS) {
     const c = v[k] && typeof v[k] === 'object' ? v[k] : {};
     o[k] = { light: normSectionSide(c.light), dark: normSectionSide(c.dark) };
@@ -883,6 +889,7 @@ function sectionsObj() {
   if (!s.sections || typeof s.sections !== 'object') s.sections = defaultSections();
   const o = s.sections;
   if (!SECTION_STYLES.includes(o.style)) o.style = 'band';
+  o.gap = normGap(o.gap);
   for (const k of SITE_SECTION_KEYS) {
     if (!o[k] || typeof o[k] !== 'object') o[k] = {};
     for (const mode of ['light', 'dark']) {
@@ -898,6 +905,13 @@ export function getSectionStyle() {
 }
 export function setSectionStyle(v) {
   sectionsObj().style = SECTION_STYLES.includes(v) ? v : 'band';
+}
+// Abstand zwischen abgesetzten Sektionen (px, 0–SECTION_GAP_MAX).
+export function getSectionGap() {
+  return sectionsObj().gap;
+}
+export function setSectionGap(v) {
+  sectionsObj().gap = normGap(v);
 }
 // Einstellungen einer Sektion (key aus SITE_SECTION_KEYS) für einen Modus.
 export function getSiteSection(key, mode) {

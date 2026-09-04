@@ -26,6 +26,9 @@ import {
   SECTION_LABELS,
   getSectionStyle,
   setSectionStyle,
+  getSectionGap,
+  setSectionGap,
+  SECTION_GAP_MAX,
   getSiteSection,
   setSiteSection,
   defaultSectionSide,
@@ -288,10 +291,14 @@ function sectionImgStyle(key, mode) {
   if (!l) return 'display:none';
   return `background:url('${l.url.replace(/['"]/g, '')}') center / cover no-repeat;filter:${l.filter};opacity:${l.opacity}`;
 }
+// Abstand der Vorschau-Streifen: Seitenwert im Maßstab 1:10 (mind. 1 px Trennlinie).
+function previewGap() {
+  return Math.max(1, Math.round(getSectionGap() / 10));
+}
 // Drei Streifen (Audio/Bild/Diverse) unter dem Beispielinhalt der Vorschau.
 function sectionStrips(mode) {
   return `
-    <div class="fx-prev-secs ${getSectionStyle()}">
+    <div class="fx-prev-secs ${getSectionStyle()}" style="gap:${previewGap()}px">
       ${SITE_SECTION_KEYS.map(
         (k) => `
         <div class="fx-prev-sec" data-secprev="${k}" data-mode="${mode}">
@@ -313,8 +320,9 @@ function sectionNote() {
     }
     if (bits.length) parts.push(`${SECTION_LABELS[k]} (${bits.join(', ')})`);
   }
+  const gap = getSectionGap();
   return parts.length
-    ? `✅ Abgesetzt: ${parts.join(' · ')}.`
+    ? `✅ Abgesetzt: ${parts.join(' · ')}${gap > 0 ? ` · Abstand ${gap} px` : ''}.`
     : 'Keine Sektion abgesetzt – die Sektionen liegen wie bisher direkt auf dem Seitenhintergrund.';
 }
 // Eine Spalte (Hell oder Dunkel) einer Sektion: Tönung + Bild.
@@ -384,9 +392,17 @@ function sectionsPanel() {
         Wirkung unten in der Vorschau (drei Streifen).
       </p>
       <div class="row" style="align-items:flex-end">
-        <div style="flex:1 1 260px">
+        <div style="flex:1 1 220px">
           <label>Darstellung</label>
           <select data-secstyle>${opts}</select>
+        </div>
+        <div style="flex:1 1 220px">
+          <label>Abstand zwischen den Sektionen <span class="hint" style="margin:0">(px Seitenhintergrund zwischen zwei Bändern)</span></label>
+          <div style="display:flex;align-items:center;gap:.5rem">
+            <input type="range" data-secgap="range" min="0" max="${SECTION_GAP_MAX}" step="1" value="${getSectionGap()}" style="flex:1 1 auto" />
+            <input type="number" data-secgap="number" min="0" max="${SECTION_GAP_MAX}" step="1" value="${getSectionGap()}" style="width:5.5rem" aria-label="Abstand in Pixel" />
+            <span class="hint" style="margin:0">px</span>
+          </div>
         </div>
         <div style="flex:0 0 auto;display:flex;gap:.4rem;flex-wrap:wrap">
           <button type="button" class="primary" data-secalt title="Audio- und Diverse-Tools dezent tönen, Bild-Tools frei lassen (Hell + Dunkel)">✨ Abwechselnd anwenden</button>
@@ -413,10 +429,30 @@ function refreshSections(pane) {
       strip.querySelector('.fx-prev-sec-tint').style.background = sectionTint(k, mode);
     }
   }
+  pane.querySelectorAll('.fx-prev-secs').forEach((el) => {
+    el.style.gap = `${previewGap()}px`;
+  });
   const note = pane.querySelector('[data-secnote]');
   if (note) note.textContent = sectionNote();
 }
 function bindSections(pane) {
+  // Abstand: Slider und Zahlenfeld halten sich gegenseitig synchron (ohne Neu-Rendern,
+  // damit der Fokus im Zahlenfeld beim Tippen erhalten bleibt).
+  pane.querySelectorAll('[data-secgap]').forEach((inp) => {
+    inp.addEventListener('input', () => {
+      if (inp.type === 'number' && inp.value === '') return; // leeres Feld: noch kein Wert
+      setSectionGap(inp.value);
+      const v = String(getSectionGap());
+      pane.querySelectorAll('[data-secgap]').forEach((other) => {
+        if (other !== inp) other.value = v;
+      });
+      refreshSections(pane);
+    });
+    if (inp.type === 'number')
+      inp.addEventListener('change', () => {
+        inp.value = String(getSectionGap()); // Wert nach Verlassen auf gültigen Bereich setzen
+      });
+  });
   const sel = pane.querySelector('[data-secstyle]');
   if (sel)
     sel.addEventListener('change', () => {

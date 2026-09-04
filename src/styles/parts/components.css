@@ -102,12 +102,13 @@
 /* Abgesetzte Sektion (Admin > Hintergrund > Sektionen): Ebene hinter dem
    Inhalt, ::before = Bild (mit Weichzeichner/Abdunkelung), ::after = Tönung.
    Variablen werden vom Admin-CSS (content.ts) gesetzt; ohne sie: unsichtbar.
-   --sec-bleed: 0 = innerhalb der Sektion, calc(50% - 50vw) = volle Breite. */
+   --sec-bleed: 0 = innerhalb der Sektion, calc(50% - 50vw) = volle Breite.
+   --sec-gap: Abstand zwischen zwei Bändern (je Band halb oben/unten eingerückt). */
 .section-bg {
   display: none;
   position: absolute;
-  top: 0;
-  bottom: 0;
+  top: calc(var(--sec-gap, 0px) / 2);
+  bottom: calc(var(--sec-gap, 0px) / 2);
   left: var(--sec-bleed, 0px);
   right: var(--sec-bleed, 0px);
   z-index: -1;
