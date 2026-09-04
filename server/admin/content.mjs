@@ -544,7 +544,7 @@ function defaultSectionSide() {
   return { color: '', opacity: 8, image: '', imageDarken: 0, imageBlur: 0, imageOpacity: 100 };
 }
 function defaultSections() {
-  const o = { style: 'band' };
+  const o = { style: 'band', gap: 0 };
   for (const k of SECTION_KEYS) o[k] = { light: defaultSectionSide(), dark: defaultSectionSide() };
   return o;
 }
@@ -553,6 +553,7 @@ function validateSections(v) {
   const out = defaultSections();
   if (!isPlainObject(v)) return out;
   out.style = v.style === 'card' ? 'card' : 'band';
+  out.gap = clampNum(v.gap, 0, 160, 0);
   for (const k of SECTION_KEYS) {
     for (const mode of ['light', 'dark']) {
       const side = isPlainObject(v[k]) && isPlainObject(v[k][mode]) ? v[k][mode] : {};
