@@ -14,7 +14,7 @@ import {
   setSiteFx,
   SITE_FX,
   PAGE_BG_DEFAULT,
-  rgbaFromHex,
+  siteBgLayerCss,
   SITE_GRADIENT_TYPES,
 } from './model.js';
 
@@ -52,23 +52,8 @@ const GRADIENT_TYPE_LABEL = {
   radial: 'Radial (von oben Mitte)',
 };
 
-// Hintergrund-Ebene eines Modus als CSS-Wert – identisch zur Berechnung auf der
-// Seite (content.ts): eigene Farbe/Verlauf mit Deckkraft ÜBER der Standardfarbe.
-function layerCss(mode) {
-  const s = getSiteBg(mode);
-  const base = PAGE_BG_DEFAULT[mode];
-  if (!s.color) return base;
-  const c1 = rgbaFromHex(s.color, s.opacity);
-  if (s.gradient && s.color2) {
-    const c2 = rgbaFromHex(s.color2, s.opacity);
-    const g =
-      s.type === 'radial'
-        ? `radial-gradient(ellipse at 50% 0%, ${c1}, ${c2})`
-        : `linear-gradient(${s.angle}deg, ${c1}, ${c2})`;
-    return `${g}, ${base}`;
-  }
-  return `linear-gradient(${c1}, ${c1}), ${base}`;
-}
+// Hintergrund-Ebene eines Modus (gemeinsam mit der Tool-Karten-Vorschau, model.js).
+const layerCss = siteBgLayerCss;
 
 function previewStyle(mode) {
   return `background:${layerCss(mode)};color:${PREVIEW_FG[mode]}`;

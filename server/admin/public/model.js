@@ -648,6 +648,25 @@ export function normSite(s) {
     fxSpotlightIntensity: num(s.fxSpotlightIntensity, 0, 100, 50),
   };
 }
+// Seiten-Hintergrund eines Modus als CSS-background-Wert – identisch zur
+// Berechnung auf der Seite (content.ts getSiteBackgroundStyle): eigene Farbe
+// bzw. Verlauf mit Deckkraft ÜBER der Standardfarbe. Für alle Admin-Vorschauen
+// (Hintergrund-Tab, Tool-Karten), damit sie das gleiche Ergebnis zeigen.
+export function siteBgLayerCss(mode) {
+  const s = getSiteBg(mode);
+  const base = PAGE_BG_DEFAULT[mode];
+  if (!s.color) return base;
+  const c1 = rgbaFromHex(s.color, s.opacity);
+  if (s.gradient && s.color2) {
+    const c2 = rgbaFromHex(s.color2, s.opacity);
+    const g =
+      s.type === 'radial'
+        ? `radial-gradient(ellipse at 50% 0%, ${c1}, ${c2})`
+        : `linear-gradient(${s.angle}deg, ${c1}, ${c2})`;
+    return `${g}, ${base}`;
+  }
+  return `linear-gradient(${c1}, ${c1}), ${base}`;
+}
 // Effekt lesen: { on, intensity } für key aus SITE_FX.
 export function getSiteFx(key) {
   const s = siteObj();
