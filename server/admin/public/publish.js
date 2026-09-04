@@ -261,13 +261,66 @@ $('#previewBtn').addEventListener('click', async () => {
 
 // Schritt-Beschriftung im Status-Pill (Code-Update + Build).
 const PREVIEW_STEP_LABEL = { 'code-update': 'holt Code…', build: 'baut…' };
+// --- Erreichbarkeits-Überwachung beim Polling ---
+// nginx antwortet mit 502/503, solange der Dienst neu startet (oder tot ist);
+// ein reiner Netzwerkfehler lässt fetch() scheitern. Beides wurde bisher still
+// übergangen – die Anzeige blieb dann endlos bei „läuft…". Jetzt wird der
+// Zustand sichtbar gemacht und nach 3 Minuten mit Diagnose-Hinweis abgebrochen.
+let unreachableSince = 0;
+const UNREACHABLE_GIVEUP_MS = 3 * 60 * 1000;
+const UNREACHABLE_DIAG =
+  'Der Admin-Dienst ist seit 3 Minuten nicht erreichbar. Auf dem Server prüfen:\n' +
+  '  systemctl status kodini-admin --no-pager\n' +
+  '  journalctl -u kodini-admin -n 80 --no-pager\n' +
+  'Neu starten: sudo systemctl restart kodini-admin';
+// Letzte Zeile des Status-Logs pflegen (eine „Warte"-Zeile statt vieler).
+function appendLogLine(line) {
+  const log = $('#pubLog');
+  if (!log) return;
+  const lines = (log.textContent || '—').split('\n');
+  if (lines.length && /^[⏳❌]/.test(lines[lines.length - 1])) lines.pop();
+  lines.push(line);
+  log.textContent = lines.join('\n');
+}
+// true = weiter warten; false = aufgegeben (Fehler ist angezeigt).
+function noteUnreachable(r, where) {
+  const now = Date.now();
+  if (!unreachableSince) unreachableSince = now;
+  const secs = Math.round((now - unreachableSince) / 1000);
+  const code = r ? `HTTP ${r.status}` : 'Netzwerkfehler';
+  if (now - unreachableSince < UNREACHABLE_GIVEUP_MS) {
+    setPill('running', `${where}: Dienst nicht erreichbar (${code}, ${secs}s) – warte…`);
+    appendLogLine(
+      `⏳ Admin-Dienst antwortet nicht (${code}, seit ${secs}s) – vermutlich Neustart nach Code-Update; warte auf Rückkehr…`,
+    );
+    return true;
+  }
+  setPill('error', 'Dienst nicht erreichbar');
+  appendLogLine('❌ ' + UNREACHABLE_DIAG);
+  toast('Admin-Dienst nicht erreichbar – siehe Status-Log');
+  return false;
+}
+
 function pollPreview(win) {
   clearInterval(previewPollTimer);
+  unreachableSince = 0;
   previewPollTimer = setInterval(async () => {
     // Während eines Selbst-Neustarts des Dienstes schlägt die Anfrage kurz
-    // fehl – dann einfach beim nächsten Tick erneut versuchen.
+    // fehl (502 oder Netzwerkfehler) – sichtbar warten, nach 3 min aufgeben.
     const r = await api('/preview/status').catch(() => null);
-    if (!r || !r.ok) return;
+    if (!r || !r.ok) {
+      if (noteUnreachable(r, 'Vorschau')) return;
+      clearInterval(previewPollTimer);
+      $('#previewBtn').disabled = false;
+      $('#publishBtn').disabled = false;
+      if (win)
+        win.document.body.innerHTML =
+          '<pre style="font-family:ui-monospace;color:#fecaca;padding:1rem;white-space:pre-wrap">' +
+          esc(UNREACHABLE_DIAG) +
+          '</pre>';
+      return;
+    }
+    unreachableSince = 0;
     const s = r.data;
     setPill(
       s.status,
@@ -300,11 +353,33 @@ function pollPreview(win) {
 // Dienst neu (neuer Server-Code), etwas länger warten, bis er wieder da ist.
 function handleCodeUpdate(s) {
   if (s.restarting) {
+    markReloaded(s);
     toast('Neuer Server-Code – Admin-Dienst startet neu, Seite lädt gleich neu…');
     setTimeout(() => location.reload(), 6000);
+  } else if (s.restarted && !reloadedFor(s)) {
+    // Status stammt aus der Zeit vor dem Selbst-Neustart: einmalig neu laden,
+    // damit die neuen Frontend-Module aktiv sind (Guard gegen Reload-Schleife).
+    markReloaded(s);
+    toast('Admin-Dienst wurde neu gestartet – Seite lädt neu…');
+    setTimeout(() => location.reload(), 1500);
   } else if (s.codeUpdate && s.codeUpdate.updated) {
     toast(`Code aktualisiert (${s.codeUpdate.from} → ${s.codeUpdate.to}) – Seite lädt neu…`);
     setTimeout(() => location.reload(), 2000);
+  }
+}
+// Reload-Guard: pro abgeschlossenem Vorgang (finishedAt) nur einmal neu laden.
+function reloadedFor(s) {
+  try {
+    return sessionStorage.getItem('kodini-admin-reloaded') === String(s.finishedAt);
+  } catch {
+    return true;
+  }
+}
+function markReloaded(s) {
+  try {
+    sessionStorage.setItem('kodini-admin-reloaded', String(s.finishedAt));
+  } catch {
+    /* Speicher nicht verfügbar */
   }
 }
 // Hinweistext zum Code-Stand für das Vorschau-Fenster.
@@ -360,14 +435,28 @@ function setPill(cls, text) {
 
 function startPolling() {
   clearInterval(pollTimer);
+  unreachableSince = 0;
   pollTimer = setInterval(refreshPublishStatus, 1500);
   refreshPublishStatus();
 }
 
 export async function refreshPublishStatus() {
-  // Während eines Selbst-Neustarts des Dienstes kurz nicht erreichbar -> später erneut.
+  // Während eines Selbst-Neustarts des Dienstes kurz nicht erreichbar (502 /
+  // Netzwerkfehler): während einer laufenden Veröffentlichung sichtbar warten,
+  // nach 3 min mit Diagnose-Hinweis abbrechen. Außerhalb (nur Status-Anzeige)
+  // still ignorieren.
   const r = await api('/publish/status').catch(() => null);
-  if (!r || !r.ok) return;
+  if (!r || !r.ok) {
+    if (!state.publishing) return;
+    if (noteUnreachable(r, 'Deploy')) return;
+    clearInterval(pollTimer);
+    state.publishing = false;
+    $('#publishBtn').disabled = false;
+    const pn = $('#pubNow');
+    if (pn) pn.disabled = false;
+    return;
+  }
+  unreachableSince = 0;
   const s = r.data;
   setPill(s.status, statusLabel(s));
   const log = $('#pubLog');

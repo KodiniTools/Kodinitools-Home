@@ -8,6 +8,7 @@ import { resolve, dirname } from 'node:path';
 import { config } from './config.mjs';
 import { UPLOADS_GIT_MAX_BYTES } from './uploads.mjs';
 import { restartIfServerCodeChanged, persistState, restoreState } from './codeupdate.mjs';
+import { runStreaming } from './util.mjs';
 
 /**
  * Nachsicherung: In media.json referenzierte /uploads-Dateien, die nur im
@@ -71,6 +72,7 @@ function initialState() {
     commit: null,
     error: null,
     restarting: false, // Dienst startet nach diesem Vorgang neu (neuer Server-Code)
+    restarted: false, // Status stammt aus der Zeit vor einem Selbst-Neustart (wiederhergestellt)
   };
 }
 // Letzten Stand wiederherstellen (überlebt den Selbst-Neustart des Dienstes).
@@ -203,11 +205,17 @@ async function doPublish(message) {
   }
 
   // 3. Deploy ausführen.
+  // Ausgabe von deploy.sh live ins Log (git reset / npm ci / build / rsync
+  // dauern zusammen 1–5 min); nach 20 min Abbruch statt endlosem „läuft…".
   state.step = 'deploy';
-  log('./deploy.sh');
+  log('./deploy.sh (Ausgabe live)');
   const deployScript = resolve(config.repoDir, 'deploy.sh');
-  const out = await run(deployScript, [], { cwd: config.repoDir });
-  log(out);
+  await runStreaming(deployScript, [], {
+    cwd: config.repoDir,
+    env: process.env,
+    timeoutMs: 20 * 60 * 1000,
+    onLine: (line) => log(line),
+  });
 
   state.status = 'success';
   state.step = 'done';

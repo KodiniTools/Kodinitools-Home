@@ -177,6 +177,12 @@ dann erscheint nur der Hinweis. Der laufende **alte** Prozess (ohne dieses
 Modul) muss einmalig noch von Hand neu gestartet werden, nachdem der Code im
 Klon liegt (`git pull` oder Veröffentlichen).
 
+**Deploy „läuft endlos"?** Die Ausgabe von `deploy.sh` erscheint jetzt live im
+Status-Log (git reset / npm ci / build / rsync); nach 20 Minuten bricht der
+Dienst den Deploy ab. Antwortet der Dienst nicht (nginx 502, z. B. während des
+Selbst-Neustarts), zeigt die Statusanzeige das an und gibt nach 3 Minuten
+Diagnose-Befehle aus (`systemctl status kodini-admin`, `journalctl -u kodini-admin -n 80`).
+
 Symptom, wenn das vergessen wird: das neue Frontend ruft eine neue Route auf,
 der alte Prozess kennt sie nicht → **„Unbekannter Endpunkt"**.
 

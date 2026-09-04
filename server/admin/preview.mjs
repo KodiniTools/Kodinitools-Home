@@ -8,6 +8,7 @@ import { execFile } from 'node:child_process';
 import { mkdir } from 'node:fs/promises';
 import { resolve, dirname } from 'node:path';
 import { config } from './config.mjs';
+import { runStreaming } from './util.mjs';
 import {
   updateCodeFromRemote,
   restartIfServerCodeChanged,
@@ -29,6 +30,7 @@ function initialState() {
     error: null,
     codeUpdate: null, // { updated, from, to, files } – Ergebnis des Code-Updates
     restarting: false, // Dienst startet nach diesem Vorgang neu (neuer Server-Code)
+    restarted: false, // Status stammt aus der Zeit vor einem Selbst-Neustart (wiederhergestellt)
   };
 }
 // Letzten Stand wiederherstellen (überlebt den Selbst-Neustart des Dienstes).
@@ -108,8 +110,12 @@ async function doPreview() {
   // ein sicher beschreibbares HOME (npm-/Astro-Cache) — das vom Dienst geerbte
   // HOME (z.B. /var/www) ist im systemd-Sandbox nicht beschreibbar. Zusätzlich
   // base + Ausgabeverzeichnis der Vorschau (env siehe oben).
-  const out = await run('npm', ['run', 'build'], { env });
-  log(out);
+  await runStreaming('npm', ['run', 'build'], {
+    cwd: config.repoDir,
+    env,
+    timeoutMs: 15 * 60 * 1000,
+    onLine: (line) => log(line),
+  });
 
   state.status = 'success';
   state.step = 'done';
