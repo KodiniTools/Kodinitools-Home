@@ -43,7 +43,9 @@ kodini-tools-vue/
 │   ├── components/
 │   │   ├── LanguageSwitcher.vue # Sprachwechsel
 │   │   └── ThemeToggle.vue      # Theme Toggle
-│   ├── App.vue                  # Hauptkomponente
+│   ├── composables/             # usePageView, useSpotlight, useScrollTop (Logik aus App.vue)
+│   ├── styles/app/              # Styles von App.vue, aufgeteilt (index.css = Aggregator)
+│   ├── App.vue                  # Hauptkomponente (Template + Verdrahtung)
 │   ├── main.ts                  # Entry Point
 │   └── i18n.ts                  # i18n Konfiguration
 ├── index.html
