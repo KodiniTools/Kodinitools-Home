@@ -20,6 +20,7 @@ import {
 } from './model.js';
 import { ensureFontFace, fontOptionsHtml } from './fonts.js';
 import { slider, bindSliders } from './slider.js';
+import { colorPicker, bindColorPickers } from './color.js';
 
 // Family-CSS für eine Schriftdatei (lädt @font-face für die Vorschau) oder ''.
 // Einfache Anführungszeichen um den Family-Namen, damit der Wert gefahrlos in
@@ -151,11 +152,16 @@ function colorField(lang, field, label, withOpacity, opacityField, s) {
   const op = withOpacity
     ? `<div style="flex:1 1 220px">${sideRange(lang, s, opacityField, `${label} – Transparenz`, 0, 100, '%')}</div>`
     : '';
-  const colorInput = `<input type="color" data-hd="${field}" data-lang="${lang}" value="${esc(s[field])}" style="width:56px;height:38px;padding:2px" />`;
+  const picker = colorPicker({
+    id: `hd:${field}`,
+    attrs: `data-hd="${field}" data-lang="${lang}"`,
+    value: s[field],
+    resetHtml: resetBtn('side', field),
+  });
   return `
       <div style="flex:0 0 auto">
         <label>${label}</label>
-        ${withReset(colorInput, 'side', field)}
+        ${picker}
       </div>${op}`;
 }
 // Zahlenwert des aktuellen Modus als Regler (Slider + Zahlenfeld + „↺" auf den Werkswert).
@@ -302,11 +308,7 @@ function heroDesignPanel(lang) {
         <div style="flex:1 1 200px">${typoRange(hd, 'titleLetterSpacing', 'Abstand', -5, 20, 'px', 0.5)}</div>
         <div style="flex:0 0 auto">
           <label>Kontur-Farbe</label>
-          ${withReset(
-            `<input type="color" data-hdtypo="titleStrokeColor" value="${esc(hd.titleStrokeColor)}" style="width:56px;height:38px;padding:2px" />`,
-            'typo',
-            'titleStrokeColor',
-          )}
+          ${colorPicker({ id: 'hd:titleStrokeColor', attrs: 'data-hdtypo="titleStrokeColor"', value: hd.titleStrokeColor, resetHtml: resetBtn('typo', 'titleStrokeColor') })}
         </div>
         <div style="flex:1 1 200px">${typoRange(hd, 'titleStrokeWidth', 'Kontur-Breite', 0, 5, 'px', 0.5)}</div>
       </div>
@@ -315,11 +317,7 @@ function heroDesignPanel(lang) {
         <div style="flex:1 1 200px">${typoRange(hd, 'buttonLetterSpacing', 'Abstand', -5, 20, 'px', 0.5)}</div>
         <div style="flex:0 0 auto">
           <label>Kontur-Farbe</label>
-          ${withReset(
-            `<input type="color" data-hdtypo="buttonStrokeColor" value="${esc(hd.buttonStrokeColor)}" style="width:56px;height:38px;padding:2px" />`,
-            'typo',
-            'buttonStrokeColor',
-          )}
+          ${colorPicker({ id: 'hd:buttonStrokeColor', attrs: 'data-hdtypo="buttonStrokeColor"', value: hd.buttonStrokeColor, resetHtml: resetBtn('typo', 'buttonStrokeColor') })}
         </div>
         <div style="flex:1 1 200px">${typoRange(hd, 'buttonStrokeWidth', 'Kontur-Breite', 0, 5, 'px', 0.5)}</div>
       </div>
@@ -631,4 +629,5 @@ export function renderHeroDesign() {
     gallery.scrollTop = Math.max(0, gallery.scrollTop + centered);
   }
   bindSliders(pane); // nach den Feld-Handlern: Zahlenfeld löst deren input-Event aus
+  bindColorPickers(pane);
 }

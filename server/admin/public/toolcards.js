@@ -22,6 +22,7 @@ import {
 } from './model.js';
 import { ensureFontFace } from './fonts.js';
 import { slider, bindSliders } from './slider.js';
+import { colorPicker, bindColorPickers } from './color.js';
 
 // UI-Zustand (nicht gespeichert): bearbeiteter Modus + gewählte Karte
 // ('' = Standard für alle Karten, sonst "section.key").
@@ -223,11 +224,16 @@ function withReset(inputHtml, key) {
 }
 // Farbe (+ optional Transparenz-Regler) als Formularzeile.
 function colorField(s, field, label, opacityField) {
-  const colorInput = `<input type="color" data-tcf="${field}" value="${esc(s[field])}" style="width:56px;height:38px;padding:2px" />`;
+  const picker = colorPicker({
+    id: `tc:${field}`,
+    attrs: `data-tcf="${field}"`,
+    value: s[field],
+    resetHtml: resetBtn(field),
+  });
   const op = opacityField
     ? `<div style="flex:1 1 220px">${rangeField(s, opacityField, `${label} – Transparenz`, 0, 100, '%')}</div>`
     : '';
-  return `<div style="flex:0 0 auto"><label>${label}</label>${withReset(colorInput, field)}</div>${op}`;
+  return `<div style="flex:0 0 auto"><label>${label}</label>${picker}</div>${op}`;
 }
 // Zahlenwert als Regler (Slider + Zahlenfeld + „↺" auf die Quelle, siehe resetSource).
 function rangeField(s, field, label, min, max, unit, disabled = false) {
@@ -685,6 +691,7 @@ export function renderToolCards() {
     }),
   );
   bindSliders(pane); // nach den Feld-Handlern: Zahlenfeld löst deren input-Event aus
+  bindColorPickers(pane);
 }
 
 function clampInt(v, min, max, def) {
