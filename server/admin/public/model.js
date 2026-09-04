@@ -610,9 +610,42 @@ export function defaultSite() {
     fxNoiseIntensity: 50,
     fxSpotlight: false,
     fxSpotlightIntensity: 50,
+    // Muster je Modus: 'none' | 'dots' | 'grid' mit Farbe, Abstand (px),
+    // Stärke (px) und Deckkraft (%).
+    bgPattern: 'none',
+    bgPatternDark: 'none',
+    bgPatternColor: '#014f99',
+    bgPatternColorDark: '#e8a945',
+    bgPatternSpacing: 24,
+    bgPatternSpacingDark: 24,
+    bgPatternThickness: 1,
+    bgPatternThicknessDark: 1,
+    bgPatternOpacity: 12,
+    bgPatternOpacityDark: 12,
+    // Hintergrundbild je Modus (URL; leer = keins) mit Abdunkelung (%),
+    // Weichzeichner (px), Deckkraft (%) und fixierter Position beim Scrollen.
+    bgImage: '',
+    bgImageDark: '',
+    bgImageDarken: 0,
+    bgImageDarkenDark: 0,
+    bgImageBlur: 0,
+    bgImageBlurDark: 0,
+    bgImageOpacity: 100,
+    bgImageOpacityDark: 100,
+    bgImageFixed: true,
+    bgImageFixedDark: true,
   };
 }
 export const SITE_GRADIENT_TYPES = ['linear', 'radial'];
+export const SITE_PATTERNS = ['none', 'dots', 'grid'];
+// Bild-Felder in media.site (Hintergrundbild Hell/Dunkel) – können wie die
+// Sprach-Slots eine gestagte Datei ('staged:<id>') referenzieren.
+export const SITE_MEDIA_KEYS = ['bgImage', 'bgImageDark'];
+const SITE_MEDIA_URL = /^(\/[^\s"'()\\]*|https?:\/\/[^\s"'()\\]+|staged:[\w-]+)$/;
+function normSiteMediaUrl(v) {
+  const t = String(v ?? '').trim();
+  return SITE_MEDIA_URL.test(t) ? t : '';
+}
 // Effekt-Schlüssel (Feldpräfix in media.site) mit Beschriftung.
 export const SITE_FX = [
   { key: 'fxAurora', label: 'Aurora-Farbflecken' },
@@ -626,6 +659,7 @@ export function normSite(s) {
     return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : d;
   };
   const gtype = (v) => (SITE_GRADIENT_TYPES.includes(v) ? v : 'linear');
+  const pat = (v) => (SITE_PATTERNS.includes(v) ? v : 'none');
   return {
     globalFont: normFontFile(s.globalFont),
     bgColor: normHexOrEmpty(s.bgColor),
@@ -646,6 +680,26 @@ export function normSite(s) {
     fxNoiseIntensity: num(s.fxNoiseIntensity, 0, 100, 50),
     fxSpotlight: s.fxSpotlight === true,
     fxSpotlightIntensity: num(s.fxSpotlightIntensity, 0, 100, 50),
+    bgPattern: pat(s.bgPattern),
+    bgPatternDark: pat(s.bgPatternDark),
+    bgPatternColor: normHexOrEmpty(s.bgPatternColor) || '#014f99',
+    bgPatternColorDark: normHexOrEmpty(s.bgPatternColorDark) || '#e8a945',
+    bgPatternSpacing: num(s.bgPatternSpacing, 4, 200, 24),
+    bgPatternSpacingDark: num(s.bgPatternSpacingDark, 4, 200, 24),
+    bgPatternThickness: num(s.bgPatternThickness, 1, 6, 1),
+    bgPatternThicknessDark: num(s.bgPatternThicknessDark, 1, 6, 1),
+    bgPatternOpacity: num(s.bgPatternOpacity, 0, 100, 12),
+    bgPatternOpacityDark: num(s.bgPatternOpacityDark, 0, 100, 12),
+    bgImage: normSiteMediaUrl(s.bgImage),
+    bgImageDark: normSiteMediaUrl(s.bgImageDark),
+    bgImageDarken: num(s.bgImageDarken, 0, 100, 0),
+    bgImageDarkenDark: num(s.bgImageDarkenDark, 0, 100, 0),
+    bgImageBlur: num(s.bgImageBlur, 0, 40, 0),
+    bgImageBlurDark: num(s.bgImageBlurDark, 0, 40, 0),
+    bgImageOpacity: num(s.bgImageOpacity, 0, 100, 100),
+    bgImageOpacityDark: num(s.bgImageOpacityDark, 0, 100, 100),
+    bgImageFixed: s.bgImageFixed !== false,
+    bgImageFixedDark: s.bgImageFixedDark !== false,
   };
 }
 // Seiten-Hintergrund eines Modus als CSS-background-Wert – identisch zur
@@ -655,17 +709,47 @@ export function normSite(s) {
 export function siteBgLayerCss(mode) {
   const s = getSiteBg(mode);
   const base = PAGE_BG_DEFAULT[mode];
-  if (!s.color) return base;
-  const c1 = rgbaFromHex(s.color, s.opacity);
-  if (s.gradient && s.color2) {
-    const c2 = rgbaFromHex(s.color2, s.opacity);
-    const g =
-      s.type === 'radial'
-        ? `radial-gradient(ellipse at 50% 0%, ${c1}, ${c2})`
-        : `linear-gradient(${s.angle}deg, ${c1}, ${c2})`;
-    return `${g}, ${base}`;
+  const layers = sitePatternLayers(s);
+  let ground = base;
+  if (s.color) {
+    const c1 = rgbaFromHex(s.color, s.opacity);
+    if (s.gradient && s.color2) {
+      const c2 = rgbaFromHex(s.color2, s.opacity);
+      layers.push(
+        s.type === 'radial'
+          ? `radial-gradient(ellipse at 50% 0%, ${c1}, ${c2})`
+          : `linear-gradient(${s.angle}deg, ${c1}, ${c2})`,
+      );
+    } else if (s.opacity >= 100) ground = s.color;
+    else layers.push(`linear-gradient(${c1}, ${c1})`);
   }
-  return `linear-gradient(${c1}, ${c1}), ${base}`;
+  return layers.length ? `${layers.join(', ')}, ${ground}` : ground;
+}
+// Muster-Ebenen (Punktraster / Gitter) als background-Einträge – identisch zu
+// content.ts sitePatternLayers. Leer bei 'none'.
+export function sitePatternLayers(s) {
+  if ((s.pattern !== 'dots' && s.pattern !== 'grid') || !s.patternColor) return [];
+  const c = rgbaFromHex(s.patternColor, s.patternOpacity);
+  const t = s.patternThickness;
+  const size = `${s.patternSpacing}px ${s.patternSpacing}px`;
+  if (s.pattern === 'dots')
+    return [`radial-gradient(circle, ${c} ${t}px, transparent ${t + 0.5}px) 0 0 / ${size} repeat`];
+  return [
+    `linear-gradient(${c} ${t}px, transparent ${t}px) 0 0 / ${size} repeat`,
+    `linear-gradient(90deg, ${c} ${t}px, transparent ${t}px) 0 0 / ${size} repeat`,
+  ];
+}
+// Bild-Ebene eines Modus für die Admin-Vorschau: null ohne Bild, sonst
+// { url, filter, opacity, fixed } (url = auflösbare Vorschau-URL, staged via objUrl).
+export function siteBgImageLayer(mode, resolveUrl) {
+  const s = getSiteBg(mode);
+  if (!s.image) return null;
+  const url = resolveUrl ? resolveUrl(s.image) : s.image;
+  if (!url) return null;
+  const f = [];
+  if (s.imageBlur > 0) f.push(`blur(${s.imageBlur}px)`);
+  if (s.imageDarken > 0) f.push(`brightness(${(1 - s.imageDarken / 100).toFixed(3)})`);
+  return { url, filter: f.join(' ') || 'none', opacity: s.imageOpacity / 100, fixed: s.imageFixed };
 }
 // Effekt lesen: { on, intensity } für key aus SITE_FX.
 export function getSiteFx(key) {
@@ -701,6 +785,16 @@ export function getSiteBg(mode) {
     color2: s[k('bgColor2')] || '',
     type: s[k('bgGradientType')],
     angle: s[k('bgAngle')],
+    pattern: s[k('bgPattern')],
+    patternColor: s[k('bgPatternColor')] || '',
+    patternSpacing: s[k('bgPatternSpacing')],
+    patternThickness: s[k('bgPatternThickness')],
+    patternOpacity: s[k('bgPatternOpacity')],
+    image: s[k('bgImage')] || '',
+    imageDarken: s[k('bgImageDarken')],
+    imageBlur: s[k('bgImageBlur')],
+    imageOpacity: s[k('bgImageOpacity')],
+    imageFixed: s[k('bgImageFixed')] !== false,
   };
 }
 // Teilweise setzen (nur übergebene Felder), Werte werden normalisiert.
@@ -718,6 +812,28 @@ export function setSiteBg(mode, patch) {
   if ('type' in patch)
     s[k('bgGradientType')] = SITE_GRADIENT_TYPES.includes(patch.type) ? patch.type : 'linear';
   if ('angle' in patch) s[k('bgAngle')] = num(patch.angle, 0, 360, 180);
+  if ('pattern' in patch)
+    s[k('bgPattern')] = SITE_PATTERNS.includes(patch.pattern) ? patch.pattern : 'none';
+  if ('patternColor' in patch) {
+    const d = mode === 'dark' ? '#e8a945' : '#014f99';
+    s[k('bgPatternColor')] = normHexOrEmpty(patch.patternColor) || d;
+  }
+  if ('patternSpacing' in patch) s[k('bgPatternSpacing')] = num(patch.patternSpacing, 4, 200, 24);
+  if ('patternThickness' in patch)
+    s[k('bgPatternThickness')] = num(patch.patternThickness, 1, 6, 1);
+  if ('patternOpacity' in patch) s[k('bgPatternOpacity')] = num(patch.patternOpacity, 0, 100, 12);
+  if ('image' in patch) s[k('bgImage')] = normSiteMediaUrl(patch.image);
+  if ('imageDarken' in patch) s[k('bgImageDarken')] = num(patch.imageDarken, 0, 100, 0);
+  if ('imageBlur' in patch) s[k('bgImageBlur')] = num(patch.imageBlur, 0, 40, 0);
+  if ('imageOpacity' in patch) s[k('bgImageOpacity')] = num(patch.imageOpacity, 0, 100, 100);
+  if ('imageFixed' in patch) s[k('bgImageFixed')] = patch.imageFixed !== false;
+}
+// Bild-Feld in media.site lesen/setzen (key aus SITE_MEDIA_KEYS).
+export function getSiteMediaVal(key) {
+  return SITE_MEDIA_KEYS.includes(key) ? siteObj()[key] || '' : '';
+}
+export function setSiteMediaVal(key, val) {
+  if (SITE_MEDIA_KEYS.includes(key)) siteObj()[key] = normSiteMediaUrl(val);
 }
 // Standard-Hintergrundfarben je Modus (identisch zu global.css --bg-color).
 export const PAGE_BG_DEFAULT = { light: '#fafafa', dark: '#091428' };
@@ -899,6 +1015,9 @@ export function updateMediaUrlEverywhere(oldUrl, newUrl) {
     for (const key of MEDIA_KEYS) {
       if (getMediaVal(lang, key) === oldUrl) setMediaVal(lang, key, newUrl);
     }
+  }
+  for (const key of SITE_MEDIA_KEYS) {
+    if (getSiteMediaVal(key) === oldUrl) setSiteMediaVal(key, newUrl);
   }
 }
 

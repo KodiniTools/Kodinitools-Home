@@ -2,12 +2,16 @@
 // Website – getrennt für Hell- und Dunkelmodus – mit Live-Vorschau. Je Modus:
 // eigene Farbe, Deckkraft (Mischung mit der Standardfarbe des Modus) und
 // optionaler Farbverlauf (Endfarbe, linear mit Richtung oder radial).
+// Dazu je Modus ein reines CSS-Muster (Punktraster/Gitter: Farbe, Abstand,
+// Stärke, Deckkraft) und ein Hintergrundbild aus der Mediathek (Abdunkelung,
+// Weichzeichner, Deckkraft, fixiert beim Scrollen).
 // Gespeichert wird global in media.site (bgColor*, bgOpacity*, bgGradient*,
-// bgColor2*, bgGradientType*, bgAngle*; Suffix Dark = Dunkelmodus); leer =
-// Standardfarbe des jeweiligen Modus (verhaltensneutral, wie bisher).
+// bgColor2*, bgGradientType*, bgAngle*, bgPattern*, bgImage*; Suffix Dark =
+// Dunkelmodus); leer = Standardfarbe des jeweiligen Modus (wie bisher).
 
 import { $, esc, toast } from './core.js';
 import {
+  state,
   getSiteBg,
   setSiteBg,
   getSiteFx,
@@ -15,8 +19,11 @@ import {
   SITE_FX,
   PAGE_BG_DEFAULT,
   siteBgLayerCss,
+  siteBgImageLayer,
   SITE_GRADIENT_TYPES,
+  SITE_PATTERNS,
 } from './model.js';
+import { objUrl, openMediaPicker } from './media.js';
 
 // --- Effekte (Aurora / Rauschen / Spotlight): Beschreibung + Vorschau-Werte ---
 // Die Vorschau bildet background.css + index.astro nach (gleiche Verläufe,
@@ -51,6 +58,27 @@ const GRADIENT_TYPE_LABEL = {
   linear: 'Linear (Richtung wählbar)',
   radial: 'Radial (von oben Mitte)',
 };
+const PATTERN_LABEL = { none: 'Kein Muster', dots: 'Punktraster', grid: 'Feines Gitter' };
+
+// Bild-URL für die Vorschau auflösen (staged:<id> -> Objekt-URL des Browsers).
+function previewUrl(val) {
+  if (!val) return '';
+  if (val.startsWith('staged:')) return objUrl(val.slice(7));
+  return val;
+}
+// style-Attribut der Bild-Ebene in der Vorschau (leer = keine Ebene sichtbar).
+function imageLayerStyle(mode) {
+  const l = siteBgImageLayer(mode, previewUrl);
+  if (!l) return 'display:none';
+  const mask = l.fixed
+    ? ''
+    : 'mask-image:linear-gradient(#000 60%, transparent);-webkit-mask-image:linear-gradient(#000 60%, transparent);';
+  return (
+    // Einfache Anführungszeichen: der Wert landet in einem style="…"-Attribut.
+    `background:url('${l.url.replace(/['"]/g, '')}') center / cover no-repeat;` +
+    `filter:${l.filter};opacity:${l.opacity};${mask}`
+  );
+}
 
 // Hintergrund-Ebene eines Modus (gemeinsam mit der Tool-Karten-Vorschau, model.js).
 const layerCss = siteBgLayerCss;
@@ -70,11 +98,112 @@ function noteFor(mode) {
     parts.push(`Deckkraft ${s.opacity} % über der Standardfarbe ${PAGE_BG_DEFAULT[mode]}`);
   return `✅ Eigener Hintergrund wird auf der Seite angewandt${parts.length ? ` (${parts.join('; ')})` : ''}.`;
 }
+// Hinweis unter Muster + Bild (unabhängig von der Farbwahl).
+function extrasNote(mode) {
+  const s = getSiteBg(mode);
+  const parts = [];
+  if (s.pattern !== 'none')
+    parts.push(
+      `${PATTERN_LABEL[s.pattern]} (${s.patternSpacing} px, ${s.patternOpacity} % Deckkraft)`,
+    );
+  if (s.image) {
+    const bits = [s.imageFixed ? 'fixiert beim Scrollen' : 'scrollt mit, läuft nach unten aus'];
+    if (s.imageDarken > 0) bits.push(`${s.imageDarken} % abgedunkelt`);
+    if (s.imageBlur > 0) bits.push(`${s.imageBlur} px weich`);
+    if (s.imageOpacity < 100) bits.push(`${s.imageOpacity} % Deckkraft`);
+    parts.push(
+      `Hintergrundbild${s.image.startsWith('staged:') ? ' (lokal, wird beim Veröffentlichen hochgeladen)' : ''}: ${bits.join(', ')}`,
+    );
+  }
+  return parts.length ? `✅ ${parts.join(' · ')}.` : 'Kein Muster und kein Hintergrundbild.';
+}
+
+// Abschnitt „Muster" eines Modus (reines CSS: Punktraster oder Gitter).
+function patternRow(mode) {
+  const s = getSiteBg(mode);
+  const on = s.pattern !== 'none';
+  const dis = on ? '' : 'disabled';
+  const opts = SITE_PATTERNS.map(
+    (t) => `<option value="${t}" ${s.pattern === t ? 'selected' : ''}>${PATTERN_LABEL[t]}</option>`,
+  ).join('');
+  return `
+    <div class="bg-sub" data-bgpattern="${mode}">
+      <div class="bg-sub-title">Muster <span class="hint" style="margin:0;font-weight:400">– Punktraster oder feines Gitter (reines CSS, liegt über der Farbe)</span></div>
+      <div class="row" style="align-items:flex-end">
+        <div style="flex:0 0 auto">
+          <label>Art</label>
+          <select data-bgf="pattern" data-mode="${mode}" style="width:auto">${opts}</select>
+        </div>
+        <div style="flex:0 0 auto">
+          <label>Farbe</label>
+          <input type="color" data-bgf="patternColor" data-mode="${mode}" value="${esc(s.patternColor)}" ${dis} style="width:64px;height:40px;padding:2px" />
+        </div>
+        <div style="flex:1 1 140px">
+          <label>Abstand: <span data-bgoval="patternSpacing" data-mode="${mode}">${s.patternSpacing}</span> px</label>
+          <input type="range" data-bgf="patternSpacing" data-mode="${mode}" min="4" max="200" value="${s.patternSpacing}" ${dis} style="width:100%" />
+        </div>
+        <div style="flex:1 1 120px">
+          <label>Stärke: <span data-bgoval="patternThickness" data-mode="${mode}">${s.patternThickness}</span> px</label>
+          <input type="range" data-bgf="patternThickness" data-mode="${mode}" min="1" max="6" value="${s.patternThickness}" ${dis} style="width:100%" />
+        </div>
+        <div style="flex:1 1 140px">
+          <label>Deckkraft: <span data-bgoval="patternOpacity" data-mode="${mode}">${s.patternOpacity}</span> %</label>
+          <input type="range" data-bgf="patternOpacity" data-mode="${mode}" min="0" max="100" value="${s.patternOpacity}" ${dis} style="width:100%" />
+        </div>
+      </div>
+    </div>`;
+}
+
+// Abschnitt „Hintergrundbild" eines Modus (aus der Mediathek oder URL).
+function imageRow(mode) {
+  const s = getSiteBg(mode);
+  const on = s.image !== '';
+  const dis = on ? '' : 'disabled';
+  const url = previewUrl(s.image);
+  const thumb = url
+    ? `<img src="${esc(url)}" alt="" />`
+    : '<span class="hint" style="margin:0">Kein Bild</span>';
+  const staged = s.image.startsWith('staged:');
+  return `
+    <div class="bg-sub" data-bgimage="${mode}">
+      <div class="bg-sub-title">Hintergrundbild <span class="hint" style="margin:0;font-weight:400">– aus der Mediathek, liegt unter Farbe/Muster und Effekten</span></div>
+      <div class="row" style="align-items:flex-start">
+        <div class="bg-thumb" data-bgthumb="${mode}">${thumb}</div>
+        <div style="flex:1 1 220px">
+          <div class="row" style="margin:0">
+            <button type="button" data-bgpick="${mode}" style="flex:0 0 auto">📂 Aus Mediathek wählen</button>
+            <button type="button" class="danger" data-bgimgclear="${mode}" ${dis} style="flex:0 0 auto">Entfernen</button>
+          </div>
+          <label style="margin-top:.5rem">Bild-URL <span class="hint" style="margin:0">(z.B. /uploads/… oder https://…)</span></label>
+          <input type="text" data-bgf="image" data-mode="${mode}" value="${esc(staged ? '' : s.image)}" placeholder="${staged ? 'Lokales Medium (wird beim Veröffentlichen hochgeladen)' : '/uploads/…'}" />
+        </div>
+      </div>
+      <div class="row" style="align-items:flex-end;margin-top:.2rem;${on ? '' : 'opacity:.45'}">
+        <div style="flex:1 1 140px">
+          <label>Abdunkelung: <span data-bgoval="imageDarken" data-mode="${mode}">${s.imageDarken}</span> %</label>
+          <input type="range" data-bgf="imageDarken" data-mode="${mode}" min="0" max="100" value="${s.imageDarken}" ${dis} style="width:100%" />
+        </div>
+        <div style="flex:1 1 140px">
+          <label>Weichzeichner: <span data-bgoval="imageBlur" data-mode="${mode}">${s.imageBlur}</span> px</label>
+          <input type="range" data-bgf="imageBlur" data-mode="${mode}" min="0" max="40" value="${s.imageBlur}" ${dis} style="width:100%" />
+        </div>
+        <div style="flex:1 1 140px">
+          <label>Deckkraft: <span data-bgoval="imageOpacity" data-mode="${mode}">${s.imageOpacity}</span> %</label>
+          <input type="range" data-bgf="imageOpacity" data-mode="${mode}" min="0" max="100" value="${s.imageOpacity}" ${dis} style="width:100%" />
+        </div>
+        <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin:0 0 .5rem;flex:0 0 auto">
+          <input type="checkbox" data-bgf="imageFixed" data-mode="${mode}" ${s.imageFixed ? 'checked' : ''} ${dis} style="width:auto" /> Fixiert beim Scrollen
+        </label>
+      </div>
+      <p class="hint" data-bgxnote="${mode}" style="margin-top:.4rem">${extrasNote(mode)}</p>
+    </div>`;
+}
 
 function modeRow(mode, label) {
   const s = getSiteBg(mode);
   const on = s.color !== '';
   const dis = on ? '' : 'disabled';
+  const anySet = on || s.pattern !== 'none' || s.image !== '';
   const colorVal = s.color || PAGE_BG_DEFAULT[mode];
   const typeOpts = SITE_GRADIENT_TYPES.map(
     (t) =>
@@ -88,7 +217,7 @@ function modeRow(mode, label) {
           <input type="checkbox" data-bgen="${mode}" ${on ? 'checked' : ''} style="width:auto" />
           Eigene Hintergrundfarbe für ${label} verwenden
         </label>
-        <button type="button" class="hd-reset" data-bgreset="${mode}" title="Diesen Modus auf Standard zurücksetzen" ${dis}>↺ Standard</button>
+        <button type="button" class="hd-reset" data-bgreset="${mode}" title="Diesen Modus auf Standard zurücksetzen (Farbe, Muster, Bild)" ${anySet ? '' : 'disabled'}>↺ Standard</button>
       </div>
       <div class="row" style="margin-top:.6rem;align-items:flex-end">
         <div style="flex:0 0 auto">
@@ -120,6 +249,8 @@ function modeRow(mode, label) {
         </div>
       </div>
       <p class="hint" data-bgnote="${mode}" style="margin-top:.6rem">${noteFor(mode)}</p>
+      ${patternRow(mode)}
+      ${imageRow(mode)}
     </div>`;
 }
 
@@ -131,7 +262,8 @@ function backgroundPanel() {
       <p class="hint" style="margin-top:0">
         Legt den <strong>Hintergrund der gesamten Website</strong> fest (beide Sprachen).
         Getrennt einstellbar für <strong>Hell-</strong> und <strong>Dunkelmodus</strong>: Farbe,
-        <strong>Deckkraft</strong> (Mischung mit der Standardfarbe) und optional ein <strong>Farbverlauf</strong>;
+        <strong>Deckkraft</strong> (Mischung mit der Standardfarbe), optional ein <strong>Farbverlauf</strong>,
+        ein <strong>Muster</strong> (Punktraster/Gitter) und ein <strong>Hintergrundbild</strong> aus der Mediathek;
         darunter die zuschaltbaren <strong>Effekte</strong>. Die Vorschau bleibt beim Scrollen oben sichtbar.
       </p>
       ${modeRow('light', 'den Hellmodus')}
@@ -174,6 +306,7 @@ function fxPreview(mode) {
   const sp = getSiteFx('fxSpotlight');
   return `
     <div class="fx-prev" data-fxprev="${mode}" data-bgprev="${mode}" style="${previewStyle(mode)}" title="${sp.on ? 'Maus bewegen: Spotlight folgt dem Zeiger' : ''}">
+      <div class="fx-prev-layer" data-fxlayer="image" style="${imageLayerStyle(mode)}"></div>
       <div class="fx-prev-layer" data-fxlayer="aurora" style="background:${AURORA_BG[mode]};opacity:${a.on ? a.intensity / 100 : 0}"></div>
       <div class="fx-prev-layer" data-fxlayer="noise" style="opacity:${n.on ? (n.intensity / 100) * FX_NOISE_MAX : 0}"></div>
       <div class="fx-prev-layer" data-fxlayer="spot"></div>
@@ -256,8 +389,12 @@ export function renderBackground() {
 function refreshMode(pane, mode) {
   const prev = pane.querySelector(`[data-bgprev="${mode}"]`);
   if (prev) prev.setAttribute('style', previewStyle(mode)); // nur Grund; Ebenen sind Kinder
+  const img = pane.querySelector(`[data-fxprev="${mode}"] [data-fxlayer="image"]`);
+  if (img) img.setAttribute('style', imageLayerStyle(mode));
   const note = pane.querySelector(`[data-bgnote="${mode}"]`);
   if (note) note.textContent = noteFor(mode);
+  const xnote = pane.querySelector(`[data-bgxnote="${mode}"]`);
+  if (xnote) xnote.textContent = extrasNote(mode);
 }
 
 function bindBackground(pane) {
@@ -278,7 +415,10 @@ function bindBackground(pane) {
   pane.querySelectorAll('[data-bgf]').forEach((inp) => {
     const mode = inp.dataset.mode;
     const field = inp.dataset.bgf;
-    const evt = inp.type === 'checkbox' || inp.tagName === 'SELECT' ? 'change' : 'input';
+    const evt =
+      inp.type === 'checkbox' || inp.type === 'text' || inp.tagName === 'SELECT'
+        ? 'change'
+        : 'input';
     inp.addEventListener(evt, () => {
       if (field === 'gradient') {
         const patch = { gradient: inp.checked };
@@ -288,15 +428,45 @@ function bindBackground(pane) {
         renderBackground();
         return;
       }
-      if (field === 'type') {
-        setSiteBg(mode, { type: inp.value });
-        renderBackground(); // Richtungsregler nur bei linear
+      if (field === 'type' || field === 'pattern' || field === 'image') {
+        setSiteBg(mode, { [field]: inp.value });
+        if (field === 'image' && inp.value.trim() && !getSiteBg(mode).image)
+          toast('Ungültige Bild-URL – erlaubt sind /pfad oder https://…');
+        renderBackground(); // Felder aktivieren/deaktivieren (Richtung nur bei linear usw.)
         return;
       }
-      setSiteBg(mode, { [field]: inp.value });
+      setSiteBg(mode, { [field]: inp.type === 'checkbox' ? inp.checked : inp.value });
       const oval = pane.querySelector(`[data-bgoval="${field}"][data-mode="${mode}"]`);
       if (oval) oval.textContent = getSiteBg(mode)[field];
       refreshMode(pane, mode);
+    });
+  });
+  pane.querySelectorAll('[data-bgpick]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const mode = btn.dataset.bgpick;
+      const srv = ['de', 'en', 'shared'].reduce(
+        (n, l) => n + (state.serverFiles[l] || []).length,
+        0,
+      );
+      if (!state.stagedItems.length && !srv) {
+        toast('Keine Medien vorhanden — zuerst im Tab „Mediathek" eine Datei hinzufügen.');
+        return;
+      }
+      openMediaPicker('de', 'bgImage', {
+        allLangs: true,
+        imagesOnly: true,
+        title: `Hintergrundbild (${mode === 'dark' ? 'Dunkelmodus' : 'Hellmodus'}) wählen`,
+        onPick: (url) => {
+          setSiteBg(mode, { image: url });
+          renderBackground();
+        },
+      });
+    });
+  });
+  pane.querySelectorAll('[data-bgimgclear]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      setSiteBg(btn.dataset.bgimgclear, { image: '' });
+      renderBackground();
     });
   });
   pane.querySelectorAll('[data-bgreset]').forEach((btn) => {
@@ -309,6 +479,16 @@ function bindBackground(pane) {
         color2: '',
         type: 'linear',
         angle: 180,
+        pattern: 'none',
+        patternColor: '',
+        patternSpacing: 24,
+        patternThickness: 1,
+        patternOpacity: 12,
+        image: '',
+        imageDarken: 0,
+        imageBlur: 0,
+        imageOpacity: 100,
+        imageFixed: true,
       });
       renderBackground();
       toast(`${mode === 'dark' ? 'Dunkelmodus' : 'Hellmodus'} auf Standard zurückgesetzt`);
