@@ -1,5 +1,19 @@
 {
   "hero": {
     "subtitle": "No account? No problem! Access all tools instantly – free, no email address, no password, no ads.\nNo installation, no login or registration required"
+  },
+  "tools": {
+    "audioConverter": {
+      "svg": "/fontawesome/svgs/solid/angles-left.svg"
+    },
+    "audioEqualizer": {
+      "svg": ""
+    },
+    "musicPlayer": {
+      "svg": ""
+    },
+    "audioVisualizer": {
+      "svg": ""
+    }
   }
 }

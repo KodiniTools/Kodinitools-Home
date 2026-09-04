@@ -210,6 +210,44 @@
         "ctaHoverTextColor": "#f5f4d6",
         "titleTextColor": "#f9f8f6"
       }
+    },
+    "toolCards": {
+      "enabled": true,
+      "default": {
+        "light": {
+          "borderColor": "#103ab7",
+          "borderOpacity": 20,
+          "borderWidth": 2,
+          "borderStyle": "solid",
+          "borderRadius": 8,
+          "bgColor": "#b1cbf7",
+          "bgOpacity": 61,
+          "gradient": true,
+          "bgColor2": "#f1f5f9",
+          "gradientAngle": 197,
+          "hoverBorderColor": "#051829",
+          "hoverBorderOpacity": 20,
+          "hoverBgColor": "#0075ff",
+          "hoverBgOpacity": 12
+        },
+        "dark": {
+          "borderColor": "#1d3a5c",
+          "borderOpacity": 100,
+          "borderWidth": 1,
+          "borderStyle": "solid",
+          "borderRadius": 16,
+          "bgColor": "#142640",
+          "bgOpacity": 100,
+          "gradient": false,
+          "bgColor2": "#0e1c32",
+          "gradientAngle": 135,
+          "hoverBorderColor": "#e8a945",
+          "hoverBorderOpacity": 22,
+          "hoverBgColor": "#142640",
+          "hoverBgOpacity": 0
+        }
+      },
+      "cards": {}
     }
   },
   "en": {
@@ -418,6 +456,44 @@
         "ctaHoverTextColor": "#f5f4d6",
         "titleTextColor": "#f9f8f6"
       }
+    },
+    "toolCards": {
+      "enabled": false,
+      "default": {
+        "light": {
+          "borderColor": "#e5e7eb",
+          "borderOpacity": 100,
+          "borderWidth": 1,
+          "borderStyle": "solid",
+          "borderRadius": 16,
+          "bgColor": "#ffffff",
+          "bgOpacity": 100,
+          "gradient": false,
+          "bgColor2": "#f1f5f9",
+          "gradientAngle": 135,
+          "hoverBorderColor": "#014f99",
+          "hoverBorderOpacity": 22,
+          "hoverBgColor": "#ffffff",
+          "hoverBgOpacity": 0
+        },
+        "dark": {
+          "borderColor": "#1d3a5c",
+          "borderOpacity": 100,
+          "borderWidth": 1,
+          "borderStyle": "solid",
+          "borderRadius": 16,
+          "bgColor": "#142640",
+          "bgOpacity": 100,
+          "gradient": false,
+          "bgColor2": "#0e1c32",
+          "gradientAngle": 135,
+          "hoverBorderColor": "#e8a945",
+          "hoverBorderOpacity": 22,
+          "hoverBgColor": "#142640",
+          "hoverBgOpacity": 0
+        }
+      },
+      "cards": {}
     }
   }
 }

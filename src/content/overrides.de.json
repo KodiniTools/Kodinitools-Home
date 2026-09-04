@@ -4,5 +4,65 @@
   },
   "hero": {
     "subtitle": "Kein Account? Kein Problem! Greife sofort auf alle Tools zu – Kostenlos, ohne E-Mail-Adresse, ohne Passwort, ohne Werbung.\nKeine Installation, keine Anmeldung oder Registrierung nötig"
+  },
+  "tools": {
+    "audioConverter": {
+      "svg": ""
+    },
+    "audioEqualizer": {
+      "svg": ""
+    },
+    "musicPlayer": {
+      "svg": ""
+    },
+    "audioVisualizer": {
+      "svg": ""
+    },
+    "mp3Converter": {
+      "svg": ""
+    },
+    "interactiveEqualizer": {
+      "svg": ""
+    },
+    "modernPlayer": {
+      "svg": ""
+    },
+    "playlistGenerator": {
+      "svg": ""
+    },
+    "alarmTool": {
+      "svg": ""
+    },
+    "audioNormalizer": {
+      "svg": ""
+    },
+    "playlistToWebm": {
+      "svg": ""
+    },
+    "audioCutter": {
+      "svg": ""
+    }
+  },
+  "imageTools": {
+    "imageConverter": {
+      "svg": ""
+    },
+    "batchImageEditor": {
+      "svg": ""
+    },
+    "photoCollage": {
+      "svg": ""
+    }
+  },
+  "diverseTools": {
+    "colorExtractor": {
+      "svg": ""
+    },
+    "videoConverter": {
+      "svg": ""
+    },
+    "textEditor": {
+      "svg": ""
+    }
   }
 }
