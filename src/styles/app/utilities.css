@@ -1,0 +1,77 @@
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* Better focus styles for accessibility */
+a:focus,
+button:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Performance optimization */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Disable 3D tilt and hover effects on touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .tool-card {
+    transform: none !important;
+  }
+
+  .feature-card {
+    transform: none !important;
+  }
+
+  .tool-card-link:hover .tool-icon,
+  .tool-card-link:hover h3,
+  .tool-card-link:hover .badge-container {
+    transform: none;
+  }
+
+  .card-glow {
+    display: none;
+  }
+
+  .feature-card::before {
+    display: none;
+  }
+
+  .mouse-spotlight {
+    display: none;
+  }
+
+  .svg-card {
+    transform: none !important;
+  }
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .mesh-blob,
+  .hero-logo {
+    animation: none !important;
+  }
+
+  .scroll-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
