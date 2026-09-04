@@ -95,18 +95,43 @@ export function runStreaming(cmd, args, { cwd, env, timeoutMs = 20 * 60 * 1000, 
       child.kill('SIGTERM');
       setTimeout(() => child.kill('SIGKILL'), 5000).unref();
     }, timeoutMs);
-    child.on('error', (err) => {
+    let done = false;
+    const finish = (code, signal) => {
+      if (done) return;
+      done = true;
       clearTimeout(timer);
-      reject(err);
-    });
-    child.on('close', (code, signal) => {
-      clearTimeout(timer);
+      clearTimeout(graceTimer);
       if (buf.trim() && onLine) onLine(buf.trimEnd());
       if (timedOut)
         reject(new Error(`Zeitüberschreitung nach ${Math.round(timeoutMs / 60000)} min: ${cmd}`));
       else if (code !== 0)
         reject(new Error(`${cmd} beendet mit Code ${code}${signal ? ` (${signal})` : ''}`));
       else resolvePromise(all.trim());
+    };
+    let graceTimer = null;
+    child.on('error', (err) => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      reject(err);
     });
+    // 'exit' = Prozess ist beendet. 'close' folgt erst, wenn auch die stdio-
+    // Pipes zu sind – das bleibt aus, wenn ein Hintergrund-Enkelprozess (z. B.
+    // aus einem Deploy-Skript) die Pipe geerbt hat und weiterläuft. execFile
+    // wartete darauf endlos („läuft…" ohne Ende). Daher: nach 'exit' höchstens
+    // kurz auf 'close' warten, dann mit dem Exit-Code abschließen.
+    child.on('exit', (code, signal) => {
+      graceTimer = setTimeout(() => {
+        if (done) return;
+        if (onLine)
+          onLine(
+            'Hinweis: Ein Hintergrundprozess hält die Ausgabe noch offen – Schritt gilt mit Exit-Code ' +
+              `${code} als beendet.`,
+          );
+        finish(code, signal);
+      }, 2000);
+      graceTimer.unref();
+    });
+    child.on('close', (code, signal) => finish(code, signal));
   });
 }
