@@ -538,6 +538,11 @@ function defaultCellStyle() {
     textPos: 'center',
     textX: 50,
     textY: 50,
+    // Bildbearbeitung des Kachel-Mediums: Deckkraft, Abdunkelung, Weichzeichner, Sättigung.
+    imgOpacity: 100,
+    imgDarken: 0,
+    imgBlur: 0,
+    imgSaturate: 100,
   };
 }
 const TEXT_POS = ['top', 'center', 'bottom'];
@@ -568,6 +573,10 @@ function validateCellStyle(s) {
     textPos: normTextPos(s.textPos),
     textX: normPosPct(s.textX, undefined, 50),
     textY: normPosPct(s.textY, normTextPos(s.textPos), 50),
+    imgOpacity: clampNum(s.imgOpacity, 0, 100, d.imgOpacity),
+    imgDarken: clampNum(s.imgDarken, 0, 100, d.imgDarken),
+    imgBlur: clampNum(s.imgBlur, 0, 20, d.imgBlur),
+    imgSaturate: clampNum(s.imgSaturate, 0, 200, d.imgSaturate),
   };
 }
 

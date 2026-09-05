@@ -6,7 +6,7 @@ import SectionMedia from '../../components/SectionMedia.astro'
 import SiteFooter from '../../components/SiteFooter.astro'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
-import { getContent, getMedia, HERO_LAYOUT_CELLS, effectiveHeroCellStyle, getTextStylesCss, getToolCardsCss, getIconTintCss } from '../../content/content'
+import { getContent, getMedia, HERO_LAYOUT_CELLS, effectiveHeroCellStyle, heroCellImageVars, getTextStylesCss, getToolCardsCss, getIconTintCss } from '../../content/content'
 
 // Inhalte aus der Content-Schicht (Standard-Locale + Admin-Overrides, gemergt).
 const de = getContent('de')
@@ -278,8 +278,9 @@ const pageI18n = {
                 const link = (media.heroGridLinks && media.heroGridLinks[i]) || ''
                 const ext = /^https?:\/\//i.test(link)
                 const cs = media.heroGridStyles && media.heroGridStyles[i] ? effectiveHeroCellStyle(media, i) : null
+                const imgVars = src ? heroCellImageVars(cs) : ''
                 const cellStyle = cs
-                  ? `--cell-bg:${heroHexToRgba(cs.bgColor, cs.bgOpacity) || 'transparent'};--cell-bw:${cs.borderWidth}px;--cell-bc:${cs.borderColor}`
+                  ? `--cell-bg:${heroHexToRgba(cs.bgColor, cs.bgOpacity) || 'transparent'};--cell-bw:${cs.borderWidth}px;--cell-bc:${cs.borderColor}${imgVars ? ';' + imgVars : ''}`
                   : ''
                 const cellClass = `hero-grid-cell${media.heroLayout === 'mosaic' && i === 0 ? ' hero-grid-cell--big' : ''}`
                 // Kachel als Container: optionales Medium + optionaler Text-Overlay.

@@ -370,6 +370,12 @@ export interface HeroCellStyle {
   textPos: 'top' | 'center' | 'bottom'; // Alt: vertikale Position (nur Migration)
   textX: number; // Freie Position in % (0=links … 100=rechts), per Maus ziehbar
   textY: number; // Freie Position in % (0=oben … 100=unten)
+  // Bildbearbeitung des Kachel-Mediums (im Admin: Layout-Tab, u. a. per
+  // Zwischenablage eingefügt). Fehlende Werte = Standard (Bild unverändert).
+  imgOpacity?: number; // 0–100 (%) – Deckkraft des Bildes (100 = deckend)
+  imgDarken?: number; // 0–100 (%) – Abdunkelung (0 = keine)
+  imgBlur?: number; // 0–20 px – Weichzeichner (0 = aus)
+  imgSaturate?: number; // 0–200 (%) – Sättigung (100 = Original, 0 = Graustufen)
 }
 
 /** Ein Farb-Satz des Hero-Bereichs (für Hell- bzw. Dunkelmodus getrennt). */
@@ -463,6 +469,10 @@ const MEDIA_DEFAULTS: MediaConfig = {
     textPos: 'center' as const,
     textX: 50,
     textY: 50,
+    imgOpacity: 100,
+    imgDarken: 0,
+    imgBlur: 0,
+    imgSaturate: 100,
   })),
   heroGridUniform: false,
   heroGridUniformCell: 0,
@@ -565,6 +575,10 @@ const CELL_SYNC_PROPS = [
   'textColor',
   'textX',
   'textY',
+  'imgOpacity',
+  'imgDarken',
+  'imgBlur',
+  'imgSaturate',
 ] as const;
 /**
  * Effektiver Style einer Raster-Kachel: bei aktivem „Standard für alle Kacheln"
@@ -579,6 +593,33 @@ export function effectiveHeroCellStyle(media: MediaConfig, i: number): HeroCellS
   const out: HeroCellStyle = { ...base };
   for (const p of CELL_SYNC_PROPS) (out[p] as HeroCellStyle[typeof p]) = master[p];
   return out;
+}
+
+/**
+ * Bildbearbeitung einer Raster-Kachel (Deckkraft, Abdunkelung, Weichzeichner,
+ * Sättigung) als CSS-Variablen für `.hero-grid-cell` (siehe hero.css). Leerer
+ * String bei Standardwerten, damit unveränderte Seiten identisch bleiben.
+ */
+export function heroCellImageVars(cs: HeroCellStyle | null | undefined): string {
+  if (!cs) return '';
+  const num = (v: unknown, min: number, max: number, def: number): number => {
+    const n = typeof v === 'number' ? v : Number(v);
+    return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : def;
+  };
+  const opacity = num(cs.imgOpacity, 0, 100, 100);
+  const darken = num(cs.imgDarken, 0, 100, 0);
+  const blur = num(cs.imgBlur, 0, 20, 0);
+  const saturate = num(cs.imgSaturate, 0, 200, 100);
+  const out: string[] = [];
+  if (opacity < 100) out.push(`--cell-img-opacity:${(opacity / 100).toFixed(2)}`);
+  const f: string[] = [];
+  if (blur > 0) f.push(`blur(${blur}px)`);
+  if (darken > 0) f.push(`brightness(${((100 - darken) / 100).toFixed(2)})`);
+  if (saturate !== 100) f.push(`saturate(${saturate}%)`);
+  if (f.length) out.push(`--cell-img-filter:${f.join(' ')}`);
+  // Weichzeichner franst am Rand aus -> Medium etwas über den Rand hinaus vergrößern.
+  if (blur > 0) out.push(`--cell-img-inset:-${blur * 2}px`);
+  return out.join(';');
 }
 
 // Schrift-Helfer für die Text-Slots (Dateiname -> Family-Name + @font-face).
