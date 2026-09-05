@@ -24,9 +24,11 @@ import {
   getIconTint,
   defaultToolCardText,
   normFontFile,
+  normSiteMediaUrl,
   TOOL_CARD_WEIGHTS,
   TOOL_CARD_TRANSFORMS,
 } from './model.js';
+import { objUrl, openMediaPicker } from './media.js';
 import { ensureFontFace, fontOptionsHtml } from './fonts.js';
 import { slider, bindSliders } from './slider.js';
 import { colorPicker, bindColorPickers } from './color.js';
@@ -301,11 +303,17 @@ function cardHtml(lang, card, theme, s, attrs = '', text = null) {
   const icon = card.svg
     ? `<div class="tc-icon" style="background:${iconBg}">${iconInner}</div>`
     : '';
+  const imgUrl = cardImageUrl(s.bgImage);
+  const imgLayer = imgUrl
+    ? `<span class="tc-img" style="background-image:url('${imgUrl.replace(/['"]/g, '')}');opacity:${(s.bgImageOpacity ?? 100) / 100};filter:${
+        s.bgImageDarken > 0 ? `brightness(${(1 - s.bgImageDarken / 100).toFixed(3)})` : 'none'
+      }"></span>`
+    : '';
   const badge = card.badge
     ? `<span class="tc-badge" style="${ts.badge}">${esc(card.badge)}</span>`
     : '';
   return `<div class="tc-card" ${attrs} style="${cardStyle(s)}">
-      ${icon}${badge}
+      ${imgLayer}${icon}${badge}
       <h3 class="tc-title" style="${ts.title}">${esc(card.title)}</h3>
       <div class="tc-footer" style="border-top-color:${p.divider}">
         <span class="tc-fav" style="color:${p.muted}">${ICON_BOOKMARK}</span>
@@ -413,6 +421,39 @@ function previewBlock(lang) {
       ${selected ? `<p class="hint" style="margin:.35rem 0 0"><span style="color:var(--muted)">Popup beim Überfahren:</span> <em data-tcdesc style="${textStyles(st[editTheme], editTheme, st.text).desc}">${esc(card.description || '(keine Beschreibung)')}</em></p>` : ''}
       <p class="hint" data-tcnote style="margin:.35rem 0 0">${noteText(lang)}</p>
     </div>`;
+}
+
+// --- Hintergrundbild der Karte (je Modus) ---
+// Vorschau-URL (staged:<id> -> Objekt-URL des Browsers), '' ohne Bild.
+function cardImageUrl(val) {
+  if (!val) return '';
+  return val.startsWith('staged:') ? objUrl(val.slice(7)) : val;
+}
+function imageBody(s) {
+  const url = cardImageUrl(s.bgImage);
+  const on = s.bgImage !== '';
+  const staged = s.bgImage.startsWith('staged:');
+  const thumb = url
+    ? `<img src="${esc(url)}" alt="" />`
+    : '<span class="hint" style="margin:0">Kein Bild</span>';
+  return `
+    <div class="row" style="align-items:flex-start">
+      <div class="bg-thumb" data-tcimgthumb>${thumb}</div>
+      <div style="flex:1 1 220px">
+        <div class="row" style="margin:0">
+          <button type="button" data-tcimgpick style="flex:0 0 auto">📂 Aus Mediathek wählen</button>
+          <button type="button" class="danger" data-tcimgclear ${on ? '' : 'disabled'} style="flex:0 0 auto">Entfernen</button>
+          ${resetBtn('bgImage:bgImageOpacity:bgImageDarken')}
+        </div>
+        <label style="margin-top:.5rem">Bild-URL <span class="hint" style="margin:0">(z.B. /uploads/… oder https://…)</span></label>
+        <input type="text" data-tcf="bgImage" value="${esc(staged ? '' : s.bgImage)}" placeholder="${staged ? 'Lokales Medium (wird beim Veröffentlichen hochgeladen)' : '/uploads/…'}" />
+      </div>
+    </div>
+    <div class="row" style="align-items:flex-end;margin-top:.2rem;${on ? '' : 'opacity:.45'}">
+      <div style="flex:1 1 220px">${rangeField(s, 'bgImageOpacity', 'Deckkraft', 0, 100, '%', !on)}</div>
+      <div style="flex:1 1 220px">${rangeField(s, 'bgImageDarken', 'Abdunkelung', 0, 100, '%', !on)}</div>
+    </div>
+    <p class="hint">Liegt über Farbe/Verlauf und unter Text und Icon; wird auf die Kartengröße zugeschnitten (mittig). Empfehlung: 600 × 400 px (3:2), WebP unter 60 KB, ruhiges Motiv; Abdunkelung 30–50 % für lesbaren Text.${staged ? ' <strong>● lokal – wird beim Veröffentlichen hochgeladen.</strong>' : ''}</p>`;
 }
 
 // --- Text-Design: Farben je Modus (An-Schalter + Farbwähler) und Typografie ---
@@ -690,6 +731,7 @@ function fieldsBlock(lang) {
     </div>
     ${section(`🖼️ Rahmen ${badge}`, frameBody)}
     ${section(`🎨 Hintergrund ${badge}`, bgBody)}
+    ${section(`🖼️ Hintergrundbild ${badge}`, imageBody(s))}
     ${section(`✨ Hover (beim Überfahren) ${badge}`, hoverBody)}
     ${section(`🔤 Text-Farben ${badge}`, textColorsBody(s))}
     ${section('🔠 Typografie <span class="hint" style="font-weight:400">(Hell + Dunkel)</span>', typoBody(lang))}
@@ -878,10 +920,18 @@ export function renderToolCards() {
   // Design-Felder: Farben, Zahlen, Regler, Linienart, Verlauf-Schalter.
   pane.querySelectorAll('[data-tcf]').forEach((el) => {
     const field = el.dataset.tcf;
-    const evt = el.type === 'checkbox' || el.tagName === 'SELECT' ? 'change' : 'input';
+    const evt =
+      el.type === 'checkbox' || el.type === 'text' || el.tagName === 'SELECT' ? 'change' : 'input';
     el.addEventListener(evt, () => {
       ensureEnabled(lang, pane);
       const s = editSide(lang);
+      if (field === 'bgImage') {
+        s.bgImage = normSiteMediaUrl(el.value);
+        if (el.value.trim() && !s.bgImage)
+          toast('Ungültige Bild-URL – erlaubt sind /pfad oder https://…');
+        rerender(); // Regler/Buttons aktivieren, Vorschau + Miniatur
+        return;
+      }
       if (field === 'gradient') {
         s.gradient = el.checked;
         rerender(); // Verlaufs-Felder ein-/ausblenden + Beschriftung wechseln
@@ -897,6 +947,27 @@ export function renderToolCards() {
       else s[field] = el.value; // Farben
       refreshPreview(pane, lang);
     });
+  });
+  // Hintergrundbild: Mediathek-Auswahl / Entfernen.
+  pane.querySelector('[data-tcimgpick]')?.addEventListener('click', () => {
+    const srv = [lang, 'shared'].reduce((n, l) => n + (state.serverFiles[l] || []).length, 0);
+    if (!state.stagedItems.length && !srv) {
+      toast('Keine Medien vorhanden — zuerst im Tab „Mediathek" eine Datei hinzufügen.');
+      return;
+    }
+    openMediaPicker(lang, 'tcimg', {
+      imagesOnly: true,
+      title: `Hintergrundbild der Karte (${themeLabel(editTheme)}) wählen`,
+      onPick: (url) => {
+        ensureEnabled(lang, pane);
+        editSide(lang).bgImage = url;
+        rerender();
+      },
+    });
+  });
+  pane.querySelector('[data-tcimgclear]')?.addEventListener('click', () => {
+    editSide(lang).bgImage = '';
+    rerender();
   });
   // Text-Farben: An-Schalter (aus = Standardfarbe der Seite).
   pane.querySelectorAll('[data-tcon]').forEach((cb) =>

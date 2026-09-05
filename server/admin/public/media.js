@@ -10,7 +10,7 @@ import {
   defMediaVal,
   MEDIA_LANGS,
   MEDIA_KEYS,
-  siteImageSlots,
+  allImageSlots,
   HERO_LAYOUTS,
   heroLayoutCells,
   updateMediaUrlEverywhere,
@@ -41,7 +41,7 @@ function usageOf(...refs) {
       }
     }
   }
-  for (const slot of siteImageSlots()) {
+  for (const slot of allImageSlots()) {
     if (set.includes(slot.get())) out.push(slot.label);
   }
   return out;

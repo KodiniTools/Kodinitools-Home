@@ -7,7 +7,7 @@ import {
   state,
   MEDIA_LANGS,
   MEDIA_KEYS,
-  siteImageSlots,
+  allImageSlots,
   getPath,
   setPath,
   LANG_SECTIONS,
@@ -75,18 +75,18 @@ function resolveMediaForSave() {
   // Globale Bilder (Seiten-Hintergrund, Sektionen): noch nicht hochgeladen ->
   // zuletzt gespeicherter Wert (oder leer), damit media.json nie eine
   // staged:-Referenz enthält.
-  if (m.site && typeof m.site === 'object') {
-    for (const slot of siteImageSlots()) {
-      const v = getPath(m.site, slot.path);
-      if (typeof v === 'string' && v.startsWith('staged:')) {
-        const item = state.stagedItems.find((x) => x.id === v.slice(7));
-        const loaded = getPath(state.loadedMedia.site || {}, slot.path);
-        setPath(
-          m.site,
-          slot.path,
-          (item && item.publishedUrl) || (typeof loaded === 'string' ? loaded : '') || '',
-        );
-      }
+  for (const slot of allImageSlots()) {
+    const rootObj = m[slot.root];
+    if (!rootObj || typeof rootObj !== 'object') continue;
+    const v = getPath(rootObj, slot.path);
+    if (typeof v === 'string' && v.startsWith('staged:')) {
+      const item = state.stagedItems.find((x) => x.id === v.slice(7));
+      const loaded = getPath(state.loadedMedia[slot.root] || {}, slot.path);
+      setPath(
+        rootObj,
+        slot.path,
+        (item && item.publishedUrl) || (typeof loaded === 'string' ? loaded : '') || '',
+      );
     }
   }
   return m;
@@ -197,11 +197,13 @@ async function uploadStagedReferenced() {
   }
   // Globale Bilder (Seiten-Hintergrund, Sektionen) -> gemeinsamer Ordner
   // (/uploads/, beide Sprachen).
-  for (const slot of siteImageSlots()) {
+  // Tool-Karten-Bilder in den Ordner ihrer Sprache.
+  for (const slot of allImageSlots()) {
     const v = slot.get();
     if (!v.startsWith('staged:')) continue;
     const id = v.slice(7);
-    let url = cache.get('shared:' + id);
+    const cacheKey = slot.xLang + ':' + id;
+    let url = cache.get(cacheKey);
     if (!url) {
       const item = await mediaGet(id);
       if (!item) continue;
@@ -210,13 +212,13 @@ async function uploadStagedReferenced() {
         raw: item.blob,
         headers: {
           'X-Filename': item.name,
-          'X-Lang': 'shared',
+          'X-Lang': slot.xLang,
           'Content-Type': item.type || 'application/octet-stream',
         },
       });
       if (!r.ok) throw new Error(`Upload ${item.name}: ${r.data?.error || r.status}`);
       url = r.data.url;
-      cache.set('shared:' + id, url);
+      cache.set(cacheKey, url);
     }
     slot.set(url);
   }

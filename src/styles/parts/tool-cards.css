@@ -41,6 +41,24 @@
   overflow: hidden;
 }
 
+/* Hintergrundbild der Karte (Admin > Tool-Karten > Hintergrundbild): Ebene unter dem
+   Inhalt (z-index -1 im Stacking-Context der Karte), über Farbe/Verlauf; Deckkraft
+   und Abdunkelung per Variablen. Ohne Bild: unsichtbar. */
+.tool-card {
+  isolation: isolate;
+}
+.tool-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  background: var(--tc-img, none) center / cover no-repeat;
+  opacity: var(--tc-img-opacity, 1);
+  filter: var(--tc-img-filter, none);
+}
+
 .tool-card::after {
   content: '';
   position: absolute;
