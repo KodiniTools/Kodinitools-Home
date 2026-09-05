@@ -6,7 +6,7 @@ import SectionMedia from '../../components/SectionMedia.astro'
 import SiteFooter from '../../components/SiteFooter.astro'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
-import { getContent, getMedia, HERO_LAYOUT_CELLS, effectiveHeroCellStyle, getTextStylesCss, getToolCardsCss } from '../../content/content'
+import { getContent, getMedia, HERO_LAYOUT_CELLS, effectiveHeroCellStyle, getTextStylesCss, getToolCardsCss, getIconTintCss } from '../../content/content'
 
 // Inhalte aus der Content-Schicht (Standard-Locale + Admin-Overrides, gemergt).
 const de = getContent('de')
@@ -145,7 +145,7 @@ const heroCellFontCss = [
 // Größen/Farben einzelner Text-Slots aus dem „Texte"-Tab.
 const textStylesCss = getTextStylesCss(media)
 // Rahmen/Hintergrund der Tool-Karten aus dem Admin-Tab „Tool-Karten" (nur wenn aktiviert).
-const toolCardsCss = getToolCardsCss(media)
+const toolCardsCss = [getToolCardsCss(media), getIconTintCss('en')].filter(Boolean).join('')
 // Inline-Style des Text-Overlays: Farbe, freie Position (x/y in %), Größe, Schrift.
 // Der Text wird an (x,y) verankert (Mittelpunkt) – frei per Maus im Admin gesetzt.
 function textOverlayStyle(color: string, size: number, x: number, y: number, font: string): string {

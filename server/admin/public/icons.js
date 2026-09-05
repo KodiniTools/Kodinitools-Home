@@ -5,7 +5,16 @@
 // oder seine URL zu kopieren. Die Icon-Liste wird beim ersten Öffnen geladen.
 
 import { $, api, esc, toast } from './core.js';
-import { state, setMediaVal, setPath, getPath, delPath } from './model.js';
+import {
+  state,
+  setMediaVal,
+  setPath,
+  getPath,
+  delPath,
+  getIconTint,
+  setIconTint,
+} from './model.js';
+import { colorPicker, bindColorPickers } from './color.js';
 
 const ICON_CATS = ['solid', 'regular', 'brands', 'admin'];
 const CAT_LABEL = {
@@ -63,10 +72,63 @@ function toolSvg(lang, section, key) {
   return typeof def === 'string' ? def : '';
 }
 
+// Aufgeklappte Farbbereiche (Karten-Schlüssel), überleben ein Neu-Rendern der Liste.
+const openTint = new Set();
+// Vorschlagsfarben für neu aktivierte Felder (Markenfarben / Standard-Kasten).
+const TINT_SUGGEST = { light: '#014f99', dark: '#e8a945', bg: '#ffffff', bgDark: '#eef1f5' };
+const TINT_LABEL = {
+  light: 'Icon-Farbe Hell',
+  dark: 'Icon-Farbe Dunkel',
+  bg: 'Kasten Hell',
+  bgDark: 'Kasten Dunkel',
+};
+// Icon-Vorschau einer Karte in einem Modus: mit Farbe als Maske, sonst das SVG.
+function tintPrevHtml(lang, cardId, mode) {
+  const [section, key] = cardId.split('.');
+  const svg = toolSvg(lang, section, key).replace(/['"]/g, '');
+  const t = getIconTint(lang, cardId);
+  const color = mode === 'dark' ? t.dark : t.light;
+  const bg = (mode === 'dark' ? t.bgDark : t.bg) || TINT_SUGGEST[mode === 'dark' ? 'bgDark' : 'bg'];
+  let inner = '';
+  if (svg && color)
+    inner = `<span style="display:block;width:100%;height:100%;background:${color};-webkit-mask:url('${svg}') center / contain no-repeat;mask:url('${svg}') center / contain no-repeat"></span>`;
+  else if (svg)
+    inner = `<img src="${esc(svg)}" alt="" style="width:100%;height:100%;object-fit:contain" />`;
+  return `<span data-tintprev="${esc(cardId)}:${mode}" title="${mode === 'dark' ? 'Dunkelmodus' : 'Hellmodus'}" style="width:44px;height:44px;border-radius:.6rem;background:${bg};padding:5px;box-sizing:border-box;display:inline-flex;flex-shrink:0;border:1px solid var(--border)">${inner}</span>`;
+}
+// Farbbereich einer Karte: Vorschau Hell/Dunkel + vier Farbwähler (je mit An-Schalter).
+function tintBoxHtml(lang, cardId) {
+  const t = getIconTint(lang, cardId);
+  const field = (f) => {
+    const on = t[f] !== '';
+    return `<div style="flex:0 0 auto">
+        <label style="display:flex;align-items:center;gap:.35rem;margin:0 0 .25rem;color:var(--text)">
+          <input type="checkbox" data-tinton="${esc(cardId)}:${f}" ${on ? 'checked' : ''} style="width:auto" /> ${TINT_LABEL[f]}
+        </label>
+        ${colorPicker({ id: `tint:${cardId}:${f}`, attrs: `data-tint="${esc(cardId)}:${f}"`, value: t[f] || TINT_SUGGEST[f], disabled: !on })}
+      </div>`;
+  };
+  return `<div data-tintbox="${esc(cardId)}" style="padding:.45rem .5rem .55rem 2.6rem;border-top:1px dashed var(--border)">
+      <div class="row" style="align-items:flex-end;gap:.8rem">
+        <div style="flex:0 0 auto">
+          <label style="margin:0 0 .25rem">Vorschau</label>
+          <div style="display:flex;gap:.35rem">${tintPrevHtml(lang, cardId, 'light')}${tintPrevHtml(lang, cardId, 'dark')}</div>
+        </div>
+        ${field('light')}${field('bg')}${field('dark')}${field('bgDark')}
+        <div style="flex:0 0 auto"><button type="button" class="hd-reset" data-tintreset="${esc(cardId)}" title="Alle Farben dieser Karte zurücksetzen">↺ Alle</button></div>
+      </div>
+      <p class="hint" style="margin:.35rem 0 0">Icon-Farbe färbt das SVG <strong>einfarbig</strong> ein (CSS-Maske, geeignet für einfarbige Icons wie Font Awesome; mehrfarbige Illustrationen werden zur Silhouette). Ohne Häkchen bleiben Originalfarben bzw. der Standard-Kasten.</p>
+    </div>`;
+}
+
 // Eine Zeile der Tool-Karten-Icon-Verwaltung (Vorschau + Aktionen) für eine Sprache.
 function toolRowHtml(lang, t) {
   const svg = toolSvg(lang, t.section, t.key);
   const id = `${t.section}:${t.key}`;
+  const cardId = `${t.section}.${t.key}`;
+  const tint = getIconTint(lang, cardId);
+  const tinted = Object.values(tint).some(Boolean);
+  const open = openTint.has(cardId);
   const thumb = svg
     ? `<span style="width:34px;height:34px;border-radius:7px;background:#fff;box-sizing:border-box;padding:3px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0"><img src="${esc(svg)}" alt="" style="width:100%;height:100%;object-fit:contain" /></span>`
     : `<span style="width:34px;height:34px;border-radius:7px;border:1px dashed var(--border);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--muted);font-size:.7rem">—</span>`;
@@ -79,7 +141,8 @@ function toolRowHtml(lang, t) {
       <button type="button" class="hd-reset" data-tooladd="${esc(id)}" title="Oben gewähltes Icon dieser Karte zuweisen">➕ Zuweisen</button>
       <button type="button" class="hd-reset" data-toolremove="${esc(id)}" title="Icon dieser Karte entfernen (kein Icon)"${svg ? '' : ' disabled'}>✕ Entfernen</button>
       <button type="button" class="hd-reset" data-toolreset="${esc(id)}" title="Auf Standard-Icon zurücksetzen">↺ Standard</button>
-    </div>`;
+      <button type="button" class="hd-reset ${open ? 'active' : ''}" data-tinttoggle="${esc(cardId)}" title="Icon-Farbe und Kasten-Hintergrund (Hell/Dunkel)" aria-expanded="${open}">🎨 Farben${tinted ? ' ●' : ''}</button>
+    </div>${open ? tintBoxHtml(lang, cardId) : ''}`;
 }
 
 function renderToolList(pane) {
@@ -89,6 +152,7 @@ function renderToolList(pane) {
   box.innerHTML = toolList()
     .map((t) => toolRowHtml(lang, t))
     .join('');
+  bindColorPickers(box);
 }
 
 // Gefilterte Icons (nach Kategorie + Suche) – ALLE Treffer (scrollbare Bibliothek).
@@ -401,9 +465,24 @@ export function renderIcons() {
   const toolBox = pane.querySelector('[data-icontoollist]');
   if (toolBox)
     toolBox.addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-tooladd],[data-toolremove],[data-toolreset]');
+      const btn = e.target.closest(
+        '[data-tooladd],[data-toolremove],[data-toolreset],[data-tinttoggle],[data-tintreset]',
+      );
       if (!btn) return;
       const lang = state.nav.section === 'en' ? 'en' : 'de';
+      if (btn.dataset.tinttoggle !== undefined) {
+        const cardId = btn.dataset.tinttoggle;
+        if (openTint.has(cardId)) openTint.delete(cardId);
+        else openTint.add(cardId);
+        renderToolList(pane);
+        return;
+      }
+      if (btn.dataset.tintreset !== undefined) {
+        setIconTint(lang, btn.dataset.tintreset, { light: '', dark: '', bg: '', bgDark: '' });
+        renderToolList(pane);
+        toast('Icon-Farben zurückgesetzt');
+        return;
+      }
       const parseId = (id) => {
         const p = id.split(':');
         return { section: p[0], key: p.slice(1).join(':') };
@@ -427,4 +506,36 @@ export function renderIcons() {
       }
       renderToolList(pane);
     });
+  // Icon-Färbung: An-Schalter (change) und Farbwähler (input) je Karte/Feld.
+  if (toolBox) {
+    toolBox.addEventListener('change', (e) => {
+      const cb = e.target.closest('[data-tinton]');
+      if (!cb) return;
+      const lang = state.nav.section === 'en' ? 'en' : 'de';
+      const [cardId, f] = splitTintKey(cb.dataset.tinton);
+      const native = toolBox.querySelector(`[data-tint="${cardId}:${f}"]`);
+      setIconTint(lang, cardId, {
+        [f]: cb.checked ? (native && native.value) || TINT_SUGGEST[f] : '',
+      });
+      renderToolList(pane);
+    });
+    toolBox.addEventListener('input', (e) => {
+      const el = e.target.closest('[data-tint]');
+      if (!el) return;
+      const lang = state.nav.section === 'en' ? 'en' : 'de';
+      const [cardId, f] = splitTintKey(el.dataset.tint);
+      setIconTint(lang, cardId, { [f]: el.value });
+      for (const mode of ['light', 'dark']) {
+        const prev = toolBox.querySelector(`[data-tintprev="${cardId}:${mode}"]`);
+        if (prev) prev.outerHTML = tintPrevHtml(lang, cardId, mode);
+      }
+      const tog = toolBox.querySelector(`[data-tinttoggle="${cardId}"]`);
+      if (tog) tog.textContent = '🎨 Farben ●';
+    });
+  }
+}
+// "tools.audioCutter:light" -> ["tools.audioCutter", "light"] (Feld = letzter Teil).
+function splitTintKey(v) {
+  const i = v.lastIndexOf(':');
+  return [v.slice(0, i), v.slice(i + 1)];
 }

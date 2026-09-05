@@ -378,7 +378,25 @@ function defaultMediaLocale() {
     textStyleUniformKey: 'hero.title',
     heroDesign: defaultHeroDesign(),
     toolCards: defaultToolCards(),
+    iconTint: {},
   };
+}
+const ICON_TINT_FIELDS = ['light', 'dark', 'bg', 'bgDark'];
+/** Icon-Färbung je Tool-Karte: nur gültige Karten-Schlüssel und Hex-Farben; leere Einträge entfallen. */
+function validateIconTint(v) {
+  const out = {};
+  if (!isPlainObject(v)) return out;
+  for (const [key, t] of Object.entries(v)) {
+    if (!TOOL_CARD_KEY.test(key) || !isPlainObject(t)) continue;
+    const e = {};
+    let any = false;
+    for (const f of ICON_TINT_FIELDS) {
+      e[f] = normHexColor(t[f], '');
+      if (e[f]) any = true;
+    }
+    if (any) out[key] = e;
+  }
+  return out;
 }
 // Text-Slots des „Texte"-Tabs mit einstellbarer Größe/Farbe.
 const TEXT_STYLE_KEYS = [
@@ -777,6 +795,8 @@ function validateMediaLocale(m, langLabel) {
   out.heroDesign = validateHeroDesign(m.heroDesign);
   // Tool-Karten-Design (Rahmen/Hintergrund je Karte) – optional, mit Standard.
   out.toolCards = validateToolCards(m.toolCards);
+  // Icon-Färbung je Karte (Tab „Icons") – optional.
+  out.iconTint = validateIconTint(m.iconTint);
   return out;
 }
 

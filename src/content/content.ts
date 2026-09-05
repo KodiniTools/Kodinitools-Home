@@ -221,6 +221,15 @@ export interface MediaConfig {
   // Admin-einstellbares Design der Tool-Karten (Rahmen/Hintergrund), Standard
   // für alle Karten + optionale Einzel-Designs je Karte (Tab „Tool-Karten").
   toolCards: ToolCardsConfig;
+  // Icon-Färbung je Tool-Karte (Tab „Icons"): Icon einfarbig per CSS-Maske
+  // (light/dark) und/oder Kasten-Hintergrund (bg/bgDark); '' = unverändert.
+  iconTint: Record<string, Partial<IconTint>>;
+}
+export interface IconTint {
+  light: string;
+  dark: string;
+  bg: string;
+  bgDark: string;
 }
 
 /** Rahmen + Hintergrund einer Tool-Karte für EINEN Modus (Hell oder Dunkel). */
@@ -471,6 +480,7 @@ const MEDIA_DEFAULTS: MediaConfig = {
     default: { light: { ...TOOL_CARD_LIGHT_DEFAULT }, dark: { ...TOOL_CARD_DARK_DEFAULT } },
     cards: {},
   },
+  iconTint: {},
 };
 
 /**
@@ -698,6 +708,48 @@ export function getToolCardsCss(media: MediaConfig): string | undefined {
     if (isPlainObject(style.light)) rules.push(`${sel}{${toolCardSideVars(style.light)}}`);
     if (isPlainObject(style.dark))
       rules.push(`[data-theme="dark"] ${sel}{${toolCardSideVars(style.dark)}}`);
+  }
+  return rules.length ? rules.join('') : undefined;
+}
+
+/**
+ * CSS für die Icon-Färbung der Tool-Karten (Tab „Icons"). Das <img> bleibt im
+ * Markup (Alt-Text, Lazy-Loading); bei gesetzter Icon-Farbe wird es unsichtbar
+ * und ein ::after-Element zeigt das SVG als einfarbige Maske in der Farbe.
+ * Kasten-Hintergrund je Modus; Dunkel fällt ausdrücklich auf den Standard
+ * zurück, wenn nur Hell gesetzt ist (Spezifität der Hell-Regel wäre höher).
+ */
+export function getIconTintCss(locale: Locale): string | undefined {
+  const media = getMedia(locale);
+  const tints = isPlainObject(media.iconTint) ? media.iconTint : {};
+  const content = (locale === 'en' ? getContent('en') : getContent('de')) as unknown as Record<
+    string,
+    Record<string, { svg?: unknown }>
+  >;
+  const hex = (v: unknown) => (typeof v === 'string' && SITE_HEX.test(v) ? v : '');
+  const rules: string[] = [];
+  for (const [key, t] of Object.entries(tints)) {
+    if (!TOOL_CARD_KEY.test(key) || !isPlainObject(t)) continue;
+    const [section, k] = key.split('.');
+    const svg = String(content[section]?.[k]?.svg ?? '');
+    const sel = `#app .svg-card-link[data-i18n-key="${key}"] .tool-card-icon`;
+    const light = hex(t.light);
+    const dark = hex(t.dark);
+    const bg = hex(t.bg);
+    const bgDark = hex(t.bgDark);
+    const mask = `url("${svg}") center / contain no-repeat`;
+    const tintRule = (prefix: string, color: string) =>
+      `${prefix}${sel} img{visibility:hidden;}${prefix}${sel}::after{content:"";position:absolute;inset:5px;background:${color};-webkit-mask:${mask};mask:${mask};}`;
+    const untintRule = (prefix: string) =>
+      `${prefix}${sel} img{visibility:visible;}${prefix}${sel}::after{content:none;}`;
+    if (svg !== '' && SITE_MEDIA_URL.test(svg)) {
+      if (light) rules.push(tintRule('', light));
+      if (dark) rules.push(tintRule('[data-theme="dark"] ', dark));
+      else if (light) rules.push(untintRule('[data-theme="dark"] '));
+    }
+    if (bg) rules.push(`${sel}{background:${bg};}`);
+    if (bgDark) rules.push(`[data-theme="dark"] ${sel}{background:${bgDark};}`);
+    else if (bg) rules.push(`[data-theme="dark"] ${sel}{background:#eef1f5;}`);
   }
   return rules.length ? rules.join('') : undefined;
 }
