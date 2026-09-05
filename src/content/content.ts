@@ -257,6 +257,11 @@ export interface ToolCardSide {
   openColor?: string;
   descColor?: string;
   descBgColor?: string;
+  // Hintergrundbild der Karte je Modus (Ebene unter dem Inhalt): URL aus der
+  // Mediathek, Deckkraft (%) und Abdunkelung (%); '' = kein Bild.
+  bgImage?: string;
+  bgImageOpacity?: number;
+  bgImageDarken?: number;
 }
 /** Typografie der Karten-Texte (gilt für Hell + Dunkel); 0 / '' = Standard der Seite. */
 export interface ToolCardText {
@@ -321,6 +326,9 @@ const TOOL_CARD_LIGHT_DEFAULT: ToolCardSide = {
   openColor: '',
   descColor: '',
   descBgColor: '',
+  bgImage: '',
+  bgImageOpacity: 100,
+  bgImageDarken: 0,
 };
 const TOOL_CARD_DARK_DEFAULT: ToolCardSide = {
   borderColor: '#1d3a5c',
@@ -344,6 +352,9 @@ const TOOL_CARD_DARK_DEFAULT: ToolCardSide = {
   openColor: '',
   descColor: '',
   descBgColor: '',
+  bgImage: '',
+  bgImageOpacity: 100,
+  bgImageDarken: 0,
 };
 
 /** Rahmen + Hintergrund + optionaler Text einer einzelnen Raster-Kachel. */
@@ -729,6 +740,16 @@ function toolCardSideVars(side: ToolCardSide): string {
   const hbo = num(side.hoverBgOpacity, 0, 100, 0);
   if (hbo > 0 && isHex(side.hoverBgColor))
     v.push(`--tc-hover-bg:${textHexToRgba(side.hoverBgColor, hbo / 100)}`);
+  // Hintergrundbild (immer explizit, damit Dunkel ohne Bild das helle nicht erbt).
+  const img = String(side.bgImage ?? '');
+  if (img && SITE_MEDIA_URL.test(img)) {
+    const darken = num(side.bgImageDarken, 0, 100, 0) / 100;
+    v.push(`--tc-img:url("${img}")`);
+    v.push(`--tc-img-opacity:${num(side.bgImageOpacity, 0, 100, 100) / 100}`);
+    v.push(`--tc-img-filter:${darken > 0 ? `brightness(${(1 - darken).toFixed(3)})` : 'none'}`);
+  } else {
+    v.push('--tc-img:none', '--tc-img-opacity:1', '--tc-img-filter:none');
+  }
   return v.join(';');
 }
 

@@ -287,6 +287,9 @@ function toolCardSideLight() {
     openColor: '',
     descColor: '',
     descBgColor: '',
+    bgImage: '',
+    bgImageOpacity: 100,
+    bgImageDarken: 0,
   };
 }
 function toolCardSideDark() {
@@ -312,6 +315,9 @@ function toolCardSideDark() {
     openColor: '',
     descColor: '',
     descBgColor: '',
+    bgImage: '',
+    bgImageOpacity: 100,
+    bgImageDarken: 0,
   };
 }
 function defaultToolCards() {
@@ -349,6 +355,9 @@ function validateToolCardSide(s, def) {
     openColor: normHexColor(s.openColor, ''),
     descColor: normHexColor(s.descColor, ''),
     descBgColor: normHexColor(s.descBgColor, ''),
+    bgImage: SITE_IMAGE_URL.test(String(s.bgImage ?? '')) ? s.bgImage : '',
+    bgImageOpacity: clampNum(s.bgImageOpacity, 0, 100, 100),
+    bgImageDarken: clampNum(s.bgImageDarken, 0, 100, 0),
   };
 }
 // Typografie der Karten-Texte (Hell + Dunkel gemeinsam); 0 / '' = Standard der Seite.

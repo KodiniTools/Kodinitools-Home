@@ -255,6 +255,9 @@ export function toolCardSideLight() {
     openColor: '',
     descColor: '',
     descBgColor: '',
+    bgImage: '',
+    bgImageOpacity: 100,
+    bgImageDarken: 0,
   };
 }
 export function toolCardSideDark() {
@@ -280,6 +283,9 @@ export function toolCardSideDark() {
     openColor: '',
     descColor: '',
     descBgColor: '',
+    bgImage: '',
+    bgImageOpacity: 100,
+    bgImageDarken: 0,
   };
 }
 // Typografie der Karten-Texte (Hell + Dunkel gemeinsam); 0 / '' = Standard der Seite.
@@ -389,6 +395,9 @@ function normToolCardSide(s, def) {
     openColor: normHexOrEmpty(s.openColor),
     descColor: normHexOrEmpty(s.descColor),
     descBgColor: normHexOrEmpty(s.descBgColor),
+    bgImage: normSiteMediaUrl(s.bgImage),
+    bgImageOpacity: num(s.bgImageOpacity, 0, 100, 100),
+    bgImageDarken: num(s.bgImageDarken, 0, 100, 0),
   };
 }
 export function normToolCardStyle(st) {
@@ -782,7 +791,7 @@ export const SITE_PATTERNS = ['none', 'dots', 'grid'];
 // Sprach-Slots eine gestagte Datei ('staged:<id>') referenzieren.
 export const SITE_MEDIA_KEYS = ['bgImage', 'bgImageDark'];
 const SITE_MEDIA_URL = /^(\/[^\s"'()\\]*|https?:\/\/[^\s"'()\\]+|staged:[\w-]+)$/;
-function normSiteMediaUrl(v) {
+export function normSiteMediaUrl(v) {
   const t = String(v ?? '').trim();
   return SITE_MEDIA_URL.test(t) ? t : '';
 }
@@ -1031,12 +1040,16 @@ export function setSiteSection(key, mode, patch) {
 export function siteImageSlots() {
   const modeLabel = (m) => (m === 'dark' ? 'Dunkel' : 'Hell');
   const slots = SITE_MEDIA_KEYS.map((key) => ({
+    root: 'site',
+    xLang: 'shared',
     path: [key],
     label: `Global · Seiten-Hintergrund (${modeLabel(key.endsWith('Dark') ? 'dark' : 'light')})`,
   }));
   for (const k of SITE_SECTION_KEYS)
     for (const mode of ['light', 'dark'])
       slots.push({
+        root: 'site',
+        xLang: 'shared',
         path: ['sections', k, mode, 'image'],
         label: `Global · Sektion ${SECTION_LABELS[k]} (${modeLabel(mode)})`,
       });
@@ -1052,6 +1065,45 @@ export function siteImageSlots() {
     };
   }
   return slots;
+}
+// Bild-Plätze der Tool-Karten (Hintergrundbild je Karte/Modus, beide Sprachen):
+// { root: 'de'|'en', xLang, path, label, get(), set(v) } – Upload in den
+// Ordner der Sprache.
+export function toolCardImageSlots() {
+  const modeLabel = (m) => (m === 'dark' ? 'Dunkel' : 'Hell');
+  const slots = [];
+  for (const lang of MEDIA_LANGS) {
+    const tc = state.media[lang] && state.media[lang].toolCards;
+    if (!tc || typeof tc !== 'object') continue;
+    const entries = [['default', 'Standard (alle Karten)']];
+    for (const id of Object.keys(tc.cards && typeof tc.cards === 'object' ? tc.cards : {}))
+      entries.push([id, id]);
+    for (const [id, name] of entries)
+      for (const mode of ['light', 'dark']) {
+        const path =
+          id === 'default'
+            ? ['toolCards', 'default', mode, 'bgImage']
+            : ['toolCards', 'cards', id, mode, 'bgImage'];
+        slots.push({
+          root: lang,
+          xLang: lang,
+          path,
+          label: `${lang.toUpperCase()} · Tool-Karte ${name} (${modeLabel(mode)})`,
+        });
+      }
+  }
+  for (const slot of slots) {
+    slot.get = () => {
+      const v = getPath(state.media[slot.root], slot.path);
+      return typeof v === 'string' ? v : '';
+    };
+    slot.set = (v) => setPath(state.media[slot.root], slot.path, normSiteMediaUrl(v));
+  }
+  return slots;
+}
+// Alle Bild-Plätze außerhalb der Sprach-Slots (Seite + Tool-Karten).
+export function allImageSlots() {
+  return [...siteImageSlots(), ...toolCardImageSlots()];
 }
 // Standard-Hintergrundfarben je Modus (identisch zu global.css --bg-color).
 export const PAGE_BG_DEFAULT = { light: '#fafafa', dark: '#091428' };
@@ -1235,7 +1287,7 @@ export function updateMediaUrlEverywhere(oldUrl, newUrl) {
       if (getMediaVal(lang, key) === oldUrl) setMediaVal(lang, key, newUrl);
     }
   }
-  for (const slot of siteImageSlots()) {
+  for (const slot of allImageSlots()) {
     if (slot.get() === oldUrl) slot.set(newUrl);
   }
 }
