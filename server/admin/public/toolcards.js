@@ -21,6 +21,7 @@ import {
   getPath,
   setPath,
   delPath,
+  getIconTint,
 } from './model.js';
 import { ensureFontFace } from './fonts.js';
 import { slider, bindSliders } from './slider.js';
@@ -117,6 +118,7 @@ function cardList(lang) {
         description: effText(lang, [section, key, 'description']),
         link: effText(lang, [section, key, 'link']),
         svg: effText(lang, [section, key, 'svg']),
+        tint: getIconTint(lang, `${section}.${key}`),
       });
     }
   }
@@ -212,8 +214,16 @@ function fontCss() {
 // Fußzeile mit Favoriten-Symbol und „Öffnen").
 function cardHtml(lang, card, theme, s, attrs = '') {
   const p = PAGE[theme];
+  // Icon-Färbung (Tab „Icons"): Farbe als Maske, eigener Kasten-Hintergrund.
+  const tint = card.tint || {};
+  const tintColor = theme === 'dark' ? tint.dark : tint.light;
+  const iconBg = (theme === 'dark' ? tint.bgDark : tint.bg) || p.iconBg;
+  const safeSvg = String(card.svg || '').replace(/['"]/g, '');
+  const iconInner = tintColor
+    ? `<span style="display:block;width:100%;height:100%;background:${tintColor};-webkit-mask:url('${safeSvg}') center / contain no-repeat;mask:url('${safeSvg}') center / contain no-repeat"></span>`
+    : `<img src="${esc(card.svg)}" alt="" loading="lazy" />`;
   const icon = card.svg
-    ? `<div class="tc-icon" style="background:${p.iconBg}"><img src="${esc(card.svg)}" alt="" loading="lazy" /></div>`
+    ? `<div class="tc-icon" style="background:${iconBg}">${iconInner}</div>`
     : '';
   const badge = card.badge
     ? `<span class="tc-badge" style="color:${p.badgeFg};background:${p.badgeBg};border-color:${p.badgeBd}">${esc(card.badge)}</span>`

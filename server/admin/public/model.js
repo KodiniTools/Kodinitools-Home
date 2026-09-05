@@ -275,6 +275,42 @@ export function defaultToolCards() {
   return { enabled: false, default: defaultToolCardStyle(), cards: {} };
 }
 export const TOOL_CARD_KEY = /^(tools|imageTools|diverseTools)\.[a-zA-Z0-9_-]+$/;
+// --- Icon-Färbung je Tool-Karte (Tab „Icons") ---
+// light/dark = Icon-Farbe (SVG als einfarbige Maske), bg/bgDark = Kasten-
+// Hintergrund; '' = unverändert (Originalfarben bzw. Standard-Kasten).
+export const ICON_TINT_FIELDS = ['light', 'dark', 'bg', 'bgDark'];
+function normIconTint(v) {
+  const out = {};
+  if (!v || typeof v !== 'object') return out;
+  for (const [key, t] of Object.entries(v)) {
+    if (!TOOL_CARD_KEY.test(key) || !t || typeof t !== 'object') continue;
+    const e = {};
+    let any = false;
+    for (const f of ICON_TINT_FIELDS) {
+      e[f] = normHexOrEmpty(t[f]);
+      if (e[f]) any = true;
+    }
+    if (any) out[key] = e;
+  }
+  return out;
+}
+export function getIconTint(lang, id) {
+  const m = state.media[lang] || {};
+  const t = (m.iconTint && m.iconTint[id]) || {};
+  const out = {};
+  for (const f of ICON_TINT_FIELDS) out[f] = normHexOrEmpty(t[f]);
+  return out;
+}
+// Teilweise setzen; ein Eintrag ohne jede Farbe wird entfernt.
+export function setIconTint(lang, id, patch) {
+  if (!TOOL_CARD_KEY.test(id)) return;
+  const m = state.media[lang];
+  if (!m.iconTint || typeof m.iconTint !== 'object') m.iconTint = {};
+  const cur = getIconTint(lang, id);
+  for (const f of ICON_TINT_FIELDS) if (f in patch) cur[f] = normHexOrEmpty(patch[f]);
+  if (ICON_TINT_FIELDS.some((f) => cur[f])) m.iconTint[id] = cur;
+  else delete m.iconTint[id];
+}
 export const TOOL_CARD_BORDER_STYLES = ['solid', 'dashed', 'dotted', 'double'];
 function normToolCardSide(s, def) {
   if (!s || typeof s !== 'object') return def;
@@ -371,6 +407,7 @@ export function defaultMediaLocale() {
     textStyleUniformKey: 'hero.title', // Slot, dessen Stil dann für alle gilt
     heroDesign: defaultHeroDesign(),
     toolCards: defaultToolCards(), // Rahmen/Hintergrund der Tool-Karten (Tab „Tool-Karten")
+    iconTint: {}, // Icon-Färbung je Karte (Tab „Icons"): { "tools.x": { light, dark, bg, bgDark } }
   };
 }
 // Text-Slots des „Texte"-Tabs, für die Größe/Farbe einstellbar sind.
@@ -1085,6 +1122,7 @@ export function normalizeMedia(m) {
         : TEXT_STYLE_KEYS[0],
       heroDesign: normHeroDesign(o?.heroDesign),
       toolCards: normToolCards(o?.toolCards),
+      iconTint: normIconTint(o?.iconTint),
     };
   };
   if (m && typeof m === 'object' && m.sectionVideos)

@@ -85,6 +85,7 @@
   height: 44px;
   border-radius: 0.6rem;
   overflow: hidden;
+  position: relative; /* Bezug für die Icon-Färbung (::after-Maske, Admin > Icons) */
   /* Heller Grund in beiden Themes, damit auch einfarbige (z. B. Font-Awesome-)
      Icons sichtbar sind – nicht nur farbige Illustrationen. */
   background: #ffffff;
