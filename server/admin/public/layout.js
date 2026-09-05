@@ -3,6 +3,8 @@
 // Live-Vorschau. Die eigentliche Medien-Zuweisung passiert weiter im Medien-Tab.
 
 import { $, esc, toast } from './core.js';
+import { slider, bindSliders } from './slider.js';
+import { colorPicker, bindColorPickers } from './color.js';
 import {
   state,
   rgbaFromHex,
@@ -234,7 +236,7 @@ function cellEditor(lang, i, bigLabel) {
       <div class="row" style="align-items:flex-end;margin-top:.4rem">
         <div style="flex:0 0 auto">
           <label>Rahmenfarbe</label>
-          ${withReset(`<input type="color" data-cellfield="${i}:borderColor" value="${esc(s.borderColor)}" ${dis} style="width:56px;height:38px;padding:2px" />`, 'data-cellreset', `${i}:borderColor`, inherited)}
+          ${colorPicker({ id: `ly:cell:${i}:borderColor`, attrs: `data-cellfield="${i}:borderColor"`, value: s.borderColor, disabled: inherited, resetHtml: resetBtn('data-cellreset', `${i}:borderColor`, inherited) })}
         </div>
         <div style="flex:0 0 auto">
           <label>Rahmendicke (px)</label>
@@ -242,11 +244,10 @@ function cellEditor(lang, i, bigLabel) {
         </div>
         <div style="flex:0 0 auto">
           <label>Hintergrund</label>
-          ${withReset(`<input type="color" data-cellfield="${i}:bgColor" value="${esc(s.bgColor)}" ${dis} style="width:56px;height:38px;padding:2px" />`, 'data-cellreset', `${i}:bgColor`, inherited)}
+          ${colorPicker({ id: `ly:cell:${i}:bgColor`, attrs: `data-cellfield="${i}:bgColor"`, value: s.bgColor, disabled: inherited, resetHtml: resetBtn('data-cellreset', `${i}:bgColor`, inherited) })}
         </div>
-        <div style="flex:1 1 170px">
-          <label>Hintergrund-Transparenz: <span data-cellopval="${i}">${s.bgOpacity}</span>%</label>
-          ${withReset(`<input type="range" data-cellfield="${i}:bgOpacity" min="0" max="100" value="${s.bgOpacity}" ${dis} style="width:100%" />`, 'data-cellreset', `${i}:bgOpacity`, inherited)}
+        <div style="flex:1 1 220px">
+          ${slider({ id: `ly:cell:${i}:bgOpacity`, label: 'Hintergrund-Transparenz', unit: '%', min: 0, max: 100, value: s.bgOpacity, attrs: `data-cellfield="${i}:bgOpacity"`, resetAttrs: `data-cellreset="${i}:bgOpacity"`, disabled: inherited })}
         </div>
       </div>
       <div class="row" style="align-items:flex-end;margin-top:.4rem">
@@ -262,7 +263,7 @@ function cellEditor(lang, i, bigLabel) {
       <div class="row" style="align-items:flex-end;margin-top:.4rem">
         <div style="flex:0 0 auto">
           <label>Textfarbe</label>
-          ${withReset(`<input type="color" data-cellfield="${i}:textColor" value="${esc(s.textColor || '#ffffff')}" ${dis} style="width:56px;height:38px;padding:2px" />`, 'data-cellreset', `${i}:textColor`, inherited)}
+          ${colorPicker({ id: `ly:cell:${i}:textColor`, attrs: `data-cellfield="${i}:textColor"`, value: s.textColor || '#ffffff', disabled: inherited, resetHtml: resetBtn('data-cellreset', `${i}:textColor`, inherited) })}
         </div>
         <div style="flex:0 0 auto">
           <label>Textgröße (px, 0=auto)</label>
@@ -360,7 +361,7 @@ function layoutPanel(lang) {
         <div class="row" style="align-items:flex-end;margin-top:.4rem">
           <div style="flex:0 0 auto">
             <label>Textfarbe</label>
-            ${withReset(`<input type="color" data-bannerfield="textColor" value="${esc(bColor)}" style="width:56px;height:38px;padding:2px" />`, 'data-bannerreset', 'textColor', false)}
+            ${colorPicker({ id: 'ly:banner:textColor', attrs: 'data-bannerfield="textColor"', value: bColor, resetHtml: resetBtn('data-bannerreset', 'textColor', false) })}
           </div>
           <div style="flex:0 0 auto">
             <label>Textgröße (px, 0=auto)</label>
@@ -387,7 +388,7 @@ function layoutPanel(lang) {
           </div>
           <div style="flex:0 0 auto">
             <label>Schattenfarbe</label>
-            ${withReset(`<input type="color" data-bannerfield="textShadowColor" value="${esc(bShadowColor)}" style="width:56px;height:38px;padding:2px" />`, 'data-bannerreset', 'textShadowColor', false)}
+            ${colorPicker({ id: 'ly:banner:textShadowColor', attrs: 'data-bannerfield="textShadowColor"', value: bShadowColor, resetHtml: resetBtn('data-bannerreset', 'textShadowColor', false) })}
           </div>
           <div style="flex:0 0 auto">
             <label>Schatten-Versatz X (px)</label>
@@ -397,23 +398,21 @@ function layoutPanel(lang) {
             <label>Schatten-Versatz Y (px)</label>
             ${withReset(`<input type="number" data-bannerfield="textShadowY" min="-50" max="50" step="1" value="${bShadowY}" style="width:110px" />`, 'data-bannerreset', 'textShadowY', false)}
           </div>
-          <div style="flex:1 1 200px">
-            <label>Schatten-Weichzeichnung: <span data-bannershadowblurval>${bShadowBlur}</span> px</label>
-            ${withReset(`<input type="range" data-bannerfield="textShadowBlur" min="0" max="40" step="1" value="${bShadowBlur}" style="width:100%" />`, 'data-bannerreset', 'textShadowBlur', false)}
+          <div style="flex:1 1 240px">
+            ${slider({ id: 'ly:banner:textShadowBlur', label: 'Schatten-Weichzeichnung', unit: 'px', min: 0, max: 40, value: bShadowBlur, attrs: 'data-bannerfield="textShadowBlur"', resetAttrs: 'data-bannerreset="textShadowBlur"' })}
           </div>
         </div>
         <div class="row" style="align-items:flex-end;margin-top:.4rem">
           <div style="flex:0 0 auto">
             <label>Umriss-Farbe</label>
-            ${withReset(`<input type="color" data-bannerfield="textStrokeColor" value="${esc(bStrokeColor)}" style="width:56px;height:38px;padding:2px" />`, 'data-bannerreset', 'textStrokeColor', false)}
+            ${colorPicker({ id: 'ly:banner:textStrokeColor', attrs: 'data-bannerfield="textStrokeColor"', value: bStrokeColor, resetHtml: resetBtn('data-bannerreset', 'textStrokeColor', false) })}
           </div>
           <div style="flex:0 0 auto">
             <label>Umriss-Dicke (px, 0=aus)</label>
             ${withReset(`<input type="number" data-bannerfield="textStrokeWidth" min="0" max="10" step="0.5" value="${bStrokeWidth}" style="width:120px" />`, 'data-bannerreset', 'textStrokeWidth', false)}
           </div>
-          <div style="flex:1 1 200px">
-            <label>Deckkraft: <span data-banneropacityval>${bOpacity}</span> %</label>
-            ${withReset(`<input type="range" data-bannerfield="textOpacity" min="0" max="100" step="1" value="${bOpacity}" style="width:100%" />`, 'data-bannerreset', 'textOpacity', false)}
+          <div style="flex:1 1 240px">
+            ${slider({ id: 'ly:banner:textOpacity', label: 'Deckkraft', unit: '%', min: 0, max: 100, value: bOpacity, attrs: 'data-bannerfield="textOpacity"', resetAttrs: 'data-bannerreset="textOpacity"' })}
           </div>
         </div>
         <div class="row" style="align-items:flex-end;margin-top:.4rem">
@@ -804,8 +803,6 @@ export function renderLayout() {
         s.borderWidth = clamp(parseInt(el.value, 10) || 0, 0, 20);
       } else if (field === 'bgOpacity') {
         s.bgOpacity = clamp(parseInt(el.value, 10) || 0, 0, 100);
-        const ov = pane.querySelector(`[data-cellopval="${i}"]`);
-        if (ov) ov.textContent = s.bgOpacity;
       } else if (field === 'text') {
         s.text = el.value.slice(0, 120);
       } else if (field === 'textSize') {
@@ -858,17 +855,13 @@ export function renderLayout() {
         m.heroBannerTextShadowX = clamp(parseInt(el.value, 10) || 0, -50, 50);
       else if (f === 'textShadowY')
         m.heroBannerTextShadowY = clamp(parseInt(el.value, 10) || 0, -50, 50);
-      else if (f === 'textShadowBlur') {
+      else if (f === 'textShadowBlur')
         m.heroBannerTextShadowBlur = clamp(parseInt(el.value, 10) || 0, 0, 40);
-        const v = pane.querySelector('[data-bannershadowblurval]');
-        if (v) v.textContent = m.heroBannerTextShadowBlur;
-      } else if (f === 'textStrokeColor') m.heroBannerTextStrokeColor = el.value;
+      else if (f === 'textStrokeColor') m.heroBannerTextStrokeColor = el.value;
       else if (f === 'textStrokeWidth') m.heroBannerTextStrokeWidth = clampHalf(el.value, 0, 10);
-      else if (f === 'textOpacity') {
+      else if (f === 'textOpacity')
         m.heroBannerTextOpacity = clamp(parseInt(el.value, 10) || 0, 0, 100);
-        const v = pane.querySelector('[data-banneropacityval]');
-        if (v) v.textContent = m.heroBannerTextOpacity;
-      } else if (f === 'textAnim') m.heroBannerTextAnim = el.value;
+      else if (f === 'textAnim') m.heroBannerTextAnim = el.value;
       else if (f === 'textAnimSpeed') m.heroBannerTextAnimSpeed = el.value;
       else if (f === 'textAnimIntensity') {
         const n = parseInt(el.value, 10);
@@ -898,4 +891,6 @@ export function renderLayout() {
 
   // Freies Verschieben der Text-Overlays per Maus (Banner + Kacheln).
   wireDrag(pane, lang);
+  bindSliders(pane); // nach den Feld-Handlern: Zahlenfeld löst deren input-Event aus
+  bindColorPickers(pane);
 }
