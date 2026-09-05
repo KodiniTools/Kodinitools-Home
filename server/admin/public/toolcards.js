@@ -19,6 +19,8 @@ import {
   siteBgLayerCss,
   getGlobalFont,
   getPath,
+  setPath,
+  delPath,
 } from './model.js';
 import { ensureFontFace } from './fonts.js';
 import { slider, bindSliders } from './slider.js';
@@ -88,6 +90,15 @@ function effText(lang, path) {
   const d = getPath(state.defaults[lang], path);
   return typeof d === 'string' ? d : '';
 }
+// Beschriftung des „Öffnen"-Links (Locale tool.open, per Override änderbar).
+function openLabel(lang) {
+  return effText(lang, ['tool', 'open']) || (lang === 'de' ? 'Öffnen' : 'Open');
+}
+// Standardtext (Sprachdatei) eines Karten-Felds, ohne Override.
+function defText(lang, path) {
+  const d = getPath(state.defaults[lang], path);
+  return typeof d === 'string' ? d : '';
+}
 // Alle Tool-Karten der Sprache (Reihenfolge wie auf der Startseite).
 function cardList(lang) {
   const out = [];
@@ -103,6 +114,8 @@ function cardList(lang) {
         section,
         title: effText(lang, [section, key, 'title']) || key,
         badge: effText(lang, [section, key, 'badge']),
+        description: effText(lang, [section, key, 'description']),
+        link: effText(lang, [section, key, 'link']),
         svg: effText(lang, [section, key, 'svg']),
       });
     }
@@ -210,7 +223,7 @@ function cardHtml(lang, card, theme, s, attrs = '') {
       <h3 class="tc-title" style="color:${p.title}">${esc(card.title)}</h3>
       <div class="tc-footer" style="border-top-color:${p.divider}">
         <span class="tc-fav" style="color:${p.muted}">${ICON_BOOKMARK}</span>
-        <span class="tc-open" style="color:${p.primary}">${lang === 'de' ? 'Öffnen' : 'Open'} ${ICON_ARROW}</span>
+        <span class="tc-open" style="color:${p.primary}">${esc(openLabel(lang))} ${ICON_ARROW}</span>
       </div>
     </div>`;
 }
@@ -311,8 +324,124 @@ function previewBlock(lang) {
       <p class="hint" style="margin:.35rem 0 .3rem">Live-Vorschau der bearbeiteten Karte <em>(zum Testen des Hover-Effekts über die Karte fahren)</em>:</p>
       <style data-tchover>${previewHoverCss(st)}</style>
       <div class="tc-previews">${page('light')}${page('dark')}</div>
+      ${selected ? `<p class="hint" style="margin:.35rem 0 0"><span style="color:var(--muted)">Popup beim Überfahren:</span> <em data-tcdesc>${esc(card.description || '(keine Beschreibung)')}</em></p>` : ''}
       <p class="hint" data-tcnote style="margin:.35rem 0 0">${noteText(lang)}</p>
     </div>`;
+}
+
+// --- Texte der Karte (Overrides der Sprachdatei: Titel, Badge, Beschreibung, Link) ---
+const CARD_TEXT_FIELDS = [
+  { key: 'title', label: 'Titel', hint: 'Leer = Standardtext aus der Sprachdatei.' },
+  {
+    key: 'badge',
+    label: 'Badge (kleines Etikett)',
+    hint: 'Leer = kein Badge; „↺" = Standard-Badge.',
+  },
+  {
+    key: 'description',
+    label: 'Beschreibung (Popup beim Überfahren)',
+    hint: 'Leer = Standardtext aus der Sprachdatei.',
+    multiline: true,
+  },
+  {
+    key: 'link',
+    label: 'Link (URL des Tools)',
+    hint: 'https://… oder /pfad/; leer = Standard-Link.',
+  },
+];
+function hasTextOverride(lang, id, key) {
+  return getPath(state.overrides[lang], [...id.split('.'), key]) !== undefined;
+}
+function textsBlock(lang) {
+  if (!selected) {
+    const ov = getPath(state.overrides[lang], ['tool', 'open']) !== undefined;
+    return section(
+      `📝 Texte ${badgeHtml(lang)}`,
+      `<p class="hint" style="margin:0 0 .4rem">Eine Karte oben auswählen, um <strong>Titel, Badge, Beschreibung und Link</strong> dieser Karte zu bearbeiten. Hier nur die Beschriftung, die auf allen Karten gleich ist:</p>
+      <div class="row" style="align-items:flex-end">
+        <div style="flex:1 1 220px">
+          <label>Beschriftung „${esc(defText(lang, ['tool', 'open']) || openLabel(lang))}" (Link auf allen Karten)${ov ? ' <span class="lang-badge">geändert</span>' : ''}</label>
+          <div style="display:flex;gap:.3rem;align-items:center">
+            <input type="text" data-tctx="open" value="${esc(openLabel(lang))}" placeholder="${esc(defText(lang, ['tool', 'open']))}" />
+            <button type="button" class="hd-reset" data-tctxreset="open" title="Auf Standard zurücksetzen" ${ov ? '' : 'disabled'}>↺</button>
+          </div>
+        </div>
+      </div>`,
+      false,
+    );
+  }
+  const c = cardById(lang, selected);
+  if (!c) return '';
+  const path = selected.split('.');
+  const rows = CARD_TEXT_FIELDS.map((f) => {
+    const val = effText(lang, [...path, f.key]);
+    const ov = hasTextOverride(lang, selected, f.key);
+    const input = f.multiline
+      ? `<textarea data-tctx="${f.key}" rows="3" placeholder="${esc(defText(lang, [...path, f.key]))}" style="min-height:64px">${esc(val)}</textarea>`
+      : `<input type="text" data-tctx="${f.key}" value="${esc(val)}" placeholder="${esc(defText(lang, [...path, f.key]))}" />`;
+    return `
+      <div style="margin-top:.5rem">
+        <label>${f.label}${ov ? ' <span class="lang-badge">geändert</span>' : ''}</label>
+        <div style="display:flex;gap:.3rem;align-items:flex-start">
+          ${input}
+          <button type="button" class="hd-reset" data-tctxreset="${f.key}" title="Auf Standardtext zurücksetzen" aria-label="Zurücksetzen" ${ov ? '' : 'disabled'}>↺</button>
+        </div>
+        <p class="hint" style="margin:.15rem 0 0">${f.hint}</p>
+      </div>`;
+  }).join('');
+  return section(
+    `📝 Texte der Karte „${esc(c.title)}" ${badgeHtml(lang)}`,
+    `<p class="hint" style="margin:0">Änderungen wirken sofort in Vorschau und Übersicht und werden als Text-Override der Sprache <strong>${lang.toUpperCase()}</strong> gespeichert (wie im Tab „Texte").</p>${rows}`,
+    true,
+  );
+}
+function badgeHtml(lang) {
+  return `<span class="lang-badge">${lang.toUpperCase()}</span>`;
+}
+// Karten-Text setzen: leer = Override entfernen (Standard), Badge darf leer sein (= kein Badge).
+function setCardText(lang, id, key, value) {
+  const path = [...id.split('.'), key];
+  const v = String(value ?? '');
+  if (key === 'link') {
+    const t = v.trim();
+    if (t === '') delPath(state.overrides[lang], path);
+    else if (/^(https?:\/\/|\/|#)/.test(t)) setPath(state.overrides[lang], path, t);
+    else return false; // ungültig (z. B. javascript:) – nicht übernehmen
+    return true;
+  }
+  if (key === 'badge') setPath(state.overrides[lang], path, v.trim());
+  else if (v.trim() === '') delPath(state.overrides[lang], path);
+  else setPath(state.overrides[lang], path, key === 'description' ? v : v.trim());
+  return true;
+}
+// Vorschau, Übersicht und Auswahlliste nach Textänderung nachziehen (ohne Neu-Rendern).
+function refreshCardTexts(pane, lang) {
+  const st = effectiveStyle(lang, selected);
+  const card = selected ? cardById(lang, selected) || sampleCard(lang) : sampleCard(lang);
+  for (const theme of ['light', 'dark']) {
+    const old = pane.querySelector(`[data-tcprev="${theme}"] .tc-card`);
+    if (old) old.outerHTML = cardHtml(lang, card, theme, st[theme]);
+  }
+  const desc = pane.querySelector('[data-tcdesc]');
+  if (desc) desc.textContent = card.description || '(keine Beschreibung)';
+  if (selected) {
+    const ov = pane.querySelector(`[data-tcov="${selected}"]`);
+    if (ov)
+      ov.outerHTML = cardHtml(
+        lang,
+        card,
+        editTheme,
+        effectiveStyle(lang, selected)[editTheme],
+        `data-tcov="${esc(selected)}"`,
+      );
+    const opt = pane.querySelector(`[data-tcsel] option[value="${selected}"]`);
+    if (opt) opt.textContent = `${card.title}${getToolCards(lang).cards[selected] ? ' ●' : ''}`;
+  } else {
+    // „Öffnen"-Beschriftung: alle Übersichtskarten
+    pane.querySelectorAll('[data-tcov] .tc-open').forEach((el) => {
+      el.innerHTML = `${esc(openLabel(lang))} ${ICON_ARROW}`;
+    });
+  }
 }
 
 function fieldsBlock(lang) {
@@ -488,6 +617,7 @@ function panelHtml(lang) {
         <p class="hint" style="margin:.35rem 0 0">Kopiert <strong>alle</strong> Einstellungen (Standard + Einzel-Designs, Hell + Dunkel) von Deutsch nach Englisch.</p>
       </div>
       ${previewBlock(lang)}
+      ${textsBlock(lang)}
       ${fieldsBlock(lang)}
     </div>
     ${overviewBlock(lang)}`;
@@ -682,6 +812,41 @@ export function renderToolCards() {
     rerender();
     toast(`Design von „${src.title}" ist jetzt der Standard`);
   });
+  // Texte der Karte (bzw. „Öffnen"-Beschriftung beim Standard) – Overrides live.
+  pane.querySelectorAll('[data-tctx]').forEach((el) => {
+    const key = el.dataset.tctx;
+    el.addEventListener('input', () => {
+      if (key === 'open') {
+        if (el.value.trim() === '') delPath(state.overrides[lang], ['tool', 'open']);
+        else setPath(state.overrides[lang], ['tool', 'open'], el.value.trim());
+      } else if (!setCardText(lang, selected, key, el.value)) {
+        el.style.borderColor = '#ef4444';
+        return;
+      }
+      el.style.borderColor = '';
+      const rst = pane.querySelector(`[data-tctxreset="${key}"]`);
+      if (rst)
+        rst.disabled =
+          key === 'open'
+            ? getPath(state.overrides[lang], ['tool', 'open']) === undefined
+            : !hasTextOverride(lang, selected, key);
+      refreshCardTexts(pane, lang);
+    });
+    if (key === 'link')
+      el.addEventListener('change', () => {
+        if (el.style.borderColor)
+          toast('Link nicht übernommen – erlaubt sind https://…, /pfad/ oder #');
+      });
+  });
+  pane.querySelectorAll('[data-tctxreset]').forEach((el) =>
+    el.addEventListener('click', () => {
+      const key = el.dataset.tctxreset;
+      if (key === 'open') delPath(state.overrides[lang], ['tool', 'open']);
+      else delPath(state.overrides[lang], [...selected.split('.'), key]);
+      rerender();
+      toast('Auf Standardtext zurückgesetzt');
+    }),
+  );
   pane.querySelectorAll('[data-tcpick]').forEach((el) =>
     el.addEventListener('click', () => {
       selected = el.dataset.tcpick;
