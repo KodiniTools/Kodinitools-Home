@@ -248,6 +248,13 @@ export function toolCardSideLight() {
     hoverBorderOpacity: 22,
     hoverBgColor: '#ffffff',
     hoverBgOpacity: 0,
+    titleColor: '',
+    badgeColor: '',
+    badgeBgColor: '',
+    badgeBgOpacity: 100,
+    openColor: '',
+    descColor: '',
+    descBgColor: '',
   };
 }
 export function toolCardSideDark() {
@@ -266,10 +273,51 @@ export function toolCardSideDark() {
     hoverBorderOpacity: 22,
     hoverBgColor: '#142640',
     hoverBgOpacity: 0,
+    titleColor: '',
+    badgeColor: '',
+    badgeBgColor: '',
+    badgeBgOpacity: 100,
+    openColor: '',
+    descColor: '',
+    descBgColor: '',
+  };
+}
+// Typografie der Karten-Texte (Hell + Dunkel gemeinsam); 0 / '' = Standard der Seite.
+export const TOOL_CARD_WEIGHTS = ['', '400', '500', '600', '700', '800'];
+export const TOOL_CARD_TRANSFORMS = ['', 'none', 'uppercase', 'capitalize'];
+export function defaultToolCardText() {
+  return { titleFont: '', titleSize: 0, titleWeight: '', titleSpacing: 0, titleTransform: '', textFont: '', badgeSize: 0, badgeWeight: '', badgeTransform: '', openSize: 0, openWeight: '', descSize: 0 };
+}
+export function normToolCardText(t) {
+  const d = defaultToolCardText();
+  if (!t || typeof t !== 'object') return d;
+  const num = (v, min, max, def) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : def;
+  };
+  const half = (v, min, max, def) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n * 2) / 2)) : def;
+  };
+  const weight = (v) => (TOOL_CARD_WEIGHTS.includes(String(v ?? '')) ? String(v ?? '') : '');
+  const transform = (v) => (TOOL_CARD_TRANSFORMS.includes(v) ? v : '');
+  return {
+    titleFont: normFontFile(t.titleFont),
+    titleSize: num(t.titleSize, 0, 40, 0),
+    titleWeight: weight(t.titleWeight),
+    titleSpacing: half(t.titleSpacing, -2, 5, 0),
+    titleTransform: transform(t.titleTransform),
+    textFont: normFontFile(t.textFont),
+    badgeSize: num(t.badgeSize, 0, 20, 0),
+    badgeWeight: weight(t.badgeWeight),
+    badgeTransform: transform(t.badgeTransform),
+    openSize: num(t.openSize, 0, 20, 0),
+    openWeight: weight(t.openWeight),
+    descSize: num(t.descSize, 0, 24, 0),
   };
 }
 export function defaultToolCardStyle() {
-  return { light: toolCardSideLight(), dark: toolCardSideDark() };
+  return { light: toolCardSideLight(), dark: toolCardSideDark(), text: defaultToolCardText() };
 }
 export function defaultToolCards() {
   return { enabled: false, default: defaultToolCardStyle(), cards: {} };
@@ -334,6 +382,13 @@ function normToolCardSide(s, def) {
     hoverBorderOpacity: num(s.hoverBorderOpacity, 0, 100, def.hoverBorderOpacity),
     hoverBgColor: hex(s.hoverBgColor, def.hoverBgColor),
     hoverBgOpacity: num(s.hoverBgOpacity, 0, 100, def.hoverBgOpacity),
+    titleColor: normHexOrEmpty(s.titleColor),
+    badgeColor: normHexOrEmpty(s.badgeColor),
+    badgeBgColor: normHexOrEmpty(s.badgeBgColor),
+    badgeBgOpacity: num(s.badgeBgOpacity, 0, 100, 100),
+    openColor: normHexOrEmpty(s.openColor),
+    descColor: normHexOrEmpty(s.descColor),
+    descBgColor: normHexOrEmpty(s.descBgColor),
   };
 }
 export function normToolCardStyle(st) {
@@ -341,6 +396,7 @@ export function normToolCardStyle(st) {
   return {
     light: normToolCardSide(o.light, toolCardSideLight()),
     dark: normToolCardSide(o.dark, toolCardSideDark()),
+    text: normToolCardText(o.text),
   };
 }
 // Geladenes Tool-Karten-Design normalisieren (Standard + Einzel-Designs).

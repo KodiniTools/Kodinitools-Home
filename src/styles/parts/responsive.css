@@ -415,6 +415,7 @@
 
   .tool-card h3 {
     font-size: 0.8rem;
+    --tc-title-size-base: 0.8rem; /* Basis für Admin-Titelgröße (tool-cards.css) */
   }
 
   .tool-card p {

@@ -107,12 +107,13 @@
 
 .tool-card-badge {
   display: inline-block;
-  font-size: 0.62rem;
-  font-weight: 700;
+  font-size: var(--tc-badge-size, 0.62rem);
+  font-weight: var(--tc-badge-weight, 700);
   letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--primary-color);
-  background: rgba(1, 79, 153, 0.08);
+  text-transform: var(--tc-badge-transform, uppercase);
+  color: var(--tc-badge-color, var(--primary-color));
+  background: var(--tc-badge-bg, rgba(1, 79, 153, 0.08));
+  font-family: var(--tc-text-font); /* undefiniert = erben (Admin > Tool-Karten > Typografie) */
   border: 1px solid rgba(1, 79, 153, 0.14);
   border-radius: 0.35rem;
   padding: 0.15rem 0.42rem;
@@ -122,18 +123,28 @@
 }
 
 [data-theme="dark"] .tool-card-badge {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.1);
+  color: var(--tc-badge-color, #ffffff);
+  background: var(--tc-badge-bg, rgba(255, 255, 255, 0.1));
   border-color: rgba(255, 255, 255, 0.25);
 }
 
 .tool-card-title {
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: var(--text-color);
+  font-size: var(--tc-title-size, 0.88rem);
+  font-weight: var(--tc-title-weight, 700);
+  color: var(--tc-title-color, var(--text-color));
+  letter-spacing: var(--tc-title-spacing, normal);
+  text-transform: var(--tc-title-transform, none);
+  font-family: var(--tc-title-font); /* undefiniert = erben */
   line-height: 1.3;
   margin: 0;
 }
+/* components.css setzt `.tool-card h3` (höhere Spezifität) auf 0.9rem / 600 – Größe und
+   Gewicht aus dem Admin daher hier mit gleicher Basis (mobil 0.8rem via --tc-title-size-base). */
+.tool-card h3.tool-card-title {
+  font-size: var(--tc-title-size, var(--tc-title-size-base, 0.9rem));
+  font-weight: var(--tc-title-weight, 600);
+}
+
 
 .tool-card-desc {
   font-size: 0.76rem;
@@ -157,9 +168,10 @@
 }
 
 .tool-card-open {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--primary-color);
+  font-size: var(--tc-open-size, 0.75rem);
+  font-weight: var(--tc-open-weight, 600);
+  color: var(--tc-open-color, var(--primary-color));
+  font-family: var(--tc-text-font);
   display: flex;
   align-items: center;
   gap: 0.25rem;
@@ -169,7 +181,7 @@
 }
 
 [data-theme="dark"] .tool-card-open {
-  color: var(--accent-color);
+  color: var(--tc-open-color, var(--accent-color));
 }
 
 .svg-card-link:hover .tool-card-open {
@@ -232,7 +244,7 @@
   left: 0;
   right: 0;
   z-index: 200;
-  background: #ffffff;
+  background: var(--tc-desc-bg, #ffffff);
   border: 1.5px solid rgba(1, 79, 153, 0.35);
   border-radius: 0.9rem;
   padding: 0.9rem 1rem 0.85rem;
@@ -259,20 +271,21 @@
   left: 1.2rem;
   width: 10px;
   height: 10px;
-  background: #ffffff;
+  background: var(--tc-desc-bg, #ffffff);
   border-left: 1.5px solid rgba(1, 79, 153, 0.35);
   border-top: 1.5px solid rgba(1, 79, 153, 0.35);
   transform: rotate(45deg);
 }
 
 [data-theme="dark"] .tool-popup::before {
-  background: #0a1628;
+  background: var(--tc-desc-bg, #0a1628);
   border-color: rgba(232, 169, 69, 0.4);
 }
 
 .tool-popup-desc {
-  font-size: 0.8rem;
-  color: var(--text-muted);
+  font-size: var(--tc-desc-size, 0.8rem);
+  color: var(--tc-desc-color, var(--text-muted));
+  font-family: var(--tc-text-font);
   line-height: 1.55;
   margin: 0;
 }
@@ -297,7 +310,7 @@
 }
 
 [data-theme="dark"] .tool-popup {
-  background: #0a1628;
+  background: var(--tc-desc-bg, #0a1628);
   border-color: rgba(232, 169, 69, 0.4);
   box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55), 0 4px 14px rgba(232, 169, 69, 0.1);
 }

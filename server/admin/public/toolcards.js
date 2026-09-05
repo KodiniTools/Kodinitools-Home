@@ -22,8 +22,12 @@ import {
   setPath,
   delPath,
   getIconTint,
+  defaultToolCardText,
+  normFontFile,
+  TOOL_CARD_WEIGHTS,
+  TOOL_CARD_TRANSFORMS,
 } from './model.js';
-import { ensureFontFace } from './fonts.js';
+import { ensureFontFace, fontOptionsHtml } from './fonts.js';
 import { slider, bindSliders } from './slider.js';
 import { colorPicker, bindColorPickers } from './color.js';
 
@@ -69,6 +73,39 @@ const PAGE = {
     divider: '#1d3a5c',
     iconBg: '#eef1f5',
     shadow: '0 14px 36px rgba(0, 0, 0, 0.45), 0 0 24px rgba(232, 169, 69, 0.07)',
+  },
+};
+// Text-Design: Beschriftungen + Vorschlagsfarben (Standardwerte der Seite je Modus).
+const WEIGHT_LABEL = {
+  '': 'Standard',
+  400: 'Normal (400)',
+  500: 'Mittel (500)',
+  600: 'Halbfett (600)',
+  700: 'Fett (700)',
+  800: 'Extrafett (800)',
+};
+const TRANSFORM_LABEL = {
+  '': 'Standard',
+  none: 'Wie geschrieben',
+  uppercase: 'GROSSBUCHSTABEN',
+  capitalize: 'Wortanfänge groß',
+};
+const TEXT_COLOR_SUGGEST = {
+  light: {
+    titleColor: '#003971',
+    badgeColor: '#014f99',
+    badgeBgColor: '#014f99',
+    openColor: '#014f99',
+    descColor: '#4f6f8e',
+    descBgColor: '#ffffff',
+  },
+  dark: {
+    titleColor: '#f9f2d5',
+    badgeColor: '#ffffff',
+    badgeBgColor: '#ffffff',
+    openColor: '#e8a945',
+    descColor: '#7a8da0',
+    descBgColor: '#0a1628',
   },
 };
 const ICON_BOOKMARK =
@@ -150,6 +187,44 @@ function effectiveStyle(lang, id) {
 function editSide(lang) {
   return effectiveStyle(lang, selected)[editTheme];
 }
+// Typografie des bearbeiteten Designs (gilt für beide Modi); fehlend -> Standard anlegen.
+function editText(lang) {
+  const st = effectiveStyle(lang, selected);
+  if (!st.text || typeof st.text !== 'object') st.text = defaultToolCardText();
+  return st.text;
+}
+function textResetSource(lang) {
+  return (selected && getToolCards(lang).default.text) || defaultToolCardText();
+}
+function clampHalf(v, min, max, def) {
+  const n = Number(v);
+  return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n * 2) / 2)) : def;
+}
+function normTextField(f, v) {
+  if (/Font$/.test(f)) return normFontFile(v);
+  if (/Weight$/.test(f)) return TOOL_CARD_WEIGHTS.includes(String(v)) ? String(v) : '';
+  if (/Transform$/.test(f)) return TOOL_CARD_TRANSFORMS.includes(v) ? v : '';
+  if (f === 'titleSpacing') return clampHalf(v, -2, 5, 0);
+  const max = f === 'titleSize' ? 40 : f === 'descSize' ? 24 : 20;
+  return clampInt(v, 0, max, 0);
+}
+// Inline-Styles der Karten-Texte für die Vorschau (Seitenstandard, wenn nichts gesetzt).
+function textStyles(s, theme, text) {
+  const p = PAGE[theme];
+  const t = text || {};
+  const font = (f) => (f ? `font-family:'${ensureFontFace(f)}', system-ui, sans-serif;` : '');
+  const size = (n) => (n > 0 ? `font-size:${n}px;` : '');
+  const weight = (w) => (w ? `font-weight:${w};` : '');
+  const transform = (v) => (v ? `text-transform:${v};` : '');
+  const title = `color:${s.titleColor || p.title};${font(t.titleFont)}${size(t.titleSize)}${weight(t.titleWeight)}${
+    t.titleSpacing ? `letter-spacing:${t.titleSpacing}px;` : ''
+  }${transform(t.titleTransform)}`;
+  const badgeBg = s.badgeBgColor ? rgbaFromHex(s.badgeBgColor, s.badgeBgOpacity ?? 100) : p.badgeBg;
+  const badge = `color:${s.badgeColor || p.badgeFg};background:${badgeBg};border-color:${p.badgeBd};${font(t.textFont)}${size(t.badgeSize)}${weight(t.badgeWeight)}${transform(t.badgeTransform)}`;
+  const open = `color:${s.openColor || p.primary};${font(t.textFont)}${size(t.openSize)}${weight(t.openWeight)}`;
+  const desc = `${s.descColor ? `color:${s.descColor};` : ''}${s.descBgColor ? `background:${s.descBgColor};padding:.15rem .4rem;border-radius:.3rem;` : ''}${font(t.textFont)}${size(t.descSize)}`;
+  return { title, badge, open, desc };
+}
 // Jede Bearbeitung schaltet das Design ein (sonst wirkt nichts auf der Seite,
 // obwohl die Vorschau es zeigt – häufige Stolperfalle). Hält die Checkbox synchron.
 function ensureEnabled(lang, pane) {
@@ -212,8 +287,9 @@ function fontCss() {
 }
 // HTML einer Vorschau-Karte im Look der echten Tool-Karte (Icon, Badge, Titel,
 // Fußzeile mit Favoriten-Symbol und „Öffnen").
-function cardHtml(lang, card, theme, s, attrs = '') {
+function cardHtml(lang, card, theme, s, attrs = '', text = null) {
   const p = PAGE[theme];
+  const ts = textStyles(s, theme, text);
   // Icon-Färbung (Tab „Icons"): Farbe als Maske, eigener Kasten-Hintergrund.
   const tint = card.tint || {};
   const tintColor = theme === 'dark' ? tint.dark : tint.light;
@@ -226,14 +302,14 @@ function cardHtml(lang, card, theme, s, attrs = '') {
     ? `<div class="tc-icon" style="background:${iconBg}">${iconInner}</div>`
     : '';
   const badge = card.badge
-    ? `<span class="tc-badge" style="color:${p.badgeFg};background:${p.badgeBg};border-color:${p.badgeBd}">${esc(card.badge)}</span>`
+    ? `<span class="tc-badge" style="${ts.badge}">${esc(card.badge)}</span>`
     : '';
   return `<div class="tc-card" ${attrs} style="${cardStyle(s)}">
       ${icon}${badge}
-      <h3 class="tc-title" style="color:${p.title}">${esc(card.title)}</h3>
+      <h3 class="tc-title" style="${ts.title}">${esc(card.title)}</h3>
       <div class="tc-footer" style="border-top-color:${p.divider}">
         <span class="tc-fav" style="color:${p.muted}">${ICON_BOOKMARK}</span>
-        <span class="tc-open" style="color:${p.primary}">${esc(openLabel(lang))} ${ICON_ARROW}</span>
+        <span class="tc-open" style="${ts.open}">${esc(openLabel(lang))} ${ICON_ARROW}</span>
       </div>
     </div>`;
 }
@@ -322,7 +398,7 @@ function previewBlock(lang) {
   const page = (theme) =>
     `<div class="tc-page${editTheme === theme ? ' active' : ''}" data-tcprev="${theme}" style="background:${pageBg(theme)};${fontCss()}" title="Klicken, um diesen Modus zu bearbeiten">
         <span class="tc-page-label">${themeLabel(theme)}</span>
-        ${cardHtml(lang, card, theme, st[theme])}
+        ${cardHtml(lang, card, theme, st[theme], '', st.text)}
       </div>`;
   return `
     <div class="tc-sticky">
@@ -334,9 +410,100 @@ function previewBlock(lang) {
       <p class="hint" style="margin:.35rem 0 .3rem">Live-Vorschau der bearbeiteten Karte <em>(zum Testen des Hover-Effekts über die Karte fahren)</em>:</p>
       <style data-tchover>${previewHoverCss(st)}</style>
       <div class="tc-previews">${page('light')}${page('dark')}</div>
-      ${selected ? `<p class="hint" style="margin:.35rem 0 0"><span style="color:var(--muted)">Popup beim Überfahren:</span> <em data-tcdesc>${esc(card.description || '(keine Beschreibung)')}</em></p>` : ''}
+      ${selected ? `<p class="hint" style="margin:.35rem 0 0"><span style="color:var(--muted)">Popup beim Überfahren:</span> <em data-tcdesc style="${textStyles(st[editTheme], editTheme, st.text).desc}">${esc(card.description || '(keine Beschreibung)')}</em></p>` : ''}
       <p class="hint" data-tcnote style="margin:.35rem 0 0">${noteText(lang)}</p>
     </div>`;
+}
+
+// --- Text-Design: Farben je Modus (An-Schalter + Farbwähler) und Typografie ---
+function optColor(s, field, label, opacityField) {
+  const on = !!s[field];
+  const picker = colorPicker({
+    id: `tc:${field}`,
+    attrs: `data-tcf="${field}"`,
+    value: s[field] || TEXT_COLOR_SUGGEST[editTheme][field],
+    disabled: !on,
+    resetHtml: resetBtn(field),
+  });
+  const op = opacityField
+    ? `<div style="flex:1 1 200px">${rangeField(s, opacityField, `${label} – Transparenz`, 0, 100, '%', !on)}</div>`
+    : '';
+  return `<div style="flex:0 0 auto">
+      <label style="display:flex;align-items:center;gap:.35rem;color:var(--text)"><input type="checkbox" data-tcon="${field}" ${on ? 'checked' : ''} style="width:auto" /> ${label}</label>
+      ${picker}
+    </div>${op}`;
+}
+function textColorsBody(s) {
+  return `
+    <div class="row" style="align-items:flex-end">
+      ${optColor(s, 'titleColor', 'Titel')}
+      ${optColor(s, 'openColor', '„Öffnen"-Link')}
+    </div>
+    <div class="row" style="align-items:flex-end;margin-top:.4rem">
+      ${optColor(s, 'badgeColor', 'Badge-Text')}
+      ${optColor(s, 'badgeBgColor', 'Badge-Hintergrund', 'badgeBgOpacity')}
+    </div>
+    <div class="row" style="align-items:flex-end;margin-top:.4rem">
+      ${optColor(s, 'descColor', 'Popup-Text')}
+      ${optColor(s, 'descBgColor', 'Popup-Hintergrund')}
+    </div>
+    <p class="hint">Häkchen aus = Standardfarbe der Seite (passt sich dem Modus an). Popup = Beschreibung beim Überfahren der Karte.</p>`;
+}
+function withTextReset(inputHtml, field) {
+  return `<div style="display:flex;gap:.3rem;align-items:center">${inputHtml}<button type="button" class="hd-reset" data-tctreset="${field}" title="Auf Standard zurücksetzen" aria-label="Auf Standard zurücksetzen">↺</button></div>`;
+}
+function selectHtml(field, values, labels, cur) {
+  const opts = values
+    .map(
+      (v) =>
+        `<option value="${v}" ${String(cur ?? '') === String(v) ? 'selected' : ''}>${labels[v]}</option>`,
+    )
+    .join('');
+  return `<select data-tct="${field}" style="width:auto">${opts}</select>`;
+}
+function textRange(tx, field, label, min, max, unit, step = 1) {
+  return slider({
+    id: `tct:${field}`,
+    label,
+    unit,
+    min,
+    max,
+    step,
+    value: tx[field] ?? 0,
+    attrs: `data-tct="${field}"`,
+    resetAttrs: `data-tctreset="${field}"`,
+  });
+}
+function typoBody(lang) {
+  const tx = editText(lang);
+  const head = (t) =>
+    `<p class="hint" style="margin:.5rem 0 .2rem;font-weight:600;color:var(--text)">${t}</p>`;
+  return `
+    ${head('Titel')}
+    <div class="row" style="align-items:flex-end">
+      <div style="flex:1 1 200px"><label>Schriftart</label>${withTextReset(`<select data-tct="titleFont" style="width:100%">${fontOptionsHtml(tx.titleFont)}</select>`, 'titleFont')}</div>
+      <div style="flex:1 1 200px">${textRange(tx, 'titleSize', 'Größe (0 = Standard)', 0, 40, 'px')}</div>
+      <div style="flex:0 0 auto"><label>Gewicht</label>${withTextReset(selectHtml('titleWeight', TOOL_CARD_WEIGHTS, WEIGHT_LABEL, tx.titleWeight), 'titleWeight')}</div>
+      <div style="flex:1 1 200px">${textRange(tx, 'titleSpacing', 'Buchstabenabstand (0 = Standard)', -2, 5, 'px', 0.5)}</div>
+      <div style="flex:0 0 auto"><label>Schreibweise</label>${withTextReset(selectHtml('titleTransform', TOOL_CARD_TRANSFORMS, TRANSFORM_LABEL, tx.titleTransform), 'titleTransform')}</div>
+    </div>
+    ${head('Badge')}
+    <div class="row" style="align-items:flex-end">
+      <div style="flex:1 1 200px">${textRange(tx, 'badgeSize', 'Größe (0 = Standard)', 0, 20, 'px')}</div>
+      <div style="flex:0 0 auto"><label>Gewicht</label>${withTextReset(selectHtml('badgeWeight', TOOL_CARD_WEIGHTS, WEIGHT_LABEL, tx.badgeWeight), 'badgeWeight')}</div>
+      <div style="flex:0 0 auto"><label>Schreibweise</label>${withTextReset(selectHtml('badgeTransform', TOOL_CARD_TRANSFORMS, TRANSFORM_LABEL, tx.badgeTransform), 'badgeTransform')}</div>
+    </div>
+    ${head('„Öffnen"-Link')}
+    <div class="row" style="align-items:flex-end">
+      <div style="flex:1 1 200px">${textRange(tx, 'openSize', 'Größe (0 = Standard)', 0, 20, 'px')}</div>
+      <div style="flex:0 0 auto"><label>Gewicht</label>${withTextReset(selectHtml('openWeight', TOOL_CARD_WEIGHTS, WEIGHT_LABEL, tx.openWeight), 'openWeight')}</div>
+    </div>
+    ${head('Popup-Beschreibung &amp; Text-Schriftart')}
+    <div class="row" style="align-items:flex-end">
+      <div style="flex:1 1 200px"><label>Schriftart (Badge, „Öffnen", Popup)</label>${withTextReset(`<select data-tct="textFont" style="width:100%">${fontOptionsHtml(tx.textFont)}</select>`, 'textFont')}</div>
+      <div style="flex:1 1 200px">${textRange(tx, 'descSize', 'Popup-Textgröße (0 = Standard)', 0, 24, 'px')}</div>
+    </div>
+    <p class="hint">Typografie gilt für Hell und Dunkel gemeinsam; 0 bzw. „Standard" = Wert der Seite. Schriften aus dem Ordner <code>/fonts</code>.</p>`;
 }
 
 // --- Texte der Karte (Overrides der Sprachdatei: Titel, Badge, Beschreibung, Link) ---
@@ -430,7 +597,7 @@ function refreshCardTexts(pane, lang) {
   const card = selected ? cardById(lang, selected) || sampleCard(lang) : sampleCard(lang);
   for (const theme of ['light', 'dark']) {
     const old = pane.querySelector(`[data-tcprev="${theme}"] .tc-card`);
-    if (old) old.outerHTML = cardHtml(lang, card, theme, st[theme]);
+    if (old) old.outerHTML = cardHtml(lang, card, theme, st[theme], '', st.text);
   }
   const desc = pane.querySelector('[data-tcdesc]');
   if (desc) desc.textContent = card.description || '(keine Beschreibung)';
@@ -441,8 +608,9 @@ function refreshCardTexts(pane, lang) {
         lang,
         card,
         editTheme,
-        effectiveStyle(lang, selected)[editTheme],
+        st[editTheme],
         `data-tcov="${esc(selected)}"`,
+        st.text,
       );
     const opt = pane.querySelector(`[data-tcsel] option[value="${selected}"]`);
     if (opt) opt.textContent = `${card.title}${getToolCards(lang).cards[selected] ? ' ●' : ''}`;
@@ -523,6 +691,8 @@ function fieldsBlock(lang) {
     ${section(`🖼️ Rahmen ${badge}`, frameBody)}
     ${section(`🎨 Hintergrund ${badge}`, bgBody)}
     ${section(`✨ Hover (beim Überfahren) ${badge}`, hoverBody)}
+    ${section(`🔤 Text-Farben ${badge}`, textColorsBody(s))}
+    ${section('🔠 Typografie <span class="hint" style="font-weight:400">(Hell + Dunkel)</span>', typoBody(lang))}
     ${section('📋 Design übertragen <span class="hint" style="font-weight:400">(Hell + Dunkel)</span>', applyBody(lang))}`;
 }
 
@@ -589,7 +759,7 @@ function overviewBlock(lang) {
         const attrs = `data-tcpick="${esc(c.id)}"`;
         return `<div class="${cls}" ${attrs} title="Klicken, um diese Karte zu bearbeiten">
             ${own ? '<span class="tc-own" title="Eigenes Design">●</span>' : ''}
-            ${cardHtml(lang, c, editTheme, effectiveStyle(lang, c.id)[editTheme], `data-tcov="${esc(c.id)}"`)}
+            ${cardHtml(lang, c, editTheme, effectiveStyle(lang, c.id)[editTheme], `data-tcov="${esc(c.id)}"`, effectiveStyle(lang, c.id).text)}
           </div>`;
       })
       .join('');
@@ -636,15 +806,24 @@ function panelHtml(lang) {
 // --- Live-Aktualisierung ohne Neu-Rendern (bei Eingaben in Felder) ---
 function refreshPreview(pane, lang) {
   const st = effectiveStyle(lang, selected);
+  const cardObj = selected ? cardById(lang, selected) || sampleCard(lang) : sampleCard(lang);
+  // Karten komplett neu zeichnen (Rahmen/Hintergrund + Text-Farben/Typografie).
   for (const theme of ['light', 'dark']) {
     const card = pane.querySelector(`[data-tcprev="${theme}"] .tc-card`);
-    if (card) card.setAttribute('style', cardStyle(st[theme]));
+    if (card) card.outerHTML = cardHtml(lang, cardObj, theme, st[theme], '', st.text);
   }
+  const desc = pane.querySelector('[data-tcdesc]');
+  if (desc) desc.setAttribute('style', textStyles(st[editTheme], editTheme, st.text).desc);
   const hs = pane.querySelector('[data-tchover]');
   if (hs) hs.textContent = previewHoverCss(st);
   // Übersicht: jede Karte mit ihrem effektiven Design im bearbeiteten Modus.
+  const list = cardList(lang);
   pane.querySelectorAll('[data-tcov]').forEach((el) => {
-    el.setAttribute('style', cardStyle(effectiveStyle(lang, el.dataset.tcov)[editTheme]));
+    const id = el.dataset.tcov;
+    const c = list.find((x) => x.id === id);
+    if (!c) return;
+    const stc = effectiveStyle(lang, id);
+    el.outerHTML = cardHtml(lang, c, editTheme, stc[editTheme], `data-tcov="${esc(id)}"`, stc.text);
   });
   const ohs = pane.querySelector('[data-tcovhover]');
   if (ohs) ohs.textContent = overviewHoverCss(lang);
@@ -719,6 +898,37 @@ export function renderToolCards() {
       refreshPreview(pane, lang);
     });
   });
+  // Text-Farben: An-Schalter (aus = Standardfarbe der Seite).
+  pane.querySelectorAll('[data-tcon]').forEach((cb) =>
+    cb.addEventListener('change', () => {
+      ensureEnabled(lang, pane);
+      const f = cb.dataset.tcon;
+      const s = editSide(lang);
+      if (cb.checked) {
+        const nat = pane.querySelector(`[data-tcf="${f}"]`);
+        s[f] = (nat && nat.value) || TEXT_COLOR_SUGGEST[editTheme][f];
+      } else s[f] = '';
+      rerender();
+    }),
+  );
+  // Typografie (gilt für beide Modi): Schrift, Größe, Gewicht, Abstand, Schreibweise.
+  pane.querySelectorAll('[data-tct]').forEach((el) => {
+    const f = el.dataset.tct;
+    const evt = el.tagName === 'SELECT' ? 'change' : 'input';
+    el.addEventListener(evt, () => {
+      ensureEnabled(lang, pane);
+      editText(lang)[f] = normTextField(f, el.value);
+      refreshPreview(pane, lang);
+    });
+  });
+  pane.querySelectorAll('[data-tctreset]').forEach((el) =>
+    el.addEventListener('click', () => {
+      const f = el.dataset.tctreset;
+      editText(lang)[f] = textResetSource(lang)[f];
+      rerender();
+      toast('Auf Standard zurückgesetzt');
+    }),
+  );
   // Zurücksetzen (↺): ein Feld bzw. "a:b:c" mehrere Felder auf die Quelle
   // (Werkswerte bzw. Standard-Design) zurücksetzen.
   pane.querySelectorAll('[data-tcreset]').forEach((el) =>

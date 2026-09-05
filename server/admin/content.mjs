@@ -280,6 +280,13 @@ function toolCardSideLight() {
     hoverBorderOpacity: 22,
     hoverBgColor: '#ffffff',
     hoverBgOpacity: 0,
+    titleColor: '',
+    badgeColor: '',
+    badgeBgColor: '',
+    badgeBgOpacity: 100,
+    openColor: '',
+    descColor: '',
+    descBgColor: '',
   };
 }
 function toolCardSideDark() {
@@ -298,6 +305,13 @@ function toolCardSideDark() {
     hoverBorderOpacity: 22,
     hoverBgColor: '#142640',
     hoverBgOpacity: 0,
+    titleColor: '',
+    badgeColor: '',
+    badgeBgColor: '',
+    badgeBgOpacity: 100,
+    openColor: '',
+    descColor: '',
+    descBgColor: '',
   };
 }
 function defaultToolCards() {
@@ -328,6 +342,51 @@ function validateToolCardSide(s, def) {
     hoverBorderOpacity: clampNum(s.hoverBorderOpacity, 0, 100, def.hoverBorderOpacity),
     hoverBgColor: normHexColor(s.hoverBgColor, def.hoverBgColor),
     hoverBgOpacity: clampNum(s.hoverBgOpacity, 0, 100, def.hoverBgOpacity),
+    titleColor: normHexColor(s.titleColor, ''),
+    badgeColor: normHexColor(s.badgeColor, ''),
+    badgeBgColor: normHexColor(s.badgeBgColor, ''),
+    badgeBgOpacity: clampNum(s.badgeBgOpacity, 0, 100, 100),
+    openColor: normHexColor(s.openColor, ''),
+    descColor: normHexColor(s.descColor, ''),
+    descBgColor: normHexColor(s.descBgColor, ''),
+  };
+}
+// Typografie der Karten-Texte (Hell + Dunkel gemeinsam); 0 / '' = Standard der Seite.
+const TOOL_CARD_WEIGHTS = ['', '400', '500', '600', '700', '800'];
+const TOOL_CARD_TRANSFORMS = ['', 'none', 'uppercase', 'capitalize'];
+function defaultToolCardText() {
+  return {
+    titleFont: '',
+    titleSize: 0,
+    titleWeight: '',
+    titleSpacing: 0,
+    titleTransform: '',
+    textFont: '',
+    badgeSize: 0,
+    badgeWeight: '',
+    badgeTransform: '',
+    openSize: 0,
+    openWeight: '',
+    descSize: 0,
+  };
+}
+function validateToolCardText(t) {
+  if (!isPlainObject(t)) return defaultToolCardText();
+  const weight = (v) => (TOOL_CARD_WEIGHTS.includes(String(v ?? '')) ? String(v ?? '') : '');
+  const transform = (v) => (TOOL_CARD_TRANSFORMS.includes(v) ? v : '');
+  return {
+    titleFont: normFontFile(t.titleFont),
+    titleSize: clampNum(t.titleSize, 0, 40, 0),
+    titleWeight: weight(t.titleWeight),
+    titleSpacing: clampHalf(t.titleSpacing, -2, 5, 0),
+    titleTransform: transform(t.titleTransform),
+    textFont: normFontFile(t.textFont),
+    badgeSize: clampNum(t.badgeSize, 0, 20, 0),
+    badgeWeight: weight(t.badgeWeight),
+    badgeTransform: transform(t.badgeTransform),
+    openSize: clampNum(t.openSize, 0, 20, 0),
+    openWeight: weight(t.openWeight),
+    descSize: clampNum(t.descSize, 0, 24, 0),
   };
 }
 function validateToolCardStyle(st) {
@@ -335,6 +394,7 @@ function validateToolCardStyle(st) {
   return {
     light: validateToolCardSide(o.light, toolCardSideLight()),
     dark: validateToolCardSide(o.dark, toolCardSideDark()),
+    text: validateToolCardText(o.text),
   };
 }
 /**

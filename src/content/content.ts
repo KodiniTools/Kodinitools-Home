@@ -248,13 +248,41 @@ export interface ToolCardSide {
   hoverBorderOpacity: number; // 0–100 (%)
   hoverBgColor: string; // Hex – Hintergrund beim Überfahren
   hoverBgOpacity: number; // 0–100 (%); 0 = Hintergrund bleibt beim Überfahren unverändert
+  // Text-Farben je Modus ('' = Standard der Seite): Titel, Badge (Text/Hintergrund
+  // + Transparenz), „Öffnen"-Link, Popup-Beschreibung (Text/Hintergrund).
+  titleColor?: string;
+  badgeColor?: string;
+  badgeBgColor?: string;
+  badgeBgOpacity?: number;
+  openColor?: string;
+  descColor?: string;
+  descBgColor?: string;
+}
+/** Typografie der Karten-Texte (gilt für Hell + Dunkel); 0 / '' = Standard der Seite. */
+export interface ToolCardText {
+  titleFont: string; // Schriftdatei aus /fonts
+  titleSize: number; // px
+  titleWeight: string; // '' | '400' … '800'
+  titleSpacing: number; // px Buchstabenabstand
+  titleTransform: string; // '' | none | uppercase | capitalize
+  textFont: string; // Schrift für Badge, „Öffnen" und Popup
+  badgeSize: number;
+  badgeWeight: string;
+  badgeTransform: string;
+  openSize: number;
+  openWeight: string;
+  descSize: number;
 }
 
 /** Design einer Karte bzw. der Standard-Karte: getrennt Hell/Dunkel. */
 export interface ToolCardStyle {
   light: ToolCardSide;
   dark: ToolCardSide;
+  text?: ToolCardText;
 }
+const TOOL_CARD_TEXT_DEFAULT: ToolCardText = { titleFont: '', titleSize: 0, titleWeight: '', titleSpacing: 0, titleTransform: '', textFont: '', badgeSize: 0, badgeWeight: '', badgeTransform: '', openSize: 0, openWeight: '', descSize: 0 };
+const TOOL_CARD_WEIGHTS: readonly string[] = ['', '400', '500', '600', '700', '800'];
+const TOOL_CARD_TRANSFORMS: readonly string[] = ['', 'none', 'uppercase', 'capitalize'];
 
 /**
  * Tool-Karten-Design. enabled=false -> Standard-Aussehen aus tool-cards.css.
@@ -286,6 +314,13 @@ const TOOL_CARD_LIGHT_DEFAULT: ToolCardSide = {
   hoverBorderOpacity: 22,
   hoverBgColor: '#ffffff',
   hoverBgOpacity: 0,
+  titleColor: '',
+  badgeColor: '',
+  badgeBgColor: '',
+  badgeBgOpacity: 100,
+  openColor: '',
+  descColor: '',
+  descBgColor: '',
 };
 const TOOL_CARD_DARK_DEFAULT: ToolCardSide = {
   borderColor: '#1d3a5c',
@@ -302,6 +337,13 @@ const TOOL_CARD_DARK_DEFAULT: ToolCardSide = {
   hoverBorderOpacity: 22,
   hoverBgColor: '#142640',
   hoverBgOpacity: 0,
+  titleColor: '',
+  badgeColor: '',
+  badgeBgColor: '',
+  badgeBgOpacity: 100,
+  openColor: '',
+  descColor: '',
+  descBgColor: '',
 };
 
 /** Rahmen + Hintergrund + optionaler Text einer einzelnen Raster-Kachel. */
@@ -477,7 +519,11 @@ const MEDIA_DEFAULTS: MediaConfig = {
   },
   toolCards: {
     enabled: false,
-    default: { light: { ...TOOL_CARD_LIGHT_DEFAULT }, dark: { ...TOOL_CARD_DARK_DEFAULT } },
+    default: {
+      light: { ...TOOL_CARD_LIGHT_DEFAULT },
+      dark: { ...TOOL_CARD_DARK_DEFAULT },
+      text: { ...TOOL_CARD_TEXT_DEFAULT },
+    },
     cards: {},
   },
   iconTint: {},
@@ -697,10 +743,39 @@ export function getToolCardsCss(media: MediaConfig): string | undefined {
   const tc = media.toolCards;
   if (!tc || tc.enabled !== true || !isPlainObject(tc.default)) return undefined;
   const rules: string[] = [];
+  const faces = new Set<string>();
   const def = tc.default;
   if (isPlainObject(def.light)) rules.push(`#app .tool-card{${toolCardSideVars(def.light)}}`);
   if (isPlainObject(def.dark))
     rules.push(`[data-theme="dark"] #app .tool-card{${toolCardSideVars(def.dark)}}`);
+  // Text-Farben/-Typografie liegen auf .svg-card-link, damit auch das Popup
+  // (Geschwister der Karte) die Variablen erbt. Die Hell-Regeln gelten auch im
+  // Dunkelmodus (Spezifität), daher setzt die Dunkel-Regel jede von Hell gesetzte
+  // Variable ausdrücklich – auf den Dunkel-Wert oder `initial` (= Seitenstandard).
+  const colorMap = (side: ToolCardSide | undefined) =>
+    new Map(isPlainObject(side) ? toolCardTextColorVars(side) : []);
+  const emit = (sel: string, entries: Array<[string, string]>) => {
+    if (entries.length) rules.push(`${sel}{${entries.map(([k, v]) => `${k}:${v}`).join(';')}}`);
+  };
+  const defL = colorMap(def.light);
+  const defD = colorMap(def.dark);
+  const darkEntries = (maps: Array<Map<string, string>>, lookup: Array<Map<string, string>>) => {
+    const keys = new Set<string>();
+    for (const m of maps) for (const k of m.keys()) keys.add(k);
+    return [...keys].map((k): [string, string] => {
+      for (const m of lookup) if (m.has(k)) return [k, m.get(k) as string];
+      return [k, 'initial'];
+    });
+  };
+  const pushText = (sel: string, style: ToolCardStyle, isDefault: boolean) => {
+    const L = isDefault ? defL : colorMap(style.light);
+    const D = isDefault ? defD : colorMap(style.dark);
+    const typo = isPlainObject(style.text) ? toolCardTextVars(style.text, faces) : [];
+    emit(sel, [...L.entries(), ...typo]);
+    const dark = isDefault ? darkEntries([defL, defD], [defD]) : darkEntries([defL, defD, L, D], [D, defD]);
+    emit(`[data-theme="dark"] ${sel}`, dark);
+  };
+  pushText('#app .svg-card-link', def, true);
   const cards = isPlainObject(tc.cards) ? tc.cards : {};
   for (const [key, style] of Object.entries(cards)) {
     if (!TOOL_CARD_KEY.test(key) || !isPlainObject(style)) continue;
@@ -708,8 +783,66 @@ export function getToolCardsCss(media: MediaConfig): string | undefined {
     if (isPlainObject(style.light)) rules.push(`${sel}{${toolCardSideVars(style.light)}}`);
     if (isPlainObject(style.dark))
       rules.push(`[data-theme="dark"] ${sel}{${toolCardSideVars(style.dark)}}`);
+    pushText(`#app .svg-card-link[data-i18n-key="${key}"]`, style, false);
   }
-  return rules.length ? rules.join('') : undefined;
+  if (!rules.length) return undefined;
+  return [...faces, ...rules].join('');
+}
+// Text-Farben eines Modus als [--tc-*-Variable, Wert] (nur gesetzte Felder).
+function toolCardTextColorVars(side: ToolCardSide): Array<[string, string]> {
+  const v: Array<[string, string]> = [];
+  const isHex = (h: unknown): h is string => TOOL_CARD_HEX.test(String(h ?? ''));
+  if (isHex(side.titleColor)) v.push(['--tc-title-color', side.titleColor]);
+  if (isHex(side.badgeColor)) v.push(['--tc-badge-color', side.badgeColor]);
+  if (isHex(side.badgeBgColor)) {
+    const a =
+      typeof side.badgeBgOpacity === 'number' && Number.isFinite(side.badgeBgOpacity)
+        ? Math.max(0, Math.min(100, side.badgeBgOpacity)) / 100
+        : 1;
+    v.push(['--tc-badge-bg', textHexToRgba(side.badgeBgColor, a)]);
+  }
+  if (isHex(side.openColor)) v.push(['--tc-open-color', side.openColor]);
+  if (isHex(side.descColor)) v.push(['--tc-desc-color', side.descColor]);
+  if (isHex(side.descBgColor)) v.push(['--tc-desc-bg', side.descBgColor]);
+  return v;
+}
+// Typografie (Hell + Dunkel) als Variablen; Schriften ergänzen @font-face in `faces`.
+function toolCardTextVars(text: ToolCardText, faces: Set<string>): Array<[string, string]> {
+  const v: Array<[string, string]> = [];
+  const num = (n: unknown, min: number, max: number) =>
+    typeof n === 'number' && Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : 0;
+  const font = (file: unknown, name: string) => {
+    const f = String(file ?? '').trim();
+    if (!f || !TEXT_FONT_FILE.test(f)) return;
+    faces.add(textFontFaceCss(f));
+    v.push([name, `"${textFontId(f)}", ${SITE_FONT_FALLBACK}`]);
+  };
+  font(text.titleFont, '--tc-title-font');
+  font(text.textFont, '--tc-text-font');
+  const size = (n: unknown, max: number, name: string) => {
+    const s = num(n, 0, max);
+    if (s > 0) v.push([name, `${s}px`]);
+  };
+  const weight = (w: unknown, name: string) => {
+    const s = String(w ?? '');
+    if (s && TOOL_CARD_WEIGHTS.includes(s)) v.push([name, s]);
+  };
+  const transform = (t: unknown, name: string) => {
+    const s = String(t ?? '');
+    if (s && TOOL_CARD_TRANSFORMS.includes(s)) v.push([name, s]);
+  };
+  size(text.titleSize, 40, '--tc-title-size');
+  weight(text.titleWeight, '--tc-title-weight');
+  const sp = num(text.titleSpacing, -2, 5);
+  if (sp !== 0) v.push(['--tc-title-spacing', `${sp}px`]);
+  transform(text.titleTransform, '--tc-title-transform');
+  size(text.badgeSize, 20, '--tc-badge-size');
+  weight(text.badgeWeight, '--tc-badge-weight');
+  transform(text.badgeTransform, '--tc-badge-transform');
+  size(text.openSize, 20, '--tc-open-size');
+  weight(text.openWeight, '--tc-open-weight');
+  size(text.descSize, 24, '--tc-desc-size');
+  return v;
 }
 
 /**
