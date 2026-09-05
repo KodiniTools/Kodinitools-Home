@@ -450,6 +450,24 @@ function mediaTile(item) {
   </div>`;
 }
 
+// Legt EINE Datei (File/Blob) im Browser-Zwischenspeicher (IndexedDB) ab und
+// liefert die neue Kennung – Slot-Wert dann 'staged:<id>'. Wird auch von anderen
+// Tabs genutzt (z. B. Layout: Bild aus der Zwischenablage in eine Kachel).
+// Aktualisiert state.stagedItems, rendert aber KEINE Ansicht neu.
+export async function stageFile(file, name) {
+  const item = {
+    id: 'm' + Date.now() + Math.random().toString(36).slice(2, 7),
+    name: name || file.name || 'datei',
+    type: file.type || 'application/octet-stream',
+    blob: file,
+    createdAt: Date.now(),
+    publishedUrl: null,
+  };
+  await mediaPut(item);
+  state.stagedItems = await mediaAll();
+  return item.id;
+}
+
 async function addFiles(fileList) {
   const files = Array.from(fileList || []);
   for (const f of files) {
@@ -458,15 +476,7 @@ async function addFiles(fileList) {
       toast(`${f.name} zu groß`);
       continue;
     }
-    const item = {
-      id: 'm' + Date.now() + Math.random().toString(36).slice(2, 7),
-      name: f.name,
-      type: f.type || 'application/octet-stream',
-      blob: f,
-      createdAt: Date.now(),
-      publishedUrl: null,
-    };
-    await mediaPut(item);
+    await stageFile(f);
   }
   state.stagedItems = await mediaAll();
   renderFiles();

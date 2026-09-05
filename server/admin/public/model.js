@@ -606,8 +606,21 @@ export function defaultCellStyle() {
     textPos: 'center', // Alt: 'top'|'center'|'bottom' (nur noch Migration)
     textX: 50, // Freie Position in % (0=links, 100=rechts) – per Maus ziehbar
     textY: 50, // Freie Position in % (0=oben, 100=unten)
+    // Bildbearbeitung des Kachel-Mediums (Layout-Tab): Deckkraft (%), Abdunkelung (%),
+    // Weichzeichner (px) und Sättigung (%; 100 = Original, 0 = Graustufen).
+    imgOpacity: 100,
+    imgDarken: 0,
+    imgBlur: 0,
+    imgSaturate: 100,
   };
 }
+// Grenzen der Bildbearbeitung je Feld (min, max) – auch für die Slider im Layout-Tab.
+export const CELL_IMG_FIELDS = {
+  imgOpacity: { min: 0, max: 100, label: 'Deckkraft', unit: '%' },
+  imgDarken: { min: 0, max: 100, label: 'Abdunkelung', unit: '%' },
+  imgBlur: { min: 0, max: 20, label: 'Weichzeichner', unit: 'px' },
+  imgSaturate: { min: 0, max: 200, label: 'Sättigung', unit: '%' },
+};
 // Erlaubte Text-Positionen im Overlay (Alt-Format, nur noch für Migration).
 export function normTextPos(v) {
   return ['top', 'center', 'bottom'].includes(v) ? v : 'center';
@@ -642,6 +655,10 @@ function normCellStyle(s) {
     textPos: normTextPos(s.textPos),
     textX: normPosPct(s.textX, undefined, 50),
     textY: normPosPct(s.textY, normTextPos(s.textPos), 50),
+    imgOpacity: num(s.imgOpacity, 0, 100, d.imgOpacity),
+    imgDarken: num(s.imgDarken, 0, 100, d.imgDarken),
+    imgBlur: num(s.imgBlur, 0, 20, d.imgBlur),
+    imgSaturate: num(s.imgSaturate, 0, 200, d.imgSaturate),
   };
 }
 export function normCellStyles(arr) {
@@ -667,6 +684,10 @@ export const CELL_SYNC_PROPS = [
   'textColor',
   'textX',
   'textY',
+  'imgOpacity',
+  'imgDarken',
+  'imgBlur',
+  'imgSaturate',
 ];
 // Effektiver Style der Kachel i: bei aktivem „Standard für alle Kacheln" werden
 // die synchronisierten Eigenschaften von der Master-Kachel übernommen; der

@@ -507,7 +507,10 @@
 /* Medium füllt die Kachel; Text liegt als Overlay darüber. */
 .hero-cell-media {
   position: absolute;
-  inset: 0;
+  inset: var(--cell-img-inset, 0);
+  /* Bildbearbeitung aus dem Layout-Tab (Deckkraft/Abdunkelung/Weichzeichner/Sättigung) */
+  opacity: var(--cell-img-opacity, 1);
+  filter: var(--cell-img-filter, none);
 }
 .hero-cell-text {
   position: absolute;

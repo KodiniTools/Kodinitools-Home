@@ -1,8 +1,11 @@
 // Layout-Tab: Anordnung des Hero-Bereichs (Banner vs. Raster-Layouts) samt
 // Form (Seitenverhältnis) und Per-Kachel-Design (Rahmen + Hintergrund) mit
-// Live-Vorschau. Die eigentliche Medien-Zuweisung passiert weiter im Medien-Tab.
+// Live-Vorschau. Das Kachel-Bild kann hier direkt aus der Zwischenablage
+// (Strg/Cmd+V bzw. Button) oder aus der Mediathek zugewiesen und bearbeitet
+// werden (Deckkraft, Abdunkelung, Weichzeichner, Sättigung); die klassische
+// Medien-Zuweisung im Medien-Tab bleibt bestehen.
 
-import { $, esc, toast } from './core.js';
+import { $, esc, toast, fmtBytes } from './core.js';
 import { slider, bindSliders } from './slider.js';
 import { colorPicker, bindColorPickers } from './color.js';
 import {
@@ -16,10 +19,12 @@ import {
   CELL_SYNC_PROPS,
   defaultCellStyle,
   getMediaVal,
+  setMediaVal,
+  CELL_IMG_FIELDS,
   BANNER_ANIM_TYPES,
   BANNER_ANIM_SPEEDS,
 } from './model.js';
-import { objUrl } from './media.js';
+import { objUrl, openMediaPicker, stageFile } from './media.js';
 import { fontOptionsHtml, ensureFontFace } from './fonts.js';
 
 const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
@@ -62,24 +67,39 @@ function gridCols(layout) {
   return 'repeat(2, 1fr)'; // grid2, grid4, big2
 }
 
-// Das der Kachel i zugewiesene Medium (zugewiesenes Bild/Video) als <img>/<video>
-// für die Vorschau – Server-URL oder lokaler Zwischenspeicher (staged:). '' wenn leer.
-function cellMediaHtml(lang, i, fit) {
+// Das der Kachel i zugewiesene Medium (Server-URL oder lokaler Zwischenspeicher
+// 'staged:<id>') aufgelöst: { src, isVid, item } oder null, wenn leer/unbekannt.
+function cellMedia(lang, i) {
   const val = getMediaVal(lang, 'grid' + i);
-  if (!val) return '';
-  let src = val;
-  let isVid = /\.(mp4|webm|mov|ogg)$/i.test(val);
+  if (!val) return null;
   if (val.startsWith('staged:')) {
     const id = val.slice(7);
     const item = state.stagedItems.find((x) => x.id === id);
-    if (!item) return '';
-    src = objUrl(id);
-    isVid = /^video\//.test(item.type);
+    if (!item) return null;
+    return { src: objUrl(id), isVid: /^video\//.test(item.type), item };
   }
+  return { src: val, isVid: /\.(mp4|webm|mov|ogg)$/i.test(val), item: null };
+}
+// Inline-Style der Bildebene einer Vorschau-Kachel: Deckkraft/Abdunkelung/
+// Weichzeichner/Sättigung wie auf der Seite (hero.css, --cell-img-*).
+function cellImgStyle(s) {
+  const f = [];
+  if (s.imgBlur > 0) f.push(`blur(${s.imgBlur}px)`);
+  if (s.imgDarken > 0) f.push(`brightness(${((100 - s.imgDarken) / 100).toFixed(2)})`);
+  if (s.imgSaturate !== 100) f.push(`saturate(${s.imgSaturate}%)`);
+  const inset = s.imgBlur > 0 ? -s.imgBlur * 2 : 0;
+  return `position:absolute;inset:${inset}px;opacity:${(s.imgOpacity / 100).toFixed(2)};filter:${f.join(' ') || 'none'}`;
+}
+// Das der Kachel i zugewiesene Medium (zugewiesenes Bild/Video) als Ebene mit
+// <img>/<video> für die Vorschau (inkl. Bildbearbeitung). '' wenn leer.
+function cellMediaHtml(lang, i, fit, s) {
+  const m = cellMedia(lang, i);
+  if (!m) return '';
   const st = `width:100%;height:100%;object-fit:${fit};display:block`;
-  return isVid
-    ? `<video src="${src}" muted style="${st}"></video>`
-    : `<img src="${esc(src)}" style="${st}" />`;
+  const inner = m.isVid
+    ? `<video src="${m.src}" muted style="${st}"></video>`
+    : `<img src="${esc(m.src)}" style="${st}" />`;
+  return `<div data-prevmedia="${i}" style="${cellImgStyle(s)}">${inner}</div>`;
 }
 
 // Das dem Einzelbanner zugewiesene Medium (Bild/Video) als <img>/<video> oder ''.
@@ -199,7 +219,7 @@ function previewHtml(lang, layout, cellsN, ratio) {
       box = 'height:100%;';
       if (i === 0) span = 'grid-row:1 / span 2;';
     }
-    const media = cellMediaHtml(lang, i, fit);
+    const media = cellMediaHtml(lang, i, fit, s);
     const base = media || `<span style="color:var(--muted);font-size:.72rem">${i + 1}</span>`;
     const textOverlay = s.text
       ? `<div data-prevtext="${i}" title="Zum Verschieben ziehen" style="${cellTextOverlayStyle(s.textColor, s.textSize, s.textX, s.textY, s.font)}">${esc(s.text)}</div>`
@@ -211,6 +231,52 @@ function previewHtml(lang, layout, cellsN, ratio) {
   return `<div style="display:grid;grid-template-columns:${gridCols(layout)};${rows}gap:.45rem;max-width:${maxW};margin:.2rem auto">${cells}</div>`;
 }
 
+// Bild-Block eines Kachel-Editors: Vorschaubild, Einfügen aus der Zwischenablage
+// (Button oder Strg/Cmd+V), Mediathek, Entfernen sowie die Bildbearbeitung
+// (Deckkraft, Abdunkelung, Weichzeichner, Sättigung) als Slider mit Zahlenfeld + ↺.
+function cellImageBlock(lang, i, inherited) {
+  const s = getEffectiveCellStyle(lang, i);
+  const m = state.media[lang];
+  const med = cellMedia(lang, i);
+  const val = getMediaVal(lang, 'grid' + i);
+  const thumb = med
+    ? med.isVid
+      ? `<video src="${med.src}" muted style="width:100%;height:100%;object-fit:cover;display:block"></video>`
+      : `<img src="${esc(med.src)}" alt="" />`
+    : '<span class="hint" style="margin:0">Kein Bild</span>';
+  const ratio = ['1:1', '16:9', '2:3'].includes(m.heroGridRatio) ? m.heroGridRatio : '1:1';
+  let info;
+  if (med && med.item) {
+    const size = med.item.blob ? ` · ${fmtBytes(med.item.blob.size)}` : '';
+    info = `<strong>● ${esc(med.item.name)}${size}</strong> – lokal, wird beim Veröffentlichen hochgeladen.`;
+  } else if (med) {
+    info = `<code>${esc(val)}</code>`;
+  } else {
+    info = `Empfohlen: <strong>${GRID_DIMS[ratio]}</strong>${m.heroLayout === 'mosaic' ? ' (Mosaik: große Kachel doppelt so hoch)' : ''}.`;
+  }
+  const sliders = Object.entries(CELL_IMG_FIELDS)
+    .map(
+      ([f, c]) =>
+        `<div style="flex:1 1 200px">${slider({ id: `ly:cell:${i}:${f}`, label: c.label, unit: c.unit, min: c.min, max: c.max, value: s[f], attrs: `data-cellfield="${i}:${f}"`, resetAttrs: `data-cellreset="${i}:${f}"`, disabled: inherited })}</div>`,
+    )
+    .join('');
+  return `
+      <div class="row" style="align-items:flex-start;margin-top:.5rem">
+        <div class="bg-thumb" data-cellimgthumb="${i}">${thumb}</div>
+        <div style="flex:1 1 260px">
+          <div class="row" style="margin:0">
+            <button type="button" data-cellpaste="${i}" title="Bild aus der Zwischenablage in diese Kachel einfügen (oder Kachel anklicken und Strg/Cmd+V drücken)" style="flex:0 0 auto">📋 Aus Zwischenablage einfügen</button>
+            <button type="button" data-cellimgpick="${i}" style="flex:0 0 auto">📂 Aus Mediathek</button>
+            <button type="button" class="danger" data-cellimgclear="${i}" ${med ? '' : 'disabled'} style="flex:0 0 auto">Entfernen</button>
+          </div>
+          <p class="hint" style="margin:.4rem 0 0">Bild kopieren (z. B. Screenshot), Kachel anklicken und <kbd>Strg</kbd>/<kbd>Cmd</kbd>+<kbd>V</kbd> drücken – oder den Button nutzen. ${info}</p>
+        </div>
+      </div>
+      <div class="row" style="align-items:flex-end;margin-top:.2rem;${med || m.heroGridUniform ? '' : 'opacity:.55'}" data-cellimgrow="${i}">
+        ${sliders}
+      </div>`;
+}
+
 // Editor für Rahmen + Hintergrund einer Kachel.
 function cellEditor(lang, i, bigLabel) {
   const s = getEffectiveCellStyle(lang, i);
@@ -220,7 +286,7 @@ function cellEditor(lang, i, bigLabel) {
   const inherited = m.heroGridUniform && !isMaster;
   const dis = inherited ? 'disabled' : '';
   const note = inherited
-    ? `<p class="hint" style="margin:.3rem 0 0;color:var(--accent)">↳ Übernimmt Rahmen (Farbe &amp; Dicke), Hintergrund, Transparenz, Schriftart, Textgröße, -farbe und -position von Kachel ${(m.heroGridUniformCell || 0) + 1}.</p>`
+    ? `<p class="hint" style="margin:.3rem 0 0;color:var(--accent)">↳ Übernimmt Rahmen (Farbe &amp; Dicke), Hintergrund, Transparenz, Schriftart, Textgröße, -farbe, -position und Bildbearbeitung von Kachel ${(m.heroGridUniformCell || 0) + 1}. Bild und Text bleiben eigen.</p>`
     : '';
   return `
     <div class="panel" data-celleditor="${i}" style="padding:.7rem .9rem;margin-bottom:.6rem;scroll-margin-top:44vh${inherited ? ';opacity:.75' : ''}">
@@ -233,6 +299,7 @@ function cellEditor(lang, i, bigLabel) {
         <button type="button" class="hd-reset" data-cellresetall="${i}" title="Ganze Kachel auf Standard zurücksetzen" aria-label="Ganze Kachel zurücksetzen" style="margin-left:auto">↺ Kachel</button>
       </div>
       ${note}
+      ${cellImageBlock(lang, i, inherited)}
       <div class="row" style="align-items:flex-end;margin-top:.4rem">
         <div style="flex:0 0 auto">
           <label>Rahmenfarbe</label>
@@ -291,7 +358,7 @@ function layoutPanel(lang) {
     <div class="panel">
       <h2>Hero-Layout <span class="lang-badge">${lang.toUpperCase()}</span></h2>
       <p class="hint">Bestimmt, wie der Bereich oben auf der ${langLabel} Startseite aufgebaut ist.
-        Die Bilder selbst weist du im Tab <strong>Medien</strong> zu.</p>
+        Kachel-Bilder fügst du unten je Kachel direkt aus der Zwischenablage ein (oder im Tab <strong>Medien</strong>).</p>
       <div class="row" style="gap:1.25rem;margin-top:.4rem">
         <label style="display:flex;align-items:center;gap:.4rem;color:var(--text)">
           <input type="radio" name="lay-mode-${lang}" data-heromode="banner" data-lang="${lang}" ${mode === 'banner' ? 'checked' : ''} style="width:auto" />
@@ -476,9 +543,10 @@ function layoutPanel(lang) {
     </div>`;
   const editors = `
     <div class="panel">
-      <h2>Kachel-Design (Rahmen, Hintergrund &amp; Text)</h2>
-      <p class="hint">Pro Kachel: Rahmenfarbe &amp; -dicke, Hintergrundfarbe &amp; -transparenz sowie ein
-        optionaler <strong>Text</strong> mit <strong>Schriftart</strong> (aus dem Server-Ordner <code>/fonts</code>).
+      <h2>Kachel-Design (Bild, Rahmen, Hintergrund &amp; Text)</h2>
+      <p class="hint">Pro Kachel: <strong>Bild</strong> (aus der Zwischenablage oder Mediathek) mit Bildbearbeitung
+        (Deckkraft, Abdunkelung, Weichzeichner, Sättigung), Rahmenfarbe &amp; -dicke, Hintergrundfarbe &amp; -transparenz
+        sowie ein optionaler <strong>Text</strong> mit <strong>Schriftart</strong> (aus dem Server-Ordner <code>/fonts</code>).
         Der Text erscheint über dem Bild bzw. im leeren Kasten. Rahmendicke 0 = kein Rahmen.</p>
       ${Array.from({ length: cellsN }, (_, i) => cellEditor(lang, i, isMosaic && i === 0)).join('')}
     </div>`;
@@ -493,6 +561,8 @@ function updatePreviewCell(pane, lang, i) {
   const s = getEffectiveCellStyle(lang, i);
   box.style.background = rgbaFromHex(s.bgColor, s.bgOpacity);
   box.style.border = `${s.borderWidth}px solid ${s.borderColor}`;
+  const media = box.querySelector(`[data-prevmedia="${i}"]`);
+  if (media) media.setAttribute('style', cellImgStyle(s));
 }
 // Banner-Text-Overlay in der Vorschau live aktualisieren.
 function updateBannerPreviewText(pane, lang) {
@@ -553,8 +623,11 @@ function refreshPreviewFor(pane, lang, i, field) {
   }
 }
 
+// Zuletzt markierte Kachel (Ziel für Strg/Cmd+V außerhalb eines Editors).
+let activeCell = null;
 // Kachel i in Vorschau UND Editor hervorheben (ohne zu scrollen).
 function markCell(pane, i) {
+  activeCell = i;
   pane.querySelectorAll('[data-prevcell]').forEach((el) => {
     const on = Number(el.dataset.prevcell) === i;
     el.style.outline = on ? '3px solid var(--accent)' : '';
@@ -618,6 +691,104 @@ function dragHandle(handle, container, onMove, onTap) {
   handle.addEventListener('pointerup', end);
   handle.addEventListener('pointercancel', end);
 }
+
+// --- Bild in Kachel einsetzen (Zwischenablage / Mediathek) ---
+
+// Dateiendung je MIME-Typ für Bilder aus der Zwischenablage (Screenshots = PNG).
+const IMG_EXT = {
+  'image/png': 'png',
+  'image/jpeg': 'jpg',
+  'image/webp': 'webp',
+  'image/gif': 'gif',
+};
+const MAX_PASTE_BYTES = 25 * 1024 * 1024;
+
+// Legt ein Bild (Blob) im Zwischenspeicher ab, weist es Kachel i zu und rendert
+// den Tab neu (Scrollposition bleibt, Kachel bleibt markiert).
+async function assignImageBlob(lang, i, blob) {
+  const type = blob.type || 'image/png';
+  const ext = IMG_EXT[type];
+  if (!ext) {
+    toast(`Bildformat ${type} wird nicht unterstützt (PNG, JPEG, WebP, GIF)`);
+    return false;
+  }
+  if (blob.size > MAX_PASTE_BYTES) {
+    toast(`Bild zu groß (${fmtBytes(blob.size)}, max. ${fmtBytes(MAX_PASTE_BYTES)})`);
+    return false;
+  }
+  const stamp = new Date().toISOString().slice(0, 19).replace(/[-:]/g, '').replace('T', '-');
+  const name = `kachel-${i + 1}-${stamp}.${ext}`;
+  const id = await stageFile(new File([blob], name, { type }), name);
+  setMediaVal(lang, 'grid' + i, 'staged:' + id);
+  const y = window.scrollY;
+  renderLayout();
+  markCell($('#content'), i);
+  window.scrollTo({ top: y });
+  toast(
+    `Bild in Kachel ${i + 1} eingefügt (${fmtBytes(blob.size)}) – lokal bis zum Veröffentlichen`,
+  );
+  return true;
+}
+
+// Erstes Bild aus einer DataTransfer-Liste (Zwischenablage/Drop) oder null.
+function imageFromDataTransfer(dt) {
+  if (!dt) return null;
+  for (const it of dt.items || []) {
+    if (it.kind === 'file' && /^image\//.test(it.type)) return it.getAsFile();
+  }
+  for (const f of dt.files || []) if (/^image\//.test(f.type)) return f;
+  return null;
+}
+
+// Button „Aus Zwischenablage einfügen": liest die Zwischenablage über die
+// Clipboard-API (nur HTTPS/localhost, fragt ggf. um Erlaubnis). Ohne Zugriff
+// bleibt Strg/Cmd+V auf der markierten Kachel als Weg.
+async function pasteFromClipboardApi(lang, i) {
+  if (!navigator.clipboard || typeof navigator.clipboard.read !== 'function') {
+    toast('Zwischenablage nicht direkt lesbar – Kachel ist markiert: jetzt Strg/Cmd+V drücken');
+    return;
+  }
+  try {
+    const items = await navigator.clipboard.read();
+    for (const it of items) {
+      const type = it.types.find((t) => /^image\//.test(t));
+      if (!type) continue;
+      const blob = await it.getType(type);
+      await assignImageBlob(lang, i, blob);
+      return;
+    }
+    toast('Kein Bild in der Zwischenablage');
+  } catch (e) {
+    toast(
+      e && e.name === 'NotAllowedError'
+        ? 'Zugriff auf die Zwischenablage abgelehnt – Kachel ist markiert: jetzt Strg/Cmd+V drücken'
+        : 'Zwischenablage nicht lesbar – Kachel ist markiert: jetzt Strg/Cmd+V drücken',
+    );
+  }
+}
+
+// Strg/Cmd+V im Layout-Tab: Bild aus der Zwischenablage in die Kachel einfügen,
+// deren Editor den Fokus hat, sonst in die zuletzt markierte Kachel. Text-Einfügen
+// in Eingabefelder bleibt unberührt (nur Bild-Daten werden abgefangen).
+function onDocumentPaste(e) {
+  if (state.nav.sub !== 'layout' || !['de', 'en'].includes(state.nav.section)) return;
+  const pane = $('#content');
+  if (!pane || !pane.querySelector('[data-celleditor]')) return;
+  const blob = imageFromDataTransfer(e.clipboardData);
+  if (!blob) return;
+  const editor = e.target instanceof Element ? e.target.closest('[data-celleditor]') : null;
+  const i = editor ? Number(editor.dataset.celleditor) : activeCell;
+  if (i === null || i === undefined || !pane.querySelector(`[data-celleditor="${i}"]`)) {
+    toast('Zuerst eine Kachel anklicken, dann Strg/Cmd+V');
+    return;
+  }
+  e.preventDefault();
+  assignImageBlob(state.nav.section, i, blob).catch((err) => {
+    console.error(err);
+    toast('Einfügen fehlgeschlagen');
+  });
+}
+document.addEventListener('paste', onDocumentPaste);
 
 // Verdrahtet das freie Ziehen der Text-Overlays (Banner + Kacheln) in der Vorschau.
 function wireDrag(pane, lang) {
@@ -807,6 +978,9 @@ export function renderLayout() {
         s.text = el.value.slice(0, 120);
       } else if (field === 'textSize') {
         s.textSize = clamp(parseInt(el.value, 10) || 0, 0, 96);
+      } else if (field in CELL_IMG_FIELDS) {
+        const c = CELL_IMG_FIELDS[field];
+        s[field] = clamp(parseInt(el.value, 10) || 0, c.min, c.max);
       } else {
         s[field] = el.value; // Farben (Rahmen/Hintergrund/Text)
       }
@@ -825,6 +999,47 @@ export function renderLayout() {
       s.textY = POS_PRESET_Y[pos] ?? 50;
       refreshPreviewFor(pane, lang, i, 'textX');
       updateCellPosLabels(pane, lang);
+    });
+  });
+
+  // Kachel-Bild: Zwischenablage (Button), Mediathek, Entfernen.
+  pane.querySelectorAll('[data-cellpaste]').forEach((el) => {
+    const i = Number(el.dataset.cellpaste);
+    el.addEventListener('click', () => {
+      markCell(pane, i);
+      pasteFromClipboardApi(lang, i);
+    });
+  });
+  pane.querySelectorAll('[data-cellimgpick]').forEach((el) => {
+    const i = Number(el.dataset.cellimgpick);
+    el.addEventListener('click', () => {
+      markCell(pane, i);
+      const srv = [lang, 'shared'].reduce((n, l) => n + (state.serverFiles[l] || []).length, 0);
+      if (!state.stagedItems.length && !srv) {
+        toast('Keine Medien vorhanden — Bild einfügen oder im Tab „Medien" hochladen.');
+        return;
+      }
+      openMediaPicker(lang, 'grid' + i, {
+        title: `Bild/Video für Kachel ${i + 1} wählen`,
+        onPick: (url) => {
+          setMediaVal(lang, 'grid' + i, url);
+          const y = window.scrollY;
+          renderLayout();
+          markCell($('#content'), i);
+          window.scrollTo({ top: y });
+        },
+      });
+    });
+  });
+  pane.querySelectorAll('[data-cellimgclear]').forEach((el) => {
+    const i = Number(el.dataset.cellimgclear);
+    el.addEventListener('click', () => {
+      setMediaVal(lang, 'grid' + i, '');
+      const y = window.scrollY;
+      renderLayout();
+      markCell($('#content'), i);
+      window.scrollTo({ top: y });
+      toast(`Bild aus Kachel ${i + 1} entfernt`);
     });
   });
 
