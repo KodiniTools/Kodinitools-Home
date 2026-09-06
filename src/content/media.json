@@ -251,17 +251,40 @@
     "heroGridRatio": "1:1",
     "heroGridFit": "contain",
     "textStyles": {
+      "hero.title": {
+        "size": 0,
+        "colorLight": "#010f5a",
+        "colorDark": "",
+        "font": ""
+      },
       "hero.subtitle": {
         "size": 0,
-        "colorLight": "#ffffff",
+        "colorLight": "#010f5a",
+        "colorDark": "",
+        "font": ""
+      },
+      "hero.cta": {
+        "size": 0,
+        "colorLight": "#010f5a",
         "colorDark": "",
         "font": ""
       },
       "tools.sectionTitle": {
         "size": 0,
-        "colorLight": "#cab3ff",
+        "colorLight": "#ffffff",
         "colorDark": "#ffffff",
-        "font": ""
+        "font": "",
+        "shadow": true,
+        "shadowColor": "#000000",
+        "shadowX": -2,
+        "shadowY": 2,
+        "shadowBlur": 2,
+        "strokeColor": "#000000",
+        "strokeWidth": 0,
+        "opacity": 100,
+        "anim": "none",
+        "animIntensity": 5,
+        "animSpeed": "normal"
       },
       "imageTools.sectionTitle": {
         "size": 0,
@@ -273,21 +296,10 @@
         "size": 0,
         "colorLight": "#ffffff",
         "colorDark": "#ffffff",
-        "font": "",
-        "shadow": true,
-        "shadowColor": "#000000",
-        "shadowX": -5,
-        "shadowY": 2,
-        "shadowBlur": 5,
-        "strokeColor": "#000000",
-        "strokeWidth": 0,
-        "opacity": 100,
-        "anim": "none",
-        "animIntensity": 5,
-        "animSpeed": "normal"
+        "font": ""
       }
     },
-    "textStyleUniform": false,
+    "textStyleUniform": true,
     "textStyleUniformKey": "tools.sectionTitle",
     "heroDesign": {
       "enabled": true,
@@ -322,7 +334,7 @@
         "ctaBorderOpacity": 0,
         "ctaHoverBgColor": "#e1e0e0",
         "ctaHoverTextColor": "#33455b",
-        "titleTextColor": "#29486a"
+        "titleTextColor": "#010f5a"
       },
       "dark": {
         "borderColor": "#ffffff",
@@ -573,9 +585,21 @@
     "heroGridRatio": "1:1",
     "heroGridFit": "cover",
     "textStyles": {
+      "hero.title": {
+        "size": 0,
+        "colorLight": "#010f5a",
+        "colorDark": "",
+        "font": ""
+      },
       "hero.subtitle": {
         "size": 0,
-        "colorLight": "#ffffff",
+        "colorLight": "#010f5a",
+        "colorDark": "",
+        "font": ""
+      },
+      "hero.cta": {
+        "size": 0,
+        "colorLight": "#010f5a",
         "colorDark": "",
         "font": ""
       },
@@ -644,7 +668,7 @@
         "ctaBorderOpacity": 0,
         "ctaHoverBgColor": "#e1e0e0",
         "ctaHoverTextColor": "#33455b",
-        "titleTextColor": "#29486a"
+        "titleTextColor": "#010f5a"
       },
       "dark": {
         "borderColor": "#ffffff",
