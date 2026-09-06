@@ -312,6 +312,7 @@ function heroDesignPanel(lang) {
     })
     .join('');
   // Bausteine der klappbaren Sektionen.
+  const badge = `<span class="lang-badge">${modusLabel}</span>`;
   const typoBody = `
       <div class="row">
         <div style="flex:1 1 220px">
@@ -322,16 +323,9 @@ function heroDesignPanel(lang) {
             'titleFont',
           )}
         </div>
-        <div style="flex:1 1 220px">
-          <label>Button-Schrift (Chips + „Jetzt starten")</label>
-          ${withReset(
-            `<select data-hdfont="buttonFont" data-lang="${lang}">${fontOptionsHtml(hd.buttonFont)}</select>`,
-            'font',
-            'buttonFont',
-          )}
-        </div>
       </div>
-      <p class="hint" style="margin-bottom:.5rem">Aus dem Ordner <code>/fonts</code> auf dem Server. Wirkt auf beide Modi. Auch ohne „Eigenes Hero-Design" nutzbar.</p>
+      <p class="hint" style="margin-bottom:.5rem">Aus dem Ordner <code>/fonts</code> auf dem Server. Wirkt auf beide Modi. Auch ohne „Eigenes Hero-Design" nutzbar.
+        Schrift, Größe und Beschriftung der <strong>Buttons</strong> stehen in den Sektionen „Buttons (Feature-Chips)" und „CTA-Button" weiter unten.</p>
 
       <p class="hint" style="margin:.6rem 0 .1rem;font-weight:600;color:var(--text)">🌐 Globale Standard-Schrift der ganzen Seite <span class="lang-badge">gilt für DE + EN</span></p>
       <p class="hint" style="margin:.1rem 0 .4rem">Eine Kachel aktivieren, um diese Schrift als Basis-Schrift der <strong>gesamten Website</strong> zu setzen (Navigation, Tool-Karten, Texte, Footer …). Wirkt sofort überall; einzelne Hero-Schriften oben überschreiben sie im Hero. „Standard (System)" setzt auf die Werksschrift zurück.</p>
@@ -346,17 +340,8 @@ function heroDesignPanel(lang) {
         </div>
         <div style="flex:1 1 200px">${typoRange(hd, 'titleStrokeWidth', 'Kontur-Breite', 0, 5, 'px', 0.5)}</div>
       </div>
-      <p class="hint" style="margin:.5rem 0 .2rem">✏️ Buttons – Buchstabenabstand &amp; Kontur (Rahmen):</p>
-      <div class="row" style="align-items:flex-end">
-        <div style="flex:1 1 200px">${typoRange(hd, 'buttonLetterSpacing', 'Abstand', -5, 20, 'px', 0.5)}</div>
-        <div style="flex:0 0 auto">
-          <label>Kontur-Farbe</label>
-          ${colorPicker({ id: 'hd:buttonStrokeColor', attrs: 'data-hdtypo="buttonStrokeColor"', value: hd.buttonStrokeColor, resetHtml: resetBtn('typo', 'buttonStrokeColor') })}
-        </div>
-        <div style="flex:1 1 200px">${typoRange(hd, 'buttonStrokeWidth', 'Kontur-Breite', 0, 5, 'px', 0.5)}</div>
-      </div>
       <p class="hint">Kontur-Breite 0 = keine Kontur. Buchstabenabstand 0 = normal.</p>
-      <p class="hint" style="margin:.5rem 0 .2rem">🔠 Schriftgröße in px – leer = Standard (die Zahl im Feld ist die Standardgröße). Größere Zahl = größerer Text. Eine Feinabstimmung unter „Hero-Texte" geht für den jeweiligen Text vor.</p>
+      <p class="hint" style="margin:.5rem 0 .2rem">🔠 Schriftgröße der Überschriften in px – leer = Standard (die Zahl im Feld ist die Standardgröße). Eine Feinabstimmung unter „Hero-Texte" geht für den jeweiligen Text vor.</p>
       <div class="row" style="align-items:flex-end">
         <div style="flex:0 0 auto">
           <label>Titel</label>
@@ -374,23 +359,43 @@ function heroDesignPanel(lang) {
             'subtitleFontSize',
           )}
         </div>
-        <div style="flex:0 0 auto">
-          <label>Chips</label>
+      </div>`;
+
+  // Text der Buttons (Feature-Chips + CTA): Schrift, Größe der Chips,
+  // Buchstabenabstand, Kontur – gilt für beide Modi – plus die Beschriftungen.
+  const buttonTextBody = `
+      <p class="hint" style="margin:0 0 .2rem;font-weight:600;color:var(--text)">✏️ Text der Buttons <span class="hint" style="font-weight:400">(gilt für beide Modi)</span></p>
+      <div class="row" style="align-items:flex-end">
+        <div style="flex:1 1 220px">
+          <label>Schriftart (Chips + CTA-Button)</label>
           ${withReset(
-            `<input type="number" data-hdtypo="chipFontSize" min="8" max="96" step="1" placeholder="≈ 15" value="${hd.chipFontSize || ''}" style="width:100px" />`,
+            `<select data-hdfont="buttonFont" data-lang="${lang}">${fontOptionsHtml(hd.buttonFont)}</select>`,
+            'font',
+            'buttonFont',
+          )}
+        </div>
+        <div style="flex:0 0 auto">
+          <label>Schriftgröße Chips (px)</label>
+          ${withReset(
+            `<input type="number" data-hdtypo="chipFontSize" min="8" max="96" step="1" placeholder="≈ 15" value="${hd.chipFontSize || ''}" style="width:110px" />`,
             'typo',
             'chipFontSize',
           )}
         </div>
+      </div>
+      <div class="row" style="align-items:flex-end;margin-top:.3rem">
+        <div style="flex:1 1 200px">${typoRange(hd, 'buttonLetterSpacing', 'Buchstabenabstand', -5, 20, 'px', 0.5)}</div>
         <div style="flex:0 0 auto">
-          <label>CTA-Button</label>
-          ${withReset(
-            `<input type="number" data-hdtypo="ctaFontSize" min="8" max="96" step="1" placeholder="≈ 17" value="${hd.ctaFontSize || ''}" style="width:100px" />`,
-            'typo',
-            'ctaFontSize',
-          )}
+          <label>Kontur-Farbe</label>
+          ${colorPicker({ id: 'hd:buttonStrokeColor', attrs: 'data-hdtypo="buttonStrokeColor"', value: hd.buttonStrokeColor, resetHtml: resetBtn('typo', 'buttonStrokeColor') })}
         </div>
-      </div>`;
+        <div style="flex:1 1 200px">${typoRange(hd, 'buttonStrokeWidth', 'Kontur-Breite', 0, 5, 'px', 0.5)}</div>
+      </div>
+      <p class="hint">Schriftart, Abstand und Kontur gelten für Chips <em>und</em> CTA-Button; Größe leer = Standard. Kontur-Breite 0 = keine Kontur.</p>
+      <p class="hint" style="margin:.6rem 0 .2rem;font-weight:600;color:var(--text)">🏷️ Beschriftungen der Chips <span class="lang-badge">${lang.toUpperCase()}</span></p>
+      <p class="hint" style="margin:0 0 .2rem">Leer lassen = Standardtext der Sprachdatei.</p>
+      ${featureLabelsBody(lang)}
+      <p class="hint" style="margin:.8rem 0 .2rem;font-weight:600;color:var(--text)">🎨 Farben ${badge}</p>`;
 
   const headingBody = `
       <div class="row" style="align-items:flex-end">
@@ -406,6 +411,7 @@ function heroDesignPanel(lang) {
       </div>`;
 
   const chipsBody = `
+      ${buttonTextBody}
       <div class="row" style="align-items:flex-end">
         ${colorField(lang, 'chipBgColor', 'Hintergrund', true, 'chipBgOpacity', s)}
         ${colorField(lang, 'chipTextColor', 'Textfarbe', false, null, s)}
@@ -419,6 +425,18 @@ function heroDesignPanel(lang) {
 
   const ctaBody = `
       <div class="row" style="align-items:flex-end">
+        <div style="flex:0 0 auto">
+          <label>Schriftgröße (px)</label>
+          ${withReset(
+            `<input type="number" data-hdtypo="ctaFontSize" min="8" max="96" step="1" placeholder="≈ 17" value="${hd.ctaFontSize || ''}" style="width:110px" />`,
+            'typo',
+            'ctaFontSize',
+          )}
+        </div>
+      </div>
+      <p class="hint" style="margin:.2rem 0 .5rem">Gilt für beide Modi; leer = Standard. Schriftart, Buchstabenabstand und Kontur teilt der CTA-Button mit den Chips (Sektion „Buttons"); der Text selbst steht unter „Hero-Texte".</p>
+      <p class="hint" style="margin:0 0 .2rem;font-weight:600;color:var(--text)">🎨 Farben ${badge}</p>
+      <div class="row" style="align-items:flex-end">
         ${colorField(lang, 'ctaBgColor', 'Hintergrund', true, 'ctaBgOpacity', s)}
         ${colorField(lang, 'ctaTextColor', 'Textfarbe', false, null, s)}
         ${colorField(lang, 'ctaBorderColor', 'Rahmenfarbe', true, 'ctaBorderOpacity', s)}
@@ -430,7 +448,6 @@ function heroDesignPanel(lang) {
         ${colorField(lang, 'ctaHoverTextColor', 'Hover-Textfarbe', false, null, s)}
       </div>`;
 
-  const badge = `<span class="lang-badge">${modusLabel}</span>`;
   return `
     <div class="panel">
       <h2>Hero-Design <span class="lang-badge">${lang.toUpperCase()}</span></h2>
@@ -468,14 +485,12 @@ function heroDesignPanel(lang) {
       </div>
 
       ${section(`✍️ Hero-Texte – Titel, Untertitel, Button-Text ${badge}`, heroTextsBody(lang))}
-      ${section('🔤 Schriften &amp; Typografie <span class="hint" style="font-weight:400">(für beide Modi)</span>', typoBody)}
+      ${section('🔤 Überschriften-Typografie &amp; globale Schrift <span class="hint" style="font-weight:400">(für beide Modi)</span>', typoBody)}
       ${section(`🅰️ Überschriften-Farbe ${badge}`, headingBody)}
       ${section(`🖼️ Rahmen &amp; Hintergrund ${badge}`, frameBody)}
-      ${section(`🔘 Buttons (Feature-Chips) ${badge}`, chipsBody)}
-      ${section(`🚀 CTA-Button („Jetzt starten") ${badge}`, ctaBody)}
-    </div>
-
-    ${featureLabelsPanel(lang)}`;
+      ${section('🔘 Buttons (Feature-Chips) – Text, Beschriftung &amp; Farben', chipsBody)}
+      ${section('🚀 CTA-Button („Jetzt starten") – Größe &amp; Farben', ctaBody)}
+    </div>`;
 }
 
 // Sektion „Hero-Texte": je Slot (Titel, Untertitel, Button-Text) der Text
@@ -545,9 +560,10 @@ function heroTextsBody(lang) {
       ${rows}`;
 }
 
-// Beschriftungen der Buttons (Feature-Chips) – über die Overrides bearbeitbar.
-function featureLabelsPanel(lang) {
-  const rows = featureDefs(lang)
+// Beschriftungen der Buttons (Feature-Chips) – über die Overrides bearbeitbar;
+// Teil der Sektion „Buttons (Feature-Chips)".
+function featureLabelsBody(lang) {
+  return featureDefs(lang)
     .map(({ key, def }) => {
       const cur = getPath(state.overrides[lang], ['hero', 'features', key]);
       const val = cur != null ? cur : '';
@@ -559,14 +575,6 @@ function featureLabelsPanel(lang) {
         )}`;
     })
     .join('');
-  return `
-    <div class="panel">
-      <details open>
-        <summary style="cursor:pointer;font-weight:600">Button-Beschriftungen <span class="lang-badge">${lang.toUpperCase()}</span></summary>
-        <p class="hint">Text der Feature-Buttons (gilt für beide Modi). Leer lassen = Standardtext.</p>
-        ${rows}
-      </details>
-    </div>`;
 }
 
 // Aktualisiert Vorschau-Box, Chips, Titel, Untertitel, CTA (inkl. Schriften,
