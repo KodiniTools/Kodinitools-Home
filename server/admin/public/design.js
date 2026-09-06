@@ -331,6 +331,8 @@ function stickyPreview(lang) {
 // Mitte: An-Schalter, DE→EN, Hero-Texte, Typografie, Button-Text + Beschriftungen.
 function centerPanel(lang) {
   const hd = heroDesignOf(lang);
+  const otherLang = lang === 'de' ? 'en' : 'de';
+  const otherLabel = otherLang === 'de' ? 'Deutsch' : 'English';
   const typoBody = `
       <div class="row">
         <div style="flex:1 1 220px">
@@ -435,14 +437,10 @@ function centerPanel(lang) {
         ${resetBtn('enabled')}
       </div>
 
-      <!-- Komplettes Hero-Design (Hell + Dunkel) von Deutsch nach Englisch übernehmen -->
+      <!-- Komplettes Hero-Design (Hell + Dunkel) in die andere Sprache übertragen -->
       <div style="margin:.6rem 0 .2rem;padding:.5rem .6rem;border:1px dashed var(--border);border-radius:8px">
-        <button data-hdcopy type="button" style="width:auto">${
-          lang === 'de'
-            ? '➡️ Dieses Hero-Design auf Englisch (EN) übernehmen'
-            : '⬅️ Hero-Design von Deutsch (DE) übernehmen'
-        }</button>
-        <p class="hint" style="margin:.35rem 0 0">Kopiert <strong>alle</strong> Hero-Design-Einstellungen (Hell + Dunkel: Schriften, Typografie, Farben, Transparenzen) sowie die Feinabstimmung der Hero-Texte (Schrift, Größe, Farbe Hell + Dunkel, Effekte) von Deutsch nach Englisch. Die <em>Texte</em> und Button-<em>Beschriftungen</em> bleiben je Sprache erhalten.</p>
+        <button data-hdcopy="${otherLang}" type="button" style="width:auto" title="Alle Hero-Design-Einstellungen (Hell + Dunkel) und die Feinabstimmung der Hero-Texte in die andere Sprache übernehmen – Texte und Beschriftungen bleiben je Sprache">📋 Hero-Design nach ${otherLabel} übertragen</button>
+        <p class="hint" style="margin:.35rem 0 0">Kopiert <strong>alle</strong> Hero-Design-Einstellungen (Hell + Dunkel: Schriften, Typografie, Farben, Transparenzen) sowie die Feinabstimmung der Hero-Texte (Schrift, Größe, Farbe Hell + Dunkel, Effekte) von ${lang === 'de' ? 'Deutsch' : 'English'} nach ${otherLabel}. Die <em>Texte</em> und Button-<em>Beschriftungen</em> bleiben je Sprache erhalten.</p>
       </div>
 
       ${section('✍️ Hero-Texte – Titel, Untertitel, Button-Text', heroTextsBody(lang))}
@@ -661,27 +659,30 @@ export function renderHeroDesign() {
   const view = captureView(pane);
   pane.innerHTML = layoutHtml(lang);
 
-  // Komplettes Hero-Design (Hell + Dunkel, alle Einstellungen) von Deutsch nach
-  // Englisch übernehmen. Die Button-Beschriftungen (Overrides) bleiben je Sprache.
+  // Komplettes Hero-Design (Hell + Dunkel, alle Einstellungen) der aktuellen
+  // Sprache in die andere übertragen. Texte und Button-Beschriftungen (Overrides)
+  // bleiben je Sprache.
   pane.querySelectorAll('[data-hdcopy]').forEach((el) => {
     el.addEventListener('click', () => {
+      const to = el.dataset.hdcopy === 'en' ? 'en' : 'de';
+      if (to === lang) return;
+      const label = to === 'de' ? 'Deutsch' : 'English';
       if (
         !confirm(
-          'Alle Hero-Design-Einstellungen für Englisch werden mit den deutschen überschrieben (Hell + Dunkel, inkl. Feinabstimmung der Hero-Texte). Die Texte selbst bleiben. Fortfahren?',
+          `Alle Hero-Design-Einstellungen für ${label} werden ersetzt (Hell + Dunkel, inkl. Feinabstimmung der Hero-Texte). Die Texte selbst bleiben. Fortfahren?`,
         )
       )
         return;
-      state.media.en.heroDesign = JSON.parse(JSON.stringify(heroDesignOf('de')));
+      const dst = state.media[to];
+      dst.heroDesign = JSON.parse(JSON.stringify(heroDesignOf(lang)));
       // Feinabstimmung der Hero-Texte (textStyles["hero.*"]) mitnehmen.
-      const deTs = state.media.de.textStyles || {};
-      const en = state.media.en;
-      if (!en.textStyles || typeof en.textStyles !== 'object') en.textStyles = {};
+      const srcTs = state.media[lang].textStyles || {};
+      if (!dst.textStyles || typeof dst.textStyles !== 'object') dst.textStyles = {};
       for (const sl of HERO_TEXT_SLOTS) {
-        if (deTs[sl.key]) en.textStyles[sl.key] = JSON.parse(JSON.stringify(deTs[sl.key]));
-        else delete en.textStyles[sl.key];
+        if (srcTs[sl.key]) dst.textStyles[sl.key] = JSON.parse(JSON.stringify(srcTs[sl.key]));
+        else delete dst.textStyles[sl.key];
       }
-      renderHeroDesign();
-      toast('Hero-Design von Deutsch nach Englisch übernommen (Hell + Dunkel)');
+      toast(`Hero-Design nach ${label} übertragen (Hell + Dunkel)`);
     });
   });
 
