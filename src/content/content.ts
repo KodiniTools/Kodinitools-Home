@@ -183,16 +183,14 @@ export interface MediaConfig {
   // Diashow des Einzelbanners: weitere Bilder (nach dem Banner) und Einstellungen.
   // Leeres Array = kein Wechsel (Banner wie bisher).
   heroBannerSlides: string[];
-  heroBannerSlideshow: {
-    interval: number; // Sekunden je Bild (1–30)
-    transition: 'fade' | 'slide' | 'zoom' | 'none';
-    pauseOnHover: boolean;
-    dots: boolean;
-  };
+  heroBannerSlideshow: HeroSlideshowSettings;
   // Option 2: bis zu sechs Bilder fürs Raster + gewähltes Seitenverhältnis.
   heroGrid: string[];
   // Verlinkung der Rasterbilder (interner Pfad oder http(s)). Leer = nicht klickbar.
   heroGridLinks: string[];
+  // Diashow je Kachel: weitere Bilder (Index = Kachel) + gemeinsame Einstellungen.
+  heroGridSlides: string[][];
+  heroGridSlideshow: HeroSlideshowSettings;
   // Per-Kachel-Design: Rahmen (Farbe/Dicke) + Hintergrund (Farbe/Transparenz).
   heroGridStyles: HeroCellStyle[];
   // „Standard für alle Kacheln": übernimmt Werte der Master-Kachel für alle.
@@ -432,6 +430,15 @@ export const HERO_BANNER_STYLE_DEFAULTS: HeroBannerStyle = {
   opacity: 100,
   darken: 0,
 };
+/** Einstellungen einer Diashow (Banner bzw. Raster-Kacheln). */
+export interface HeroSlideshowSettings {
+  interval: number; // Sekunden je Bild (1–30)
+  duration: number; // ms – Dauer des Übergangs (0–5000)
+  transition: 'fade' | 'slide' | 'zoom' | 'none';
+  pauseOnHover: boolean;
+  dots: boolean;
+  stagger?: boolean; // nur Raster: Kacheln versetzt wechseln
+}
 /** Banner-Design getrennt für Hell- und Dunkelmodus (Admin: Layout > „Banner-Design"). */
 export interface HeroBannerStyleSides {
   light: HeroBannerStyle;
@@ -517,9 +524,11 @@ const MEDIA_DEFAULTS: MediaConfig = {
   heroBannerTextAnimSpeed: 'normal',
   heroBannerStyle: { light: { ...HERO_BANNER_STYLE_DEFAULTS }, dark: { ...HERO_BANNER_STYLE_DEFAULTS } },
   heroBannerSlides: [],
-  heroBannerSlideshow: { interval: 5, transition: 'fade', pauseOnHover: true, dots: true },
+  heroBannerSlideshow: { interval: 5, duration: 800, transition: 'fade', pauseOnHover: true, dots: true },
   heroGrid: ['', '', '', '', '', ''],
   heroGridLinks: ['', '', '', '', '', ''],
+  heroGridSlides: [[], [], [], [], [], []],
+  heroGridSlideshow: { interval: 5, duration: 800, transition: 'fade', pauseOnHover: true, dots: true, stagger: true },
   heroGridStyles: Array.from({ length: 6 }, () => ({
     borderColor: '#014f99',
     borderWidth: 0,

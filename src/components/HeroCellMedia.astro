@@ -1,0 +1,60 @@
+---
+// Medium einer Raster-Kachel: das Kachel-Bild/-Video und – wenn im Admin
+// (Layout > Kachel-Inhalte > Diashow) weitere Bilder hinterlegt sind – eine
+// Diashow (HeroSlides, Variante 'cell'). Die Kacheln starten versetzt, wenn
+// „Versetzt wechseln" aktiv ist. Ohne weitere Bilder unveränderte Ausgabe.
+import SectionMedia from './SectionMedia.astro';
+import HeroSlides from './HeroSlides.astro';
+import type { MediaConfig } from '../content/content';
+
+interface Props {
+  media: MediaConfig;
+  index: number;
+  src: string;
+  alt?: string;
+}
+const { media, index, src, alt = `Bild ${index + 1}` } = Astro.props;
+const all = Array.isArray(media.heroGridSlides) ? media.heroGridSlides : [];
+const clean = (arr: unknown): string[] =>
+  Array.isArray(arr)
+    ? arr.filter((s): s is string => typeof s === 'string' && s.trim() !== '')
+    : [];
+const slides = clean(all[index]);
+const ss = media.heroGridSlideshow || {};
+// Versatz: Kacheln mit Diashow gleichmäßig über das Intervall verteilen.
+const withSlides = all.map((a, i) => (clean(a).length > 0 ? i : -1)).filter((i) => i >= 0);
+const pos = withSlides.indexOf(index);
+const interval = Math.max(1, Math.min(30, Number(ss.interval) || 5));
+const offset =
+  ss.stagger !== false && withSlides.length > 1 && pos > 0
+    ? Math.round((pos * interval * 1000) / withSlides.length)
+    : 0;
+---
+
+{
+  slides.length > 0 ? (
+    <HeroSlides
+      slides={slides}
+      settings={ss}
+      variant="cell"
+      offset={offset}
+      total={slides.length + 1}
+    >
+      <SectionMedia
+        src={src}
+        eager={true}
+        alt={alt}
+        wrapperClass="hero-cell-media hero-slide is-active"
+        mediaClass="hero-grid-media"
+      />
+    </HeroSlides>
+  ) : (
+    <SectionMedia
+      src={src}
+      eager={true}
+      alt={alt}
+      wrapperClass="hero-cell-media"
+      mediaClass="hero-grid-media"
+    />
+  )
+}

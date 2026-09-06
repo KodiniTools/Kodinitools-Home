@@ -31,6 +31,9 @@ import {
   defaultBannerSlideshow,
   BANNER_SLIDES_MAX,
   BANNER_TRANSITIONS,
+  getGridSlides,
+  getGridSlideshow,
+  defaultGridSlideshow,
   defaultBannerStyle,
   BANNER_STYLE_LIMITS,
 } from './model.js';
@@ -70,6 +73,7 @@ const GRID_DESIGN_KEYS = [
   'heroGridFit',
   'heroGridUniform',
   'heroGridUniformCell',
+  'heroGridSlideshow',
 ];
 const CELL_DESIGN_KEYS = Object.keys(defaultCellStyle()).filter((k) => k !== 'text');
 // Preset-Positionen (⤒ Oben / ◎ Mitte / ⤓ Unten) als y-Wert in %.
@@ -297,7 +301,6 @@ function bannerSlidesBlock(lang) {
   const list = slides.length
     ? rows
     : '<p class="hint" style="margin:.3rem 0">Noch keine weiteren Bilder – das Banner bleibt statisch.</p>';
-  const settingsDis = slides.length ? '' : 'disabled';
   return `
     <div class="panel" data-bannerslidesblock>
       <h2 style="font-size:1rem;margin:0 0 .3rem">🎞️ Diashow – weitere Bilder</h2>
@@ -309,26 +312,92 @@ function bannerSlidesBlock(lang) {
         <button type="button" data-slideadd ${full ? 'disabled' : ''} style="flex:0 0 auto">📂 Aus Mediathek anhängen</button>
         ${slides.length ? '<button type="button" class="danger" data-slideclear style="flex:0 0 auto">Alle entfernen</button>' : ''}
       </div>
+      ${slideshowSettingsHtml(ss, 'slideshow', !slides.length, false)}
+      <p class="hint" style="margin:.5rem 0 0">Die Vorschau oben wechselt die Bilder im eingestellten Takt; Übergänge und Punkte zeigt die veröffentlichte Seite.</p>
+    </div>`;
+}
+// Einstellungen einer Diashow (Banner: attr 'slideshow', Raster: 'gridslideshow'):
+// Anzeigedauer, Übergangsdauer, Übergang, Pause bei Mauszeiger, Punkte, optional
+// „versetzt wechseln" (nur Raster).
+function slideshowSettingsHtml(ss, attr, disabled, withStagger) {
+  const dis = disabled ? 'disabled' : '';
+  const pre = attr === 'gridslideshow' ? 'ly:gridslideshow' : 'ly:slideshow';
+  return `
       <div class="row" style="align-items:flex-end;margin-top:.7rem">
         <div style="flex:1 1 220px">
-          ${slider({ id: 'ly:slideshow:interval', label: 'Anzeigedauer je Bild', unit: 's', min: 1, max: 30, value: ss.interval, attrs: 'data-slideshow="interval"', resetAttrs: 'data-slideshowreset="interval"', disabled: !slides.length })}
+          ${slider({ id: `${pre}:interval`, label: 'Anzeigedauer je Bild', unit: 's', min: 1, max: 30, value: ss.interval, attrs: `data-${attr}="interval"`, resetAttrs: `data-${attr}reset="interval"`, disabled })}
+        </div>
+        <div style="flex:1 1 220px">
+          ${slider({ id: `${pre}:duration`, label: 'Übergangsdauer', unit: 'ms', min: 0, max: 5000, step: 50, value: ss.duration, attrs: `data-${attr}="duration"`, resetAttrs: `data-${attr}reset="duration"`, disabled })}
         </div>
         <div style="flex:0 0 auto">
           <label>Übergang</label>
-          <select data-slideshow="transition" ${settingsDis} style="width:auto;height:38px">${BANNER_TRANSITIONS.map((t) => `<option value="${t}" ${t === ss.transition ? 'selected' : ''}>${TRANSITION_LABELS[t] || t}</option>`).join('')}</select>
-        </div>
-        <div style="flex:0 0 auto">
-          <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);cursor:pointer;height:38px;margin:0">
-            <input type="checkbox" data-slideshow="pauseOnHover" ${ss.pauseOnHover ? 'checked' : ''} ${settingsDis} style="width:auto" /> Pause bei Mauszeiger
-          </label>
-        </div>
-        <div style="flex:0 0 auto">
-          <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);cursor:pointer;height:38px;margin:0">
-            <input type="checkbox" data-slideshow="dots" ${ss.dots ? 'checked' : ''} ${settingsDis} style="width:auto" /> Punkte zum Umschalten
-          </label>
+          <select data-${attr}="transition" ${dis} style="width:auto;height:38px">${BANNER_TRANSITIONS.map((t) => `<option value="${t}" ${t === ss.transition ? 'selected' : ''}>${TRANSITION_LABELS[t] || t}</option>`).join('')}</select>
         </div>
       </div>
-      <p class="hint" style="margin:.5rem 0 0">Die Vorschau oben wechselt die Bilder im eingestellten Takt; Übergänge und Punkte zeigt die veröffentlichte Seite.</p>
+      <div class="row" style="align-items:center;margin-top:.4rem;gap:1rem">
+        <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);cursor:pointer;margin:0">
+          <input type="checkbox" data-${attr}="pauseOnHover" ${ss.pauseOnHover ? 'checked' : ''} ${dis} style="width:auto" /> Pause bei Mauszeiger
+        </label>
+        <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);cursor:pointer;margin:0">
+          <input type="checkbox" data-${attr}="dots" ${ss.dots ? 'checked' : ''} ${dis} style="width:auto" /> Punkte zum Umschalten
+        </label>
+        ${
+          withStagger
+            ? `<label style="display:flex;align-items:center;gap:.4rem;color:var(--text);cursor:pointer;margin:0">
+          <input type="checkbox" data-${attr}="stagger" ${ss.stagger !== false ? 'checked' : ''} ${dis} style="width:auto" /> Versetzt wechseln (Kacheln nacheinander)
+        </label>`
+            : ''
+        }
+      </div>`;
+}
+// Weitere Bilder einer Kachel (Diashow) in der Seitenleiste „Kachel-Inhalte".
+function cellSlidesHtml(lang, i) {
+  const slides = getGridSlides(lang, i);
+  const full = slides.length >= BANNER_SLIDES_MAX;
+  const rows = slides
+    .map((val, j) => {
+      const info = slideInfo(val);
+      const thumb = info
+        ? `<img src="${esc(info.src)}" alt="" />`
+        : '<span class="hint" style="margin:0">?</span>';
+      const title = info && info.item ? `${info.item.name} – lokal` : val;
+      return `
+        <div class="row" data-cellsliderow="${i}:${j}" style="align-items:center;gap:.35rem;margin:.3rem 0">
+          <span class="hint" style="margin:0;flex:0 0 1.6rem;text-align:right">${j + 2}.</span>
+          <div class="bg-thumb" data-cellslidethumb="${i}:${j}" style="width:64px;height:40px" title="${esc(title)}">${thumb}</div>
+          <span style="display:inline-flex;gap:.2rem;flex:0 0 auto;margin-left:auto">
+            <button type="button" class="hd-reset" data-cellslideup="${i}:${j}" ${j === 0 ? 'disabled' : ''} title="Nach vorn">↑</button>
+            <button type="button" class="hd-reset" data-cellslidedown="${i}:${j}" ${j === slides.length - 1 ? 'disabled' : ''} title="Nach hinten">↓</button>
+            <button type="button" class="hd-reset danger" data-cellslideremove="${i}:${j}" title="Aus der Diashow entfernen">✕</button>
+          </span>
+        </div>`;
+    })
+    .join('');
+  return `
+      <details data-cellslides="${i}" ${slides.length ? 'open' : ''} style="margin-top:.5rem">
+        <summary style="cursor:pointer;color:var(--text)">🎞️ Diashow – weitere Bilder${slides.length ? ` (${slides.length})` : ''}</summary>
+        <p class="hint" style="margin:.3rem 0">Wechseln sich mit dem Kachel-Bild ab; Einstellungen (Takt, Übergang) gelten für alle Kacheln – siehe Mitte.</p>
+        ${rows || '<p class="hint" style="margin:.2rem 0">Noch keine weiteren Bilder.</p>'}
+        <div class="row" style="margin-top:.4rem">
+          <button type="button" class="hd-reset" data-cellslidepaste="${i}" ${full ? 'disabled' : ''} title="Bild aus der Zwischenablage anhängen">📋 Anhängen</button>
+          <button type="button" class="hd-reset" data-cellslideadd="${i}" ${full ? 'disabled' : ''}>📂 Aus Mediathek anhängen</button>
+        </div>
+      </details>`;
+}
+// Panel „Diashow der Kacheln" (Mitte, Raster-Modus): gemeinsame Einstellungen.
+function gridSlideshowPanel(lang, cellsN) {
+  const ss = getGridSlideshow(lang);
+  const withSlides = Array.from({ length: cellsN }, (_, i) => i).filter(
+    (i) => getGridSlides(lang, i).length > 0,
+  );
+  return `
+    <div class="panel" data-gridslideshowblock>
+      <h2 style="font-size:1rem;margin:0 0 .3rem">🎞️ Diashow der Kacheln</h2>
+      <p class="hint">Weitere Bilder je Kachel fügst du links unter der Kachel („Diashow – weitere Bilder") hinzu.
+        ${withSlides.length ? `Aktiv in Kachel ${withSlides.map((i) => i + 1).join(', ')}.` : 'Noch in keiner Kachel aktiv.'}
+        Takt, Übergangsdauer und Übergang gelten für alle Kacheln; „versetzt" lässt die Kacheln nacheinander wechseln.</p>
+      ${slideshowSettingsHtml(ss, 'gridslideshow', !withSlides.length, true)}
     </div>`;
 }
 // Vorschau-Diashow: wechselt das Bild in der Sticky-Vorschau im eingestellten Takt.
@@ -339,6 +408,32 @@ function stopPreviewSlideshow() {
 }
 function startPreviewSlideshow(pane, lang) {
   stopPreviewSlideshow();
+  // Raster-Modus: alle Kacheln mit weiteren Bildern wechseln im gemeinsamen Takt.
+  const cellImgs = [...pane.querySelectorAll('[data-prevmedia] img')]
+    .map((img) => {
+      const i = Number(img.closest('[data-prevmedia]').dataset.prevmedia);
+      const first = cellMedia(lang, i);
+      const srcs = [
+        first && !first.isVid ? first.src : '',
+        ...getGridSlides(lang, i).map((v) => slideInfo(v)?.src || ''),
+      ].filter(Boolean);
+      return srcs.length > 1 ? { img, srcs, cur: 0 } : null;
+    })
+    .filter(Boolean);
+  if (cellImgs.length) {
+    const ms = Math.max(1, getGridSlideshow(lang).interval) * 1000;
+    slideTimer = setInterval(() => {
+      if (!cellImgs[0].img.isConnected) {
+        stopPreviewSlideshow();
+        return;
+      }
+      for (const c of cellImgs) {
+        c.cur = (c.cur + 1) % c.srcs.length;
+        c.img.setAttribute('src', c.srcs[c.cur]);
+      }
+    }, ms);
+    return;
+  }
   const el = pane.querySelector('[data-bannermedia="media"]');
   if (!el || el.tagName !== 'IMG') return;
   const main = bannerMediaInfo(lang);
@@ -536,7 +631,8 @@ function cellImageBlock(lang, i, inherited) {
       </div>
       <div class="row" style="align-items:flex-end;margin-top:.2rem;${med || m.heroGridUniform ? '' : 'opacity:.55'}" data-cellimgrow="${i}">
         ${sliders}
-      </div>`;
+      </div>
+      ${cellSlidesHtml(lang, i)}`;
 }
 
 // Kachel-Zustand bei „Standard für alle Kacheln" (Master / geerbt).
@@ -934,7 +1030,7 @@ function layoutPanel(lang) {
     </aside>`;
   const hintPanel = `
     <div class="panel"><p class="hint" style="margin:0">Links die <strong>Inhalte</strong> der Kacheln (Bild, Text, Schrift), rechts ihr <strong>Design</strong> (Rahmen, Hintergrund, Textfarbe/-position). Die Vorschau bleibt beim Scrollen oben sichtbar; Texte darin mit der Maus verschieben.</p></div>`;
-  return `<div class="tc-layout">${contentSide}<div class="tc-main">${modePanel}${previewPanel}${layoutSel}${ratioSel}${hintPanel}</div>${designSide}</div>`;
+  return `<div class="tc-layout">${contentSide}<div class="tc-main">${modePanel}${previewPanel}${layoutSel}${ratioSel}${gridSlideshowPanel(lang, cellsN)}${hintPanel}</div>${designSide}</div>`;
 }
 
 // Aktualisiert eine Vorschau-Kachel live (ohne Neu-Rendern), damit Slider/Farb-
@@ -1128,21 +1224,34 @@ async function assignImageBlob(lang, i, blob) {
   const stamp = new Date().toISOString().slice(0, 19).replace(/[-:]/g, '').replace('T', '-');
   const isBanner = i === 'banner';
   const isSlide = i === 'slide';
-  if (isSlide && getBannerSlides(lang).length >= BANNER_SLIDES_MAX) {
+  const cellSlide =
+    typeof i === 'string' && i.startsWith('cellslide:') ? Number(i.slice(10)) : null;
+  if (
+    (isSlide && getBannerSlides(lang).length >= BANNER_SLIDES_MAX) ||
+    (cellSlide !== null && getGridSlides(lang, cellSlide).length >= BANNER_SLIDES_MAX)
+  ) {
     toast(`Maximal ${BANNER_SLIDES_MAX} weitere Bilder`);
     return false;
   }
-  const base = isBanner ? 'banner' : isSlide ? 'banner-diashow' : `kachel-${i + 1}`;
+  const base = isBanner
+    ? 'banner'
+    : isSlide
+      ? 'banner-diashow'
+      : cellSlide !== null
+        ? `kachel-${cellSlide + 1}-diashow`
+        : `kachel-${i + 1}`;
   const name = `${base}-${stamp}.${ext}`;
   const id = await stageFile(new File([blob], name, { type }), name);
   if (isSlide) getBannerSlides(lang).push('staged:' + id);
+  else if (cellSlide !== null) getGridSlides(lang, cellSlide).push('staged:' + id);
   else setMediaVal(lang, isBanner ? 'heroBanner' : 'grid' + i, 'staged:' + id);
   const y = window.scrollY;
   renderLayout();
-  if (!isBanner && !isSlide) markCell($('#content'), i);
+  if (cellSlide !== null) markCell($('#content'), cellSlide);
+  else if (!isBanner && !isSlide) markCell($('#content'), i);
   window.scrollTo({ top: y });
   toast(
-    `Bild ${isBanner ? 'als Banner' : isSlide ? 'an die Diashow angehängt' : `in Kachel ${i + 1}`} (${fmtBytes(blob.size)}) – lokal bis zum Veröffentlichen`,
+    `Bild ${isBanner ? 'als Banner' : isSlide ? 'an die Diashow angehängt' : cellSlide !== null ? `an die Diashow von Kachel ${cellSlide + 1} angehängt` : `in Kachel ${i + 1}`} (${fmtBytes(blob.size)}) – lokal bis zum Veröffentlichen`,
   );
   return true;
 }
@@ -1163,7 +1272,7 @@ function imageFromDataTransfer(dt) {
 async function pasteFromClipboardApi(lang, i) {
   if (!navigator.clipboard || typeof navigator.clipboard.read !== 'function') {
     toast(
-      i === 'banner' || i === 'slide'
+      i === 'banner' || i === 'slide' || String(i).startsWith('cellslide:')
         ? 'Zwischenablage nicht direkt lesbar – jetzt Strg/Cmd+V drücken'
         : 'Zwischenablage nicht direkt lesbar – Kachel ist markiert: jetzt Strg/Cmd+V drücken',
     );
@@ -1181,7 +1290,9 @@ async function pasteFromClipboardApi(lang, i) {
     toast('Kein Bild in der Zwischenablage');
   } catch (e) {
     const hint =
-      i === 'banner' ? 'jetzt Strg/Cmd+V drücken' : 'Kachel ist markiert: jetzt Strg/Cmd+V drücken';
+      i === 'banner' || i === 'slide' || String(i).startsWith('cellslide:')
+        ? 'jetzt Strg/Cmd+V drücken'
+        : 'Kachel ist markiert: jetzt Strg/Cmd+V drücken';
     toast(
       e && e.name === 'NotAllowedError'
         ? `Zugriff auf die Zwischenablage abgelehnt – ${hint}`
@@ -1649,6 +1760,9 @@ export function renderLayout() {
           const n = parseInt(el.value, 10);
           ss.interval = clamp(Number.isFinite(n) ? n : 5, 1, 30);
           startPreviewSlideshow(pane, lang);
+        } else if (f === 'duration') {
+          const n = parseInt(el.value, 10);
+          ss.duration = clamp(Number.isFinite(n) ? n : 800, 0, 5000);
         } else if (f === 'transition')
           ss.transition = BANNER_TRANSITIONS.includes(el.value) ? el.value : 'fade';
         else if (f === 'pauseOnHover') ss.pauseOnHover = el.checked;
@@ -1661,6 +1775,100 @@ export function renderLayout() {
       const f = el.dataset.slideshowreset;
       const d = defaultBannerSlideshow();
       if (f in d) getBannerSlideshow(lang)[f] = d[f];
+      renderLayout();
+    }),
+  );
+  // Diashow der Kacheln: Bilder je Kachel anhängen / ordnen / entfernen + Einstellungen.
+  const cellSlideRef = (el, attr) => {
+    const [i, j] = el.dataset[attr].split(':').map(Number);
+    return { i, j };
+  };
+  pane
+    .querySelectorAll('[data-cellslidepaste]')
+    .forEach((el) =>
+      el.addEventListener('click', () =>
+        pasteFromClipboardApi(lang, 'cellslide:' + Number(el.dataset.cellslidepaste)),
+      ),
+    );
+  pane.querySelectorAll('[data-cellslideadd]').forEach((el) =>
+    el.addEventListener('click', () => {
+      const i = Number(el.dataset.cellslideadd);
+      const srv = [lang, 'shared'].reduce((n, l) => n + (state.serverFiles[l] || []).length, 0);
+      if (!state.stagedItems.length && !srv) {
+        toast('Keine Bilder vorhanden — Bild einfügen oder im Tab „Dateien" hochladen.');
+        return;
+      }
+      openMediaPicker(lang, 'heroGridSlide', {
+        title: `Weiteres Bild für die Diashow von Kachel ${i + 1} wählen`,
+        imagesOnly: true,
+        onPick: (url) => {
+          const slides = getGridSlides(lang, i);
+          if (slides.length >= BANNER_SLIDES_MAX) {
+            toast(`Maximal ${BANNER_SLIDES_MAX} weitere Bilder`);
+            return;
+          }
+          slides.push(url);
+          renderLayout();
+          markCell($('#content'), i);
+          toast(`Bild an die Diashow von Kachel ${i + 1} angehängt`);
+        },
+      });
+    }),
+  );
+  pane.querySelectorAll('[data-cellslideremove]').forEach((el) =>
+    el.addEventListener('click', () => {
+      const { i, j } = cellSlideRef(el, 'cellslideremove');
+      getGridSlides(lang, i).splice(j, 1);
+      renderLayout();
+      markCell($('#content'), i);
+    }),
+  );
+  const moveCellSlide = (i, j, dir) => {
+    const slides = getGridSlides(lang, i);
+    const k = j + dir;
+    if (k < 0 || k >= slides.length) return;
+    [slides[j], slides[k]] = [slides[k], slides[j]];
+    renderLayout();
+    markCell($('#content'), i);
+  };
+  pane.querySelectorAll('[data-cellslideup]').forEach((el) =>
+    el.addEventListener('click', () => {
+      const { i, j } = cellSlideRef(el, 'cellslideup');
+      moveCellSlide(i, j, -1);
+    }),
+  );
+  pane.querySelectorAll('[data-cellslidedown]').forEach((el) =>
+    el.addEventListener('click', () => {
+      const { i, j } = cellSlideRef(el, 'cellslidedown');
+      moveCellSlide(i, j, 1);
+    }),
+  );
+  pane.querySelectorAll('[data-gridslideshow]').forEach((el) => {
+    const f = el.dataset.gridslideshow;
+    el.addEventListener(
+      el.type === 'checkbox' || el.tagName === 'SELECT' ? 'change' : 'input',
+      () => {
+        const ss = getGridSlideshow(lang);
+        if (f === 'interval') {
+          const n = parseInt(el.value, 10);
+          ss.interval = clamp(Number.isFinite(n) ? n : 5, 1, 30);
+          startPreviewSlideshow(pane, lang);
+        } else if (f === 'duration') {
+          const n = parseInt(el.value, 10);
+          ss.duration = clamp(Number.isFinite(n) ? n : 800, 0, 5000);
+        } else if (f === 'transition')
+          ss.transition = BANNER_TRANSITIONS.includes(el.value) ? el.value : 'fade';
+        else if (f === 'pauseOnHover') ss.pauseOnHover = el.checked;
+        else if (f === 'dots') ss.dots = el.checked;
+        else if (f === 'stagger') ss.stagger = el.checked;
+      },
+    );
+  });
+  pane.querySelectorAll('[data-gridslideshowreset]').forEach((el) =>
+    el.addEventListener('click', () => {
+      const f = el.dataset.gridslideshowreset;
+      const d = defaultGridSlideshow();
+      if (f in d) getGridSlideshow(lang)[f] = d[f];
       renderLayout();
     }),
   );
@@ -1761,6 +1969,7 @@ export function renderLayout() {
         light: { ...getBannerStyle(lang, 'light') },
         dark: { ...getBannerStyle(lang, 'dark') },
       };
+      state.media[to].heroBannerSlideshow = { ...getBannerSlideshow(lang) };
       toast(`Banner-Design nach ${label} übertragen`);
     }),
   );

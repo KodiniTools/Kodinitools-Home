@@ -442,6 +442,8 @@ function defaultMediaLocale() {
     heroBannerStyle: defaultBannerStyles(),
     heroBannerSlides: [],
     heroBannerSlideshow: defaultBannerSlideshow(),
+    heroGridSlides: Array.from({ length: HERO_GRID_MAX }, () => []),
+    heroGridSlideshow: defaultGridSlideshow(),
     heroGrid: ['', '', '', '', '', ''],
     heroGridLinks: ['', '', '', '', '', ''],
     heroGridStyles: defaultCellStyles(),
@@ -608,17 +610,35 @@ function validateBannerSide(s) {
 const BANNER_SLIDES_MAX = 12;
 const BANNER_TRANSITIONS = ['fade', 'slide', 'zoom', 'none'];
 function defaultBannerSlideshow() {
-  return { interval: 5, transition: 'fade', pauseOnHover: true, dots: true };
+  return { interval: 5, duration: 800, transition: 'fade', pauseOnHover: true, dots: true };
 }
-function validateBannerSlideshow(o) {
-  const d = defaultBannerSlideshow();
+function defaultGridSlideshow() {
+  return { ...defaultBannerSlideshow(), stagger: true };
+}
+function validateBannerSlideshow(o, withStagger = false) {
+  const d = withStagger ? defaultGridSlideshow() : defaultBannerSlideshow();
   if (!isPlainObject(o)) return d;
-  return {
+  const out = {
     interval: clampNum(o.interval, 1, 30, d.interval),
+    duration: clampNum(o.duration, 0, 5000, d.duration),
     transition: BANNER_TRANSITIONS.includes(o.transition) ? o.transition : d.transition,
     pauseOnHover: o.pauseOnHover !== false,
     dots: o.dots !== false,
   };
+  if (withStagger) out.stagger = o.stagger !== false;
+  return out;
+}
+// Weitere Bilder einer Diashow: '' übersprungen, sonst gültige URL; begrenzt.
+function validateSlideList(arr, label) {
+  const out = [];
+  if (!Array.isArray(arr)) return out;
+  for (const v of arr) {
+    if (v == null || v === '') continue;
+    if (!isValidMediaUrl(v)) throw new Error(`${label} ungültig`);
+    out.push(v);
+    if (out.length >= BANNER_SLIDES_MAX) break;
+  }
+  return out;
 }
 function validateBannerStyle(s) {
   if (!isPlainObject(s)) return defaultBannerStyles();
@@ -916,15 +936,7 @@ function validateMediaLocale(m, langLabel) {
   // Design des Banners selbst (Rahmen, Ecken, Schatten, Deckkraft, Verdunkelung).
   out.heroBannerStyle = validateBannerStyle(m.heroBannerStyle);
   // Diashow: weitere Bilder (je '' übersprungen, sonst gültige URL) + Einstellungen.
-  out.heroBannerSlides = [];
-  if (Array.isArray(m.heroBannerSlides)) {
-    for (const v of m.heroBannerSlides) {
-      if (v == null || v === '') continue;
-      if (!isValidMediaUrl(v)) throw new Error(`media.${langLabel}.heroBannerSlides ungültig`);
-      out.heroBannerSlides.push(v);
-      if (out.heroBannerSlides.length >= BANNER_SLIDES_MAX) break;
-    }
-  }
+  out.heroBannerSlides = validateSlideList(m.heroBannerSlides, `media.${langLabel}.heroBannerSlides`);
   out.heroBannerSlideshow = validateBannerSlideshow(m.heroBannerSlideshow);
   // Option 2 – Hero-Raster: bis zu sechs Felder, je '' oder gültige URL.
   out.heroGrid = ['', '', '', '', '', ''];
@@ -947,6 +959,14 @@ function validateMediaLocale(m, langLabel) {
       out.heroGridLinks[i] = v;
     }
   }
+  // Diashow je Kachel: genau HERO_GRID_MAX Listen weiterer Bilder + Einstellungen.
+  out.heroGridSlides = Array.from({ length: HERO_GRID_MAX }, (_, i) =>
+    validateSlideList(
+      Array.isArray(m.heroGridSlides) ? m.heroGridSlides[i] : null,
+      `media.${langLabel}.heroGridSlides[${i}]`,
+    ),
+  );
+  out.heroGridSlideshow = validateBannerSlideshow(m.heroGridSlideshow, true);
   // Per-Kachel-Design (Rahmen + Hintergrund) – genau HERO_GRID_MAX Einträge.
   out.heroGridStyles = Array.from({ length: HERO_GRID_MAX }, (_, i) =>
     validateCellStyle(Array.isArray(m.heroGridStyles) ? m.heroGridStyles[i] : null),
