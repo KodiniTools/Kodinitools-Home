@@ -731,6 +731,10 @@ export function getTextStylesCss(media: MediaConfig): string | undefined {
   const isHex = (v: unknown): v is string => /^#[0-9a-fA-F]{3,6}$/.test(String(v ?? ''));
   // -webkit-text-fill-color überschreibt auch Verlaufs-Überschriften.
   const colorDecl = (c: string) => `color:${c};-webkit-text-fill-color:${c};background:none`;
+  // Hell-Farbe nur ohne Dunkelmodus (GlobalNav setzt data-theme; ohne Attribut
+  // gilt Hell). Sonst würde eine Hell-Farbe ohne gesetzte Dunkel-Farbe auch im
+  // Dunkelmodus gelten und dort z. B. die Hero-Design-Farbe überdecken.
+  const lightSel = (sel: string) => `:root:not([data-theme="dark"]) ${sel}`;
   for (const [key, sel] of Object.entries(TEXT_STYLE_SELECTORS)) {
     const s = uniform && UNIFORM_TEXT_KEYS.includes(key) ? master : ts[key];
     if (!s) continue;
@@ -738,7 +742,7 @@ export function getTextStylesCss(media: MediaConfig): string | undefined {
     const legacy = isHex(s.color) ? s.color : '';
     const light = isHex(s.colorLight) ? s.colorLight : legacy;
     const dark = isHex(s.colorDark) ? s.colorDark : legacy;
-    // Basis-Regel: geteilte Größe + Schrift + Hell-Farbe.
+    // Basis-Regel (beide Modi): Größe + Schrift + Effekte. Farben je Modus getrennt.
     const decl: string[] = [];
     if (typeof s.size === 'number' && s.size > 0) decl.push(`font-size:${s.size}px`);
     const font = (s.font || '').trim();
@@ -746,11 +750,12 @@ export function getTextStylesCss(media: MediaConfig): string | undefined {
       faces.add(textFontFaceCss(font));
       decl.push(`font-family:"${textFontId(font)}", var(--site-font)`);
     }
-    if (light) decl.push(colorDecl(light));
     // Effekte (Deckkraft, Umriss, Schatten, Animation) anhängen.
     for (const d of textFxDecls(s)) decl.push(d);
     if (decl.length) rules.push(`${sel}{${decl.join(';')}}`);
-    // Dunkelmodus-Farbe (höhere Spezifität durch [data-theme="dark"]).
+    // Hell-Farbe nur im Hellmodus, Dunkel-Farbe nur im Dunkelmodus; fehlt eine
+    // von beiden, bleibt in diesem Modus der Seiten- bzw. Hero-Design-Standard.
+    if (light) rules.push(`${lightSel(sel)}{${colorDecl(light)}}`);
     if (dark) rules.push(`[data-theme="dark"] ${sel}{${colorDecl(dark)}}`);
   }
   return [...faces].join('') + rules.join('');
