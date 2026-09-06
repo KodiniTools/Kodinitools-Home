@@ -56,6 +56,8 @@ function renderNav() {
 // Rendert den aktuellen Bereich in #content (Sprache = state.nav.section).
 export function renderMain() {
   const { section, sub } = state.nav;
+  // Tool-Karten-Tab: dreispaltiges Layout braucht einen breiteren Rahmen.
+  $('#appView').classList.toggle('app-wide', LANG_SECTIONS.includes(section) && sub === 'cards');
   if (LANG_SECTIONS.includes(section)) {
     if (sub === 'ticker') renderTicker();
     else if (sub === 'texts') renderTexts();
