@@ -17,6 +17,7 @@ import {
   GRID_DIMS,
   getCellStyle,
   getEffectiveCellStyle,
+  HERO_GRID_MAX,
   CELL_SYNC_PROPS,
   defaultCellStyle,
   getMediaVal,
@@ -56,6 +57,16 @@ const BANNER_TEXT_DESIGN_KEYS = [
   'heroBannerTextAnimIntensity',
   'heroBannerTextAnimSpeed',
 ];
+// Raster-Einstellungen und Kachel-Felder, die „Kachel-Design nach DE/EN übertragen"
+// kopiert – alles außer Modus, Bildern/Links und dem Text je Kachel.
+const GRID_DESIGN_KEYS = [
+  'heroLayout',
+  'heroGridRatio',
+  'heroGridFit',
+  'heroGridUniform',
+  'heroGridUniformCell',
+];
+const CELL_DESIGN_KEYS = Object.keys(defaultCellStyle()).filter((k) => k !== 'text');
 // Preset-Positionen (⤒ Oben / ◎ Mitte / ⤓ Unten) als y-Wert in %.
 const POS_PRESET_Y = { top: 10, center: 50, bottom: 90 };
 // font-family-CSS für eine Kachel-Textschrift (lädt @font-face für die Vorschau) oder ''.
@@ -719,11 +730,16 @@ function layoutPanel(lang) {
         (aus dem Server-Ordner <code>/fonts</code>). Kachel in der Vorschau anklicken springt zur passenden Kachel.</p>
       ${cells.map((i) => cellContentEditor(lang, i, isMosaic && i === 0)).join('')}
     </aside>`;
+  const gridOtherLang = lang === 'de' ? 'en' : 'de';
+  const gridOtherLabel = gridOtherLang === 'de' ? 'Deutsch' : 'English';
   const designSide = `
     <aside class="tc-side" data-tcside="right">
       <div class="tc-side-head right">🎨 Kachel-Design</div>
       <p class="hint">Pro Kachel: Rahmenfarbe &amp; -dicke, Hintergrundfarbe &amp; -transparenz, Textfarbe, -größe und -position.
         Rahmendicke 0 = kein Rahmen. „Standard für alle" macht eine Kachel zur Vorlage der übrigen.</p>
+      <div class="panel" style="display:flex;flex-wrap:wrap;gap:.4rem;align-items:center">
+        <button type="button" class="hd-reset" data-gridcopylang="${gridOtherLang}" style="white-space:normal;text-align:left" title="Anordnung, Form und Design aller Kacheln in die andere Sprache übernehmen – Texte und Bilder bleiben je Sprache">📋 Kachel-Design nach ${gridOtherLabel} übertragen<br /><span class="hint" style="margin:0">(Anordnung, Form, Rahmen, Hintergrund, Schrift, Textfarbe/-größe/-position, Bildbearbeitung, „Standard für alle“ – Texte und Bilder bleiben je Sprache)</span></button>
+      </div>
       ${cells.map((i) => cellDesignEditor(lang, i, isMosaic && i === 0)).join('')}
     </aside>`;
   const hintPanel = `
@@ -1352,6 +1368,29 @@ export function renderLayout() {
       bannerPrevMode = mode;
       renderLayout();
       toast('Banner-Design zurückgesetzt');
+    }),
+  );
+  // Kachel-Raster: Anordnung, Form und Design aller Kacheln in die andere Sprache
+  // übernehmen – Kachel-Texte und Bilder/Links bleiben je Sprache.
+  pane.querySelectorAll('[data-gridcopylang]').forEach((el) =>
+    el.addEventListener('click', () => {
+      const to = el.dataset.gridcopylang === 'en' ? 'en' : 'de';
+      const label = to === 'de' ? 'Deutsch' : 'English';
+      if (
+        !confirm(
+          `Kachel-Design nach ${label} übertragen? Anordnung, Form und Design aller Kacheln werden dort ersetzt; Texte und Bilder bleiben.`,
+        )
+      )
+        return;
+      const src = state.media[lang];
+      const dst = state.media[to];
+      for (const k of GRID_DESIGN_KEYS) dst[k] = src[k];
+      for (let i = 0; i < HERO_GRID_MAX; i++) {
+        const from = getCellStyle(lang, i);
+        const target = getCellStyle(to, i);
+        for (const k of CELL_DESIGN_KEYS) target[k] = from[k];
+      }
+      toast(`Kachel-Design nach ${label} übertragen`);
     }),
   );
   // Hell ↔ Dunkel: Werte eines Modus in den anderen kopieren.
