@@ -4,6 +4,7 @@ import GlobalNav from '../../components/GlobalNav.astro'
 import TickerBar from '../../components/TickerBar.astro'
 import SectionMedia from '../../components/SectionMedia.astro'
 import HeroBannerMedia from '../../components/HeroBannerMedia.astro'
+import HeroCellMedia from '../../components/HeroCellMedia.astro'
 import SiteFooter from '../../components/SiteFooter.astro'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
@@ -299,13 +300,7 @@ const pageI18n = {
                 const cellInner = (
                   <div class={cellClass} style={cellStyle}>
                     {src && (
-                      <SectionMedia
-                        src={src}
-                        eager={true}
-                        alt={`Image ${i + 1}`}
-                        wrapperClass="hero-cell-media"
-                        mediaClass="hero-grid-media"
-                      />
+                      <HeroCellMedia media={media} index={i} src={src} alt={`Image ${i + 1}`} />
                     )}
                     {cs && cs.text && (
                       <div

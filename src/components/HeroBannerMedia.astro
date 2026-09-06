@@ -1,9 +1,10 @@
 ---
 // Medium des Einzel-Banners im Hero-Bereich: das Banner-Bild/-Video und –
-// wenn im Admin (Layout > Banner) weitere Bilder hinterlegt sind – eine
-// Diashow, die die Bilder im eingestellten Intervall mit Übergang wechselt.
-// Ohne weitere Bilder ist die Ausgabe identisch zum bisherigen Banner.
+// wenn im Admin (Layout > Banner > Diashow) weitere Bilder hinterlegt sind –
+// eine Diashow (HeroSlides). Ohne weitere Bilder ist die Ausgabe identisch
+// zum bisherigen Banner.
 import SectionMedia from './SectionMedia.astro';
+import HeroSlides from './HeroSlides.astro';
 import type { MediaConfig } from '../content/content';
 
 interface Props {
@@ -14,29 +15,12 @@ const { media, alt = 'KodiniTools Banner' } = Astro.props;
 const slides = (Array.isArray(media.heroBannerSlides) ? media.heroBannerSlides : []).filter(
   (s) => typeof s === 'string' && s.trim() !== '',
 );
-const ss = media.heroBannerSlideshow || {
-  interval: 5,
-  transition: 'fade',
-  pauseOnHover: true,
-  dots: true,
-};
-const interval = Math.max(1, Math.min(30, Number(ss.interval) || 5));
-const transition = ['fade', 'slide', 'zoom', 'none'].includes(ss.transition)
-  ? ss.transition
-  : 'fade';
-const hasSlides = slides.length > 0;
-const total = slides.length + 1;
+const ss = media.heroBannerSlideshow || {};
 ---
 
 {
-  hasSlides ? (
-    <div
-      class={`hero-slides hero-slides--${transition}`}
-      data-hero-slides
-      data-interval={interval}
-      data-pause={ss.pauseOnHover === false ? '0' : '1'}
-      style={`--slide-dur:${interval}s`}
-    >
+  slides.length > 0 ? (
+    <HeroSlides slides={slides} settings={ss} variant="banner" total={slides.length + 1}>
       <SectionMedia
         src={media.heroBanner}
         eager={true}
@@ -44,23 +28,7 @@ const total = slides.length + 1;
         wrapperClass="hero-banner-inner"
         mediaClass="hero-banner hero-slide is-active"
       />
-      {slides.map((src) => (
-        <img src={src} alt="" class="hero-banner hero-slide" loading="lazy" decoding="async" />
-      ))}
-      {ss.dots !== false && (
-        <div class="hero-slide-dots" aria-hidden="false">
-          {Array.from({ length: total }, (_, i) => (
-            <span
-              role="button"
-              tabindex="0"
-              class={`hero-slide-dot${i === 0 ? ' is-active' : ''}`}
-              data-slide={i}
-              aria-label={`Bild ${i + 1} von ${total}`}
-            />
-          ))}
-        </div>
-      )}
-    </div>
+    </HeroSlides>
   ) : (
     <SectionMedia
       src={media.heroBanner}
@@ -71,58 +39,3 @@ const total = slides.length + 1;
     />
   )
 }
-
-<script>
-  // Diashow des Hero-Banners: wechselt die Bilder im Intervall, optional Pause bei
-  // Hover; Punkte schalten direkt um (und starten das Intervall neu). Im
-  // Hintergrund-Tab wird angehalten (kein unnötiger Wechsel).
-  document.querySelectorAll<HTMLElement>('[data-hero-slides]').forEach((box) => {
-    const slides = Array.from(box.querySelectorAll<HTMLElement>('.hero-slide'));
-    if (slides.length < 2) return;
-    const dots = Array.from(box.querySelectorAll<HTMLElement>('.hero-slide-dot'));
-    const interval = Math.max(1, Number(box.dataset.interval) || 5) * 1000;
-    const pause = box.dataset.pause !== '0';
-    let cur = 0;
-    let timer: number | null = null;
-    const show = (n: number) => {
-      const next = ((n % slides.length) + slides.length) % slides.length;
-      if (next === cur) return;
-      slides.forEach((s) => s.classList.remove('is-prev'));
-      slides[cur].classList.remove('is-active');
-      slides[cur].classList.add('is-prev');
-      dots[cur]?.classList.remove('is-active');
-      cur = next;
-      slides[cur].classList.add('is-active');
-      dots[cur]?.classList.add('is-active');
-    };
-    const stop = () => {
-      if (timer !== null) window.clearInterval(timer);
-      timer = null;
-    };
-    const start = () => {
-      stop();
-      timer = window.setInterval(() => show(cur + 1), interval);
-    };
-    dots.forEach((d, n) => {
-      const go = (e: Event) => {
-        e.preventDefault();
-        e.stopPropagation();
-        show(n);
-        start();
-      };
-      d.addEventListener('click', go);
-      d.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') go(e);
-      });
-    });
-    if (pause) {
-      box.addEventListener('mouseenter', stop);
-      box.addEventListener('mouseleave', start);
-    }
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) stop();
-      else start();
-    });
-    start();
-  });
-</script>

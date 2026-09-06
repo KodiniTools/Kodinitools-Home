@@ -466,6 +466,8 @@ export function defaultMediaLocale() {
     heroBannerStyle: defaultBannerStyles(), // Rahmen/Ecken/Schatten/Deckkraft/Verdunkelung des Banners je Hell/Dunkel
     heroBannerSlides: [], // Weitere Bilder der Banner-Diashow (Server-URL oder 'staged:<id>')
     heroBannerSlideshow: defaultBannerSlideshow(), // Intervall, Übergang, Pause bei Hover, Punkte
+    heroGridSlides: normGridSlides(null), // Weitere Bilder je Kachel (Diashow)
+    heroGridSlideshow: defaultGridSlideshow(), // Diashow-Einstellungen der Kacheln
     heroGrid: ['', '', '', '', '', ''],
     heroGridLinks: ['', '', '', '', '', ''],
     heroGridStyles: defaultCellStyles(),
@@ -1246,10 +1248,21 @@ export const BANNER_TRANSITIONS = ['fade', 'slide', 'zoom', 'none'];
 export function defaultBannerSlideshow() {
   return {
     interval: 5, // Sekunden je Bild (1–30)
+    duration: 800, // ms – Dauer des Übergangs (0–5000)
     transition: 'fade', // fade | slide | zoom | none
     pauseOnHover: true, // bei Mauszeiger über dem Banner anhalten
     dots: true, // Punkte zum Umschalten anzeigen
   };
+}
+// Diashow der Raster-Kacheln: gemeinsame Einstellungen aller Kacheln, zusätzlich
+// „versetzt wechseln" (Kacheln nacheinander statt gleichzeitig).
+export function defaultGridSlideshow() {
+  return { ...defaultBannerSlideshow(), stagger: true };
+}
+export function normGridSlides(arr) {
+  return Array.from({ length: HERO_GRID_MAX }, (_, i) =>
+    normBannerSlides(Array.isArray(arr) ? arr[i] : null),
+  );
 }
 export function normBannerSlides(arr) {
   if (!Array.isArray(arr)) return [];
@@ -1258,16 +1271,33 @@ export function normBannerSlides(arr) {
     .map((v) => v.trim())
     .slice(0, BANNER_SLIDES_MAX);
 }
-export function normBannerSlideshow(o) {
-  const d = defaultBannerSlideshow();
+export function normBannerSlideshow(o, withStagger = false) {
+  const d = withStagger ? defaultGridSlideshow() : defaultBannerSlideshow();
   if (!o || typeof o !== 'object') return d;
   const n = Number(o.interval);
-  return {
+  const dur = Number(o.duration);
+  const out = {
     interval: Number.isFinite(n) ? Math.max(1, Math.min(30, Math.round(n))) : d.interval,
+    duration: Number.isFinite(dur) ? Math.max(0, Math.min(5000, Math.round(dur))) : d.duration,
     transition: BANNER_TRANSITIONS.includes(o.transition) ? o.transition : d.transition,
     pauseOnHover: o.pauseOnHover !== false,
     dots: o.dots !== false,
   };
+  if (withStagger) out.stagger = o.stagger !== false;
+  return out;
+}
+export function getGridSlides(lang, i) {
+  const m = state.media[lang];
+  if (!Array.isArray(m.heroGridSlides) || m.heroGridSlides.length !== HERO_GRID_MAX)
+    m.heroGridSlides = normGridSlides(m.heroGridSlides);
+  if (!Array.isArray(m.heroGridSlides[i])) m.heroGridSlides[i] = [];
+  return m.heroGridSlides[i];
+}
+export function getGridSlideshow(lang) {
+  const m = state.media[lang];
+  if (!m.heroGridSlideshow || typeof m.heroGridSlideshow !== 'object')
+    m.heroGridSlideshow = normBannerSlideshow(m.heroGridSlideshow, true);
+  return m.heroGridSlideshow;
 }
 // Sichert die Diashow-Strukturen der Sprache und gibt sie zurück.
 export function getBannerSlides(lang) {
@@ -1295,6 +1325,21 @@ export function heroSlideImageSlots() {
         label: `${lang.toUpperCase()} · Banner-Diashow Bild ${i + 2}`,
       }),
     );
+  }
+  for (const lang of MEDIA_LANGS) {
+    const grid = state.media[lang] && state.media[lang].heroGridSlides;
+    if (!Array.isArray(grid)) continue;
+    grid.forEach((cell, c) => {
+      if (!Array.isArray(cell)) return;
+      cell.forEach((_, j) =>
+        slots.push({
+          root: lang,
+          xLang: lang,
+          path: ['heroGridSlides', c, j],
+          label: `${lang.toUpperCase()} · Kachel ${c + 1} Diashow Bild ${j + 2}`,
+        }),
+      );
+    });
   }
   for (const slot of slots) {
     slot.get = () => {
@@ -1419,6 +1464,8 @@ export function normalizeMedia(m) {
       heroBannerStyle: normBannerStyle(o?.heroBannerStyle),
       heroBannerSlides: normBannerSlides(o?.heroBannerSlides),
       heroBannerSlideshow: normBannerSlideshow(o?.heroBannerSlideshow),
+      heroGridSlides: normGridSlides(o?.heroGridSlides),
+      heroGridSlideshow: normBannerSlideshow(o?.heroGridSlideshow, true),
       heroGrid: [0, 1, 2, 3, 4, 5].map((i) => (typeof grid[i] === 'string' ? grid[i] : '')),
       heroGridLinks: [0, 1, 2, 3, 4, 5].map((i) =>
         typeof gridLinks[i] === 'string' ? gridLinks[i] : '',
