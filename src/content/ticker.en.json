@@ -18,7 +18,7 @@
       "bgOpacity": 100
     },
     "dark": {
-      "textColor": "#fafafa",
+      "textColor": "#eee8b0",
       "bgColor": "#111e34",
       "bgOpacity": 30
     }
