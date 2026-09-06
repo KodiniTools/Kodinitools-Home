@@ -14,12 +14,12 @@
     "bgGradientTypeDark": "linear",
     "bgAngle": 180,
     "bgAngleDark": 180,
-    "fxAurora": false,
-    "fxAuroraIntensity": 50,
+    "fxAurora": true,
+    "fxAuroraIntensity": 81,
     "fxNoise": true,
-    "fxNoiseIntensity": 50,
+    "fxNoiseIntensity": 72,
     "fxSpotlight": true,
-    "fxSpotlightIntensity": 50,
+    "fxSpotlightIntensity": 74,
     "bgPattern": "grid",
     "bgPatternDark": "grid",
     "bgPatternColor": "#014f99",
@@ -42,7 +42,7 @@
     "bgImageFixedDark": true,
     "sections": {
       "style": "band",
-      "gap": 0,
+      "gap": 5,
       "audio": {
         "light": {
           "color": "#014f99",

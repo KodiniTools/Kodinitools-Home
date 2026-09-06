@@ -9,11 +9,11 @@
   ],
   "style": {
     "enabled": true,
-    "fontSize": 14,
-    "fontFamily": "Supreme-Regular.woff2",
+    "fontSize": 18,
+    "fontFamily": "Hind-Regular.woff2",
     "letterSpacing": 1.5,
     "light": {
-      "textColor": "#29486a",
+      "textColor": "#000000",
       "bgColor": "#e5eef5",
       "bgOpacity": 100
     },

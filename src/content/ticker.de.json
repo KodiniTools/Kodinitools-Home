@@ -9,13 +9,13 @@
   ],
   "style": {
     "enabled": true,
-    "fontSize": 14,
-    "fontFamily": "Supreme-Regular.woff2",
+    "fontSize": 18,
+    "fontFamily": "Hind-Regular.woff2",
     "letterSpacing": 1.5,
     "light": {
-      "textColor": "#29486a",
-      "bgColor": "#e5eef6",
-      "bgOpacity": 100
+      "textColor": "#000000",
+      "bgColor": "#fbfdfe",
+      "bgOpacity": 97
     },
     "dark": {
       "textColor": "#ffffff",
