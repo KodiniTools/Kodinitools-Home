@@ -112,10 +112,10 @@
     "heroBannerText": "NEU",
     "heroBannerFont": "Satoshi-Regular.woff2",
     "heroBannerTextColor": "#c60c0c",
-    "heroBannerTextSize": 40,
+    "heroBannerTextSize": 50,
     "heroBannerTextPos": "bottom",
-    "heroBannerTextX": 17,
-    "heroBannerTextY": 25,
+    "heroBannerTextX": 50,
+    "heroBannerTextY": 50,
     "heroBannerTextShadow": true,
     "heroBannerTextShadowColor": "#000000",
     "heroBannerTextShadowX": 0,
@@ -127,6 +127,34 @@
     "heroBannerTextAnim": "pulse",
     "heroBannerTextAnimIntensity": 7,
     "heroBannerTextAnimSpeed": "fast",
+    "heroBannerStyle": {
+      "light": {
+        "borderColor": "#34d399",
+        "borderWidth": 2,
+        "borderRadius": 14,
+        "shadow": true,
+        "shadowColor": "#000000",
+        "shadowX": -20,
+        "shadowY": 8,
+        "shadowBlur": 24,
+        "shadowOpacity": 40,
+        "opacity": 100,
+        "darken": 20
+      },
+      "dark": {
+        "borderColor": "#34d399",
+        "borderWidth": 2,
+        "borderRadius": 14,
+        "shadow": true,
+        "shadowColor": "#000000",
+        "shadowX": -20,
+        "shadowY": 8,
+        "shadowBlur": 24,
+        "shadowOpacity": 40,
+        "opacity": 100,
+        "darken": 20
+      }
+    },
     "heroGrid": [
       "",
       "",
@@ -1705,6 +1733,34 @@
     "heroBannerTextAnim": "pulse",
     "heroBannerTextAnimIntensity": 7,
     "heroBannerTextAnimSpeed": "fast",
+    "heroBannerStyle": {
+      "light": {
+        "borderColor": "#014f99",
+        "borderWidth": 0,
+        "borderRadius": 14,
+        "shadow": false,
+        "shadowColor": "#000000",
+        "shadowX": 0,
+        "shadowY": 8,
+        "shadowBlur": 24,
+        "shadowOpacity": 40,
+        "opacity": 100,
+        "darken": 0
+      },
+      "dark": {
+        "borderColor": "#014f99",
+        "borderWidth": 0,
+        "borderRadius": 14,
+        "shadow": false,
+        "shadowColor": "#000000",
+        "shadowX": 0,
+        "shadowY": 8,
+        "shadowBlur": 24,
+        "shadowOpacity": 40,
+        "opacity": 100,
+        "darken": 0
+      }
+    },
     "heroGrid": [
       "",
       "",
