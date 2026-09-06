@@ -514,6 +514,15 @@
         border-radius: 12px;
         padding: 0.8rem 0.9rem 1rem;
         min-width: 0;
+        /* Dreispaltig: Seitenleisten bleiben beim Scrollen der Mitte sichtbar und
+           scrollen ihren Inhalt selbst (eigener Scrollbereich). */
+        position: sticky;
+        top: 0.5rem;
+        max-height: calc(100vh - 1rem);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        box-sizing: border-box;
       }
       .tc-side[data-tcside='dark'] {
         background: #0b1526;
@@ -554,6 +563,30 @@
         .tc-side[data-tcside='dark'] {
           order: 2;
         }
+        .tc-side {
+          position: static;
+          max-height: none;
+          overflow: visible;
+        }
+      }
+      /* Übersicht „Alle Karten" klappbar */
+      .tc-ovdetails > summary {
+        cursor: pointer;
+        list-style: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .tc-ovdetails > summary::-webkit-details-marker {
+        display: none;
+      }
+      .tc-ovdetails > summary::before {
+        content: '▶';
+        font-size: 0.75rem;
+        color: var(--muted);
+      }
+      .tc-ovdetails[open] > summary::before {
+        content: '▼';
       }
       .tc-sticky {
         position: sticky;
