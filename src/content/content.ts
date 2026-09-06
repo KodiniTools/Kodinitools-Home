@@ -177,8 +177,9 @@ export interface MediaConfig {
   heroBannerTextAnimIntensity: number;
   heroBannerTextAnimSpeed: 'slow' | 'normal' | 'fast';
   // Design des Einzelbanners selbst (Rahmen, Ecken, Schatten, Deckkraft,
-  // Verdunkelung) – im Admin unter Layout > „Banner-Design".
-  heroBannerStyle: HeroBannerStyle;
+  // Verdunkelung), je Hell-/Dunkelmodus – im Admin unter Layout > „Banner-Design".
+  // Alt-Format (flaches Objekt ohne light/dark) gilt für beide Modi.
+  heroBannerStyle: HeroBannerStyleSides;
   // Option 2: bis zu sechs Bilder fürs Raster + gewähltes Seitenverhältnis.
   heroGrid: string[];
   // Verlinkung der Rasterbilder (interner Pfad oder http(s)). Leer = nicht klickbar.
@@ -391,9 +392,10 @@ export interface HeroCellStyle {
 }
 
 /**
- * Design des Einzelbanners (Bild/Video im Banner-Modus). Die Standardwerte
- * entsprechen dem bisherigen Aussehen aus hero.css (kein Rahmen, Radius 14 px,
- * kein Schatten, deckend, nicht verdunkelt) und erzeugen keine CSS-Ausgabe.
+ * Design des Einzelbanners (Bild/Video im Banner-Modus) für EINEN Modus. Die
+ * Standardwerte entsprechen dem bisherigen Aussehen aus hero.css (kein Rahmen,
+ * Radius 14 px, kein Schatten, deckend, nicht verdunkelt) und erzeugen keine
+ * CSS-Ausgabe.
  */
 export interface HeroBannerStyle {
   borderColor: string; // Hex – Rahmenfarbe
@@ -421,6 +423,11 @@ export const HERO_BANNER_STYLE_DEFAULTS: HeroBannerStyle = {
   opacity: 100,
   darken: 0,
 };
+/** Banner-Design getrennt für Hell- und Dunkelmodus (Admin: Layout > „Banner-Design"). */
+export interface HeroBannerStyleSides {
+  light: HeroBannerStyle;
+  dark: HeroBannerStyle;
+}
 
 /** Ein Farb-Satz des Hero-Bereichs (für Hell- bzw. Dunkelmodus getrennt). */
 export interface HeroDesignSide {
@@ -499,7 +506,7 @@ const MEDIA_DEFAULTS: MediaConfig = {
   heroBannerTextAnim: 'none',
   heroBannerTextAnimIntensity: 5,
   heroBannerTextAnimSpeed: 'normal',
-  heroBannerStyle: { ...HERO_BANNER_STYLE_DEFAULTS },
+  heroBannerStyle: { light: { ...HERO_BANNER_STYLE_DEFAULTS }, dark: { ...HERO_BANNER_STYLE_DEFAULTS } },
   heroGrid: ['', '', '', '', '', ''],
   heroGridLinks: ['', '', '', '', '', ''],
   heroGridStyles: Array.from({ length: 6 }, () => ({
@@ -668,41 +675,76 @@ export function heroCellImageVars(cs: HeroCellStyle | null | undefined): string 
 }
 
 /**
- * Design des Einzelbanners (Admin: Layout > „Banner-Design") als CSS-Regel für
- * `.hero-banner-wrapper .hero-banner` (Bild oder Video). Nur vom Standard
- * abweichende Werte werden ausgegeben; bei Standardwerten `undefined`, damit
+ * Design des Einzelbanners (Admin: Layout > „Banner-Design") als CSS-Regeln für
+ * `.hero-banner-wrapper .hero-banner` (Bild oder Video), getrennt nach Hell
+ * (Basisregel) und Dunkel (`[data-theme="dark"] …`). Nur vom Standard
+ * abweichende Werte werden ausgegeben; die Dunkel-Regel setzt zusätzlich alle
+ * von Hell gesetzten Eigenschaften explizit zurück, damit Hell-Werte nicht in
+ * den Dunkelmodus „durchbluten". Bei Standardwerten `undefined`, damit
  * unveränderte Seiten identisch bleiben (Basis-Aussehen aus hero.css).
  */
 export function getHeroBannerCss(media: MediaConfig): string | undefined {
   const d = HERO_BANNER_STYLE_DEFAULTS;
-  const s: Partial<HeroBannerStyle> = isPlainObject(media.heroBannerStyle)
-    ? media.heroBannerStyle
+  const raw = isPlainObject(media.heroBannerStyle)
+    ? (media.heroBannerStyle as unknown as Record<string, unknown>)
     : {};
+  // Alt-Format: flaches Objekt (borderWidth o. ä. auf oberster Ebene) -> beide Modi.
+  const legacy = 'borderWidth' in raw || 'shadow' in raw || 'opacity' in raw;
+  const sideOf = (key: 'light' | 'dark'): Partial<HeroBannerStyle> =>
+    legacy
+      ? (raw as Partial<HeroBannerStyle>)
+      : isPlainObject(raw[key])
+        ? (raw[key] as Partial<HeroBannerStyle>)
+        : {};
   const num = (v: unknown, min: number, max: number, def: number): number => {
     const n = typeof v === 'number' ? v : Number(v);
     return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : def;
   };
   const hex = (v: unknown, def: string): string =>
     typeof v === 'string' && /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(v) ? v : def;
-  const decl: string[] = [];
-  const bw = num(s.borderWidth, 0, 20, d.borderWidth);
-  if (bw > 0) decl.push(`border:${bw}px solid ${hex(s.borderColor, d.borderColor)}`);
-  const radius = num(s.borderRadius, 0, 80, d.borderRadius);
-  if (radius !== d.borderRadius) decl.push(`border-radius:${radius}px`);
-  if (s.shadow === true) {
-    const sx = num(s.shadowX, -50, 50, d.shadowX);
-    const sy = num(s.shadowY, -50, 50, d.shadowY);
-    const blur = num(s.shadowBlur, 0, 80, d.shadowBlur);
-    const alpha = num(s.shadowOpacity, 0, 100, d.shadowOpacity) / 100;
-    decl.push(
-      `box-shadow:${sx}px ${sy}px ${blur}px ${textHexToRgba(hex(s.shadowColor, d.shadowColor), alpha)}`,
-    );
+  // Deklarationen eines Modus als Map Eigenschaft -> Wert (nur Abweichungen).
+  const decls = (s: Partial<HeroBannerStyle>): Map<string, string> => {
+    const m = new Map<string, string>();
+    const bw = num(s.borderWidth, 0, 20, d.borderWidth);
+    if (bw > 0) m.set('border', `${bw}px solid ${hex(s.borderColor, d.borderColor)}`);
+    const radius = num(s.borderRadius, 0, 80, d.borderRadius);
+    if (radius !== d.borderRadius) m.set('border-radius', `${radius}px`);
+    if (s.shadow === true) {
+      const sx = num(s.shadowX, -50, 50, d.shadowX);
+      const sy = num(s.shadowY, -50, 50, d.shadowY);
+      const blur = num(s.shadowBlur, 0, 80, d.shadowBlur);
+      const alpha = num(s.shadowOpacity, 0, 100, d.shadowOpacity) / 100;
+      m.set(
+        'box-shadow',
+        `${sx}px ${sy}px ${blur}px ${textHexToRgba(hex(s.shadowColor, d.shadowColor), alpha)}`,
+      );
+    }
+    const opacity = num(s.opacity, 0, 100, d.opacity);
+    if (opacity < 100) m.set('opacity', (opacity / 100).toFixed(2));
+    const darken = num(s.darken, 0, 100, d.darken);
+    if (darken > 0) m.set('filter', `brightness(${((100 - darken) / 100).toFixed(2)})`);
+    return m;
+  };
+  // Basiswerte aus hero.css für Eigenschaften, die Hell setzt und Dunkel nicht.
+  const BASE: Record<string, string> = {
+    border: '0',
+    'border-radius': `${d.borderRadius}px`,
+    'box-shadow': 'none',
+    opacity: '1',
+    filter: 'none',
+  };
+  const light = decls(sideOf('light'));
+  const dark = decls(sideOf('dark'));
+  const sel = '.hero-banner-wrapper .hero-banner';
+  const rules: string[] = [];
+  if (light.size) rules.push(`${sel}{${[...light].map(([k, v]) => `${k}:${v}`).join(';')}}`);
+  const darkDecl: string[] = [];
+  for (const k of Object.keys(BASE)) {
+    if (dark.has(k)) darkDecl.push(`${k}:${dark.get(k)}`);
+    else if (light.has(k)) darkDecl.push(`${k}:${BASE[k]}`);
   }
-  const opacity = num(s.opacity, 0, 100, d.opacity);
-  if (opacity < 100) decl.push(`opacity:${(opacity / 100).toFixed(2)}`);
-  const darken = num(s.darken, 0, 100, d.darken);
-  if (darken > 0) decl.push(`filter:brightness(${((100 - darken) / 100).toFixed(2)})`);
-  return decl.length ? `.hero-banner-wrapper .hero-banner{${decl.join(';')}}` : undefined;
+  if (darkDecl.length) rules.push(`[data-theme="dark"] ${sel}{${darkDecl.join(';')}}`);
+  return rules.length ? rules.join('\n') : undefined;
 }
 
 // Schrift-Helfer für die Text-Slots (Dateiname -> Family-Name + @font-face).
