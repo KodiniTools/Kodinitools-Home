@@ -313,6 +313,114 @@
 .hero-banner-inner {
   display: contents;
 }
+/* Diashow des Banners (Admin: Layout > Banner > Diashow): Container in der
+   Größe des ersten Bildes; weitere Bilder liegen absolut darüber und werden per
+   is-active eingeblendet. Rahmen/Schatten/Deckkraft aus dem Banner-Design
+   wirken hier auf den Container (content.ts → getHeroBannerCss), die Einzel-
+   bilder bleiben neutral. */
+.hero-slides {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: top;
+  overflow: hidden;
+  border-radius: 14px;
+  isolation: isolate;
+}
+.hero-banner-wrapper .hero-slides .hero-banner {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  opacity: 1;
+  filter: none;
+}
+.hero-slides > img.hero-slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  object-fit: cover;
+  box-sizing: border-box;
+}
+.hero-slides .hero-slide {
+  z-index: 0;
+  transition:
+    opacity 0.8s ease,
+    transform 0.7s ease;
+}
+.hero-slides .hero-slide:not(.is-active) {
+  opacity: 0;
+  pointer-events: none;
+}
+.hero-slides .hero-slide.is-active {
+  z-index: 1;
+}
+/* Übergang „Schieben": neues Bild von rechts, altes nach links hinaus. */
+.hero-slides--slide .hero-slide {
+  transform: translateX(100%);
+}
+.hero-slides--slide .hero-slide.is-active {
+  transform: translateX(0);
+}
+.hero-slides--slide .hero-slide.is-prev {
+  transform: translateX(-100%);
+  opacity: 1;
+}
+/* Übergang „Zoom" (Ken-Burns): aktives Bild vergrößert sich langsam. */
+.hero-slides--zoom .hero-slide.is-active {
+  animation: kodini-slide-zoom var(--slide-dur, 5s) ease-out forwards;
+}
+@keyframes kodini-slide-zoom {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08);
+  }
+}
+/* Übergang „Keiner": harter Schnitt. */
+.hero-slides--none .hero-slide {
+  transition: none;
+}
+/* Punkte zum Umschalten (unten mittig). */
+.hero-slide-dots {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.5rem;
+  z-index: 3;
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+  pointer-events: none;
+}
+.hero-slide-dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.hero-slide-dot.is-active {
+  background: #fff;
+  transform: scale(1.2);
+}
+.hero-slide-dot:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-slides .hero-slide {
+    transition: none;
+    animation: none !important;
+  }
+}
 /* Text über dem Banner: an frei wählbarer Position (left/top per Inline-Style,
    Standard 50%/50%) verankert; der Mittelpunkt sitzt auf dem Ankerpunkt. */
 .hero-banner-text {
@@ -329,6 +437,7 @@
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
   pointer-events: none;
   word-break: break-word;
+  z-index: 2;
 }
 /* Text-Animationen des Banner-Textes (zuschaltbar). Amplitude kommt aus dem
    Inline-Style (Intensität aus dem Admin), Tempo über --anim-dur. Alle nutzen die

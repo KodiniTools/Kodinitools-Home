@@ -26,6 +26,11 @@ import {
   BANNER_ANIM_TYPES,
   BANNER_ANIM_SPEEDS,
   getBannerStyle,
+  getBannerSlides,
+  getBannerSlideshow,
+  defaultBannerSlideshow,
+  BANNER_SLIDES_MAX,
+  BANNER_TRANSITIONS,
   defaultBannerStyle,
   BANNER_STYLE_LIMITS,
 } from './model.js';
@@ -240,6 +245,121 @@ function bannerMediaBlock(lang) {
         </div>
       </div>
     </div>`;
+}
+// Ein Diashow-Bild (Server-URL oder 'staged:<id>') auflösen: { src, item } oder null.
+function slideInfo(val) {
+  if (!val) return null;
+  if (val.startsWith('staged:')) {
+    const id = val.slice(7);
+    const item = state.stagedItems.find((x) => x.id === id);
+    if (!item) return null;
+    return { src: objUrl(id), item };
+  }
+  return { src: val, item: null };
+}
+const TRANSITION_LABELS = {
+  fade: 'Überblenden',
+  slide: 'Schieben',
+  zoom: 'Zoom (Ken Burns)',
+  none: 'Harter Schnitt',
+};
+// Panel „Diashow": weitere Bilder (Reihenfolge, Entfernen) + Intervall, Übergang,
+// Pause bei Hover, Punkte. Ohne weitere Bilder bleibt das Banner statisch.
+function bannerSlidesBlock(lang) {
+  const slides = getBannerSlides(lang);
+  const ss = getBannerSlideshow(lang);
+  const full = slides.length >= BANNER_SLIDES_MAX;
+  const rows = slides
+    .map((val, i) => {
+      const info = slideInfo(val);
+      const thumb = info
+        ? `<img src="${esc(info.src)}" alt="" />`
+        : '<span class="hint" style="margin:0">?</span>';
+      const label =
+        info && info.item
+          ? `● ${esc(info.item.name)} – lokal, wird beim Veröffentlichen hochgeladen`
+          : info
+            ? esc(val)
+            : `⚠ ${esc(val)} (lokales Bild nicht gefunden)`;
+      return `
+        <div class="row" data-sliderow="${i}" style="align-items:center;gap:.5rem;margin:.35rem 0">
+          <span class="hint" style="margin:0;flex:0 0 2.2rem;text-align:right">${i + 2}.</span>
+          <div class="bg-thumb" data-slidethumb="${i}" style="width:120px;height:60px">${thumb}</div>
+          <div style="flex:1 1 200px;min-width:0"><p class="st ${info && info.item ? 'local' : 'pub'}" style="margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${label}</p></div>
+          <span style="display:inline-flex;gap:.25rem;flex:0 0 auto">
+            <button type="button" class="hd-reset" data-slideup="${i}" ${i === 0 ? 'disabled' : ''} title="Nach vorn">↑</button>
+            <button type="button" class="hd-reset" data-slidedown="${i}" ${i === slides.length - 1 ? 'disabled' : ''} title="Nach hinten">↓</button>
+            <button type="button" class="hd-reset danger" data-slideremove="${i}" title="Aus der Diashow entfernen">✕</button>
+          </span>
+        </div>`;
+    })
+    .join('');
+  const list = slides.length
+    ? rows
+    : '<p class="hint" style="margin:.3rem 0">Noch keine weiteren Bilder – das Banner bleibt statisch.</p>';
+  const settingsDis = slides.length ? '' : 'disabled';
+  return `
+    <div class="panel" data-bannerslidesblock>
+      <h2 style="font-size:1rem;margin:0 0 .3rem">🎞️ Diashow – weitere Bilder</h2>
+      <p class="hint">Weitere Bilder wechseln sich mit dem Banner (Bild 1) ab. Gleiche Größe wie das Banner empfohlen
+        (ca. 1800 × 480 px); nur Bilder, keine Videos. Bis zu ${BANNER_SLIDES_MAX} weitere Bilder.</p>
+      <div data-slidelist>${list}</div>
+      <div class="row" style="margin-top:.5rem">
+        <button type="button" data-slidepaste ${full ? 'disabled' : ''} title="Bild aus der Zwischenablage als weiteres Bild anhängen" style="flex:0 0 auto">📋 Aus Zwischenablage anhängen</button>
+        <button type="button" data-slideadd ${full ? 'disabled' : ''} style="flex:0 0 auto">📂 Aus Mediathek anhängen</button>
+        ${slides.length ? '<button type="button" class="danger" data-slideclear style="flex:0 0 auto">Alle entfernen</button>' : ''}
+      </div>
+      <div class="row" style="align-items:flex-end;margin-top:.7rem">
+        <div style="flex:1 1 220px">
+          ${slider({ id: 'ly:slideshow:interval', label: 'Anzeigedauer je Bild', unit: 's', min: 1, max: 30, value: ss.interval, attrs: 'data-slideshow="interval"', resetAttrs: 'data-slideshowreset="interval"', disabled: !slides.length })}
+        </div>
+        <div style="flex:0 0 auto">
+          <label>Übergang</label>
+          <select data-slideshow="transition" ${settingsDis} style="width:auto;height:38px">${BANNER_TRANSITIONS.map((t) => `<option value="${t}" ${t === ss.transition ? 'selected' : ''}>${TRANSITION_LABELS[t] || t}</option>`).join('')}</select>
+        </div>
+        <div style="flex:0 0 auto">
+          <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);cursor:pointer;height:38px;margin:0">
+            <input type="checkbox" data-slideshow="pauseOnHover" ${ss.pauseOnHover ? 'checked' : ''} ${settingsDis} style="width:auto" /> Pause bei Mauszeiger
+          </label>
+        </div>
+        <div style="flex:0 0 auto">
+          <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);cursor:pointer;height:38px;margin:0">
+            <input type="checkbox" data-slideshow="dots" ${ss.dots ? 'checked' : ''} ${settingsDis} style="width:auto" /> Punkte zum Umschalten
+          </label>
+        </div>
+      </div>
+      <p class="hint" style="margin:.5rem 0 0">Die Vorschau oben wechselt die Bilder im eingestellten Takt; Übergänge und Punkte zeigt die veröffentlichte Seite.</p>
+    </div>`;
+}
+// Vorschau-Diashow: wechselt das Bild in der Sticky-Vorschau im eingestellten Takt.
+let slideTimer = null;
+function stopPreviewSlideshow() {
+  if (slideTimer !== null) clearInterval(slideTimer);
+  slideTimer = null;
+}
+function startPreviewSlideshow(pane, lang) {
+  stopPreviewSlideshow();
+  const el = pane.querySelector('[data-bannermedia="media"]');
+  if (!el || el.tagName !== 'IMG') return;
+  const main = bannerMediaInfo(lang);
+  const srcs = [
+    main ? main.src : '',
+    ...getBannerSlides(lang).map((v) => slideInfo(v)?.src || ''),
+  ].filter(Boolean);
+  if (srcs.length < 2) return;
+  let cur = 0;
+  const ms = Math.max(1, getBannerSlideshow(lang).interval) * 1000;
+  slideTimer = setInterval(() => {
+    if (!el.isConnected) {
+      stopPreviewSlideshow();
+      return;
+    }
+    cur = (cur + 1) % srcs.length;
+    el.setAttribute('src', srcs[cur]);
+    pane.querySelectorAll('[data-slidethumb]').forEach((t) => {
+      t.style.outline = Number(t.dataset.slidethumb) === cur - 1 ? '2px solid var(--accent)' : '';
+    });
+  }, ms);
 }
 // Prüft nach dem Rendern, ob die referenzierte /uploads-Datei des Banners auf dem
 // Server existiert; fehlt sie, erscheint eine deutliche Warnung.
@@ -745,7 +865,7 @@ function layoutPanel(lang) {
           </div>
         </div>
       </aside>`;
-    return `<div class="tc-layout">${designSide}<div class="tc-main">${modePanel}${previewPanel}${bannerMediaBlock(lang)}
+    return `<div class="tc-layout">${designSide}<div class="tc-main">${modePanel}${previewPanel}${bannerMediaBlock(lang)}${bannerSlidesBlock(lang)}
       <div class="panel"><p class="hint" style="margin:0">Links das <strong>Banner-Design</strong> (Rahmen, Schatten, Deckkraft, Verdunkelung), rechts der <strong>Banner-Text</strong> mit allen Effekten. Die Vorschau bleibt beim Scrollen oben sichtbar; den Text in der Vorschau mit der Maus verschieben.</p></div>
     </div>${textSide}</div>`;
   }
@@ -1007,15 +1127,22 @@ async function assignImageBlob(lang, i, blob) {
   }
   const stamp = new Date().toISOString().slice(0, 19).replace(/[-:]/g, '').replace('T', '-');
   const isBanner = i === 'banner';
-  const name = `${isBanner ? 'banner' : `kachel-${i + 1}`}-${stamp}.${ext}`;
+  const isSlide = i === 'slide';
+  if (isSlide && getBannerSlides(lang).length >= BANNER_SLIDES_MAX) {
+    toast(`Maximal ${BANNER_SLIDES_MAX} weitere Bilder`);
+    return false;
+  }
+  const base = isBanner ? 'banner' : isSlide ? 'banner-diashow' : `kachel-${i + 1}`;
+  const name = `${base}-${stamp}.${ext}`;
   const id = await stageFile(new File([blob], name, { type }), name);
-  setMediaVal(lang, isBanner ? 'heroBanner' : 'grid' + i, 'staged:' + id);
+  if (isSlide) getBannerSlides(lang).push('staged:' + id);
+  else setMediaVal(lang, isBanner ? 'heroBanner' : 'grid' + i, 'staged:' + id);
   const y = window.scrollY;
   renderLayout();
-  if (!isBanner) markCell($('#content'), i);
+  if (!isBanner && !isSlide) markCell($('#content'), i);
   window.scrollTo({ top: y });
   toast(
-    `Bild ${isBanner ? 'als Banner' : `in Kachel ${i + 1}`} eingefügt (${fmtBytes(blob.size)}) – lokal bis zum Veröffentlichen`,
+    `Bild ${isBanner ? 'als Banner' : isSlide ? 'an die Diashow angehängt' : `in Kachel ${i + 1}`} (${fmtBytes(blob.size)}) – lokal bis zum Veröffentlichen`,
   );
   return true;
 }
@@ -1036,7 +1163,7 @@ function imageFromDataTransfer(dt) {
 async function pasteFromClipboardApi(lang, i) {
   if (!navigator.clipboard || typeof navigator.clipboard.read !== 'function') {
     toast(
-      i === 'banner'
+      i === 'banner' || i === 'slide'
         ? 'Zwischenablage nicht direkt lesbar – jetzt Strg/Cmd+V drücken'
         : 'Zwischenablage nicht direkt lesbar – Kachel ist markiert: jetzt Strg/Cmd+V drücken',
     );
@@ -1143,6 +1270,7 @@ export function renderLayout() {
   const pane = $('#content');
   // Sichtzustand (Scroll der Seite/Seitenleisten, auf-/zugeklappte Bereiche) erhalten.
   const view = captureView(pane);
+  stopPreviewSlideshow();
   pane.innerHTML = layoutPanel(lang);
 
   // Zustand der bereichsinternen ↶/↷-Buttons sofort von der Kopfleiste
@@ -1453,6 +1581,90 @@ export function renderLayout() {
     }),
   );
   verifyBannerFile(pane);
+  // Diashow: Bilder anhängen / ordnen / entfernen + Einstellungen.
+  pane
+    .querySelectorAll('[data-slidepaste]')
+    .forEach((el) => el.addEventListener('click', () => pasteFromClipboardApi(lang, 'slide')));
+  pane.querySelectorAll('[data-slideadd]').forEach((el) =>
+    el.addEventListener('click', () => {
+      const srv = [lang, 'shared'].reduce((n, l) => n + (state.serverFiles[l] || []).length, 0);
+      if (!state.stagedItems.length && !srv) {
+        toast('Keine Bilder vorhanden — Bild einfügen oder im Tab „Dateien" hochladen.');
+        return;
+      }
+      openMediaPicker(lang, 'heroBannerSlide', {
+        title: 'Weiteres Bild für die Diashow wählen',
+        imagesOnly: true,
+        onPick: (url) => {
+          const slides = getBannerSlides(lang);
+          if (slides.length >= BANNER_SLIDES_MAX) {
+            toast(`Maximal ${BANNER_SLIDES_MAX} weitere Bilder`);
+            return;
+          }
+          slides.push(url);
+          renderLayout();
+          toast('Bild an die Diashow angehängt');
+        },
+      });
+    }),
+  );
+  pane.querySelectorAll('[data-slideremove]').forEach((el) =>
+    el.addEventListener('click', () => {
+      getBannerSlides(lang).splice(Number(el.dataset.slideremove), 1);
+      renderLayout();
+      toast('Bild aus der Diashow entfernt');
+    }),
+  );
+  pane.querySelectorAll('[data-slideclear]').forEach((el) =>
+    el.addEventListener('click', () => {
+      if (!confirm('Alle weiteren Bilder aus der Diashow entfernen? Das Banner selbst bleibt.'))
+        return;
+      getBannerSlides(lang).length = 0;
+      renderLayout();
+      toast('Diashow geleert');
+    }),
+  );
+  const moveSlide = (i, dir) => {
+    const slides = getBannerSlides(lang);
+    const j = i + dir;
+    if (j < 0 || j >= slides.length) return;
+    [slides[i], slides[j]] = [slides[j], slides[i]];
+    renderLayout();
+  };
+  pane
+    .querySelectorAll('[data-slideup]')
+    .forEach((el) => el.addEventListener('click', () => moveSlide(Number(el.dataset.slideup), -1)));
+  pane
+    .querySelectorAll('[data-slidedown]')
+    .forEach((el) =>
+      el.addEventListener('click', () => moveSlide(Number(el.dataset.slidedown), 1)),
+    );
+  pane.querySelectorAll('[data-slideshow]').forEach((el) => {
+    const f = el.dataset.slideshow;
+    el.addEventListener(
+      el.type === 'checkbox' || el.tagName === 'SELECT' ? 'change' : 'input',
+      () => {
+        const ss = getBannerSlideshow(lang);
+        if (f === 'interval') {
+          const n = parseInt(el.value, 10);
+          ss.interval = clamp(Number.isFinite(n) ? n : 5, 1, 30);
+          startPreviewSlideshow(pane, lang);
+        } else if (f === 'transition')
+          ss.transition = BANNER_TRANSITIONS.includes(el.value) ? el.value : 'fade';
+        else if (f === 'pauseOnHover') ss.pauseOnHover = el.checked;
+        else if (f === 'dots') ss.dots = el.checked;
+      },
+    );
+  });
+  pane.querySelectorAll('[data-slideshowreset]').forEach((el) =>
+    el.addEventListener('click', () => {
+      const f = el.dataset.slideshowreset;
+      const d = defaultBannerSlideshow();
+      if (f in d) getBannerSlideshow(lang)[f] = d[f];
+      renderLayout();
+    }),
+  );
+  startPreviewSlideshow(pane, lang);
 
   // Banner-Design je Modus: Rahmen / Ecken / Schatten / Deckkraft / Verdunkelung.
   pane

@@ -464,6 +464,8 @@ export function defaultMediaLocale() {
     heroBannerTextAnimIntensity: 5, // Stärke der Animation (1–10)
     heroBannerTextAnimSpeed: 'normal', // Tempo: slow|normal|fast
     heroBannerStyle: defaultBannerStyles(), // Rahmen/Ecken/Schatten/Deckkraft/Verdunkelung des Banners je Hell/Dunkel
+    heroBannerSlides: [], // Weitere Bilder der Banner-Diashow (Server-URL oder 'staged:<id>')
+    heroBannerSlideshow: defaultBannerSlideshow(), // Intervall, Übergang, Pause bei Hover, Punkte
     heroGrid: ['', '', '', '', '', ''],
     heroGridLinks: ['', '', '', '', '', ''],
     heroGridStyles: defaultCellStyles(),
@@ -1238,9 +1240,74 @@ export function toolCardImageSlots() {
   }
   return slots;
 }
-// Alle Bild-Plätze außerhalb der Sprach-Slots (Seite + Tool-Karten).
+// --- Diashow des Einzelbanners (weitere Bilder zusätzlich zum Banner) ---
+export const BANNER_SLIDES_MAX = 12;
+export const BANNER_TRANSITIONS = ['fade', 'slide', 'zoom', 'none'];
+export function defaultBannerSlideshow() {
+  return {
+    interval: 5, // Sekunden je Bild (1–30)
+    transition: 'fade', // fade | slide | zoom | none
+    pauseOnHover: true, // bei Mauszeiger über dem Banner anhalten
+    dots: true, // Punkte zum Umschalten anzeigen
+  };
+}
+export function normBannerSlides(arr) {
+  if (!Array.isArray(arr)) return [];
+  return arr
+    .filter((v) => typeof v === 'string' && v.trim())
+    .map((v) => v.trim())
+    .slice(0, BANNER_SLIDES_MAX);
+}
+export function normBannerSlideshow(o) {
+  const d = defaultBannerSlideshow();
+  if (!o || typeof o !== 'object') return d;
+  const n = Number(o.interval);
+  return {
+    interval: Number.isFinite(n) ? Math.max(1, Math.min(30, Math.round(n))) : d.interval,
+    transition: BANNER_TRANSITIONS.includes(o.transition) ? o.transition : d.transition,
+    pauseOnHover: o.pauseOnHover !== false,
+    dots: o.dots !== false,
+  };
+}
+// Sichert die Diashow-Strukturen der Sprache und gibt sie zurück.
+export function getBannerSlides(lang) {
+  const m = state.media[lang];
+  if (!Array.isArray(m.heroBannerSlides)) m.heroBannerSlides = normBannerSlides(m.heroBannerSlides);
+  return m.heroBannerSlides;
+}
+export function getBannerSlideshow(lang) {
+  const m = state.media[lang];
+  if (!m.heroBannerSlideshow || typeof m.heroBannerSlideshow !== 'object')
+    m.heroBannerSlideshow = normBannerSlideshow(m.heroBannerSlideshow);
+  return m.heroBannerSlideshow;
+}
+// Bild-Plätze der Diashow (je Sprache und Index) – Upload in den Ordner der Sprache.
+export function heroSlideImageSlots() {
+  const slots = [];
+  for (const lang of MEDIA_LANGS) {
+    const arr = state.media[lang] && state.media[lang].heroBannerSlides;
+    if (!Array.isArray(arr)) continue;
+    arr.forEach((_, i) =>
+      slots.push({
+        root: lang,
+        xLang: lang,
+        path: ['heroBannerSlides', i],
+        label: `${lang.toUpperCase()} · Banner-Diashow Bild ${i + 2}`,
+      }),
+    );
+  }
+  for (const slot of slots) {
+    slot.get = () => {
+      const v = getPath(state.media[slot.root], slot.path);
+      return typeof v === 'string' ? v : '';
+    };
+    slot.set = (v) => setPath(state.media[slot.root], slot.path, String(v ?? '').trim());
+  }
+  return slots;
+}
+// Alle Bild-Plätze außerhalb der Sprach-Slots (Seite + Tool-Karten + Banner-Diashow).
 export function allImageSlots() {
-  return [...siteImageSlots(), ...toolCardImageSlots()];
+  return [...siteImageSlots(), ...toolCardImageSlots(), ...heroSlideImageSlots()];
 }
 // Standard-Hintergrundfarben je Modus (identisch zu global.css --bg-color).
 export const PAGE_BG_DEFAULT = { light: '#fafafa', dark: '#091428' };
@@ -1350,6 +1417,8 @@ export function normalizeMedia(m) {
         ? o.heroBannerTextAnimSpeed
         : 'normal',
       heroBannerStyle: normBannerStyle(o?.heroBannerStyle),
+      heroBannerSlides: normBannerSlides(o?.heroBannerSlides),
+      heroBannerSlideshow: normBannerSlideshow(o?.heroBannerSlideshow),
       heroGrid: [0, 1, 2, 3, 4, 5].map((i) => (typeof grid[i] === 'string' ? grid[i] : '')),
       heroGridLinks: [0, 1, 2, 3, 4, 5].map((i) =>
         typeof gridLinks[i] === 'string' ? gridLinks[i] : '',
