@@ -440,6 +440,8 @@ function defaultMediaLocale() {
     heroBanner: '',
     heroBannerLink: '',
     heroBannerStyle: defaultBannerStyles(),
+    heroBannerSlides: [],
+    heroBannerSlideshow: defaultBannerSlideshow(),
     heroGrid: ['', '', '', '', '', ''],
     heroGridLinks: ['', '', '', '', '', ''],
     heroGridStyles: defaultCellStyles(),
@@ -602,6 +604,22 @@ function validateBannerSide(s) {
   };
 }
 // { light, dark }; Alt-Format (flaches Objekt ohne light/dark) gilt für beide Modi.
+// Diashow des Einzelbanners: Intervall, Übergang, Pause bei Hover, Punkte.
+const BANNER_SLIDES_MAX = 12;
+const BANNER_TRANSITIONS = ['fade', 'slide', 'zoom', 'none'];
+function defaultBannerSlideshow() {
+  return { interval: 5, transition: 'fade', pauseOnHover: true, dots: true };
+}
+function validateBannerSlideshow(o) {
+  const d = defaultBannerSlideshow();
+  if (!isPlainObject(o)) return d;
+  return {
+    interval: clampNum(o.interval, 1, 30, d.interval),
+    transition: BANNER_TRANSITIONS.includes(o.transition) ? o.transition : d.transition,
+    pauseOnHover: o.pauseOnHover !== false,
+    dots: o.dots !== false,
+  };
+}
 function validateBannerStyle(s) {
   if (!isPlainObject(s)) return defaultBannerStyles();
   const flat = !isPlainObject(s.light) && !isPlainObject(s.dark);
@@ -897,6 +915,17 @@ function validateMediaLocale(m, langLabel) {
     : 'normal';
   // Design des Banners selbst (Rahmen, Ecken, Schatten, Deckkraft, Verdunkelung).
   out.heroBannerStyle = validateBannerStyle(m.heroBannerStyle);
+  // Diashow: weitere Bilder (je '' übersprungen, sonst gültige URL) + Einstellungen.
+  out.heroBannerSlides = [];
+  if (Array.isArray(m.heroBannerSlides)) {
+    for (const v of m.heroBannerSlides) {
+      if (v == null || v === '') continue;
+      if (!isValidMediaUrl(v)) throw new Error(`media.${langLabel}.heroBannerSlides ungültig`);
+      out.heroBannerSlides.push(v);
+      if (out.heroBannerSlides.length >= BANNER_SLIDES_MAX) break;
+    }
+  }
+  out.heroBannerSlideshow = validateBannerSlideshow(m.heroBannerSlideshow);
   // Option 2 – Hero-Raster: bis zu sechs Felder, je '' oder gültige URL.
   out.heroGrid = ['', '', '', '', '', ''];
   if (Array.isArray(m.heroGrid)) {

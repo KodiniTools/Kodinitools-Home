@@ -180,6 +180,15 @@ export interface MediaConfig {
   // Verdunkelung), je Hell-/Dunkelmodus – im Admin unter Layout > „Banner-Design".
   // Alt-Format (flaches Objekt ohne light/dark) gilt für beide Modi.
   heroBannerStyle: HeroBannerStyleSides;
+  // Diashow des Einzelbanners: weitere Bilder (nach dem Banner) und Einstellungen.
+  // Leeres Array = kein Wechsel (Banner wie bisher).
+  heroBannerSlides: string[];
+  heroBannerSlideshow: {
+    interval: number; // Sekunden je Bild (1–30)
+    transition: 'fade' | 'slide' | 'zoom' | 'none';
+    pauseOnHover: boolean;
+    dots: boolean;
+  };
   // Option 2: bis zu sechs Bilder fürs Raster + gewähltes Seitenverhältnis.
   heroGrid: string[];
   // Verlinkung der Rasterbilder (interner Pfad oder http(s)). Leer = nicht klickbar.
@@ -507,6 +516,8 @@ const MEDIA_DEFAULTS: MediaConfig = {
   heroBannerTextAnimIntensity: 5,
   heroBannerTextAnimSpeed: 'normal',
   heroBannerStyle: { light: { ...HERO_BANNER_STYLE_DEFAULTS }, dark: { ...HERO_BANNER_STYLE_DEFAULTS } },
+  heroBannerSlides: [],
+  heroBannerSlideshow: { interval: 5, transition: 'fade', pauseOnHover: true, dots: true },
   heroGrid: ['', '', '', '', '', ''],
   heroGridLinks: ['', '', '', '', '', ''],
   heroGridStyles: Array.from({ length: 6 }, () => ({
@@ -735,7 +746,10 @@ export function getHeroBannerCss(media: MediaConfig): string | undefined {
   };
   const light = decls(sideOf('light'));
   const dark = decls(sideOf('dark'));
-  const sel = '.hero-banner-wrapper .hero-banner';
+  // Gilt für das Banner-Bild/-Video und – bei einer Diashow – für deren Container
+  // (dort setzt hero.css die Einzelbilder auf neutral, damit nichts doppelt wirkt).
+  const sel = '.hero-banner-wrapper .hero-banner,.hero-banner-wrapper .hero-slides';
+  const darkSel = '[data-theme="dark"] .hero-banner-wrapper .hero-banner,[data-theme="dark"] .hero-banner-wrapper .hero-slides';
   const rules: string[] = [];
   if (light.size) rules.push(`${sel}{${[...light].map(([k, v]) => `${k}:${v}`).join(';')}}`);
   const darkDecl: string[] = [];
@@ -743,7 +757,7 @@ export function getHeroBannerCss(media: MediaConfig): string | undefined {
     if (dark.has(k)) darkDecl.push(`${k}:${dark.get(k)}`);
     else if (light.has(k)) darkDecl.push(`${k}:${BASE[k]}`);
   }
-  if (darkDecl.length) rules.push(`[data-theme="dark"] ${sel}{${darkDecl.join(';')}}`);
+  if (darkDecl.length) rules.push(`${darkSel}{${darkDecl.join(';')}}`);
   return rules.length ? rules.join('\n') : undefined;
 }
 

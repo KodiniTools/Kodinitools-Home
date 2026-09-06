@@ -3,6 +3,7 @@ import EnLayout from '../../layouts/EnLayout.astro'
 import GlobalNav from '../../components/GlobalNav.astro'
 import TickerBar from '../../components/TickerBar.astro'
 import SectionMedia from '../../components/SectionMedia.astro'
+import HeroBannerMedia from '../../components/HeroBannerMedia.astro'
 import SiteFooter from '../../components/SiteFooter.astro'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
@@ -339,13 +340,7 @@ const pageI18n = {
                 rel={/^https?:\/\//i.test(media.heroBannerLink) ? 'noopener noreferrer' : undefined}
               >
                 <div class="hero-banner-wrapper">
-                  <SectionMedia
-                    src={media.heroBanner}
-                    eager={true}
-                    alt="KodiniTools Banner"
-                    wrapperClass="hero-banner-inner"
-                    mediaClass="hero-banner"
-                  />
+                  <HeroBannerMedia media={media} />
                   {media.heroBannerText && (
                     <div class={bannerTextClass('hero-banner-text')} style={bannerTextOverlayStyle(media)}>
                       {media.heroBannerText}
@@ -355,13 +350,7 @@ const pageI18n = {
               </a>
             ) : (
               <div class="hero-banner-wrapper">
-                <SectionMedia
-                  src={media.heroBanner}
-                  eager={true}
-                  alt="KodiniTools Banner"
-                  wrapperClass="hero-banner-inner"
-                  mediaClass="hero-banner"
-                />
+                <HeroBannerMedia media={media} />
                 {media.heroBannerText && (
                   <div class={bannerTextClass('hero-banner-text')} style={bannerTextOverlayStyle(media)}>
                     {media.heroBannerText}
