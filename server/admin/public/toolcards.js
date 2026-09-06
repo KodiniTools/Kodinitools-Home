@@ -191,7 +191,7 @@ function hiddenBlock(lang) {
       const c = list.find((x) => x.id === id);
       const title = c ? c.title : id;
       return `<div class="tc-hidden-row">
-          <span>🙈 ${esc(title)} <span class="hint" style="margin:0">(${esc(SECTION_LABEL[id.split('.')[0]] || id)})</span></span>
+          <span>🙈 ${esc(oneLine(title))} <span class="hint" style="margin:0">(${esc(SECTION_LABEL[id.split('.')[0]] || id)})</span></span>
           <button type="button" class="hd-reset" data-tcshow="${esc(id)}" title="Karte wieder auf der Seite anzeigen">👁 Einblenden</button>
         </div>`;
     })
@@ -427,7 +427,7 @@ function cardSelect(lang) {
       .filter((c) => c.section === sec)
       .map(
         (c) =>
-          `<option value="${esc(c.id)}" ${c.id === selected ? 'selected' : ''}>${c.hidden ? '🙈 ' : ''}${esc(c.title)}${tc.cards[c.id] ? ' ●' : ''}</option>`,
+          `<option value="${esc(c.id)}" ${c.id === selected ? 'selected' : ''}>${c.hidden ? '🙈 ' : ''}${esc(oneLine(c.title))}${tc.cards[c.id] ? ' ●' : ''}</option>`,
       )
       .join('');
     return opts ? `<optgroup label="${esc(SECTION_LABEL[sec])}">${opts}</optgroup>` : '';
@@ -608,7 +608,13 @@ function typoBody(lang) {
 
 // --- Texte der Karte (Overrides der Sprachdatei: Titel, Badge, Beschreibung, Link) ---
 const CARD_TEXT_FIELDS = [
-  { key: 'title', label: 'Titel', hint: 'Leer = Standardtext aus der Sprachdatei.' },
+  {
+    key: 'title',
+    label: 'Titel',
+    hint: 'Leer = Standardtext aus der Sprachdatei. Enter = zweite Zeile (max. 2 Zeilen; Karten sind für zwei Zeilen ausgelegt).',
+    multiline: true,
+    rows: 2,
+  },
   {
     key: 'badge',
     label: 'Badge (kleines Etikett)',
@@ -654,7 +660,7 @@ function textsBlock(lang) {
     const val = effText(lang, [...path, f.key]);
     const ov = hasTextOverride(lang, selected, f.key);
     const input = f.multiline
-      ? `<textarea data-tctx="${f.key}" rows="3" placeholder="${esc(defText(lang, [...path, f.key]))}" style="min-height:64px">${esc(val)}</textarea>`
+      ? `<textarea data-tctx="${f.key}" rows="${f.rows || 3}" placeholder="${esc(defText(lang, [...path, f.key]))}" style="min-height:${f.rows === 2 ? 48 : 64}px">${esc(val)}</textarea>`
       : `<input type="text" data-tctx="${f.key}" value="${esc(val)}" placeholder="${esc(defText(lang, [...path, f.key]))}" />`;
     return `
       <div style="margin-top:.5rem">
@@ -667,7 +673,7 @@ function textsBlock(lang) {
       </div>`;
   }).join('');
   return section(
-    `📝 Texte der Karte „${esc(c.title)}" ${badgeHtml(lang)}`,
+    `📝 Texte der Karte „${esc(oneLine(c.title))}" ${badgeHtml(lang)}`,
     `<p class="hint" style="margin:0">Änderungen wirken sofort in Vorschau und Übersicht und werden als Text-Override der Sprache <strong>${lang.toUpperCase()}</strong> gespeichert (wie im Tab „Texte").</p>${rows}`,
     true,
   );
@@ -676,6 +682,20 @@ function badgeHtml(lang) {
   return `<span class="lang-badge">${lang.toUpperCase()}</span>`;
 }
 // Karten-Text setzen: leer = Override entfernen (Standard), Badge darf leer sein (= kein Badge).
+// Titel: bis zu zwei Zeilen (Enter im Feld); Leerzeilen und Rand-Leerzeichen entfallen.
+function normTitle(v) {
+  return String(v)
+    .replace(/\r\n?/g, '\n')
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('\n');
+}
+// Einzeilige Darstellung eines (ggf. zweizeiligen) Titels für Listen/Auswahl.
+function oneLine(t) {
+  return String(t ?? '').replace(/\s*\n\s*/g, ' / ');
+}
 function setCardText(lang, id, key, value) {
   const path = [...id.split('.'), key];
   const v = String(value ?? '');
@@ -688,6 +708,7 @@ function setCardText(lang, id, key, value) {
   }
   if (key === 'badge') setPath(state.overrides[lang], path, v.trim());
   else if (v.trim() === '') delPath(state.overrides[lang], path);
+  else if (key === 'title') setPath(state.overrides[lang], path, normTitle(v));
   else setPath(state.overrides[lang], path, key === 'description' ? v : v.trim());
   return true;
 }
@@ -714,7 +735,8 @@ function refreshCardTexts(pane, lang) {
         st.text,
       );
     const opt = pane.querySelector(`[data-tcsel] option[value="${selected}"]`);
-    if (opt) opt.textContent = `${card.title}${getToolCards(lang).cards[selected] ? ' ●' : ''}`;
+    if (opt)
+      opt.textContent = `${oneLine(card.title)}${getToolCards(lang).cards[selected] ? ' ●' : ''}`;
   } else {
     // „Öffnen"-Beschriftung: alle Übersichtskarten
     pane.querySelectorAll('[data-tcov] .tc-open').forEach((el) => {
@@ -732,7 +754,7 @@ function ownToggleHtml(lang) {
   return `
       <div style="display:flex;align-items:center;gap:.5rem;margin:.6rem 0 .2rem;padding:.5rem .6rem;border:1px dashed var(--border);border-radius:8px">
         <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin:0">
-          <input type="checkbox" data-tcown ${hasOwn ? 'checked' : ''} style="width:auto" /> Eigenes Design für „${esc(c ? c.title : selected)}"
+          <input type="checkbox" data-tcown ${hasOwn ? 'checked' : ''} style="width:auto" /> Eigenes Design für „${esc(oneLine(c ? c.title : selected))}"
         </label>
         <span class="hint" style="margin:0">${hasOwn ? 'Aus = Karte nutzt wieder das Standard-Design.' : 'An = startet mit einer Kopie des Standard-Designs.'}</span>
       </div>`;
@@ -823,7 +845,7 @@ function sideBlock(lang, mode) {
 function applyBody(lang) {
   const tc = getToolCards(lang);
   const src = selected ? cardById(lang, selected) : null;
-  const srcLabel = src ? `„${esc(src.title)}"` : 'Standard (alle Karten)';
+  const srcLabel = src ? `„${esc(oneLine(src.title))}"` : 'Standard (alle Karten)';
   const groups = SECTIONS.map((sec) => {
     const cards = cardList(lang).filter((c) => c.section === sec);
     if (!cards.length) return '';
@@ -833,7 +855,7 @@ function applyBody(lang) {
         const own = !!tc.cards[c.id];
         return `<label class="tc-target${isSrc ? ' src' : ''}" title="${isSrc ? 'Quelle (kann nicht Ziel sein)' : own ? 'Hat eigenes Design – wird ersetzt' : 'Nutzt Standard-Design'}">
             <input type="checkbox" data-tctarget="${esc(c.id)}" ${targets.has(c.id) ? 'checked' : ''} ${isSrc ? 'disabled' : ''} />
-            <span>${c.hidden ? '🙈 ' : ''}${esc(c.title)}${own ? ' ●' : ''}${isSrc ? ' (Quelle)' : ''}</span>
+            <span>${c.hidden ? '🙈 ' : ''}${esc(oneLine(c.title))}${own ? ' ●' : ''}${isSrc ? ' (Quelle)' : ''}</span>
           </label>`;
       })
       .join('');
@@ -1196,7 +1218,7 @@ export function renderToolCards() {
     if (!src) return;
     if (
       !confirm(
-        `Das Design von „${src.title}" wird zum Standard für alle Karten ohne eigenes Design (Hell + Dunkel). Fortfahren?`,
+        `Das Design von „${oneLine(src.title)}" wird zum Standard für alle Karten ohne eigenes Design (Hell + Dunkel). Fortfahren?`,
       )
     )
       return;
@@ -1206,7 +1228,7 @@ export function renderToolCards() {
     // Die Quelle selbst entspricht jetzt dem Standard -> eigenes Design überflüssig.
     delete tc.cards[selected];
     rerender();
-    toast(`Design von „${src.title}" ist jetzt der Standard`);
+    toast(`Design von „${oneLine(src.title)}" ist jetzt der Standard`);
   });
   // Texte der Karte (bzw. „Öffnen"-Beschriftung beim Standard) – Overrides live.
   pane.querySelectorAll('[data-tctx]').forEach((el) => {

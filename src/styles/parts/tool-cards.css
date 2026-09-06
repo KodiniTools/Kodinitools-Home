@@ -172,6 +172,8 @@
   /* Platz für zwei Zeilen reservieren: ein- und zweizeilige Titel ergeben gleich hohe Karten. */
   min-height: calc(2 * 1.3em);
   margin: 0;
+  /* Admin-Titel dürfen einen Zeilenumbruch enthalten (Tab „Tool-Karten" > Texte). */
+  white-space: pre-line;
 }
 /* components.css setzt `.tool-card h3` (höhere Spezifität) auf 0.9rem / 600 – Größe und
    Gewicht aus dem Admin daher hier mit gleicher Basis (mobil 0.8rem via --tc-title-size-base). */
