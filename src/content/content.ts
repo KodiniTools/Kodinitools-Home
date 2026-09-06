@@ -188,7 +188,8 @@ export interface MediaConfig {
   heroGridRatio: '1:1' | '16:9' | '2:3';
   // 'cover' = auf Format zuschneiden, 'contain' = ganzes Bild zeigen (mit Rand).
   heroGridFit: 'cover' | 'contain';
-  // Größe/Farbe/Schrift einzelner Text-Slots aus dem „Texte"-Tab (Schlüssel = i18n-Key).
+  // Größe/Farbe/Schrift einzelner Text-Slots (Schlüssel = i18n-Key): Hero-Texte
+  // aus dem Tab „Hero-Design" (hero.*), Abschnitts-Titel aus dem Tab „Texte".
   // Farbe getrennt nach Hell/Dunkel (colorLight/colorDark); `color` nur noch als
   // Alt-Format für die Migration.
   textStyles: Record<
@@ -213,7 +214,8 @@ export interface MediaConfig {
       animSpeed?: 'slow' | 'normal' | 'fast';
     }
   >;
-  // „Standard für alle Slots": Stil des gewählten Slots gilt für alle.
+  // „Standard für alle Slots" (nur Texte-Tab): Stil des gewählten Abschnitts-
+  // Titels gilt für alle Abschnitts-Titel; Hero-Slots sind ausgenommen.
   textStyleUniform?: boolean;
   textStyleUniformKey?: string;
   // Admin-einstellbares Design des Hero-Bereichs (Rahmen/Hintergrund/Buttons).
@@ -480,7 +482,7 @@ const MEDIA_DEFAULTS: MediaConfig = {
   heroGridFit: 'cover',
   textStyles: {},
   textStyleUniform: false,
-  textStyleUniformKey: 'hero.title',
+  textStyleUniformKey: 'tools.sectionTitle',
   heroDesign: {
     enabled: false,
     titleFont: '',
@@ -696,18 +698,31 @@ const TEXT_STYLE_SELECTORS: Record<string, string> = {
   'imageTools.sectionTitle': '#app [data-i18n="imageTools.sectionTitle"]',
   'diverseTools.sectionTitle': '#app [data-i18n="diverseTools.sectionTitle"]',
 };
+// Slots des Tabs „Texte" – nur für diese gilt „Standard für alle Slots". Die
+// Hero-Slots (hero.*, Tab „Hero-Design") nutzen immer ihren eigenen Stil.
+const UNIFORM_TEXT_KEYS: readonly string[] = [
+  'tools.sectionTitle',
+  'imageTools.sectionTitle',
+  'diverseTools.sectionTitle',
+];
 
 /**
- * CSS für die im „Texte"-Tab gesetzten Größen/Farben einzelner Text-Slots.
+ * CSS für die in den Tabs „Hero-Design" (hero.*) und „Texte" gesetzten
+ * Größen/Farben/Schriften/Effekte einzelner Text-Slots.
  * Gibt `undefined` zurück, wenn nichts eingestellt ist (dann bleibt der Standard).
  * Mehrzeilige Texte werden über white-space:pre-line umgebrochen.
  */
 export function getTextStylesCss(media: MediaConfig): string | undefined {
   const ts = media.textStyles;
   if (!ts) return undefined;
-  // „Standard für alle Slots": Stil des gewählten Slots gilt für jeden Slot.
+  // „Standard für alle Slots": Stil des gewählten Abschnitts-Titels gilt für alle
+  // Abschnitts-Titel (nicht für die Hero-Slots).
   const uniform = media.textStyleUniform === true;
-  const master = uniform ? ts[media.textStyleUniformKey || ''] : undefined;
+  // Ungültiger/alter Master-Schlüssel (z. B. ein Hero-Slot) fällt – wie in der
+  // Admin-Validierung – auf den ersten Abschnitts-Titel zurück.
+  const rawKey = media.textStyleUniformKey || '';
+  const masterKey = UNIFORM_TEXT_KEYS.includes(rawKey) ? rawKey : UNIFORM_TEXT_KEYS[0];
+  const master = uniform ? ts[masterKey] : undefined;
   // Zeilenumbrüche in allen Text-Slots respektieren (mehrzeilige Texte).
   const rules: string[] = [
     `${Object.values(TEXT_STYLE_SELECTORS).join(',')}{white-space:pre-line}`,
@@ -717,7 +732,7 @@ export function getTextStylesCss(media: MediaConfig): string | undefined {
   // -webkit-text-fill-color überschreibt auch Verlaufs-Überschriften.
   const colorDecl = (c: string) => `color:${c};-webkit-text-fill-color:${c};background:none`;
   for (const [key, sel] of Object.entries(TEXT_STYLE_SELECTORS)) {
-    const s = uniform ? master : ts[key];
+    const s = uniform && UNIFORM_TEXT_KEYS.includes(key) ? master : ts[key];
     if (!s) continue;
     // Migration: altes einzelnes color gilt für beide Modi.
     const legacy = isHex(s.color) ? s.color : '';

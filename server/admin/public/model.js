@@ -468,22 +468,28 @@ export function defaultMediaLocale() {
     heroGridRatio: '1:1',
     heroGridFit: 'cover',
     textStyles: {}, // { "<textKey>": { size: px (0=auto), colorLight: Hex|'', colorDark: Hex|'', font: Datei|'' } }
-    textStyleUniform: false, // „Standard für alle Slots" aktiv?
-    textStyleUniformKey: 'hero.title', // Slot, dessen Stil dann für alle gilt
+    textStyleUniform: false, // „Standard für alle Slots" (Tab „Texte") aktiv?
+    textStyleUniformKey: 'tools.sectionTitle', // Slot, dessen Stil dann für alle Texte-Tab-Slots gilt
     heroDesign: defaultHeroDesign(),
     toolCards: defaultToolCards(), // Rahmen/Hintergrund der Tool-Karten (Tab „Tool-Karten")
     iconTint: {}, // Icon-Färbung je Karte (Tab „Icons"): { "tools.x": { light, dark, bg, bgDark } }
   };
 }
-// Text-Slots des „Texte"-Tabs, für die Größe/Farbe einstellbar sind.
-export const TEXT_STYLE_KEYS = [
-  'hero.title',
-  'hero.subtitle',
-  'hero.cta',
+// Hero-Text-Slots (Tab „Hero-Design"): Text-Override-Pfad + Stil-Schlüssel.
+export const HERO_TEXT_SLOTS = [
+  { key: 'hero.title', path: ['hero', 'title'], label: 'Titel' },
+  { key: 'hero.subtitle', path: ['hero', 'subtitle'], label: 'Untertitel' },
+  { key: 'hero.cta', path: ['hero', 'cta'], label: 'Button-Text („Jetzt starten")' },
+];
+// Text-Slots des „Texte"-Tabs (Abschnitts-Titel); nur für diese gilt
+// „Standard für alle Slots" (textStyleUniform/-Key).
+export const UNIFORM_TEXT_KEYS = [
   'tools.sectionTitle',
   'imageTools.sectionTitle',
   'diverseTools.sectionTitle',
 ];
+// Alle Text-Slots mit einstellbarem Stil (Hero-Design-Tab + Texte-Tab).
+export const TEXT_STYLE_KEYS = [...HERO_TEXT_SLOTS.map((s) => s.key), ...UNIFORM_TEXT_KEYS];
 const textHex = (v) => (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? v : '');
 const textNum = (v, min, max, def) => {
   const n = Number(v);
@@ -562,12 +568,16 @@ export function getTextStyle(lang, key) {
   return s;
 }
 // Effektiver Stil eines Text-Slots: bei aktivem „Standard für alle Slots"
-// gelten die Werte des gewählten Slots für alle (Größe, Farbe, Schriftart).
+// gelten die Werte des gewählten Slots für alle Slots des Texte-Tabs (Größe,
+// Farbe, Schriftart, Effekte). Hero-Slots nutzen immer ihren eigenen Stil.
 export function getEffectiveTextStyle(lang, key) {
   const m = state.media[lang];
   const own = getTextStyle(lang, key);
-  if (!m.textStyleUniform) return own;
-  return { ...getTextStyle(lang, m.textStyleUniformKey || TEXT_STYLE_KEYS[0]) };
+  if (!m.textStyleUniform || !UNIFORM_TEXT_KEYS.includes(key)) return own;
+  const masterKey = UNIFORM_TEXT_KEYS.includes(m.textStyleUniformKey)
+    ? m.textStyleUniformKey
+    : UNIFORM_TEXT_KEYS[0];
+  return { ...getTextStyle(lang, masterKey) };
 }
 // Empfohlene Bildabmessungen je Seitenverhältnis (crisp bei ~3-spaltiger Anzeige).
 export const GRID_DIMS = { '1:1': '800 × 800 px', '16:9': '800 × 450 px', '2:3': '800 × 1200 px' };
@@ -1246,9 +1256,9 @@ export function normalizeMedia(m) {
       heroGridFit: o?.heroGridFit === 'contain' ? 'contain' : 'cover',
       textStyles: normTextStyles(o?.textStyles),
       textStyleUniform: o?.textStyleUniform === true,
-      textStyleUniformKey: TEXT_STYLE_KEYS.includes(o?.textStyleUniformKey)
+      textStyleUniformKey: UNIFORM_TEXT_KEYS.includes(o?.textStyleUniformKey)
         ? o.textStyleUniformKey
-        : TEXT_STYLE_KEYS[0],
+        : UNIFORM_TEXT_KEYS[0],
       heroDesign: normHeroDesign(o?.heroDesign),
       toolCards: normToolCards(o?.toolCards),
       iconTint: normIconTint(o?.iconTint),

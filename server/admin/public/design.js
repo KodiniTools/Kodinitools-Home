@@ -1,8 +1,12 @@
 // Hero-Design-Tab (eine Sprache): Rahmen, Hintergrund und die Buttons
 // (Feature-Chips) des Hero-Bereichs gestalten – getrennt für Hell- und
-// Dunkelmodus – samt Live-Vorschau, plus die Button-Beschriftungen. Styling
-// wird in media.<lang>.heroDesign (mit .light/.dark) gespeichert; die
-// Beschriftungen laufen über die vorhandenen Overrides (hero.features.*).
+// Dunkelmodus – samt Live-Vorschau, plus die Hero-Texte (Titel, Untertitel,
+// Button-Text) mit ihrer Feinabstimmung je Text (Schrift, Größe, Farbe
+// Hell/Dunkel, Schatten, Umriss, Deckkraft, Animation) und die
+// Button-Beschriftungen. Styling wird in media.<lang>.heroDesign (mit
+// .light/.dark) gespeichert, die Feinabstimmung je Text in
+// media.<lang>.textStyles["hero.*"]; Texte und Beschriftungen laufen über die
+// Overrides (hero.title/subtitle/cta, hero.features.*).
 
 import { $, esc, toast } from './core.js';
 import {
@@ -16,11 +20,26 @@ import {
   getPath,
   setPath,
   delPath,
+  getTextStyle,
+  HERO_TEXT_SLOTS,
   MEDIA_LANGS,
 } from './model.js';
 import { ensureFontFace, fontOptionsHtml } from './fonts.js';
 import { slider, bindSliders } from './slider.js';
 import { colorPicker, bindColorPickers } from './color.js';
+import {
+  fontFF as txtFontFF,
+  fxControls,
+  bindFxControls,
+  fxActive,
+  TEXT_FX_DEFAULTS,
+  slotAnimClass,
+  slotPreviewStyle,
+  slotFxParts,
+  previewBg,
+  applyAnimClass,
+  updateSlotPreview,
+} from './textstyle.js';
 
 // Family-CSS für eine Schriftdatei (lädt @font-face für die Vorschau) oder ''.
 // Einfache Anführungszeichen um den Family-Namen, damit der Wert gefahrlos in
@@ -99,22 +118,33 @@ function previewChipStyle(s, hd) {
   const size = hd.chipFontSize > 0 ? `${hd.chipFontSize}px` : '.78rem';
   return `background:${bg};color:${s.chipTextColor};border:1px solid ${bd};border-radius:.6rem;padding:.5rem .3rem;font-weight:600;font-size:${size};text-align:center;${buttonTypo(hd)}`;
 }
-function previewCtaStyle(s, hd) {
+function previewCtaStyle(s, hd, lang) {
   const size = hd.ctaFontSize > 0 ? `${hd.ctaFontSize}px` : '.9rem';
   const bg = rgbaFromHex(s.ctaBgColor, s.ctaBgOpacity);
   const bd =
     s.ctaBorderOpacity > 0
       ? `border:1px solid ${rgbaFromHex(s.ctaBorderColor, s.ctaBorderOpacity)};`
       : '';
-  return `display:inline-block;margin-top:.9rem;padding:.55rem 1.6rem;border-radius:50px;background:${bg};color:${s.ctaTextColor};${bd}font-weight:700;font-size:${size};cursor:pointer;${buttonTypo(hd)}`;
+  return `display:inline-block;margin-top:.9rem;padding:.55rem 1.6rem;border-radius:50px;background:${bg};color:${s.ctaTextColor};${bd}font-weight:700;font-size:${size};cursor:pointer;${buttonTypo(hd)}${slotOverrideCss(lang, 'hero.cta')}`;
 }
-function previewTitleStyle(s, hd) {
+// Feinabstimmung eines Hero-Textes (textStyles["hero.*"]) als Inline-CSS, das
+// – wie auf der Seite – die allgemeinen Hero-Design-Werte überschreibt.
+function slotOverrideCss(lang, key) {
+  const st = getTextStyle(lang, key);
+  const parts = [];
+  if (st.size > 0) parts.push(`font-size:${st.size}px`);
+  if (st.font) parts.push(`font-family:${fontFF(st.font)}`);
+  const c = editTheme === 'dark' ? st.colorDark : st.colorLight;
+  if (c) parts.push(`color:${c}`);
+  return parts.concat(slotFxParts(st)).join(';');
+}
+function previewTitleStyle(s, hd, lang) {
   const size = hd.titleFontSize > 0 ? `${hd.titleFontSize}px` : '1.1rem';
-  return `font-weight:800;font-size:${size};color:${s.titleTextColor};${titleTypo(hd)}`;
+  return `font-weight:800;font-size:${size};color:${s.titleTextColor};${titleTypo(hd)}${slotOverrideCss(lang, 'hero.title')}`;
 }
-function previewSubtitleStyle(s, hd) {
+function previewSubtitleStyle(s, hd, lang) {
   const size = hd.subtitleFontSize > 0 ? `${hd.subtitleFontSize}px` : '.8rem';
-  return `margin-top:.3rem;font-weight:500;font-size:${size};opacity:.85;color:${s.titleTextColor};${titleTypo(hd)}`;
+  return `margin-top:.3rem;font-weight:500;font-size:${size};opacity:.85;white-space:pre-line;color:${s.titleTextColor};${titleTypo(hd)}${slotOverrideCss(lang, 'hero.subtitle')}`;
 }
 // Typografie-CSS (Schrift + Abstand + Kontur) für Überschriften bzw. Buttons.
 function titleTypo(hd) {
@@ -221,6 +251,24 @@ function effLabel(lang, path, fallback) {
   const d = getPath(state.defaults[lang], path);
   return d != null && d !== '' ? d : fallback;
 }
+// Hero-Text-Slot (Titel/Untertitel/Button-Text) anhand seines Stil-Schlüssels.
+function heroSlot(key) {
+  return HERO_TEXT_SLOTS.find((sl) => sl.key === key);
+}
+// Effektiver Hero-Text eines Slots für die Vorschau (Override > Standard > Fallback).
+const HERO_TEXT_FALLBACK = {
+  'hero.title': { de: 'Kostenlose Online-Tools', en: 'Free Online Tools' },
+  'hero.subtitle': { de: 'Sichere Bearbeitung im Browser', en: 'Secure editing in the browser' },
+  'hero.cta': { de: 'Jetzt starten', en: 'Get started' },
+};
+function heroSlotText(lang, key) {
+  const fb = HERO_TEXT_FALLBACK[key] || {};
+  return String(effLabel(lang, heroSlot(key).path, fb[lang] || fb.de || key));
+}
+// Ist für einen Hero-Text eine Feinabstimmung gesetzt (Schrift/Größe/Farbe/Effekte)?
+function slotTuned(st) {
+  return !!(st.font || st.size > 0 || st.colorLight || st.colorDark || fxActive(st));
+}
 
 // Kachel-Galerie zur Wahl der GLOBALEN Basis-Schrift (sprachübergreifend, gilt
 // für die ganze Seite). Jede Kachel zeigt eine Musterschrift; die aktive Kachel
@@ -251,24 +299,10 @@ function heroDesignPanel(lang) {
   const hd = heroDesignOf(lang);
   const s = sideOf(lang);
   const modusLabel = editTheme === 'light' ? 'Hell ☀️' : 'Dunkel 🌙';
-  // Vorschau in der bearbeiteten Sprache (Titel, erste drei Chips, CTA).
-  const previewTitle = effLabel(
-    lang,
-    ['hero', 'title'],
-    lang === 'de' ? 'Kostenlose Online-Tools' : 'Free Online Tools',
-  );
-  const previewCta = effLabel(
-    lang,
-    ['hero', 'cta'],
-    lang === 'de' ? 'Jetzt starten' : 'Get started',
-  );
-  const previewSubtitle = String(
-    effLabel(
-      lang,
-      ['hero', 'subtitle'],
-      lang === 'de' ? 'Sichere Bearbeitung im Browser' : 'Secure editing in the browser',
-    ),
-  ).split('\n')[0];
+  // Vorschau in der bearbeiteten Sprache (Titel, Untertitel, erste drei Chips, CTA).
+  const previewTitle = heroSlotText(lang, 'hero.title');
+  const previewCta = heroSlotText(lang, 'hero.cta');
+  const previewSubtitle = heroSlotText(lang, 'hero.subtitle');
   const chips = featureDefs(lang)
     .slice(0, 3)
     .map(({ key, def }) => {
@@ -322,7 +356,7 @@ function heroDesignPanel(lang) {
         <div style="flex:1 1 200px">${typoRange(hd, 'buttonStrokeWidth', 'Kontur-Breite', 0, 5, 'px', 0.5)}</div>
       </div>
       <p class="hint">Kontur-Breite 0 = keine Kontur. Buchstabenabstand 0 = normal.</p>
-      <p class="hint" style="margin:.5rem 0 .2rem">🔠 Schriftgröße in px – leer = Standard (die Zahl im Feld ist die Standardgröße). Größere Zahl = größerer Text.</p>
+      <p class="hint" style="margin:.5rem 0 .2rem">🔠 Schriftgröße in px – leer = Standard (die Zahl im Feld ist die Standardgröße). Größere Zahl = größerer Text. Eine Feinabstimmung unter „Hero-Texte" geht für den jeweiligen Text vor.</p>
       <div class="row" style="align-items:flex-end">
         <div style="flex:0 0 auto">
           <label>Titel</label>
@@ -416,7 +450,7 @@ function heroDesignPanel(lang) {
             ? '➡️ Dieses Hero-Design auf Englisch (EN) übernehmen'
             : '⬅️ Hero-Design von Deutsch (DE) übernehmen'
         }</button>
-        <p class="hint" style="margin:.35rem 0 0">Kopiert <strong>alle</strong> Hero-Design-Einstellungen (Hell + Dunkel: Schriften, Typografie, Farben, Transparenzen) von Deutsch nach Englisch. Die Button-<em>Beschriftungen</em> bleiben je Sprache erhalten.</p>
+        <p class="hint" style="margin:.35rem 0 0">Kopiert <strong>alle</strong> Hero-Design-Einstellungen (Hell + Dunkel: Schriften, Typografie, Farben, Transparenzen) sowie die Feinabstimmung der Hero-Texte (Schrift, Größe, Farbe Hell + Dunkel, Effekte) von Deutsch nach Englisch. Die <em>Texte</em> und Button-<em>Beschriftungen</em> bleiben je Sprache erhalten.</p>
       </div>
 
       <!-- Vorschau bleibt beim Scrollen oben sichtbar -->
@@ -425,14 +459,15 @@ function heroDesignPanel(lang) {
         <p class="hint" style="margin:.1rem 0 .3rem">Vorschau (${modusLabel}) <em>(zum Testen über die Buttons fahren)</em>:</p>
         <style data-hdhoverstyle>${hoverRuleCss(s)}</style>
         <div data-hdprev style="${previewBoxStyle(s)}">
-          <div style="${previewTitleStyle(s, hd)}" data-hdtitle>${esc(previewTitle)}</div>
-          <div style="${previewSubtitleStyle(s, hd)}" data-hdsub>${esc(previewSubtitle)}</div>
+          <div class="${slotAnimClass(getTextStyle(lang, 'hero.title'))}" style="${previewTitleStyle(s, hd, lang)}" data-hdtitle>${esc(previewTitle)}</div>
+          <div class="${slotAnimClass(getTextStyle(lang, 'hero.subtitle'))}" style="${previewSubtitleStyle(s, hd, lang)}" data-hdsub>${esc(previewSubtitle)}</div>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.9rem">${chips}</div>
-          <div data-hdcta style="${previewCtaStyle(s, hd)}">${esc(previewCta)}</div>
+          <div class="${slotAnimClass(getTextStyle(lang, 'hero.cta'))}" data-hdcta style="${previewCtaStyle(s, hd, lang)}">${esc(previewCta)}</div>
         </div>
         <p class="hint" data-hdnote style="margin-top:.35rem">${heroPreviewNote(hd)}</p>
       </div>
 
+      ${section(`✍️ Hero-Texte – Titel, Untertitel, Button-Text ${badge}`, heroTextsBody(lang))}
       ${section('🔤 Schriften &amp; Typografie <span class="hint" style="font-weight:400">(für beide Modi)</span>', typoBody)}
       ${section(`🅰️ Überschriften-Farbe ${badge}`, headingBody)}
       ${section(`🖼️ Rahmen &amp; Hintergrund ${badge}`, frameBody)}
@@ -441,6 +476,73 @@ function heroDesignPanel(lang) {
     </div>
 
     ${featureLabelsPanel(lang)}`;
+}
+
+// Sektion „Hero-Texte": je Slot (Titel, Untertitel, Button-Text) der Text
+// (Override) mit Vorschau und der Feinabstimmung, die aus dem Texte-Tab
+// hierher umgezogen ist: Schriftart, Textgröße, Textfarbe (Hell/Dunkel) und
+// Effekte (Schatten, Umriss, Deckkraft, Animation). Gespeichert in
+// media.<lang>.textStyles["hero.*"]; auf der Seite überschreibt sie die
+// allgemeinen Hero-Design-Werte nur für den jeweiligen Text.
+function heroTextsBody(lang) {
+  const modus = editTheme === 'dark' ? 'Dunkel' : 'Hell';
+  const colorField = editTheme === 'dark' ? 'colorDark' : 'colorLight';
+  const rows = HERO_TEXT_SLOTS.map((sl) => {
+    const key = sl.key;
+    const cur = getPath(state.overrides[lang], sl.path);
+    const def = getPath(state.defaults[lang], sl.path);
+    const val = cur != null ? String(cur) : '';
+    const ph = def != null ? String(def) : '';
+    const st = getTextStyle(lang, key);
+    const tuned = slotTuned(st);
+    const rowsAttr = key === 'hero.cta' ? 1 : 2;
+    return `
+      <div style="margin-top:.75rem;padding-top:.6rem;border-top:1px dashed var(--border)">
+        <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap">
+          <label style="margin:0">${esc(sl.label)}</label>
+          <button type="button" class="hd-reset" data-txtreset="${key}:text" title="Text auf Standard zurücksetzen" aria-label="Text zurücksetzen">↺ Text</button>
+        </div>
+        <textarea data-hdtxt="${key}" rows="${rowsAttr}" placeholder="${esc(ph)}" style="min-height:48px;font-size:.95rem;${txtFontFF(st.font || '')}">${esc(val)}</textarea>
+        <div style="margin-top:.4rem;border:1px solid var(--border);border-radius:8px;padding:.5rem .7rem;background:${previewBg(editTheme)};overflow:hidden">
+          <span class="hint" style="margin:0 0 .3rem;display:block">👁 Vorschau dieses Textes (${modus}):</span>
+          <div data-txtprev="${key}" class="${slotAnimClass(st)}" style="${slotPreviewStyle(st, editTheme)}">${esc(heroSlotText(lang, key))}</div>
+        </div>
+        <details ${tuned ? 'open' : ''} style="margin-top:.4rem">
+          <summary style="cursor:pointer;color:${tuned ? 'var(--accent)' : 'var(--muted)'};font-size:.82rem;user-select:none">Feinabstimmung – Schriftart, Größe, Farbe (${modus})${tuned ? ' •' : ''}</summary>
+          <div class="row" style="align-items:flex-end;margin-top:.4rem">
+            <div style="flex:1 1 200px">
+              <label style="margin-top:0">Schriftart</label>
+              <div style="display:flex;gap:.3rem;align-items:center">
+                <select data-txtfont="${key}" style="${txtFontFF(st.font || '')}">${fontOptionsHtml(st.font || '')}</select>
+                <button type="button" class="hd-reset" data-txtreset="${key}:font" title="Schriftart zurücksetzen" aria-label="Schriftart zurücksetzen">↺</button>
+              </div>
+            </div>
+            <div style="flex:0 0 auto">
+              <label style="margin-top:0">Textgröße (px, 0=Standard)</label>
+              <div style="display:flex;gap:.3rem;align-items:center">
+                <input type="number" data-txtsize="${key}" min="0" max="120" step="1" value="${st.size || 0}" style="width:120px" />
+                <button type="button" class="hd-reset" data-txtreset="${key}:size" title="Auf Standard zurücksetzen" aria-label="Größe zurücksetzen">↺</button>
+              </div>
+            </div>
+            <div style="flex:0 0 auto">
+              <label style="margin-top:0">Textfarbe (${modus})</label>
+              ${colorPicker({
+                id: `txt:${key}:color`,
+                attrs: `data-txtcolor="${key}"`,
+                value: st[colorField] || '#ffffff',
+                resetHtml: `<button type="button" class="hd-reset" data-txtreset="${key}:color" title="Farbe (${modus}) auf Standard zurücksetzen" aria-label="Farbe zurücksetzen">↺</button>`,
+              })}
+            </div>
+          </div>
+          ${fxControls(key, st)}
+        </details>
+      </div>`;
+  }).join('');
+  return `
+      <p class="hint" style="margin:0">Texte des Hero-Bereichs. Leer lassen = Standardtext der Sprachdatei; mehrere Zeilen mit Enter.
+        Die <strong>Feinabstimmung</strong> je Text geht den allgemeinen Einstellungen (Schriften &amp; Typografie, Überschriften-Farbe, CTA-Textfarbe) vor;
+        Schriftart „Standard", Größe 0 bzw. Farbe „↺" = allgemeine Einstellung. Textfarbe getrennt für Hell/Dunkel (Modus oben wechseln); Effekte wirken auf der veröffentlichten Seite.</p>
+      ${rows}`;
 }
 
 // Beschriftungen der Buttons (Feature-Chips) – über die Overrides bearbeitbar.
@@ -467,21 +569,34 @@ function featureLabelsPanel(lang) {
     </div>`;
 }
 
-// Aktualisiert Vorschau-Box, Chips, Titel, CTA (inkl. Schriften) und Hinweis.
+// Aktualisiert Vorschau-Box, Chips, Titel, Untertitel, CTA (inkl. Schriften,
+// Texten und Feinabstimmung der Hero-Texte) und Hinweis.
 function refreshPreview(pane, lang) {
   const hd = heroDesignOf(lang);
   const s = sideOf(lang);
   const box = pane.querySelector('[data-hdprev]');
   if (box) box.setAttribute('style', previewBoxStyle(s));
   const title = pane.querySelector('[data-hdtitle]');
-  if (title) title.setAttribute('style', previewTitleStyle(s, hd));
+  if (title) {
+    title.textContent = heroSlotText(lang, 'hero.title');
+    title.setAttribute('style', previewTitleStyle(s, hd, lang));
+    applyAnimClass(title, getTextStyle(lang, 'hero.title'));
+  }
   const sub = pane.querySelector('[data-hdsub]');
-  if (sub) sub.setAttribute('style', previewSubtitleStyle(s, hd));
+  if (sub) {
+    sub.textContent = heroSlotText(lang, 'hero.subtitle');
+    sub.setAttribute('style', previewSubtitleStyle(s, hd, lang));
+    applyAnimClass(sub, getTextStyle(lang, 'hero.subtitle'));
+  }
   pane
     .querySelectorAll('[data-hdchip]')
     .forEach((c) => c.setAttribute('style', previewChipStyle(s, hd)));
   const cta = pane.querySelector('[data-hdcta]');
-  if (cta) cta.setAttribute('style', previewCtaStyle(s, hd));
+  if (cta) {
+    cta.textContent = heroSlotText(lang, 'hero.cta');
+    cta.setAttribute('style', previewCtaStyle(s, hd, lang));
+    applyAnimClass(cta, getTextStyle(lang, 'hero.cta'));
+  }
   const hs = pane.querySelector('[data-hdhoverstyle]');
   if (hs) hs.textContent = hoverRuleCss(s);
   const note = pane.querySelector('[data-hdnote]');
@@ -507,11 +622,19 @@ export function renderHeroDesign() {
     el.addEventListener('click', () => {
       if (
         !confirm(
-          'Alle Hero-Design-Einstellungen für Englisch werden mit den deutschen überschrieben (Hell + Dunkel). Fortfahren?',
+          'Alle Hero-Design-Einstellungen für Englisch werden mit den deutschen überschrieben (Hell + Dunkel, inkl. Feinabstimmung der Hero-Texte). Die Texte selbst bleiben. Fortfahren?',
         )
       )
         return;
       state.media.en.heroDesign = JSON.parse(JSON.stringify(heroDesignOf('de')));
+      // Feinabstimmung der Hero-Texte (textStyles["hero.*"]) mitnehmen.
+      const deTs = state.media.de.textStyles || {};
+      const en = state.media.en;
+      if (!en.textStyles || typeof en.textStyles !== 'object') en.textStyles = {};
+      for (const sl of HERO_TEXT_SLOTS) {
+        if (deTs[sl.key]) en.textStyles[sl.key] = JSON.parse(JSON.stringify(deTs[sl.key]));
+        else delete en.textStyles[sl.key];
+      }
       renderHeroDesign();
       toast('Hero-Design von Deutsch nach Englisch übernommen (Hell + Dunkel)');
     });
@@ -602,6 +725,76 @@ export function renderHeroDesign() {
       } else if (scope === 'feat') {
         delPath(state.overrides[lang], ['hero', 'features', key]);
       }
+      renderHeroDesign();
+      toast('Auf Standard zurückgesetzt');
+    });
+  });
+
+  // ---- Hero-Texte (Titel/Untertitel/Button-Text) + Feinabstimmung je Text ----
+  // Slot-Vorschau eines Hero-Textes aktualisieren.
+  const updateSlotPrev = (key) => {
+    const el = pane.querySelector(`[data-txtprev="${key}"]`);
+    if (el) updateSlotPreview(el, getTextStyle(lang, key), editTheme, heroSlotText(lang, key));
+  };
+  const refreshSlot = (key) => {
+    updateSlotPrev(key);
+    refreshPreview(pane, lang);
+  };
+  // Text (Override; leer = Standardtext).
+  pane.querySelectorAll('[data-hdtxt]').forEach((el) => {
+    const key = el.dataset.hdtxt;
+    const sl = heroSlot(key);
+    el.addEventListener('input', () => {
+      const v = el.value;
+      if (v.trim() === '') delPath(state.overrides[lang], sl.path);
+      else setPath(state.overrides[lang], sl.path, v);
+      refreshSlot(key);
+    });
+  });
+  // Schriftart je Text (Feld-Vorschau folgt der Auswahl).
+  pane.querySelectorAll('[data-txtfont]').forEach((el) => {
+    const key = el.dataset.txtfont;
+    el.addEventListener('change', () => {
+      getTextStyle(lang, key).font = el.value;
+      const ff = txtFontFF(el.value);
+      el.setAttribute('style', ff);
+      const ta = pane.querySelector(`[data-hdtxt="${key}"]`);
+      if (ta) ta.setAttribute('style', `min-height:48px;font-size:.95rem;${ff}`);
+      refreshSlot(key);
+    });
+  });
+  // Textgröße (0 = allgemeine Einstellung) und Textfarbe (aktueller Modus).
+  pane.querySelectorAll('[data-txtsize]').forEach((el) => {
+    const key = el.dataset.txtsize;
+    el.addEventListener('input', () => {
+      const n = parseInt(el.value, 10);
+      getTextStyle(lang, key).size = Number.isFinite(n) ? Math.max(0, Math.min(120, n)) : 0;
+      refreshSlot(key);
+    });
+  });
+  pane.querySelectorAll('[data-txtcolor]').forEach((el) => {
+    const key = el.dataset.txtcolor;
+    el.addEventListener('input', () => {
+      getTextStyle(lang, key)[editTheme === 'dark' ? 'colorDark' : 'colorLight'] = el.value;
+      refreshSlot(key);
+    });
+  });
+  // Effekte (Schatten, Umriss, Deckkraft, Animation) je Text.
+  bindFxControls(pane, (key) => getTextStyle(lang, key), refreshSlot);
+  // ↺ je Text: Text, Schriftart, Größe, Farbe (Modus) oder Effekte zurücksetzen.
+  pane.querySelectorAll('[data-txtreset]').forEach((el) => {
+    const i = el.dataset.txtreset.lastIndexOf(':');
+    const key = el.dataset.txtreset.slice(0, i);
+    const what = el.dataset.txtreset.slice(i + 1);
+    const sl = heroSlot(key);
+    if (!sl) return;
+    el.addEventListener('click', () => {
+      const st = getTextStyle(lang, key);
+      if (what === 'text') delPath(state.overrides[lang], sl.path);
+      else if (what === 'size') st.size = 0;
+      else if (what === 'color') st[editTheme === 'dark' ? 'colorDark' : 'colorLight'] = '';
+      else if (what === 'fx') Object.assign(st, TEXT_FX_DEFAULTS);
+      else if (what === 'font') st.font = '';
       renderHeroDesign();
       toast('Auf Standard zurückgesetzt');
     });

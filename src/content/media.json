@@ -288,7 +288,7 @@
       }
     },
     "textStyleUniform": false,
-    "textStyleUniformKey": "hero.title",
+    "textStyleUniformKey": "tools.sectionTitle",
     "heroDesign": {
       "enabled": true,
       "titleFont": "Supreme-Regular.woff2",
