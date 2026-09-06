@@ -58,7 +58,8 @@ export function renderMain() {
   const { section, sub } = state.nav;
   // Tabs mit dreispaltigem Layout (Seitenleisten Hell/Dunkel) brauchen einen breiteren Rahmen.
   const wide =
-    LANG_SECTIONS.includes(section) && (sub === 'cards' || sub === 'texts' || sub === 'background');
+    LANG_SECTIONS.includes(section) &&
+    (sub === 'cards' || sub === 'texts' || sub === 'background' || sub === 'design');
   $('#appView').classList.toggle('app-wide', wide);
   if (LANG_SECTIONS.includes(section)) {
     if (sub === 'ticker') renderTicker();
