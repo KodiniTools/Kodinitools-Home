@@ -62,7 +62,6 @@ const PAGE = {
     badgeFg: '#014f99',
     badgeBg: 'rgba(1, 79, 153, 0.08)',
     badgeBd: 'rgba(1, 79, 153, 0.14)',
-    divider: '#e5e7eb',
     iconBg: '#ffffff',
     shadow: '0 14px 36px rgba(0, 57, 113, 0.13), 0 0 0 1px rgba(1, 79, 153, 0.1)',
   },
@@ -73,7 +72,6 @@ const PAGE = {
     badgeFg: '#ffffff',
     badgeBg: 'rgba(255, 255, 255, 0.1)',
     badgeBd: 'rgba(255, 255, 255, 0.25)',
-    divider: '#1d3a5c',
     iconBg: '#eef1f5',
     shadow: '0 14px 36px rgba(0, 0, 0, 0.45), 0 0 24px rgba(232, 169, 69, 0.07)',
   },
@@ -328,7 +326,7 @@ function cardHtml(lang, card, theme, s, attrs = '', text = null) {
   return `<div class="tc-card" ${attrs} style="${cardStyle(s)}">
       ${imgLayer}${icon}${badge}
       <h3 class="tc-title" style="${ts.title}">${esc(card.title)}</h3>
-      <div class="tc-footer" style="border-top-color:${p.divider}">
+      <div class="tc-footer">
         <span class="tc-fav" style="color:${p.muted}">${ICON_BOOKMARK}</span>
         <span class="tc-open" style="${ts.open}">${esc(openLabel(lang))} ${ICON_ARROW}</span>
       </div>
