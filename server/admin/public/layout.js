@@ -5,6 +5,7 @@
 // werden (Deckkraft, Abdunkelung, Weichzeichner, Sättigung); die klassische
 // Medien-Zuweisung im Medien-Tab bleibt bestehen.
 
+import { captureView, restoreView } from './viewstate.js';
 import { $, esc, toast, fmtBytes } from './core.js';
 import { slider, bindSliders } from './slider.js';
 import { colorPicker, bindColorPickers } from './color.js';
@@ -277,29 +278,61 @@ function cellImageBlock(lang, i, inherited) {
       </div>`;
 }
 
-// Editor für Rahmen + Hintergrund einer Kachel.
-function cellEditor(lang, i, bigLabel) {
-  const s = getEffectiveCellStyle(lang, i);
+// Kachel-Zustand bei „Standard für alle Kacheln" (Master / geerbt).
+function cellState(lang, i) {
   const m = state.media[lang];
   const isMaster = m.heroGridUniform && (m.heroGridUniformCell || 0) === i;
   // Von einer anderen Kachel „geerbt"? Dann Felder sperren und Hinweis zeigen.
   const inherited = m.heroGridUniform && !isMaster;
-  const dis = inherited ? 'disabled' : '';
+  return {
+    isMaster,
+    inherited,
+    dis: inherited ? 'disabled' : '',
+    masterIdx: m.heroGridUniformCell || 0,
+  };
+}
+// Linke Seitenleiste: Inhalt einer Kachel – Bild (mit Bildbearbeitung), Text, Schriftart.
+function cellContentEditor(lang, i, bigLabel) {
+  const s = getEffectiveCellStyle(lang, i);
+  const { inherited, dis, masterIdx } = cellState(lang, i);
   const note = inherited
-    ? `<p class="hint" style="margin:.3rem 0 0;color:var(--accent)">↳ Übernimmt Rahmen (Farbe &amp; Dicke), Hintergrund, Transparenz, Schriftart, Textgröße, -farbe, -position und Bildbearbeitung von Kachel ${(m.heroGridUniformCell || 0) + 1}. Bild und Text bleiben eigen.</p>`
+    ? `<p class="hint" style="margin:.3rem 0 0;color:var(--accent)">↳ Bildbearbeitung und Schriftart von Kachel ${masterIdx + 1}; Bild und Text bleiben eigen.</p>`
     : '';
   return `
-    <div class="panel" data-celleditor="${i}" style="padding:.7rem .9rem;margin-bottom:.6rem;scroll-margin-top:44vh${inherited ? ';opacity:.75' : ''}">
+    <div class="panel" data-celleditor="${i}" style="padding:.7rem .9rem;margin-bottom:.6rem;scroll-margin-top:.5rem">
+      <strong style="font-size:.85rem">Kachel ${i + 1}${bigLabel ? ' (groß)' : ''}</strong>
+      ${note}
+      ${cellImageBlock(lang, i, inherited)}
+      <div class="row" style="align-items:flex-end;margin-top:.4rem">
+        <div style="flex:2 1 160px">
+          <label>Text (über dem Bild / im leeren Kasten)</label>
+          ${withReset(`<input data-cellfield="${i}:text" value="${esc(s.text || '')}" placeholder="z.B. Neu" maxlength="120" style="${fontFF(s.font || '')}" />`, 'data-cellreset', `${i}:text`, false)}
+        </div>
+        <div style="flex:1 1 160px">
+          <label>Schriftart des Textes</label>
+          ${withReset(`<select data-cellfont="${i}" ${dis} style="${fontFF(s.font || '')}">${fontOptionsHtml(s.font || '')}</select>`, 'data-cellreset', `${i}:font`, inherited)}
+        </div>
+      </div>
+    </div>`;
+}
+// Rechte Seitenleiste: Design einer Kachel – Rahmen, Hintergrund, Textfarbe/-größe/-position.
+function cellDesignEditor(lang, i, bigLabel) {
+  const s = getEffectiveCellStyle(lang, i);
+  const { isMaster, inherited, dis, masterIdx } = cellState(lang, i);
+  const note = inherited
+    ? `<p class="hint" style="margin:.3rem 0 0;color:var(--accent)">↳ Übernimmt Rahmen (Farbe &amp; Dicke), Hintergrund, Transparenz, Textgröße, -farbe und -position von Kachel ${masterIdx + 1}.</p>`
+    : '';
+  return `
+    <div class="panel" data-celleditor="${i}" style="padding:.7rem .9rem;margin-bottom:.6rem;scroll-margin-top:.5rem${inherited ? ';opacity:.75' : ''}">
       <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
         <strong style="font-size:.85rem">Kachel ${i + 1}${bigLabel ? ' (groß)' : ''}</strong>
         <label style="display:flex;align-items:center;gap:.35rem;margin:0;color:${isMaster ? 'var(--accent)' : 'var(--muted)'};font-size:.75rem;cursor:pointer">
           <input type="checkbox" data-cellmaster="${i}" ${isMaster ? 'checked' : ''} style="width:auto" />
-          Standard für alle Kacheln
+          Standard für alle
         </label>
         <button type="button" class="hd-reset" data-cellresetall="${i}" title="Ganze Kachel auf Standard zurücksetzen" aria-label="Ganze Kachel zurücksetzen" style="margin-left:auto">↺ Kachel</button>
       </div>
       ${note}
-      ${cellImageBlock(lang, i, inherited)}
       <div class="row" style="align-items:flex-end;margin-top:.4rem">
         <div style="flex:0 0 auto">
           <label>Rahmenfarbe</label>
@@ -313,18 +346,8 @@ function cellEditor(lang, i, bigLabel) {
           <label>Hintergrund</label>
           ${colorPicker({ id: `ly:cell:${i}:bgColor`, attrs: `data-cellfield="${i}:bgColor"`, value: s.bgColor, disabled: inherited, resetHtml: resetBtn('data-cellreset', `${i}:bgColor`, inherited) })}
         </div>
-        <div style="flex:1 1 220px">
+        <div style="flex:1 1 160px">
           ${slider({ id: `ly:cell:${i}:bgOpacity`, label: 'Hintergrund-Transparenz', unit: '%', min: 0, max: 100, value: s.bgOpacity, attrs: `data-cellfield="${i}:bgOpacity"`, resetAttrs: `data-cellreset="${i}:bgOpacity"`, disabled: inherited })}
-        </div>
-      </div>
-      <div class="row" style="align-items:flex-end;margin-top:.4rem">
-        <div style="flex:2 1 220px">
-          <label>Text (über dem Bild / im leeren Kasten)</label>
-          ${withReset(`<input data-cellfield="${i}:text" value="${esc(s.text || '')}" placeholder="z.B. Neu" maxlength="120" style="${fontFF(s.font || '')}" />`, 'data-cellreset', `${i}:text`, false)}
-        </div>
-        <div style="flex:1 1 200px">
-          <label>Schriftart des Textes</label>
-          ${withReset(`<select data-cellfont="${i}" ${dis} style="${fontFF(s.font || '')}">${fontOptionsHtml(s.font || '')}</select>`, 'data-cellreset', `${i}:font`, inherited)}
         </div>
       </div>
       <div class="row" style="align-items:flex-end;margin-top:.4rem">
@@ -410,17 +433,17 @@ function layoutPanel(lang) {
         </div>
         ${previewBox}
       </div>`;
-    const textPanel = `
-      <div class="panel">
-        <h2>Banner-Text</h2>
+    const textSide = `
+      <aside class="tc-side" data-tcside="left">
+        <div class="tc-side-head left">✍️ Banner-Text</div>
         <p class="hint">Optionaler Text über dem Banner mit Schriftart (aus <code>/fonts</code>), Farbe,
           Größe und Position. Leer = kein Text. Das Banner-Bild/-Video wählst du im Tab <strong>Medien</strong>.</p>
         <div class="row" style="align-items:flex-end">
-          <div style="flex:2 1 240px">
+          <div style="flex:2 1 160px">
             <label>Text</label>
             ${withReset(`<input data-bannerfield="text" value="${esc(bText)}" placeholder="z.B. Willkommen" maxlength="120" style="${fontFF(bFont)}" />`, 'data-bannerreset', 'text', false)}
           </div>
-          <div style="flex:1 1 200px">
+          <div style="flex:1 1 160px">
             <label>Schriftart des Textes</label>
             ${withReset(`<select data-bannerfont style="${fontFF(bFont)}">${fontOptionsHtml(bFont)}</select>`, 'data-bannerreset', 'font', false)}
           </div>
@@ -445,6 +468,11 @@ function layoutPanel(lang) {
             </div>
           </div>
         </div>
+      </aside>`;
+    const fxSide = `
+      <aside class="tc-side" data-tcside="right">
+        <div class="tc-side-head right">✨ Text-Effekte</div>
+        <p class="hint">Schatten, Umriss, Deckkraft und Animation des Banner-Textes – wirken auf der veröffentlichten Seite.</p>
         <div class="row" style="align-items:flex-end;margin-top:.4rem">
           <div style="flex:0 0 auto">
             <label>Schatten</label>
@@ -496,8 +524,10 @@ function layoutPanel(lang) {
             ${withReset(`<select data-bannerfield="textAnimSpeed" style="width:auto;height:38px">${BANNER_ANIM_SPEEDS.map((s) => `<option value="${s}" ${s === bAnimSpeed ? 'selected' : ''}>${ANIM_SPEED_LABELS[s] || s}</option>`).join('')}</select>`, 'data-bannerreset', 'textAnimSpeed', false)}
           </div>
         </div>
-      </div>`;
-    return modePanel + previewPanel + textPanel;
+      </aside>`;
+    return `<div class="tc-layout">${textSide}<div class="tc-main">${modePanel}${previewPanel}
+      <div class="panel"><p class="hint" style="margin:0">Banner-Text links, Text-Effekte rechts. Die Vorschau bleibt beim Scrollen oben sichtbar; den Text in der Vorschau mit der Maus verschieben.</p></div>
+    </div>${fxSide}</div>`;
   }
   const layout = Object.prototype.hasOwnProperty.call(HERO_LAYOUTS, m.heroLayout)
     ? m.heroLayout
@@ -541,16 +571,25 @@ function layoutPanel(lang) {
       </label>
       <p class="hint" style="margin-top:.6rem">📐 Empfohlene Bildgröße: <strong>${GRID_DIMS[ratio]}</strong> — für alle Kacheln gleich.</p>
     </div>`;
-  const editors = `
-    <div class="panel">
-      <h2>Kachel-Design (Bild, Rahmen, Hintergrund &amp; Text)</h2>
+  const cells = Array.from({ length: cellsN }, (_, i) => i);
+  const contentSide = `
+    <aside class="tc-side" data-tcside="left">
+      <div class="tc-side-head left">🖼️ Kachel-Inhalte</div>
       <p class="hint">Pro Kachel: <strong>Bild</strong> (aus der Zwischenablage oder Mediathek) mit Bildbearbeitung
-        (Deckkraft, Abdunkelung, Weichzeichner, Sättigung), Rahmenfarbe &amp; -dicke, Hintergrundfarbe &amp; -transparenz
-        sowie ein optionaler <strong>Text</strong> mit <strong>Schriftart</strong> (aus dem Server-Ordner <code>/fonts</code>).
-        Der Text erscheint über dem Bild bzw. im leeren Kasten. Rahmendicke 0 = kein Rahmen.</p>
-      ${Array.from({ length: cellsN }, (_, i) => cellEditor(lang, i, isMosaic && i === 0)).join('')}
-    </div>`;
-  return modePanel + previewPanel + layoutSel + ratioSel + editors;
+        (Deckkraft, Abdunkelung, Weichzeichner, Sättigung) sowie optionaler <strong>Text</strong> mit <strong>Schriftart</strong>
+        (aus dem Server-Ordner <code>/fonts</code>). Kachel in der Vorschau anklicken springt zur passenden Kachel.</p>
+      ${cells.map((i) => cellContentEditor(lang, i, isMosaic && i === 0)).join('')}
+    </aside>`;
+  const designSide = `
+    <aside class="tc-side" data-tcside="right">
+      <div class="tc-side-head right">🎨 Kachel-Design</div>
+      <p class="hint">Pro Kachel: Rahmenfarbe &amp; -dicke, Hintergrundfarbe &amp; -transparenz, Textfarbe, -größe und -position.
+        Rahmendicke 0 = kein Rahmen. „Standard für alle" macht eine Kachel zur Vorlage der übrigen.</p>
+      ${cells.map((i) => cellDesignEditor(lang, i, isMosaic && i === 0)).join('')}
+    </aside>`;
+  const hintPanel = `
+    <div class="panel"><p class="hint" style="margin:0">Links die <strong>Inhalte</strong> der Kacheln (Bild, Text, Schrift), rechts ihr <strong>Design</strong> (Rahmen, Hintergrund, Textfarbe/-position). Die Vorschau bleibt beim Scrollen oben sichtbar; Texte darin mit der Maus verschieben.</p></div>`;
+  return `<div class="tc-layout">${contentSide}<div class="tc-main">${modePanel}${previewPanel}${layoutSel}${ratioSel}${hintPanel}</div>${designSide}</div>`;
 }
 
 // Aktualisiert eine Vorschau-Kachel live (ohne Neu-Rendern), damit Slider/Farb-
@@ -637,15 +676,18 @@ function markCell(pane, i) {
     el.style.boxShadow = Number(el.dataset.celleditor) === i ? '0 0 0 2px var(--accent)' : '';
   });
 }
-// Wie markCell, zusätzlich den Editor direkt unter die sticky Vorschau scrollen.
+// Wie markCell, zusätzlich die Editoren der Kachel in beiden Seitenleisten nach
+// oben scrollen (nur innerhalb der Seitenleiste – die Seite selbst bleibt stehen).
 function selectCell(pane, i) {
   markCell(pane, i);
-  const editor = pane.querySelector(`[data-celleditor="${i}"]`);
-  if (!editor) return;
-  const sticky = pane.querySelector('[data-stickyprev]');
-  const stickyH = sticky ? sticky.getBoundingClientRect().height : 0;
-  const top = editor.getBoundingClientRect().top + window.scrollY - stickyH - 24;
-  window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+  pane.querySelectorAll(`[data-celleditor="${i}"]`).forEach((editor) => {
+    const side = editor.closest('.tc-side');
+    if (!side) return;
+    // Position relativ zum sichtbaren Bereich der Seitenleiste (unabhängig vom offsetParent).
+    const top =
+      editor.getBoundingClientRect().top - side.getBoundingClientRect().top + side.scrollTop;
+    side.scrollTo({ top: Math.max(0, top - 8), behavior: 'smooth' });
+  });
 }
 
 // Macht ein Text-Overlay (handle) innerhalb seines Containers per Maus/Touch
@@ -832,6 +874,8 @@ function wireDrag(pane, lang) {
 export function renderLayout() {
   const lang = state.nav.section;
   const pane = $('#content');
+  // Sichtzustand (Scroll der Seite/Seitenleisten, auf-/zugeklappte Bereiche) erhalten.
+  const view = captureView(pane);
   pane.innerHTML = layoutPanel(lang);
 
   // Zustand der bereichsinternen ↶/↷-Buttons sofort von der Kopfleiste
@@ -1108,4 +1152,5 @@ export function renderLayout() {
   wireDrag(pane, lang);
   bindSliders(pane); // nach den Feld-Handlern: Zahlenfeld löst deren input-Event aus
   bindColorPickers(pane);
+  restoreView(pane, view);
 }

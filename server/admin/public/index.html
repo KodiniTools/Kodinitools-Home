@@ -542,6 +542,15 @@
         background: #142640;
         color: #f8e1a9;
       }
+      /* Neutrale Seitenleisten (Layout-Tab: Inhalte links, Design rechts) */
+      .tc-side-head.left,
+      .tc-side-head.right {
+        background: #1d3a5c;
+        color: #e2e8f0;
+      }
+      .tc-side .panel {
+        padding: 0.7rem 0.8rem;
+      }
       .tc-side .row {
         gap: 0.5rem;
       }
@@ -560,8 +569,12 @@
         .tc-side[data-tcside='light'] {
           order: 1;
         }
-        .tc-side[data-tcside='dark'] {
+        .tc-side[data-tcside='dark'],
+        .tc-side[data-tcside='right'] {
           order: 2;
+        }
+        .tc-side[data-tcside='left'] {
+          order: 1;
         }
         .tc-side {
           position: static;
