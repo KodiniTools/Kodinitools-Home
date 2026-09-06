@@ -35,6 +35,7 @@ import {
 import { objUrl, openMediaPicker } from './media.js';
 import { ensureFontFace, fontOptionsHtml } from './fonts.js';
 import { slider, bindSliders } from './slider.js';
+import { captureView, restoreView } from './viewstate.js';
 import { colorPicker, bindColorPickers } from './color.js';
 
 // UI-Zustand (nicht gespeichert): bearbeiteter Modus + gewählte Karte
@@ -919,7 +920,6 @@ function panelHtml(lang) {
         }</button>
         <p class="hint" style="margin:.35rem 0 0">Kopiert <strong>alle</strong> Einstellungen (Standard + Einzel-Designs, Hell + Dunkel) von Deutsch nach Englisch.</p>
       </div>
-      ${previewBlock(lang)}
       ${hiddenBlock(lang)}
       ${textsBlock(lang)}
       ${centerFieldsBlock(lang)}
@@ -932,7 +932,7 @@ function layoutHtml(lang) {
   return `
     <div class="tc-layout">
       ${sideBlock(lang, 'light')}
-      <div class="tc-main">${panelHtml(lang)}</div>
+      <div class="tc-main">${previewBlock(lang)}${panelHtml(lang)}</div>
       ${sideBlock(lang, 'dark')}
     </div>`;
 }
@@ -972,6 +972,9 @@ export function renderToolCards() {
   const pane = $('#content');
   // Gewählte Karte muss in dieser Sprache existieren (sonst Standard).
   if (selected && !cardById(lang, selected)) selected = '';
+  // Sichtzustand (Scroll der Seite/Seitenleisten, auf-/zugeklappte Bereiche) über
+  // das Neu-Rendern hinweg erhalten – sonst springt die Ansicht bei jedem Schalter.
+  const view = captureView(pane);
   pane.innerHTML = layoutHtml(lang);
   const rerender = () => renderToolCards();
 
@@ -1268,12 +1271,12 @@ export function renderToolCards() {
     el.addEventListener('click', () => {
       selected = el.dataset.tcpick;
       rerender();
-      // Zur Sticky-Vorschau/Auswahl scrollen, damit die Felder sichtbar sind.
-      pane.querySelector('.tc-sticky')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      toast('Karte ausgewählt – Einstellungen links (Hell) und rechts (Dunkel), Vorschau oben');
     }),
   );
   bindSliders(pane); // nach den Feld-Handlern: Zahlenfeld löst deren input-Event aus
   bindColorPickers(pane);
+  restoreView(pane, view);
 }
 
 function clampInt(v, min, max, def) {

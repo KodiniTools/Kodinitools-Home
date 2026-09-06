@@ -30,6 +30,7 @@ import {
   updateSlotPreview,
 } from './textstyle.js';
 import { goto } from './admin.js';
+import { captureView, restoreView } from './viewstate.js';
 
 const MODES = ['light', 'dark'];
 const colorField = (mode) => (mode === 'dark' ? 'colorDark' : 'colorLight');
@@ -106,6 +107,7 @@ function refreshTxtPreviews(pane, lang) {
 export function renderTexts() {
   const pane = $('#content');
   const lang = state.nav.section;
+  const view = captureView(pane); // Scroll/Seitenleisten/Details über das Neu-Rendern erhalten
   pane.innerHTML = layoutHtml(lang);
   pane.querySelectorAll('[data-txt]').forEach((el) => {
     const idx = parseInt(el.dataset.txt, 10);
@@ -243,6 +245,7 @@ export function renderTexts() {
     });
   });
   bindColorPickers(pane);
+  restoreView(pane, view);
 }
 
 // Mitte: Texte + modusunabhängige Einstellungen je Slot.

@@ -38,6 +38,7 @@ import {
   rgbaFromHex,
 } from './model.js';
 import { objUrl, openMediaPicker } from './media.js';
+import { withView } from './viewstate.js';
 
 // --- Effekte (Aurora / Rauschen / Spotlight): Beschreibung + Vorschau-Werte ---
 // Die Vorschau bildet background.css + index.astro nach (gleiche Verläufe,
@@ -314,7 +315,8 @@ function sectionNote() {
     ? `✅ Abgesetzt: ${parts.join(' · ')}${gap > 0 ? ` · Abstand ${gap} px` : ''}.`
     : 'Keine Sektion abgesetzt – die Sektionen liegen wie bisher direkt auf dem Seitenhintergrund.';
 }
-// Eine Spalte (Hell oder Dunkel) einer Sektion: Tönung + Bild.
+// Eine Sektion (Audio/Bild/Diverse) für einen Modus: Tönung + Bild. Steht in der
+// Seitenleiste des Modus; `title` = Sektionsname.
 function sectionCol(key, mode) {
   const c = getSiteSection(key, mode);
   const on = c.color !== '';
@@ -326,7 +328,7 @@ function sectionCol(key, mode) {
   const imgDis = c.image ? '' : 'disabled';
   return `
     <div class="sec-col" data-seccol="${key}" data-mode="${mode}">
-      <div class="sec-col-title">${mode === 'dark' ? 'Dunkel 🌙' : 'Hell ☀️'}</div>
+      <div class="sec-col-title">${esc(SECTION_LABELS[key])}</div>
       <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin:0">
         <input type="checkbox" data-secen="${key}" data-mode="${mode}" ${on ? 'checked' : ''} style="width:auto" /> Tönung
       </label>
@@ -378,13 +380,7 @@ function sectionsPanel() {
           <button type="button" data-secclear title="Alle Sektionen auf Standard (keine Tönung, kein Bild)">↺ Alle zurücksetzen</button>
         </div>
       </div>
-      ${SITE_SECTION_KEYS.map(
-        (k) => `
-        <div class="sec-box">
-          <div class="bg-sub-title">${SECTION_LABELS[k]}</div>
-          <div class="sec-cols">${sectionCol(k, 'light')}${sectionCol(k, 'dark')}</div>
-        </div>`,
-      ).join('')}
+      <p class="hint" style="margin:.5rem 0 0">Tönung und Bild je Sektion stehen links (Hell) und rechts (Dunkel) unter „Abgesetzte Sektionen".</p>
       <p class="hint" data-secnote style="margin-top:.6rem">${sectionNote()}</p>
     </div>`;
 }
@@ -483,23 +479,43 @@ function bindSections(pane) {
   });
 }
 
-function backgroundPanel() {
+// Mitte: Sticky-Vorschau, Einleitung, allgemeine Sektions-Einstellungen, Effekte.
+function centerHtml() {
   return `
     ${stickyPreview()}
     <div class="panel">
-      <h2>Seiten-Hintergrund</h2>
+      <h2>Seiten-Hintergrund <span class="lang-badge">gilt für DE + EN</span></h2>
       <p class="hint" style="margin-top:0">
         Legt den <strong>Hintergrund der gesamten Website</strong> fest (beide Sprachen).
-        Getrennt einstellbar für <strong>Hell-</strong> und <strong>Dunkelmodus</strong>: Farbe,
-        <strong>Deckkraft</strong> (Mischung mit der Standardfarbe), optional ein <strong>Farbverlauf</strong>,
-        ein <strong>Muster</strong> (Punktraster/Gitter) und ein <strong>Hintergrundbild</strong> aus der Mediathek;
-        darunter die zuschaltbaren <strong>Effekte</strong>. Die Vorschau bleibt beim Scrollen oben sichtbar.
+        Farbe, <strong>Deckkraft</strong>, <strong>Farbverlauf</strong>, <strong>Muster</strong> und
+        <strong>Hintergrundbild</strong> stehen je Modus in den Seitenleisten: links <strong>Hell</strong>, rechts <strong>Dunkel</strong>.
+        Darunter je Modus die abgesetzten Sektionen. Hier in der Mitte: Vorschau, allgemeine Sektions-Einstellungen und Effekte.
       </p>
-      ${modeRow('light', 'den Hellmodus')}
-      ${modeRow('dark', 'den Dunkelmodus')}
     </div>
     ${sectionsPanel()}
     ${effectsPanel()}`;
+}
+// Seitenleiste eines Modus: Farbe/Verlauf/Muster/Bild + abgesetzte Sektionen.
+function sideHtml(mode) {
+  const dark = mode === 'dark';
+  return `
+    <aside class="tc-side" data-tcside="${mode}">
+      <div class="tc-side-head ${mode}">${dark ? '🌙 Dunkelmodus' : '☀️ Hellmodus'}</div>
+      ${modeRow(mode, dark ? 'den Dunkelmodus' : 'den Hellmodus')}
+      <div class="bg-sub" style="margin-top:.9rem">
+        <div class="bg-sub-title">Abgesetzte Sektionen (${dark ? 'Dunkel' : 'Hell'})</div>
+        <p class="hint" style="margin:0 0 .3rem">Tönung und/oder Bild je Sektion; Darstellung und Abstand in der Mitte.</p>
+        ${SITE_SECTION_KEYS.map((k) => `<div class="sec-box">${sectionCol(k, mode)}</div>`).join('')}
+      </div>
+    </aside>`;
+}
+function backgroundPanel() {
+  return `
+    <div class="tc-layout">
+      ${sideHtml('light')}
+      <div class="tc-main">${centerHtml()}</div>
+      ${sideHtml('dark')}
+    </div>`;
 }
 
 // Sticky-Live-Vorschau (Hell + Dunkel nebeneinander): Seitenfarbe/Verlauf/
@@ -610,12 +626,15 @@ function bindEffects(pane) {
 
 export function renderBackground() {
   const pane = $('#content');
-  pane.innerHTML = backgroundPanel();
-  bindBackground(pane);
-  bindSections(pane);
-  bindEffects(pane);
-  bindSliders(pane); // nach den Feld-Handlern: Zahlenfeld/„↺" lösen deren input-Event aus
-  bindColorPickers(pane);
+  // Sichtzustand (Scroll der Seite/Seitenleisten, auf-/zugeklappte Bereiche) bleibt.
+  withView(pane, () => {
+    pane.innerHTML = backgroundPanel();
+    bindBackground(pane);
+    bindSections(pane);
+    bindEffects(pane);
+    bindSliders(pane); // nach den Feld-Handlern: Zahlenfeld/„↺" lösen deren input-Event aus
+    bindColorPickers(pane);
+  });
 }
 
 function refreshMode(pane, mode) {
