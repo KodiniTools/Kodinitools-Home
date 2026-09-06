@@ -6,7 +6,7 @@ import SectionMedia from '../components/SectionMedia.astro'
 import SiteFooter from '../components/SiteFooter.astro'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
-import { getContent, getMedia, HERO_LAYOUT_CELLS, effectiveHeroCellStyle, heroCellImageVars, getTextStylesCss, getToolCardsCss, getIconTintCss } from '../content/content'
+import { getContent, getMedia, HERO_LAYOUT_CELLS, effectiveHeroCellStyle, heroCellImageVars, getTextStylesCss, getToolCardsCss, getIconTintCss, getHiddenCards } from '../content/content'
 
 // Inhalte aus der Content-Schicht (Standard-Locale + Admin-Overrides, gemergt).
 const de = getContent('de')
@@ -21,18 +21,25 @@ function isTool(val: unknown): val is ToolEntry {
   return typeof val === 'object' && val !== null && 'title' in val && 'link' in val
 }
 
+// Im Admin ausgeblendete Karten (gilt für DE + EN) erscheinen nicht auf der Seite.
+const hiddenCards = getHiddenCards()
+const notHidden = (t: { i18nKey: string }) => !hiddenCards.has(t.i18nKey)
+
 // Derive tool card arrays from de.json (single source of truth)
 const audioTools = Object.entries(de.tools)
   .filter((e): e is [string, ToolEntry] => isTool(e[1]))
   .map(([k, t]) => ({ title: t.title, description: t.description, link: t.link, svg: t.svg, i18nKey: `tools.${k}`, badge: t.badge }))
+  .filter(notHidden)
 
 const imageTools = Object.entries(de.imageTools)
   .filter((e): e is [string, ToolEntry] => isTool(e[1]))
   .map(([k, t]) => ({ title: t.title, description: t.description, link: t.link, svg: t.svg, i18nKey: `imageTools.${k}`, badge: t.badge }))
+  .filter(notHidden)
 
 const diverseTools = Object.entries(de.diverseTools)
   .filter((e): e is [string, ToolEntry] => isTool(e[1]))
   .map(([k, t]) => ({ title: t.title, description: t.description, link: t.link, svg: t.svg, i18nKey: `diverseTools.${k}`, badge: t.badge }))
+  .filter(notHidden)
 
 const features = Object.entries(de.hero.features).map(([k, text]) => ({
   text,
@@ -404,7 +411,7 @@ const pageI18n = {
         <h2 data-i18n="favorites.sectionTitle">Meine Favoriten</h2>
         <button id="favClearAll" class="fav-clear-btn" data-i18n="favorites.clearAll">Alle entfernen</button>
       </div>
-      <div id="favoritesGrid" class="svg-card-grid"></div>
+      <div id="favoritesGrid" class="svg-card-grid" data-hidden-keys={[...hiddenCards].join(',')}></div>
     </section>
 
     <!-- Audio Tools Section -->
@@ -763,7 +770,10 @@ const pageI18n = {
       try {
         const raw = JSON.parse(localStorage.getItem(FAV_KEY)) || [];
         // filter out legacy string-only entries from old format
-        return raw.filter(function(f) { return f && typeof f === 'object' && f.key; });
+        // Im Admin ausgeblendete Karten auch aus gespeicherten Favoriten ausblenden.
+        const hiddenAttr = (document.getElementById('favoritesGrid') || {}).dataset;
+        const hidden = new Set((hiddenAttr && hiddenAttr.hiddenKeys ? hiddenAttr.hiddenKeys.split(',') : []).filter(Boolean));
+        return raw.filter(function(f) { return f && typeof f === 'object' && f.key && !hidden.has(f.key); });
       } catch { return []; }
     }
 

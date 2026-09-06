@@ -718,6 +718,36 @@
       .tc-pick .tc-card {
         max-width: none;
       }
+      /* Ausgeblendete Karten in der Übersicht + Liste „Ausgeblendete Karten" */
+      .tc-pick.tc-hidden .tc-card {
+        opacity: 0.4;
+        filter: grayscale(0.6);
+      }
+      .tc-hidden-badge {
+        position: absolute;
+        top: 0.45rem;
+        left: 0.45rem;
+        z-index: 1;
+        font-size: 0.62rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #fff;
+        background: #b91c1c;
+        border-radius: 0.3rem;
+        padding: 0.1rem 0.35rem;
+      }
+      .tc-hidden-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        padding: 0.35rem 0.5rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        margin-top: 0.35rem;
+        background: var(--bg);
+      }
       .tc-own {
         position: absolute;
         top: -0.35rem;
