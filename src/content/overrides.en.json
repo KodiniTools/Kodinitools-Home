@@ -34,7 +34,10 @@
       "svg": ""
     },
     "playlistToWebm": {
-      "svg": ""
+      "svg": "",
+      "badge": "WebM+MP3",
+      "title": "Playlist to MP3 +WebM Converter",
+      "description": "Convert up to 50 audio tracks into a MP3 and WebM file"
     },
     "audioCutter": {
       "svg": ""
