@@ -82,6 +82,10 @@
 
 [data-theme="dark"] .tool-card {
   background: var(--tc-bg, var(--card-bg, #142640));
+  /* components.css setzt hier border-color mit gleicher Spezifität ([data-theme] + Klasse)
+     und würde die Admin-Rahmenfarbe (--tc-bc) im Dunkelmodus überschreiben – daher
+     hier (später geladen) erneut mit der Variable, Fallback = bisheriger Standard. */
+  border-color: var(--tc-bc, rgba(232, 169, 69, 0.12));
 }
 
 [data-theme="dark"] .svg-card-link:hover .tool-card {

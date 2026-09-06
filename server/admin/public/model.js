@@ -891,6 +891,15 @@ export function normSite(s) {
 // bzw. Verlauf mit Deckkraft ÜBER der Standardfarbe. Für alle Admin-Vorschauen
 // (Hintergrund-Tab, Tool-Karten), damit sie das gleiche Ergebnis zeigen.
 export function siteBgLayerCss(mode) {
+  const { ground, overlay } = siteBgSplit(mode);
+  return overlay ? `${overlay}, ${ground}` : ground;
+}
+// Seiten-Hintergrund eines Modus in zwei Teile: `ground` = flache Grundfarbe
+// (eigene deckende Farbe, sonst Standard) und `overlay` = Muster + durch-
+// scheinende Farbe/Verlauf als background-Liste ('' = nichts). Mit Hintergrund-
+// bild liegt das Overlay auf der Seite ÜBER dem Bild (content.ts: body::after),
+// der Grund darunter – die Vorschau baut die Ebenen genauso.
+export function siteBgSplit(mode) {
   const s = getSiteBg(mode);
   const base = PAGE_BG_DEFAULT[mode];
   const layers = sitePatternLayers(s);
@@ -907,7 +916,7 @@ export function siteBgLayerCss(mode) {
     } else if (s.opacity >= 100) ground = s.color;
     else layers.push(`linear-gradient(${c1}, ${c1})`);
   }
-  return layers.length ? `${layers.join(', ')}, ${ground}` : ground;
+  return { ground, overlay: layers.join(', ') };
 }
 // Muster-Ebenen (Punktraster / Gitter) als background-Einträge – identisch zu
 // content.ts sitePatternLayers. Leer bei 'none'.

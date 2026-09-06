@@ -1213,6 +1213,8 @@ export function getSiteBackgroundStyle(): string | undefined {
   if (light.bodyBg && !dark.bodyBg)
     rules.push('html[data-theme="dark"] body{background:var(--bg-color);}');
   if (light.image && !dark.image) rules.push('html[data-theme="dark"] body::before{content:none;}');
+  if (light.overlay && !dark.overlay)
+    rules.push('html[data-theme="dark"] body::after{content:none;}');
   rules.push(...siteFxRules(site));
   rules.push(...siteSectionRules(site));
   return rules.length ? rules.join('') : undefined;
@@ -1287,6 +1289,7 @@ interface SiteBgRules {
   rules: string[];
   bgVar: boolean; // eigene --bg-color gesetzt
   bodyBg: boolean;
+  overlay: boolean; // Muster/Tönung als body::after über dem Bild
   image: boolean;
 }
 
@@ -1395,19 +1398,29 @@ function siteBgRules(site: SiteConfig, mode: 'light' | 'dark'): SiteBgRules {
     ),
   ];
   if (colorLayer) layers.push(colorLayer);
-  const bodyBg = layers.length > 0;
+  const img = String(s[`bgImage${sfx}`] ?? '');
+  const image = img !== '' && SITE_MEDIA_URL.test(img);
+  // Ohne Bild liegen Muster/Tönung direkt im body-Hintergrund. Mit Bild wandern
+  // sie in eine Overlay-Ebene (body::after) ÜBER das Bild – sonst deckt ein
+  // deckendes Bild das Muster vollständig ab (Bild = body::before, siehe 3.).
+  const bodyBg = !image && layers.length > 0;
+  const overlay = image && layers.length > 0;
   if (bodyBg) {
     // Grund: flache deckende eigene Farbe (falls gesetzt), sonst Standardfarbe.
     const ground = hasColor && !colorLayer ? color : base;
     rules.push(`${sel} body{background:${layers.join(', ')}, ${ground};}`);
   }
+  if (overlay) {
+    rules.push(
+      `${sel} body::after{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;background:${layers.join(', ')};}`,
+    );
+  }
 
   // 3. Hintergrundbild als body::before (eigene Ebene, damit Weichzeichner und
-  //    Abdunkelung per filter möglich sind), unter der Effekt-Ebene (z-index -2).
+  //    Abdunkelung per filter möglich sind), unter der Effekt-Ebene (z-index -2;
+  //    das Overlay aus 2. hat denselben z-index und liegt als ::after darüber).
   //    Alle Eigenschaften werden ausdrücklich gesetzt, damit im Dunkelmodus
   //    nichts aus der Hell-Regel (html:root) durchscheint.
-  const img = String(s[`bgImage${sfx}`] ?? '');
-  const image = img !== '' && SITE_MEDIA_URL.test(img);
   if (image) {
     const darken = num(s[`bgImageDarken${sfx}`], 0, 100, 0) / 100;
     const blur = num(s[`bgImageBlur${sfx}`], 0, 40, 0);
@@ -1429,7 +1442,7 @@ function siteBgRules(site: SiteConfig, mode: 'light' | 'dark'): SiteBgRules {
         `filter:${filters.join(' ') || 'none'};opacity:${op};mask-image:${mask};-webkit-mask-image:${mask};}`,
     );
   }
-  return { rules, bgVar: hasColor, bodyBg, image };
+  return { rules, bgVar: hasColor, bodyBg, overlay, image };
 }
 
 /**
