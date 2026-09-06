@@ -18,7 +18,85 @@
     "fxNoise": false,
     "fxNoiseIntensity": 50,
     "fxSpotlight": false,
-    "fxSpotlightIntensity": 50
+    "fxSpotlightIntensity": 50,
+    "bgPattern": "none",
+    "bgPatternDark": "none",
+    "bgPatternColor": "#014f99",
+    "bgPatternColorDark": "#e8a945",
+    "bgPatternSpacing": 24,
+    "bgPatternSpacingDark": 24,
+    "bgPatternThickness": 1,
+    "bgPatternThicknessDark": 1,
+    "bgPatternOpacity": 12,
+    "bgPatternOpacityDark": 12,
+    "bgImage": "/uploads/kodinitools-banner-29-020de52e.webp",
+    "bgImageDark": "",
+    "bgImageDarken": 0,
+    "bgImageDarkenDark": 0,
+    "bgImageBlur": 0,
+    "bgImageBlurDark": 0,
+    "bgImageOpacity": 100,
+    "bgImageOpacityDark": 100,
+    "bgImageFixed": true,
+    "bgImageFixedDark": true,
+    "sections": {
+      "style": "band",
+      "gap": 0,
+      "audio": {
+        "light": {
+          "color": "",
+          "opacity": 8,
+          "image": "",
+          "imageDarken": 0,
+          "imageBlur": 0,
+          "imageOpacity": 100
+        },
+        "dark": {
+          "color": "",
+          "opacity": 8,
+          "image": "",
+          "imageDarken": 0,
+          "imageBlur": 0,
+          "imageOpacity": 100
+        }
+      },
+      "image": {
+        "light": {
+          "color": "",
+          "opacity": 8,
+          "image": "",
+          "imageDarken": 0,
+          "imageBlur": 0,
+          "imageOpacity": 100
+        },
+        "dark": {
+          "color": "",
+          "opacity": 8,
+          "image": "",
+          "imageDarken": 0,
+          "imageBlur": 0,
+          "imageOpacity": 100
+        }
+      },
+      "diverse": {
+        "light": {
+          "color": "",
+          "opacity": 8,
+          "image": "",
+          "imageDarken": 0,
+          "imageBlur": 0,
+          "imageOpacity": 100
+        },
+        "dark": {
+          "color": "",
+          "opacity": 8,
+          "image": "",
+          "imageDarken": 0,
+          "imageBlur": 0,
+          "imageOpacity": 100
+        }
+      }
+    }
   },
   "de": {
     "sectionVideos": {
@@ -76,7 +154,11 @@
         "textSize": 0,
         "textPos": "center",
         "textX": 46,
-        "textY": 12
+        "textY": 12,
+        "imgOpacity": 100,
+        "imgDarken": 0,
+        "imgBlur": 0,
+        "imgSaturate": 100
       },
       {
         "borderColor": "#014f99",
@@ -89,7 +171,11 @@
         "textSize": 0,
         "textPos": "center",
         "textX": 50,
-        "textY": 50
+        "textY": 50,
+        "imgOpacity": 100,
+        "imgDarken": 0,
+        "imgBlur": 0,
+        "imgSaturate": 100
       },
       {
         "borderColor": "#014f99",
@@ -102,7 +188,11 @@
         "textSize": 0,
         "textPos": "center",
         "textX": 50,
-        "textY": 50
+        "textY": 50,
+        "imgOpacity": 100,
+        "imgDarken": 0,
+        "imgBlur": 0,
+        "imgSaturate": 100
       },
       {
         "borderColor": "#014f99",
@@ -115,7 +205,11 @@
         "textSize": 0,
         "textPos": "center",
         "textX": 50,
-        "textY": 50
+        "textY": 50,
+        "imgOpacity": 100,
+        "imgDarken": 0,
+        "imgBlur": 0,
+        "imgSaturate": 100
       },
       {
         "borderColor": "#014f99",
@@ -128,7 +222,11 @@
         "textSize": 0,
         "textPos": "center",
         "textX": 50,
-        "textY": 50
+        "textY": 50,
+        "imgOpacity": 100,
+        "imgDarken": 0,
+        "imgBlur": 0,
+        "imgSaturate": 100
       },
       {
         "borderColor": "#014f99",
@@ -141,7 +239,11 @@
         "textSize": 0,
         "textPos": "center",
         "textX": 50,
-        "textY": 50
+        "textY": 50,
+        "imgOpacity": 100,
+        "imgDarken": 0,
+        "imgBlur": 0,
+        "imgSaturate": 100
       }
     ],
     "heroGridUniform": false,
@@ -232,19 +334,29 @@
       "default": {
         "light": {
           "borderColor": "#103ab7",
-          "borderOpacity": 7,
+          "borderOpacity": 100,
           "borderWidth": 4,
           "borderStyle": "double",
           "borderRadius": 8,
-          "bgColor": "#d0daec",
-          "bgOpacity": 27,
+          "bgColor": "#ffffff",
+          "bgOpacity": 100,
           "gradient": true,
-          "bgColor2": "#97b5d3",
+          "bgColor2": "#d4e0ed",
           "gradientAngle": 78,
           "hoverBorderColor": "#014f99",
           "hoverBorderOpacity": 8,
-          "hoverBgColor": "#5d6874",
-          "hoverBgOpacity": 11
+          "hoverBgColor": "#ffffff",
+          "hoverBgOpacity": 100,
+          "titleColor": "",
+          "badgeColor": "",
+          "badgeBgColor": "",
+          "badgeBgOpacity": 100,
+          "openColor": "",
+          "descColor": "",
+          "descBgColor": "",
+          "bgImage": "",
+          "bgImageOpacity": 100,
+          "bgImageDarken": 0
         },
         "dark": {
           "borderColor": "#1d3a5c",
@@ -259,12 +371,37 @@
           "gradientAngle": 135,
           "hoverBorderColor": "#e8a945",
           "hoverBorderOpacity": 22,
-          "hoverBgColor": "#142640",
-          "hoverBgOpacity": 0
+          "hoverBgColor": "#012c65",
+          "hoverBgOpacity": 100,
+          "titleColor": "",
+          "badgeColor": "",
+          "badgeBgColor": "",
+          "badgeBgOpacity": 100,
+          "openColor": "",
+          "descColor": "",
+          "descBgColor": "",
+          "bgImage": "",
+          "bgImageOpacity": 100,
+          "bgImageDarken": 0
+        },
+        "text": {
+          "titleFont": "",
+          "titleSize": 0,
+          "titleWeight": "",
+          "titleSpacing": 0,
+          "titleTransform": "",
+          "textFont": "",
+          "badgeSize": 0,
+          "badgeWeight": "",
+          "badgeTransform": "",
+          "openSize": 0,
+          "openWeight": "",
+          "descSize": 0
         }
       },
       "cards": {}
-    }
+    },
+    "iconTint": {}
   },
   "en": {
     "sectionVideos": {
@@ -322,7 +459,11 @@
         "textSize": 0,
         "textPos": "center",
         "textX": 50,
-        "textY": 50
+        "textY": 50,
+        "imgOpacity": 100,
+        "imgDarken": 0,
+        "imgBlur": 0,
+        "imgSaturate": 100
       },
       {
         "borderColor": "#014f99",
@@ -335,7 +476,11 @@
         "textSize": 0,
         "textPos": "center",
         "textX": 50,
-        "textY": 50
+        "textY": 50,
+        "imgOpacity": 100,
+        "imgDarken": 0,
+        "imgBlur": 0,
+        "imgSaturate": 100
       },
       {
         "borderColor": "#014f99",
@@ -348,7 +493,11 @@
         "textSize": 0,
         "textPos": "center",
         "textX": 50,
-        "textY": 50
+        "textY": 50,
+        "imgOpacity": 100,
+        "imgDarken": 0,
+        "imgBlur": 0,
+        "imgSaturate": 100
       },
       {
         "borderColor": "#014f99",
@@ -361,7 +510,11 @@
         "textSize": 0,
         "textPos": "center",
         "textX": 50,
-        "textY": 50
+        "textY": 50,
+        "imgOpacity": 100,
+        "imgDarken": 0,
+        "imgBlur": 0,
+        "imgSaturate": 100
       },
       {
         "borderColor": "#014f99",
@@ -374,7 +527,11 @@
         "textSize": 0,
         "textPos": "center",
         "textX": 50,
-        "textY": 50
+        "textY": 50,
+        "imgOpacity": 100,
+        "imgDarken": 0,
+        "imgBlur": 0,
+        "imgSaturate": 100
       },
       {
         "borderColor": "#014f99",
@@ -387,7 +544,11 @@
         "textSize": 0,
         "textPos": "center",
         "textX": 50,
-        "textY": 50
+        "textY": 50,
+        "imgOpacity": 100,
+        "imgDarken": 0,
+        "imgBlur": 0,
+        "imgSaturate": 100
       }
     ],
     "heroGridUniform": false,
@@ -490,7 +651,17 @@
           "hoverBorderColor": "#014f99",
           "hoverBorderOpacity": 8,
           "hoverBgColor": "#5d6874",
-          "hoverBgOpacity": 11
+          "hoverBgOpacity": 11,
+          "titleColor": "",
+          "badgeColor": "",
+          "badgeBgColor": "",
+          "badgeBgOpacity": 100,
+          "openColor": "",
+          "descColor": "",
+          "descBgColor": "",
+          "bgImage": "",
+          "bgImageOpacity": 100,
+          "bgImageDarken": 0
         },
         "dark": {
           "borderColor": "#1d3a5c",
@@ -506,10 +677,35 @@
           "hoverBorderColor": "#e8a945",
           "hoverBorderOpacity": 22,
           "hoverBgColor": "#142640",
-          "hoverBgOpacity": 0
+          "hoverBgOpacity": 0,
+          "titleColor": "",
+          "badgeColor": "",
+          "badgeBgColor": "",
+          "badgeBgOpacity": 100,
+          "openColor": "",
+          "descColor": "",
+          "descBgColor": "",
+          "bgImage": "",
+          "bgImageOpacity": 100,
+          "bgImageDarken": 0
+        },
+        "text": {
+          "titleFont": "",
+          "titleSize": 0,
+          "titleWeight": "",
+          "titleSpacing": 0,
+          "titleTransform": "",
+          "textFont": "",
+          "badgeSize": 0,
+          "badgeWeight": "",
+          "badgeTransform": "",
+          "openSize": 0,
+          "openWeight": "",
+          "descSize": 0
         }
       },
       "cards": {}
-    }
+    },
+    "iconTint": {}
   }
 }
