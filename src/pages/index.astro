@@ -2,13 +2,13 @@
 import BaseLayout from '../layouts/BaseLayout.astro'
 import GlobalNav from '../components/GlobalNav.astro'
 import TickerBar from '../components/TickerBar.astro'
-import SectionMedia from '../components/SectionMedia.astro'
 import HeroBannerMedia from '../components/HeroBannerMedia.astro'
 import HeroCellMedia from '../components/HeroCellMedia.astro'
+import SectionMediaBlock from '../components/SectionMediaBlock.astro'
 import SiteFooter from '../components/SiteFooter.astro'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
-import { getContent, getMedia, HERO_LAYOUT_CELLS, effectiveHeroCellStyle, heroCellImageVars, getTextStylesCss, getHeroBannerCss, getToolCardsCss, getIconTintCss, getHiddenCards } from '../content/content'
+import { getContent, getMedia, HERO_LAYOUT_CELLS, effectiveHeroCellStyle, heroCellImageVars, getTextStylesCss, getHeroBannerCss, getSectionMediaCss, getToolCardsCss, getIconTintCss, getHiddenCards } from '../content/content'
 
 // Inhalte aus der Content-Schicht (Standard-Locale + Admin-Overrides, gemergt).
 const de = getContent('de')
@@ -155,6 +155,8 @@ const heroCellFontCss = [
 const textStylesCss = getTextStylesCss(media)
 // Design des Einzelbanners (Rahmen, Ecken, Schatten, Deckkraft, Verdunkelung) aus dem Layout-Tab.
 const heroBannerCss = getHeroBannerCss(media)
+// Design/Text-Schriften der Sektions-Medien (Tab „Medien").
+const sectionMediaCss = getSectionMediaCss(media)
 // Rahmen/Hintergrund der Tool-Karten aus dem Admin-Tab „Tool-Karten" (nur wenn aktiviert).
 const toolCardsCss = [getToolCardsCss(media), getIconTintCss('de')].filter(Boolean).join('')
 // Inline-Style des Text-Overlays: Farbe, freie Position (x/y in %), Größe, Schrift.
@@ -269,6 +271,7 @@ const pageI18n = {
     {heroCellFontCss && <style is:global set:html={heroCellFontCss} />}
     {textStylesCss && <style is:global set:html={textStylesCss} />}
     {heroBannerCss && <style is:global set:html={heroBannerCss} />}
+    {sectionMediaCss && <style is:global set:html={sectionMediaCss} />}
     {toolCardsCss && <style is:global set:html={toolCardsCss} />}
     <section class="hero">
       <div class="mesh-gradient-container">
@@ -408,7 +411,7 @@ const pageI18n = {
         <h2 data-i18n="tools.sectionTitle">Audio Tools</h2>
       </div>
 
-      <SectionMedia src={media.sectionVideos.audio} eager={true} />
+      <SectionMediaBlock media={media} section="audio" eager={true} />
 
       <div class="svg-card-grid">
         {audioTools.map((tool) => (
@@ -445,7 +448,7 @@ const pageI18n = {
         <h2 data-i18n="imageTools.sectionTitle">Bild Tools</h2>
       </div>
 
-      <SectionMedia src={media.sectionVideos.image} />
+      <SectionMediaBlock media={media} section="image" />
 
       <div class="svg-card-grid grid-centered">
         {imageTools.map((tool) => (
@@ -482,7 +485,7 @@ const pageI18n = {
         <h2 data-i18n="diverseTools.sectionTitle">Diverse Tools</h2>
       </div>
 
-      <SectionMedia src={media.sectionVideos.diverse} />
+      <SectionMediaBlock media={media} section="diverse" />
 
       <div class="svg-card-grid grid-centered">
         {diverseTools.map((tool) => (

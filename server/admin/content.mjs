@@ -444,6 +444,7 @@ function defaultMediaLocale() {
     heroBannerSlideshow: defaultBannerSlideshow(),
     heroGridSlides: Array.from({ length: HERO_GRID_MAX }, () => []),
     heroGridSlideshow: defaultGridSlideshow(),
+    sectionMedia: defaultSectionMediaAll(),
     heroGrid: ['', '', '', '', '', ''],
     heroGridLinks: ['', '', '', '', '', ''],
     heroGridStyles: defaultCellStyles(),
@@ -626,6 +627,77 @@ function validateBannerSlideshow(o, withStagger = false) {
     dots: o.dots !== false,
   };
   if (withStagger) out.stagger = o.stagger !== false;
+  return out;
+}
+// Sektions-Medien (Audio/Bild/Diverse): Design je Modus, Diashow, Text-Overlay.
+const SECTION_MEDIA_KEYS = ['audio', 'image', 'diverse'];
+function defaultSectionMediaSide() {
+  return { customBorder: false, borderColor: '#014f99', borderWidth: 2, borderRadius: 12, opacity: 100, darken: 0 };
+}
+function defaultSectionMediaText() {
+  return {
+    text: '', font: '', color: '#ffffff', size: 0, x: 50, y: 50, opacity: 100,
+    shadow: true, shadowColor: '#000000', shadowX: 0, shadowY: 2, shadowBlur: 6,
+    strokeColor: '#000000', strokeWidth: 0,
+  };
+}
+function defaultSectionMedia() {
+  return {
+    style: { light: defaultSectionMediaSide(), dark: defaultSectionMediaSide() },
+    slides: [],
+    slideshow: defaultBannerSlideshow(),
+    text: defaultSectionMediaText(),
+  };
+}
+function defaultSectionMediaAll() {
+  const out = {};
+  for (const k of SECTION_MEDIA_KEYS) out[k] = defaultSectionMedia();
+  return out;
+}
+function validateSectionMediaSide(o) {
+  const d = defaultSectionMediaSide();
+  if (!isPlainObject(o)) return d;
+  return {
+    customBorder: o.customBorder === true,
+    borderColor: normHexColor(o.borderColor, d.borderColor),
+    borderWidth: clampNum(o.borderWidth, 0, 20, d.borderWidth),
+    borderRadius: clampNum(o.borderRadius, 0, 80, d.borderRadius),
+    opacity: clampNum(o.opacity, 0, 100, d.opacity),
+    darken: clampNum(o.darken, 0, 100, d.darken),
+  };
+}
+function validateSectionMediaText(o) {
+  const d = defaultSectionMediaText();
+  if (!isPlainObject(o)) return d;
+  return {
+    text: typeof o.text === 'string' ? o.text.slice(0, 200) : '',
+    font: normFontFile(o.font),
+    color: normHexColor(o.color, d.color),
+    size: clampNum(o.size, 0, 96, d.size),
+    x: clampNum(o.x, 0, 100, d.x),
+    y: clampNum(o.y, 0, 100, d.y),
+    opacity: clampNum(o.opacity, 0, 100, d.opacity),
+    shadow: o.shadow !== false,
+    shadowColor: normHexColor(o.shadowColor, d.shadowColor),
+    shadowX: clampNum(o.shadowX, -50, 50, d.shadowX),
+    shadowY: clampNum(o.shadowY, -50, 50, d.shadowY),
+    shadowBlur: clampNum(o.shadowBlur, 0, 40, d.shadowBlur),
+    strokeColor: normHexColor(o.strokeColor, d.strokeColor),
+    strokeWidth: clampHalf(o.strokeWidth, 0, 10, d.strokeWidth),
+  };
+}
+function validateSectionMediaAll(o, langLabel) {
+  const out = {};
+  for (const k of SECTION_MEDIA_KEYS) {
+    const v = isPlainObject(o) && isPlainObject(o[k]) ? o[k] : {};
+    const st = isPlainObject(v.style) ? v.style : {};
+    out[k] = {
+      style: { light: validateSectionMediaSide(st.light), dark: validateSectionMediaSide(st.dark) },
+      slides: validateSlideList(v.slides, `media.${langLabel}.sectionMedia.${k}.slides`),
+      slideshow: validateBannerSlideshow(v.slideshow),
+      text: validateSectionMediaText(v.text),
+    };
+  }
   return out;
 }
 // Weitere Bilder einer Diashow: '' übersprungen, sonst gültige URL; begrenzt.
@@ -883,6 +955,8 @@ function validateMediaLocale(m, langLabel) {
       out.sectionVideos[key] = val;
     }
   }
+  // Sektions-Medien: Design je Modus, Diashow, Text-Overlay (Tab „Medien").
+  out.sectionMedia = validateSectionMediaAll(m.sectionMedia, langLabel);
   // Hero-Modus: 'banner' (Einzelbild) oder 'grid' (Kachel-Raster).
   out.heroMode = m.heroMode === 'grid' ? 'grid' : 'banner';
   // Raster-Layout (Anordnung der Kacheln); Fallback auf 3 nebeneinander.
