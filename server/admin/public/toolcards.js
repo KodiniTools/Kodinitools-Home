@@ -913,12 +913,8 @@ function panelHtml(lang) {
         </label>
       </div>
       <div style="margin:.6rem 0 .2rem;padding:.5rem .6rem;border:1px dashed var(--border);border-radius:8px">
-        <button type="button" data-tccopylang style="width:auto">${
-          lang === 'de'
-            ? '➡️ Dieses Tool-Karten-Design auf Englisch (EN) übernehmen'
-            : '⬅️ Tool-Karten-Design von Deutsch (DE) übernehmen'
-        }</button>
-        <p class="hint" style="margin:.35rem 0 0">Kopiert <strong>alle</strong> Einstellungen (Standard + Einzel-Designs, Hell + Dunkel) von Deutsch nach Englisch.</p>
+        <button type="button" data-tccopylang="${lang === 'de' ? 'en' : 'de'}" style="width:auto" title="Standard + Einzel-Designs (Hell + Dunkel) und Typografie in die andere Sprache übernehmen – Karten-Texte bleiben je Sprache">📋 Tool-Karten-Design nach ${lang === 'de' ? 'English' : 'Deutsch'} übertragen</button>
+        <p class="hint" style="margin:.35rem 0 0">Kopiert <strong>alle</strong> Design-Einstellungen (An-Schalter, Standard + Einzel-Designs, Hell + Dunkel, Typografie) von ${lang === 'de' ? 'Deutsch nach English' : 'English nach Deutsch'}. Karten-<em>Texte</em> (Titel, Badge, Beschreibung, Link) bleiben je Sprache.</p>
       </div>
       ${hiddenBlock(lang)}
       ${textsBlock(lang)}
@@ -1126,17 +1122,21 @@ export function renderToolCards() {
       toast(`Werte nach ${other === 'dark' ? 'Dunkel' : 'Hell'} kopiert`);
     }),
   );
-  pane.querySelector('[data-tccopylang]')?.addEventListener('click', () => {
+  // Komplettes Tool-Karten-Design der aktuellen Sprache in die andere übertragen;
+  // Karten-Texte (Overrides) bleiben je Sprache.
+  pane.querySelector('[data-tccopylang]')?.addEventListener('click', (e) => {
+    const to = e.currentTarget.dataset.tccopylang === 'en' ? 'en' : 'de';
+    if (to === lang) return;
+    const label = to === 'de' ? 'Deutsch' : 'English';
     if (
       !confirm(
-        'Alle Tool-Karten-Einstellungen für Englisch werden mit den deutschen überschrieben (Standard + Einzel-Designs, Hell + Dunkel). Fortfahren?',
+        `Alle Tool-Karten-Design-Einstellungen für ${label} werden ersetzt (Standard + Einzel-Designs, Hell + Dunkel, Typografie). Karten-Texte bleiben. Fortfahren?`,
       )
     )
       return;
-    state.media.en.toolCards = JSON.parse(JSON.stringify(getToolCards('de')));
-    if (!state.media.en.toolCards) state.media.en.toolCards = defaultToolCards();
-    rerender();
-    toast('Tool-Karten-Design von Deutsch nach Englisch übernommen');
+    state.media[to].toolCards = JSON.parse(JSON.stringify(getToolCards(lang)));
+    if (!state.media[to].toolCards) state.media[to].toolCards = defaultToolCards();
+    toast(`Tool-Karten-Design nach ${label} übertragen`);
   });
   // „Design übertragen": Ziel-Auswahl (einzeln / Bereich / alle) + Anwenden.
   const applyBtn = pane.querySelector('[data-tcapply]');
