@@ -36,7 +36,9 @@ import { colorPicker, bindColorPickers } from './color.js';
 
 // UI-Zustand (nicht gespeichert): bearbeiteter Modus + gewählte Karte
 // ('' = Standard für alle Karten, sonst "section.key").
-let editTheme = 'light';
+// Modus der Übersicht „Alle Karten" (Hell/Dunkel); die Design-Felder selbst
+// stehen für beide Modi gleichzeitig in den Seitenleisten (Hell links, Dunkel rechts).
+let ovTheme = 'light';
 let selected = '';
 // Zielkarten für „Design übertragen" (Karten-IDs); wird nach dem Anwenden geleert.
 const targets = new Set();
@@ -193,8 +195,8 @@ function effectiveStyle(lang, id) {
   return ownStyle(lang, id) || getToolCards(lang).default;
 }
 // Der gerade bearbeitete Farb-Satz (Standard oder Karte, Hell oder Dunkel).
-function editSide(lang) {
-  return effectiveStyle(lang, selected)[editTheme];
+function sideOf(lang, mode) {
+  return effectiveStyle(lang, selected)[mode];
 }
 // Typografie des bearbeiteten Designs (gilt für beide Modi); fehlend -> Standard anlegen.
 function editText(lang) {
@@ -250,8 +252,8 @@ function ensureEnabled(lang, pane) {
 }
 // Zielwerte für „Zurücksetzen": beim Standard die Werkswerte, bei einer Karte
 // die Werte des Standard-Designs (= „wie alle anderen Karten").
-function resetSource(lang) {
-  return selected ? getToolCards(lang).default[editTheme] : sideDefault(editTheme);
+function resetSource(lang, mode) {
+  return selected ? getToolCards(lang).default[mode] : sideDefault(mode);
 }
 
 // --- Vorschau-CSS ---
@@ -284,7 +286,7 @@ function previewHoverCss(st) {
 function overviewHoverCss(lang) {
   return cardList(lang)
     .map((c) =>
-      hoverRule(`.tc-card[data-tcov="${c.id}"]`, effectiveStyle(lang, c.id)[editTheme], editTheme),
+      hoverRule(`.tc-card[data-tcov="${c.id}"]`, effectiveStyle(lang, c.id)[ovTheme], ovTheme),
     )
     .join('');
 }
@@ -334,41 +336,43 @@ function cardHtml(lang, card, theme, s, attrs = '', text = null) {
 }
 
 // --- Formular-Bausteine ---
-function resetBtn(key) {
-  return `<button type="button" class="hd-reset" data-tcreset="${esc(key)}" title="Auf Standard zurücksetzen" aria-label="Auf Standard zurücksetzen">↺</button>`;
+// Alle modusabhängigen Felder tragen data-mode="light|dark"; die Handler lesen
+// daraus den Farb-Satz (sideOf). IDs von Farbwähler/Regler sind je Modus eindeutig.
+function resetBtn(key, mode) {
+  return `<button type="button" class="hd-reset" data-tcreset="${esc(key)}" data-mode="${mode}" title="Auf Standard zurücksetzen" aria-label="Auf Standard zurücksetzen">↺</button>`;
 }
-function withReset(inputHtml, key) {
-  return `<div style="display:flex;gap:.3rem;align-items:center">${inputHtml}${resetBtn(key)}</div>`;
+function withReset(inputHtml, key, mode) {
+  return `<div style="display:flex;gap:.3rem;align-items:center">${inputHtml}${resetBtn(key, mode)}</div>`;
 }
 // Farbe (+ optional Transparenz-Regler) als Formularzeile.
-function colorField(s, field, label, opacityField) {
+function colorField(s, mode, field, label, opacityField) {
   const picker = colorPicker({
-    id: `tc:${field}`,
-    attrs: `data-tcf="${field}"`,
+    id: `tc:${mode}:${field}`,
+    attrs: `data-tcf="${field}" data-mode="${mode}"`,
     value: s[field],
-    resetHtml: resetBtn(field),
+    resetHtml: resetBtn(field, mode),
   });
   const op = opacityField
-    ? `<div style="flex:1 1 220px">${rangeField(s, opacityField, `${label} – Transparenz`, 0, 100, '%')}</div>`
+    ? `<div style="flex:1 1 160px">${rangeField(s, mode, opacityField, `${label} – Transparenz`, 0, 100, '%')}</div>`
     : '';
   return `<div style="flex:0 0 auto"><label>${label}</label>${picker}</div>${op}`;
 }
 // Zahlenwert als Regler (Slider + Zahlenfeld + „↺" auf die Quelle, siehe resetSource).
-function rangeField(s, field, label, min, max, unit, disabled = false) {
+function rangeField(s, mode, field, label, min, max, unit, disabled = false) {
   return slider({
-    id: `tc:${field}`,
+    id: `tc:${mode}:${field}`,
     label,
     unit,
     min,
     max,
     value: s[field],
-    attrs: `data-tcf="${field}"`,
-    resetAttrs: `data-tcreset="${field}"`,
+    attrs: `data-tcf="${field}" data-mode="${mode}"`,
+    resetAttrs: `data-tcreset="${field}" data-mode="${mode}"`,
     disabled,
   });
 }
-function numberField(s, field, label, min, max, unit) {
-  return `<div style="flex:1 1 200px">${rangeField(s, field, label, min, max, unit)}</div>`;
+function numberField(s, mode, field, label, min, max, unit) {
+  return `<div style="flex:1 1 160px">${rangeField(s, mode, field, label, min, max, unit)}</div>`;
 }
 function section(title, body, open = true) {
   return `<details ${open ? 'open' : ''} style="border-top:1px solid var(--border);margin-top:.5rem;padding-top:.4rem">
@@ -376,10 +380,10 @@ function section(title, body, open = true) {
       <div style="padding-top:.5rem">${body}</div>
     </details>`;
 }
-function themeSwitch() {
+function ovSwitch() {
   const btn = (key, label) =>
-    `<button type="button" data-tctheme="${key}" class="${editTheme === key ? 'primary' : ''}" style="flex:0 0 auto">${label}</button>`;
-  return `<span class="hint" style="margin:0">Modus bearbeiten:</span>${btn('light', '☀️ Hell')}${btn('dark', '🌙 Dunkel')}`;
+    `<button type="button" data-tcovmode="${key}" class="hd-reset${ovTheme === key ? ' active' : ''}" style="flex:0 0 auto">${label}</button>`;
+  return `<span class="hint" style="margin:0">Anzeigen:</span>${btn('light', '☀️ Hell')}${btn('dark', '🌙 Dunkel')}`;
 }
 // Auswahl der zu bearbeitenden Karte (Standard + alle Karten nach Bereich).
 function cardSelect(lang) {
@@ -415,21 +419,20 @@ function previewBlock(lang) {
   const card = selected ? cardById(lang, selected) || sampleCard(lang) : sampleCard(lang);
   const st = effectiveStyle(lang, selected);
   const page = (theme) =>
-    `<div class="tc-page${editTheme === theme ? ' active' : ''}" data-tcprev="${theme}" style="background:${pageBg(theme)};${fontCss()}" title="Klicken, um diesen Modus zu bearbeiten">
+    `<div class="tc-page" data-tcprev="${theme}" style="background:${pageBg(theme)};${fontCss()}">
         <span class="tc-page-label">${themeLabel(theme)}</span>
         ${cardHtml(lang, card, theme, st[theme], '', st.text)}
+        ${selected ? `<p class="hint" style="margin:.5rem 0 0;color:${PAGE[theme].muted}"><span>Popup:</span> <em data-tcdesc="${theme}" style="${textStyles(st[theme], theme, st.text).desc}">${esc(card.description || '(keine Beschreibung)')}</em></p>` : ''}
       </div>`;
   return `
     <div class="tc-sticky">
       <div class="row" style="align-items:center;gap:.5rem">
         <label style="margin:0;flex:0 0 auto">Karte bearbeiten:</label>
         ${cardSelect(lang)}
-        ${themeSwitch()}
       </div>
-      <p class="hint" style="margin:.35rem 0 .3rem">Live-Vorschau der bearbeiteten Karte <em>(zum Testen des Hover-Effekts über die Karte fahren)</em>:</p>
+      <p class="hint" style="margin:.35rem 0 .3rem">Live-Vorschau der bearbeiteten Karte – Hell und Dunkel <em>(zum Testen des Hover-Effekts über die Karte fahren)</em>. Die Einstellungen stehen links (Hell) und rechts (Dunkel).</p>
       <style data-tchover>${previewHoverCss(st)}</style>
       <div class="tc-previews">${page('light')}${page('dark')}</div>
-      ${selected ? `<p class="hint" style="margin:.35rem 0 0"><span style="color:var(--muted)">Popup beim Überfahren:</span> <em data-tcdesc style="${textStyles(st[editTheme], editTheme, st.text).desc}">${esc(card.description || '(keine Beschreibung)')}</em></p>` : ''}
       <p class="hint" data-tcnote style="margin:.35rem 0 0">${noteText(lang)}</p>
     </div>`;
 }
@@ -440,7 +443,7 @@ function cardImageUrl(val) {
   if (!val) return '';
   return val.startsWith('staged:') ? objUrl(val.slice(7)) : val;
 }
-function imageBody(s) {
+function imageBody(s, mode) {
   const url = cardImageUrl(s.bgImage);
   const on = s.bgImage !== '';
   const staged = s.bgImage.startsWith('staged:');
@@ -449,55 +452,55 @@ function imageBody(s) {
     : '<span class="hint" style="margin:0">Kein Bild</span>';
   return `
     <div class="row" style="align-items:flex-start">
-      <div class="bg-thumb" data-tcimgthumb>${thumb}</div>
-      <div style="flex:1 1 220px">
+      <div class="bg-thumb" data-tcimgthumb="${mode}">${thumb}</div>
+      <div style="flex:1 1 160px">
         <div class="row" style="margin:0">
-          <button type="button" data-tcimgpick style="flex:0 0 auto">📂 Aus Mediathek wählen</button>
-          <button type="button" class="danger" data-tcimgclear ${on ? '' : 'disabled'} style="flex:0 0 auto">Entfernen</button>
-          ${resetBtn('bgImage:bgImageOpacity:bgImageDarken')}
+          <button type="button" data-tcimgpick="${mode}" style="flex:0 0 auto">📂 Mediathek</button>
+          <button type="button" class="danger" data-tcimgclear="${mode}" ${on ? '' : 'disabled'} style="flex:0 0 auto">Entfernen</button>
+          ${resetBtn('bgImage:bgImageOpacity:bgImageDarken', mode)}
         </div>
-        <label style="margin-top:.5rem">Bild-URL <span class="hint" style="margin:0">(z.B. /uploads/… oder https://…)</span></label>
-        <input type="text" data-tcf="bgImage" value="${esc(staged ? '' : s.bgImage)}" placeholder="${staged ? 'Lokales Medium (wird beim Veröffentlichen hochgeladen)' : '/uploads/…'}" />
+        <label style="margin-top:.5rem">Bild-URL <span class="hint" style="margin:0">(/uploads/… oder https://…)</span></label>
+        <input type="text" data-tcf="bgImage" data-mode="${mode}" value="${esc(staged ? '' : s.bgImage)}" placeholder="${staged ? 'Lokales Medium (wird beim Veröffentlichen hochgeladen)' : '/uploads/…'}" />
       </div>
     </div>
     <div class="row" style="align-items:flex-end;margin-top:.2rem;${on ? '' : 'opacity:.45'}">
-      <div style="flex:1 1 220px">${rangeField(s, 'bgImageOpacity', 'Deckkraft', 0, 100, '%', !on)}</div>
-      <div style="flex:1 1 220px">${rangeField(s, 'bgImageDarken', 'Abdunkelung', 0, 100, '%', !on)}</div>
+      <div style="flex:1 1 160px">${rangeField(s, mode, 'bgImageOpacity', 'Deckkraft', 0, 100, '%', !on)}</div>
+      <div style="flex:1 1 160px">${rangeField(s, mode, 'bgImageDarken', 'Abdunkelung', 0, 100, '%', !on)}</div>
     </div>
     <p class="hint">Liegt über Farbe/Verlauf und unter Text und Icon; wird auf die Kartengröße zugeschnitten (mittig). Empfehlung: 600 × 400 px (3:2), WebP unter 60 KB, ruhiges Motiv; Abdunkelung 30–50 % für lesbaren Text.${staged ? ' <strong>● lokal – wird beim Veröffentlichen hochgeladen.</strong>' : ''}</p>`;
 }
 
 // --- Text-Design: Farben je Modus (An-Schalter + Farbwähler) und Typografie ---
-function optColor(s, field, label, opacityField) {
+function optColor(s, mode, field, label, opacityField) {
   const on = !!s[field];
   const picker = colorPicker({
-    id: `tc:${field}`,
-    attrs: `data-tcf="${field}"`,
-    value: s[field] || TEXT_COLOR_SUGGEST[editTheme][field],
+    id: `tc:${mode}:${field}`,
+    attrs: `data-tcf="${field}" data-mode="${mode}"`,
+    value: s[field] || TEXT_COLOR_SUGGEST[mode][field],
     disabled: !on,
-    resetHtml: resetBtn(field),
+    resetHtml: resetBtn(field, mode),
   });
   const op = opacityField
-    ? `<div style="flex:1 1 200px">${rangeField(s, opacityField, `${label} – Transparenz`, 0, 100, '%', !on)}</div>`
+    ? `<div style="flex:1 1 160px">${rangeField(s, mode, opacityField, `${label} – Transparenz`, 0, 100, '%', !on)}</div>`
     : '';
   return `<div style="flex:0 0 auto">
-      <label style="display:flex;align-items:center;gap:.35rem;color:var(--text)"><input type="checkbox" data-tcon="${field}" ${on ? 'checked' : ''} style="width:auto" /> ${label}</label>
+      <label style="display:flex;align-items:center;gap:.35rem;color:var(--text)"><input type="checkbox" data-tcon="${field}" data-mode="${mode}" ${on ? 'checked' : ''} style="width:auto" /> ${label}</label>
       ${picker}
     </div>${op}`;
 }
-function textColorsBody(s) {
+function textColorsBody(s, mode) {
   return `
     <div class="row" style="align-items:flex-end">
-      ${optColor(s, 'titleColor', 'Titel')}
-      ${optColor(s, 'openColor', '„Öffnen"-Link')}
+      ${optColor(s, mode, 'titleColor', 'Titel')}
+      ${optColor(s, mode, 'openColor', '„Öffnen"-Link')}
     </div>
     <div class="row" style="align-items:flex-end;margin-top:.4rem">
-      ${optColor(s, 'badgeColor', 'Badge-Text')}
-      ${optColor(s, 'badgeBgColor', 'Badge-Hintergrund', 'badgeBgOpacity')}
+      ${optColor(s, mode, 'badgeColor', 'Badge-Text')}
+      ${optColor(s, mode, 'badgeBgColor', 'Badge-Hintergrund', 'badgeBgOpacity')}
     </div>
     <div class="row" style="align-items:flex-end;margin-top:.4rem">
-      ${optColor(s, 'descColor', 'Popup-Text')}
-      ${optColor(s, 'descBgColor', 'Popup-Hintergrund')}
+      ${optColor(s, mode, 'descColor', 'Popup-Text')}
+      ${optColor(s, mode, 'descBgColor', 'Popup-Hintergrund')}
     </div>
     <p class="hint">Häkchen aus = Standardfarbe der Seite (passt sich dem Modus an). Popup = Beschreibung beim Überfahren der Karte.</p>`;
 }
@@ -655,16 +658,17 @@ function refreshCardTexts(pane, lang) {
     const old = pane.querySelector(`[data-tcprev="${theme}"] .tc-card`);
     if (old) old.outerHTML = cardHtml(lang, card, theme, st[theme], '', st.text);
   }
-  const desc = pane.querySelector('[data-tcdesc]');
-  if (desc) desc.textContent = card.description || '(keine Beschreibung)';
+  pane.querySelectorAll('[data-tcdesc]').forEach((desc) => {
+    desc.textContent = card.description || '(keine Beschreibung)';
+  });
   if (selected) {
     const ov = pane.querySelector(`[data-tcov="${selected}"]`);
     if (ov)
       ov.outerHTML = cardHtml(
         lang,
         card,
-        editTheme,
-        st[editTheme],
+        ovTheme,
+        st[ovTheme],
         `data-tcov="${esc(selected)}"`,
         st.text,
       );
@@ -678,79 +682,97 @@ function refreshCardTexts(pane, lang) {
   }
 }
 
-function fieldsBlock(lang) {
+// Schalter „Eigenes Design für diese Karte" (nur bei gewählter Karte).
+function ownToggleHtml(lang) {
+  if (!selected) return '';
   const tc = getToolCards(lang);
-  const badge = `<span class="lang-badge">${themeLabel(editTheme)}</span>`;
-  const isCard = selected !== '';
-  const hasOwn = isCard && !!tc.cards[selected];
-  let ownToggle = '';
-  if (isCard) {
-    const c = cardById(lang, selected);
-    ownToggle = `
+  const hasOwn = !!tc.cards[selected];
+  const c = cardById(lang, selected);
+  return `
       <div style="display:flex;align-items:center;gap:.5rem;margin:.6rem 0 .2rem;padding:.5rem .6rem;border:1px dashed var(--border);border-radius:8px">
         <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin:0">
           <input type="checkbox" data-tcown ${hasOwn ? 'checked' : ''} style="width:auto" /> Eigenes Design für „${esc(c ? c.title : selected)}"
         </label>
         <span class="hint" style="margin:0">${hasOwn ? 'Aus = Karte nutzt wieder das Standard-Design.' : 'An = startet mit einer Kopie des Standard-Designs.'}</span>
       </div>`;
-    if (!hasOwn) return ownToggle;
-  }
-  const s = editSide(lang);
+}
+// Bearbeitet die Auswahl gerade ein eigenes Design (Standard oder Karte mit ●)?
+function editsOwnDesign(lang) {
+  return !selected || !!getToolCards(lang).cards[selected];
+}
+// Mitte: modusunabhängige Einstellungen (Typografie, Design übertragen).
+function centerFieldsBlock(lang) {
+  if (!editsOwnDesign(lang)) return ownToggleHtml(lang);
+  return `
+    ${ownToggleHtml(lang)}
+    ${section('🔠 Typografie <span class="hint" style="font-weight:400">(Hell + Dunkel)</span>', typoBody(lang))}
+    ${section('📋 Design übertragen <span class="hint" style="font-weight:400">(Hell + Dunkel)</span>', applyBody(lang))}`;
+}
+// Seitenleiste eines Modus: Rahmen, Hintergrund, Hintergrundbild, Hover, Text-Farben.
+function sideBlock(lang, mode) {
+  const dark = mode === 'dark';
+  const head = `<div class="tc-side-head ${mode}">${dark ? '🌙 Dunkelmodus' : '☀️ Hellmodus'}</div>`;
+  if (!editsOwnDesign(lang))
+    return `<aside class="tc-side" data-tcside="${mode}">${head}
+      <p class="hint" style="margin:.5rem 0 0">Diese Karte nutzt das Standard-Design. In der Mitte „Eigenes Design für diese Karte" aktivieren, um sie einzeln zu gestalten.</p>
+    </aside>`;
+  const s = sideOf(lang, mode);
   const styleOpts = TOOL_CARD_BORDER_STYLES.map(
     (v) =>
       `<option value="${v}" ${s.borderStyle === v ? 'selected' : ''}>${BORDER_STYLE_LABEL[v] || v}</option>`,
   ).join('');
   const frameBody = `
     <div class="row" style="align-items:flex-end">
-      ${colorField(s, 'borderColor', 'Rahmenfarbe', 'borderOpacity')}
-      ${numberField(s, 'borderWidth', 'Breite', 0, 8, 'px')}
+      ${colorField(s, mode, 'borderColor', 'Rahmenfarbe', 'borderOpacity')}
+    </div>
+    <div class="row" style="align-items:flex-end;margin-top:.3rem">
+      ${numberField(s, mode, 'borderWidth', 'Breite', 0, 8, 'px')}
       <div style="flex:0 0 auto"><label>Linienart</label>${withReset(
-        `<select data-tcf="borderStyle" style="width:auto">${styleOpts}</select>`,
+        `<select data-tcf="borderStyle" data-mode="${mode}" style="width:auto">${styleOpts}</select>`,
         'borderStyle',
+        mode,
       )}</div>
-      ${numberField(s, 'borderRadius', 'Eckenradius', 0, 40, 'px')}
+    </div>
+    <div class="row" style="align-items:flex-end;margin-top:.3rem">
+      ${numberField(s, mode, 'borderRadius', 'Eckenradius', 0, 40, 'px')}
     </div>
     <p class="hint">Breite 0 = kein Rahmen. Transparenz 0 % = unsichtbarer Rahmen (Platz bleibt erhalten).</p>`;
   const bgBody = `
     <div class="row" style="align-items:flex-end">
-      ${colorField(s, 'bgColor', s.gradient ? 'Startfarbe' : 'Hintergrundfarbe', 'bgOpacity')}
+      ${colorField(s, mode, 'bgColor', s.gradient ? 'Startfarbe' : 'Hintergrundfarbe', 'bgOpacity')}
     </div>
     <div style="display:flex;align-items:center;gap:.5rem;margin-top:.6rem">
       <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin:0">
-        <input type="checkbox" data-tcf="gradient" ${s.gradient ? 'checked' : ''} style="width:auto" /> Farbverlauf
+        <input type="checkbox" data-tcf="gradient" data-mode="${mode}" ${s.gradient ? 'checked' : ''} style="width:auto" /> Farbverlauf
       </label>
-      ${resetBtn('gradient:bgColor2:gradientAngle')}
+      ${resetBtn('gradient:bgColor2:gradientAngle', mode)}
     </div>
-    <div class="row" style="align-items:flex-end;${s.gradient ? '' : 'opacity:.45;pointer-events:none'}" data-tcgradrow>
-      ${colorField(s, 'bgColor2', 'Endfarbe', null)}
-      <div style="flex:1 1 220px">${rangeField(s, 'gradientAngle', 'Richtung', 0, 360, '°', !s.gradient)}</div>
+    <div class="row" style="align-items:flex-end;${s.gradient ? '' : 'opacity:.45;pointer-events:none'}" data-tcgradrow="${mode}">
+      ${colorField(s, mode, 'bgColor2', 'Endfarbe', null)}
+      <div style="flex:1 1 160px">${rangeField(s, mode, 'gradientAngle', 'Richtung', 0, 360, '°', !s.gradient)}</div>
     </div>
     <p class="hint">Die Transparenz gilt für beide Verlaufsfarben. 0° = von unten nach oben, 90° = von links nach rechts.</p>`;
   const hoverBody = `
     <div class="row" style="align-items:flex-end">
-      ${colorField(s, 'hoverBorderColor', 'Rahmenfarbe (Hover)', 'hoverBorderOpacity')}
+      ${colorField(s, mode, 'hoverBorderColor', 'Rahmenfarbe (Hover)', 'hoverBorderOpacity')}
     </div>
     <div class="row" style="align-items:flex-end;margin-top:.4rem">
-      ${colorField(s, 'hoverBgColor', 'Hintergrund (Hover)', 'hoverBgOpacity')}
+      ${colorField(s, mode, 'hoverBgColor', 'Hintergrund (Hover)', 'hoverBgOpacity')}
     </div>
     <p class="hint">Hintergrund-Transparenz 0 % = der Hintergrund bleibt beim Überfahren unverändert (Standard).</p>`;
-  const copyLabel =
-    editTheme === 'light'
-      ? '➡️ Werte von Hell nach Dunkel kopieren'
-      : '⬅️ Werte von Dunkel nach Hell kopieren';
+  const copyLabel = dark ? '⬅️ Nach Hell kopieren' : '➡️ Nach Dunkel kopieren';
   return `
-    ${ownToggle}
-    <div class="row" style="align-items:center;gap:.5rem;margin:.6rem 0 .2rem">
-      <button type="button" data-tccopyside style="flex:0 0 auto">${copyLabel}</button>
-      <span class="hint" style="margin:0">Überträgt Rahmen, Hintergrund und Hover des bearbeiteten Modus in den anderen Modus.</span>
-    </div>
-    ${section(`🖼️ Rahmen ${badge}`, frameBody)}
-    ${section(`🎨 Hintergrund ${badge}`, bgBody)}
-    ${section(`🖼️ Hintergrundbild ${badge}`, imageBody(s))}
-    ${section(`✨ Hover (beim Überfahren) ${badge}`, hoverBody)}
-    ${section(`🔤 Text-Farben ${badge}`, textColorsBody(s))}
-    ${section('🔠 Typografie <span class="hint" style="font-weight:400">(Hell + Dunkel)</span>', typoBody(lang))}
-    ${section('📋 Design übertragen <span class="hint" style="font-weight:400">(Hell + Dunkel)</span>', applyBody(lang))}`;
+    <aside class="tc-side" data-tcside="${mode}">
+      ${head}
+      <div class="row" style="align-items:center;gap:.5rem;margin:.5rem 0 .2rem">
+        <button type="button" class="hd-reset" data-tccopyside="${mode}" style="flex:0 0 auto" title="Rahmen, Hintergrund, Bild, Hover und Text-Farben dieses Modus in den anderen Modus übertragen">${copyLabel}</button>
+      </div>
+      ${section('🖼️ Rahmen', frameBody)}
+      ${section('🎨 Hintergrund', bgBody)}
+      ${section('🖼️ Hintergrundbild', imageBody(s, mode))}
+      ${section('✨ Hover (beim Überfahren)', hoverBody)}
+      ${section('🔤 Text-Farben', textColorsBody(s, mode))}
+    </aside>`;
 }
 
 // „Design übertragen": das Design der Quelle (gewählte Karte oder Standard) auf
@@ -816,7 +838,7 @@ function overviewBlock(lang) {
         const attrs = `data-tcpick="${esc(c.id)}"`;
         return `<div class="${cls}" ${attrs} title="Klicken, um diese Karte zu bearbeiten">
             ${own ? '<span class="tc-own" title="Eigenes Design">●</span>' : ''}
-            ${cardHtml(lang, c, editTheme, effectiveStyle(lang, c.id)[editTheme], `data-tcov="${esc(c.id)}"`, effectiveStyle(lang, c.id).text)}
+            ${cardHtml(lang, c, ovTheme, effectiveStyle(lang, c.id)[ovTheme], `data-tcov="${esc(c.id)}"`, effectiveStyle(lang, c.id).text)}
           </div>`;
       })
       .join('');
@@ -825,10 +847,13 @@ function overviewBlock(lang) {
   }).join('');
   return `
     <div class="panel">
-      <h2>Alle Karten – Vorschau <span class="lang-badge">${themeLabel(editTheme)}</span></h2>
+      <div class="row" style="align-items:center;gap:.5rem">
+        <h2 style="margin:0;flex:1 1 auto">Alle Karten – Vorschau <span class="lang-badge">${themeLabel(ovTheme)}</span></h2>
+        ${ovSwitch()}
+      </div>
       <p class="hint">So sehen die Tool-Karten nach dem Veröffentlichen aus (Standard-Design; ● = Karte mit eigenem Design). Karte anklicken, um sie zu bearbeiten.</p>
       <style data-tcovhover>${overviewHoverCss(lang)}</style>
-      <div data-tcoverview style="background:${pageBg(editTheme)};${fontCss()}border-radius:10px;padding:.6rem .8rem .9rem;margin-top:.4rem">${groups}</div>
+      <div data-tcoverview style="background:${pageBg(ovTheme)};${fontCss()}border-radius:10px;padding:.6rem .8rem .9rem;margin-top:.4rem">${groups}</div>
     </div>`;
 }
 
@@ -855,9 +880,19 @@ function panelHtml(lang) {
       </div>
       ${previewBlock(lang)}
       ${textsBlock(lang)}
-      ${fieldsBlock(lang)}
+      ${centerFieldsBlock(lang)}
     </div>
     ${overviewBlock(lang)}`;
+}
+// Gesamtlayout des Tabs: Seitenleiste Hell | Mitte | Seitenleiste Dunkel
+// (auf schmalen Bildschirmen untereinander: Mitte, Hell, Dunkel).
+function layoutHtml(lang) {
+  return `
+    <div class="tc-layout">
+      ${sideBlock(lang, 'light')}
+      <div class="tc-main">${panelHtml(lang)}</div>
+      ${sideBlock(lang, 'dark')}
+    </div>`;
 }
 
 // --- Live-Aktualisierung ohne Neu-Rendern (bei Eingaben in Felder) ---
@@ -869,8 +904,10 @@ function refreshPreview(pane, lang) {
     const card = pane.querySelector(`[data-tcprev="${theme}"] .tc-card`);
     if (card) card.outerHTML = cardHtml(lang, cardObj, theme, st[theme], '', st.text);
   }
-  const desc = pane.querySelector('[data-tcdesc]');
-  if (desc) desc.setAttribute('style', textStyles(st[editTheme], editTheme, st.text).desc);
+  pane.querySelectorAll('[data-tcdesc]').forEach((desc) => {
+    const t = desc.dataset.tcdesc === 'dark' ? 'dark' : 'light';
+    desc.setAttribute('style', textStyles(st[t], t, st.text).desc);
+  });
   const hs = pane.querySelector('[data-tchover]');
   if (hs) hs.textContent = previewHoverCss(st);
   // Übersicht: jede Karte mit ihrem effektiven Design im bearbeiteten Modus.
@@ -880,7 +917,7 @@ function refreshPreview(pane, lang) {
     const c = list.find((x) => x.id === id);
     if (!c) return;
     const stc = effectiveStyle(lang, id);
-    el.outerHTML = cardHtml(lang, c, editTheme, stc[editTheme], `data-tcov="${esc(id)}"`, stc.text);
+    el.outerHTML = cardHtml(lang, c, ovTheme, stc[ovTheme], `data-tcov="${esc(id)}"`, stc.text);
   });
   const ohs = pane.querySelector('[data-tcovhover]');
   if (ohs) ohs.textContent = overviewHoverCss(lang);
@@ -893,7 +930,7 @@ export function renderToolCards() {
   const pane = $('#content');
   // Gewählte Karte muss in dieser Sprache existieren (sonst Standard).
   if (selected && !cardById(lang, selected)) selected = '';
-  pane.innerHTML = panelHtml(lang);
+  pane.innerHTML = layoutHtml(lang);
   const rerender = () => renderToolCards();
 
   pane.querySelector('[data-tcenabled]')?.addEventListener('change', (e) => {
@@ -904,20 +941,11 @@ export function renderToolCards() {
     selected = e.target.value;
     rerender();
   });
-  pane.querySelectorAll('[data-tctheme]').forEach((el) =>
+  // Modus der Übersicht „Alle Karten" umschalten.
+  pane.querySelectorAll('[data-tcovmode]').forEach((el) =>
     el.addEventListener('click', () => {
-      editTheme = el.dataset.tctheme === 'dark' ? 'dark' : 'light';
+      ovTheme = el.dataset.tcovmode === 'dark' ? 'dark' : 'light';
       rerender();
-    }),
-  );
-  // Klick auf eine Vorschau-Seite wechselt in deren Modus.
-  pane.querySelectorAll('[data-tcprev]').forEach((el) =>
-    el.addEventListener('click', () => {
-      const t = el.dataset.tcprev === 'dark' ? 'dark' : 'light';
-      if (t !== editTheme) {
-        editTheme = t;
-        rerender();
-      }
     }),
   );
   pane.querySelector('[data-tcown]')?.addEventListener('change', (e) => {
@@ -935,11 +963,12 @@ export function renderToolCards() {
   // Design-Felder: Farben, Zahlen, Regler, Linienart, Verlauf-Schalter.
   pane.querySelectorAll('[data-tcf]').forEach((el) => {
     const field = el.dataset.tcf;
+    const mode = el.dataset.mode === 'dark' ? 'dark' : 'light';
     const evt =
       el.type === 'checkbox' || el.type === 'text' || el.tagName === 'SELECT' ? 'change' : 'input';
     el.addEventListener(evt, () => {
       ensureEnabled(lang, pane);
-      const s = editSide(lang);
+      const s = sideOf(lang, mode);
       if (field === 'bgImage') {
         s.bgImage = normSiteMediaUrl(el.value);
         if (el.value.trim() && !s.bgImage)
@@ -964,35 +993,41 @@ export function renderToolCards() {
     });
   });
   // Hintergrundbild: Mediathek-Auswahl / Entfernen.
-  pane.querySelector('[data-tcimgpick]')?.addEventListener('click', () => {
-    const srv = [lang, 'shared'].reduce((n, l) => n + (state.serverFiles[l] || []).length, 0);
-    if (!state.stagedItems.length && !srv) {
-      toast('Keine Medien vorhanden — zuerst im Tab „Mediathek" eine Datei hinzufügen.');
-      return;
-    }
-    openMediaPicker(lang, 'tcimg', {
-      imagesOnly: true,
-      title: `Hintergrundbild der Karte (${themeLabel(editTheme)}) wählen`,
-      onPick: (url) => {
-        ensureEnabled(lang, pane);
-        editSide(lang).bgImage = url;
-        rerender();
-      },
-    });
-  });
-  pane.querySelector('[data-tcimgclear]')?.addEventListener('click', () => {
-    editSide(lang).bgImage = '';
-    rerender();
-  });
+  pane.querySelectorAll('[data-tcimgpick]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      const mode = btn.dataset.tcimgpick === 'dark' ? 'dark' : 'light';
+      const srv = [lang, 'shared'].reduce((n, l) => n + (state.serverFiles[l] || []).length, 0);
+      if (!state.stagedItems.length && !srv) {
+        toast('Keine Medien vorhanden — zuerst im Tab „Mediathek" eine Datei hinzufügen.');
+        return;
+      }
+      openMediaPicker(lang, 'tcimg', {
+        imagesOnly: true,
+        title: `Hintergrundbild der Karte (${themeLabel(mode)}) wählen`,
+        onPick: (url) => {
+          ensureEnabled(lang, pane);
+          sideOf(lang, mode).bgImage = url;
+          rerender();
+        },
+      });
+    }),
+  );
+  pane.querySelectorAll('[data-tcimgclear]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      sideOf(lang, btn.dataset.tcimgclear === 'dark' ? 'dark' : 'light').bgImage = '';
+      rerender();
+    }),
+  );
   // Text-Farben: An-Schalter (aus = Standardfarbe der Seite).
   pane.querySelectorAll('[data-tcon]').forEach((cb) =>
     cb.addEventListener('change', () => {
       ensureEnabled(lang, pane);
       const f = cb.dataset.tcon;
-      const s = editSide(lang);
+      const mode = cb.dataset.mode === 'dark' ? 'dark' : 'light';
+      const s = sideOf(lang, mode);
       if (cb.checked) {
-        const nat = pane.querySelector(`[data-tcf="${f}"]`);
-        s[f] = (nat && nat.value) || TEXT_COLOR_SUGGEST[editTheme][f];
+        const nat = pane.querySelector(`[data-tcf="${f}"][data-mode="${mode}"]`);
+        s[f] = (nat && nat.value) || TEXT_COLOR_SUGGEST[mode][f];
       } else s[f] = '';
       rerender();
     }),
@@ -1019,8 +1054,9 @@ export function renderToolCards() {
   // (Werkswerte bzw. Standard-Design) zurücksetzen.
   pane.querySelectorAll('[data-tcreset]').forEach((el) =>
     el.addEventListener('click', () => {
-      const s = editSide(lang);
-      const src = resetSource(lang);
+      const mode = el.dataset.mode === 'dark' ? 'dark' : 'light';
+      const s = sideOf(lang, mode);
+      const src = resetSource(lang, mode);
       el.dataset.tcreset.split(':').forEach((f) => {
         if (f in src) s[f] = src[f];
       });
@@ -1028,14 +1064,17 @@ export function renderToolCards() {
       toast('Auf Standard zurückgesetzt');
     }),
   );
-  pane.querySelector('[data-tccopyside]')?.addEventListener('click', () => {
-    ensureEnabled(lang, pane);
-    const st = effectiveStyle(lang, selected);
-    const other = editTheme === 'light' ? 'dark' : 'light';
-    st[other] = JSON.parse(JSON.stringify(st[editTheme]));
-    rerender();
-    toast(`Werte nach ${other === 'dark' ? 'Dunkel' : 'Hell'} kopiert`);
-  });
+  pane.querySelectorAll('[data-tccopyside]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      ensureEnabled(lang, pane);
+      const from = btn.dataset.tccopyside === 'dark' ? 'dark' : 'light';
+      const other = from === 'light' ? 'dark' : 'light';
+      const st = effectiveStyle(lang, selected);
+      st[other] = JSON.parse(JSON.stringify(st[from]));
+      rerender();
+      toast(`Werte nach ${other === 'dark' ? 'Dunkel' : 'Hell'} kopiert`);
+    }),
+  );
   pane.querySelector('[data-tccopylang]')?.addEventListener('click', () => {
     if (
       !confirm(

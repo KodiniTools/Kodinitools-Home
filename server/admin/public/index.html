@@ -492,6 +492,69 @@
       }
       /* Tool-Karten-Tab: Sticky-Vorschau der bearbeiteten Karte (Hell + Dunkel),
          Vorschau-Karten im Look der echten Tool-Karte, Übersichts-Raster. */
+      /* Tool-Karten-Tab: dreispaltig – Seitenleiste Hell | Mitte | Seitenleiste Dunkel.
+         Der Tab schaltet dafür .app-wide (breiterer Rahmen); unterhalb von 1500 px
+         stapeln sich die Spalten (Mitte, Hell, Dunkel). */
+      .app.app-wide {
+        max-width: 1760px;
+      }
+      .tc-layout {
+        display: grid;
+        grid-template-columns: minmax(300px, 400px) minmax(0, 900px) minmax(300px, 400px);
+        gap: 1rem;
+        justify-content: center;
+        align-items: start;
+      }
+      .tc-main {
+        min-width: 0;
+      }
+      .tc-side {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 0.8rem 0.9rem 1rem;
+        min-width: 0;
+      }
+      .tc-side[data-tcside='dark'] {
+        background: #0b1526;
+      }
+      .tc-side-head {
+        font-weight: 700;
+        font-size: 1rem;
+        padding: 0.35rem 0.6rem;
+        border-radius: 8px;
+        text-align: center;
+      }
+      .tc-side-head.light {
+        background: #fff7dd;
+        color: #5a4200;
+      }
+      .tc-side-head.dark {
+        background: #142640;
+        color: #f8e1a9;
+      }
+      .tc-side .row {
+        gap: 0.5rem;
+      }
+      .tc-side .cp-panel {
+        width: min(320px, 90vw);
+      }
+      @media (max-width: 1500px) {
+        .tc-layout {
+          grid-template-columns: minmax(0, 1fr);
+          max-width: 900px;
+          margin: 0 auto;
+        }
+        .tc-main {
+          order: 0;
+        }
+        .tc-side[data-tcside='light'] {
+          order: 1;
+        }
+        .tc-side[data-tcside='dark'] {
+          order: 2;
+        }
+      }
       .tc-sticky {
         position: sticky;
         top: 0.5rem;
@@ -513,10 +576,6 @@
         border: 2px solid transparent;
         border-radius: 10px;
         padding: 1.2rem 0.9rem 0.9rem;
-        cursor: pointer;
-      }
-      .tc-page.active {
-        border-color: var(--accent);
       }
       .tc-page-label {
         position: absolute;
