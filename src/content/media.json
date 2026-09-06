@@ -19,24 +19,24 @@
     "fxNoiseIntensity": 50,
     "fxSpotlight": true,
     "fxSpotlightIntensity": 50,
-    "bgPattern": "none",
-    "bgPatternDark": "none",
+    "bgPattern": "grid",
+    "bgPatternDark": "grid",
     "bgPatternColor": "#014f99",
-    "bgPatternColorDark": "#e8a945",
-    "bgPatternSpacing": 24,
-    "bgPatternSpacingDark": 24,
-    "bgPatternThickness": 1,
-    "bgPatternThicknessDark": 1,
-    "bgPatternOpacity": 12,
-    "bgPatternOpacityDark": 12,
+    "bgPatternColorDark": "#eaffe0",
+    "bgPatternSpacing": 80,
+    "bgPatternSpacingDark": 80,
+    "bgPatternThickness": 2,
+    "bgPatternThicknessDark": 2,
+    "bgPatternOpacity": 10,
+    "bgPatternOpacityDark": 10,
     "bgImage": "/uploads/kodinitools-banner-29-020de52e.webp",
     "bgImageDark": "/uploads/kodinitools-banner-36-7577a0a9.webp",
-    "bgImageDarken": 60,
-    "bgImageDarkenDark": 52,
+    "bgImageDarken": 10,
+    "bgImageDarkenDark": 10,
     "bgImageBlur": 0,
     "bgImageBlurDark": 0,
-    "bgImageOpacity": 83,
-    "bgImageOpacityDark": 100,
+    "bgImageOpacity": 60,
+    "bgImageOpacityDark": 60,
     "bgImageFixed": true,
     "bgImageFixedDark": true,
     "sections": {
@@ -80,8 +80,8 @@
       },
       "diverse": {
         "light": {
-          "color": "#014f99",
-          "opacity": 36,
+          "color": "#0184fe",
+          "opacity": 15,
           "image": "",
           "imageDarken": 0,
           "imageBlur": 0,
@@ -252,7 +252,7 @@
     "heroGridFit": "contain",
     "textStyles": {
       "hero.title": {
-        "size": 32,
+        "size": 37,
         "colorLight": "#010f5a",
         "colorDark": "",
         "font": "Hind-Medium.woff2"
@@ -313,7 +313,7 @@
       "buttonStrokeWidth": 0,
       "titleFontSize": 14,
       "subtitleFontSize": 16,
-      "chipFontSize": 0,
+      "chipFontSize": 18,
       "ctaFontSize": 0,
       "light": {
         "borderColor": "#29486a",
@@ -587,22 +587,22 @@
     "heroGridFit": "cover",
     "textStyles": {
       "hero.title": {
-        "size": 0,
+        "size": 40,
         "colorLight": "#010f5a",
         "colorDark": "",
-        "font": ""
+        "font": "Hind-Medium.woff2"
       },
       "hero.subtitle": {
-        "size": 0,
+        "size": 19,
         "colorLight": "#010f5a",
         "colorDark": "",
-        "font": ""
+        "font": "Hind-Medium.woff2"
       },
       "hero.cta": {
-        "size": 0,
+        "size": 16,
         "colorLight": "#010f5a",
         "colorDark": "",
-        "font": ""
+        "font": "Hind-Medium.woff2"
       },
       "tools.sectionTitle": {
         "size": 0,
@@ -643,12 +643,12 @@
       "titleLetterSpacing": 0,
       "titleStrokeColor": "#000000",
       "titleStrokeWidth": 0,
-      "buttonLetterSpacing": 0,
+      "buttonLetterSpacing": 1,
       "buttonStrokeColor": "#000000",
       "buttonStrokeWidth": 0,
-      "titleFontSize": 0,
-      "subtitleFontSize": 15,
-      "chipFontSize": 0,
+      "titleFontSize": 14,
+      "subtitleFontSize": 16,
+      "chipFontSize": 18,
       "ctaFontSize": 0,
       "light": {
         "borderColor": "#29486a",
@@ -658,8 +658,8 @@
         "chipBgColor": "#efefef",
         "chipBgOpacity": 100,
         "chipTextColor": "#29486a",
-        "chipBorderColor": "#ffffff",
-        "chipBorderOpacity": 20,
+        "chipBorderColor": "#400bd0",
+        "chipBorderOpacity": 48,
         "chipHoverBgColor": "#e1e0e0",
         "chipHoverTextColor": "#33455b",
         "ctaBgColor": "#efefef",
