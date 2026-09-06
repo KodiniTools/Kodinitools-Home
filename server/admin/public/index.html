@@ -645,6 +645,7 @@
         font-size: 0.88rem;
         font-weight: 700;
         line-height: 1.3;
+        min-height: calc(2 * 1.3em); /* wie tool-cards.css: Platz für zwei Zeilen */
         margin: 0;
       }
       .tc-footer {
@@ -665,6 +666,7 @@
       .tc-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+        grid-auto-rows: 1fr;
         gap: 0.7rem;
       }
       .tc-pick {
