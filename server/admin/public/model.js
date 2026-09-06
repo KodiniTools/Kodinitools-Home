@@ -291,8 +291,10 @@ export function toolCardSideDark() {
 // Typografie der Karten-Texte (Hell + Dunkel gemeinsam); 0 / '' = Standard der Seite.
 export const TOOL_CARD_WEIGHTS = ['', '400', '500', '600', '700', '800'];
 export const TOOL_CARD_TRANSFORMS = ['', 'none', 'uppercase', 'capitalize'];
+// Ausrichtung der Karten-Texte (Icon, Badge, Titel, Popup-Text); '' = Standard (links).
+export const TOOL_CARD_ALIGNS = ['', 'left', 'center', 'right'];
 export function defaultToolCardText() {
-  return { titleFont: '', titleSize: 0, titleWeight: '', titleSpacing: 0, titleTransform: '', textFont: '', badgeSize: 0, badgeWeight: '', badgeTransform: '', openSize: 0, openWeight: '', descSize: 0 };
+  return { titleFont: '', titleSize: 0, titleWeight: '', titleSpacing: 0, titleTransform: '', textFont: '', badgeSize: 0, badgeWeight: '', badgeTransform: '', openSize: 0, openWeight: '', descSize: 0, align: '' };
 }
 export function normToolCardText(t) {
   const d = defaultToolCardText();
@@ -320,6 +322,7 @@ export function normToolCardText(t) {
     openSize: num(t.openSize, 0, 20, 0),
     openWeight: weight(t.openWeight),
     descSize: num(t.descSize, 0, 24, 0),
+    align: TOOL_CARD_ALIGNS.includes(t.align) ? t.align : '',
   };
 }
 export function defaultToolCardStyle() {

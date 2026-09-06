@@ -279,6 +279,7 @@ export interface ToolCardText {
   openSize: number;
   openWeight: string;
   descSize: number;
+  align?: string; // '' | left | center | right – Icon, Badge, Titel, Popup-Text
 }
 
 /** Design einer Karte bzw. der Standard-Karte: getrennt Hell/Dunkel. */
@@ -287,9 +288,15 @@ export interface ToolCardStyle {
   dark: ToolCardSide;
   text?: ToolCardText;
 }
-const TOOL_CARD_TEXT_DEFAULT: ToolCardText = { titleFont: '', titleSize: 0, titleWeight: '', titleSpacing: 0, titleTransform: '', textFont: '', badgeSize: 0, badgeWeight: '', badgeTransform: '', openSize: 0, openWeight: '', descSize: 0 };
+const TOOL_CARD_TEXT_DEFAULT: ToolCardText = { titleFont: '', titleSize: 0, titleWeight: '', titleSpacing: 0, titleTransform: '', textFont: '', badgeSize: 0, badgeWeight: '', badgeTransform: '', openSize: 0, openWeight: '', descSize: 0, align: '' };
 const TOOL_CARD_WEIGHTS: readonly string[] = ['', '400', '500', '600', '700', '800'];
 const TOOL_CARD_TRANSFORMS: readonly string[] = ['', 'none', 'uppercase', 'capitalize'];
+// Ausrichtung -> text-align der Texte und align-self von Icon/Badge in der Flex-Spalte.
+const TOOL_CARD_ALIGN_SELF: Record<string, string> = {
+  left: 'flex-start',
+  center: 'center',
+  right: 'flex-end',
+};
 
 /**
  * Tool-Karten-Design. enabled=false -> Standard-Aussehen aus tool-cards.css.
@@ -924,6 +931,11 @@ function toolCardTextVars(text: ToolCardText, faces: Set<string>): Array<[string
   size(text.openSize, 20, '--tc-open-size');
   weight(text.openWeight, '--tc-open-weight');
   size(text.descSize, 24, '--tc-desc-size');
+  const align = String(text.align ?? '');
+  if (TOOL_CARD_ALIGN_SELF[align]) {
+    v.push(['--tc-align', align]);
+    v.push(['--tc-align-self', TOOL_CARD_ALIGN_SELF[align]]);
+  }
   return v;
 }
 
