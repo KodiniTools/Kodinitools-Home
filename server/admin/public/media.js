@@ -189,7 +189,7 @@ function heroPanel(lang) {
       <div class="panel">
         <h2>Hero-Bereich (oben auf der Seite)</h2>
         <p class="hint">Anordnung, Form &amp; Kachel-Design stellst du im Tab <strong>Layout</strong> ein.
-          Hier weist du den Plätzen die Bilder/Videos zu.</p>
+          ${mode === 'grid' ? 'Hier (oder im Layout-Tab je Kachel) weist du den Plätzen die Bilder/Videos zu.' : 'Das Banner samt Verlinkung und Design bearbeitest du im Tab <strong>Layout</strong>.'}</p>
       </div>`;
   if (mode === 'grid') {
     const layout = Object.prototype.hasOwnProperty.call(HERO_LAYOUTS, state.media[lang].heroLayout)
@@ -208,15 +208,21 @@ function heroPanel(lang) {
     ).join('');
     return info + cells;
   }
+  // Banner-Modus: Bild/Video, Verlinkung und Design des Banners liegen komplett im
+  // Layout-Tab (Mitte: „Banner (Bild oder Video)", Seitenleisten: Design/Text).
+  const val = getMediaVal(lang, 'heroBanner');
   return (
     info +
-    mediaSlotPanel(lang, 'heroBanner', {
-      title: 'Banner (ein Bild oder Video)',
-      hint: 'Erscheint ganz oben im Hero-Bereich. Bild oder Video. Leer lassen = kein Banner. 📐 Empfohlen: breites Format, ca. 1800 × 480 px (Anzeige bis 900 × 240 px).',
-      placeholder: '/uploads/mein-banner.jpg',
-      resetLabel: '↺ Entfernen',
-      withLink: true,
-    })
+    `
+      <div class="panel">
+        <h2>Banner (ein Bild oder Video)</h2>
+        <p class="hint">Das Banner-Bild/-Video, seine Verlinkung und das Banner-Design (Rahmen, Schatten, Deckkraft,
+          Verdunkelung – Hell/Dunkel) bearbeitest du jetzt gesammelt im Tab <strong>Layout</strong>.</p>
+        ${val ? slotPreview(val) : '<p class="hint" style="margin:.2rem 0">Aktuell kein Banner gewählt.</p>'}
+        <div class="row" style="margin-top:.5rem">
+          <button type="button" data-gotolayout style="flex:0 0 auto">➡️ Zum Tab „Layout"</button>
+        </div>
+      </div>`
   );
 }
 
@@ -321,6 +327,11 @@ export function renderMedia() {
     el.addEventListener('click', () => {
       const [l, key] = el.dataset.slotpick.split(':');
       pickFromLibrary(l, key);
+    }),
+  );
+  pane.querySelectorAll('[data-gotolayout]').forEach((el) =>
+    el.addEventListener('click', () => {
+      document.querySelector('#subnav button[data-sub="layout"]')?.click();
     }),
   );
   pane.querySelectorAll('[data-slotlink]').forEach((el) =>

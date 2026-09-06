@@ -176,23 +176,93 @@ function bannerMediaStyle(lang, kind, mode = bannerPrevMode) {
 // Das dem Einzelbanner zugewiesene Medium (Bild/Video) als <img>/<video> im
 // Banner-Design – oder ein Platzhalter-Kasten, wenn kein Banner gewählt ist.
 function bannerMediaHtml(lang) {
+  const med = bannerMediaInfo(lang);
+  if (!med)
+    return `<div data-bannermedia="box" style="${bannerMediaStyle(lang, 'box')}"><span class="hint" style="margin:0">Kein Banner gewählt — unten unter „Banner (Bild oder Video)" zuweisen.</span></div>`;
+  const st = bannerMediaStyle(lang, 'media');
+  return med.isVid
+    ? `<video data-bannermedia="media" src="${med.src}" muted style="${st}"></video>`
+    : `<img data-bannermedia="media" src="${esc(med.src)}" style="${st}" />`;
+}
+// Aufgelöstes Banner-Medium: { val, src, isVid, item } oder null, wenn leer/unbekannt.
+function bannerMediaInfo(lang) {
   const val = getMediaVal(lang, 'heroBanner');
-  const placeholder = `<div data-bannermedia="box" style="${bannerMediaStyle(lang, 'box')}"><span class="hint" style="margin:0">Kein Banner gewählt — im Tab „Medien" zuweisen.</span></div>`;
-  if (!val) return placeholder;
-  let src = val;
-  let isVid = /\.(mp4|webm|mov|ogg)$/i.test(val);
+  if (!val) return null;
   if (val.startsWith('staged:')) {
     const id = val.slice(7);
     const item = state.stagedItems.find((x) => x.id === id);
-    if (!item) return placeholder;
-    src = objUrl(id);
-    isVid = /^video\//.test(item.type);
+    if (!item) return null;
+    return { val, src: objUrl(id), isVid: /^video\//.test(item.type), item };
   }
-  const st = bannerMediaStyle(lang, 'media');
-  return isVid
-    ? `<video data-bannermedia="media" src="${src}" muted style="${st}"></video>`
-    : `<img data-bannermedia="media" src="${esc(src)}" style="${st}" />`;
+  return { val, src: val, isVid: /\.(mp4|webm|mov|ogg)$/i.test(val), item: null };
 }
+// Panel „Banner (Bild oder Video)" in der Mitte des Banner-Modus: Zuweisung aus
+// Zwischenablage, Mediathek oder per Pfad/URL, Entfernen und Verlinkung –
+// ehemals im Tab „Medien".
+function bannerMediaBlock(lang) {
+  const m = state.media[lang];
+  const val = getMediaVal(lang, 'heroBanner');
+  const med = bannerMediaInfo(lang);
+  const staged = val.startsWith('staged:');
+  const thumb = med
+    ? med.isVid
+      ? `<video src="${med.src}" muted style="width:100%;height:100%;object-fit:cover;display:block"></video>`
+      : `<img src="${esc(med.src)}" alt="" />`
+    : '<span class="hint" style="margin:0">Kein Banner</span>';
+  let status;
+  if (med && med.item) {
+    const size = med.item.blob ? ` · ${fmtBytes(med.item.blob.size)}` : '';
+    status = `<p class="st local" style="margin:.2rem 0 .4rem">● ${esc(med.item.name)}${size} – lokal, wird beim Veröffentlichen hochgeladen.</p>`;
+  } else if (med) {
+    status = `<p class="st pub" data-slotstatus="${esc(val)}" style="margin:.2rem 0 .4rem">● ${esc(val)}</p>`;
+  } else {
+    status = `<p class="hint" style="margin:.2rem 0 .4rem">Leer = kein Banner. 📐 Empfohlen: breites Format, ca. <strong>1800 × 480 px</strong> (Anzeige bis 900 × 240 px).</p>`;
+  }
+  return `
+    <div class="panel" data-bannermediablock>
+      <h2 style="font-size:1rem;margin:0 0 .3rem">🖼️ Banner (Bild oder Video)</h2>
+      <p class="hint">Erscheint ganz oben im Hero-Bereich der ${lang === 'de' ? 'deutschen' : 'englischen'} Startseite. Bild
+        aus der Zwischenablage (Strg/Cmd+V oder Button), aus der Mediathek oder per Pfad/URL.</p>
+      <div class="row" style="align-items:flex-start">
+        <div class="bg-thumb" data-bannerthumb style="width:220px;height:110px">${thumb}</div>
+        <div style="flex:1 1 260px">
+          ${status}
+          <label>Pfad/URL</label>
+          <input data-bannerslot value="${esc(staged ? '' : val)}" placeholder="/uploads/mein-banner.jpg" ${staged ? 'disabled title="Lokales Medium – wird beim Veröffentlichen hochgeladen"' : ''} />
+          <div class="row" style="margin-top:.5rem">
+            <button type="button" data-bannerpaste title="Bild aus der Zwischenablage als Banner einsetzen (oder Strg/Cmd+V)" style="flex:0 0 auto">📋 Aus Zwischenablage einfügen</button>
+            <button type="button" data-bannerpick style="flex:0 0 auto">📂 Aus Mediathek</button>
+            <button type="button" class="danger" data-bannerclear ${med || val ? '' : 'disabled'} style="flex:0 0 auto">Entfernen</button>
+          </div>
+          <label style="margin-top:.6rem">🔗 Verlinkung (optional) — öffnet beim Klick auf das Banner</label>
+          <input data-bannerlink value="${esc(m.heroBannerLink || '')}" placeholder="https://… oder /faq/" />
+          <p class="hint" style="margin:.3rem 0 0">Leer = nicht klickbar. Externe Links (http/https) öffnen in neuem Tab; interne Pfade (z.B. <code>/faq/</code>) im selben Tab.</p>
+        </div>
+      </div>
+    </div>`;
+}
+// Prüft nach dem Rendern, ob die referenzierte /uploads-Datei des Banners auf dem
+// Server existiert; fehlt sie, erscheint eine deutliche Warnung.
+async function verifyBannerFile(pane) {
+  const el = pane.querySelector('[data-bannermediablock] [data-slotstatus]');
+  if (!el) return;
+  const url = el.dataset.slotstatus;
+  if (!/^\/uploads\//.test(url)) return;
+  let ok;
+  try {
+    const r = await fetch(url, { method: 'HEAD', cache: 'no-store' });
+    ok = r.ok;
+  } catch {
+    ok = false;
+  }
+  if (!ok && el.isConnected) {
+    el.insertAdjacentHTML(
+      'afterend',
+      '<p class="st" style="color:#f87171;font-weight:600">⚠ Datei fehlt auf dem Server – bitte über „📂 Aus Mediathek" neu zuweisen und veröffentlichen.</p>',
+    );
+  }
+}
+
 // Gemeinsamer Overlay-Style: der Text wird an (x,y) in % verankert (Mittelpunkt)
 // und lässt sich in der Vorschau mit der Maus frei verschieben (cursor:move).
 function overlayStyle(color, size, x, y, font, fsDefault, shadow, extra) {
@@ -576,9 +646,9 @@ function layoutPanel(lang) {
         <div class="tc-side-head left">🖼️ Banner-Design</div>
         <p class="hint">Rahmen, Ecken, Schatten, Deckkraft und Verdunkelung des Banner-Bildes/-Videos – getrennt für
           <strong>Hell</strong> und <strong>Dunkel</strong>; die Vorschau springt beim Bearbeiten in den passenden Modus.
-          Das Banner selbst wählst du im Tab <strong>Medien</strong>.</p>
+          Das Banner-Bild/-Video weist du in der Mitte unter der Vorschau zu.</p>
         <div class="panel" style="display:flex;flex-wrap:wrap;gap:.4rem;align-items:center">
-          <button type="button" class="hd-reset" data-bannercopylang="${otherLang}" title="Banner-Design (Hell + Dunkel) in die andere Sprache übernehmen – Text bleibt je Sprache" style="white-space:normal;text-align:left">📋 Banner-Design nach ${otherLabel} übertragen<br /><span class="hint" style="margin:0">(Hell + Dunkel; Text bleibt je Sprache)</span></button>
+          <button type="button" class="hd-reset" data-bannercopylang="${otherLang}" title="Banner-Design (Hell + Dunkel) in die andere Sprache übernehmen – Text bleibt je Sprache" style="white-space:normal;text-align:left;flex:1 1 auto;min-width:0;max-width:100%">📋 Banner-Design nach ${otherLabel} übertragen<br /><span class="hint" style="margin:0">(Hell + Dunkel; Text bleibt je Sprache)</span></button>
         </div>
         ${bannerDesignSection(lang, 'light')}
         ${bannerDesignSection(lang, 'dark')}
@@ -589,7 +659,7 @@ function layoutPanel(lang) {
         <p class="hint">Optionaler Text über dem Banner: Schriftart (aus <code>/fonts</code>), Farbe, Größe, Position
           sowie Schatten, Umriss, Deckkraft und Animation. Leer = kein Text.</p>
         <div class="panel" style="display:flex;flex-wrap:wrap;gap:.4rem;align-items:center">
-          <button type="button" class="hd-reset" data-bannertextcopylang="${otherLang}" title="Schrift, Farbe, Größe, Position und Effekte in die andere Sprache übernehmen – der Text selbst bleibt je Sprache" style="white-space:normal;text-align:left">📋 Text-Design nach ${otherLabel} übertragen<br /><span class="hint" style="margin:0">(Schrift, Farbe, Größe, Position, Effekte – der Text selbst bleibt)</span></button>
+          <button type="button" class="hd-reset" data-bannertextcopylang="${otherLang}" title="Schrift, Farbe, Größe, Position und Effekte in die andere Sprache übernehmen – der Text selbst bleibt je Sprache" style="white-space:normal;text-align:left;flex:1 1 auto;min-width:0;max-width:100%">📋 Text-Design nach ${otherLabel} übertragen<br /><span class="hint" style="margin:0">(Schrift, Farbe, Größe, Position, Effekte – der Text selbst bleibt)</span></button>
         </div>
         <div class="row" style="align-items:flex-end">
           <div style="flex:2 1 160px">
@@ -675,7 +745,7 @@ function layoutPanel(lang) {
           </div>
         </div>
       </aside>`;
-    return `<div class="tc-layout">${designSide}<div class="tc-main">${modePanel}${previewPanel}
+    return `<div class="tc-layout">${designSide}<div class="tc-main">${modePanel}${previewPanel}${bannerMediaBlock(lang)}
       <div class="panel"><p class="hint" style="margin:0">Links das <strong>Banner-Design</strong> (Rahmen, Schatten, Deckkraft, Verdunkelung), rechts der <strong>Banner-Text</strong> mit allen Effekten. Die Vorschau bleibt beim Scrollen oben sichtbar; den Text in der Vorschau mit der Maus verschieben.</p></div>
     </div>${textSide}</div>`;
   }
@@ -738,7 +808,7 @@ function layoutPanel(lang) {
       <p class="hint">Pro Kachel: Rahmenfarbe &amp; -dicke, Hintergrundfarbe &amp; -transparenz, Textfarbe, -größe und -position.
         Rahmendicke 0 = kein Rahmen. „Standard für alle" macht eine Kachel zur Vorlage der übrigen.</p>
       <div class="panel" style="display:flex;flex-wrap:wrap;gap:.4rem;align-items:center">
-        <button type="button" class="hd-reset" data-gridcopylang="${gridOtherLang}" style="white-space:normal;text-align:left" title="Anordnung, Form und Design aller Kacheln in die andere Sprache übernehmen – Texte und Bilder bleiben je Sprache">📋 Kachel-Design nach ${gridOtherLabel} übertragen<br /><span class="hint" style="margin:0">(Anordnung, Form, Rahmen, Hintergrund, Schrift, Textfarbe/-größe/-position, Bildbearbeitung, „Standard für alle“ – Texte und Bilder bleiben je Sprache)</span></button>
+        <button type="button" class="hd-reset" data-gridcopylang="${gridOtherLang}" style="white-space:normal;text-align:left;flex:1 1 auto;min-width:0;max-width:100%" title="Anordnung, Form und Design aller Kacheln in die andere Sprache übernehmen – Texte und Bilder bleiben je Sprache">📋 Kachel-Design nach ${gridOtherLabel} übertragen<br /><span class="hint" style="margin:0">(Anordnung, Form, Rahmen, Hintergrund, Schrift, Textfarbe/-größe/-position, Bildbearbeitung, „Standard für alle“ – Texte und Bilder bleiben je Sprache)</span></button>
       </div>
       ${cells.map((i) => cellDesignEditor(lang, i, isMosaic && i === 0)).join('')}
     </aside>`;
@@ -921,8 +991,9 @@ const IMG_EXT = {
 };
 const MAX_PASTE_BYTES = 25 * 1024 * 1024;
 
-// Legt ein Bild (Blob) im Zwischenspeicher ab, weist es Kachel i zu und rendert
-// den Tab neu (Scrollposition bleibt, Kachel bleibt markiert).
+// Legt ein Bild (Blob) im Zwischenspeicher ab, weist es Kachel i (oder dem
+// Banner bei i === 'banner') zu und rendert den Tab neu (Scrollposition bleibt,
+// Kachel bleibt markiert).
 async function assignImageBlob(lang, i, blob) {
   const type = blob.type || 'image/png';
   const ext = IMG_EXT[type];
@@ -935,15 +1006,16 @@ async function assignImageBlob(lang, i, blob) {
     return false;
   }
   const stamp = new Date().toISOString().slice(0, 19).replace(/[-:]/g, '').replace('T', '-');
-  const name = `kachel-${i + 1}-${stamp}.${ext}`;
+  const isBanner = i === 'banner';
+  const name = `${isBanner ? 'banner' : `kachel-${i + 1}`}-${stamp}.${ext}`;
   const id = await stageFile(new File([blob], name, { type }), name);
-  setMediaVal(lang, 'grid' + i, 'staged:' + id);
+  setMediaVal(lang, isBanner ? 'heroBanner' : 'grid' + i, 'staged:' + id);
   const y = window.scrollY;
   renderLayout();
-  markCell($('#content'), i);
+  if (!isBanner) markCell($('#content'), i);
   window.scrollTo({ top: y });
   toast(
-    `Bild in Kachel ${i + 1} eingefügt (${fmtBytes(blob.size)}) – lokal bis zum Veröffentlichen`,
+    `Bild ${isBanner ? 'als Banner' : `in Kachel ${i + 1}`} eingefügt (${fmtBytes(blob.size)}) – lokal bis zum Veröffentlichen`,
   );
   return true;
 }
@@ -963,7 +1035,11 @@ function imageFromDataTransfer(dt) {
 // bleibt Strg/Cmd+V auf der markierten Kachel als Weg.
 async function pasteFromClipboardApi(lang, i) {
   if (!navigator.clipboard || typeof navigator.clipboard.read !== 'function') {
-    toast('Zwischenablage nicht direkt lesbar – Kachel ist markiert: jetzt Strg/Cmd+V drücken');
+    toast(
+      i === 'banner'
+        ? 'Zwischenablage nicht direkt lesbar – jetzt Strg/Cmd+V drücken'
+        : 'Zwischenablage nicht direkt lesbar – Kachel ist markiert: jetzt Strg/Cmd+V drücken',
+    );
     return;
   }
   try {
@@ -977,10 +1053,12 @@ async function pasteFromClipboardApi(lang, i) {
     }
     toast('Kein Bild in der Zwischenablage');
   } catch (e) {
+    const hint =
+      i === 'banner' ? 'jetzt Strg/Cmd+V drücken' : 'Kachel ist markiert: jetzt Strg/Cmd+V drücken';
     toast(
       e && e.name === 'NotAllowedError'
-        ? 'Zugriff auf die Zwischenablage abgelehnt – Kachel ist markiert: jetzt Strg/Cmd+V drücken'
-        : 'Zwischenablage nicht lesbar – Kachel ist markiert: jetzt Strg/Cmd+V drücken',
+        ? `Zugriff auf die Zwischenablage abgelehnt – ${hint}`
+        : `Zwischenablage nicht lesbar – ${hint}`,
     );
   }
 }
@@ -991,7 +1069,20 @@ async function pasteFromClipboardApi(lang, i) {
 function onDocumentPaste(e) {
   if (state.nav.sub !== 'layout' || !['de', 'en'].includes(state.nav.section)) return;
   const pane = $('#content');
-  if (!pane || !pane.querySelector('[data-celleditor]')) return;
+  if (!pane) return;
+  // Banner-Modus: Bild aus der Zwischenablage wird zum Banner (außer beim Text-
+  // Einfügen in ein Eingabefeld – dort nur, wenn wirklich Bilddaten anliegen).
+  if (pane.querySelector('[data-bannermediablock]')) {
+    const blob = imageFromDataTransfer(e.clipboardData);
+    if (!blob) return;
+    e.preventDefault();
+    assignImageBlob(state.nav.section, 'banner', blob).catch((err) => {
+      console.error(err);
+      toast('Einfügen fehlgeschlagen');
+    });
+    return;
+  }
+  if (!pane.querySelector('[data-celleditor]')) return;
   const blob = imageFromDataTransfer(e.clipboardData);
   if (!blob) return;
   const editor = e.target instanceof Element ? e.target.closest('[data-celleditor]') : null;
@@ -1323,6 +1414,45 @@ export function renderLayout() {
       updateBannerPreviewText(pane, lang);
     }),
   );
+
+  // Banner-Medium: Pfad/URL, Zwischenablage, Mediathek, Entfernen, Verlinkung.
+  pane.querySelectorAll('[data-bannerslot]').forEach((el) => {
+    el.addEventListener('input', () => setMediaVal(lang, 'heroBanner', el.value.trim()));
+    el.addEventListener('change', () => renderLayout());
+  });
+  pane
+    .querySelectorAll('[data-bannerpaste]')
+    .forEach((el) => el.addEventListener('click', () => pasteFromClipboardApi(lang, 'banner')));
+  pane.querySelectorAll('[data-bannerpick]').forEach((el) =>
+    el.addEventListener('click', () => {
+      const srv = [lang, 'shared'].reduce((n, l) => n + (state.serverFiles[l] || []).length, 0);
+      if (!state.stagedItems.length && !srv) {
+        toast('Keine Medien vorhanden — Bild einfügen oder im Tab „Dateien" hochladen.');
+        return;
+      }
+      openMediaPicker(lang, 'heroBanner', {
+        title: 'Bild/Video für das Banner wählen',
+        onPick: (url) => {
+          setMediaVal(lang, 'heroBanner', url);
+          renderLayout();
+          toast('Banner zugewiesen');
+        },
+      });
+    }),
+  );
+  pane.querySelectorAll('[data-bannerclear]').forEach((el) =>
+    el.addEventListener('click', () => {
+      setMediaVal(lang, 'heroBanner', '');
+      renderLayout();
+      toast('Banner entfernt');
+    }),
+  );
+  pane.querySelectorAll('[data-bannerlink]').forEach((el) =>
+    el.addEventListener('input', () => {
+      state.media[lang].heroBannerLink = el.value.trim();
+    }),
+  );
+  verifyBannerFile(pane);
 
   // Banner-Design je Modus: Rahmen / Ecken / Schatten / Deckkraft / Verdunkelung.
   pane
