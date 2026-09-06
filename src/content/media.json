@@ -1,6 +1,6 @@
 {
   "site": {
-    "globalFont": "Supreme-Regular.woff2",
+    "globalFont": "Hind-Medium.woff2",
     "bgColor": "",
     "bgColorDark": "",
     "bgOpacity": 100,
@@ -252,22 +252,22 @@
     "heroGridFit": "contain",
     "textStyles": {
       "hero.title": {
-        "size": 0,
+        "size": 32,
         "colorLight": "#010f5a",
         "colorDark": "",
-        "font": ""
+        "font": "Hind-Medium.woff2"
       },
       "hero.subtitle": {
-        "size": 0,
+        "size": 19,
         "colorLight": "#010f5a",
         "colorDark": "",
-        "font": ""
+        "font": "Hind-Medium.woff2"
       },
       "hero.cta": {
-        "size": 0,
+        "size": 16,
         "colorLight": "#010f5a",
         "colorDark": "",
-        "font": ""
+        "font": "Hind-Medium.woff2"
       },
       "tools.sectionTitle": {
         "size": 0,
@@ -303,16 +303,16 @@
     "textStyleUniformKey": "tools.sectionTitle",
     "heroDesign": {
       "enabled": true,
-      "titleFont": "Supreme-Regular.woff2",
-      "buttonFont": "Supreme-Regular.woff2",
+      "titleFont": "Hind-Medium.woff2",
+      "buttonFont": "Hind-Medium.woff2",
       "titleLetterSpacing": 0,
       "titleStrokeColor": "#000000",
       "titleStrokeWidth": 0,
-      "buttonLetterSpacing": 0,
+      "buttonLetterSpacing": 1,
       "buttonStrokeColor": "#000000",
       "buttonStrokeWidth": 0,
-      "titleFontSize": 0,
-      "subtitleFontSize": 15,
+      "titleFontSize": 14,
+      "subtitleFontSize": 16,
       "chipFontSize": 0,
       "ctaFontSize": 0,
       "light": {
@@ -323,8 +323,8 @@
         "chipBgColor": "#efefef",
         "chipBgOpacity": 100,
         "chipTextColor": "#29486a",
-        "chipBorderColor": "#ffffff",
-        "chipBorderOpacity": 20,
+        "chipBorderColor": "#400bd0",
+        "chipBorderOpacity": 48,
         "chipHoverBgColor": "#e1e0e0",
         "chipHoverTextColor": "#33455b",
         "ctaBgColor": "#efefef",
@@ -638,8 +638,8 @@
     "textStyleUniformKey": "diverseTools.sectionTitle",
     "heroDesign": {
       "enabled": true,
-      "titleFont": "Supreme-Regular.woff2",
-      "buttonFont": "Supreme-Regular.woff2",
+      "titleFont": "Hind-Medium.woff2",
+      "buttonFont": "Hind-Medium.woff2",
       "titleLetterSpacing": 0,
       "titleStrokeColor": "#000000",
       "titleStrokeWidth": 0,
