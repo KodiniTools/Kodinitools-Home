@@ -444,7 +444,7 @@ function defaultMediaLocale() {
     heroGridFit: 'cover',
     textStyles: {},
     textStyleUniform: false,
-    textStyleUniformKey: 'hero.title',
+    textStyleUniformKey: 'tools.sectionTitle',
     heroDesign: defaultHeroDesign(),
     toolCards: defaultToolCards(),
     iconTint: {},
@@ -467,15 +467,16 @@ function validateIconTint(v) {
   }
   return out;
 }
-// Text-Slots des „Texte"-Tabs mit einstellbarer Größe/Farbe.
-const TEXT_STYLE_KEYS = [
-  'hero.title',
-  'hero.subtitle',
-  'hero.cta',
+// Text-Slots mit einstellbarem Stil: Hero-Texte (Tab „Hero-Design") und
+// Abschnitts-Titel (Tab „Texte"). „Standard für alle Slots" gilt nur für die
+// Slots des Texte-Tabs (UNIFORM_TEXT_KEYS).
+const HERO_TEXT_KEYS = ['hero.title', 'hero.subtitle', 'hero.cta'];
+const UNIFORM_TEXT_KEYS = [
   'tools.sectionTitle',
   'imageTools.sectionTitle',
   'diverseTools.sectionTitle',
 ];
+const TEXT_STYLE_KEYS = [...HERO_TEXT_KEYS, ...UNIFORM_TEXT_KEYS];
 /**
  * Validiert die Text-Stile: nur bekannte Schlüssel, Größe 0–120, Hex-Farben.
  * Farbe getrennt nach Hell/Dunkel; ein altes einzelnes color wird migriert.
@@ -862,13 +863,15 @@ function validateMediaLocale(m, langLabel) {
   // Seitenverhältnis + Darstellung (zuschneiden vs. ganzes Bild) des Rasters.
   out.heroGridRatio = ['1:1', '16:9', '2:3'].includes(m.heroGridRatio) ? m.heroGridRatio : '1:1';
   out.heroGridFit = m.heroGridFit === 'contain' ? 'contain' : 'cover';
-  // Text-Stile (Größe/Farbe/Schrift) der Slots aus dem „Texte"-Tab.
+  // Text-Stile (Größe/Farbe/Schrift/Effekte) der Hero-Texte (Tab „Hero-Design")
+  // und der Abschnitts-Titel (Tab „Texte").
   out.textStyles = validateTextStyles(m.textStyles);
-  // „Standard für alle Slots": Stil eines Slots gilt für alle.
+  // „Standard für alle Slots" (nur Texte-Tab): Stil eines Abschnitts-Titels gilt
+  // für alle Abschnitts-Titel; Hero-Slots sind davon ausgenommen.
   out.textStyleUniform = m.textStyleUniform === true;
-  out.textStyleUniformKey = TEXT_STYLE_KEYS.includes(m.textStyleUniformKey)
+  out.textStyleUniformKey = UNIFORM_TEXT_KEYS.includes(m.textStyleUniformKey)
     ? m.textStyleUniformKey
-    : TEXT_STYLE_KEYS[0];
+    : UNIFORM_TEXT_KEYS[0];
   // Hero-Design (Rahmen/Hintergrund/Buttons) – optional, mit Standard-Fallback.
   out.heroDesign = validateHeroDesign(m.heroDesign);
   // Tool-Karten-Design (Rahmen/Hintergrund je Karte) – optional, mit Standard.

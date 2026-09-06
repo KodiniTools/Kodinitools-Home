@@ -271,7 +271,7 @@
       }
     },
     "textStyleUniform": false,
-    "textStyleUniformKey": "hero.subtitle",
+    "textStyleUniformKey": "tools.sectionTitle",
     "heroDesign": {
       "enabled": true,
       "titleFont": "Supreme-Regular.woff2",
@@ -576,7 +576,7 @@
       }
     },
     "textStyleUniform": false,
-    "textStyleUniformKey": "hero.title",
+    "textStyleUniformKey": "tools.sectionTitle",
     "heroDesign": {
       "enabled": true,
       "titleFont": "Supreme-Regular.woff2",

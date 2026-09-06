@@ -1,5 +1,7 @@
 // Reine Content-Bearbeitung pro Sprache: der „Texte"-Tab (formularbasierte
-// Overrides) und der „Erweitert"-Tab (rohe Overrides als JSON).
+// Overrides der Sektions-Überschriften) und der „Erweitert"-Tab (rohe
+// Overrides als JSON). Die Hero-Texte (Titel, Untertitel, Button-Text) werden
+// samt ihren Stil-Einstellungen im Tab „Hero-Design" bearbeitet (design.js).
 
 import { $, esc, toast } from './core.js';
 import { colorPicker, bindColorPickers, refreshColorPickers } from './color.js';
@@ -10,102 +12,20 @@ import {
   delPath,
   getTextStyle,
   getEffectiveTextStyle,
-  BANNER_ANIM_TYPES,
-  BANNER_ANIM_SPEEDS,
+  UNIFORM_TEXT_KEYS,
 } from './model.js';
-import { fontOptionsHtml, ensureFontFace } from './fonts.js';
-
-// font-family-CSS für die Feld-Vorschau (lädt @font-face) oder ''.
-function fontFF(file) {
-  return file ? `font-family:'${ensureFontFace(file)}', var(--site-font, sans-serif);` : '';
-}
-// Deutsche Beschriftungen der Animationstypen und Tempo-Stufen (nur UI).
-const ANIM_LABELS = {
-  none: 'Keine',
-  pulse: 'Puls',
-  float: 'Schweben',
-  shake: 'Wackeln',
-  wobble: 'Kippen',
-  glow: 'Glühen',
-};
-const ANIM_SPEED_LABELS = { slow: 'Langsam', normal: 'Normal', fast: 'Schnell' };
-// Standardwerte der Text-Effekte (entsprechen dem „aus"-Zustand).
-const TEXT_FX_DEFAULTS = {
-  shadow: false,
-  shadowColor: '#000000',
-  shadowX: 0,
-  shadowY: 2,
-  shadowBlur: 6,
-  strokeColor: '#000000',
-  strokeWidth: 0,
-  opacity: 100,
-  anim: 'none',
-  animIntensity: 5,
-  animSpeed: 'normal',
-};
-const clampI = (v, min, max, def) => {
-  const n = parseInt(v, 10);
-  return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : def;
-};
-const clampH = (v, min, max, def) => {
-  const n = parseFloat(v);
-  return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n * 2) / 2)) : def;
-};
-// Effekt-Bedienfeld eines Slots (Schatten, Umriss, Deckkraft, Animation) als
-// aufklappbarer Bereich. `dis` sperrt die Felder bei „Standard für alle Slots".
-function fxControls(idx, st, dis) {
-  const active =
-    st.shadow ||
-    (st.strokeWidth || 0) > 0 ||
-    (st.opacity ?? 100) < 100 ||
-    (st.anim && st.anim !== 'none');
-  const animOpts = BANNER_ANIM_TYPES.map(
-    (t) =>
-      `<option value="${t}" ${t === (st.anim || 'none') ? 'selected' : ''}>${ANIM_LABELS[t] || t}</option>`,
-  ).join('');
-  const speedOpts = BANNER_ANIM_SPEEDS.map(
-    (sp) =>
-      `<option value="${sp}" ${sp === (st.animSpeed || 'normal') ? 'selected' : ''}>${ANIM_SPEED_LABELS[sp] || sp}</option>`,
-  ).join('');
-  return `
-    <details ${active ? 'open' : ''} style="margin-top:.4rem">
-      <summary style="cursor:pointer;color:${active ? 'var(--accent)' : 'var(--muted)'};font-size:.82rem;user-select:none">Effekte — Schatten, Umriss, Deckkraft, Animation${active ? ' •' : ''}</summary>
-      <div class="row" style="align-items:flex-end;margin-top:.4rem">
-        <div style="flex:0 0 auto">
-          <label style="margin-top:0">Schatten</label>
-          <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);cursor:pointer;height:38px;margin:0">
-            <input type="checkbox" data-txtfx="${idx}:shadow" ${st.shadow ? 'checked' : ''} ${dis} style="width:auto" /> anzeigen
-          </label>
-        </div>
-        <div style="flex:0 0 auto"><label style="margin-top:0">Schattenfarbe</label>
-          ${colorPicker({ id: `txt:${idx}:shadowColor`, attrs: `data-txtfx="${idx}:shadowColor"`, value: st.shadowColor || '#000000', disabled: dis === 'disabled' })}</div>
-        <div style="flex:0 0 auto"><label style="margin-top:0">Versatz X (px)</label>
-          <input type="number" data-txtfx="${idx}:shadowX" min="-50" max="50" step="1" value="${st.shadowX ?? 0}" ${dis} style="width:90px" /></div>
-        <div style="flex:0 0 auto"><label style="margin-top:0">Versatz Y (px)</label>
-          <input type="number" data-txtfx="${idx}:shadowY" min="-50" max="50" step="1" value="${st.shadowY ?? 2}" ${dis} style="width:90px" /></div>
-        <div style="flex:0 0 auto"><label style="margin-top:0">Weichzeichnung (px)</label>
-          <input type="number" data-txtfx="${idx}:shadowBlur" min="0" max="40" step="1" value="${st.shadowBlur ?? 6}" ${dis} style="width:110px" /></div>
-      </div>
-      <div class="row" style="align-items:flex-end;margin-top:.4rem">
-        <div style="flex:0 0 auto"><label style="margin-top:0">Umriss-Farbe</label>
-          ${colorPicker({ id: `txt:${idx}:strokeColor`, attrs: `data-txtfx="${idx}:strokeColor"`, value: st.strokeColor || '#000000', disabled: dis === 'disabled' })}</div>
-        <div style="flex:0 0 auto"><label style="margin-top:0">Umriss-Dicke (px, 0=aus)</label>
-          <input type="number" data-txtfx="${idx}:strokeWidth" min="0" max="10" step="0.5" value="${st.strokeWidth ?? 0}" ${dis} style="width:120px" /></div>
-        <div style="flex:0 0 auto"><label style="margin-top:0">Deckkraft (%)</label>
-          <input type="number" data-txtfx="${idx}:opacity" min="0" max="100" step="1" value="${st.opacity ?? 100}" ${dis} style="width:110px" /></div>
-      </div>
-      <div class="row" style="align-items:flex-end;margin-top:.4rem">
-        <div style="flex:0 0 auto"><label style="margin-top:0">Animation</label>
-          <select data-txtfx="${idx}:anim" ${dis} style="width:auto;height:38px">${animOpts}</select></div>
-        <div style="flex:0 0 auto"><label style="margin-top:0">Intensität (1–10)</label>
-          <input type="number" data-txtfx="${idx}:animIntensity" min="1" max="10" step="1" value="${st.animIntensity ?? 5}" ${dis} style="width:110px" /></div>
-        <div style="flex:0 0 auto"><label style="margin-top:0">Geschwindigkeit</label>
-          <select data-txtfx="${idx}:animSpeed" ${dis} style="width:auto;height:38px">${speedOpts}</select></div>
-        <div style="flex:0 0 auto"><label style="margin-top:0">&nbsp;</label>
-          <button type="button" class="hd-reset" data-txtreset="${idx}:fx" ${dis} title="Effekte zurücksetzen" aria-label="Effekte zurücksetzen">↺ Effekte</button></div>
-      </div>
-    </details>`;
-}
+import { fontOptionsHtml } from './fonts.js';
+import {
+  fontFF,
+  fxControls,
+  bindFxControls,
+  TEXT_FX_DEFAULTS,
+  slotAnimClass,
+  slotPreviewStyle,
+  previewBg,
+  updateSlotPreview,
+} from './textstyle.js';
+import { goto } from './admin.js';
 
 // Aktuell im „Texte"-Tab bearbeiteter Farb-Modus (reiner UI-Zustand). Textgröße
 // und Schriftart gelten für beide Modi; nur die Textfarbe ist getrennt nach
@@ -116,11 +36,9 @@ const txtModeLabel = () => (txtEditTheme === 'dark' ? 'Dunkel' : 'Hell');
 
 // ============ TAB: Texte ============
 // Alle Slots sind mehrzeilig (Zeilenumbrüche werden auf der Seite übernommen)
-// und haben eine einstellbare Textgröße + Textfarbe.
+// und haben eine einstellbare Textgröße + Textfarbe. Die Schlüssel entsprechen
+// UNIFORM_TEXT_KEYS (Slots, für die „Standard für alle Slots" gilt).
 const TEXT_FIELDS = [
-  { path: ['hero', 'title'], label: 'Hero – Titel' },
-  { path: ['hero', 'subtitle'], label: 'Hero – Untertitel' },
-  { path: ['hero', 'cta'], label: 'Hero – Button-Text' },
   { path: ['tools', 'sectionTitle'], label: 'Abschnitt – Audio-Tools (Titel)' },
   { path: ['imageTools', 'sectionTitle'], label: 'Abschnitt – Bild-Tools (Titel)' },
   { path: ['diverseTools', 'sectionTitle'], label: 'Abschnitt – Diverse Tools (Titel)' },
@@ -134,7 +52,7 @@ const styleKey = (f) => f.path.join('.');
 function syncInheritedFields(pane, lang) {
   const m = state.media[lang];
   if (!m.textStyleUniform) return;
-  const master = getTextStyle(lang, m.textStyleUniformKey || '');
+  const master = getTextStyle(lang, m.textStyleUniformKey || UNIFORM_TEXT_KEYS[0]);
   const ff = fontFF(master.font || '');
   TEXT_FIELDS.forEach((f, idx) => {
     if (styleKey(f) === m.textStyleUniformKey) return; // Vorlage selbst auslassen
@@ -153,68 +71,6 @@ function syncInheritedFields(pane, lang) {
   refreshTxtPreviews(pane, lang);
 }
 
-// ---- Live-Vorschau je Slot -------------------------------------------------
-// Zeigt den Text mit Schrift, Größe (für die Vorschau auf 12–40 px begrenzt),
-// Farbe des aktuellen Modus und allen Effekten (Schatten/Umriss/Deckkraft/
-// Animation). Nutzt dieselben kt-*-Animationsklassen wie die Banner-Vorschau.
-const PREVIEW_ANIM_DUR = { slow: '2.6s', normal: '1.8s', fast: '1s' };
-function previewRgba(hex, a) {
-  const m = /^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.exec(String(hex || '').trim());
-  if (!m) return `rgba(0,0,0,${a})`;
-  let h = m[1];
-  if (h.length === 3)
-    h = h
-      .split('')
-      .map((c) => c + c)
-      .join('');
-  const r = parseInt(h.slice(0, 2), 16);
-  const g = parseInt(h.slice(2, 4), 16);
-  const b = parseInt(h.slice(4, 6), 16);
-  return `rgba(${r}, ${g}, ${b}, ${a})`;
-}
-// Animationsklasse (kt-<type>) oder '' bei 'none'.
-function slotAnimClass(st) {
-  return st.anim && st.anim !== 'none' ? 'kt-' + st.anim : '';
-}
-// Inline-Style der Slot-Vorschau (Farbe des aktuell bearbeiteten Modus + Effekte).
-function slotPreviewStyle(st) {
-  const dark = txtEditTheme === 'dark';
-  const color = (dark ? st.colorDark : st.colorLight) || (dark ? '#f9f2d5' : '#013f7a');
-  const size = st.size > 0 ? Math.max(12, Math.min(40, st.size)) : 22;
-  const parts = [
-    `font-size:${size}px`,
-    'line-height:1.25',
-    'font-weight:700',
-    'display:inline-block',
-    'max-width:100%',
-    'white-space:pre-line',
-    'word-break:break-word',
-    `color:${color}`,
-    `-webkit-text-fill-color:${color}`,
-  ];
-  if (st.font) parts.push(`font-family:'${ensureFontFace(st.font)}', var(--site-font, sans-serif)`);
-  const op = st.opacity ?? 100;
-  if (op < 100) parts.push(`opacity:${op / 100}`);
-  const sw = st.strokeWidth ?? 0;
-  if (sw > 0) parts.push(`-webkit-text-stroke:${sw}px ${st.strokeColor || '#000000'}`);
-  if (st.shadow) {
-    const sx = st.shadowX ?? 0;
-    const sy = st.shadowY ?? 2;
-    const sb = st.shadowBlur ?? 6;
-    parts.push(
-      `text-shadow:${sx}px ${sy}px ${sb}px ${previewRgba(st.shadowColor || '#000000', 0.6)}`,
-    );
-  }
-  if (st.anim && st.anim !== 'none') {
-    const it = Math.max(1, Math.min(10, st.animIntensity ?? 5));
-    parts.push(`--anim-dur:${PREVIEW_ANIM_DUR[st.animSpeed] || '1.8s'}`);
-    if (st.anim === 'pulse') parts.push(`--anim-scale:${(1 + it * 0.02).toFixed(3)}`);
-    else if (st.anim === 'float' || st.anim === 'shake') parts.push(`--anim-shift:${it}px`);
-    else if (st.anim === 'wobble') parts.push(`--anim-rot:${it}deg`);
-    else if (st.anim === 'glow') parts.push(`--anim-glow:${it * 2}px`);
-  }
-  return parts.join(';');
-}
 // Vorschau-Text: aktueller Override, sonst Standardtext, sonst das Slot-Label.
 function previewText(lang, f) {
   const cur = getPath(state.overrides[lang], f.path);
@@ -222,17 +78,11 @@ function previewText(lang, f) {
   const t = cur != null && String(cur).trim() !== '' ? String(cur) : def != null ? String(def) : '';
   return t || f.label;
 }
-// Hintergrund der Vorschau je Modus, damit die Farbe sichtbar ist.
-const previewBg = () => (txtEditTheme === 'dark' ? '#0e1c32' : '#f5f6f8');
 function updateTxtPreview(pane, lang, idx) {
   const el = pane.querySelector(`[data-txtprev="${idx}"]`);
   if (!el) return;
   const st = getEffectiveTextStyle(lang, styleKey(TEXT_FIELDS[idx]));
-  el.textContent = previewText(lang, TEXT_FIELDS[idx]);
-  el.setAttribute('style', slotPreviewStyle(st));
-  el.classList.remove('kt-pulse', 'kt-float', 'kt-shake', 'kt-wobble', 'kt-glow');
-  const c = slotAnimClass(st);
-  if (c) el.classList.add(c);
+  updateSlotPreview(el, st, txtEditTheme, previewText(lang, TEXT_FIELDS[idx]));
 }
 function refreshTxtPreviews(pane, lang) {
   TEXT_FIELDS.forEach((_, idx) => updateTxtPreview(pane, lang, idx));
@@ -275,29 +125,11 @@ export function renderTexts() {
   });
 
   // Effekt-Felder je Slot: Schatten, Umriss, Deckkraft, Animation (analog Banner).
-  pane.querySelectorAll('[data-txtfx]').forEach((el) => {
-    const [idxStr, field] = el.dataset.txtfx.split(':');
-    const key = styleKey(TEXT_FIELDS[parseInt(idxStr, 10)]);
-    const evt = el.tagName === 'SELECT' || el.type === 'checkbox' ? 'change' : 'input';
-    el.addEventListener(evt, () => {
-      const s = getTextStyle(lang, key);
-      if (field === 'shadow') s.shadow = el.checked;
-      else if (
-        field === 'shadowColor' ||
-        field === 'strokeColor' ||
-        field === 'anim' ||
-        field === 'animSpeed'
-      )
-        s[field] = el.value;
-      else if (field === 'shadowX') s.shadowX = clampI(el.value, -50, 50, 0);
-      else if (field === 'shadowY') s.shadowY = clampI(el.value, -50, 50, 2);
-      else if (field === 'shadowBlur') s.shadowBlur = clampI(el.value, 0, 40, 6);
-      else if (field === 'strokeWidth') s.strokeWidth = clampH(el.value, 0, 10, 0);
-      else if (field === 'opacity') s.opacity = clampI(el.value, 0, 100, 100);
-      else if (field === 'animIntensity') s.animIntensity = clampI(el.value, 1, 10, 5);
-      refreshTxtPreviews(pane, lang);
-    });
-  });
+  bindFxControls(
+    pane,
+    (id) => getTextStyle(lang, styleKey(TEXT_FIELDS[parseInt(id, 10)])),
+    () => refreshTxtPreviews(pane, lang),
+  );
 
   // Farb-Modus umschalten (Hell/Dunkel) – Panel neu rendern zeigt die Farben
   // des gewählten Modus (Größe/Schrift bleiben gleich).
@@ -322,22 +154,35 @@ export function renderTexts() {
     });
   });
 
-  // Alle Text-Stil-Einstellungen (Hell + Dunkel + Effekte + „Standard für alle
-  // Slots") von Deutsch nach Englisch übernehmen. Die Texte bleiben je Sprache.
+  // Wechsel zum Tab „Hero-Design" (dort liegen die Hero-Texte).
+  pane.querySelectorAll('[data-gotodesign]').forEach((el) => {
+    el.addEventListener('click', () => goto(lang, 'design'));
+  });
+
+  // Stil-Einstellungen der Slots dieses Tabs (Hell + Dunkel + Effekte + „Standard
+  // für alle Slots") von Deutsch nach Englisch übernehmen. Die Texte bleiben je
+  // Sprache; die Hero-Slots (Tab „Hero-Design") bleiben unberührt.
   pane.querySelectorAll('[data-txtcopy]').forEach((el) => {
     el.addEventListener('click', () => {
       if (
         !confirm(
-          'Alle Text-Einstellungen für Englisch werden mit den deutschen überschrieben ' +
+          'Die Text-Einstellungen der Abschnitts-Titel für Englisch werden mit den deutschen überschrieben ' +
             '(Schriftart, Größe, Farbe Hell + Dunkel, Schatten, Umriss, Deckkraft, Animation, ' +
-            '„Standard für alle Slots"). Die Texte selbst bleiben unverändert. Fortfahren?',
+            '„Standard für alle Slots"). Die Texte selbst und die Hero-Texte bleiben unverändert. Fortfahren?',
         )
       )
         return;
       const de = state.media.de;
-      state.media.en.textStyles = JSON.parse(JSON.stringify(de.textStyles || {}));
-      state.media.en.textStyleUniform = de.textStyleUniform === true;
-      state.media.en.textStyleUniformKey = de.textStyleUniformKey || 'hero.title';
+      const en = state.media.en;
+      if (!en.textStyles || typeof en.textStyles !== 'object') en.textStyles = {};
+      for (const f of TEXT_FIELDS) {
+        const key = styleKey(f);
+        const src = de.textStyles && de.textStyles[key];
+        if (src) en.textStyles[key] = JSON.parse(JSON.stringify(src));
+        else delete en.textStyles[key];
+      }
+      en.textStyleUniform = de.textStyleUniform === true;
+      en.textStyleUniformKey = de.textStyleUniformKey || UNIFORM_TEXT_KEYS[0];
       renderTexts();
       toast('Text-Einstellungen von Deutsch nach Englisch übernommen (Hell + Dunkel + Effekte)');
     });
@@ -360,7 +205,7 @@ export function renderTexts() {
     });
   });
 
-  // ↺ Zurücksetzen: Größe, Farbe oder Text des Slots.
+  // ↺ Zurücksetzen: Größe, Farbe, Schrift, Effekte oder Text des Slots.
   pane.querySelectorAll('[data-txtreset]').forEach((el) => {
     const [idxStr, what] = el.dataset.txtreset.split(':');
     const idx = parseInt(idxStr, 10);
@@ -411,9 +256,9 @@ function textPanel(lang) {
       </div>
       ${note}
       ${input}
-      <div style="margin-top:.4rem;border:1px solid var(--border);border-radius:8px;padding:.5rem .7rem;background:${previewBg()};overflow:hidden">
+      <div style="margin-top:.4rem;border:1px solid var(--border);border-radius:8px;padding:.5rem .7rem;background:${previewBg(txtEditTheme)};overflow:hidden">
         <span class="hint" style="margin:0 0 .3rem;display:block">👁 Vorschau (${txtModeLabel()}):</span>
-        <div data-txtprev="${idx}" class="${slotAnimClass(st)}" style="${slotPreviewStyle(st)}">${esc(previewText(lang, f))}</div>
+        <div data-txtprev="${idx}" class="${slotAnimClass(st)}" style="${slotPreviewStyle(st, txtEditTheme)}">${esc(previewText(lang, f))}</div>
       </div>
       <div class="row" style="align-items:flex-end;margin-top:.35rem">
         <div style="flex:1 1 200px">
@@ -445,10 +290,15 @@ function textPanel(lang) {
           <button type="button" class="hd-reset" data-txtreset="${idx}:text" title="Text auf Standard zurücksetzen" aria-label="Text zurücksetzen">↺ Text</button>
         </div>
       </div>
-      ${fxControls(idx, st, dis)}
+      ${fxControls(String(idx), st, dis)}
       <p class="hint">Leer lassen = Standardtext. Mehrere Zeilen mit Enter; Größe 0 = Standard.
         Effekte (Schatten/Umriss/Deckkraft/Animation) wirken auf der veröffentlichten Seite.</p>`;
   }).join('');
+  const heroNote = `
+    <div style="margin:.25rem 0 .7rem;padding:.5rem .6rem;border:1px dashed var(--border);border-radius:8px;display:flex;align-items:center;gap:.6rem;flex-wrap:wrap">
+      <span class="hint" style="margin:0">🚀 Die <strong>Hero-Texte</strong> (Titel, Untertitel, Button-Text) werden samt Schrift, Größe, Farbe und Effekten im Tab „Hero-Design" bearbeitet.</span>
+      <button type="button" data-gotodesign style="width:auto;flex:0 0 auto">Zu „Hero-Design" wechseln</button>
+    </div>`;
   const modeToggle = `
     <div style="margin:.25rem 0 .5rem;border-bottom:1px solid var(--border);padding-bottom:.6rem">
       <label style="margin-top:0">Farb-Modus</label>
@@ -458,8 +308,8 @@ function textPanel(lang) {
       </div>
       <p class="hint" style="margin-top:.35rem">Du bearbeitest die <strong>Textfarben</strong> für <strong>${txtModeLabel()}</strong>. Textgröße und Schriftart gelten für <strong>beide</strong> Modi.</p>
     </div>`;
-  // Alle Text-Stil-Einstellungen (Hell + Dunkel + Effekte) von Deutsch nach
-  // Englisch übernehmen. Die Texte selbst bleiben je Sprache erhalten.
+  // Stil-Einstellungen der Abschnitts-Titel (Hell + Dunkel + Effekte) von
+  // Deutsch nach Englisch übernehmen. Die Texte selbst bleiben je Sprache.
   const copyBox = `
     <div style="margin:.2rem 0 .7rem;padding:.5rem .6rem;border:1px dashed var(--border);border-radius:8px">
       <button data-txtcopy type="button" style="width:auto">${
@@ -467,11 +317,12 @@ function textPanel(lang) {
           ? '➡️ Diese Text-Einstellungen auf Englisch (EN) übernehmen'
           : '⬅️ Text-Einstellungen von Deutsch (DE) übernehmen'
       }</button>
-      <p class="hint" style="margin:.35rem 0 0">Kopiert <strong>alle</strong> Text-Einstellungen aller Slots
+      <p class="hint" style="margin:.35rem 0 0">Kopiert die Text-Einstellungen der Abschnitts-Titel
         (Schriftart, Größe, Farbe <strong>Hell + Dunkel</strong>, Schatten, Umriss, Deckkraft, Animation
-        sowie „Standard für alle Slots") von Deutsch nach Englisch. Die <em>Texte</em> selbst bleiben je Sprache erhalten.</p>
+        sowie „Standard für alle Slots") von Deutsch nach Englisch. Die <em>Texte</em> selbst bleiben je Sprache erhalten.
+        Hero-Texte: siehe Tab „Hero-Design".</p>
     </div>`;
-  return `<div class="panel"><h2>Texte <span class="lang-badge">${lang.toUpperCase()}</span></h2>${modeToggle}${copyBox}${fields}</div>`;
+  return `<div class="panel"><h2>Texte <span class="lang-badge">${lang.toUpperCase()}</span></h2>${heroNote}${modeToggle}${copyBox}${fields}</div>`;
 }
 
 // ============ Erweitert (rohe Overrides, eine Sprache) ============
