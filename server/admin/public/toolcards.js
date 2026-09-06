@@ -28,6 +28,9 @@ import {
   TOOL_CARD_WEIGHTS,
   TOOL_CARD_TRANSFORMS,
   TOOL_CARD_ALIGNS,
+  isCardHidden,
+  setCardHidden,
+  hiddenCardIds,
 } from './model.js';
 import { objUrl, openMediaPicker } from './media.js';
 import { ensureFontFace, fontOptionsHtml } from './fonts.js';
@@ -169,6 +172,7 @@ function cardList(lang) {
         link: effText(lang, [section, key, 'link']),
         svg: effText(lang, [section, key, 'svg']),
         tint: getIconTint(lang, `${section}.${key}`),
+        hidden: isCardHidden(`${section}.${key}`), // auf der Seite ausgeblendet (DE + EN)
       });
     }
   }
@@ -176,6 +180,33 @@ function cardList(lang) {
 }
 function cardById(lang, id) {
   return cardList(lang).find((c) => c.id === id) || null;
+}
+// Sektion „Ausgeblendete Karten": Liste mit „Einblenden" je Karte (Rückgängig).
+function hiddenBlock(lang) {
+  const ids = hiddenCardIds();
+  const list = cardList(lang);
+  const rows = ids
+    .map((id) => {
+      const c = list.find((x) => x.id === id);
+      const title = c ? c.title : id;
+      return `<div class="tc-hidden-row">
+          <span>🙈 ${esc(title)} <span class="hint" style="margin:0">(${esc(SECTION_LABEL[id.split('.')[0]] || id)})</span></span>
+          <button type="button" class="hd-reset" data-tcshow="${esc(id)}" title="Karte wieder auf der Seite anzeigen">👁 Einblenden</button>
+        </div>`;
+    })
+    .join('');
+  const body = ids.length
+    ? `${rows}
+      <div class="row" style="align-items:center;gap:.5rem;margin-top:.5rem">
+        <button type="button" class="hd-reset" data-tcshowall>👁 Alle wieder einblenden</button>
+        <span class="hint" style="margin:0">Ausgeblendete Karten fehlen auf der DE- und EN-Startseite (auch in Favoriten); Einstellungen und Texte bleiben erhalten.</span>
+      </div>`
+    : '<p class="hint" style="margin:0">Keine Karte ausgeblendet. Oben eine Karte wählen und „Von der Seite ausblenden" klicken – die Aktion lässt sich hier jederzeit rückgängig machen.</p>';
+  return section(
+    `🙈 Ausgeblendete Karten <span class="lang-badge">gilt für DE + EN</span>${ids.length ? ` <span class="hint" style="font-weight:400">(${ids.length})</span>` : ''}`,
+    body,
+    ids.length > 0,
+  );
 }
 // Beispiel-Karte für das Standard-Design (nutzt das Icon der ersten Karte).
 function sampleCard(lang) {
@@ -395,7 +426,7 @@ function cardSelect(lang) {
       .filter((c) => c.section === sec)
       .map(
         (c) =>
-          `<option value="${esc(c.id)}" ${c.id === selected ? 'selected' : ''}>${esc(c.title)}${tc.cards[c.id] ? ' ●' : ''}</option>`,
+          `<option value="${esc(c.id)}" ${c.id === selected ? 'selected' : ''}>${c.hidden ? '🙈 ' : ''}${esc(c.title)}${tc.cards[c.id] ? ' ●' : ''}</option>`,
       )
       .join('');
     return opts ? `<optgroup label="${esc(SECTION_LABEL[sec])}">${opts}</optgroup>` : '';
@@ -408,6 +439,8 @@ function cardSelect(lang) {
 
 function noteText(lang) {
   const tc = getToolCards(lang);
+  if (selected && isCardHidden(selected))
+    return '🙈 Diese Karte ist auf der Seite ausgeblendet (DE + EN). „Wieder einblenden" macht das rückgängig.';
   if (!tc.enabled)
     return '⚠️ „Eigenes Tool-Karten-Design verwenden" ist aus – auf der Seite bleibt das Standard-Aussehen. Sobald du etwas änderst, wird es automatisch aktiviert.';
   if (selected && !tc.cards[selected])
@@ -431,6 +464,11 @@ function previewBlock(lang) {
       <div class="row" style="align-items:center;gap:.5rem">
         <label style="margin:0;flex:0 0 auto">Karte bearbeiten:</label>
         ${cardSelect(lang)}
+        ${
+          selected
+            ? `<button type="button" data-tchide="${esc(selected)}" class="${isCardHidden(selected) ? 'primary' : 'danger'}" style="flex:0 0 auto" title="Gilt für DE + EN; jederzeit umkehrbar">${isCardHidden(selected) ? '👁 Wieder einblenden' : '🙈 Von der Seite ausblenden'}</button>`
+            : ''
+        }
       </div>
       <p class="hint" style="margin:.35rem 0 .3rem">Live-Vorschau der bearbeiteten Karte – Hell und Dunkel <em>(zum Testen des Hover-Effekts über die Karte fahren)</em>. Die Einstellungen stehen links (Hell) und rechts (Dunkel).</p>
       <style data-tchover>${previewHoverCss(st)}</style>
@@ -794,7 +832,7 @@ function applyBody(lang) {
         const own = !!tc.cards[c.id];
         return `<label class="tc-target${isSrc ? ' src' : ''}" title="${isSrc ? 'Quelle (kann nicht Ziel sein)' : own ? 'Hat eigenes Design – wird ersetzt' : 'Nutzt Standard-Design'}">
             <input type="checkbox" data-tctarget="${esc(c.id)}" ${targets.has(c.id) ? 'checked' : ''} ${isSrc ? 'disabled' : ''} />
-            <span>${esc(c.title)}${own ? ' ●' : ''}${isSrc ? ' (Quelle)' : ''}</span>
+            <span>${c.hidden ? '🙈 ' : ''}${esc(c.title)}${own ? ' ●' : ''}${isSrc ? ' (Quelle)' : ''}</span>
           </label>`;
       })
       .join('');
@@ -836,10 +874,11 @@ function overviewBlock(lang) {
     const tiles = cards
       .map((c) => {
         const own = !!tc.cards[c.id];
-        const cls = `tc-pick${c.id === selected ? ' active' : ''}`;
+        const cls = `tc-pick${c.id === selected ? ' active' : ''}${c.hidden ? ' tc-hidden' : ''}`;
         const attrs = `data-tcpick="${esc(c.id)}"`;
-        return `<div class="${cls}" ${attrs} title="Klicken, um diese Karte zu bearbeiten">
+        return `<div class="${cls}" ${attrs} title="${c.hidden ? 'Ausgeblendet – erscheint nicht auf der Seite. ' : ''}Klicken, um diese Karte zu bearbeiten">
             ${own ? '<span class="tc-own" title="Eigenes Design">●</span>' : ''}
+            ${c.hidden ? '<span class="tc-hidden-badge">ausgeblendet</span>' : ''}
             ${cardHtml(lang, c, ovTheme, effectiveStyle(lang, c.id)[ovTheme], `data-tcov="${esc(c.id)}"`, effectiveStyle(lang, c.id).text)}
           </div>`;
       })
@@ -881,6 +920,7 @@ function panelHtml(lang) {
         <p class="hint" style="margin:.35rem 0 0">Kopiert <strong>alle</strong> Einstellungen (Standard + Einzel-Designs, Hell + Dunkel) von Deutsch nach Englisch.</p>
       </div>
       ${previewBlock(lang)}
+      ${hiddenBlock(lang)}
       ${textsBlock(lang)}
       ${centerFieldsBlock(lang)}
     </div>
@@ -1200,6 +1240,30 @@ export function renderToolCards() {
       toast('Auf Standardtext zurückgesetzt');
     }),
   );
+  // Karte ausblenden / wieder einblenden (global, DE + EN; jederzeit umkehrbar).
+  pane.querySelector('[data-tchide]')?.addEventListener('click', (e) => {
+    const id = e.currentTarget.dataset.tchide;
+    const hide = !isCardHidden(id);
+    setCardHidden(id, hide);
+    rerender();
+    toast(
+      hide
+        ? 'Karte ausgeblendet – unter „Ausgeblendete Karten" jederzeit wieder einblendbar'
+        : 'Karte wird wieder auf der Seite angezeigt',
+    );
+  });
+  pane.querySelectorAll('[data-tcshow]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      setCardHidden(btn.dataset.tcshow, false);
+      rerender();
+      toast('Karte wird wieder auf der Seite angezeigt');
+    }),
+  );
+  pane.querySelector('[data-tcshowall]')?.addEventListener('click', () => {
+    hiddenCardIds().forEach((id) => setCardHidden(id, false));
+    rerender();
+    toast('Alle Karten werden wieder angezeigt');
+  });
   pane.querySelectorAll('[data-tcpick]').forEach((el) =>
     el.addEventListener('click', () => {
       selected = el.dataset.tcpick;

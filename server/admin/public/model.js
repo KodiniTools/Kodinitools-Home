@@ -726,6 +726,7 @@ export function normHexOrEmpty(v) {
 // bgGradientType*/bgAngle*: optionaler Farbverlauf je Modus (Suffix Dark = Dunkel).
 export function defaultSite() {
   return {
+    hiddenCards: [], // auf der Seite ausgeblendete Tool-Karten ("sektion.key"), gilt für DE + EN
     globalFont: '',
     bgColor: '',
     bgColorDark: '',
@@ -825,6 +826,24 @@ export const SITE_PATTERNS = ['none', 'dots', 'grid'];
 // Sprach-Slots eine gestagte Datei ('staged:<id>') referenzieren.
 export const SITE_MEDIA_KEYS = ['bgImage', 'bgImageDark'];
 const SITE_MEDIA_URL = /^(\/[^\s"'()\\]*|https?:\/\/[^\s"'()\\]+|staged:[\w-]+)$/;
+// --- Ausgeblendete Tool-Karten (global, DE + EN) ---
+function hiddenList() {
+  const site = state.media.site || (state.media.site = defaultSite());
+  if (!Array.isArray(site.hiddenCards)) site.hiddenCards = [];
+  return site.hiddenCards;
+}
+export function isCardHidden(id) {
+  return hiddenList().includes(id);
+}
+export function setCardHidden(id, hidden) {
+  const list = hiddenList();
+  const i = list.indexOf(id);
+  if (hidden && i < 0) list.push(id);
+  if (!hidden && i >= 0) list.splice(i, 1);
+}
+export function hiddenCardIds() {
+  return [...hiddenList()];
+}
 export function normSiteMediaUrl(v) {
   const t = String(v ?? '').trim();
   return SITE_MEDIA_URL.test(t) ? t : '';
@@ -844,6 +863,9 @@ export function normSite(s) {
   const gtype = (v) => (SITE_GRADIENT_TYPES.includes(v) ? v : 'linear');
   const pat = (v) => (SITE_PATTERNS.includes(v) ? v : 'none');
   return {
+    hiddenCards: Array.isArray(s.hiddenCards)
+      ? [...new Set(s.hiddenCards.filter((k) => typeof k === 'string' && TOOL_CARD_KEY.test(k)))]
+      : [],
     globalFont: normFontFile(s.globalFont),
     bgColor: normHexOrEmpty(s.bgColor),
     bgColorDark: normHexOrEmpty(s.bgColorDark),

@@ -586,7 +586,19 @@ function validateCellStyle(s) {
 }
 
 /** Globale (sprachübergreifende) Seiten-Einstellungen (Standard). */
+// Ausgeblendete Tool-Karten: nur gültige Schlüssel, ohne Doppelte, begrenzt.
+const HIDDEN_CARDS_MAX = 200;
+function validateHiddenCards(v) {
+  if (!Array.isArray(v)) return [];
+  const out = [];
+  for (const k of v) {
+    if (typeof k === 'string' && TOOL_CARD_KEY.test(k) && !out.includes(k)) out.push(k);
+    if (out.length >= HIDDEN_CARDS_MAX) break;
+  }
+  return out;
+}
 function defaultSite() {
+  // hiddenCards: auf der Seite ausgeblendete Tool-Karten ("sektion.key"), DE + EN.
   // globalFont: Basis-Schriftart der ganzen Seite (Dateiname im /fonts-Ordner;
   // leer = System-Standard 'Supreme'). Wirkt über alle Sprachen hinweg.
   // bgColor/bgColorDark: Seiten-Hintergrundfarbe für Hell-/Dunkelmodus
@@ -594,6 +606,7 @@ function defaultSite() {
   // bgOpacity*: Deckkraft (0–100 %) über der Standardfarbe; bgGradient*/bgColor2*/
   // bgGradientType*/bgAngle*: optionaler Farbverlauf je Modus.
   return {
+    hiddenCards: [],
     globalFont: '',
     bgColor: '',
     bgColorDark: '',
@@ -678,6 +691,7 @@ function validateSite(s) {
   if (!isPlainObject(s)) return defaultSite();
   const gtype = (v) => (SITE_GRADIENT_TYPES.includes(v) ? v : 'linear');
   return {
+    hiddenCards: validateHiddenCards(s.hiddenCards),
     globalFont: normFontFile(s.globalFont),
     // Ungültige/fehlende Farbe -> '' (= Standard); gültige Werte auf #rrggbb normiert.
     bgColor: normHexColor(s.bgColor, ''),

@@ -1001,6 +1001,8 @@ export function getMedia(locale: Locale): MediaConfig {
 // --- Globale (sprachübergreifende) Seiten-Einstellungen ---
 
 export interface SiteConfig {
+  // Auf der Seite ausgeblendete Tool-Karten (Schlüssel "sektion.key"; Admin > Tool-Karten).
+  hiddenCards: string[];
   // Basis-Schriftart der ganzen Seite (Dateiname im /fonts-Ordner; leer =
   // System-Standard). Wird im Admin per Kachel gesetzt und gilt für alle Sprachen.
   globalFont: string;
@@ -1094,6 +1096,7 @@ function emptySectionCfg(): SiteSectionCfg {
 
 const SITE_DEFAULTS: SiteConfig = {
   globalFont: '',
+  hiddenCards: [],
   bgColor: '',
   bgColorDark: '',
   bgOpacity: 100,
@@ -1157,6 +1160,14 @@ export function getSite(): SiteConfig {
   const m = mediaOverrides as Record<string, unknown>;
   const site = isPlainObject(m) && isPlainObject(m.site) ? m.site : {};
   return deepMerge(SITE_DEFAULTS, site);
+}
+
+/** Ausgeblendete Tool-Karten (Admin > Tool-Karten > „Ausblenden") als Menge gültiger Schlüssel. */
+export function getHiddenCards(): Set<string> {
+  const raw = getSite().hiddenCards;
+  const out = new Set<string>();
+  if (Array.isArray(raw)) for (const k of raw) if (typeof k === 'string' && TOOL_CARD_KEY.test(k)) out.add(k);
+  return out;
 }
 
 // System-Fallback-Stack, wenn die globale Schrift nicht lädt.
