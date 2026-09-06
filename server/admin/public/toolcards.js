@@ -39,6 +39,8 @@ import { colorPicker, bindColorPickers } from './color.js';
 // Modus der Übersicht „Alle Karten" (Hell/Dunkel); die Design-Felder selbst
 // stehen für beide Modi gleichzeitig in den Seitenleisten (Hell links, Dunkel rechts).
 let ovTheme = 'light';
+// Übersicht „Alle Karten" auf-/zugeklappt (bleibt beim Neu-Rendern erhalten).
+let ovOpen = false;
 let selected = '';
 // Zielkarten für „Design übertragen" (Karten-IDs); wird nach dem Anwenden geleert.
 const targets = new Set();
@@ -847,13 +849,13 @@ function overviewBlock(lang) {
   }).join('');
   return `
     <div class="panel">
-      <div class="row" style="align-items:center;gap:.5rem">
-        <h2 style="margin:0;flex:1 1 auto">Alle Karten – Vorschau <span class="lang-badge">${themeLabel(ovTheme)}</span></h2>
-        ${ovSwitch()}
-      </div>
-      <p class="hint">So sehen die Tool-Karten nach dem Veröffentlichen aus (Standard-Design; ● = Karte mit eigenem Design). Karte anklicken, um sie zu bearbeiten.</p>
-      <style data-tcovhover>${overviewHoverCss(lang)}</style>
-      <div data-tcoverview style="background:${pageBg(ovTheme)};${fontCss()}border-radius:10px;padding:.6rem .8rem .9rem;margin-top:.4rem">${groups}</div>
+      <details class="tc-ovdetails" data-tcovdetails ${ovOpen ? 'open' : ''}>
+        <summary><h2 style="margin:0">Alle Karten – Vorschau <span class="lang-badge">${themeLabel(ovTheme)}</span></h2><span class="hint" style="margin:0 0 0 auto">${ovOpen ? 'zuklappen' : 'aufklappen'}</span></summary>
+        <div class="row" style="align-items:center;gap:.5rem;margin-top:.5rem">${ovSwitch()}</div>
+        <p class="hint">So sehen die Tool-Karten nach dem Veröffentlichen aus (Standard-Design; ● = Karte mit eigenem Design). Karte anklicken, um sie zu bearbeiten.</p>
+        <style data-tcovhover>${overviewHoverCss(lang)}</style>
+        <div data-tcoverview style="background:${pageBg(ovTheme)};${fontCss()}border-radius:10px;padding:.6rem .8rem .9rem;margin-top:.4rem">${groups}</div>
+      </details>
     </div>`;
 }
 
@@ -940,6 +942,12 @@ export function renderToolCards() {
   pane.querySelector('[data-tcsel]')?.addEventListener('change', (e) => {
     selected = e.target.value;
     rerender();
+  });
+  // Übersicht auf-/zuklappen (Zustand merken, Beschriftung nachziehen).
+  pane.querySelector('[data-tcovdetails]')?.addEventListener('toggle', (e) => {
+    ovOpen = e.target.open;
+    const lbl = e.target.querySelector('summary .hint');
+    if (lbl) lbl.textContent = ovOpen ? 'zuklappen' : 'aufklappen';
   });
   // Modus der Übersicht „Alle Karten" umschalten.
   pane.querySelectorAll('[data-tcovmode]').forEach((el) =>
