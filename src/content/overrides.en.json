@@ -4,7 +4,8 @@
   },
   "tools": {
     "audioConverter": {
-      "svg": ""
+      "svg": "",
+      "title": "Audio Converter\nmp3-wav-aac-flac-ogg"
     },
     "audioEqualizer": {
       "svg": ""
