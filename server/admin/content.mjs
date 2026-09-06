@@ -439,7 +439,7 @@ function defaultMediaLocale() {
     heroLayout: 'grid3',
     heroBanner: '',
     heroBannerLink: '',
-    heroBannerStyle: defaultBannerStyle(),
+    heroBannerStyle: defaultBannerStyles(),
     heroGrid: ['', '', '', '', '', ''],
     heroGridLinks: ['', '', '', '', '', ''],
     heroGridStyles: defaultCellStyles(),
@@ -564,8 +564,8 @@ function normPosPct(v, legacyPos, axisDefault) {
 function defaultCellStyles() {
   return Array.from({ length: HERO_GRID_MAX }, () => defaultCellStyle());
 }
-// Design des Einzelbanners (Rahmen, Eckenradius, Schatten, Deckkraft, Verdunkelung).
-// Standard = bisheriges Aussehen aus hero.css.
+// Design des Einzelbanners (Rahmen, Eckenradius, Schatten, Deckkraft, Verdunkelung)
+// je Hell-/Dunkelmodus. Standard = bisheriges Aussehen aus hero.css.
 function defaultBannerStyle() {
   return {
     borderColor: '#014f99',
@@ -581,7 +581,10 @@ function defaultBannerStyle() {
     darken: 0,
   };
 }
-function validateBannerStyle(s) {
+function defaultBannerStyles() {
+  return { light: defaultBannerStyle(), dark: defaultBannerStyle() };
+}
+function validateBannerSide(s) {
   const d = defaultBannerStyle();
   if (!isPlainObject(s)) return d;
   return {
@@ -597,6 +600,13 @@ function validateBannerStyle(s) {
     opacity: clampNum(s.opacity, 0, 100, d.opacity),
     darken: clampNum(s.darken, 0, 100, d.darken),
   };
+}
+// { light, dark }; Alt-Format (flaches Objekt ohne light/dark) gilt für beide Modi.
+function validateBannerStyle(s) {
+  if (!isPlainObject(s)) return defaultBannerStyles();
+  const flat = !isPlainObject(s.light) && !isPlainObject(s.dark);
+  if (flat) return { light: validateBannerSide(s), dark: validateBannerSide(s) };
+  return { light: validateBannerSide(s.light), dark: validateBannerSide(s.dark) };
 }
 function validateCellStyle(s) {
   const d = defaultCellStyle();

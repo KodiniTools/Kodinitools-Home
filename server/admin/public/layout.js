@@ -35,6 +35,27 @@ const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 // Wie clamp, aber auf 0,5er-Schritte gerundet (z. B. Umriss-/Konturdicke).
 const clampHalf = (v, min, max) =>
   Math.max(min, Math.min(max, Math.round((Number(v) || 0) * 2) / 2));
+// Felder des Banner-Text-Designs (alles außer dem Text selbst) – für „Text-Design
+// nach DE/EN übertragen".
+const BANNER_TEXT_DESIGN_KEYS = [
+  'heroBannerFont',
+  'heroBannerTextColor',
+  'heroBannerTextSize',
+  'heroBannerTextPos',
+  'heroBannerTextX',
+  'heroBannerTextY',
+  'heroBannerTextShadow',
+  'heroBannerTextShadowColor',
+  'heroBannerTextShadowX',
+  'heroBannerTextShadowY',
+  'heroBannerTextShadowBlur',
+  'heroBannerTextStrokeColor',
+  'heroBannerTextStrokeWidth',
+  'heroBannerTextOpacity',
+  'heroBannerTextAnim',
+  'heroBannerTextAnimIntensity',
+  'heroBannerTextAnimSpeed',
+];
 // Preset-Positionen (⤒ Oben / ◎ Mitte / ⤓ Unten) als y-Wert in %.
 const POS_PRESET_Y = { top: 10, center: 50, bottom: 90 };
 // font-family-CSS für eine Kachel-Textschrift (lädt @font-face für die Vorschau) oder ''.
@@ -113,11 +134,19 @@ const BANNER_MEDIA_BASE = {
     'max-width:100%;max-height:240px;width:auto;height:auto;object-fit:contain;display:block;margin:0 auto;box-sizing:border-box',
   box: 'width:100%;min-height:110px;display:flex;align-items:center;justify-content:center;background:rgba(1,79,153,.12);box-sizing:border-box',
 };
-// Design des Banners (Seitenleiste „Banner-Design") als CSS-Deklarationen – wie
-// content.ts → getHeroBannerCss auf der Seite (Rahmen, Ecken, Schatten, Deckkraft,
-// Verdunkelung). Immer vollständig, damit die Vorschau live überschrieben werden kann.
-function bannerDesignCss(lang) {
-  const s = getBannerStyle(lang);
+// Aktuell in der Banner-Vorschau gezeigter Modus (Hell/Dunkel). Wechselt beim
+// Klick auf die Umschalter über der Vorschau oder automatisch beim Bearbeiten
+// eines Feldes des jeweiligen Modus.
+let bannerPrevMode = 'light';
+// Seitenhintergrund der Vorschau je Modus (angenähert an die Startseite).
+const BANNER_PREV_BG = { light: '#f1f5f9', dark: '#0b1220' };
+const MODE_LABEL = { light: '☀️ Hell', dark: '🌙 Dunkel' };
+// Design des Banners (Seitenleiste „Banner-Design") eines Modus als CSS-
+// Deklarationen – wie content.ts → getHeroBannerCss auf der Seite (Rahmen, Ecken,
+// Schatten, Deckkraft, Verdunkelung). Immer vollständig, damit die Vorschau live
+// überschrieben werden kann.
+function bannerDesignCss(lang, mode) {
+  const s = getBannerStyle(lang, mode);
   const p = [`border-radius:${s.borderRadius}px`];
   p.push(s.borderWidth > 0 ? `border:${s.borderWidth}px solid ${s.borderColor}` : 'border:0');
   p.push(
@@ -129,9 +158,9 @@ function bannerDesignCss(lang) {
   p.push(`filter:${s.darken > 0 ? `brightness(${((100 - s.darken) / 100).toFixed(2)})` : 'none'}`);
   return p.join(';');
 }
-// Vollständiger Inline-Style des Vorschau-Mediums (Basis je Art + Design).
-function bannerMediaStyle(lang, kind) {
-  return `${BANNER_MEDIA_BASE[kind] || BANNER_MEDIA_BASE.media};${bannerDesignCss(lang)}`;
+// Vollständiger Inline-Style des Vorschau-Mediums (Basis je Art + Design des Modus).
+function bannerMediaStyle(lang, kind, mode = bannerPrevMode) {
+  return `${BANNER_MEDIA_BASE[kind] || BANNER_MEDIA_BASE.media};${bannerDesignCss(lang, mode)}`;
 }
 // Das dem Einzelbanner zugewiesene Medium (Bild/Video) als <img>/<video> im
 // Banner-Design – oder ein Platzhalter-Kasten, wenn kein Banner gewählt ist.
@@ -404,6 +433,68 @@ function cellDesignEditor(lang, i, bigLabel) {
     </div>`;
 }
 
+// Felder des Banner-Designs für einen Modus (Hell/Dunkel) in der Seitenleiste.
+function bannerDesignSection(lang, mode) {
+  const bs = getBannerStyle(lang, mode);
+  const L = BANNER_STYLE_LIMITS;
+  const id = (f) => `ly:banner:${mode}:${f}`;
+  const attrs = (f) => `data-bannerstyle="${f}" data-mode="${mode}"`;
+  const reset = (f) => `data-bannerstylereset="${f}" data-mode="${mode}"`;
+  const resetBtnM = (f) =>
+    `<button type="button" class="hd-reset" data-bannerstylereset="${f}" data-mode="${mode}" title="Auf Standard zurücksetzen" aria-label="Auf Standard zurücksetzen">↺</button>`;
+  const withResetM = (html, f) =>
+    `<div style="display:flex;gap:.3rem;align-items:center">${html}${resetBtnM(f)}</div>`;
+  const other = mode === 'light' ? 'dark' : 'light';
+  return `
+    <div class="panel" data-bannerdesign="${mode}">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap;margin-bottom:.4rem">
+        <strong>${MODE_LABEL[mode]}</strong>
+        <span style="display:inline-flex;gap:.3rem">
+          <button type="button" class="hd-reset" data-bannercopyside="${mode}" title="Diese Werte in den ${MODE_LABEL[other]}-Modus kopieren">→ ${other === 'dark' ? 'Dunkel' : 'Hell'} kopieren</button>
+          <button type="button" class="hd-reset" data-bannerstyleresetall data-mode="${mode}" title="Banner-Design dieses Modus auf Standard zurücksetzen">↺ Alles</button>
+        </span>
+      </div>
+      <label>Rahmenfarbe</label>
+      ${colorPicker({ id: id('borderColor'), attrs: attrs('borderColor'), value: bs.borderColor, resetHtml: resetBtnM('borderColor') })}
+      <div style="margin-top:.5rem">
+        ${slider({ id: id('borderWidth'), label: 'Rahmendicke (0 = kein Rahmen)', unit: 'px', min: L.borderWidth.min, max: L.borderWidth.max, value: bs.borderWidth, attrs: attrs('borderWidth'), resetAttrs: reset('borderWidth') })}
+      </div>
+      <div style="margin-top:.5rem">
+        ${slider({ id: id('borderRadius'), label: 'Eckenradius', unit: 'px', min: L.borderRadius.min, max: L.borderRadius.max, value: bs.borderRadius, attrs: attrs('borderRadius'), resetAttrs: reset('borderRadius') })}
+      </div>
+      <div style="border-top:1px solid var(--border);margin:.7rem 0 .5rem"></div>
+      <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);cursor:pointer;margin:.2rem 0 .4rem">
+        <input type="checkbox" ${attrs('shadow')} ${bs.shadow ? 'checked' : ''} style="width:auto" />
+        Schatten anzeigen
+      </label>
+      <label>Schattenfarbe</label>
+      ${colorPicker({ id: id('shadowColor'), attrs: attrs('shadowColor'), value: bs.shadowColor, resetHtml: resetBtnM('shadowColor') })}
+      <div class="row" style="align-items:flex-end;margin-top:.4rem">
+        <div style="flex:0 0 auto">
+          <label>Versatz X (px)</label>
+          ${withResetM(`<input type="number" ${attrs('shadowX')} min="${L.shadowX.min}" max="${L.shadowX.max}" step="1" value="${bs.shadowX}" style="width:100px" />`, 'shadowX')}
+        </div>
+        <div style="flex:0 0 auto">
+          <label>Versatz Y (px)</label>
+          ${withResetM(`<input type="number" ${attrs('shadowY')} min="${L.shadowY.min}" max="${L.shadowY.max}" step="1" value="${bs.shadowY}" style="width:100px" />`, 'shadowY')}
+        </div>
+      </div>
+      <div style="margin-top:.5rem">
+        ${slider({ id: id('shadowBlur'), label: 'Weichzeichnung', unit: 'px', min: L.shadowBlur.min, max: L.shadowBlur.max, value: bs.shadowBlur, attrs: attrs('shadowBlur'), resetAttrs: reset('shadowBlur') })}
+      </div>
+      <div style="margin-top:.5rem">
+        ${slider({ id: id('shadowOpacity'), label: 'Schatten-Deckkraft', unit: '%', min: L.shadowOpacity.min, max: L.shadowOpacity.max, value: bs.shadowOpacity, attrs: attrs('shadowOpacity'), resetAttrs: reset('shadowOpacity') })}
+      </div>
+      <div style="border-top:1px solid var(--border);margin:.7rem 0 .5rem"></div>
+      <div style="margin-top:.3rem">
+        ${slider({ id: id('opacity'), label: 'Deckkraft', unit: '%', min: L.opacity.min, max: L.opacity.max, value: bs.opacity, attrs: attrs('opacity'), resetAttrs: reset('opacity') })}
+      </div>
+      <div style="margin-top:.5rem">
+        ${slider({ id: id('darken'), label: 'Verdunkelung', unit: '%', min: L.darken.min, max: L.darken.max, value: bs.darken, attrs: attrs('darken'), resetAttrs: reset('darken') })}
+      </div>
+    </div>`;
+}
+
 function layoutPanel(lang) {
   const m = state.media[lang];
   const mode = m.heroMode === 'grid' ? 'grid' : 'banner';
@@ -452,7 +543,7 @@ function layoutPanel(lang) {
       : 'normal';
     const bMedia = bannerMediaHtml(lang);
     const previewBox = `
-      <div data-bannerbox style="position:relative;max-width:520px;margin:.6rem auto;display:flex;align-items:center;justify-content:center;min-height:80px">
+      <div data-bannerbox data-prevmode="${bannerPrevMode}" style="position:relative;max-width:520px;margin:.6rem auto;display:flex;align-items:center;justify-content:center;min-height:80px;padding:1rem;border-radius:10px;background:${BANNER_PREV_BG[bannerPrevMode]}">
         ${bMedia}
         <div data-bannertext class="${bText ? bannerAnimClass(m) : ''}" ${bText ? 'title="Zum Verschieben ziehen"' : ''} style="${bText ? bannerTextStyle(m) : ''}">${esc(bText)}</div>
       </div>`;
@@ -460,71 +551,35 @@ function layoutPanel(lang) {
       <div style="position:sticky;top:.5rem;z-index:5;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:.6rem .9rem;margin:0 0 .9rem;box-shadow:0 8px 22px rgba(0,0,0,.4);max-height:38vh;overflow:auto">
         <div style="display:flex;align-items:center;gap:.5rem;margin:.1rem 0 .35rem">
           <span class="hint" style="margin:0">👁 Live-Vorschau (Banner):</span>
+          <span style="display:inline-flex;gap:.25rem">
+            ${['light', 'dark'].map((md) => `<button type="button" class="hd-reset" data-bannerprevmode="${md}" aria-pressed="${md === bannerPrevMode}" style="${md === bannerPrevMode ? 'outline:2px solid var(--accent)' : ''}">${MODE_LABEL[md]}</button>`).join('')}
+          </span>
           ${undoRedoBar()}
         </div>
         ${previewBox}
       </div>`;
-    const bs = getBannerStyle(lang);
-    const L = BANNER_STYLE_LIMITS;
+    const otherLang = lang === 'de' ? 'en' : 'de';
+    const otherLabel = otherLang === 'de' ? 'Deutsch' : 'English';
     const designSide = `
       <aside class="tc-side" data-tcside="left">
         <div class="tc-side-head left">🖼️ Banner-Design</div>
-        <p class="hint">Rahmen, Ecken, Schatten, Deckkraft und Verdunkelung des Banner-Bildes/-Videos – wirken auf der
-          veröffentlichten Seite. Das Banner selbst wählst du im Tab <strong>Medien</strong>.</p>
-        <div class="panel" data-bannerdesign>
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.4rem">
-            <strong>Rahmen &amp; Ecken</strong>
-            <button type="button" class="hd-reset" data-bannerstyleresetall title="Gesamtes Banner-Design auf Standard zurücksetzen">↺ Alles</button>
-          </div>
-          <label>Rahmenfarbe</label>
-          ${colorPicker({ id: 'ly:banner:borderColor', attrs: 'data-bannerstyle="borderColor"', value: bs.borderColor, resetHtml: resetBtn('data-bannerstylereset', 'borderColor', false) })}
-          <div style="margin-top:.5rem">
-            ${slider({ id: 'ly:banner:borderWidth', label: 'Rahmendicke (0 = kein Rahmen)', unit: 'px', min: L.borderWidth.min, max: L.borderWidth.max, value: bs.borderWidth, attrs: 'data-bannerstyle="borderWidth"', resetAttrs: 'data-bannerstylereset="borderWidth"' })}
-          </div>
-          <div style="margin-top:.5rem">
-            ${slider({ id: 'ly:banner:borderRadius', label: 'Eckenradius', unit: 'px', min: L.borderRadius.min, max: L.borderRadius.max, value: bs.borderRadius, attrs: 'data-bannerstyle="borderRadius"', resetAttrs: 'data-bannerstylereset="borderRadius"' })}
-          </div>
+        <p class="hint">Rahmen, Ecken, Schatten, Deckkraft und Verdunkelung des Banner-Bildes/-Videos – getrennt für
+          <strong>Hell</strong> und <strong>Dunkel</strong>; die Vorschau springt beim Bearbeiten in den passenden Modus.
+          Das Banner selbst wählst du im Tab <strong>Medien</strong>.</p>
+        <div class="panel" style="display:flex;flex-wrap:wrap;gap:.4rem;align-items:center">
+          <button type="button" class="hd-reset" data-bannercopylang="${otherLang}" title="Banner-Design (Hell + Dunkel) in die andere Sprache übernehmen – Text bleibt je Sprache" style="white-space:normal;text-align:left">📋 Banner-Design nach ${otherLabel} übertragen<br /><span class="hint" style="margin:0">(Hell + Dunkel; Text bleibt je Sprache)</span></button>
         </div>
-        <div class="panel">
-          <strong>Schatten</strong>
-          <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);cursor:pointer;margin:.4rem 0">
-            <input type="checkbox" data-bannerstyle="shadow" ${bs.shadow ? 'checked' : ''} style="width:auto" />
-            Schatten anzeigen
-          </label>
-          <label>Schattenfarbe</label>
-          ${colorPicker({ id: 'ly:banner:shadowColor', attrs: 'data-bannerstyle="shadowColor"', value: bs.shadowColor, resetHtml: resetBtn('data-bannerstylereset', 'shadowColor', false) })}
-          <div class="row" style="align-items:flex-end;margin-top:.4rem">
-            <div style="flex:0 0 auto">
-              <label>Versatz X (px)</label>
-              ${withReset(`<input type="number" data-bannerstyle="shadowX" min="${L.shadowX.min}" max="${L.shadowX.max}" step="1" value="${bs.shadowX}" style="width:100px" />`, 'data-bannerstylereset', 'shadowX', false)}
-            </div>
-            <div style="flex:0 0 auto">
-              <label>Versatz Y (px)</label>
-              ${withReset(`<input type="number" data-bannerstyle="shadowY" min="${L.shadowY.min}" max="${L.shadowY.max}" step="1" value="${bs.shadowY}" style="width:100px" />`, 'data-bannerstylereset', 'shadowY', false)}
-            </div>
-          </div>
-          <div style="margin-top:.5rem">
-            ${slider({ id: 'ly:banner:shadowBlur', label: 'Weichzeichnung', unit: 'px', min: L.shadowBlur.min, max: L.shadowBlur.max, value: bs.shadowBlur, attrs: 'data-bannerstyle="shadowBlur"', resetAttrs: 'data-bannerstylereset="shadowBlur"' })}
-          </div>
-          <div style="margin-top:.5rem">
-            ${slider({ id: 'ly:banner:shadowOpacity', label: 'Schatten-Deckkraft', unit: '%', min: L.shadowOpacity.min, max: L.shadowOpacity.max, value: bs.shadowOpacity, attrs: 'data-bannerstyle="shadowOpacity"', resetAttrs: 'data-bannerstylereset="shadowOpacity"' })}
-          </div>
-        </div>
-        <div class="panel">
-          <strong>Bild</strong>
-          <div style="margin-top:.5rem">
-            ${slider({ id: 'ly:banner:opacity', label: 'Deckkraft', unit: '%', min: L.opacity.min, max: L.opacity.max, value: bs.opacity, attrs: 'data-bannerstyle="opacity"', resetAttrs: 'data-bannerstylereset="opacity"' })}
-          </div>
-          <div style="margin-top:.5rem">
-            ${slider({ id: 'ly:banner:darken', label: 'Verdunkelung', unit: '%', min: L.darken.min, max: L.darken.max, value: bs.darken, attrs: 'data-bannerstyle="darken"', resetAttrs: 'data-bannerstylereset="darken"' })}
-          </div>
-        </div>
+        ${bannerDesignSection(lang, 'light')}
+        ${bannerDesignSection(lang, 'dark')}
       </aside>`;
     const textSide = `
       <aside class="tc-side" data-tcside="right">
         <div class="tc-side-head right">✍️ Banner-Text</div>
         <p class="hint">Optionaler Text über dem Banner: Schriftart (aus <code>/fonts</code>), Farbe, Größe, Position
           sowie Schatten, Umriss, Deckkraft und Animation. Leer = kein Text.</p>
+        <div class="panel" style="display:flex;flex-wrap:wrap;gap:.4rem;align-items:center">
+          <button type="button" class="hd-reset" data-bannertextcopylang="${otherLang}" title="Schrift, Farbe, Größe, Position und Effekte in die andere Sprache übernehmen – der Text selbst bleibt je Sprache" style="white-space:normal;text-align:left">📋 Text-Design nach ${otherLabel} übertragen<br /><span class="hint" style="margin:0">(Schrift, Farbe, Größe, Position, Effekte – der Text selbst bleibt)</span></button>
+        </div>
         <div class="row" style="align-items:flex-end">
           <div style="flex:2 1 160px">
             <label>Text</label>
@@ -704,7 +759,22 @@ function updateBannerPreviewText(pane, lang) {
 function updateBannerPreviewMedia(pane, lang) {
   const el = pane.querySelector('[data-bannermedia]');
   if (!el) return;
-  el.setAttribute('style', bannerMediaStyle(lang, el.dataset.bannermedia));
+  el.setAttribute('style', bannerMediaStyle(lang, el.dataset.bannermedia, bannerPrevMode));
+}
+// Vorschau-Modus (Hell/Dunkel) umschalten: Hintergrund, Umschalter, Medium.
+function setBannerPrevMode(pane, lang, mode) {
+  bannerPrevMode = mode === 'dark' ? 'dark' : 'light';
+  const box = pane.querySelector('[data-bannerbox]');
+  if (box) {
+    box.dataset.prevmode = bannerPrevMode;
+    box.style.background = BANNER_PREV_BG[bannerPrevMode];
+  }
+  pane.querySelectorAll('[data-bannerprevmode]').forEach((b) => {
+    const on = b.dataset.bannerprevmode === bannerPrevMode;
+    b.setAttribute('aria-pressed', String(on));
+    b.style.outline = on ? '2px solid var(--accent)' : '';
+  });
+  updateBannerPreviewMedia(pane, lang);
 }
 // „x / y %"-Anzeige des Banner-Textes aktualisieren.
 function updateBannerPosLabel(pane, lang) {
@@ -1238,11 +1308,17 @@ export function renderLayout() {
     }),
   );
 
-  // Banner-Design: Rahmen / Ecken / Schatten / Deckkraft / Verdunkelung (Banner-Modus).
+  // Banner-Design je Modus: Rahmen / Ecken / Schatten / Deckkraft / Verdunkelung.
+  pane
+    .querySelectorAll('[data-bannerprevmode]')
+    .forEach((el) =>
+      el.addEventListener('click', () => setBannerPrevMode(pane, lang, el.dataset.bannerprevmode)),
+    );
   pane.querySelectorAll('[data-bannerstyle]').forEach((el) =>
     el.addEventListener('input', () => {
       const f = el.dataset.bannerstyle;
-      const bs = getBannerStyle(lang);
+      const mode = el.dataset.mode === 'dark' ? 'dark' : 'light';
+      const bs = getBannerStyle(lang, mode);
       if (f === 'shadow') bs.shadow = el.checked;
       else if (f === 'borderColor' || f === 'shadowColor') bs[f] = el.value;
       else if (f in BANNER_STYLE_LIMITS) {
@@ -1250,25 +1326,75 @@ export function renderLayout() {
         const { min, max } = BANNER_STYLE_LIMITS[f];
         bs[f] = clamp(Number.isFinite(n) ? n : defaultBannerStyle()[f], min, max);
       }
-      updateBannerPreviewMedia(pane, lang);
+      // Vorschau zeigt den Modus, der gerade bearbeitet wird.
+      if (bannerPrevMode !== mode) setBannerPrevMode(pane, lang, mode);
+      else updateBannerPreviewMedia(pane, lang);
     }),
   );
   pane.querySelectorAll('[data-bannerstylereset]').forEach((el) =>
     el.addEventListener('click', () => {
       const f = el.dataset.bannerstylereset;
+      const mode = el.dataset.mode === 'dark' ? 'dark' : 'light';
       const d = defaultBannerStyle();
       if (!(f in d)) return;
-      getBannerStyle(lang)[f] = d[f];
+      getBannerStyle(lang, mode)[f] = d[f];
+      bannerPrevMode = mode;
       renderLayout();
       toast('Auf Standard zurückgesetzt');
     }),
   );
   pane.querySelectorAll('[data-bannerstyleresetall]').forEach((el) =>
     el.addEventListener('click', () => {
-      if (!confirm('Gesamtes Banner-Design auf Standard zurücksetzen?')) return;
-      state.media[lang].heroBannerStyle = defaultBannerStyle();
+      const mode = el.dataset.mode === 'dark' ? 'dark' : 'light';
+      if (!confirm(`Banner-Design (${MODE_LABEL[mode]}) auf Standard zurücksetzen?`)) return;
+      getBannerStyle(lang, mode); // sichert die Struktur
+      state.media[lang].heroBannerStyle[mode] = defaultBannerStyle();
+      bannerPrevMode = mode;
       renderLayout();
       toast('Banner-Design zurückgesetzt');
+    }),
+  );
+  // Hell ↔ Dunkel: Werte eines Modus in den anderen kopieren.
+  pane.querySelectorAll('[data-bannercopyside]').forEach((el) =>
+    el.addEventListener('click', () => {
+      const from = el.dataset.bannercopyside === 'dark' ? 'dark' : 'light';
+      const to = from === 'dark' ? 'light' : 'dark';
+      state.media[lang].heroBannerStyle[to] = { ...getBannerStyle(lang, from) };
+      bannerPrevMode = to;
+      renderLayout();
+      toast(`Banner-Design nach ${MODE_LABEL[to]} kopiert`);
+    }),
+  );
+  // Banner-Design (Hell + Dunkel) in die andere Sprache übernehmen – Text bleibt.
+  pane.querySelectorAll('[data-bannercopylang]').forEach((el) =>
+    el.addEventListener('click', () => {
+      const to = el.dataset.bannercopylang === 'en' ? 'en' : 'de';
+      const label = to === 'de' ? 'Deutsch' : 'English';
+      if (
+        !confirm(
+          `Banner-Design (Hell + Dunkel) nach ${label} übertragen? Das dortige Design wird ersetzt.`,
+        )
+      )
+        return;
+      state.media[to].heroBannerStyle = {
+        light: { ...getBannerStyle(lang, 'light') },
+        dark: { ...getBannerStyle(lang, 'dark') },
+      };
+      toast(`Banner-Design nach ${label} übertragen`);
+    }),
+  );
+  // Text-Design (Schrift, Farbe, Größe, Position, Effekte) in die andere Sprache
+  // übernehmen – der Text selbst (heroBannerText) bleibt je Sprache.
+  pane.querySelectorAll('[data-bannertextcopylang]').forEach((el) =>
+    el.addEventListener('click', () => {
+      const to = el.dataset.bannertextcopylang === 'en' ? 'en' : 'de';
+      const label = to === 'de' ? 'Deutsch' : 'English';
+      if (!confirm(`Text-Design nach ${label} übertragen? Der Text selbst bleibt unverändert.`))
+        return;
+      const src = state.media[lang];
+      const dst = state.media[to];
+      for (const k of BANNER_TEXT_DESIGN_KEYS) dst[k] = src[k];
+      toast(`Text-Design nach ${label} übertragen`);
     }),
   );
 

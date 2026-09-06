@@ -463,7 +463,7 @@ export function defaultMediaLocale() {
     heroBannerTextAnim: 'none', // Animationstyp: none|pulse|float|shake|wobble|glow
     heroBannerTextAnimIntensity: 5, // Stärke der Animation (1–10)
     heroBannerTextAnimSpeed: 'normal', // Tempo: slow|normal|fast
-    heroBannerStyle: defaultBannerStyle(), // Rahmen/Ecken/Schatten/Deckkraft/Verdunkelung des Banners
+    heroBannerStyle: defaultBannerStyles(), // Rahmen/Ecken/Schatten/Deckkraft/Verdunkelung des Banners je Hell/Dunkel
     heroGrid: ['', '', '', '', '', ''],
     heroGridLinks: ['', '', '', '', '', ''],
     heroGridStyles: defaultCellStyles(),
@@ -650,9 +650,10 @@ export function defaultCellStyles() {
   return Array.from({ length: HERO_GRID_MAX }, () => defaultCellStyle());
 }
 
-// Design des Einzelbanners (Layout-Tab, Banner-Modus, Seitenleiste „Banner-Design"):
-// Rahmen, Eckenradius, Schatten, Deckkraft, Verdunkelung. Standard = bisheriges
-// Aussehen (kein Rahmen, Radius 14 px, kein Schatten, deckend, nicht verdunkelt).
+// Design des Einzelbanners (Layout-Tab, Banner-Modus, Seitenleiste „Banner-Design"),
+// je Hell-/Dunkelmodus: Rahmen, Eckenradius, Schatten, Deckkraft, Verdunkelung.
+// Standard = bisheriges Aussehen (kein Rahmen, Radius 14 px, kein Schatten,
+// deckend, nicht verdunkelt).
 export function defaultBannerStyle() {
   return {
     borderColor: '#014f99',
@@ -668,6 +669,9 @@ export function defaultBannerStyle() {
     darken: 0, // % Verdunkelung (0–100)
   };
 }
+export function defaultBannerStyles() {
+  return { light: defaultBannerStyle(), dark: defaultBannerStyle() };
+}
 // Grenzen der Zahlenfelder des Banner-Designs (auch für die Regler im Layout-Tab).
 export const BANNER_STYLE_LIMITS = {
   borderWidth: { min: 0, max: 20 },
@@ -679,7 +683,7 @@ export const BANNER_STYLE_LIMITS = {
   opacity: { min: 0, max: 100 },
   darken: { min: 0, max: 100 },
 };
-export function normBannerStyle(s) {
+function normBannerSide(s) {
   const d = defaultBannerStyle();
   if (!s || typeof s !== 'object') return d;
   const hex = (v, def) => (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? v : def);
@@ -702,12 +706,19 @@ export function normBannerStyle(s) {
     darken: num(s.darken, 'darken'),
   };
 }
-// Sichert, dass heroBannerStyle existiert, und gibt das Objekt der Sprache.
-export function getBannerStyle(lang) {
+// { light, dark }; Alt-Format (flaches Objekt) wird auf beide Modi übernommen.
+export function normBannerStyle(s) {
+  if (!s || typeof s !== 'object') return defaultBannerStyles();
+  const flat = !(s.light && typeof s.light === 'object') && !(s.dark && typeof s.dark === 'object');
+  if (flat) return { light: normBannerSide(s), dark: normBannerSide(s) };
+  return { light: normBannerSide(s.light), dark: normBannerSide(s.dark) };
+}
+// Sichert, dass heroBannerStyle existiert, und gibt das Objekt des Modus der Sprache.
+export function getBannerStyle(lang, mode = 'light') {
   const m = state.media[lang];
-  if (!m.heroBannerStyle || typeof m.heroBannerStyle !== 'object')
-    m.heroBannerStyle = defaultBannerStyle();
-  return m.heroBannerStyle;
+  if (!m.heroBannerStyle || typeof m.heroBannerStyle !== 'object' || !m.heroBannerStyle.light)
+    m.heroBannerStyle = normBannerStyle(m.heroBannerStyle);
+  return m.heroBannerStyle[mode === 'dark' ? 'dark' : 'light'];
 }
 function normCellStyle(s) {
   const d = defaultCellStyle();
