@@ -6,7 +6,7 @@ import SectionMedia from '../../components/SectionMedia.astro'
 import SiteFooter from '../../components/SiteFooter.astro'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
-import { getContent, getMedia, HERO_LAYOUT_CELLS, effectiveHeroCellStyle, heroCellImageVars, getTextStylesCss, getToolCardsCss, getIconTintCss, getHiddenCards } from '../../content/content'
+import { getContent, getMedia, HERO_LAYOUT_CELLS, effectiveHeroCellStyle, heroCellImageVars, getTextStylesCss, getHeroBannerCss, getToolCardsCss, getIconTintCss, getHiddenCards } from '../../content/content'
 
 // Inhalte aus der Content-Schicht (Standard-Locale + Admin-Overrides, gemergt).
 const de = getContent('de')
@@ -151,6 +151,8 @@ const heroCellFontCss = [
   .join('')
 // Größen/Farben einzelner Text-Slots aus dem „Texte"-Tab.
 const textStylesCss = getTextStylesCss(media)
+// Design des Einzelbanners (Rahmen, Ecken, Schatten, Deckkraft, Verdunkelung) aus dem Layout-Tab.
+const heroBannerCss = getHeroBannerCss(media)
 // Rahmen/Hintergrund der Tool-Karten aus dem Admin-Tab „Tool-Karten" (nur wenn aktiviert).
 const toolCardsCss = [getToolCardsCss(media), getIconTintCss('en')].filter(Boolean).join('')
 // Inline-Style des Text-Overlays: Farbe, freie Position (x/y in %), Größe, Schrift.
@@ -264,6 +266,7 @@ const pageI18n = {
     {heroCss && <style is:global set:html={heroCss} />}
     {heroCellFontCss && <style is:global set:html={heroCellFontCss} />}
     {textStylesCss && <style is:global set:html={textStylesCss} />}
+    {heroBannerCss && <style is:global set:html={heroBannerCss} />}
     {toolCardsCss && <style is:global set:html={toolCardsCss} />}
     <section class="hero">
       <div class="mesh-gradient-container">

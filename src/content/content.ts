@@ -176,6 +176,9 @@ export interface MediaConfig {
   heroBannerTextAnim: 'none' | 'pulse' | 'float' | 'shake' | 'wobble' | 'glow';
   heroBannerTextAnimIntensity: number;
   heroBannerTextAnimSpeed: 'slow' | 'normal' | 'fast';
+  // Design des Einzelbanners selbst (Rahmen, Ecken, Schatten, Deckkraft,
+  // Verdunkelung) – im Admin unter Layout > „Banner-Design".
+  heroBannerStyle: HeroBannerStyle;
   // Option 2: bis zu sechs Bilder fürs Raster + gewähltes Seitenverhältnis.
   heroGrid: string[];
   // Verlinkung der Rasterbilder (interner Pfad oder http(s)). Leer = nicht klickbar.
@@ -387,6 +390,38 @@ export interface HeroCellStyle {
   imgSaturate?: number; // 0–200 (%) – Sättigung (100 = Original, 0 = Graustufen)
 }
 
+/**
+ * Design des Einzelbanners (Bild/Video im Banner-Modus). Die Standardwerte
+ * entsprechen dem bisherigen Aussehen aus hero.css (kein Rahmen, Radius 14 px,
+ * kein Schatten, deckend, nicht verdunkelt) und erzeugen keine CSS-Ausgabe.
+ */
+export interface HeroBannerStyle {
+  borderColor: string; // Hex – Rahmenfarbe
+  borderWidth: number; // 0–20 px – Rahmendicke (0 = kein Rahmen)
+  borderRadius: number; // 0–80 px – Eckenradius (Standard 14)
+  shadow: boolean; // Schatten an/aus
+  shadowColor: string; // Hex – Schattenfarbe
+  shadowX: number; // −50–50 px – Versatz X
+  shadowY: number; // −50–50 px – Versatz Y
+  shadowBlur: number; // 0–80 px – Weichzeichnung
+  shadowOpacity: number; // 0–100 (%) – Deckkraft des Schattens
+  opacity: number; // 0–100 (%) – Deckkraft des Banners (100 = deckend)
+  darken: number; // 0–100 (%) – Verdunkelung (0 = keine)
+}
+export const HERO_BANNER_STYLE_DEFAULTS: HeroBannerStyle = {
+  borderColor: '#014f99',
+  borderWidth: 0,
+  borderRadius: 14,
+  shadow: false,
+  shadowColor: '#000000',
+  shadowX: 0,
+  shadowY: 8,
+  shadowBlur: 24,
+  shadowOpacity: 40,
+  opacity: 100,
+  darken: 0,
+};
+
 /** Ein Farb-Satz des Hero-Bereichs (für Hell- bzw. Dunkelmodus getrennt). */
 export interface HeroDesignSide {
   borderColor: string; // Hex – Rahmenfarbe des Hero-Kastens
@@ -464,6 +499,7 @@ const MEDIA_DEFAULTS: MediaConfig = {
   heroBannerTextAnim: 'none',
   heroBannerTextAnimIntensity: 5,
   heroBannerTextAnimSpeed: 'normal',
+  heroBannerStyle: { ...HERO_BANNER_STYLE_DEFAULTS },
   heroGrid: ['', '', '', '', '', ''],
   heroGridLinks: ['', '', '', '', '', ''],
   heroGridStyles: Array.from({ length: 6 }, () => ({
@@ -629,6 +665,44 @@ export function heroCellImageVars(cs: HeroCellStyle | null | undefined): string 
   // Weichzeichner franst am Rand aus -> Medium etwas über den Rand hinaus vergrößern.
   if (blur > 0) out.push(`--cell-img-inset:-${blur * 2}px`);
   return out.join(';');
+}
+
+/**
+ * Design des Einzelbanners (Admin: Layout > „Banner-Design") als CSS-Regel für
+ * `.hero-banner-wrapper .hero-banner` (Bild oder Video). Nur vom Standard
+ * abweichende Werte werden ausgegeben; bei Standardwerten `undefined`, damit
+ * unveränderte Seiten identisch bleiben (Basis-Aussehen aus hero.css).
+ */
+export function getHeroBannerCss(media: MediaConfig): string | undefined {
+  const d = HERO_BANNER_STYLE_DEFAULTS;
+  const s: Partial<HeroBannerStyle> = isPlainObject(media.heroBannerStyle)
+    ? media.heroBannerStyle
+    : {};
+  const num = (v: unknown, min: number, max: number, def: number): number => {
+    const n = typeof v === 'number' ? v : Number(v);
+    return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : def;
+  };
+  const hex = (v: unknown, def: string): string =>
+    typeof v === 'string' && /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(v) ? v : def;
+  const decl: string[] = [];
+  const bw = num(s.borderWidth, 0, 20, d.borderWidth);
+  if (bw > 0) decl.push(`border:${bw}px solid ${hex(s.borderColor, d.borderColor)}`);
+  const radius = num(s.borderRadius, 0, 80, d.borderRadius);
+  if (radius !== d.borderRadius) decl.push(`border-radius:${radius}px`);
+  if (s.shadow === true) {
+    const sx = num(s.shadowX, -50, 50, d.shadowX);
+    const sy = num(s.shadowY, -50, 50, d.shadowY);
+    const blur = num(s.shadowBlur, 0, 80, d.shadowBlur);
+    const alpha = num(s.shadowOpacity, 0, 100, d.shadowOpacity) / 100;
+    decl.push(
+      `box-shadow:${sx}px ${sy}px ${blur}px ${textHexToRgba(hex(s.shadowColor, d.shadowColor), alpha)}`,
+    );
+  }
+  const opacity = num(s.opacity, 0, 100, d.opacity);
+  if (opacity < 100) decl.push(`opacity:${(opacity / 100).toFixed(2)}`);
+  const darken = num(s.darken, 0, 100, d.darken);
+  if (darken > 0) decl.push(`filter:brightness(${((100 - darken) / 100).toFixed(2)})`);
+  return decl.length ? `.hero-banner-wrapper .hero-banner{${decl.join(';')}}` : undefined;
 }
 
 // Schrift-Helfer für die Text-Slots (Dateiname -> Family-Name + @font-face).

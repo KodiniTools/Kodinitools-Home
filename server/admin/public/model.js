@@ -463,6 +463,7 @@ export function defaultMediaLocale() {
     heroBannerTextAnim: 'none', // Animationstyp: none|pulse|float|shake|wobble|glow
     heroBannerTextAnimIntensity: 5, // Stärke der Animation (1–10)
     heroBannerTextAnimSpeed: 'normal', // Tempo: slow|normal|fast
+    heroBannerStyle: defaultBannerStyle(), // Rahmen/Ecken/Schatten/Deckkraft/Verdunkelung des Banners
     heroGrid: ['', '', '', '', '', ''],
     heroGridLinks: ['', '', '', '', '', ''],
     heroGridStyles: defaultCellStyles(),
@@ -647,6 +648,66 @@ export function normPosPct(v, legacyPos, axisDefault) {
 }
 export function defaultCellStyles() {
   return Array.from({ length: HERO_GRID_MAX }, () => defaultCellStyle());
+}
+
+// Design des Einzelbanners (Layout-Tab, Banner-Modus, Seitenleiste „Banner-Design"):
+// Rahmen, Eckenradius, Schatten, Deckkraft, Verdunkelung. Standard = bisheriges
+// Aussehen (kein Rahmen, Radius 14 px, kein Schatten, deckend, nicht verdunkelt).
+export function defaultBannerStyle() {
+  return {
+    borderColor: '#014f99',
+    borderWidth: 0, // px (0–20; 0 = kein Rahmen)
+    borderRadius: 14, // px (0–80)
+    shadow: false, // Schatten an/aus
+    shadowColor: '#000000',
+    shadowX: 0, // px (−50–50)
+    shadowY: 8, // px (−50–50)
+    shadowBlur: 24, // px (0–80)
+    shadowOpacity: 40, // % (0–100)
+    opacity: 100, // % Deckkraft des Banners (0–100)
+    darken: 0, // % Verdunkelung (0–100)
+  };
+}
+// Grenzen der Zahlenfelder des Banner-Designs (auch für die Regler im Layout-Tab).
+export const BANNER_STYLE_LIMITS = {
+  borderWidth: { min: 0, max: 20 },
+  borderRadius: { min: 0, max: 80 },
+  shadowX: { min: -50, max: 50 },
+  shadowY: { min: -50, max: 50 },
+  shadowBlur: { min: 0, max: 80 },
+  shadowOpacity: { min: 0, max: 100 },
+  opacity: { min: 0, max: 100 },
+  darken: { min: 0, max: 100 },
+};
+export function normBannerStyle(s) {
+  const d = defaultBannerStyle();
+  if (!s || typeof s !== 'object') return d;
+  const hex = (v, def) => (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? v : def);
+  const num = (v, key) => {
+    const n = Number(v);
+    const { min, max } = BANNER_STYLE_LIMITS[key];
+    return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : d[key];
+  };
+  return {
+    borderColor: hex(s.borderColor, d.borderColor),
+    borderWidth: num(s.borderWidth, 'borderWidth'),
+    borderRadius: num(s.borderRadius, 'borderRadius'),
+    shadow: s.shadow === true,
+    shadowColor: hex(s.shadowColor, d.shadowColor),
+    shadowX: num(s.shadowX, 'shadowX'),
+    shadowY: num(s.shadowY, 'shadowY'),
+    shadowBlur: num(s.shadowBlur, 'shadowBlur'),
+    shadowOpacity: num(s.shadowOpacity, 'shadowOpacity'),
+    opacity: num(s.opacity, 'opacity'),
+    darken: num(s.darken, 'darken'),
+  };
+}
+// Sichert, dass heroBannerStyle existiert, und gibt das Objekt der Sprache.
+export function getBannerStyle(lang) {
+  const m = state.media[lang];
+  if (!m.heroBannerStyle || typeof m.heroBannerStyle !== 'object')
+    m.heroBannerStyle = defaultBannerStyle();
+  return m.heroBannerStyle;
 }
 function normCellStyle(s) {
   const d = defaultCellStyle();
@@ -1277,6 +1338,7 @@ export function normalizeMedia(m) {
       heroBannerTextAnimSpeed: BANNER_ANIM_SPEEDS.includes(o?.heroBannerTextAnimSpeed)
         ? o.heroBannerTextAnimSpeed
         : 'normal',
+      heroBannerStyle: normBannerStyle(o?.heroBannerStyle),
       heroGrid: [0, 1, 2, 3, 4, 5].map((i) => (typeof grid[i] === 'string' ? grid[i] : '')),
       heroGridLinks: [0, 1, 2, 3, 4, 5].map((i) =>
         typeof gridLinks[i] === 'string' ? gridLinks[i] : '',

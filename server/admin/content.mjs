@@ -439,6 +439,7 @@ function defaultMediaLocale() {
     heroLayout: 'grid3',
     heroBanner: '',
     heroBannerLink: '',
+    heroBannerStyle: defaultBannerStyle(),
     heroGrid: ['', '', '', '', '', ''],
     heroGridLinks: ['', '', '', '', '', ''],
     heroGridStyles: defaultCellStyles(),
@@ -562,6 +563,40 @@ function normPosPct(v, legacyPos, axisDefault) {
 }
 function defaultCellStyles() {
   return Array.from({ length: HERO_GRID_MAX }, () => defaultCellStyle());
+}
+// Design des Einzelbanners (Rahmen, Eckenradius, Schatten, Deckkraft, Verdunkelung).
+// Standard = bisheriges Aussehen aus hero.css.
+function defaultBannerStyle() {
+  return {
+    borderColor: '#014f99',
+    borderWidth: 0,
+    borderRadius: 14,
+    shadow: false,
+    shadowColor: '#000000',
+    shadowX: 0,
+    shadowY: 8,
+    shadowBlur: 24,
+    shadowOpacity: 40,
+    opacity: 100,
+    darken: 0,
+  };
+}
+function validateBannerStyle(s) {
+  const d = defaultBannerStyle();
+  if (!isPlainObject(s)) return d;
+  return {
+    borderColor: normHexColor(s.borderColor, d.borderColor),
+    borderWidth: clampNum(s.borderWidth, 0, 20, d.borderWidth),
+    borderRadius: clampNum(s.borderRadius, 0, 80, d.borderRadius),
+    shadow: s.shadow === true,
+    shadowColor: normHexColor(s.shadowColor, d.shadowColor),
+    shadowX: clampNum(s.shadowX, -50, 50, d.shadowX),
+    shadowY: clampNum(s.shadowY, -50, 50, d.shadowY),
+    shadowBlur: clampNum(s.shadowBlur, 0, 80, d.shadowBlur),
+    shadowOpacity: clampNum(s.shadowOpacity, 0, 100, d.shadowOpacity),
+    opacity: clampNum(s.opacity, 0, 100, d.opacity),
+    darken: clampNum(s.darken, 0, 100, d.darken),
+  };
 }
 function validateCellStyle(s) {
   const d = defaultCellStyle();
@@ -850,6 +885,8 @@ function validateMediaLocale(m, langLabel) {
   out.heroBannerTextAnimSpeed = BANNER_ANIM_SPEEDS.includes(m.heroBannerTextAnimSpeed)
     ? m.heroBannerTextAnimSpeed
     : 'normal';
+  // Design des Banners selbst (Rahmen, Ecken, Schatten, Deckkraft, Verdunkelung).
+  out.heroBannerStyle = validateBannerStyle(m.heroBannerStyle);
   // Option 2 – Hero-Raster: bis zu sechs Felder, je '' oder gültige URL.
   out.heroGrid = ['', '', '', '', '', ''];
   if (Array.isArray(m.heroGrid)) {
