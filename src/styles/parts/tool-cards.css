@@ -184,7 +184,8 @@
   justify-content: space-between;
   margin-top: 0.55rem;
   padding-top: 0.55rem;
-  border-top: 1px solid var(--border-color);
+  /* Bewusst keine Trennlinie über der Fußzeile (Admin-Vorschau: .tc-footer). */
+  border-top: 0;
 }
 
 .tool-card-open {
