@@ -363,7 +363,7 @@
       "default": {
         "light": {
           "borderColor": "#103ab7",
-          "borderOpacity": 100,
+          "borderOpacity": 70,
           "borderWidth": 4,
           "borderStyle": "double",
           "borderRadius": 8,
@@ -388,10 +388,10 @@
           "bgImageDarken": 0
         },
         "dark": {
-          "borderColor": "#709dd2",
-          "borderOpacity": 100,
-          "borderWidth": 1,
-          "borderStyle": "solid",
+          "borderColor": "#b1cae7",
+          "borderOpacity": 70,
+          "borderWidth": 4,
+          "borderStyle": "double",
           "borderRadius": 16,
           "bgColor": "#142640",
           "bgOpacity": 100,
@@ -399,7 +399,7 @@
           "bgColor2": "#0e1c32",
           "gradientAngle": 135,
           "hoverBorderColor": "#e8a945",
-          "hoverBorderOpacity": 22,
+          "hoverBorderOpacity": 43,
           "hoverBgColor": "#012c65",
           "hoverBgOpacity": 100,
           "titleColor": "",
