@@ -15,9 +15,9 @@
     "bgAngleDark": 180,
     "fxAurora": false,
     "fxAuroraIntensity": 50,
-    "fxNoise": false,
+    "fxNoise": true,
     "fxNoiseIntensity": 50,
-    "fxSpotlight": false,
+    "fxSpotlight": true,
     "fxSpotlightIntensity": 50,
     "bgPattern": "none",
     "bgPatternDark": "none",
@@ -30,12 +30,12 @@
     "bgPatternOpacity": 12,
     "bgPatternOpacityDark": 12,
     "bgImage": "/uploads/kodinitools-banner-29-020de52e.webp",
-    "bgImageDark": "",
-    "bgImageDarken": 0,
-    "bgImageDarkenDark": 0,
+    "bgImageDark": "/uploads/kodinitools-banner-36-7577a0a9.webp",
+    "bgImageDarken": 60,
+    "bgImageDarkenDark": 52,
     "bgImageBlur": 0,
     "bgImageBlurDark": 0,
-    "bgImageOpacity": 100,
+    "bgImageOpacity": 83,
     "bgImageOpacityDark": 100,
     "bgImageFixed": true,
     "bgImageFixedDark": true,
@@ -44,7 +44,7 @@
       "gap": 0,
       "audio": {
         "light": {
-          "color": "",
+          "color": "#014f99",
           "opacity": 8,
           "image": "",
           "imageDarken": 0,
@@ -62,7 +62,7 @@
       },
       "image": {
         "light": {
-          "color": "",
+          "color": "#015cb2",
           "opacity": 8,
           "image": "",
           "imageDarken": 0,
@@ -80,8 +80,8 @@
       },
       "diverse": {
         "light": {
-          "color": "",
-          "opacity": 8,
+          "color": "#014f99",
+          "opacity": 36,
           "image": "",
           "imageDarken": 0,
           "imageBlur": 0,
@@ -251,23 +251,40 @@
     "heroGridRatio": "1:1",
     "heroGridFit": "contain",
     "textStyles": {
+      "hero.subtitle": {
+        "size": 0,
+        "colorLight": "#ffffff",
+        "colorDark": "",
+        "font": ""
+      },
       "tools.sectionTitle": {
         "size": 0,
-        "colorLight": "#29486a",
+        "colorLight": "#cab3ff",
         "colorDark": "#ffffff",
         "font": ""
       },
       "imageTools.sectionTitle": {
         "size": 0,
-        "colorLight": "#29486a",
+        "colorLight": "#ffffff",
         "colorDark": "#ffffff",
         "font": ""
       },
       "diverseTools.sectionTitle": {
         "size": 0,
-        "colorLight": "#29486a",
+        "colorLight": "#ffffff",
         "colorDark": "#ffffff",
-        "font": ""
+        "font": "",
+        "shadow": true,
+        "shadowColor": "#000000",
+        "shadowX": -5,
+        "shadowY": 2,
+        "shadowBlur": 5,
+        "strokeColor": "#000000",
+        "strokeWidth": 0,
+        "opacity": 100,
+        "anim": "none",
+        "animIntensity": 5,
+        "animSpeed": "normal"
       }
     },
     "textStyleUniform": false,
@@ -359,7 +376,7 @@
           "bgImageDarken": 0
         },
         "dark": {
-          "borderColor": "#1d3a5c",
+          "borderColor": "#709dd2",
           "borderOpacity": 100,
           "borderWidth": 1,
           "borderStyle": "solid",
@@ -556,27 +573,44 @@
     "heroGridRatio": "1:1",
     "heroGridFit": "cover",
     "textStyles": {
+      "hero.subtitle": {
+        "size": 0,
+        "colorLight": "#ffffff",
+        "colorDark": "",
+        "font": ""
+      },
       "tools.sectionTitle": {
         "size": 0,
-        "colorLight": "#29486a",
+        "colorLight": "#cab3ff",
         "colorDark": "#ffffff",
         "font": ""
       },
       "imageTools.sectionTitle": {
         "size": 0,
-        "colorLight": "#29486a",
+        "colorLight": "#ffffff",
         "colorDark": "#ffffff",
         "font": ""
       },
       "diverseTools.sectionTitle": {
         "size": 0,
-        "colorLight": "#29486a",
+        "colorLight": "#ffffff",
         "colorDark": "#ffffff",
-        "font": ""
+        "font": "",
+        "shadow": true,
+        "shadowColor": "#000000",
+        "shadowX": -5,
+        "shadowY": 2,
+        "shadowBlur": 5,
+        "strokeColor": "#000000",
+        "strokeWidth": 0,
+        "opacity": 100,
+        "anim": "none",
+        "animIntensity": 5,
+        "animSpeed": "normal"
       }
     },
-    "textStyleUniform": false,
-    "textStyleUniformKey": "tools.sectionTitle",
+    "textStyleUniform": true,
+    "textStyleUniformKey": "diverseTools.sectionTitle",
     "heroDesign": {
       "enabled": true,
       "titleFont": "Supreme-Regular.woff2",
@@ -664,7 +698,7 @@
           "bgImageDarken": 0
         },
         "dark": {
-          "borderColor": "#1d3a5c",
+          "borderColor": "#709dd2",
           "borderOpacity": 100,
           "borderWidth": 1,
           "borderStyle": "solid",
