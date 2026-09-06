@@ -381,8 +381,8 @@
           "badgeBgColor": "",
           "badgeBgOpacity": 100,
           "openColor": "",
-          "descColor": "#2a3b4c",
-          "descBgColor": "",
+          "descColor": "#19242e",
+          "descBgColor": "#ffffff",
           "bgImage": "",
           "bgImageOpacity": 100,
           "bgImageDarken": 0
@@ -407,25 +407,26 @@
           "badgeBgColor": "",
           "badgeBgOpacity": 100,
           "openColor": "",
-          "descColor": "#d2d9df",
+          "descColor": "#e1e6ea",
           "descBgColor": "",
           "bgImage": "",
           "bgImageOpacity": 100,
           "bgImageDarken": 0
         },
         "text": {
-          "titleFont": "",
-          "titleSize": 0,
+          "titleFont": "Hind-Medium.woff2",
+          "titleSize": 20,
           "titleWeight": "",
           "titleSpacing": 0,
           "titleTransform": "",
-          "textFont": "",
-          "badgeSize": 0,
+          "textFont": "Hind-Medium.woff2",
+          "badgeSize": 10,
           "badgeWeight": "",
           "badgeTransform": "",
-          "openSize": 0,
+          "openSize": 16,
           "openWeight": "",
-          "descSize": 0
+          "descSize": 18,
+          "align": "center"
         }
       },
       "cards": {}
@@ -715,8 +716,8 @@
           "badgeBgColor": "",
           "badgeBgOpacity": 100,
           "openColor": "",
-          "descColor": "#2a3b4c",
-          "descBgColor": "",
+          "descColor": "#19242e",
+          "descBgColor": "#ffffff",
           "bgImage": "",
           "bgImageOpacity": 100,
           "bgImageDarken": 0
@@ -741,25 +742,26 @@
           "badgeBgColor": "",
           "badgeBgOpacity": 100,
           "openColor": "",
-          "descColor": "#d2d9df",
+          "descColor": "#e1e6ea",
           "descBgColor": "",
           "bgImage": "",
           "bgImageOpacity": 100,
           "bgImageDarken": 0
         },
         "text": {
-          "titleFont": "",
-          "titleSize": 0,
+          "titleFont": "Hind-Medium.woff2",
+          "titleSize": 20,
           "titleWeight": "",
           "titleSpacing": 0,
           "titleTransform": "",
-          "textFont": "",
-          "badgeSize": 0,
+          "textFont": "Hind-Medium.woff2",
+          "badgeSize": 10,
           "badgeWeight": "",
           "badgeTransform": "",
-          "openSize": 0,
+          "openSize": 16,
           "openWeight": "",
-          "descSize": 0
+          "descSize": 18,
+          "align": "center"
         }
       },
       "cards": {}
