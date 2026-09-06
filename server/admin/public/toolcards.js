@@ -27,6 +27,7 @@ import {
   normSiteMediaUrl,
   TOOL_CARD_WEIGHTS,
   TOOL_CARD_TRANSFORMS,
+  TOOL_CARD_ALIGNS,
 } from './model.js';
 import { objUrl, openMediaPicker } from './media.js';
 import { ensureFontFace, fontOptionsHtml } from './fonts.js';
@@ -86,6 +87,14 @@ const WEIGHT_LABEL = {
   700: 'Fett (700)',
   800: 'Extrafett (800)',
 };
+const ALIGN_LABEL = {
+  '': 'Standard (links)',
+  left: 'Linksbündig',
+  center: 'Zentriert',
+  right: 'Rechtsbündig',
+};
+// align-self für Icon/Badge in der Flex-Spalte der Karte je Ausrichtung.
+const ALIGN_SELF = { left: 'flex-start', center: 'center', right: 'flex-end' };
 const TRANSFORM_LABEL = {
   '': 'Standard',
   none: 'Wie geschrieben',
@@ -206,6 +215,7 @@ function normTextField(f, v) {
   if (/Font$/.test(f)) return normFontFile(v);
   if (/Weight$/.test(f)) return TOOL_CARD_WEIGHTS.includes(String(v)) ? String(v) : '';
   if (/Transform$/.test(f)) return TOOL_CARD_TRANSFORMS.includes(v) ? v : '';
+  if (f === 'align') return TOOL_CARD_ALIGNS.includes(v) ? v : '';
   if (f === 'titleSpacing') return clampHalf(v, -2, 5, 0);
   const max = f === 'titleSize' ? 40 : f === 'descSize' ? 24 : 20;
   return clampInt(v, 0, max, 0);
@@ -218,14 +228,17 @@ function textStyles(s, theme, text) {
   const size = (n) => (n > 0 ? `font-size:${n}px;` : '');
   const weight = (w) => (w ? `font-weight:${w};` : '');
   const transform = (v) => (v ? `text-transform:${v};` : '');
+  // Ausrichtung: Texte per text-align, Icon/Badge per align-self (wie tool-cards.css).
+  const ta = ALIGN_SELF[t.align] ? `text-align:${t.align};` : '';
+  const alignSelf = ALIGN_SELF[t.align] ? `align-self:${ALIGN_SELF[t.align]};` : '';
   const title = `color:${s.titleColor || p.title};${font(t.titleFont)}${size(t.titleSize)}${weight(t.titleWeight)}${
     t.titleSpacing ? `letter-spacing:${t.titleSpacing}px;` : ''
-  }${transform(t.titleTransform)}`;
+  }${transform(t.titleTransform)}${ta}`;
   const badgeBg = s.badgeBgColor ? rgbaFromHex(s.badgeBgColor, s.badgeBgOpacity ?? 100) : p.badgeBg;
-  const badge = `color:${s.badgeColor || p.badgeFg};background:${badgeBg};border-color:${p.badgeBd};${font(t.textFont)}${size(t.badgeSize)}${weight(t.badgeWeight)}${transform(t.badgeTransform)}`;
+  const badge = `color:${s.badgeColor || p.badgeFg};background:${badgeBg};border-color:${p.badgeBd};${font(t.textFont)}${size(t.badgeSize)}${weight(t.badgeWeight)}${transform(t.badgeTransform)}${alignSelf}`;
   const open = `color:${s.openColor || p.primary};${font(t.textFont)}${size(t.openSize)}${weight(t.openWeight)}`;
-  const desc = `${s.descColor ? `color:${s.descColor};` : ''}${s.descBgColor ? `background:${s.descBgColor};padding:.15rem .4rem;border-radius:.3rem;` : ''}${font(t.textFont)}${size(t.descSize)}`;
-  return { title, badge, open, desc };
+  const desc = `${s.descColor ? `color:${s.descColor};` : ''}${s.descBgColor ? `background:${s.descBgColor};padding:.15rem .4rem;border-radius:.3rem;` : ''}${font(t.textFont)}${size(t.descSize)}${ta}`;
+  return { title, badge, open, desc, alignSelf };
 }
 // Jede Bearbeitung schaltet das Design ein (sonst wirkt nichts auf der Seite,
 // obwohl die Vorschau es zeigt – häufige Stolperfalle). Hält die Checkbox synchron.
@@ -301,7 +314,7 @@ function cardHtml(lang, card, theme, s, attrs = '', text = null) {
     ? `<span style="display:block;width:100%;height:100%;background:${tintColor};-webkit-mask:url('${safeSvg}') center / contain no-repeat;mask:url('${safeSvg}') center / contain no-repeat"></span>`
     : `<img src="${esc(card.svg)}" alt="" loading="lazy" />`;
   const icon = card.svg
-    ? `<div class="tc-icon" style="background:${iconBg}">${iconInner}</div>`
+    ? `<div class="tc-icon" style="background:${iconBg};${ts.alignSelf}">${iconInner}</div>`
     : '';
   const imgUrl = cardImageUrl(s.bgImage);
   const imgLayer = imgUrl
@@ -520,6 +533,10 @@ function typoBody(lang) {
   const head = (t) =>
     `<p class="hint" style="margin:.5rem 0 .2rem;font-weight:600;color:var(--text)">${t}</p>`;
   return `
+    ${head('Ausrichtung')}
+    <div class="row" style="align-items:flex-end">
+      <div style="flex:0 0 auto"><label>Icon, Badge, Titel und Popup-Text</label>${withTextReset(selectHtml('align', TOOL_CARD_ALIGNS, ALIGN_LABEL, tx.align), 'align')}</div>
+    </div>
     ${head('Titel')}
     <div class="row" style="align-items:flex-end">
       <div style="flex:1 1 200px"><label>Schriftart</label>${withTextReset(`<select data-tct="titleFont" style="width:100%">${fontOptionsHtml(tx.titleFont)}</select>`, 'titleFont')}</div>
