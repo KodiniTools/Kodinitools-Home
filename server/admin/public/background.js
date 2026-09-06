@@ -21,6 +21,7 @@ import {
   SITE_FX,
   PAGE_BG_DEFAULT,
   siteBgLayerCss,
+  siteBgSplit,
   siteBgImageLayer,
   SITE_GRADIENT_TYPES,
   SITE_PATTERNS,
@@ -103,8 +104,18 @@ function imageLayerStyle(mode) {
 // Hintergrund-Ebene eines Modus (gemeinsam mit der Tool-Karten-Vorschau, model.js).
 const layerCss = siteBgLayerCss;
 
+// Grund der Vorschau-Box: mit Hintergrundbild nur die Grundfarbe (Muster und
+// durchscheinende Farbe liegen dann als Overlay-Ebene ÜBER dem Bild – wie auf
+// der Seite), ohne Bild alles zusammen wie bisher.
 function previewStyle(mode) {
-  return `background:${layerCss(mode)};color:${PREVIEW_FG[mode]}`;
+  const bg = siteBgImageLayer(mode, previewUrl) ? siteBgSplit(mode).ground : layerCss(mode);
+  return `background:${bg};color:${PREVIEW_FG[mode]}`;
+}
+// style-Attribut der Overlay-Ebene (Muster + durchscheinende Farbe über dem Bild).
+function overlayLayerStyle(mode) {
+  if (!siteBgImageLayer(mode, previewUrl)) return 'display:none';
+  const { overlay } = siteBgSplit(mode);
+  return overlay ? `background:${overlay}` : 'display:none';
 }
 
 function noteFor(mode) {
@@ -147,7 +158,7 @@ function patternRow(mode) {
   ).join('');
   return `
     <div class="bg-sub" data-bgpattern="${mode}">
-      <div class="bg-sub-title">Muster <span class="hint" style="margin:0;font-weight:400">– Punktraster oder feines Gitter (reines CSS, liegt über der Farbe)</span></div>
+      <div class="bg-sub-title">Muster <span class="hint" style="margin:0;font-weight:400">– Punktraster oder feines Gitter (reines CSS, liegt über Farbe und Hintergrundbild)</span></div>
       <div class="row" style="align-items:flex-end">
         <div style="flex:0 0 auto">
           <label>Art</label>
@@ -525,6 +536,7 @@ function fxPreview(mode) {
   return `
     <div class="fx-prev" data-fxprev="${mode}" data-bgprev="${mode}" style="${previewStyle(mode)}" title="${sp.on ? 'Maus bewegen: Spotlight folgt dem Zeiger' : ''}">
       <div class="fx-prev-layer" data-fxlayer="image" style="${imageLayerStyle(mode)}"></div>
+      <div class="fx-prev-layer" data-fxlayer="overlay" style="${overlayLayerStyle(mode)}"></div>
       <div class="fx-prev-layer" data-fxlayer="aurora" style="background:${AURORA_BG[mode]};opacity:${a.on ? a.intensity / 100 : 0}"></div>
       <div class="fx-prev-layer" data-fxlayer="noise" style="opacity:${n.on ? (n.intensity / 100) * FX_NOISE_MAX : 0}"></div>
       <div class="fx-prev-layer" data-fxlayer="spot"></div>
@@ -611,6 +623,8 @@ function refreshMode(pane, mode) {
   if (prev) prev.setAttribute('style', previewStyle(mode)); // nur Grund; Ebenen sind Kinder
   const img = pane.querySelector(`[data-fxprev="${mode}"] [data-fxlayer="image"]`);
   if (img) img.setAttribute('style', imageLayerStyle(mode));
+  const ov = pane.querySelector(`[data-fxprev="${mode}"] [data-fxlayer="overlay"]`);
+  if (ov) ov.setAttribute('style', overlayLayerStyle(mode));
   const note = pane.querySelector(`[data-bgnote="${mode}"]`);
   if (note) note.textContent = noteFor(mode);
   const xnote = pane.querySelector(`[data-bgxnote="${mode}"]`);
