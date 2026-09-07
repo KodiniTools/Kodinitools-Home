@@ -33,34 +33,131 @@ const SLOT_LABELS = {
   grid4: 'Kachel 5',
   grid5: 'Kachel 6',
 };
-// Alle Plätze (Sprache · Slot), die auf eine der übergebenen Referenzen zeigen.
-function usageOf(...refs) {
+// Alle Plätze (Sprache · Slot), die auf eine der übergebenen Referenzen zeigen –
+// als { label, mode } mit mode 'light' | 'dark' (Platz gilt nur in diesem Modus)
+// oder 'both' (Hero-Medien, Sektions-Medien, Diashows: in beiden Modi).
+function usageDetailed(...refs) {
   const set = refs.filter(Boolean);
   const out = [];
   if (!set.length) return out;
   for (const lang of MEDIA_LANGS) {
     for (const key of MEDIA_KEYS) {
       if (set.includes(getMediaVal(lang, key))) {
-        out.push(`${lang.toUpperCase()} · ${SLOT_LABELS[key] || key}`);
+        out.push({ label: `${lang.toUpperCase()} · ${SLOT_LABELS[key] || key}`, mode: 'both' });
       }
     }
   }
   for (const slot of allImageSlots()) {
-    if (set.includes(slot.get())) out.push(slot.label);
+    if (set.includes(slot.get()))
+      out.push({
+        label: slot.label,
+        mode: slot.mode === 'dark' || slot.mode === 'light' ? slot.mode : 'both',
+      });
   }
   return out;
+}
+// Nur die Beschriftungen (für Rückfragen beim Löschen).
+function usageOf(...refs) {
+  return usageDetailed(...refs).map((u) => u.label);
 }
 // Datei-Endung als Format-Badge (z.B. „WEBP").
 function fileExt(name) {
   const m = /\.([a-z0-9]+)$/i.exec(name || '');
   return m ? m[1].toUpperCase() : '';
 }
-// „wird verwendet in"-Zeile für eine Medien-Kachel.
+// Im Tab „Dateien" gewählter Modus (Hell/Dunkel): die Übersicht „Eingesetzte
+// Dateien" zeigt nur diesen Modus, der andere ist zu einer klickbaren Leiste
+// zugeklappt; Kacheln, die in diesem Modus eingesetzt sind, werden markiert.
+let filesPrevMode = 'light';
+const FILE_MODE_LABEL = { light: '☀️ Hell', dark: '🌙 Dunkel' };
+const FILE_MODE_ICON = { light: '☀️', dark: '🌙', both: '' };
+// Gilt der Platz im Modus? ('both' = immer)
+const inMode = (u, mode) => u.mode === 'both' || u.mode === mode;
+// „wird verwendet in"-Zeile für eine Medien-Kachel: Plätze nur eines Modus tragen
+// ☀️/🌙; Plätze des gewählten Modus sind hervorgehoben.
 function usageHtml(list) {
   if (!list.length) return '<div class="st" style="color:var(--muted)">↪ nicht zugewiesen</div>';
-  return `<div class="st" style="color:var(--accent)" title="Zugewiesene Plätze">↪ ${esc(
-    list.join(', '),
-  )}</div>`;
+  const parts = list.map((u) => {
+    const on = inMode(u, filesPrevMode);
+    const icon = FILE_MODE_ICON[u.mode] ? FILE_MODE_ICON[u.mode] + ' ' : '';
+    return `<span style="${on ? '' : 'opacity:.55'}">${icon}${esc(u.label)}</span>`;
+  });
+  return `<div class="st" style="color:var(--accent)" title="Zugewiesene Plätze (☀️ nur Hell, 🌙 nur Dunkel, ohne Symbol: beide Modi)">↪ ${parts.join(', ')}</div>`;
+}
+// Kachel-Markierung, wenn die Datei im gewählten Modus eingesetzt ist.
+function modeMarkHtml(list) {
+  const used = list.filter((u) => inMode(u, filesPrevMode));
+  if (!used.length) return '';
+  const only = used.every((u) => u.mode === filesPrevMode);
+  return `<div class="st" data-filemodemark style="font-weight:600;color:var(--text)">${FILE_MODE_LABEL[filesPrevMode]}${only ? ' (nur dieser Modus)' : ''} ✓</div>`;
+}
+// Alle Dateien dieses Tabs (Sprach-Ordner, gemeinsame, Zwischenspeicher) mit
+// ihren Referenzen – Grundlage der Modus-Übersicht.
+function allFileEntries(lang) {
+  const out = [];
+  const add = (files, where) =>
+    (files || []).forEach((f) =>
+      out.push({
+        name: f.name,
+        src: f.url,
+        isVid: /\.(mp4|webm|mov|ogg)$/i.test(f.name),
+        where,
+        usage: usageDetailed(f.url, '/uploads/' + f.path),
+      }),
+    );
+  add(state.serverFiles[lang], LOC_LABEL[lang]);
+  add(state.serverFiles.shared, LOC_LABEL['']);
+  for (const item of state.stagedItems)
+    out.push({
+      name: item.name,
+      src: objUrl(item.id),
+      isVid: /^video\//.test(item.type),
+      where: 'Zwischenspeicher',
+      usage: usageDetailed('staged:' + item.id, item.publishedUrl),
+    });
+  return out;
+}
+// Übersicht „Eingesetzte Dateien" eines Modus: offen für den gewählten Modus
+// (Liste der Dateien, die dort auf der Seite erscheinen, mit ihren Plätzen),
+// sonst zugeklappt als klickbare Leiste (Klick/Enter/Leertaste).
+function modeFilesPanel(lang, mode) {
+  if (mode !== filesPrevMode)
+    return `
+    <div class="panel tc-mode-collapsed" data-filemodepanel="${mode}" data-fileshowmode="${mode}" role="button" tabindex="0" title="Eingesetzte Dateien im ${FILE_MODE_LABEL[mode]}-Modus anzeigen">
+      <span style="font-size:1.2rem">${mode === 'dark' ? '🌙' : '☀️'}</span>
+      <span>${mode === 'dark' ? 'Dunkelmodus' : 'Hellmodus'} – anklicken: welche Dateien sind dort eingesetzt?</span>
+    </div>`;
+  const entries = allFileEntries(lang)
+    .map((e) => ({ ...e, used: e.usage.filter((u) => inMode(u, mode)) }))
+    .filter((e) => e.used.length);
+  const onlyHere = entries.filter((e) => e.used.every((u) => u.mode === mode)).length;
+  const rows = entries
+    .map((e) => {
+      const thumb = e.isVid
+        ? `<video src="${esc(e.src)}" muted style="width:44px;height:32px;object-fit:cover;border-radius:5px;flex-shrink:0"></video>`
+        : `<img src="${esc(e.src)}" alt="" loading="lazy" style="width:44px;height:32px;object-fit:cover;border-radius:5px;flex-shrink:0" />`;
+      const places = e.used
+        .map((u) => `${FILE_MODE_ICON[u.mode] ? FILE_MODE_ICON[u.mode] + ' ' : ''}${esc(u.label)}`)
+        .join(', ');
+      return `
+        <div data-filemoderow style="display:flex;align-items:center;gap:.6rem;padding:.35rem 0;border-top:1px solid var(--border)">
+          ${thumb}
+          <span style="flex:1 1 auto;min-width:0">
+            <strong style="font-weight:600">${esc(e.name)}</strong> <span class="hint" style="margin:0 0 0 .3rem">${esc(e.where)}</span>
+            <div class="st" style="color:var(--accent)">↪ ${places}</div>
+          </span>
+        </div>`;
+    })
+    .join('');
+  return `
+    <div class="panel" data-filemodepanel="${mode}">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap">
+        <strong style="padding:.1rem .4rem;border-radius:6px;outline:2px solid var(--accent)">${FILE_MODE_LABEL[mode]} – eingesetzte Dateien <span class="hint" style="margin:0;font-weight:400">👁</span></strong>
+        <span class="hint" data-filemodecount style="margin:0">${entries.length} Datei(en) erscheinen im ${mode === 'dark' ? 'Dunkel' : 'Hell'}modus${onlyHere ? `, davon ${onlyHere} nur dort` : ''}</span>
+      </div>
+      <p class="hint" style="margin:.3rem 0 .2rem">Dateien dieser Sprache, gemeinsame Dateien und Zwischenspeicher, die auf der Seite im ${FILE_MODE_LABEL[mode]}-Modus zu sehen sind. ☀️/🌙 = Platz gilt nur in diesem Modus (Seiten-Hintergrund, Sektions-Hintergründe, Tool-Karten-Bilder); ohne Symbol = in beiden Modi (Hero, Sektions-Medien, Diashows).</p>
+      ${rows || '<p class="hint" style="margin:.4rem 0 0">Keine Datei ist in diesem Modus eingesetzt.</p>'}
+    </div>`;
 }
 
 // Server-Uploads getrennt nach Sprache laden ({ de, en, shared }).
@@ -259,11 +356,13 @@ function fileTilesHtml(files, loc) {
         )
         .join('');
       const ext = fileExt(f.name);
-      const usage = usageOf(f.url, '/uploads/' + f.path);
-      return `<div class="media-tile">
+      const usage = usageDetailed(f.url, '/uploads/' + f.path);
+      const inCur = usage.some((u) => inMode(u, filesPrevMode));
+      return `<div class="media-tile" ${inCur ? 'data-inmode="1" style="outline:2px solid var(--accent);outline-offset:-1px"' : ''}>
         ${media}
         <div class="nm">${esc(f.name)}</div>
         <div class="st pub">✓ Server${ext ? ' · ' + ext : ''} · ${fmtBytes(f.bytes)}</div>
+        ${modeMarkHtml(usage)}
         ${usageHtml(usage)}
         <div class="row" style="gap:.25rem;margin-top:.35rem">${moveBtns}</div>
         <button class="danger" data-srvdel="${esc(f.path)}" data-srvurl="${esc(f.url)}" style="margin-top:.25rem;width:100%;padding:.2rem;font-size:.72rem">Löschen</button>
@@ -347,11 +446,20 @@ export function renderFiles() {
   const lang = state.nav.section;
   const langLabel = lang === 'de' ? 'Deutsch' : 'English';
   const pane = $('#content');
+  const view = captureView(pane); // Scroll über das Neu-Rendern (z. B. Modus-Wechsel) erhalten
   const tiles = state.stagedItems.length
     ? state.stagedItems.map(mediaTile).join('')
     : '<p class="hint">Noch nichts im Zwischenspeicher. Dateien unten hineinziehen oder auswählen.</p>';
 
   pane.innerHTML = `
+    <div class="tc-sticky" style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-top:0">
+      <span class="hint" style="margin:0">👁 Eingesetzte Dateien im Modus:</span>
+      <span class="mode-switch" title="Zeigen, welche Dateien im Hell- oder Dunkelmodus auf der Seite erscheinen">
+        ${['light', 'dark'].map((md) => `<button type="button" class="hd-reset${md === filesPrevMode ? ' active' : ''}" data-fileprevmode="${md}" aria-pressed="${md === filesPrevMode}">${FILE_MODE_LABEL[md]}</button>`).join('')}
+      </span>
+      <span class="hint" style="margin:0">– der andere Modus ist zugeklappt; markierte Kacheln unten sind in diesem Modus eingesetzt.</span>
+    </div>
+    ${modeFilesPanel(lang, 'light')}${modeFilesPanel(lang, 'dark')}
     ${serverFilesPanel(lang)}
     <div class="panel">
       <h2>Medien-Zwischenspeicher (Browser)</h2>
@@ -368,6 +476,25 @@ export function renderFiles() {
       <div class="media-grid">${tiles}</div>
     </div>`;
 
+  // Hell/Dunkel: Übersicht und Markierungen für den gewählten Modus neu rendern.
+  const showMode = (mode) => {
+    const next = mode === 'dark' ? 'dark' : 'light';
+    if (next === filesPrevMode) return;
+    filesPrevMode = next;
+    renderFiles();
+  };
+  pane
+    .querySelectorAll('[data-fileprevmode]')
+    .forEach((b) => b.addEventListener('click', () => showMode(b.dataset.fileprevmode)));
+  pane.querySelectorAll('[data-fileshowmode]').forEach((el) => {
+    el.addEventListener('click', () => showMode(el.dataset.fileshowmode));
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        showMode(el.dataset.fileshowmode);
+      }
+    });
+  });
   pane.querySelectorAll('[data-srvdel]').forEach((el) =>
     el.addEventListener('click', async () => {
       const path = el.dataset.srvdel;
@@ -435,6 +562,7 @@ export function renderFiles() {
     }),
   );
   dz.addEventListener('drop', (e) => addFiles(e.dataTransfer.files));
+  restoreView(pane, view);
 }
 
 function mediaTile(item) {
@@ -448,12 +576,14 @@ function mediaTile(item) {
   const ext = fileExt(item.name);
   const size = item.blob ? fmtBytes(item.blob.size) : '';
   const meta = [ext, size].filter(Boolean).join(' · ');
-  const usage = usageOf('staged:' + item.id, item.publishedUrl);
-  return `<div class="media-tile">
+  const usage = usageDetailed('staged:' + item.id, item.publishedUrl);
+  const inCur = usage.some((u) => inMode(u, filesPrevMode));
+  return `<div class="media-tile" ${inCur ? 'data-inmode="1" style="outline:2px solid var(--accent);outline-offset:-1px"' : ''}>
     ${tag}
     <div class="nm">${esc(item.name)}</div>
     ${meta ? `<div class="st" style="color:var(--muted)">${esc(meta)}</div>` : ''}
     ${status}
+    ${modeMarkHtml(usage)}
     ${usageHtml(usage)}
     <button class="danger" data-mediadel="${item.id}" data-used="${usage.length}" style="margin-top:.35rem;width:100%;padding:.2rem;font-size:.72rem">Entfernen</button>
   </div>`;

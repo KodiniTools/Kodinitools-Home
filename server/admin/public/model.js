@@ -1181,10 +1181,13 @@ export function setSiteSection(key, mode, patch) {
 // von staged:-Referenzen und „wird verwendet in" der Mediathek.
 export function siteImageSlots() {
   const modeLabel = (m) => (m === 'dark' ? 'Dunkel' : 'Hell');
+  // mode: Modus, in dem der Platz gilt ('light' | 'dark'; Plätze ohne mode gelten
+  // in beiden Modi) – für die Modus-Übersicht im Tab „Dateien".
   const slots = SITE_MEDIA_KEYS.map((key) => ({
     root: 'site',
     xLang: 'shared',
     path: [key],
+    mode: key.endsWith('Dark') ? 'dark' : 'light',
     label: `Global · Seiten-Hintergrund (${modeLabel(key.endsWith('Dark') ? 'dark' : 'light')})`,
   }));
   for (const k of SITE_SECTION_KEYS)
@@ -1193,6 +1196,7 @@ export function siteImageSlots() {
         root: 'site',
         xLang: 'shared',
         path: ['sections', k, mode, 'image'],
+        mode,
         label: `Global · Sektion ${SECTION_LABELS[k]} (${modeLabel(mode)})`,
       });
   for (const slot of slots) {
@@ -1230,6 +1234,7 @@ export function toolCardImageSlots() {
           root: lang,
           xLang: lang,
           path,
+          mode,
           label: `${lang.toUpperCase()} · Tool-Karte ${name} (${modeLabel(mode)})`,
         });
       }
