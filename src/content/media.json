@@ -1917,18 +1917,18 @@
       "image": {
         "style": {
           "light": {
-            "customBorder": false,
-            "borderColor": "#014f99",
-            "borderWidth": 2,
-            "borderRadius": 12,
+            "customBorder": true,
+            "borderColor": "#013d75",
+            "borderWidth": 4,
+            "borderRadius": 6,
             "opacity": 100,
             "darken": 0
           },
           "dark": {
-            "customBorder": false,
-            "borderColor": "#014f99",
-            "borderWidth": 2,
-            "borderRadius": 12,
+            "customBorder": true,
+            "borderColor": "#013d75",
+            "borderWidth": 4,
+            "borderRadius": 6,
             "opacity": 100,
             "darken": 0
           }
@@ -1961,18 +1961,18 @@
       "diverse": {
         "style": {
           "light": {
-            "customBorder": false,
-            "borderColor": "#014f99",
-            "borderWidth": 2,
-            "borderRadius": 12,
+            "customBorder": true,
+            "borderColor": "#013d75",
+            "borderWidth": 4,
+            "borderRadius": 6,
             "opacity": 100,
             "darken": 0
           },
           "dark": {
-            "customBorder": false,
-            "borderColor": "#014f99",
-            "borderWidth": 2,
-            "borderRadius": 12,
+            "customBorder": true,
+            "borderColor": "#013d75",
+            "borderWidth": 4,
+            "borderRadius": 6,
             "opacity": 100,
             "darken": 0
           }
