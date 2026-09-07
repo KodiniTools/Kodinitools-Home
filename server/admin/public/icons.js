@@ -82,8 +82,14 @@ const TINT_LABEL = {
   bg: 'Kasten Hell',
   bgDark: 'Kasten Dunkel',
 };
+// Bearbeiteter Modus der Icon-Färbung (gilt für alle Karten): die Vorschau in
+// der Liste und die Farbfelder zeigen nur diesen Modus, der andere Modus ist je
+// Karte zu einer klickbaren Leiste zugeklappt (wie in den übrigen Design-Tabs).
+let tintMode = 'light';
+const TINT_MODE_LABEL = { light: '☀️ Hell', dark: '🌙 Dunkel' };
+const TINT_MODE_FIELDS = { light: ['light', 'bg'], dark: ['dark', 'bgDark'] };
 // Icon-Vorschau einer Karte in einem Modus: mit Farbe als Maske, sonst das SVG.
-function tintPrevHtml(lang, cardId, mode) {
+function tintPrevHtml(lang, cardId, mode, size = 44) {
   const [section, key] = cardId.split('.');
   const svg = toolSvg(lang, section, key).replace(/['"]/g, '');
   const t = getIconTint(lang, cardId);
@@ -94,11 +100,15 @@ function tintPrevHtml(lang, cardId, mode) {
     inner = `<span style="display:block;width:100%;height:100%;background:${color};-webkit-mask:url('${svg}') center / contain no-repeat;mask:url('${svg}') center / contain no-repeat"></span>`;
   else if (svg)
     inner = `<img src="${esc(svg)}" alt="" style="width:100%;height:100%;object-fit:contain" />`;
-  return `<span data-tintprev="${esc(cardId)}:${mode}" title="${mode === 'dark' ? 'Dunkelmodus' : 'Hellmodus'}" style="width:44px;height:44px;border-radius:.6rem;background:${bg};padding:5px;box-sizing:border-box;display:inline-flex;flex-shrink:0;border:1px solid var(--border)">${inner}</span>`;
+  const pad = size >= 44 ? 5 : 3;
+  return `<span data-tintprev="${esc(cardId)}:${mode}" title="${mode === 'dark' ? 'Dunkelmodus' : 'Hellmodus'}" style="width:${size}px;height:${size}px;border-radius:.6rem;background:${bg};padding:${pad}px;box-sizing:border-box;display:inline-flex;flex-shrink:0;border:1px solid var(--border)">${inner}</span>`;
 }
-// Farbbereich einer Karte: Vorschau Hell/Dunkel + vier Farbwähler (je mit An-Schalter).
+// Farbbereich einer Karte: Vorschau + Farbwähler (Icon-Farbe, Kasten; je mit
+// An-Schalter) des bearbeiteten Modus, darunter der andere Modus zugeklappt.
 function tintBoxHtml(lang, cardId) {
   const t = getIconTint(lang, cardId);
+  const mode = tintMode;
+  const other = mode === 'light' ? 'dark' : 'light';
   const field = (f) => {
     const on = t[f] !== '';
     return `<div style="flex:0 0 auto">
@@ -108,14 +118,18 @@ function tintBoxHtml(lang, cardId) {
         ${colorPicker({ id: `tint:${cardId}:${f}`, attrs: `data-tint="${esc(cardId)}:${f}"`, value: t[f] || TINT_SUGGEST[f], disabled: !on })}
       </div>`;
   };
-  return `<div data-tintbox="${esc(cardId)}" style="padding:.45rem .5rem .55rem 2.6rem;border-top:1px dashed var(--border)">
+  return `<div data-tintbox="${esc(cardId)}" data-mode="${mode}" style="padding:.45rem .5rem .55rem 2.6rem;border-top:1px dashed var(--border)">
       <div class="row" style="align-items:flex-end;gap:.8rem">
         <div style="flex:0 0 auto">
-          <label style="margin:0 0 .25rem">Vorschau</label>
-          <div style="display:flex;gap:.35rem">${tintPrevHtml(lang, cardId, 'light')}${tintPrevHtml(lang, cardId, 'dark')}</div>
+          <label style="margin:0 0 .25rem">Vorschau ${TINT_MODE_LABEL[mode]}</label>
+          <div style="display:flex;gap:.35rem">${tintPrevHtml(lang, cardId, mode)}</div>
         </div>
-        ${field('light')}${field('bg')}${field('dark')}${field('bgDark')}
-        <div style="flex:0 0 auto"><button type="button" class="hd-reset" data-tintreset="${esc(cardId)}" title="Alle Farben dieser Karte zurücksetzen">↺ Alle</button></div>
+        ${TINT_MODE_FIELDS[mode].map(field).join('')}
+        <div style="flex:0 0 auto"><button type="button" class="hd-reset" data-tintreset="${esc(cardId)}" title="Alle Farben dieser Karte (Hell + Dunkel) zurücksetzen">↺ Alle</button></div>
+      </div>
+      <div class="panel tc-mode-collapsed" data-tintshowmode="${other}" role="button" tabindex="0" title="${TINT_MODE_LABEL[other]}-Modus anzeigen und bearbeiten" style="margin:.5rem 0 0">
+        <span style="font-size:1.1rem">${other === 'dark' ? '🌙' : '☀️'}</span>
+        <span>${other === 'dark' ? 'Dunkelmodus' : 'Hellmodus'} – anklicken zum Bearbeiten</span>
       </div>
       <p class="hint" style="margin:.35rem 0 0">Icon-Farbe färbt das SVG <strong>einfarbig</strong> ein (CSS-Maske, geeignet für einfarbige Icons wie Font Awesome; mehrfarbige Illustrationen werden zur Silhouette). Ohne Häkchen bleiben Originalfarben bzw. der Standard-Kasten.</p>
     </div>`;
@@ -129,8 +143,9 @@ function toolRowHtml(lang, t) {
   const tint = getIconTint(lang, cardId);
   const tinted = Object.values(tint).some(Boolean);
   const open = openTint.has(cardId);
+  // Vorschau in der Liste im bearbeiteten Modus (mit Färbung/Kasten des Modus).
   const thumb = svg
-    ? `<span style="width:34px;height:34px;border-radius:7px;background:#fff;box-sizing:border-box;padding:3px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0"><img src="${esc(svg)}" alt="" style="width:100%;height:100%;object-fit:contain" /></span>`
+    ? tintPrevHtml(lang, cardId, tintMode, 34)
     : `<span style="width:34px;height:34px;border-radius:7px;border:1px dashed var(--border);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--muted);font-size:.7rem">—</span>`;
   return `<div style="display:flex;align-items:center;gap:.6rem;padding:.35rem 0;border-top:1px solid var(--border)">
       ${thumb}
@@ -406,6 +421,13 @@ export function renderIcons() {
         <label style="margin-top:0">Tool-Karten-Icons verwalten <span class="lang-badge">${(state.nav.section === 'en' ? 'en' : 'de').toUpperCase()}</span></label>
         <p class="hint" style="margin:.15rem 0 .3rem">Icon einer Karte <strong>entfernen</strong> (kein Icon), auf <strong>Standard</strong> zurücksetzen
           oder das oben in der Bibliothek gewählte Icon <strong>zuweisen</strong>. Gilt für die Sprache des aktuellen Bereichs.</p>
+        <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin:.2rem 0 .4rem">
+          <span class="hint" style="margin:0">👁 Icon-Farben &amp; Vorschau für:</span>
+          <span class="mode-switch" title="Icon-Farbe und Kasten im Hell- oder Dunkelmodus bearbeiten">
+            ${['light', 'dark'].map((md) => `<button type="button" class="hd-reset${md === tintMode ? ' active' : ''}" data-tintprevmode="${md}" aria-pressed="${md === tintMode}">${TINT_MODE_LABEL[md]}</button>`).join('')}
+          </span>
+          <span class="hint" style="margin:0">– die Vorschau in der Liste zeigt diesen Modus; der andere ist je Karte zugeklappt.</span>
+        </div>
         <div data-icontoollist></div>
       </div>
     </div>`;
@@ -462,14 +484,39 @@ export function renderIcons() {
 
   // Tool-Karten-Icons verwalten: Zuweisen / Entfernen / Standard je Tool.
   renderToolList(pane);
+  // Hell/Dunkel der Icon-Färbung: Umschalter über der Liste bzw. zugeklappte
+  // Leiste je Karte; nur die Liste wird neu gerendert (Bibliothek bleibt).
+  const showTintMode = (mode) => {
+    tintMode = mode === 'dark' ? 'dark' : 'light';
+    pane.querySelectorAll('[data-tintprevmode]').forEach((b) => {
+      const on = b.dataset.tintprevmode === tintMode;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-pressed', String(on));
+    });
+    renderToolList(pane);
+  };
+  pane
+    .querySelectorAll('[data-tintprevmode]')
+    .forEach((b) => b.addEventListener('click', () => showTintMode(b.dataset.tintprevmode)));
   const toolBox = pane.querySelector('[data-icontoollist]');
+  if (toolBox)
+    toolBox.addEventListener('keydown', (e) => {
+      const el = e.target.closest('[data-tintshowmode]');
+      if (!el || (e.key !== 'Enter' && e.key !== ' ')) return;
+      e.preventDefault();
+      showTintMode(el.dataset.tintshowmode);
+    });
   if (toolBox)
     toolBox.addEventListener('click', (e) => {
       const btn = e.target.closest(
-        '[data-tooladd],[data-toolremove],[data-toolreset],[data-tinttoggle],[data-tintreset]',
+        '[data-tooladd],[data-toolremove],[data-toolreset],[data-tinttoggle],[data-tintreset],[data-tintshowmode]',
       );
       if (!btn) return;
       const lang = state.nav.section === 'en' ? 'en' : 'de';
+      if (btn.dataset.tintshowmode !== undefined) {
+        showTintMode(btn.dataset.tintshowmode);
+        return;
+      }
       if (btn.dataset.tinttoggle !== undefined) {
         const cardId = btn.dataset.tinttoggle;
         if (openTint.has(cardId)) openTint.delete(cardId);
@@ -525,10 +572,11 @@ export function renderIcons() {
       const lang = state.nav.section === 'en' ? 'en' : 'de';
       const [cardId, f] = splitTintKey(el.dataset.tint);
       setIconTint(lang, cardId, { [f]: el.value });
-      for (const mode of ['light', 'dark']) {
-        const prev = toolBox.querySelector(`[data-tintprev="${cardId}:${mode}"]`);
-        if (prev) prev.outerHTML = tintPrevHtml(lang, cardId, mode);
-      }
+      // Alle Vorschauen der Karte im Modus (Liste 34 px, Farbbereich 44 px) auffrischen.
+      toolBox.querySelectorAll(`[data-tintprev="${cardId}:${tintMode}"]`).forEach((prev) => {
+        const size = Math.round(parseFloat(prev.style.width)) || 44;
+        prev.outerHTML = tintPrevHtml(lang, cardId, tintMode, size);
+      });
       const tog = toolBox.querySelector(`[data-tinttoggle="${cardId}"]`);
       if (tog) tog.textContent = '🎨 Farben ●';
     });
