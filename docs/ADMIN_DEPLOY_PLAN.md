@@ -307,7 +307,7 @@ cd /opt/kodini/repo && ./deploy.sh
 **Phase 4 – Admin-Frontend** ✅ *(umgesetzt & im echten Browser getestet)*
 - **Versteckter Login:** Tastenkombi `Strg/Cmd+Shift+Alt+K` in `GlobalNav` (auf jeder Seite) → `/admin/`. Kein sichtbarer Button.
 - `server/admin/public/` — eigenständige Vanilla-JS-App (kein Build-Schritt), vom Node-Dienst ausgeliefert:
-  - **Laufband-Editor** (DE/EN): Einträge hinzufügen/sortieren/löschen, Link, an/aus, Tempo.
+  - **Laufband-Editor** (DE/EN): Einträge hinzufügen/sortieren/löschen, Link, an/aus, Tempo. **Design mit Modus-Umschalter** (`ticker.js`): Schriftgröße, Buchstabenabstand und Schriftart gelten für beide Modi; darunter der Hell/Dunkel-Umschalter (`data-tkmode`, `tkEditTheme`) – nur der Block des gewählten Modus ist offen (Schrift-/Hintergrundfarbe, Transparenz, Vorschau auf dem Seitenhintergrund des Modus mit Etikett „Hell-/Dunkel-Ansicht“), der andere Modus ist eine klickbare Leiste (`.tc-mode-collapsed`, `data-tkshowmode`, Klick/Enter/Leertaste); Farbfelder tragen `data-mode`, ein Wechsel rendert nur den Inhalt des aufgeklappten Design-Bereichs neu (`[data-tkdesign]`), Einträge und Scroll bleiben.
   - **Text-Editor** (DE/EN): Hero-Titel/-Untertitel/-Button, Video-Bereich-Titel/-Untertitel (leer = Standard).
   - **Videos & Medien:** 3 Sektions-Video-Slots + **Medien-Zwischenspeicher via IndexedDB** (Drag&Drop, Vorschau, übersteht Reload) → Upload auf den Server erst beim **Veröffentlichen**.
   - **Erweitert:** roher Overrides-JSON-Editor (Escape-Hatch).
