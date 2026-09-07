@@ -2,10 +2,10 @@
 // samt Live-Vorschau. Schrift-Helfer kommen aus dem gemeinsamen fonts.js.
 
 import { $, esc, toast } from './core.js';
-import { state, rgbaFromHex, clampSpacing } from './model.js';
+import { state, rgbaFromHex, clampSpacing, getPageBg, PAGE_BG_DEFAULT } from './model.js';
 import { ensureFontFace, fontOptionsHtml } from './fonts.js';
-import { slider, bindSliders, refreshSliders } from './slider.js';
-import { colorPicker, bindColorPickers, refreshColorPickers } from './color.js';
+import { slider, bindSliders } from './slider.js';
+import { colorPicker, bindColorPickers } from './color.js';
 
 // Laufband-Text mit Inline-Links [Wort](url) in sichere HTML-Vorschau wandeln
 // (gleiche Regel wie TickerBar.astro; Klicks in der Vorschau navigieren nicht).
@@ -89,10 +89,15 @@ function bindInlineLinkHelper(pane) {
 
 // Aktuell im Design-Editor bearbeiteter Farb-Modus (reiner UI-Zustand, nicht
 // gespeichert). Schriftgröße/Abstand/Schriftart gelten für beide Modi; nur die
-// Farben sind getrennt nach Hell/Dunkel – analog zum Hero-Design.
+// Farben sind getrennt nach Hell/Dunkel – analog zum Hero-Design. Der Block des
+// anderen Modus ist zu einer klickbaren Leiste zugeklappt (wie in den übrigen
+// Design-Tabs).
 let tkEditTheme = 'light';
-function tkModeLabel() {
-  return tkEditTheme === 'dark' ? 'Dunkel' : 'Hell';
+const TK_MODE_LABEL = { light: '☀️ Hell', dark: '🌙 Dunkel' };
+const TK_MODE_VIEW = { light: '☀️ Hell-Ansicht', dark: '🌙 Dunkel-Ansicht' };
+// Seitenhintergrund des Modus (aus dem Tab „Hintergrund“ bzw. Seitenstandard).
+function tkPageBg(mode) {
+  return getPageBg(mode) || PAGE_BG_DEFAULT[mode];
 }
 
 // Vorschau-Style des Laufbands für den gerade bearbeiteten Farb-Modus. Zeigt IMMER
@@ -119,27 +124,51 @@ function tickerPreviewNote(s) {
     : '⚠️ „Eigenes Design verwenden" ist aus – auf der Seite erscheint das Standard-Design (Blau). Die Vorschau zeigt dein eingestelltes Design.';
 }
 
-// Design-Abschnitt für EINE Sprache (in tickerPanel eingebettet).
-function tickerStyleSection(lang) {
+// Farb-Block eines Modus: offen (Farben, Transparenz, Vorschau auf dem
+// Seitenhintergrund des Modus) für den bearbeiteten Modus, sonst zugeklappt als
+// klickbare Leiste (Klick/Enter/Leertaste öffnet ihn).
+function tickerModeBlock(lang, mode) {
   const s = state.ticker[lang].style;
-  const mode = tkEditTheme;
-  const c = s[mode];
-  const ml = tkModeLabel();
+  if (mode !== tkEditTheme)
+    return `
+        <div class="panel tc-mode-collapsed" data-tkblock="${mode}" data-tkshowmode="${mode}" data-lang="${lang}" role="button" tabindex="0" title="${TK_MODE_LABEL[mode]}-Modus anzeigen und bearbeiten" style="margin:.6rem 0 0">
+          <span style="font-size:1.2rem">${mode === 'dark' ? '🌙' : '☀️'}</span>
+          <span>${mode === 'dark' ? 'Dunkelmodus' : 'Hellmodus'} – anklicken zum Bearbeiten</span>
+        </div>`;
+  const c = s[mode] || s.light;
+  const attrs = (f) => `data-tksc="${f}" data-mode="${mode}" data-lang="${lang}"`;
   return `
-      <details style="margin-top:1rem;border-top:1px solid var(--border);padding-top:.75rem">
-        <summary style="cursor:pointer;font-weight:600">🎨 Design (${lang.toUpperCase()})</summary>
+        <div class="panel" data-tkblock="${mode}" style="margin:.6rem 0 0">
+          <strong style="display:inline-block;padding:.1rem .4rem;border-radius:6px;outline:2px solid var(--accent)">${TK_MODE_LABEL[mode]} <span class="hint" style="margin:0;font-weight:400">👁</span></strong>
+          <div class="row" style="margin-top:.5rem;align-items:flex-end">
+            <div style="flex:0 0 auto">
+              <label>Schriftfarbe</label>
+              ${colorPicker({ id: `tk:textColor:${mode}:${lang}`, attrs: attrs('textColor'), value: c.textColor })}
+            </div>
+            <div style="flex:0 0 auto">
+              <label>Hintergrundfarbe</label>
+              ${colorPicker({ id: `tk:bgColor:${mode}:${lang}`, attrs: attrs('bgColor'), value: c.bgColor })}
+            </div>
+            <div style="flex:1 1 240px">
+              ${slider({ id: `tk:bgOpacity:${mode}:${lang}`, label: 'Transparenz Hintergrund', hint: '(0 = ganz durchsichtig)', unit: '%', min: 0, max: 100, value: c.bgOpacity, def: 100, attrs: attrs('bgOpacity') })}
+            </div>
+          </div>
+          <div data-tks-prevbox data-lang="${lang}" data-prevmode="${mode}" style="position:relative;margin-top:.7rem;padding:1.6rem .8rem .8rem;border-radius:10px;background:${tkPageBg(mode)}">
+            <span style="position:absolute;top:.35rem;left:.6rem;font-size:.72rem;font-weight:600;padding:.1rem .45rem;border-radius:999px;background:${mode === 'dark' ? 'rgba(255,255,255,.14)' : 'rgba(0,0,0,.08)'};color:${mode === 'dark' ? '#e2e8f0' : '#1e293b'}">${TK_MODE_VIEW[mode]}</span>
+            <div data-tks-preview data-lang="${lang}" data-mode="${mode}" style="${tickerPreviewStyle(s, mode)}">Immer die besten Tools für deine Aufgaben – Beispieltext</div>
+          </div>
+        </div>`;
+}
+
+// Inhalt des Design-Abschnitts (innerhalb des <details>, wird beim Modus-Wechsel
+// allein neu gerendert, damit der aufgeklappte Bereich erhalten bleibt).
+function tickerStyleInner(lang) {
+  const s = state.ticker[lang].style;
+  return `
         <p class="hint" style="margin-top:.4rem">Nur für ${lang === 'de' ? 'Deutsch' : 'Englisch'}. Ausgeschaltet = Standard-Design (Blau, passt sich Dark Mode an).</p>
         <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin-top:.4rem">
           <input type="checkbox" data-tks="enabled" data-lang="${lang}" ${s.enabled ? 'checked' : ''} style="width:auto" /> Eigenes Design verwenden
         </label>
-        <div style="margin-top:.7rem">
-          <label>Farben für Modus</label>
-          <div class="row" style="gap:.4rem">
-            <button type="button" data-tkmode="light" data-lang="${lang}" class="${mode === 'light' ? 'primary' : ''}" style="flex:0 0 auto">☀️ Hell</button>
-            <button type="button" data-tkmode="dark" data-lang="${lang}" class="${mode === 'dark' ? 'primary' : ''}" style="flex:0 0 auto">🌙 Dunkel</button>
-          </div>
-          <p class="hint" style="margin-top:.35rem">Du bearbeitest die Farben für <strong data-tksmode-label data-lang="${lang}">${ml}</strong>. Schriftgröße, Buchstabenabstand und Schriftart gelten für <strong>beide</strong> Modi.</p>
-        </div>
         <div class="row" style="margin-top:.6rem;align-items:flex-end">
           <div style="flex:0 0 auto">
             <label>Schriftgröße (px)</label>
@@ -149,70 +178,77 @@ function tickerStyleSection(lang) {
             <label>Buchstabenabstand (px)</label>
             <input type="number" data-tks="letterSpacing" data-lang="${lang}" min="-5" max="20" step="0.5" value="${s.letterSpacing}" style="width:90px" />
           </div>
-          <div style="flex:0 0 auto">
-            <label>Schriftfarbe</label>
-            ${colorPicker({ id: `tk:textColor:${lang}`, attrs: `data-tksc="textColor" data-lang="${lang}"`, value: c.textColor })}
-          </div>
-          <div style="flex:0 0 auto">
-            <label>Hintergrundfarbe</label>
-            ${colorPicker({ id: `tk:bgColor:${lang}`, attrs: `data-tksc="bgColor" data-lang="${lang}"`, value: c.bgColor })}
-          </div>
-          <div style="flex:1 1 240px">
-            ${slider({ id: `tk:bgOpacity:${lang}`, label: 'Transparenz Hintergrund', hint: '(0 = ganz durchsichtig)', unit: '%', min: 0, max: 100, value: c.bgOpacity, def: 100, attrs: `data-tksc="bgOpacity" data-lang="${lang}"` })}
-          </div>
-        </div>
-        <div class="row" style="margin-top:.6rem">
           <div style="flex:1 1 240px">
             <label>Schriftart</label>
             <select data-tks="fontFamily" data-lang="${lang}">${fontOptionsHtml(s.fontFamily)}</select>
-            <p class="hint">Aus dem Ordner <code>/fonts</code> auf dem Server. Eigene Schriften einfach dorthin legen.</p>
           </div>
         </div>
-        <p class="hint" style="margin-top:.8rem">Vorschau (<span data-tksmode-label data-lang="${lang}">${ml}</span>):</p>
-        <div data-tks-preview data-lang="${lang}" style="${tickerPreviewStyle(s, mode)}">Immer die besten Tools für deine Aufgaben – Beispieltext</div>
-        <p class="hint" data-tks-note data-lang="${lang}" style="margin-top:.4rem">${tickerPreviewNote(s)}</p>
+        <p class="hint" style="margin:.3rem 0 0">Schriftgröße, Buchstabenabstand und Schriftart gelten für <strong>beide</strong> Modi. Schriftarten aus dem Ordner <code>/fonts</code> auf dem Server.</p>
+        <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-top:.8rem">
+          <span class="hint" style="margin:0">👁 Farben &amp; Vorschau für:</span>
+          <span class="mode-switch" title="Farben und Vorschau im Hell- oder Dunkelmodus bearbeiten">
+            ${['light', 'dark'].map((md) => `<button type="button" class="hd-reset${md === tkEditTheme ? ' active' : ''}" data-tkmode="${md}" data-lang="${lang}" aria-pressed="${md === tkEditTheme}">${TK_MODE_LABEL[md]}</button>`).join('')}
+          </span>
+          <span class="hint" style="margin:0">– der andere Modus ist zugeklappt.</span>
+        </div>
+        ${tickerModeBlock(lang, 'light')}${tickerModeBlock(lang, 'dark')}
+        <p class="hint" data-tks-note data-lang="${lang}" style="margin-top:.5rem">${tickerPreviewNote(s)}</p>`;
+}
+
+// Design-Abschnitt für EINE Sprache (in tickerPanel eingebettet).
+function tickerStyleSection(lang) {
+  return `
+      <details style="margin-top:1rem;border-top:1px solid var(--border);padding-top:.75rem">
+        <summary style="cursor:pointer;font-weight:600">🎨 Design (${lang.toUpperCase()})</summary>
+        <div data-tkdesign data-lang="${lang}">${tickerStyleInner(lang)}</div>
       </details>`;
 }
 
-// Vorschau + Hinweis der aktuellen Sprache aktualisieren.
+// Vorschau + Hinweis der aktuellen Sprache aktualisieren (nur der offene Modus
+// hat eine Vorschau).
 function updateTickerPreview(pane, lang) {
   const s = state.ticker[lang].style;
-  const preview = pane.querySelector(`[data-tks-preview][data-lang="${lang}"]`);
-  if (preview) preview.setAttribute('style', tickerPreviewStyle(s, tkEditTheme));
+  pane.querySelectorAll(`[data-tks-preview][data-lang="${lang}"]`).forEach((preview) => {
+    preview.setAttribute('style', tickerPreviewStyle(s, preview.dataset.mode || tkEditTheme));
+  });
   const note = pane.querySelector(`[data-tks-note][data-lang="${lang}"]`);
   if (note) note.textContent = tickerPreviewNote(s);
 }
 
-// Farb-Modus (Hell/Dunkel) wechseln, ohne das ganze Panel neu zu rendern (damit
-// der geöffnete Design-Bereich erhalten bleibt): Buttons, Farb-Felder und Vorschau
-// werden direkt aktualisiert.
+// Farb-Modus (Hell/Dunkel) wechseln: nur den Design-Bereich neu rendern (der
+// aufgeklappte <details>-Bereich und die Einträge darüber bleiben unberührt).
 function switchTickerMode(pane, lang, mode) {
-  tkEditTheme = mode === 'dark' ? 'dark' : 'light';
-  const c = state.ticker[lang].style[tkEditTheme];
-  pane.querySelectorAll(`[data-tkmode][data-lang="${lang}"]`).forEach((b) => {
-    b.classList.toggle('primary', b.dataset.tkmode === tkEditTheme);
-  });
-  const set = (sel, val) => {
-    const el = pane.querySelector(sel);
-    if (el) el.value = val;
-  };
-  set(`[data-tksc="textColor"][data-lang="${lang}"]`, c.textColor);
-  set(`[data-tksc="bgColor"][data-lang="${lang}"]`, c.bgColor);
-  set(`[data-tksc="bgOpacity"][data-lang="${lang}"]`, c.bgOpacity);
-  refreshSliders(pane);
-  refreshColorPickers(pane);
-  pane.querySelectorAll(`[data-tksmode-label][data-lang="${lang}"]`).forEach((el) => {
-    el.textContent = tkModeLabel();
-  });
-  updateTickerPreview(pane, lang);
+  const next = mode === 'dark' ? 'dark' : 'light';
+  if (next === tkEditTheme) return;
+  tkEditTheme = next;
+  const box = pane.querySelector(`[data-tkdesign][data-lang="${lang}"]`);
+  if (!box) {
+    renderTicker();
+    return;
+  }
+  box.innerHTML = tickerStyleInner(lang);
+  bindTickerStyle(pane);
+  bindSliders(box);
+  bindColorPickers(box);
 }
 
 function bindTickerStyle(pane) {
-  // Modus-Umschalter (Hell/Dunkel)
+  // Modus-Umschalter (Hell/Dunkel) und zugeklappte Leiste des anderen Modus
   pane.querySelectorAll('[data-tkmode]').forEach((btn) => {
     btn.addEventListener('click', () =>
       switchTickerMode(pane, btn.dataset.lang, btn.dataset.tkmode),
     );
+  });
+  pane.querySelectorAll('[data-tkshowmode]').forEach((el) => {
+    el.addEventListener('click', () =>
+      switchTickerMode(pane, el.dataset.lang, el.dataset.tkshowmode),
+    );
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        switchTickerMode(pane, el.dataset.lang, el.dataset.tkshowmode);
+      }
+    });
   });
   // Geteilte Felder (Typografie) + „Eigenes Design"-Schalter
   pane.querySelectorAll('[data-tks]').forEach((el) => {
@@ -229,12 +265,13 @@ function bindTickerStyle(pane) {
       updateTickerPreview(pane, lang);
     });
   });
-  // Farb-Felder des aktuell gewählten Modus
+  // Farb-Felder des offenen Modus (Feld trägt seinen Modus in data-mode)
   pane.querySelectorAll('[data-tksc]').forEach((el) => {
     const field = el.dataset.tksc;
     const lang = el.dataset.lang;
+    const mode = el.dataset.mode === 'dark' ? 'dark' : 'light';
     el.addEventListener('input', () => {
-      const c = state.ticker[lang].style[tkEditTheme];
+      const c = state.ticker[lang].style[mode];
       if (field === 'bgOpacity')
         c.bgOpacity = Math.max(0, Math.min(100, parseInt(el.value, 10) || 0));
       else c[field] = el.value; // textColor / bgColor
