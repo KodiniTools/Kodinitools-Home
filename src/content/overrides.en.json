@@ -8,13 +8,18 @@
       "title": "Audio Converter\nmp3-wav-aac-flac-ogg"
     },
     "audioEqualizer": {
-      "svg": ""
+      "svg": "",
+      "title": "19-Band EQ Pro\nRecording & Export",
+      "badge": "wav webm"
     },
     "musicPlayer": {
-      "svg": ""
+      "svg": "",
+      "title": "Music Player\nmp3-wav-aac-flac-ogg",
+      "badge": "no limit"
     },
     "audioVisualizer": {
-      "svg": ""
+      "svg": "",
+      "badge": "30+ Visualizer"
     },
     "mp3Converter": {
       "svg": ""
