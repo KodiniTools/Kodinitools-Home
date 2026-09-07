@@ -118,7 +118,7 @@ function previewHtml(lang, key) {
         <span class="mode-switch" title="Vorschau im Hell- oder Dunkelmodus anzeigen">
           ${['light', 'dark'].map((md) => `<button type="button" class="hd-reset${md === prevMode ? ' active' : ''}" data-smprevmode="${md}" aria-pressed="${md === prevMode}">${MODE_LABEL[md]}</button>`).join('')}
         </span>
-        <span class="hint" style="margin:0">– Design-Felder links wechseln die Ansicht automatisch.</span>
+        <span class="hint" style="margin:0">– der andere Modus ist links zugeklappt.</span>
       </div>
       <div data-smprevbox data-prevmode="${prevMode}" style="position:relative;padding:1.6rem 1rem 1rem;border-radius:10px;background:${prevBg(prevMode)}">
         <span data-smprevlabel style="position:absolute;top:.35rem;left:.6rem;font-size:.72rem;font-weight:600;padding:.1rem .45rem;border-radius:999px;background:${prevMode === 'dark' ? 'rgba(255,255,255,.14)' : 'rgba(0,0,0,.08)'};color:${prevMode === 'dark' ? '#e2e8f0' : '#1e293b'}">${MODE_VIEW[prevMode]}</span>
@@ -176,11 +176,18 @@ function designSection(lang, key, mode) {
   const resetBtn = (f) =>
     `<button type="button" class="hd-reset" ${reset(f)} title="Auf Standard zurücksetzen" aria-label="Auf Standard zurücksetzen">↺</button>`;
   const other = mode === 'light' ? 'dark' : 'light';
-  const dis = s.customBorder ? '' : 'disabled';
+  // Nicht gewählter Modus: zu einer schmalen, klickbaren Leiste zugeklappt
+  // (Klick/Enter/Leertaste zeigt ihn in Vorschau und Seitenleiste).
+  if (mode !== prevMode)
+    return `
+    <div class="panel tc-mode-collapsed" data-smdesign="${mode}" data-smshowmode="${mode}" role="button" tabindex="0" title="${MODE_LABEL[mode]}-Modus anzeigen und bearbeiten">
+      <span style="font-size:1.2rem">${mode === 'dark' ? '🌙' : '☀️'}</span>
+      <span>${mode === 'dark' ? 'Dunkelmodus' : 'Hellmodus'} – anklicken zum Bearbeiten</span>
+    </div>`;
   return `
     <div class="panel" data-smdesign="${mode}">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap;margin-bottom:.4rem">
-        <strong data-smshowmode="${mode}" title="Vorschau im ${MODE_LABEL[mode]}-Modus anzeigen" style="cursor:pointer;padding:.1rem .4rem;border-radius:6px;${mode === prevMode ? 'outline:2px solid var(--accent)' : ''}">${MODE_LABEL[mode]} <span class="hint" style="margin:0;font-weight:400">👁</span></strong>
+        <strong data-smshowmode="${mode}" style="padding:.1rem .4rem;border-radius:6px;outline:2px solid var(--accent)">${MODE_LABEL[mode]} <span class="hint" style="margin:0;font-weight:400">👁</span></strong>
         <span style="display:inline-flex;gap:.3rem">
           <button type="button" class="hd-reset" data-smcopyside="${mode}" title="Diese Werte in den ${MODE_LABEL[other]}-Modus kopieren">→ ${other === 'dark' ? 'Dunkel' : 'Hell'} kopieren</button>
           <button type="button" class="hd-reset" data-smapplyall="${mode}" title="Dieses ${MODE_LABEL[mode]}-Design als Standard für alle drei Sektionen übernehmen (Audio, Bild, Diverse)">★ Für alle Sektionen</button>
@@ -205,7 +212,6 @@ function designSection(lang, key, mode) {
       <div style="margin-top:.5rem">
         ${slider({ id: id('darken'), label: 'Verdunkelung', unit: '%', min: 0, max: 100, value: s.darken, attrs: attrs('darken'), resetAttrs: reset('darken') })}
       </div>
-      ${dis ? '' : ''}
     </div>`;
 }
 function slidesPanel(lang, key) {
@@ -259,7 +265,8 @@ export function leftHtml(lang) {
     <aside class="tc-side" data-tcside="left">
       <div class="tc-side-head left">🖼️ Design &amp; Diashow – ${SECTION_MEDIA_LABELS[key]}</div>
       <p class="hint">Umriss, Eckenradius, Deckkraft und Verdunkelung des Sektions-Mediums, getrennt für <strong>Hell</strong> und <strong>Dunkel</strong>;
-        die Vorschau springt beim Bearbeiten in den passenden Modus. Darunter die Diashow (nur bei Bildern).</p>
+        der Umschalter über der Vorschau (oder die zugeklappte Leiste hier) wählt den bearbeiteten Modus, der andere ist zugeklappt.
+        Darunter die Diashow (nur bei Bildern).</p>
       <div class="panel" style="display:flex;flex-wrap:wrap;gap:.4rem;align-items:center">
         <button type="button" class="hd-reset" data-smcopylang="${otherLang}" style="white-space:normal;text-align:left;flex:1 1 auto;min-width:0;max-width:100%" title="Design (Hell + Dunkel), Diashow-Einstellungen und Text-Design dieser Sektion in die andere Sprache übernehmen – Medium, Bilder und Text bleiben">📋 Sektions-Design nach ${otherLabel} übertragen<br /><span class="hint" style="margin:0">(Hell + Dunkel, Diashow-Takt, Text-Design – Medium, Bilder und Text bleiben je Sprache)</span></button>
       </div>
@@ -431,16 +438,30 @@ export function bindSectionMedia(pane, lang, rerender) {
     selected = SECTION_MEDIA_KEYS.includes(e.target.value) ? e.target.value : 'audio';
     rr();
   });
+  // Hell/Dunkel wählen: bei einem Wechsel neu rendern (Seitenleiste zeigt den
+  // gewählten Modus offen, den anderen zugeklappt; Sichtzustand bleibt erhalten),
+  // sonst nur die Vorschau auffrischen.
+  const showMode = (mode) => {
+    const next = mode === 'dark' ? 'dark' : 'light';
+    if (next === prevMode) {
+      setPrevMode(pane, lang, next);
+      return;
+    }
+    prevMode = next;
+    rr();
+  };
   pane
     .querySelectorAll('[data-smprevmode]')
-    .forEach((el) =>
-      el.addEventListener('click', () => setPrevMode(pane, lang, el.dataset.smprevmode)),
-    );
-  pane
-    .querySelectorAll('[data-smshowmode]')
-    .forEach((el) =>
-      el.addEventListener('click', () => setPrevMode(pane, lang, el.dataset.smshowmode)),
-    );
+    .forEach((el) => el.addEventListener('click', () => showMode(el.dataset.smprevmode)));
+  pane.querySelectorAll('[data-smshowmode]').forEach((el) => {
+    el.addEventListener('click', () => showMode(el.dataset.smshowmode));
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        showMode(el.dataset.smshowmode);
+      }
+    });
+  });
 
   // Medium-Slot (Video oder Bild).
   pane.querySelectorAll('[data-smslot]').forEach((el) => {
