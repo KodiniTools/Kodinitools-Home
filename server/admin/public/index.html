@@ -524,6 +524,45 @@
       .tc-main {
         min-width: 0;
       }
+      /* Hintergrund-Tab: der nicht gewählte Modus ist zu einer schmalen Leiste
+         zugeklappt, die Mitte (Sticky-Vorschau) bekommt den Platz. */
+      .tc-layout.bg-collapsed-light {
+        grid-template-columns: 64px minmax(0, 1200px) minmax(300px, 420px);
+      }
+      .tc-layout.bg-collapsed-dark {
+        grid-template-columns: minmax(300px, 420px) minmax(0, 1200px) 64px;
+      }
+      .tc-side--collapsed {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.7rem 0.3rem;
+        cursor: pointer;
+        overflow: hidden;
+      }
+      .tc-side--collapsed:hover {
+        border-color: var(--accent);
+      }
+      .tc-side-vlabel {
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      .fx-prevs.fx-prevs--single {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .fx-prevs--single .fx-prev {
+        min-height: 380px;
+        max-width: none;
+        width: 100%;
+      }
+      .fx-prevs--single {
+        max-width: none;
+      }
       .tc-side {
         background: var(--panel);
         border: 1px solid var(--border);
@@ -574,6 +613,19 @@
         width: min(320px, 90vw);
       }
       @media (max-width: 1500px) {
+        .tc-layout.bg-collapsed-light,
+        .tc-layout.bg-collapsed-dark {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .tc-side--collapsed {
+          flex-direction: row;
+          justify-content: center;
+          max-height: none;
+        }
+        .tc-side-vlabel {
+          writing-mode: horizontal-tb;
+          transform: none;
+        }
         .tc-layout {
           grid-template-columns: minmax(0, 1fr);
           max-width: 900px;
