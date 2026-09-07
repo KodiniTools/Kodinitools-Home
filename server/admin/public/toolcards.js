@@ -43,6 +43,10 @@ import { colorPicker, bindColorPickers } from './color.js';
 // Modus der Übersicht „Alle Karten" (Hell/Dunkel); die Design-Felder selbst
 // stehen für beide Modi gleichzeitig in den Seitenleisten (Hell links, Dunkel rechts).
 let ovTheme = 'light';
+// In der Sticky-Vorschau gezeigter und bearbeiteter Modus; die Seitenleiste des
+// anderen Modus ist zu einer schmalen, klickbaren Leiste zugeklappt.
+let tcPrevMode = 'light';
+const TC_MODE_LABEL = { light: '☀️ Hell', dark: '🌙 Dunkel' };
 // Übersicht „Alle Karten" auf-/zugeklappt (bleibt beim Neu-Rendern erhalten).
 let ovOpen = false;
 let selected = '';
@@ -471,9 +475,15 @@ function previewBlock(lang) {
             : ''
         }
       </div>
-      <p class="hint" style="margin:.35rem 0 .3rem">Live-Vorschau der bearbeiteten Karte – Hell und Dunkel <em>(zum Testen des Hover-Effekts über die Karte fahren)</em>. Die Einstellungen stehen links (Hell) und rechts (Dunkel).</p>
+      <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin:.35rem 0 .3rem">
+        <span class="hint" style="margin:0">👁 Live-Vorschau der bearbeiteten Karte:</span>
+        <span class="mode-switch" title="Vorschau und Seitenleiste im Hell- oder Dunkelmodus">
+          ${['light', 'dark'].map((md) => `<button type="button" class="hd-reset${md === tcPrevMode ? ' active' : ''}" data-tcprevmode="${md}" aria-pressed="${md === tcPrevMode}">${TC_MODE_LABEL[md]}</button>`).join('')}
+        </span>
+        <span class="hint" style="margin:0"><em>zum Testen des Hover-Effekts über die Karte fahren</em> – die Einstellungen dieses Modus stehen in der offenen Seitenleiste, der andere Modus ist zugeklappt.</span>
+      </div>
       <style data-tchover>${previewHoverCss(st)}</style>
-      <div class="tc-previews">${page('light')}${page('dark')}</div>
+      <div class="tc-previews tc-previews--single">${page(tcPrevMode)}</div>
       <p class="hint" data-tcnote style="margin:.35rem 0 0">${noteText(lang)}</p>
     </div>`;
 }
@@ -774,6 +784,11 @@ function centerFieldsBlock(lang) {
 // Seitenleiste eines Modus: Rahmen, Hintergrund, Hintergrundbild, Hover, Text-Farben.
 function sideBlock(lang, mode) {
   const dark = mode === 'dark';
+  if (mode !== tcPrevMode)
+    return `<aside class="tc-side tc-side--collapsed" data-tcside="${mode}" data-tcshowmode="${mode}" role="button" tabindex="0" title="${dark ? 'Dunkelmodus' : 'Hellmodus'} anzeigen und bearbeiten">
+      <span style="font-size:1.3rem">${dark ? '🌙' : '☀️'}</span>
+      <span class="tc-side-vlabel">${dark ? 'Dunkelmodus' : 'Hellmodus'} – anklicken zum Bearbeiten</span>
+    </aside>`;
   const head = `<div class="tc-side-head ${mode}">${dark ? '🌙 Dunkelmodus' : '☀️ Hellmodus'}</div>`;
   if (!editsOwnDesign(lang))
     return `<aside class="tc-side" data-tcside="${mode}">${head}
@@ -948,7 +963,7 @@ function panelHtml(lang) {
 // (auf schmalen Bildschirmen untereinander: Mitte, Hell, Dunkel).
 function layoutHtml(lang) {
   return `
-    <div class="tc-layout">
+    <div class="tc-layout bg-collapsed-${tcPrevMode === 'light' ? 'dark' : 'light'}">
       ${sideBlock(lang, 'light')}
       <div class="tc-main">${previewBlock(lang)}${panelHtml(lang)}</div>
       ${sideBlock(lang, 'dark')}
@@ -994,6 +1009,26 @@ export function renderToolCards() {
   // das Neu-Rendern hinweg erhalten – sonst springt die Ansicht bei jedem Schalter.
   const view = captureView(pane);
   pane.innerHTML = layoutHtml(lang);
+
+  // Hell/Dunkel: Vorschau + bearbeitete Seitenleiste umschalten (Gegenseite klappt
+  // zu); die Übersicht „Alle Karten" folgt dem gewählten Modus.
+  const showMode = (mode) => {
+    tcPrevMode = mode === 'dark' ? 'dark' : 'light';
+    ovTheme = tcPrevMode;
+    renderToolCards();
+  };
+  pane
+    .querySelectorAll('[data-tcprevmode]')
+    .forEach((b) => b.addEventListener('click', () => showMode(b.dataset.tcprevmode)));
+  pane.querySelectorAll('[data-tcshowmode]').forEach((el) => {
+    el.addEventListener('click', () => showMode(el.dataset.tcshowmode));
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        showMode(el.dataset.tcshowmode);
+      }
+    });
+  });
   const rerender = () => renderToolCards();
 
   pane.querySelector('[data-tcenabled]')?.addEventListener('change', (e) => {
