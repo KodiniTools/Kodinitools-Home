@@ -104,11 +104,32 @@ function refreshTxtPreviews(pane, lang) {
   TEXT_FIELDS.forEach((_, idx) => updateTxtPreview(pane, lang, idx));
 }
 
+// Bearbeiteter Modus: die Seitenleiste des anderen Modus ist zu einer schmalen,
+// klickbaren Leiste zugeklappt (Umschalter oben in der Mitte).
+let txtPrevMode = 'light';
+const TXT_MODE_LABEL = { light: '☀️ Hell', dark: '🌙 Dunkel' };
 export function renderTexts() {
   const pane = $('#content');
   const lang = state.nav.section;
   const view = captureView(pane); // Scroll/Seitenleisten/Details über das Neu-Rendern erhalten
   pane.innerHTML = layoutHtml(lang);
+  // Hell/Dunkel: bearbeitete Seitenleiste umschalten (Gegenseite klappt zu).
+  const showMode = (mode) => {
+    txtPrevMode = mode === 'dark' ? 'dark' : 'light';
+    renderTexts();
+  };
+  pane
+    .querySelectorAll('[data-txtprevmode]')
+    .forEach((b) => b.addEventListener('click', () => showMode(b.dataset.txtprevmode)));
+  pane.querySelectorAll('[data-txtshowmode]').forEach((el) => {
+    el.addEventListener('click', () => showMode(el.dataset.txtshowmode));
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        showMode(el.dataset.txtshowmode);
+      }
+    });
+  });
   pane.querySelectorAll('[data-txt]').forEach((el) => {
     const idx = parseInt(el.dataset.txt, 10);
     const field = TEXT_FIELDS[idx];
@@ -346,6 +367,12 @@ function sidePanel(lang, mode) {
         })}
       </div>`;
   }).join('');
+  if (mode !== txtPrevMode)
+    return `
+    <aside class="tc-side tc-side--collapsed" data-tcside="${mode}" data-txtshowmode="${mode}" role="button" tabindex="0" title="${dark ? 'Dunkelmodus' : 'Hellmodus'} anzeigen und bearbeiten">
+      <span style="font-size:1.3rem">${dark ? '🌙' : '☀️'}</span>
+      <span class="tc-side-vlabel">${dark ? 'Dunkelmodus' : 'Hellmodus'} – anklicken zum Bearbeiten</span>
+    </aside>`;
   return `
     <aside class="tc-side" data-tcside="${mode}">
       <div class="tc-side-head ${mode}">${dark ? '🌙 Dunkelmodus' : '☀️ Hellmodus'}</div>
@@ -360,9 +387,18 @@ function sidePanel(lang, mode) {
 // Gesamtlayout: Seitenleiste Hell | Mitte | Seitenleiste Dunkel (wie Tool-Karten).
 function layoutHtml(lang) {
   return `
-    <div class="tc-layout">
+    <div class="tc-layout bg-collapsed-${txtPrevMode === 'light' ? 'dark' : 'light'}">
       ${sidePanel(lang, 'light')}
-      <div class="tc-main">${centerPanel(lang)}</div>
+      <div class="tc-main">
+        <div class="tc-sticky" style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
+          <span class="hint" style="margin:0">👁 Vorschau &amp; Textfarben bearbeiten für:</span>
+          <span class="mode-switch" title="Seitenleiste mit Vorschau und Textfarben im Hell- oder Dunkelmodus">
+            ${['light', 'dark'].map((md) => `<button type="button" class="hd-reset${md === txtPrevMode ? ' active' : ''}" data-txtprevmode="${md}" aria-pressed="${md === txtPrevMode}">${TXT_MODE_LABEL[md]}</button>`).join('')}
+          </span>
+          <span class="hint" style="margin:0">– der andere Modus ist seitlich zugeklappt; Schrift, Größe und Effekte in der Mitte gelten für beide.</span>
+        </div>
+        ${centerPanel(lang)}
+      </div>
       ${sidePanel(lang, 'dark')}
     </div>`;
 }
