@@ -317,13 +317,23 @@ function previewHtml(lang, mode) {
       </div>`;
 }
 // Sticky-Vorschau beider Modi (liegt direkt in .tc-main, klebt über dem ganzen Mittelteil).
+// In der Sticky-Vorschau gezeigter und bearbeiteter Modus; die Seitenleiste des
+// anderen Modus ist zu einer schmalen, klickbaren Leiste zugeklappt.
+let hdPrevMode = 'light';
+const HD_MODE_LABEL = { light: '☀️ Hell', dark: '🌙 Dunkel' };
 function stickyPreview(lang) {
   const hd = heroDesignOf(lang);
   return `
     <div class="tc-sticky">
-      <p class="hint" style="margin:.1rem 0 .3rem">Live-Vorschau Hell + Dunkel <em>(zum Testen über die Buttons fahren)</em>. Farben je Modus stehen links (Hell) und rechts (Dunkel).</p>
+      <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin:.1rem 0 .3rem">
+        <span class="hint" style="margin:0">👁 Live-Vorschau:</span>
+        <span class="mode-switch" title="Vorschau und Seitenleiste im Hell- oder Dunkelmodus">
+          ${['light', 'dark'].map((md) => `<button type="button" class="hd-reset${md === hdPrevMode ? ' active' : ''}" data-hdprevmode="${md}" aria-pressed="${md === hdPrevMode}">${HD_MODE_LABEL[md]}</button>`).join('')}
+        </span>
+        <span class="hint" style="margin:0"><em>zum Testen über die Buttons fahren</em> – die Farben dieses Modus stehen in der offenen Seitenleiste, der andere Modus ist zugeklappt.</span>
+      </div>
       <style data-hdhoverstyle>${hoverRuleCss(lang)}</style>
-      <div class="tc-previews">${previewHtml(lang, 'light')}${previewHtml(lang, 'dark')}</div>
+      <div class="tc-previews tc-previews--single">${previewHtml(lang, hdPrevMode)}</div>
       <p class="hint" data-hdnote style="margin-top:.35rem">${heroPreviewNote(hd)}</p>
     </div>`;
 }
@@ -515,6 +525,12 @@ function sidePanel(lang, mode) {
         })}
       </div>`;
   }).join('');
+  if (mode !== hdPrevMode)
+    return `
+    <aside class="tc-side tc-side--collapsed" data-tcside="${mode}" data-hdshowmode="${mode}" role="button" tabindex="0" title="${dark ? 'Dunkelmodus' : 'Hellmodus'} anzeigen und bearbeiten">
+      <span style="font-size:1.3rem">${dark ? '🌙' : '☀️'}</span>
+      <span class="tc-side-vlabel">${dark ? 'Dunkelmodus' : 'Hellmodus'} – anklicken zum Bearbeiten</span>
+    </aside>`;
   return `
     <aside class="tc-side" data-tcside="${mode}">
       <div class="tc-side-head ${mode}">${dark ? '🌙 Dunkelmodus' : '☀️ Hellmodus'}</div>
@@ -532,7 +548,7 @@ function sidePanel(lang, mode) {
 // Gesamtlayout: Seitenleiste Hell | Mitte (Sticky-Vorschau + Panel) | Seitenleiste Dunkel.
 function layoutHtml(lang) {
   return `
-    <div class="tc-layout">
+    <div class="tc-layout bg-collapsed-${hdPrevMode === 'light' ? 'dark' : 'light'}">
       ${sidePanel(lang, 'light')}
       <div class="tc-main">${stickyPreview(lang)}${centerPanel(lang)}</div>
       ${sidePanel(lang, 'dark')}
@@ -658,6 +674,24 @@ export function renderHeroDesign() {
   // Sichtzustand (Scroll der Seite/Seitenleisten, auf-/zugeklappte Bereiche) erhalten.
   const view = captureView(pane);
   pane.innerHTML = layoutHtml(lang);
+
+  // Hell/Dunkel: Vorschau + bearbeitete Seitenleiste umschalten (Gegenseite klappt zu).
+  const showMode = (mode) => {
+    hdPrevMode = mode === 'dark' ? 'dark' : 'light';
+    renderHeroDesign();
+  };
+  pane
+    .querySelectorAll('[data-hdprevmode]')
+    .forEach((b) => b.addEventListener('click', () => showMode(b.dataset.hdprevmode)));
+  pane.querySelectorAll('[data-hdshowmode]').forEach((el) => {
+    el.addEventListener('click', () => showMode(el.dataset.hdshowmode));
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        showMode(el.dataset.hdshowmode);
+      }
+    });
+  });
 
   // Komplettes Hero-Design (Hell + Dunkel, alle Einstellungen) der aktuellen
   // Sprache in die andere übertragen. Texte und Button-Beschriftungen (Overrides)
