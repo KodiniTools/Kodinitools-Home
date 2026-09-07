@@ -175,6 +175,7 @@ function designSection(lang, key, mode) {
         <strong>${MODE_LABEL[mode]}</strong>
         <span style="display:inline-flex;gap:.3rem">
           <button type="button" class="hd-reset" data-smcopyside="${mode}" title="Diese Werte in den ${MODE_LABEL[other]}-Modus kopieren">→ ${other === 'dark' ? 'Dunkel' : 'Hell'} kopieren</button>
+          <button type="button" class="hd-reset" data-smapplyall="${mode}" title="Dieses ${MODE_LABEL[mode]}-Design als Standard für alle drei Sektionen übernehmen (Audio, Bild, Diverse)">★ Für alle Sektionen</button>
           <button type="button" class="hd-reset" data-smresetall data-mode="${mode}" title="Design dieses Modus auf Standard zurücksetzen">↺ Alles</button>
         </span>
       </div>
@@ -492,6 +493,23 @@ export function bindSectionMedia(pane, lang, rerender) {
       prevMode = to;
       rr();
       toast(`Design nach ${MODE_LABEL[to]} kopiert`);
+    }),
+  );
+  // Design eines Modus als Standard für alle drei Sektionen übernehmen.
+  pane.querySelectorAll('[data-smapplyall]').forEach((el) =>
+    el.addEventListener('click', () => {
+      const mode = el.dataset.smapplyall === 'dark' ? 'dark' : 'light';
+      const others = SECTION_MEDIA_KEYS.filter((k) => k !== key);
+      if (
+        !confirm(
+          `${MODE_LABEL[mode]}-Design von „${SECTION_MEDIA_LABELS[key]}" für alle Sektionen übernehmen? Das ${MODE_LABEL[mode]}-Design von ${others.map((k) => SECTION_MEDIA_LABELS[k]).join(' und ')} wird ersetzt.`,
+        )
+      )
+        return;
+      for (const k of others) getSectionMedia(lang, k).style[mode] = { ...cfg.style[mode] };
+      prevMode = mode;
+      rr();
+      toast(`${MODE_LABEL[mode]}-Design gilt jetzt für alle Sektionen`);
     }),
   );
   pane.querySelectorAll('[data-smcopylang]').forEach((el) =>
