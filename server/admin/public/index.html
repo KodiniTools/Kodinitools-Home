@@ -544,6 +544,24 @@
       .tc-side--collapsed:hover {
         border-color: var(--accent);
       }
+      /* Layout-Tab (Banner): Design-Abschnitt des nicht gewählten Modus als
+         schmale, klickbare Leiste innerhalb der Seitenleiste. */
+      .tc-mode-collapsed {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.55rem 0.8rem;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+      .tc-mode-collapsed:hover,
+      .tc-mode-collapsed:focus-visible {
+        border-color: var(--accent);
+        color: var(--text);
+        outline: none;
+      }
       .tc-side-vlabel {
         writing-mode: vertical-rl;
         transform: rotate(180deg);

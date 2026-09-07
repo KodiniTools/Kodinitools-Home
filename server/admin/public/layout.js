@@ -742,10 +742,18 @@ function bannerDesignSection(lang, mode) {
   const withResetM = (html, f) =>
     `<div style="display:flex;gap:.3rem;align-items:center">${html}${resetBtnM(f)}</div>`;
   const other = mode === 'light' ? 'dark' : 'light';
+  // Nicht gewählter Modus: zu einer schmalen, klickbaren Leiste zugeklappt
+  // (Klick/Enter/Leertaste zeigt ihn in Vorschau und Seitenleiste).
+  if (mode !== bannerPrevMode)
+    return `
+    <div class="panel tc-mode-collapsed" data-bannerdesign="${mode}" data-bannershowmode="${mode}" role="button" tabindex="0" title="${MODE_LABEL[mode]}-Modus anzeigen und bearbeiten">
+      <span style="font-size:1.2rem">${mode === 'dark' ? '🌙' : '☀️'}</span>
+      <span>${mode === 'dark' ? 'Dunkelmodus' : 'Hellmodus'} – anklicken zum Bearbeiten</span>
+    </div>`;
   return `
     <div class="panel" data-bannerdesign="${mode}">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap;margin-bottom:.4rem">
-        <strong>${MODE_LABEL[mode]}</strong>
+        <strong data-bannershowmode="${mode}" style="outline:2px solid var(--accent);padding:.1rem .4rem;border-radius:6px">${MODE_LABEL[mode]} <span class="hint" style="margin:0;font-weight:400">👁</span></strong>
         <span style="display:inline-flex;gap:.3rem">
           <button type="button" class="hd-reset" data-bannercopyside="${mode}" title="Diese Werte in den ${MODE_LABEL[other]}-Modus kopieren">→ ${other === 'dark' ? 'Dunkel' : 'Hell'} kopieren</button>
           <button type="button" class="hd-reset" data-bannerstyleresetall data-mode="${mode}" title="Banner-Design dieses Modus auf Standard zurücksetzen">↺ Alles</button>
@@ -861,7 +869,8 @@ function layoutPanel(lang) {
       <aside class="tc-side" data-tcside="left">
         <div class="tc-side-head left">🖼️ Banner-Design</div>
         <p class="hint">Rahmen, Ecken, Schatten, Deckkraft und Verdunkelung des Banner-Bildes/-Videos – getrennt für
-          <strong>Hell</strong> und <strong>Dunkel</strong>; die Vorschau springt beim Bearbeiten in den passenden Modus.
+          <strong>Hell</strong> und <strong>Dunkel</strong>. Der Umschalter über der Vorschau (oder die zugeklappte Leiste hier)
+          wählt den bearbeiteten Modus; der andere ist zugeklappt.
           Das Banner-Bild/-Video weist du in der Mitte unter der Vorschau zu.</p>
         <div class="panel" style="display:flex;flex-wrap:wrap;gap:.4rem;align-items:center">
           <button type="button" class="hd-reset" data-bannercopylang="${otherLang}" title="Banner-Design (Hell + Dunkel) in die andere Sprache übernehmen – Text bleibt je Sprache" style="white-space:normal;text-align:left;flex:1 1 auto;min-width:0;max-width:100%">📋 Banner-Design nach ${otherLabel} übertragen<br /><span class="hint" style="margin:0">(Hell + Dunkel; Text bleibt je Sprache)</span></button>
@@ -1063,9 +1072,16 @@ function updateBannerPreviewMedia(pane, lang) {
   if (!el) return;
   el.setAttribute('style', bannerMediaStyle(lang, el.dataset.bannermedia, bannerPrevMode));
 }
-// Vorschau-Modus (Hell/Dunkel) umschalten: Hintergrund, Umschalter, Medium.
+// Vorschau-Modus (Hell/Dunkel) umschalten. Bei einem Wechsel wird neu gerendert,
+// damit in der Seitenleiste der bearbeitete Modus offen und der andere
+// zugeklappt ist (Sichtzustand bleibt erhalten); sonst nur die Vorschau auffrischen.
 function setBannerPrevMode(pane, lang, mode) {
-  bannerPrevMode = mode === 'dark' ? 'dark' : 'light';
+  const next = mode === 'dark' ? 'dark' : 'light';
+  if (next !== bannerPrevMode) {
+    bannerPrevMode = next;
+    renderLayout();
+    return;
+  }
   const box = pane.querySelector('[data-bannerbox]');
   if (box) {
     box.dataset.prevmode = bannerPrevMode;
@@ -1880,6 +1896,16 @@ export function renderLayout() {
     .forEach((el) =>
       el.addEventListener('click', () => setBannerPrevMode(pane, lang, el.dataset.bannerprevmode)),
     );
+  // Zugeklappte Leiste bzw. Abschnittskopf in der Seitenleiste: Modus wählen.
+  pane.querySelectorAll('[data-bannershowmode]').forEach((el) => {
+    el.addEventListener('click', () => setBannerPrevMode(pane, lang, el.dataset.bannershowmode));
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        setBannerPrevMode(pane, lang, el.dataset.bannershowmode);
+      }
+    });
+  });
   pane.querySelectorAll('[data-bannerstyle]').forEach((el) =>
     el.addEventListener('input', () => {
       const f = el.dataset.bannerstyle;
