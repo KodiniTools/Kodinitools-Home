@@ -77,6 +77,10 @@ const PATTERN_LABEL = { none: 'Kein Muster', dots: 'Punktraster', grid: 'Feines 
 
 // Sektionen: Vorschlag für die Tönungsfarbe je Modus (Markenfarben) und Stil-Beschriftung.
 const SECTION_TINT_DEFAULT = { light: '#014f99', dark: '#e8a945' };
+// In der Sticky-Vorschau gezeigter und in der Seitenleiste bearbeiteter Modus; die
+// Gegenseite ist zugeklappt (schmale Leiste, Klick klappt sie auf).
+let bgPrevMode = 'light';
+const BG_MODE_LABEL = { light: '☀️ Hell', dark: '🌙 Dunkel' };
 const SECTION_STYLE_LABEL = {
   band: 'Volle Breite (Band bis zum Seitenrand)',
   card: 'Abgerundete Fläche innerhalb der Sektion',
@@ -498,6 +502,12 @@ function centerHtml() {
 // Seitenleiste eines Modus: Farbe/Verlauf/Muster/Bild + abgesetzte Sektionen.
 function sideHtml(mode) {
   const dark = mode === 'dark';
+  if (mode !== bgPrevMode)
+    return `
+    <aside class="tc-side tc-side--collapsed" data-tcside="${mode}" data-bgshowmode="${mode}" role="button" tabindex="0" title="${dark ? 'Dunkelmodus' : 'Hellmodus'} anzeigen und bearbeiten">
+      <span style="font-size:1.3rem">${dark ? '🌙' : '☀️'}</span>
+      <span class="tc-side-vlabel">${dark ? 'Dunkelmodus' : 'Hellmodus'} – anklicken zum Bearbeiten</span>
+    </aside>`;
   return `
     <aside class="tc-side" data-tcside="${mode}">
       <div class="tc-side-head ${mode}">${dark ? '🌙 Dunkelmodus' : '☀️ Hellmodus'}</div>
@@ -511,7 +521,7 @@ function sideHtml(mode) {
 }
 function backgroundPanel() {
   return `
-    <div class="tc-layout">
+    <div class="tc-layout bg-collapsed-${bgPrevMode === 'light' ? 'dark' : 'light'}">
       ${sideHtml('light')}
       <div class="tc-main">${centerHtml()}</div>
       ${sideHtml('dark')}
@@ -526,10 +536,16 @@ function stickyPreview() {
   const anyFx = SITE_FX.some((fx) => getSiteFx(fx.key).on);
   return `
     <div class="tc-sticky">
-      <p class="hint" style="margin:.1rem 0 .4rem">Live-Vorschau Hell + Dunkel <em>(inkl. Effekte${
-        anyFx ? '; Maus über die Vorschau bewegen zeigt das Spotlight' : ' – derzeit alle aus'
-      })</em>:</p>
-      <div class="fx-prevs">${fxPreview('light')}${fxPreview('dark')}</div>
+      <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin:.1rem 0 .4rem">
+        <span class="hint" style="margin:0">👁 Live-Vorschau:</span>
+        <span class="mode-switch" title="Vorschau und Seitenleiste im Hell- oder Dunkelmodus">
+          ${['light', 'dark'].map((md) => `<button type="button" class="hd-reset${md === bgPrevMode ? ' active' : ''}" data-bgprevmode="${md}" aria-pressed="${md === bgPrevMode}">${BG_MODE_LABEL[md]}</button>`).join('')}
+        </span>
+        <span class="hint" style="margin:0"><em>inkl. Effekte${
+          anyFx ? '; Maus über die Vorschau bewegen zeigt das Spotlight' : ' – derzeit alle aus'
+        }</em> – der andere Modus ist seitlich zugeklappt.</span>
+      </div>
+      <div class="fx-prevs fx-prevs--single">${fxPreview(bgPrevMode)}</div>
     </div>`;
 }
 
@@ -651,6 +667,23 @@ function refreshMode(pane, mode) {
 }
 
 function bindBackground(pane) {
+  // Hell/Dunkel: Vorschau + bearbeitete Seitenleiste umschalten (Gegenseite klappt zu).
+  const showMode = (mode) => {
+    bgPrevMode = mode === 'dark' ? 'dark' : 'light';
+    renderBackground();
+  };
+  pane
+    .querySelectorAll('[data-bgprevmode]')
+    .forEach((b) => b.addEventListener('click', () => showMode(b.dataset.bgprevmode)));
+  pane.querySelectorAll('[data-bgshowmode]').forEach((el) => {
+    el.addEventListener('click', () => showMode(el.dataset.bgshowmode));
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        showMode(el.dataset.bgshowmode);
+      }
+    });
+  });
   pane.querySelectorAll('[data-bgen]').forEach((cb) => {
     cb.addEventListener('change', () => {
       const mode = cb.dataset.bgen;
