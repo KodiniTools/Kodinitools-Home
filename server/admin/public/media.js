@@ -3,6 +3,10 @@
 // der Server-Dateiliste.
 
 import { $, esc, api, toast, fmtBytes, mediaAll, mediaPut, mediaDel } from './core.js';
+import { bindSliders } from './slider.js';
+import { bindColorPickers } from './color.js';
+import { captureView, restoreView } from './viewstate.js';
+import { centerHtml, leftHtml, rightHtml, bindSectionMedia } from './sectionmedia.js';
 import {
   state,
   getMediaVal,
@@ -71,11 +75,6 @@ export async function loadServerFiles() {
 }
 
 // ============ TAB: Videos & Medien ============
-const VIDEO_SLOTS = [
-  { key: 'audio', label: 'Audio-Tools Sektion' },
-  { key: 'image', label: 'Bild-Tools Sektion' },
-  { key: 'diverse', label: 'Diverse Tools Sektion' },
-];
 // Diese Slots akzeptieren Video ODER Bild – die Seite rendert je nach
 // Dateiendung automatisch <video> oder <img>.
 
@@ -235,15 +234,9 @@ function renderLangMedia(lang) {
         <h2 style="margin:.1rem 0">${head}</h2>
         <p class="hint">Diese Medien gelten nur für die ${forWhich} Startseite.</p>
       </div>`;
-  const slots = VIDEO_SLOTS.map((s) =>
-    mediaSlotPanel(lang, s.key, {
-      title: 'Medium: ' + s.label,
-      hint: 'Video oder Bild – wird je nach Datei automatisch passend angezeigt.',
-      placeholder: defMediaVal(s.key),
-      resetLabel: '↺ Standard',
-    }),
-  ).join('');
-  return header + heroPanel(lang) + slots;
+  // Dreispaltig: links Design/Diashow der gewählten Sektion, Mitte Sektionswahl +
+  // Sticky-Vorschau + Medium-Slot + Hero-Bereich, rechts Text-Overlay.
+  return `<div class="tc-layout">${leftHtml(lang)}<div class="tc-main">${header}${centerHtml(lang)}${heroPanel(lang)}</div>${rightHtml(lang)}</div>`;
 }
 
 const LOC_LABEL = { de: 'DE', en: 'EN', '': 'Gemeinsam' };
@@ -307,6 +300,7 @@ function serverFilesPanel(lang) {
 export function renderMedia() {
   const lang = state.nav.section;
   const pane = $('#content');
+  const view = captureView(pane);
   pane.innerHTML = renderLangMedia(lang);
   // Anordnung/Form (heromode/herolayout/gridratio/gridfit) liegen jetzt im Layout-Tab.
   pane.querySelectorAll('[data-slot]').forEach((el) =>
@@ -341,7 +335,11 @@ export function renderMedia() {
     }),
   );
 
+  bindSectionMedia(pane, lang, renderMedia);
+  bindSliders(pane);
+  bindColorPickers(pane);
   verifyPublishedSlots(pane);
+  restoreView(pane, view);
 }
 
 // Bereich „Dateien" EINER Sprache: Server-Dateien + Browser-Zwischenspeicher.

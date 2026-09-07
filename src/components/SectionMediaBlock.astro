@@ -1,0 +1,99 @@
+---
+// Medium einer Tool-Sektion (Audio/Bild/Diverse): Video oder Bild aus dem
+// Medien-Tab, dazu optional (Admin > Medien) ein Design je Modus (Rahmen,
+// Deckkraft, Verdunkelung – per CSS aus content.ts → getSectionMediaCss), eine
+// Diashow aus weiteren Bildern (nur wenn das Medium ein Bild ist) und ein
+// Text-Overlay. Ohne diese Einstellungen entspricht die Ausgabe dem bisherigen
+// <SectionMedia> (gleicher Wrapper mit .section-video-wrapper).
+import SectionMedia from './SectionMedia.astro';
+import HeroSlides from './HeroSlides.astro';
+import { textFontId, type MediaConfig, type SectionMediaKey } from '../content/content';
+
+interface Props {
+  media: MediaConfig;
+  section: SectionMediaKey;
+  eager?: boolean;
+}
+const { media, section, eager = false } = Astro.props;
+const src = (media.sectionVideos && media.sectionVideos[section]) || '';
+const cfg = media.sectionMedia ? media.sectionMedia[section] : undefined;
+const isVideo = /\.(mp4|webm|mov|m4v|ogv)(\?.*)?$/i.test(src);
+const slides =
+  !isVideo && cfg && Array.isArray(cfg.slides)
+    ? cfg.slides.filter((s) => typeof s === 'string' && s.trim() !== '')
+    : [];
+const t = cfg && cfg.text ? cfg.text : null;
+const hasText = !!(t && typeof t.text === 'string' && t.text.trim() !== '');
+const VALID_FONT = /^[a-zA-Z0-9][a-zA-Z0-9._ -]*\.(woff2|woff|ttf|otf)$/i;
+
+function hexToRgba(hex: string, alpha: number): string {
+  const m = /^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.exec((hex || '').trim());
+  if (!m) return `rgba(0, 0, 0, ${alpha})`;
+  let h = m[1];
+  if (h.length === 3)
+    h = h
+      .split('')
+      .map((c) => c + c)
+      .join('');
+  return `rgba(${parseInt(h.slice(0, 2), 16)}, ${parseInt(h.slice(2, 4), 16)}, ${parseInt(h.slice(4, 6), 16)}, ${alpha})`;
+}
+function num(v: unknown, min: number, max: number, def: number): number {
+  const n = typeof v === 'number' ? v : Number(v);
+  return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : def;
+}
+// Inline-Style des Text-Overlays: Position (Mittelpunkt auf x/y in %), Farbe,
+// Größe, Schrift, Deckkraft, Schatten, Umriss.
+function textStyle(): string {
+  if (!t) return '';
+  const p: string[] = [`left:${num(t.x, 0, 100, 50)}%`, `top:${num(t.y, 0, 100, 50)}%`];
+  if (t.color) p.push(`color:${t.color}`);
+  const size = num(t.size, 0, 96, 0);
+  if (size > 0) p.push(`font-size:${size}px`);
+  if (t.font && VALID_FONT.test(t.font))
+    p.push(`font-family:"${textFontId(t.font)}", var(--site-font)`);
+  const op = num(t.opacity, 0, 100, 100);
+  if (op < 100) p.push(`opacity:${(op / 100).toFixed(2)}`);
+  const sw = num(t.strokeWidth, 0, 10, 0);
+  if (sw > 0) p.push(`-webkit-text-stroke:${sw}px ${t.strokeColor || '#000000'}`);
+  if (t.shadow === false) p.push('text-shadow:none');
+  else
+    p.push(
+      `text-shadow:${num(t.shadowX, -50, 50, 0)}px ${num(t.shadowY, -50, 50, 2)}px ${num(t.shadowBlur, 0, 40, 6)}px ${hexToRgba(t.shadowColor || '#000000', 0.6)}`,
+    );
+  return p.join(';');
+}
+---
+
+{
+  src && (
+    <div class="section-video-wrapper section-media-wrapper" data-section-media={section}>
+      {slides.length > 0 && cfg ? (
+        <HeroSlides
+          slides={slides}
+          settings={cfg.slideshow || {}}
+          variant="cell"
+          total={slides.length + 1}
+        >
+          <SectionMedia
+            src={src}
+            eager={eager}
+            wrapperClass="hero-cell-media hero-slide is-active"
+            mediaClass="section-video"
+          />
+        </HeroSlides>
+      ) : (
+        <SectionMedia
+          src={src}
+          eager={eager}
+          wrapperClass="section-media-inner"
+          mediaClass="section-video"
+        />
+      )}
+      {hasText && t && (
+        <div class="section-media-text" style={textStyle()}>
+          {t.text}
+        </div>
+      )}
+    </div>
+  )
+}

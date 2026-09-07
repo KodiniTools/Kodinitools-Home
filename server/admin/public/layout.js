@@ -79,7 +79,7 @@ const CELL_DESIGN_KEYS = Object.keys(defaultCellStyle()).filter((k) => k !== 'te
 // Preset-Positionen (⤒ Oben / ◎ Mitte / ⤓ Unten) als y-Wert in %.
 const POS_PRESET_Y = { top: 10, center: 50, bottom: 90 };
 // font-family-CSS für eine Kachel-Textschrift (lädt @font-face für die Vorschau) oder ''.
-function fontFF(file) {
+export function fontFF(file) {
   return file ? `font-family:'${ensureFontFace(file)}', var(--site-font, sans-serif);` : '';
 }
 const RATIO_AR = { '1:1': '1 / 1', '16:9': '16 / 9', '2:3': '2 / 3' };
@@ -251,7 +251,7 @@ function bannerMediaBlock(lang) {
     </div>`;
 }
 // Ein Diashow-Bild (Server-URL oder 'staged:<id>') auflösen: { src, item } oder null.
-function slideInfo(val) {
+export function slideInfo(val) {
   if (!val) return null;
   if (val.startsWith('staged:')) {
     const id = val.slice(7);
@@ -319,7 +319,7 @@ function bannerSlidesBlock(lang) {
 // Einstellungen einer Diashow (Banner: attr 'slideshow', Raster: 'gridslideshow'):
 // Anzeigedauer, Übergangsdauer, Übergang, Pause bei Mauszeiger, Punkte, optional
 // „versetzt wechseln" (nur Raster).
-function slideshowSettingsHtml(ss, attr, disabled, withStagger) {
+export function slideshowSettingsHtml(ss, attr, disabled, withStagger) {
   const dis = disabled ? 'disabled' : '';
   const pre = attr === 'gridslideshow' ? 'ly:gridslideshow' : 'ly:slideshow';
   return `
@@ -480,7 +480,7 @@ async function verifyBannerFile(pane) {
 
 // Gemeinsamer Overlay-Style: der Text wird an (x,y) in % verankert (Mittelpunkt)
 // und lässt sich in der Vorschau mit der Maus frei verschieben (cursor:move).
-function overlayStyle(color, size, x, y, font, fsDefault, shadow, extra) {
+export function overlayStyle(color, size, x, y, font, fsDefault, shadow, extra) {
   const fs = size > 0 ? `${size}px` : fsDefault;
   const cx = clamp(Number(x) || 0, 0, 100);
   const cy = clamp(Number(y) || 0, 0, 100);
@@ -1155,7 +1155,7 @@ function selectCell(pane, i) {
 // Macht ein Text-Overlay (handle) innerhalb seines Containers per Maus/Touch
 // ziehbar. onMove(x,y) bekommt die neue Position in % (0–100). onTap() wird bei
 // einem Klick ohne Bewegung ausgelöst (z. B. um die Kachel auszuwählen).
-function dragHandle(handle, container, onMove, onTap) {
+export function dragHandle(handle, container, onMove, onTap) {
   if (!handle || !container) return;
   let active = false;
   let moved = false;

@@ -63,7 +63,8 @@ export function renderMain() {
       sub === 'texts' ||
       sub === 'background' ||
       sub === 'design' ||
-      sub === 'layout');
+      sub === 'layout' ||
+      sub === 'media');
   $('#appView').classList.toggle('app-wide', wide);
   if (LANG_SECTIONS.includes(section)) {
     if (sub === 'ticker') renderTicker();

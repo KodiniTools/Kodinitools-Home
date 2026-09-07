@@ -143,8 +143,76 @@ export function getTicker(locale: Locale): TickerConfig {
 
 // --- Medien (pro Sprache; admin-editierbar über media.json) ---
 
+/** Design eines Sektions-Mediums für einen Modus (Admin: Medien > linke Leiste). */
+export interface SectionMediaSide {
+  customBorder: boolean; // aus = Standard-Rahmen aus components.css
+  borderColor: string;
+  borderWidth: number; // 0–20 px
+  borderRadius: number; // 0–80 px (Standard 12)
+  opacity: number; // 0–100 %
+  darken: number; // 0–100 %
+}
+/** Text über dem Sektions-Medium (Admin: Medien > rechte Leiste). */
+export interface SectionMediaText {
+  text: string;
+  font: string;
+  color: string;
+  size: number;
+  x: number;
+  y: number;
+  opacity: number;
+  shadow: boolean;
+  shadowColor: string;
+  shadowX: number;
+  shadowY: number;
+  shadowBlur: number;
+  strokeColor: string;
+  strokeWidth: number;
+}
+export interface SectionMediaConfig {
+  style: { light: SectionMediaSide; dark: SectionMediaSide };
+  slides: string[];
+  slideshow: HeroSlideshowSettings;
+  text: SectionMediaText;
+}
+export type SectionMediaKey = 'audio' | 'image' | 'diverse';
+export const SECTION_MEDIA_SIDE_DEFAULTS: SectionMediaSide = {
+  customBorder: false,
+  borderColor: '#014f99',
+  borderWidth: 2,
+  borderRadius: 12,
+  opacity: 100,
+  darken: 0,
+};
+export const SECTION_MEDIA_TEXT_DEFAULTS: SectionMediaText = {
+  text: '',
+  font: '',
+  color: '#ffffff',
+  size: 0,
+  x: 50,
+  y: 50,
+  opacity: 100,
+  shadow: true,
+  shadowColor: '#000000',
+  shadowX: 0,
+  shadowY: 2,
+  shadowBlur: 6,
+  strokeColor: '#000000',
+  strokeWidth: 0,
+};
+function defaultSectionMedia(): SectionMediaConfig {
+  return {
+    style: { light: { ...SECTION_MEDIA_SIDE_DEFAULTS }, dark: { ...SECTION_MEDIA_SIDE_DEFAULTS } },
+    slides: [],
+    slideshow: { interval: 5, duration: 800, transition: 'fade', pauseOnHover: true, dots: true },
+    text: { ...SECTION_MEDIA_TEXT_DEFAULTS },
+  };
+}
+
 export interface MediaConfig {
   sectionVideos: { audio: string; image: string; diverse: string };
+  // Design (Hell/Dunkel), Diashow und Text-Overlay der drei Sektions-Medien.
+  sectionMedia: Record<SectionMediaKey, SectionMediaConfig>;
   // Hero-Bereich: 'banner' = ein einzelnes Bild/Video, 'grid' = Kachel-Raster.
   heroMode: 'banner' | 'grid';
   // Anordnung der Kacheln im Raster-Modus.
@@ -500,6 +568,7 @@ const MEDIA_DEFAULTS: MediaConfig = {
     image: '/videos/image-tools.mp4',
     diverse: '/videos/diverse-tools.mp4',
   },
+  sectionMedia: { audio: defaultSectionMedia(), image: defaultSectionMedia(), diverse: defaultSectionMedia() },
   heroMode: 'banner',
   heroLayout: 'grid3',
   heroBanner: '',
@@ -772,7 +841,7 @@ export function getHeroBannerCss(media: MediaConfig): string | undefined {
 
 // Schrift-Helfer für die Text-Slots (Dateiname -> Family-Name + @font-face).
 const TEXT_FONT_FILE = /^[a-zA-Z0-9][a-zA-Z0-9._ -]*\.(woff2|woff|ttf|otf)$/i;
-function textFontId(file: string): string {
+export function textFontId(file: string): string {
   return 'kodini-font-' + file.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9]+/g, '-');
 }
 function textFontFaceCss(file: string): string {
@@ -858,6 +927,67 @@ const UNIFORM_TEXT_KEYS: readonly string[] = [
  * Gibt `undefined` zurück, wenn nichts eingestellt ist (dann bleibt der Standard).
  * Mehrzeilige Texte werden über white-space:pre-line umgebrochen.
  */
+/**
+ * Design der Sektions-Medien (Admin: Medien > linke Leiste) als CSS: Rahmen,
+ * Eckenradius, Deckkraft, Verdunkelung je Sektion und Modus, plus @font-face
+ * der Text-Overlay-Schriften. Nur Abweichungen vom Standard; `undefined` wenn
+ * nichts gesetzt (unveränderte Seiten bleiben identisch).
+ */
+export function getSectionMediaCss(media: MediaConfig): string | undefined {
+  const sm = media.sectionMedia;
+  if (!isPlainObject(sm)) return undefined;
+  const d = SECTION_MEDIA_SIDE_DEFAULTS;
+  const num = (v: unknown, min: number, max: number, def: number): number => {
+    const n = typeof v === 'number' ? v : Number(v);
+    return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : def;
+  };
+  const hex = (v: unknown, def: string): string =>
+    typeof v === 'string' && /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(v) ? v : def;
+  const rules: string[] = [];
+  const faces = new Set<string>();
+  for (const key of ['audio', 'image', 'diverse'] as SectionMediaKey[]) {
+    const cfg = sm[key];
+    if (!isPlainObject(cfg)) continue;
+    const wrap = `.section-media-wrapper[data-section-media="${key}"]`;
+    const inner = `${wrap} .section-media-inner,${wrap} .hero-slides`;
+    const decls = (side: Partial<SectionMediaSide>) => {
+      const w = new Map<string, string>();
+      const m = new Map<string, string>();
+      if (side.customBorder === true) {
+        const bw = num(side.borderWidth, 0, 20, d.borderWidth);
+        w.set('border', bw > 0 ? `${bw}px solid ${hex(side.borderColor, d.borderColor)}` : '0');
+      }
+      const radius = num(side.borderRadius, 0, 80, d.borderRadius);
+      if (radius !== d.borderRadius) w.set('border-radius', `${radius}px`);
+      const opacity = num(side.opacity, 0, 100, d.opacity);
+      if (opacity < 100) m.set('opacity', (opacity / 100).toFixed(2));
+      const darken = num(side.darken, 0, 100, d.darken);
+      if (darken > 0) m.set('filter', `brightness(${((100 - darken) / 100).toFixed(2)})`);
+      return { w, m };
+    };
+    const st = isPlainObject(cfg.style) ? cfg.style : ({} as SectionMediaConfig['style']);
+    const L = decls(isPlainObject(st.light) ? st.light : {});
+    const D = decls(isPlainObject(st.dark) ? st.dark : {});
+    const BASE_W: Record<string, string> = { border: '1.5px solid rgba(1, 79, 153, 0.2)', 'border-radius': '12px' };
+    const BASE_M: Record<string, string> = { opacity: '1', filter: 'none' };
+    const emit = (sel: string, light: Map<string, string>, dark: Map<string, string>, base: Record<string, string>) => {
+      if (light.size) rules.push(`${sel}{${[...light].map(([k, v]) => `${k}:${v}`).join(';')}}`);
+      const dd: string[] = [];
+      for (const k of Object.keys(base)) {
+        if (dark.has(k)) dd.push(`${k}:${dark.get(k)}`);
+        else if (light.has(k)) dd.push(`${k}:${base[k]}`);
+      }
+      if (dd.length) rules.push(`[data-theme="dark"] ${sel.split(',').join(',[data-theme="dark"] ')}{${dd.join(';')}}`);
+    };
+    emit(wrap, L.w, D.w, BASE_W);
+    emit(inner, L.m, D.m, BASE_M);
+    const font = isPlainObject(cfg.text) && typeof cfg.text.font === 'string' ? cfg.text.font.trim() : '';
+    if (font && TEXT_FONT_FILE.test(font)) faces.add(font);
+  }
+  const css = [...faces].map(textFontFaceCss).join('') + rules.join('\n');
+  return css || undefined;
+}
+
 export function getTextStylesCss(media: MediaConfig): string | undefined {
   const ts = media.textStyles;
   if (!ts) return undefined;
