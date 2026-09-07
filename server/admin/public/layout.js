@@ -848,8 +848,8 @@ function layoutPanel(lang) {
       <div style="position:sticky;top:.5rem;z-index:5;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:.6rem .9rem;margin:0 0 .9rem;box-shadow:0 8px 22px rgba(0,0,0,.4);max-height:38vh;overflow:auto">
         <div style="display:flex;align-items:center;gap:.5rem;margin:.1rem 0 .35rem">
           <span class="hint" style="margin:0">👁 Live-Vorschau (Banner):</span>
-          <span style="display:inline-flex;gap:.25rem">
-            ${['light', 'dark'].map((md) => `<button type="button" class="hd-reset" data-bannerprevmode="${md}" aria-pressed="${md === bannerPrevMode}" style="${md === bannerPrevMode ? 'outline:2px solid var(--accent)' : ''}">${MODE_LABEL[md]}</button>`).join('')}
+          <span class="mode-switch" title="Vorschau im Hell- oder Dunkelmodus anzeigen">
+            ${['light', 'dark'].map((md) => `<button type="button" class="hd-reset${md === bannerPrevMode ? ' active' : ''}" data-bannerprevmode="${md}" aria-pressed="${md === bannerPrevMode}">${MODE_LABEL[md]}</button>`).join('')}
           </span>
           ${undoRedoBar()}
         </div>
@@ -1074,7 +1074,7 @@ function setBannerPrevMode(pane, lang, mode) {
   pane.querySelectorAll('[data-bannerprevmode]').forEach((b) => {
     const on = b.dataset.bannerprevmode === bannerPrevMode;
     b.setAttribute('aria-pressed', String(on));
-    b.style.outline = on ? '2px solid var(--accent)' : '';
+    b.classList.toggle('active', on);
   });
   updateBannerPreviewMedia(pane, lang);
 }

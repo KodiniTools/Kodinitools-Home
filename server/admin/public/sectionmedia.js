@@ -22,6 +22,8 @@ import {
   BANNER_SLIDES_MAX,
   BANNER_TRANSITIONS,
   rgbaFromHex,
+  getPageBg,
+  PAGE_BG_DEFAULT,
 } from './model.js';
 import { slider } from './slider.js';
 import { colorPicker } from './color.js';
@@ -31,7 +33,11 @@ import { dragHandle, overlayStyle, slideshowSettingsHtml, slideInfo, fontFF } fr
 
 const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 const MODE_LABEL = { light: '☀️ Hell', dark: '🌙 Dunkel' };
-const PREV_BG = { light: '#f1f5f9', dark: '#0b1220' };
+// Seitenhintergrund des Modus (wie im Tab „Hintergrund" gesetzt, sonst Standard der Seite).
+function prevBg(mode) {
+  return getPageBg(mode) || PAGE_BG_DEFAULT[mode];
+}
+const MODE_VIEW = { light: '☀️ Hell-Ansicht', dark: '🌙 Dunkel-Ansicht' };
 const POS_PRESET_Y = { top: 10, center: 50, bottom: 90 };
 const BASE_BORDER = '1.5px solid rgba(1,79,153,.2)';
 
@@ -109,11 +115,13 @@ function previewHtml(lang, key) {
     <div style="position:sticky;top:.5rem;z-index:5;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:.6rem .9rem;margin:0 0 .9rem;box-shadow:0 8px 22px rgba(0,0,0,.4)">
       <div style="display:flex;align-items:center;gap:.5rem;margin:.1rem 0 .35rem;flex-wrap:wrap">
         <span class="hint" style="margin:0">👁 Live-Vorschau (${SECTION_MEDIA_LABELS[key]}):</span>
-        <span style="display:inline-flex;gap:.25rem">
-          ${['light', 'dark'].map((md) => `<button type="button" class="hd-reset" data-smprevmode="${md}" aria-pressed="${md === prevMode}" style="${md === prevMode ? 'outline:2px solid var(--accent)' : ''}">${MODE_LABEL[md]}</button>`).join('')}
+        <span class="mode-switch" title="Vorschau im Hell- oder Dunkelmodus anzeigen">
+          ${['light', 'dark'].map((md) => `<button type="button" class="hd-reset${md === prevMode ? ' active' : ''}" data-smprevmode="${md}" aria-pressed="${md === prevMode}">${MODE_LABEL[md]}</button>`).join('')}
         </span>
+        <span class="hint" style="margin:0">– Design-Felder links wechseln die Ansicht automatisch.</span>
       </div>
-      <div data-smprevbox data-prevmode="${prevMode}" style="padding:1rem;border-radius:10px;background:${PREV_BG[prevMode]}">
+      <div data-smprevbox data-prevmode="${prevMode}" style="position:relative;padding:1.6rem 1rem 1rem;border-radius:10px;background:${prevBg(prevMode)}">
+        <span data-smprevlabel style="position:absolute;top:.35rem;left:.6rem;font-size:.72rem;font-weight:600;padding:.1rem .45rem;border-radius:999px;background:${prevMode === 'dark' ? 'rgba(255,255,255,.14)' : 'rgba(0,0,0,.08)'};color:${prevMode === 'dark' ? '#e2e8f0' : '#1e293b'}">${MODE_VIEW[prevMode]}</span>
         <div data-smwrap style="position:relative;max-width:520px;margin:0 auto;aspect-ratio:16 / 9;overflow:hidden;background:#000;box-sizing:border-box;${css.wrap}">
           ${media}
           <div data-smtext ${t.text ? 'title="Zum Verschieben ziehen"' : ''} style="${t.text ? textStyle(t) : ''}">${esc(t.text || '')}</div>
@@ -172,7 +180,7 @@ function designSection(lang, key, mode) {
   return `
     <div class="panel" data-smdesign="${mode}">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap;margin-bottom:.4rem">
-        <strong>${MODE_LABEL[mode]}</strong>
+        <strong data-smshowmode="${mode}" title="Vorschau im ${MODE_LABEL[mode]}-Modus anzeigen" style="cursor:pointer;padding:.1rem .4rem;border-radius:6px;${mode === prevMode ? 'outline:2px solid var(--accent)' : ''}">${MODE_LABEL[mode]} <span class="hint" style="margin:0;font-weight:400">👁</span></strong>
         <span style="display:inline-flex;gap:.3rem">
           <button type="button" class="hd-reset" data-smcopyside="${mode}" title="Diese Werte in den ${MODE_LABEL[other]}-Modus kopieren">→ ${other === 'dark' ? 'Dunkel' : 'Hell'} kopieren</button>
           <button type="button" class="hd-reset" data-smapplyall="${mode}" title="Dieses ${MODE_LABEL[mode]}-Design als Standard für alle drei Sektionen übernehmen (Audio, Bild, Diverse)">★ Für alle Sektionen</button>
@@ -338,12 +346,22 @@ function setPrevMode(pane, lang, mode) {
   const box = pane.querySelector('[data-smprevbox]');
   if (box) {
     box.dataset.prevmode = prevMode;
-    box.style.background = PREV_BG[prevMode];
+    box.style.background = prevBg(prevMode);
+  }
+  const label = pane.querySelector('[data-smprevlabel]');
+  if (label) {
+    label.textContent = MODE_VIEW[prevMode];
+    label.style.background = prevMode === 'dark' ? 'rgba(255,255,255,.14)' : 'rgba(0,0,0,.08)';
+    label.style.color = prevMode === 'dark' ? '#e2e8f0' : '#1e293b';
   }
   pane.querySelectorAll('[data-smprevmode]').forEach((b) => {
     const on = b.dataset.smprevmode === prevMode;
     b.setAttribute('aria-pressed', String(on));
-    b.style.outline = on ? '2px solid var(--accent)' : '';
+    b.classList.toggle('active', on);
+  });
+  // Abschnitts-Köpfe in der Seitenleiste markieren, welcher Modus gerade gezeigt wird.
+  pane.querySelectorAll('[data-smshowmode]').forEach((h) => {
+    h.style.outline = h.dataset.smshowmode === prevMode ? '2px solid var(--accent)' : '';
   });
   updatePreviewDesign(pane, lang);
 }
@@ -417,6 +435,11 @@ export function bindSectionMedia(pane, lang, rerender) {
     .querySelectorAll('[data-smprevmode]')
     .forEach((el) =>
       el.addEventListener('click', () => setPrevMode(pane, lang, el.dataset.smprevmode)),
+    );
+  pane
+    .querySelectorAll('[data-smshowmode]')
+    .forEach((el) =>
+      el.addEventListener('click', () => setPrevMode(pane, lang, el.dataset.smshowmode)),
     );
 
   // Medium-Slot (Video oder Bild).

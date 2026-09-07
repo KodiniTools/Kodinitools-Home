@@ -82,6 +82,22 @@
         background: #33455f;
         color: var(--text);
       }
+      /* Hell/Dunkel-Umschalter der Vorschauen (Medien, Layout): aktiver Modus farbig */
+      .mode-switch {
+        display: inline-flex;
+        gap: 0.25rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.15rem;
+      }
+      .mode-switch button.hd-reset {
+        padding: 0 0.7rem;
+        font-weight: 600;
+      }
+      .mode-switch button.hd-reset.active {
+        background: var(--accent);
+        color: #fff;
+      }
       /* Kachel-Galerie für die globale Standard-Schrift */
       .hd-fonttiles {
         display: grid;
