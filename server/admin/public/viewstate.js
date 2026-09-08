@@ -18,12 +18,14 @@ function detailsKeys(pane) {
 /** Zustand vor dem Neu-Rendern erfassen. */
 export function captureView(pane) {
   const sides = {};
+  const sidesLeft = {};
   pane.querySelectorAll('[data-tcside]').forEach((el) => {
     sides[el.dataset.tcside] = el.scrollTop;
+    sidesLeft[el.dataset.tcside] = el.scrollLeft;
   });
   const details = {};
   for (const { el, key } of detailsKeys(pane)) details[key] = el.open;
-  return { scrollY: window.scrollY, sides, details };
+  return { scrollY: window.scrollY, sides, sidesLeft, details };
 }
 
 /** Zustand nach dem Neu-Rendern wiederherstellen (nur bekannte Elemente). */
@@ -35,6 +37,8 @@ export function restoreView(pane, snap) {
   pane.querySelectorAll('[data-tcside]').forEach((el) => {
     const top = snap.sides[el.dataset.tcside];
     if (typeof top === 'number') el.scrollTop = top;
+    const left = snap.sidesLeft && snap.sidesLeft[el.dataset.tcside];
+    if (typeof left === 'number') el.scrollLeft = left;
   });
   // Seite: gleiche Position wie vorher (falls der Inhalt kürzer wurde, so weit wie möglich).
   window.scrollTo(0, snap.scrollY);
