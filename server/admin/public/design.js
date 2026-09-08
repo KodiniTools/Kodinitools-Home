@@ -388,6 +388,13 @@ function clampOffset(v, axis) {
 function slotTuned(st) {
   return !!(st.font || st.size > 0 || fxActive(st) || st.offsetX || st.offsetY);
 }
+// Versatz eines Feature-Buttons setzen (0/0 = Eintrag entfernen).
+function setChipOffset(key, x, y) {
+  const hd = heroDesignOf(state.nav.section);
+  if (!hd.chipOffsets || typeof hd.chipOffsets !== 'object') hd.chipOffsets = {};
+  if (x || y) hd.chipOffsets[key] = { x, y };
+  else delete hd.chipOffsets[key];
+}
 
 // Kachel-Galerie zur Wahl der GLOBALEN Basis-Schrift (sprachübergreifend, gilt
 // für die ganze Seite). Jede Kachel zeigt eine Musterschrift; die aktive Kachel
@@ -421,6 +428,13 @@ function chipHidden(hd, key) {
 }
 // Zusatz-CSS eines Hero-Textes in der Vorschau: anklickbar; ausgeblendet per
 // visibility (der Platz bleibt – wie auf der Seite).
+// Zusatz-CSS eines Feature-Buttons in der Vorschau: ziehbar, Versatz (relative
+// Position, Platz bleibt), ggf. ausgeblendet.
+function chipExtraCss(hd, key) {
+  const o = hd.chipOffsets && hd.chipOffsets[key];
+  const off = o && (o.x || o.y) ? `;position:relative;left:${o.x || 0}px;top:${o.y || 0}px` : '';
+  return `;cursor:move;touch-action:none;user-select:none${off}${chipHidden(hd, key) ? ';visibility:hidden' : ''}`;
+}
 function textHiddenCss(hd, which) {
   const shown = which === 'title' ? hd.showTitle !== false : hd.showSubtitle !== false;
   return `;cursor:move;touch-action:none;user-select:none${shown ? '' : ';visibility:hidden'}`;
@@ -436,7 +450,7 @@ function previewHtml(lang, mode) {
     .map(({ key, def }) => {
       const o = getPath(state.overrides[lang], ['hero', 'features', key]);
       const label = o != null && o !== '' ? o : def || key;
-      return `<div data-hdchip="${esc(key)}" role="button" tabindex="0" title="Klicken: Einstellungen dieses Buttons anzeigen" style="${previewChipStyle(s, hd)};cursor:pointer${chipHidden(hd, key) ? ';visibility:hidden' : ''}">${esc(label)}</div>`;
+      return `<div data-hdchip="${esc(key)}" role="button" tabindex="0" title="Klicken: Einstellungen dieses Buttons anzeigen – Ziehen verschiebt" style="${previewChipStyle(s, hd)}${chipExtraCss(hd, key)}">${esc(label)}</div>`;
     })
     .join('');
   const chipCols = Math.max(1, Math.min(6, feats.length));
@@ -818,17 +832,25 @@ function heroTextsBody(lang) {
 // Beschriftungen der Buttons (Feature-Chips) – über die Overrides bearbeitbar;
 // Teil der Sektion „Buttons & CTA".
 function featureLabelsBody(lang) {
+  const hd = heroDesignOf(lang);
   return featureDefs(lang)
     .map(({ key, def }) => {
       const cur = getPath(state.overrides[lang], ['hero', 'features', key]);
       const val = cur != null ? cur : '';
       const sel = hdSelected && hdSelected.kind === 'chip' && hdSelected.key === key;
+      const o = (hd.chipOffsets && hd.chipOffsets[key]) || { x: 0, y: 0 };
       return `<div data-hdfeatrow="${esc(key)}" style="padding:.1rem .35rem;border-radius:6px;${sel ? 'outline:2px solid var(--accent)' : ''}"><label>Button „${esc(def || key)}"</label>
         ${withReset(
           `<input data-feat="${esc(key)}" data-lang="${lang}" placeholder="${esc(def)}" value="${esc(val)}" />`,
           'feat',
           key,
-        )}</div>`;
+        )}
+        <div style="display:flex;gap:.3rem;align-items:center;margin-top:.25rem">
+          <span class="hint" style="margin:0;white-space:nowrap" title="Verschiebung gegenüber der normalen Position – in der Vorschau ziehen, Pfeiltasten (Shift = 10 px) oder hier eintragen">Verschiebung X / Y (px)</span>
+          <input type="number" data-chipoff="${esc(key)}:x" min="-${TEXT_OFFSET_MAX.x}" max="${TEXT_OFFSET_MAX.x}" step="1" value="${o.x || 0}" style="width:80px" title="Waagerecht: − nach links, + nach rechts" />
+          <input type="number" data-chipoff="${esc(key)}:y" min="-${TEXT_OFFSET_MAX.y}" max="${TEXT_OFFSET_MAX.y}" step="1" value="${o.y || 0}" style="width:80px" title="Senkrecht: − nach oben, + nach unten" />
+          <button type="button" class="hd-reset" data-chipoffreset="${esc(key)}" title="Verschiebung zurücksetzen (0/0)" aria-label="Verschiebung zurücksetzen">↺</button>
+        </div></div>`;
     })
     .join('');
 }
@@ -874,10 +896,7 @@ function refreshPreview(pane, lang) {
     const feats = featureDefs(lang);
     root.querySelectorAll('[data-hdchip]').forEach((c) => {
       const key = c.dataset.hdchip;
-      c.setAttribute(
-        'style',
-        `${previewChipStyle(s, hd)};cursor:pointer${chipHidden(hd, key) ? ';visibility:hidden' : ''}`,
-      );
+      c.setAttribute('style', previewChipStyle(s, hd) + chipExtraCss(hd, key));
       const f = feats.find((x) => x.key === key);
       if (f) {
         const o = getPath(state.overrides[lang], ['hero', 'features', f.key]);
@@ -1244,98 +1263,132 @@ export function renderHeroDesign() {
     hdSelected = { kind, key };
     applyHdSelection(pane);
   };
-  pane.querySelectorAll('[data-hdchip]').forEach((c) => {
-    c.addEventListener('click', () => selectPart('chip', c.dataset.hdchip));
+  // Texte (Titel, Untertitel, CTA) und Feature-Buttons: Klick wählt aus; Ziehen
+  // mit der Maus verschiebt (Versatz in px, 1:1 – die Vorschau ist in
+  // Originalgröße); Pfeiltasten bewegen um 1 px (Shift: 10 px). Ein Zug
+  // unterdrückt den nachfolgenden Klick. `mv` kapselt Lesen/Schreiben des
+  // Versatzes, Abgleich der Felder und die Aktualisierung der Vorschau.
+  const ARROWS = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+  const syncInputs = (attr, key, o) => {
+    const ix = pane.querySelector(`[${attr}="${key}:x"]`);
+    const iy = pane.querySelector(`[${attr}="${key}:y"]`);
+    if (ix) ix.value = String(o.x || 0);
+    if (iy) iy.value = String(o.y || 0);
+  };
+  const textMover = (key) => ({
+    get: () => {
+      const st = getTextStyle(lang, key);
+      return { x: st.offsetX || 0, y: st.offsetY || 0 };
+    },
+    set: (x, y) => {
+      const st = getTextStyle(lang, key);
+      st.offsetX = x;
+      st.offsetY = y;
+      syncInputs('data-txtoff', key, { x, y });
+    },
+    refresh: () => refreshSlot(key),
+  });
+  const chipMover = (key) => ({
+    get: () => {
+      const o = heroDesignOf(lang).chipOffsets;
+      return { x: (o && o[key] && o[key].x) || 0, y: (o && o[key] && o[key].y) || 0 };
+    },
+    set: (x, y) => {
+      setChipOffset(key, x, y);
+      syncInputs('data-chipoff', key, { x, y });
+    },
+    refresh: () => refreshPreview(pane, lang),
+  });
+  const moveBy = (mv, dx, dy) => {
+    const o = mv.get();
+    mv.set(clampOffset(o.x + dx, 'x'), clampOffset(o.y + dy, 'y'));
+    mv.refresh();
+  };
+  const bindMovable = (c, kind, key, mv) => {
+    let drag = null;
+    c.addEventListener('click', () => {
+      if (c.dataset.hdDragged) {
+        delete c.dataset.hdDragged;
+        return;
+      }
+      selectPart(kind, key);
+    });
     c.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        selectPart('chip', c.dataset.hdchip);
+        selectPart(kind, key);
+      } else if (ARROWS[e.key]) {
+        e.preventDefault();
+        const step = e.shiftKey ? 10 : 1;
+        moveBy(mv, ARROWS[e.key][0] * step, ARROWS[e.key][1] * step);
       }
     });
-  });
-  // Texte (Titel, Untertitel, CTA): Klick wählt aus; Ziehen mit der Maus verschiebt
-  // (Versatz in px, 1:1 – die Vorschau ist in Originalgröße); Pfeiltasten bewegen
-  // um 1 px (Shift: 10 px). Ein Zug unterdrückt den nachfolgenden Klick.
-  const ARROWS = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
-  const syncOffsetInputs = (key) => {
-    const st = getTextStyle(lang, key);
-    const ix = pane.querySelector(`[data-txtoff="${key}:x"]`);
-    const iy = pane.querySelector(`[data-txtoff="${key}:y"]`);
-    if (ix) ix.value = String(st.offsetX || 0);
-    if (iy) iy.value = String(st.offsetY || 0);
-  };
-  const moveText = (key, dx, dy) => {
-    const st = getTextStyle(lang, key);
-    st.offsetX = clampOffset((st.offsetX || 0) + dx, 'x');
-    st.offsetY = clampOffset((st.offsetY || 0) + dy, 'y');
-    syncOffsetInputs(key);
-    refreshSlot(key);
-  };
-  const bindSelect = (sel, kind, txtKey) =>
-    pane.querySelectorAll(sel).forEach((c) => {
-      let drag = null;
-      c.addEventListener('click', () => {
-        if (c.dataset.hdDragged) {
-          delete c.dataset.hdDragged;
-          return;
-        }
-        selectPart(kind, '');
-      });
-      c.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          selectPart(kind, '');
-        } else if (txtKey && ARROWS[e.key]) {
-          e.preventDefault();
-          const step = e.shiftKey ? 10 : 1;
-          moveText(txtKey, ARROWS[e.key][0] * step, ARROWS[e.key][1] * step);
-        }
-      });
-      if (!txtKey) return;
-      c.addEventListener('pointerdown', (e) => {
-        if (e.button !== 0) return;
-        const st = getTextStyle(lang, txtKey);
-        drag = {
-          x: e.clientX,
-          y: e.clientY,
-          ox: st.offsetX || 0,
-          oy: st.offsetY || 0,
-          moved: false,
-        };
-        c.setPointerCapture(e.pointerId);
-      });
-      c.addEventListener('pointermove', (e) => {
-        if (!drag) return;
-        const dx = e.clientX - drag.x;
-        const dy = e.clientY - drag.y;
-        if (!drag.moved && Math.abs(dx) < 3 && Math.abs(dy) < 3) return;
-        drag.moved = true;
-        const st = getTextStyle(lang, txtKey);
-        st.offsetX = clampOffset(drag.ox + dx, 'x');
-        st.offsetY = clampOffset(drag.oy + dy, 'y');
-        // Live nur das Element bewegen (leichtgewichtig); Felder folgen.
-        c.style.position = 'relative';
-        c.style.left = `${st.offsetX}px`;
-        c.style.top = `${st.offsetY}px`;
-        syncOffsetInputs(txtKey);
-      });
-      const endDrag = (e) => {
-        if (!drag) return;
-        const moved = drag.moved;
-        drag = null;
-        if (c.hasPointerCapture && c.hasPointerCapture(e.pointerId))
-          c.releasePointerCapture(e.pointerId);
-        if (moved) {
-          c.dataset.hdDragged = '1';
-          refreshSlot(txtKey);
-        }
-      };
-      c.addEventListener('pointerup', endDrag);
-      c.addEventListener('pointercancel', endDrag);
+    c.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      const o = mv.get();
+      drag = { x: e.clientX, y: e.clientY, ox: o.x, oy: o.y, moved: false };
+      c.setPointerCapture(e.pointerId);
     });
-  bindSelect('[data-hdcta]', 'cta', 'hero.cta');
-  bindSelect('[data-hdtitle]', 'title', 'hero.title');
-  bindSelect('[data-hdsub]', 'subtitle', 'hero.subtitle');
+    c.addEventListener('pointermove', (e) => {
+      if (!drag) return;
+      const dx = e.clientX - drag.x;
+      const dy = e.clientY - drag.y;
+      if (!drag.moved && Math.abs(dx) < 3 && Math.abs(dy) < 3) return;
+      drag.moved = true;
+      const x = clampOffset(drag.ox + dx, 'x');
+      const y = clampOffset(drag.oy + dy, 'y');
+      mv.set(x, y);
+      // Live nur das Element bewegen (leichtgewichtig); Felder folgen.
+      c.style.position = 'relative';
+      c.style.left = `${x}px`;
+      c.style.top = `${y}px`;
+    });
+    const endDrag = (e) => {
+      if (!drag) return;
+      const moved = drag.moved;
+      drag = null;
+      if (c.hasPointerCapture && c.hasPointerCapture(e.pointerId))
+        c.releasePointerCapture(e.pointerId);
+      if (moved) {
+        c.dataset.hdDragged = '1';
+        mv.refresh();
+      }
+    };
+    c.addEventListener('pointerup', endDrag);
+    c.addEventListener('pointercancel', endDrag);
+  };
+  pane
+    .querySelectorAll('[data-hdchip]')
+    .forEach((c) => bindMovable(c, 'chip', c.dataset.hdchip, chipMover(c.dataset.hdchip)));
+  pane
+    .querySelectorAll('[data-hdcta]')
+    .forEach((c) => bindMovable(c, 'cta', '', textMover('hero.cta')));
+  pane
+    .querySelectorAll('[data-hdtitle]')
+    .forEach((c) => bindMovable(c, 'title', '', textMover('hero.title')));
+  pane
+    .querySelectorAll('[data-hdsub]')
+    .forEach((c) => bindMovable(c, 'subtitle', '', textMover('hero.subtitle')));
+  // Felder Verschiebung X/Y je Feature-Button + ↺.
+  pane.querySelectorAll('[data-chipoff]').forEach((el) => {
+    const i = el.dataset.chipoff.lastIndexOf(':');
+    const key = el.dataset.chipoff.slice(0, i);
+    const axis = el.dataset.chipoff.slice(i + 1) === 'y' ? 'y' : 'x';
+    el.addEventListener('input', () => {
+      const n = parseInt(el.value, 10);
+      const o = chipMover(key).get();
+      o[axis] = Number.isFinite(n) ? clampOffset(n, axis) : 0;
+      setChipOffset(key, o.x, o.y);
+      refreshPreview(pane, lang);
+    });
+  });
+  pane.querySelectorAll('[data-chipoffreset]').forEach((el) => {
+    el.addEventListener('click', () => {
+      chipMover(el.dataset.chipoffreset).set(0, 0);
+      refreshPreview(pane, lang);
+      toast('Auf Standard zurückgesetzt');
+    });
+  });
 
   // Schriftauswahl (Überschriften / Buttons) – gilt für beide Modi.
   pane.querySelectorAll('[data-hdfont]').forEach((el) => {

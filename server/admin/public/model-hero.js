@@ -98,6 +98,23 @@ export function heroSideDark() {
   };
 }
 // Einzeln ausgeblendete Feature-Buttons: eindeutige Schlüssel (max. 20).
+// Verschiebung je Feature-Button: { key: { x, y } }, nur Einträge ≠ 0/0, max. 20.
+export function normChipOffsets(v) {
+  const out = {};
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return out;
+  const num = (n, m) => {
+    const x = Number(n);
+    return Number.isFinite(x) ? Math.max(-m, Math.min(m, Math.round(x))) : 0;
+  };
+  for (const k of Object.keys(v)) {
+    if (!/^[a-zA-Z0-9_-]{1,40}$/.test(k) || !v[k] || typeof v[k] !== 'object') continue;
+    const x = num(v[k].x, TEXT_OFFSET_MAX.x);
+    const y = num(v[k].y, TEXT_OFFSET_MAX.y);
+    if (x || y) out[k] = { x, y };
+    if (Object.keys(out).length >= 20) break;
+  }
+  return out;
+}
 export function normHiddenChips(v) {
   if (!Array.isArray(v)) return [];
   const out = [];
@@ -127,6 +144,7 @@ export function defaultHeroDesign() {
     showSubtitle: true, // Untertitel
     showChips: true, // Feature-Buttons (Chips) insgesamt
     hiddenChips: [], // einzeln ausgeblendete Feature-Buttons (Schlüssel aus hero.features)
+    chipOffsets: {}, // Verschiebung je Feature-Button { key: { x, y } } (px, nur ≠ 0)
     showCta: true, // CTA-Button („Jetzt starten")
     light: heroSideLight(),
     dark: heroSideDark(),
@@ -203,6 +221,7 @@ export function normHeroDesign(hd) {
     showSubtitle: hd.showSubtitle !== false,
     showChips: hd.showChips !== false,
     hiddenChips: normHiddenChips(hd.hiddenChips),
+    chipOffsets: normChipOffsets(hd.chipOffsets),
     showCta: hd.showCta !== false,
     light: normHeroSide(hasSides ? hd.light : flat, heroSideLight()),
     dark: normHeroSide(hasSides ? hd.dark : flat, heroSideDark()),
