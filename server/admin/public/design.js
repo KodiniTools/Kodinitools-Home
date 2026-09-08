@@ -124,8 +124,17 @@ function previewBoxStyle(s) {
   // eigene Schrift erben sie – wie auf der echten Seite).
   const gf = fontFF(getGlobalFont());
   const base = gf ? `font-family:${gf};` : '';
-  return `${base}position:relative;overflow:hidden;isolation:isolate;background:${bg};border:${s.borderWidth}px solid ${s.borderColor};border-radius:1rem;padding:1.1rem 1rem;text-align:center`;
+  // Maße wie .hero auf der Seite (hero.css, 16 px Grundschrift): Breite 1200 px,
+  // Innenabstand 4rem 2rem, Radius 2rem, Zeilenhöhe 1.6 – die Vorschau zeigt den
+  // Hero in Originalgröße; der Rahmen darum scrollt (HD_PREVIEW_HEIGHT).
+  return `${base}position:relative;overflow:hidden;isolation:isolate;box-sizing:border-box;width:${HERO_SITE_WIDTH}px;max-width:none;margin:0 auto;font-size:16px;line-height:1.6;background:${bg};border:${s.borderWidth}px solid ${s.borderColor};border-radius:32px;padding:64px 32px;text-align:center`;
 }
+// Breite des Hero-Kastens auf der Seite (max-width in hero.css).
+const HERO_SITE_WIDTH = 1200;
+// Sichtbare Höhe des Scrollrahmens der Vorschau (px); der Admin kann ihn unten
+// rechts in der Höhe ziehen – der Wert bleibt über ein Neu-Rendern erhalten.
+const HD_PREVIEW_HEIGHT = 300;
+let hdPrevHeight = HD_PREVIEW_HEIGHT;
 // Vorschau-URL eines Hero-Hintergrundbilds ('staged:<id>' -> Objekt-URL), '' ohne Bild.
 function heroImgUrl(val) {
   if (!val) return '';
@@ -221,17 +230,19 @@ function startHdSlideshow(pane, lang) {
 function previewChipStyle(s, hd) {
   const bg = rgbaFromHex(s.chipBgColor, s.chipBgOpacity);
   const bd = rgbaFromHex(s.chipBorderColor, s.chipBorderOpacity);
-  const size = hd.chipFontSize > 0 ? `${hd.chipFontSize}px` : '.78rem';
-  return `background:${bg};color:${s.chipTextColor};border:1px solid ${bd};border-radius:.6rem;padding:.5rem .3rem;font-weight:600;font-size:${size};text-align:center;${buttonTypo(hd)}`;
+  // Maße wie .feature-card/.feature-text auf der Seite (components.css).
+  const size = hd.chipFontSize > 0 ? `${hd.chipFontSize}px` : '15.2px';
+  return `background:${bg};color:${s.chipTextColor};border:1px solid ${bd};border-radius:12px;padding:13.6px 8px;font-weight:600;font-size:${size};text-align:center;${buttonTypo(hd)}`;
 }
 function previewCtaStyle(s, hd, lang, mode) {
-  const size = hd.ctaFontSize > 0 ? `${hd.ctaFontSize}px` : '.9rem';
+  // Maße wie .hero-cta-wrap/.hero-cta-btn auf der Seite (hero.css).
+  const size = hd.ctaFontSize > 0 ? `${hd.ctaFontSize}px` : '16.8px';
   const bg = rgbaFromHex(s.ctaBgColor, s.ctaBgOpacity);
   const bd =
     s.ctaBorderOpacity > 0
       ? `border:1px solid ${rgbaFromHex(s.ctaBorderColor, s.ctaBorderOpacity)};`
       : '';
-  return `display:inline-block;margin-top:.9rem;padding:.55rem 1.6rem;border-radius:50px;background:${bg};color:${s.ctaTextColor};${bd}font-weight:700;font-size:${size};cursor:pointer;${buttonTypo(hd)}${slotOverrideCss(lang, 'hero.cta', mode)}`;
+  return `display:inline-block;margin-top:32px;padding:13.6px 35.2px;border-radius:50px;background:${bg};color:${s.ctaTextColor};${bd}font-weight:700;font-size:${size};cursor:pointer;${buttonTypo(hd)}${slotOverrideCss(lang, 'hero.cta', mode)}`;
 }
 // Feinabstimmung eines Hero-Textes (textStyles["hero.*"]) als Inline-CSS, das
 // – wie auf der Seite – die allgemeinen Hero-Design-Werte überschreibt.
@@ -245,12 +256,14 @@ function slotOverrideCss(lang, key, mode) {
   return parts.concat(slotFxParts(st)).join(';');
 }
 function previewTitleStyle(s, hd, lang, mode) {
-  const size = hd.titleFontSize > 0 ? `${hd.titleFontSize}px` : '1.1rem';
-  return `font-weight:800;font-size:${size};color:${s.titleTextColor};${titleTypo(hd)}${slotOverrideCss(lang, 'hero.title', mode)}`;
+  // Maße wie .hero-title auf der Seite (hero.css): 2.5rem, Zeilenhöhe 1.2.
+  const size = hd.titleFontSize > 0 ? `${hd.titleFontSize}px` : '40px';
+  return `font-weight:800;font-size:${size};line-height:1.2;margin:0 0 12px;letter-spacing:-0.02em;color:${s.titleTextColor};${titleTypo(hd)}${slotOverrideCss(lang, 'hero.title', mode)}`;
 }
 function previewSubtitleStyle(s, hd, lang, mode) {
-  const size = hd.subtitleFontSize > 0 ? `${hd.subtitleFontSize}px` : '.8rem';
-  return `margin-top:.3rem;font-weight:500;font-size:${size};opacity:.85;white-space:pre-line;color:${s.titleTextColor};${titleTypo(hd)}${slotOverrideCss(lang, 'hero.subtitle', mode)}`;
+  // Maße wie .hero-subtitle auf der Seite: 1.1rem, max. 600 px breit, zentriert.
+  const size = hd.subtitleFontSize > 0 ? `${hd.subtitleFontSize}px` : '17.6px';
+  return `max-width:600px;margin:0 auto;font-weight:500;font-size:${size};white-space:pre-line;color:${s.titleTextColor};${titleTypo(hd)}${slotOverrideCss(lang, 'hero.subtitle', mode)}`;
 }
 // Typografie-CSS (Schrift + Abstand + Kontur) für Überschriften bzw. Buttons.
 function titleTypo(hd) {
@@ -415,12 +428,14 @@ function previewHtml(lang, mode) {
   return `
       <div class="tc-page" data-hdprev="${mode}" style="background:${previewBg(mode)}">
         <span class="tc-page-label">${mode === 'dark' ? 'Dunkel 🌙' : 'Hell ☀️'}</span>
+        <div data-hdscroll data-tcside="hdprev" title="Hero in Originalgröße – scrollen; unten rechts in der Höhe ziehen" style="overflow:auto;height:${hdPrevHeight}px;min-height:120px;resize:vertical;border-radius:8px;overscroll-behavior:contain;scrollbar-width:thin">
         <div data-hdbox style="${previewBoxStyle(s)}">
           ${previewImageLayer(s)}
           <div class="${slotAnimClass(getTextStyle(lang, 'hero.title'))}" style="${previewTitleStyle(s, hd, lang, mode)}" data-hdtitle>${esc(heroSlotText(lang, 'hero.title'))}</div>
           <div class="${slotAnimClass(getTextStyle(lang, 'hero.subtitle'))}" style="${previewSubtitleStyle(s, hd, lang, mode)}" data-hdsub>${esc(heroSlotText(lang, 'hero.subtitle'))}</div>
-          <div data-hdchips style="display:grid;grid-template-columns:repeat(${chipCols},1fr);gap:.5rem;margin-top:.9rem;visibility:${hd.showChips === false ? 'hidden' : 'visible'}">${chips}</div>
+          <div data-hdchips style="display:grid;grid-template-columns:repeat(${chipCols},1fr);gap:9.6px;margin-top:32px;visibility:${hd.showChips === false ? 'hidden' : 'visible'}">${chips}</div>
           <div class="${slotAnimClass(getTextStyle(lang, 'hero.cta'))}" data-hdcta role="button" tabindex="0" title="Klicken: Einstellungen des CTA-Buttons anzeigen" style="${previewCtaStyle(s, hd, lang, mode)}${hd.showCta === false ? ';visibility:hidden' : ''}">${esc(heroSlotText(lang, 'hero.cta'))}</div>
+        </div>
         </div>
       </div>`;
 }
@@ -438,7 +453,7 @@ function stickyPreview(lang) {
         <span class="mode-switch" title="Vorschau und Seitenleiste im Hell- oder Dunkelmodus">
           ${['light', 'dark'].map((md) => `<button type="button" class="hd-reset${md === hdPrevMode ? ' active' : ''}" data-hdprevmode="${md}" aria-pressed="${md === hdPrevMode}">${HD_MODE_LABEL[md]}</button>`).join('')}
         </span>
-        <span class="hint" style="margin:0"><em>zum Testen über die Buttons fahren</em> – die Farben dieses Modus stehen in der offenen Seitenleiste, der andere Modus ist zugeklappt.</span>
+        <span class="hint" style="margin:0"><em>Hero in Originalgröße</em> – im Rahmen scrollen (Höhe unten rechts ziehbar), <em>zum Testen über die Buttons fahren</em>; die Farben dieses Modus stehen in der offenen Seitenleiste, der andere Modus ist zugeklappt.</span>
       </div>
       <style data-hdhoverstyle>${hoverRuleCss(lang)}</style>
       <div class="tc-previews tc-previews--single">${previewHtml(lang, hdPrevMode)}</div>
@@ -890,6 +905,12 @@ export function renderHeroDesign() {
   const pane = $('#content');
   // Sichtzustand (Scroll der Seite/Seitenleisten, auf-/zugeklappte Bereiche) erhalten.
   const view = captureView(pane);
+  // Vom Admin gezogene Höhe des Vorschau-Rahmens merken.
+  const prevScroll = pane.querySelector('[data-hdscroll]');
+  if (prevScroll) {
+    const h = parseInt(prevScroll.style.height, 10);
+    if (Number.isFinite(h) && h >= 120) hdPrevHeight = h;
+  }
   stopHdSlideshow();
   pane.innerHTML = layoutHtml(lang);
 
