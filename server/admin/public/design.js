@@ -27,6 +27,7 @@ import {
   delPath,
   getTextStyle,
   HERO_TEXT_SLOTS,
+  TEXT_OFFSET_MAX,
   MEDIA_LANGS,
   HERO_IMG_FIELDS,
   normSiteMediaUrl,
@@ -242,7 +243,7 @@ function previewCtaStyle(s, hd, lang, mode) {
     s.ctaBorderOpacity > 0
       ? `border:1px solid ${rgbaFromHex(s.ctaBorderColor, s.ctaBorderOpacity)};`
       : '';
-  return `display:inline-block;margin-top:32px;padding:13.6px 35.2px;border-radius:50px;background:${bg};color:${s.ctaTextColor};${bd}font-weight:700;font-size:${size};cursor:pointer;${buttonTypo(hd)}${slotOverrideCss(lang, 'hero.cta', mode)}`;
+  return `display:inline-block;margin-top:32px;padding:13.6px 35.2px;border-radius:50px;background:${bg};color:${s.ctaTextColor};${bd}font-weight:700;font-size:${size};cursor:move;touch-action:none;user-select:none;${buttonTypo(hd)}${slotOverrideCss(lang, 'hero.cta', mode)}`;
 }
 // Feinabstimmung eines Hero-Textes (textStyles["hero.*"]) als Inline-CSS, das
 // – wie auf der Seite – die allgemeinen Hero-Design-Werte überschreibt.
@@ -253,6 +254,9 @@ function slotOverrideCss(lang, key, mode) {
   if (st.font) parts.push(`font-family:${fontFF(st.font)}`);
   const c = st[colorKey(mode)];
   if (c) parts.push(`color:${c}`);
+  // Verschiebung wie auf der Seite (relative Position, Platz bleibt).
+  if (st.offsetX || st.offsetY)
+    parts.push('position:relative', `left:${st.offsetX || 0}px`, `top:${st.offsetY || 0}px`);
   return parts.concat(slotFxParts(st)).join(';');
 }
 function previewTitleStyle(s, hd, lang, mode) {
@@ -376,8 +380,13 @@ function heroSlotText(lang, key) {
   return String(effLabel(lang, heroSlot(key).path, fb[lang] || fb.de || key));
 }
 // Ist für einen Hero-Text eine Feinabstimmung gesetzt (Schrift/Größe/Effekte)?
+// Verschiebung eines Hero-Textes auf den erlaubten Bereich begrenzen (px, ganzzahlig).
+function clampOffset(v, axis) {
+  const m = axis === 'y' ? TEXT_OFFSET_MAX.y : TEXT_OFFSET_MAX.x;
+  return Math.max(-m, Math.min(m, Math.round(Number(v) || 0)));
+}
 function slotTuned(st) {
-  return !!(st.font || st.size > 0 || fxActive(st));
+  return !!(st.font || st.size > 0 || fxActive(st) || st.offsetX || st.offsetY);
 }
 
 // Kachel-Galerie zur Wahl der GLOBALEN Basis-Schrift (sprachübergreifend, gilt
@@ -414,7 +423,7 @@ function chipHidden(hd, key) {
 // visibility (der Platz bleibt – wie auf der Seite).
 function textHiddenCss(hd, which) {
   const shown = which === 'title' ? hd.showTitle !== false : hd.showSubtitle !== false;
-  return `;cursor:pointer${shown ? '' : ';visibility:hidden'}`;
+  return `;cursor:move;touch-action:none;user-select:none${shown ? '' : ';visibility:hidden'}`;
 }
 // Zuletzt in der Vorschau angeklickter Button ({ kind: 'chip'|'cta', key }) –
 // seine Einstellungen bleiben in Seitenleiste und Mitte markiert.
@@ -785,6 +794,14 @@ function heroTextsBody(lang) {
                 <button type="button" class="hd-reset" data-txtreset="${key}:size" title="Auf Standard zurücksetzen" aria-label="Größe zurücksetzen">↺</button>
               </div>
             </div>
+            <div style="flex:0 0 auto">
+              <label style="margin-top:0" title="Verschiebung gegenüber der normalen Position – in der Vorschau ziehen, Pfeiltasten (Shift = 10 px) oder hier eintragen">Verschiebung X / Y (px)</label>
+              <div style="display:flex;gap:.3rem;align-items:center">
+                <input type="number" data-txtoff="${key}:x" min="-${TEXT_OFFSET_MAX.x}" max="${TEXT_OFFSET_MAX.x}" step="1" value="${st.offsetX || 0}" style="width:90px" title="Waagerecht: − nach links, + nach rechts" />
+                <input type="number" data-txtoff="${key}:y" min="-${TEXT_OFFSET_MAX.y}" max="${TEXT_OFFSET_MAX.y}" step="1" value="${st.offsetY || 0}" style="width:90px" title="Senkrecht: − nach oben, + nach unten" />
+                <button type="button" class="hd-reset" data-txtreset="${key}:off" title="Verschiebung zurücksetzen (0/0)" aria-label="Verschiebung zurücksetzen">↺</button>
+              </div>
+            </div>
           </div>
           ${fxControls(key, st)}
         </details>
@@ -793,7 +810,8 @@ function heroTextsBody(lang) {
   return `
       <p class="hint" style="margin:0">Texte des Hero-Bereichs. Leer lassen = Standardtext der Sprachdatei; mehrere Zeilen mit Enter.
         Die <strong>Feinabstimmung</strong> je Text geht den allgemeinen Einstellungen vor; Schriftart „Standard" bzw. Größe 0 = allgemeine Einstellung.
-        Die <strong>Textfarbe</strong> je Modus steht in den Seitenleisten unter „Hero-Texte – Farbe je Text"; Effekte wirken auf der veröffentlichten Seite.</p>
+        Die <strong>Textfarbe</strong> je Modus steht in den Seitenleisten unter „Hero-Texte – Farbe je Text"; Effekte wirken auf der veröffentlichten Seite.
+        <strong>Verschieben:</strong> Text in der Vorschau oben mit der Maus ziehen, mit den Pfeiltasten bewegen (Shift = 10 px) oder unter „Verschiebung X / Y“ eintragen – der Platz im Hero bleibt, nur der Text wandert.</p>
       ${rows}`;
 }
 
@@ -1235,19 +1253,89 @@ export function renderHeroDesign() {
       }
     });
   });
-  const bindSelect = (sel, kind) =>
+  // Texte (Titel, Untertitel, CTA): Klick wählt aus; Ziehen mit der Maus verschiebt
+  // (Versatz in px, 1:1 – die Vorschau ist in Originalgröße); Pfeiltasten bewegen
+  // um 1 px (Shift: 10 px). Ein Zug unterdrückt den nachfolgenden Klick.
+  const ARROWS = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+  const syncOffsetInputs = (key) => {
+    const st = getTextStyle(lang, key);
+    const ix = pane.querySelector(`[data-txtoff="${key}:x"]`);
+    const iy = pane.querySelector(`[data-txtoff="${key}:y"]`);
+    if (ix) ix.value = String(st.offsetX || 0);
+    if (iy) iy.value = String(st.offsetY || 0);
+  };
+  const moveText = (key, dx, dy) => {
+    const st = getTextStyle(lang, key);
+    st.offsetX = clampOffset((st.offsetX || 0) + dx, 'x');
+    st.offsetY = clampOffset((st.offsetY || 0) + dy, 'y');
+    syncOffsetInputs(key);
+    refreshSlot(key);
+  };
+  const bindSelect = (sel, kind, txtKey) =>
     pane.querySelectorAll(sel).forEach((c) => {
-      c.addEventListener('click', () => selectPart(kind, ''));
+      let drag = null;
+      c.addEventListener('click', () => {
+        if (c.dataset.hdDragged) {
+          delete c.dataset.hdDragged;
+          return;
+        }
+        selectPart(kind, '');
+      });
       c.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           selectPart(kind, '');
+        } else if (txtKey && ARROWS[e.key]) {
+          e.preventDefault();
+          const step = e.shiftKey ? 10 : 1;
+          moveText(txtKey, ARROWS[e.key][0] * step, ARROWS[e.key][1] * step);
         }
       });
+      if (!txtKey) return;
+      c.addEventListener('pointerdown', (e) => {
+        if (e.button !== 0) return;
+        const st = getTextStyle(lang, txtKey);
+        drag = {
+          x: e.clientX,
+          y: e.clientY,
+          ox: st.offsetX || 0,
+          oy: st.offsetY || 0,
+          moved: false,
+        };
+        c.setPointerCapture(e.pointerId);
+      });
+      c.addEventListener('pointermove', (e) => {
+        if (!drag) return;
+        const dx = e.clientX - drag.x;
+        const dy = e.clientY - drag.y;
+        if (!drag.moved && Math.abs(dx) < 3 && Math.abs(dy) < 3) return;
+        drag.moved = true;
+        const st = getTextStyle(lang, txtKey);
+        st.offsetX = clampOffset(drag.ox + dx, 'x');
+        st.offsetY = clampOffset(drag.oy + dy, 'y');
+        // Live nur das Element bewegen (leichtgewichtig); Felder folgen.
+        c.style.position = 'relative';
+        c.style.left = `${st.offsetX}px`;
+        c.style.top = `${st.offsetY}px`;
+        syncOffsetInputs(txtKey);
+      });
+      const endDrag = (e) => {
+        if (!drag) return;
+        const moved = drag.moved;
+        drag = null;
+        if (c.hasPointerCapture && c.hasPointerCapture(e.pointerId))
+          c.releasePointerCapture(e.pointerId);
+        if (moved) {
+          c.dataset.hdDragged = '1';
+          refreshSlot(txtKey);
+        }
+      };
+      c.addEventListener('pointerup', endDrag);
+      c.addEventListener('pointercancel', endDrag);
     });
-  bindSelect('[data-hdcta]', 'cta');
-  bindSelect('[data-hdtitle]', 'title');
-  bindSelect('[data-hdsub]', 'subtitle');
+  bindSelect('[data-hdcta]', 'cta', 'hero.cta');
+  bindSelect('[data-hdtitle]', 'title', 'hero.title');
+  bindSelect('[data-hdsub]', 'subtitle', 'hero.subtitle');
 
   // Schriftauswahl (Überschriften / Buttons) – gilt für beide Modi.
   pane.querySelectorAll('[data-hdfont]').forEach((el) => {
@@ -1364,6 +1452,19 @@ export function renderHeroDesign() {
       refreshSlot(key);
     });
   });
+  // Verschiebung X/Y je Text (Felder) – beide Modi.
+  pane.querySelectorAll('[data-txtoff]').forEach((el) => {
+    const i = el.dataset.txtoff.lastIndexOf(':');
+    const key = el.dataset.txtoff.slice(0, i);
+    const axis = el.dataset.txtoff.slice(i + 1) === 'y' ? 'y' : 'x';
+    el.addEventListener('input', () => {
+      const n = parseInt(el.value, 10);
+      getTextStyle(lang, key)[axis === 'y' ? 'offsetY' : 'offsetX'] = Number.isFinite(n)
+        ? clampOffset(n, axis)
+        : 0;
+      refreshSlot(key);
+    });
+  });
   // Textfarbe je Text und Modus (Seitenleisten).
   pane.querySelectorAll('[data-txtcolor]').forEach((el) => {
     const key = el.dataset.txtcolor;
@@ -1389,7 +1490,10 @@ export function renderHeroDesign() {
       else if (what === 'size') st.size = 0;
       else if (what === 'color') st[colorKey(mode)] = '';
       else if (what === 'fx') Object.assign(st, TEXT_FX_DEFAULTS);
-      else if (what === 'font') st.font = '';
+      else if (what === 'off') {
+        st.offsetX = 0;
+        st.offsetY = 0;
+      } else if (what === 'font') st.font = '';
       renderHeroDesign();
       toast('Auf Standard zurückgesetzt');
     });

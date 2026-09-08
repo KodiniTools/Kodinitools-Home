@@ -291,6 +291,9 @@ export interface MediaConfig {
       anim?: 'none' | 'pulse' | 'float' | 'shake' | 'wobble' | 'glow';
       animIntensity?: number;
       animSpeed?: 'slow' | 'normal' | 'fast';
+      // Verschiebung (px) gegenüber der normalen Position (Hero-Texte, Admin: ziehen).
+      offsetX?: number;
+      offsetY?: number;
     }
   >;
   // „Standard für alle Slots" (nur Texte-Tab): Stil des gewählten Abschnitts-
@@ -1112,6 +1115,12 @@ export function getTextStylesCss(media: MediaConfig): string | undefined {
     }
     // Effekte (Deckkraft, Umriss, Schatten, Animation) anhängen.
     for (const d of textFxDecls(s)) decl.push(d);
+    // Verschiebung: relative Position (nicht transform – die Entrance-Animationen
+    // setzen transform per fill-mode und würden es überschreiben); der Platz im
+    // Fluss bleibt, der Hero behält seine Höhe.
+    const ox = typeof s.offsetX === 'number' ? Math.max(-400, Math.min(400, s.offsetX)) : 0;
+    const oy = typeof s.offsetY === 'number' ? Math.max(-300, Math.min(300, s.offsetY)) : 0;
+    if (ox || oy) decl.push('position:relative', `left:${ox}px`, `top:${oy}px`);
     if (decl.length) rules.push(`${sel}{${decl.join(';')}}`);
     // Hell-Farbe nur im Hellmodus, Dunkel-Farbe nur im Dunkelmodus; fehlt eine
     // von beiden, bleibt in diesem Modus der Seiten- bzw. Hero-Design-Standard.

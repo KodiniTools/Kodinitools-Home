@@ -274,6 +274,8 @@ const textHalf = (v, min, max, def) => {
   const n = Number(v);
   return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n * 2) / 2)) : def;
 };
+// Größte Verschiebung eines Hero-Textes (px) waagerecht/senkrecht.
+export const TEXT_OFFSET_MAX = { x: 400, y: 300 };
 export function normTextStyles(o) {
   const out = {};
   if (!o || typeof o !== 'object') return out;
@@ -292,8 +294,16 @@ export function normTextStyles(o) {
     const opacity = textNum(s.opacity, 0, 100, 100);
     const anim = BANNER_ANIM_TYPES.includes(s.anim) ? s.anim : 'none';
     const hasFx = shadow || strokeWidth > 0 || opacity < 100 || anim !== 'none';
-    if (px > 0 || colorLight || colorDark || font || hasFx) {
+    // Verschiebung (px, relativ zur normalen Position; nur Hero-Texte bedienbar).
+    const offsetX = textNum(s.offsetX, -TEXT_OFFSET_MAX.x, TEXT_OFFSET_MAX.x, 0);
+    const offsetY = textNum(s.offsetY, -TEXT_OFFSET_MAX.y, TEXT_OFFSET_MAX.y, 0);
+    const hasOff = offsetX !== 0 || offsetY !== 0;
+    if (px > 0 || colorLight || colorDark || font || hasFx || hasOff) {
       const entry = { size: px, colorLight, colorDark, font };
+      if (hasOff) {
+        entry.offsetX = offsetX;
+        entry.offsetY = offsetY;
+      }
       if (hasFx) {
         entry.shadow = shadow;
         entry.shadowColor = textHex(s.shadowColor) || '#000000';
@@ -340,6 +350,8 @@ export function getTextStyle(lang, key) {
   if (!BANNER_ANIM_TYPES.includes(s.anim)) s.anim = 'none';
   if (!Number.isFinite(s.animIntensity)) s.animIntensity = 5;
   if (!BANNER_ANIM_SPEEDS.includes(s.animSpeed)) s.animSpeed = 'normal';
+  if (!Number.isFinite(s.offsetX)) s.offsetX = 0;
+  if (!Number.isFinite(s.offsetY)) s.offsetY = 0;
   return s;
 }
 // Effektiver Stil eines Text-Slots: bei aktivem „Standard für alle Slots"
