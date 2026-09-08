@@ -567,7 +567,8 @@ export interface HeroDesign {
   chipFontSize: number; // px – Feature-Chips
   ctaFontSize: number; // px – CTA-Button
   // Buttons im Hero ein-/ausblenden (gilt für beide Modi).
-  showChips: boolean; // Feature-Buttons (Chips)
+  showChips: boolean; // Feature-Buttons (Chips) insgesamt
+  hiddenChips: string[]; // einzeln ausgeblendete Feature-Buttons (Schlüssel aus hero.features)
   showCta: boolean; // CTA-Button („Jetzt starten")
   light: HeroDesignSide;
   dark: HeroDesignSide;
@@ -649,6 +650,7 @@ const MEDIA_DEFAULTS: MediaConfig = {
     chipFontSize: 0,
     ctaFontSize: 0,
     showChips: true,
+    hiddenChips: [],
     showCta: true,
     light: {
       borderColor: '#014f99',

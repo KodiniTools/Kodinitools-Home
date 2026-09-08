@@ -45,9 +45,12 @@ const diverseTools = Object.entries(de.diverseTools)
   .filter(notHidden)
 
 const features = Object.entries(de.hero.features).map(([k, text]) => ({
+  key: k,
   text,
   i18nKey: `hero.features.${k}`,
 }))
+// Einzeln ausgeblendete Feature-Buttons (Admin > Hero-Design); Platz bleibt erhalten.
+const hiddenChips = new Set(Array.isArray(media.heroDesign.hiddenChips) ? media.heroDesign.hiddenChips : [])
 
 // Admin-Design des Hero-Bereichs -> Inline-CSS-Variablen (nur wenn aktiviert;
 // sonst bleibt das Standard-Aussehen aus global.css, inkl. Dark Mode).
@@ -380,7 +383,7 @@ const pageI18n = {
         <!-- Features Grid (Admin > Hero-Design: ausblendbar – der Platz bleibt erhalten) -->
         <div class={`features-grid${media.heroDesign.showChips === false ? ' hero-hidden' : ''}`} aria-hidden={media.heroDesign.showChips === false ? 'true' : undefined}>
           {features.map((feature) => (
-            <div class="feature-card">
+            <div class={`feature-card${hiddenChips.has(feature.key) ? ' hero-hidden' : ''}`} aria-hidden={hiddenChips.has(feature.key) ? 'true' : undefined}>
               <div class="feature-text" data-i18n={feature.i18nKey}>{feature.text}</div>
             </div>
           ))}
