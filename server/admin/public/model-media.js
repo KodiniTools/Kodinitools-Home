@@ -57,6 +57,7 @@ export function defaultMediaLocale() {
     heroLayout: 'grid3',
     heroBanner: '',
     heroBannerLink: '',
+    heroBannerShow: true, // Einzelbanner ein-/ausgeblendet (Tab „Layout“)
     heroBannerText: '', // Text über dem Einzelbanner
     heroBannerFont: '', // Schriftart des Banner-Textes (Dateiname im /fonts-Ordner)
     heroBannerTextColor: '#ffffff',
@@ -83,6 +84,7 @@ export function defaultMediaLocale() {
     sectionMedia: defaultSectionMediaAll(), // Design/Diashow/Text der Sektions-Medien (Tab „Medien")
     heroGrid: ['', '', '', '', '', ''],
     heroGridLinks: ['', '', '', '', '', ''],
+    heroGridHidden: [false, false, false, false, false, false], // ausgeblendete Kacheln
     heroGridStyles: defaultCellStyles(),
     heroGridUniform: false, // „Standard für alle Kacheln" aktiv?
     heroGridUniformCell: 0, // Index der Master-Kachel, deren Werte gelten
@@ -131,6 +133,7 @@ export function normalizeMedia(m) {
       heroLayout: normHeroLayout(o?.heroLayout),
       heroBanner: o && typeof o.heroBanner === 'string' ? o.heroBanner : '',
       heroBannerLink: o && typeof o.heroBannerLink === 'string' ? o.heroBannerLink : '',
+      heroBannerShow: !(o && o.heroBannerShow === false),
       heroBannerText: typeof o?.heroBannerText === 'string' ? o.heroBannerText.slice(0, 120) : '',
       heroBannerFont: normFontFile(o?.heroBannerFont),
       heroBannerTextColor: /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(o?.heroBannerTextColor))
@@ -198,6 +201,9 @@ export function normalizeMedia(m) {
       heroGrid: [0, 1, 2, 3, 4, 5].map((i) => (typeof grid[i] === 'string' ? grid[i] : '')),
       heroGridLinks: [0, 1, 2, 3, 4, 5].map((i) =>
         typeof gridLinks[i] === 'string' ? gridLinks[i] : '',
+      ),
+      heroGridHidden: [0, 1, 2, 3, 4, 5].map(
+        (i) => Array.isArray(o?.heroGridHidden) && o.heroGridHidden[i] === true,
       ),
       heroGridStyles: normCellStyles(o?.heroGridStyles),
       heroGridUniform: o?.heroGridUniform === true,

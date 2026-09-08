@@ -496,6 +496,7 @@ function defaultMediaLocale() {
     heroMode: 'banner',
     heroLayout: 'grid3',
     heroBanner: '',
+    heroBannerShow: true,
     heroBannerLink: '',
     heroBannerStyle: defaultBannerStyles(),
     heroBannerSlides: [],
@@ -504,6 +505,7 @@ function defaultMediaLocale() {
     heroGridSlideshow: defaultGridSlideshow(),
     sectionMedia: defaultSectionMediaAll(),
     heroGrid: ['', '', '', '', '', ''],
+    heroGridHidden: [false, false, false, false, false, false],
     heroGridLinks: ['', '', '', '', '', ''],
     heroGridStyles: defaultCellStyles(),
     heroGridUniform: false,
@@ -1028,6 +1030,8 @@ function validateMediaLocale(m, langLabel) {
   // Raster-Layout (Anordnung der Kacheln); Fallback auf 3 nebeneinander.
   out.heroLayout = HERO_LAYOUTS.includes(m.heroLayout) ? m.heroLayout : 'grid3';
   // Option 1 – Hero-Banner: optional. Leerer String = kein Banner; sonst gültige URL.
+  // Einzelbanner ein-/ausgeblendet (Tab „Layout“); ausgeblendet = wird nicht gerendert.
+  out.heroBannerShow = m.heroBannerShow !== false;
   out.heroBanner = '';
   if (m.heroBanner != null && m.heroBanner !== '') {
     if (!isValidMediaUrl(m.heroBanner)) throw new Error(`media.${langLabel}.heroBanner ungültig`);
@@ -1088,6 +1092,10 @@ function validateMediaLocale(m, langLabel) {
       out.heroGrid[i] = v;
     }
   }
+  // Ausgeblendete Kacheln (die übrigen teilen den Platz symmetrisch).
+  out.heroGridHidden = [0, 1, 2, 3, 4, 5].map(
+    (i) => Array.isArray(m.heroGridHidden) && m.heroGridHidden[i] === true,
+  );
   // Verlinkung der Rasterbilder (optional): interner Pfad oder http(s).
   out.heroGridLinks = ['', '', '', '', '', ''];
   if (Array.isArray(m.heroGridLinks)) {

@@ -221,6 +221,8 @@ export interface MediaConfig {
   heroBanner: string;
   // Verlinkung des Banners (interner Pfad oder http(s)). Leer = nicht klickbar.
   heroBannerLink: string;
+  // Einzelbanner ein-/ausgeblendet (Admin > Layout). false = Banner wird nicht gerendert.
+  heroBannerShow: boolean;
   // Optionaler Text über dem Banner + Schriftart, Farbe, Größe, Position.
   heroBannerText: string;
   heroBannerFont: string;
@@ -256,6 +258,9 @@ export interface MediaConfig {
   heroGrid: string[];
   // Verlinkung der Rasterbilder (interner Pfad oder http(s)). Leer = nicht klickbar.
   heroGridLinks: string[];
+  // Ausgeblendete Kacheln (Index = Kachel): entfallen im Raster, die übrigen teilen
+  // den Platz symmetrisch; Einblenden stellt die Anordnung wieder her.
+  heroGridHidden: boolean[];
   // Diashow je Kachel: weitere Bilder (Index = Kachel) + gemeinsame Einstellungen.
   heroGridSlides: string[][];
   heroGridSlideshow: HeroSlideshowSettings;
@@ -592,6 +597,7 @@ const MEDIA_DEFAULTS: MediaConfig = {
   heroLayout: 'grid3',
   heroBanner: '',
   heroBannerLink: '',
+  heroBannerShow: true,
   heroBannerText: '',
   heroBannerFont: '',
   heroBannerTextColor: '#ffffff',
@@ -614,6 +620,7 @@ const MEDIA_DEFAULTS: MediaConfig = {
   heroBannerSlides: [],
   heroBannerSlideshow: { interval: 5, duration: 800, transition: 'fade', pauseOnHover: true, dots: true },
   heroGrid: ['', '', '', '', '', ''],
+  heroGridHidden: [false, false, false, false, false, false],
   heroGridLinks: ['', '', '', '', '', ''],
   heroGridSlides: [[], [], [], [], [], []],
   heroGridSlideshow: { interval: 5, duration: 800, transition: 'fade', pauseOnHover: true, dots: true, stagger: true },
@@ -1356,6 +1363,29 @@ export const HERO_LAYOUT_CELLS: Record<MediaConfig['heroLayout'], number> = {
   vrow: 3,
   mosaic: 3,
 };
+
+/** Kacheln je Reihe je Layout (Basis für die Neuaufteilung bei ausgeblendeten Kacheln). */
+export const HERO_LAYOUT_COLS: Record<MediaConfig['heroLayout'], number> = {
+  grid2: 2,
+  grid3: 3,
+  row4: 4,
+  grid4: 2,
+  grid6: 3,
+  big2: 2,
+  vrow: 1,
+  mosaic: 3,
+};
+/**
+ * Kacheln je Reihe, wenn nur n Kacheln sichtbar sind: so viele Reihen wie nötig,
+ * die Kacheln gleichmäßig verteilt (3×2 mit 4 sichtbaren -> 2×2, mit 5 -> 3 + 2
+ * zentriert). Gleiche Formel wie im Admin (model-grid.js).
+ */
+export function heroGridReflowCols(layout: MediaConfig['heroLayout'], n: number): number {
+  const c = HERO_LAYOUT_COLS[layout] ?? 3;
+  if (n <= 0) return 1;
+  const rows = Math.ceil(n / c);
+  return Math.max(1, Math.ceil(n / rows));
+}
 
 /** Medien-Konfiguration für eine Sprache (Defaults + Admin-Override). */
 export function getMedia(locale: Locale): MediaConfig {

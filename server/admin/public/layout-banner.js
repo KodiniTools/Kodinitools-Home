@@ -406,8 +406,11 @@ export function bannerLayoutHtml(lang, modePanel) {
     ? m.heroBannerTextAnimSpeed
     : 'normal';
   const bMedia = bannerMediaHtml(lang);
+  // Ausgeblendetes Banner: Vorschau bleibt (abgeblendet) bedienbar, Hinweis darüber.
+  const bShow = m.heroBannerShow !== false;
   const previewBox = `
-      <div data-bannerbox data-prevmode="${bannerPrevMode}" style="position:relative;max-width:520px;margin:.6rem auto;display:flex;align-items:center;justify-content:center;min-height:80px;padding:1rem;border-radius:10px;background:${BANNER_PREV_BG[bannerPrevMode]}">
+      ${bShow ? '' : '<p class="hint" data-bannerhiddeninfo style="margin:.3rem 0 0;color:var(--accent);text-align:center">👁 Banner ausgeblendet – auf der Seite erscheint kein Banner (und kein Banner-Text). Die Vorschau zeigt es abgeblendet zum Weiterbearbeiten.</p>'}
+      <div data-bannerbox data-prevmode="${bannerPrevMode}" data-bannerhidden="${bShow ? '' : '1'}" style="position:relative;max-width:520px;margin:.6rem auto;display:flex;align-items:center;justify-content:center;min-height:80px;padding:1rem;border-radius:10px;background:${BANNER_PREV_BG[bannerPrevMode]}${bShow ? '' : ';opacity:.35;outline:2px dashed var(--accent)'}">
         ${bMedia}
         <div data-bannertext class="${bText ? bannerAnimClass(m) : ''}" ${bText ? 'title="Zum Verschieben ziehen"' : ''} style="${bText ? bannerTextStyle(m) : ''}">${esc(bText)}</div>
       </div>`;
@@ -415,6 +418,9 @@ export function bannerLayoutHtml(lang, modePanel) {
       <div style="position:sticky;top:.5rem;z-index:5;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:.6rem .9rem;margin:0 0 .9rem;box-shadow:0 8px 22px rgba(0,0,0,.4);max-height:38vh;overflow:auto">
         <div style="display:flex;align-items:center;gap:.5rem;margin:.1rem 0 .35rem">
           <span class="hint" style="margin:0">👁 Live-Vorschau (Banner):</span>
+          <label style="display:inline-flex;align-items:center;gap:.3rem;margin:0;color:var(--text);font-size:.85rem" title="Ausgeblendet: Banner samt Banner-Text erscheint nicht auf der Seite; Bild, Text und Design bleiben gespeichert">
+            <input type="checkbox" data-bannershow ${bShow ? 'checked' : ''} style="width:auto" /> Banner anzeigen
+          </label>
           <span class="mode-switch" title="Vorschau im Hell- oder Dunkelmodus anzeigen">
             ${['light', 'dark'].map((md) => `<button type="button" class="hd-reset${md === bannerPrevMode ? ' active' : ''}" data-bannerprevmode="${md}" aria-pressed="${md === bannerPrevMode}">${MODE_LABEL[md]}</button>`).join('')}
           </span>
@@ -614,6 +620,14 @@ let rerender = () => {};
 export function bindBanner(pane, lang, rr) {
   rerender = rr;
   const m = state.media[lang];
+  // Banner ein-/ausblenden (Seite rendert bei „aus“ weder Banner noch Banner-Text).
+  pane.querySelectorAll('[data-bannershow]').forEach((el) => {
+    el.addEventListener('change', () => {
+      state.media[lang].heroBannerShow = el.checked;
+      rr();
+      toast(el.checked ? 'Banner eingeblendet' : 'Banner ausgeblendet');
+    });
+  });
   // ↺ Banner-Textfeld auf Standard zurücksetzen.
   pane.querySelectorAll('[data-bannerreset]').forEach((el) => {
     const field = el.dataset.bannerreset;
