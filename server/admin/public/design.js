@@ -28,7 +28,10 @@ import {
   getTextStyle,
   HERO_TEXT_SLOTS,
   MEDIA_LANGS,
+  HERO_IMG_FIELDS,
+  normSiteMediaUrl,
 } from './model.js';
+import { objUrl, openMediaPicker } from './media.js';
 import { ensureFontFace, fontOptionsHtml } from './fonts.js';
 import { slider, bindSliders } from './slider.js';
 import { colorPicker, bindColorPickers } from './color.js';
@@ -117,7 +120,28 @@ function previewBoxStyle(s) {
   // eigene Schrift erben sie – wie auf der echten Seite).
   const gf = fontFF(getGlobalFont());
   const base = gf ? `font-family:${gf};` : '';
-  return `${base}background:${bg};border:${s.borderWidth}px solid ${s.borderColor};border-radius:1rem;padding:1.1rem 1rem;text-align:center`;
+  return `${base}position:relative;overflow:hidden;isolation:isolate;background:${bg};border:${s.borderWidth}px solid ${s.borderColor};border-radius:1rem;padding:1.1rem 1rem;text-align:center`;
+}
+// Vorschau-URL eines Hero-Hintergrundbilds ('staged:<id>' -> Objekt-URL), '' ohne Bild.
+function heroImgUrl(val) {
+  if (!val) return '';
+  return val.startsWith('staged:') ? objUrl(val.slice(7)) : val;
+}
+// Inline-Style der Bildebene in der Vorschau-Box (wie .hero::before auf der Seite):
+// Deckkraft, Abdunkelung, Weichzeichner, Sättigung; liegt unter dem Inhalt.
+function previewImageStyle(s) {
+  const url = heroImgUrl(s.bgImage);
+  if (!url) return '';
+  const f = [];
+  if (s.bgImageBlur > 0) f.push(`blur(${s.bgImageBlur}px)`);
+  if (s.bgImageDarken > 0) f.push(`brightness(${(1 - s.bgImageDarken / 100).toFixed(3)})`);
+  if (s.bgImageSaturate !== 100) f.push(`saturate(${s.bgImageSaturate}%)`);
+  const inset = s.bgImageBlur > 0 ? -s.bgImageBlur * 2 : 0;
+  return `position:absolute;inset:${inset}px;z-index:-1;pointer-events:none;border-radius:inherit;background:url('${url.replace(/['"]/g, '')}') center / cover no-repeat;opacity:${(s.bgImageOpacity / 100).toFixed(2)};filter:${f.join(' ') || 'none'}`;
+}
+function previewImageLayer(s) {
+  const st = previewImageStyle(s);
+  return st ? `<span data-hdimg style="${st}"></span>` : '';
 }
 function previewChipStyle(s, hd) {
   const bg = rgbaFromHex(s.chipBgColor, s.chipBgOpacity);
@@ -309,10 +333,11 @@ function previewHtml(lang, mode) {
       <div class="tc-page" data-hdprev="${mode}" style="background:${previewBg(mode)}">
         <span class="tc-page-label">${mode === 'dark' ? 'Dunkel 🌙' : 'Hell ☀️'}</span>
         <div data-hdbox style="${previewBoxStyle(s)}">
+          ${previewImageLayer(s)}
           <div class="${slotAnimClass(getTextStyle(lang, 'hero.title'))}" style="${previewTitleStyle(s, hd, lang, mode)}" data-hdtitle>${esc(heroSlotText(lang, 'hero.title'))}</div>
           <div class="${slotAnimClass(getTextStyle(lang, 'hero.subtitle'))}" style="${previewSubtitleStyle(s, hd, lang, mode)}" data-hdsub>${esc(heroSlotText(lang, 'hero.subtitle'))}</div>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.9rem">${chips}</div>
-          <div class="${slotAnimClass(getTextStyle(lang, 'hero.cta'))}" data-hdcta style="${previewCtaStyle(s, hd, lang, mode)}">${esc(heroSlotText(lang, 'hero.cta'))}</div>
+          <div data-hdchips style="display:${hd.showChips === false ? 'none' : 'grid'};grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.9rem">${chips}</div>
+          <div class="${slotAnimClass(getTextStyle(lang, 'hero.cta'))}" data-hdcta style="${previewCtaStyle(s, hd, lang, mode)}${hd.showCta === false ? ';display:none' : ''}">${esc(heroSlotText(lang, 'hero.cta'))}</div>
         </div>
       </div>`;
 }
@@ -434,6 +459,17 @@ function centerPanel(lang) {
       <p class="hint" style="margin:0 0 .2rem">Leer lassen = Standardtext der Sprachdatei. Der CTA-Text steht unter „Hero-Texte".</p>
       ${featureLabelsBody(lang)}`;
 
+  // Buttons im Hero ein-/ausblenden (gilt für beide Modi, unabhängig vom An-Schalter).
+  const showBody = `
+      <div class="row" style="gap:1.2rem;align-items:center">
+        <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin:0">
+          <input type="checkbox" data-hdshow="showChips" ${hd.showChips === false ? '' : 'checked'} style="width:auto" /> Feature-Buttons (Chips) anzeigen
+        </label>
+        <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin:0">
+          <input type="checkbox" data-hdshow="showCta" ${hd.showCta === false ? '' : 'checked'} style="width:auto" /> CTA-Button („Jetzt starten") anzeigen
+        </label>
+      </div>
+      <p class="hint" style="margin:.4rem 0 0">Ausgeblendete Buttons erscheinen nicht auf der Seite (Vorschau oben folgt sofort). Gilt für Hell und Dunkel und unabhängig von „Eigenes Hero-Design“.</p>`;
   return `
     <div class="panel">
       <h2>Hero-Design <span class="lang-badge">${lang.toUpperCase()}</span></h2>
@@ -455,6 +491,7 @@ function centerPanel(lang) {
 
       ${section('✍️ Hero-Texte – Titel, Untertitel, Button-Text', heroTextsBody(lang))}
       ${section('🔤 Überschriften-Typografie &amp; globale Schrift <span class="hint" style="font-weight:400">(für beide Modi)</span>', typoBody)}
+      ${section('👁️ Buttons ein-/ausblenden', showBody)}
       ${section('🔘 Buttons &amp; CTA – Text, Größen, Beschriftungen', buttonsBody)}
     </div>`;
 }
@@ -477,6 +514,32 @@ function sidePanel(lang, mode) {
       <div class="row" style="align-items:flex-end;margin-top:.3rem">
         ${colorField(lang, mode, 'bgColor', 'Hintergrund', true, 'bgOpacity', s)}
       </div>`;
+  const imgUrl = heroImgUrl(s.bgImage);
+  const imgOn = s.bgImage !== '';
+  const imgStaged = s.bgImage.startsWith('staged:');
+  const imgSliders = Object.entries(HERO_IMG_FIELDS)
+    .map(
+      ([f, c]) =>
+        `<div style="flex:1 1 150px">${sideRange(lang, mode, s, f, c.label, c.min, c.max, c.unit)}</div>`,
+    )
+    .join('');
+  const imageBody = `
+      <div class="row" style="align-items:flex-start">
+        <div class="bg-thumb" data-hdimgthumb="${mode}">${imgUrl ? `<img src="${esc(imgUrl)}" alt="" />` : '<span class="hint" style="margin:0">Kein Bild</span>'}</div>
+        <div style="flex:1 1 160px">
+          <div class="row" style="margin:0">
+            <button type="button" data-hdimgpick="${mode}" style="flex:0 0 auto">📂 Mediathek</button>
+            <button type="button" class="danger" data-hdimgclear="${mode}" ${imgOn ? '' : 'disabled'} style="flex:0 0 auto">Entfernen</button>
+            ${resetBtn('side', 'bgImage:' + Object.keys(HERO_IMG_FIELDS).join(':'), mode)}
+          </div>
+          <label style="margin-top:.5rem">Bild-URL <span class="hint" style="margin:0">(/uploads/… oder https://…)</span></label>
+          <input type="text" data-hdimgurl="${mode}" value="${esc(imgStaged ? '' : s.bgImage)}" placeholder="${imgStaged ? 'Lokales Medium (wird beim Veröffentlichen hochgeladen)' : '/uploads/…'}" ${imgStaged ? 'disabled' : ''} />
+        </div>
+      </div>
+      <div class="row" style="align-items:flex-end;margin-top:.2rem;${imgOn ? '' : 'opacity:.45'}" data-hdimgrow="${mode}">
+        ${imgSliders}
+      </div>
+      <p class="hint">Liegt hinter Titel, Buttons und Banner und wird auf den Hero-Kasten zugeschnitten (mittig). Wirkt auch ohne „Eigenes Hero-Design“. Empfehlung: ca. 1600 × 700 px, WebP; Abdunkelung 30–50 % für lesbaren Text.${imgStaged ? ' <strong>● lokal – wird beim Veröffentlichen hochgeladen.</strong>' : ''}</p>`;
   const chipsBody = `
       <div class="row" style="align-items:flex-end">
         ${colorField(lang, mode, 'chipBgColor', 'Hintergrund', true, 'chipBgOpacity', s)}
@@ -539,6 +602,7 @@ function sidePanel(lang, mode) {
       </div>
       ${section('🅰️ Überschriften-Farbe', headingBody)}
       ${section('🖼️ Rahmen &amp; Hintergrund', frameBody)}
+      ${section('🏞️ Hintergrundbild', imageBody)}
       ${section('🔘 Buttons (Feature-Chips)', chipsBody)}
       ${section('🚀 CTA-Button („Jetzt starten")', ctaBody)}
       ${section('✍️ Hero-Texte – Farbe je Text', `<p class="hint" style="margin:0">Leer (↺) = allgemeine Überschriften- bzw. CTA-Textfarbe.</p>${textsBody}`)}
@@ -633,7 +697,17 @@ function refreshPreview(pane, lang) {
     const root = pane.querySelector(`[data-hdprev="${mode}"]`);
     if (!root) continue;
     const box = root.querySelector('[data-hdbox]');
-    if (box) box.setAttribute('style', previewBoxStyle(s));
+    if (box) {
+      box.setAttribute('style', previewBoxStyle(s));
+      // Bildebene (Hintergrundbild) anlegen/aktualisieren/entfernen.
+      const layerStyle = previewImageStyle(s);
+      const layer = box.querySelector('[data-hdimg]');
+      if (layerStyle && !layer) box.insertAdjacentHTML('afterbegin', previewImageLayer(s));
+      else if (layerStyle) layer.setAttribute('style', layerStyle);
+      else if (layer) layer.remove();
+    }
+    const chipsBox = root.querySelector('[data-hdchips]');
+    if (chipsBox) chipsBox.style.display = hd.showChips === false ? 'none' : 'grid';
     const title = root.querySelector('[data-hdtitle]');
     if (title) {
       title.textContent = heroSlotText(lang, 'hero.title');
@@ -658,7 +732,10 @@ function refreshPreview(pane, lang) {
     const cta = root.querySelector('[data-hdcta]');
     if (cta) {
       cta.textContent = heroSlotText(lang, 'hero.cta');
-      cta.setAttribute('style', previewCtaStyle(s, hd, lang, mode));
+      cta.setAttribute(
+        'style',
+        previewCtaStyle(s, hd, lang, mode) + (hd.showCta === false ? ';display:none' : ''),
+      );
       applyAnimClass(cta, getTextStyle(lang, 'hero.cta'));
     }
   }
@@ -726,7 +803,10 @@ export function renderHeroDesign() {
       const from = el.dataset.hdcopyside === 'dark' ? 'dark' : 'light';
       const to = from === 'dark' ? 'light' : 'dark';
       const hd = heroDesignOf(lang);
-      hd[to] = JSON.parse(JSON.stringify(hd[from]));
+      // Farben kopieren – das Hintergrundbild des Ziel-Modus bleibt erhalten.
+      const keepImg = {};
+      for (const k of ['bgImage', ...Object.keys(HERO_IMG_FIELDS)]) keepImg[k] = hd[to][k];
+      hd[to] = { ...JSON.parse(JSON.stringify(hd[from])), ...keepImg };
       for (const sl of HERO_TEXT_SLOTS) {
         const st = getTextStyle(lang, sl.key);
         st[colorKey(to)] = st[colorKey(from)];
@@ -751,8 +831,56 @@ export function renderHeroDesign() {
           s.borderWidth = Math.max(0, Math.min(8, parseInt(el.value, 10) || 0));
         else if (/Opacity$/.test(field))
           s[field] = Math.max(0, Math.min(100, parseInt(el.value, 10) || 0));
-        else s[field] = el.value; // Farben
+        else if (field in HERO_IMG_FIELDS) {
+          const c = HERO_IMG_FIELDS[field];
+          s[field] = Math.max(c.min, Math.min(c.max, parseInt(el.value, 10) || 0));
+        } else s[field] = el.value; // Farben
       }
+      refreshPreview(pane, lang);
+    });
+  });
+
+  // Hintergrundbild je Modus: URL (Enter/Verlassen), Mediathek, Entfernen.
+  pane.querySelectorAll('[data-hdimgurl]').forEach((el) => {
+    const mode = el.dataset.hdimgurl === 'dark' ? 'dark' : 'light';
+    el.addEventListener('change', () => {
+      const s = sideOf(lang, mode);
+      s.bgImage = normSiteMediaUrl(el.value);
+      if (el.value.trim() && !s.bgImage)
+        toast('Ungültige Bild-URL – erlaubt sind /pfad oder https://…');
+      renderHeroDesign(); // Miniatur, Regler, Vorschau
+    });
+  });
+  pane.querySelectorAll('[data-hdimgpick]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      const mode = btn.dataset.hdimgpick === 'dark' ? 'dark' : 'light';
+      const srv = [lang, 'shared'].reduce((n, l) => n + (state.serverFiles[l] || []).length, 0);
+      if (!state.stagedItems.length && !srv) {
+        toast('Keine Medien vorhanden — zuerst im Tab „Dateien" eine Datei hinzufügen.');
+        return;
+      }
+      openMediaPicker(lang, 'heroimg', {
+        imagesOnly: true,
+        title: `Hintergrundbild des Hero (${modeName(mode)}) wählen`,
+        onPick: (url) => {
+          sideOf(lang, mode).bgImage = url;
+          renderHeroDesign();
+          toast('Hintergrundbild zugewiesen');
+        },
+      });
+    }),
+  );
+  pane.querySelectorAll('[data-hdimgclear]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      sideOf(lang, btn.dataset.hdimgclear === 'dark' ? 'dark' : 'light').bgImage = '';
+      renderHeroDesign();
+      toast('Hintergrundbild entfernt');
+    }),
+  );
+  // Buttons ein-/ausblenden (Chips, CTA) – beide Modi.
+  pane.querySelectorAll('[data-hdshow]').forEach((el) => {
+    el.addEventListener('change', () => {
+      heroDesignOf(lang)[el.dataset.hdshow] = el.checked;
       refreshPreview(pane, lang);
     });
   });

@@ -147,6 +147,7 @@ function heroSideLight() {
     ctaHoverBgColor: '#003971',
     ctaHoverTextColor: '#ffffff',
     titleTextColor: '#003971',
+    ...heroImageDefaults(),
   };
 }
 function heroSideDark() {
@@ -170,7 +171,12 @@ function heroSideDark() {
     ctaHoverBgColor: '#a07030',
     ctaHoverTextColor: '#ffffff',
     titleTextColor: '#f9f2d5',
+    ...heroImageDefaults(),
   };
+}
+// Hintergrundbild des Hero je Modus: URL (leer = kein Bild) + Bildbearbeitung.
+function heroImageDefaults() {
+  return { bgImage: '', bgImageOpacity: 100, bgImageDarken: 0, bgImageBlur: 0, bgImageSaturate: 100 };
 }
 // Buchstaben-Konturbreite: [0, 5] px, auf 0,5 gerundet.
 function clampStroke(v, def) {
@@ -204,6 +210,9 @@ function defaultHeroDesign() {
     subtitleFontSize: 0,
     chipFontSize: 0,
     ctaFontSize: 0,
+    // Buttons im Hero ein-/ausblenden (Feature-Chips, CTA); gilt für beide Modi.
+    showChips: true,
+    showCta: true,
     light: heroSideLight(),
     dark: heroSideDark(),
   };
@@ -232,6 +241,11 @@ function validateHeroSide(s, def) {
     ctaHoverBgColor: normHexColor(s.ctaHoverBgColor, def.ctaHoverBgColor),
     ctaHoverTextColor: normHexColor(s.ctaHoverTextColor, def.ctaHoverTextColor),
     titleTextColor: normHexColor(s.titleTextColor, def.titleTextColor),
+    bgImage: SITE_IMAGE_URL.test(String(s.bgImage ?? '')) ? s.bgImage : '',
+    bgImageOpacity: clampNum(s.bgImageOpacity, 0, 100, def.bgImageOpacity),
+    bgImageDarken: clampNum(s.bgImageDarken, 0, 100, def.bgImageDarken),
+    bgImageBlur: clampNum(s.bgImageBlur, 0, 20, def.bgImageBlur),
+    bgImageSaturate: clampNum(s.bgImageSaturate, 0, 200, def.bgImageSaturate),
   };
 }
 
@@ -257,6 +271,8 @@ function validateHeroDesign(hd) {
     subtitleFontSize: clampFont(hd.subtitleFontSize),
     chipFontSize: clampFont(hd.chipFontSize),
     ctaFontSize: clampFont(hd.ctaFontSize),
+    showChips: hd.showChips !== false,
+    showCta: hd.showCta !== false,
     light: validateHeroSide(hasSides ? hd.light : flat, heroSideLight()),
     dark: validateHeroSide(hasSides ? hd.dark : flat, heroSideDark()),
   };

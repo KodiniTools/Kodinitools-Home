@@ -23,6 +23,21 @@
               0 0 0 1px rgba(232, 169, 69, 0.1) inset;
 }
 
+/* Hintergrundbild des Hero (Admin > Hero-Design, je Hell/Dunkel): eigene Ebene
+   unter dem Inhalt mit Deckkraft, Abdunkelung, Weichzeichner und Sättigung
+   (--hero-img-*, content.ts → getHeroImageCss). Ohne Bild: none (unsichtbar). */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: var(--hero-img-inset, 0);
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: var(--hero-img, none) center / cover no-repeat;
+  opacity: var(--hero-img-opacity, 1);
+  filter: var(--hero-img-filter, none);
+}
+
 /* Animated Mesh Gradient Background – deaktiviert.
    Die farbigen Mesh-Verlaufs-„Blobs" im Hero werden nicht mehr angezeigt; der
    Hero behält seine Hauptfarbe (--hero-bg). */
