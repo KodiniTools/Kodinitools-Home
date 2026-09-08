@@ -374,10 +374,11 @@ const pageI18n = {
               </div>
             </div>
           ) : null}
-          <h1 class="hero-title typing-title">
+          <!-- Titel/Untertitel (Admin > Hero-Design: ausblendbar – der Platz bleibt erhalten) -->
+          <h1 class={`hero-title typing-title${media.heroDesign.showTitle === false ? ' hero-hidden' : ''}`} aria-hidden={media.heroDesign.showTitle === false ? 'true' : undefined}>
             <span class="typed-text" id="typedText"></span>
           </h1>
-          <p class="hero-subtitle" data-i18n="hero.subtitle">Secure editing - In browser or on our servers<br/>No installation, no registration</p>
+          <p class={`hero-subtitle${media.heroDesign.showSubtitle === false ? ' hero-hidden' : ''}`} data-i18n="hero.subtitle" aria-hidden={media.heroDesign.showSubtitle === false ? 'true' : undefined}>Secure editing - In browser or on our servers<br/>No installation, no registration</p>
         </div>
 
         <!-- Features Grid (Admin > Hero-Design: ausblendbar – der Platz bleibt erhalten) -->

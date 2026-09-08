@@ -410,6 +410,12 @@ function globalFontTiles() {
 function chipHidden(hd, key) {
   return Array.isArray(hd.hiddenChips) && hd.hiddenChips.includes(key);
 }
+// Zusatz-CSS eines Hero-Textes in der Vorschau: anklickbar; ausgeblendet per
+// visibility (der Platz bleibt – wie auf der Seite).
+function textHiddenCss(hd, which) {
+  const shown = which === 'title' ? hd.showTitle !== false : hd.showSubtitle !== false;
+  return `;cursor:pointer${shown ? '' : ';visibility:hidden'}`;
+}
 // Zuletzt in der Vorschau angeklickter Button ({ kind: 'chip'|'cta', key }) –
 // seine Einstellungen bleiben in Seitenleiste und Mitte markiert.
 let hdSelected = null;
@@ -431,8 +437,8 @@ function previewHtml(lang, mode) {
         <div data-hdscroll data-tcside="hdprev" title="Hero in Originalgröße – scrollen; unten rechts in der Höhe ziehen" style="overflow:auto;height:${hdPrevHeight}px;min-height:120px;resize:vertical;border-radius:8px;overscroll-behavior:contain;scrollbar-width:thin">
         <div data-hdbox style="${previewBoxStyle(s)}">
           ${previewImageLayer(s)}
-          <div class="${slotAnimClass(getTextStyle(lang, 'hero.title'))}" style="${previewTitleStyle(s, hd, lang, mode)}" data-hdtitle>${esc(heroSlotText(lang, 'hero.title'))}</div>
-          <div class="${slotAnimClass(getTextStyle(lang, 'hero.subtitle'))}" style="${previewSubtitleStyle(s, hd, lang, mode)}" data-hdsub>${esc(heroSlotText(lang, 'hero.subtitle'))}</div>
+          <div class="${slotAnimClass(getTextStyle(lang, 'hero.title'))}" data-hdtitle role="button" tabindex="0" title="Klicken: Einstellungen des Titels anzeigen" style="${previewTitleStyle(s, hd, lang, mode)}${textHiddenCss(hd, 'title')}">${esc(heroSlotText(lang, 'hero.title'))}</div>
+          <div class="${slotAnimClass(getTextStyle(lang, 'hero.subtitle'))}" data-hdsub role="button" tabindex="0" title="Klicken: Einstellungen des Untertitels anzeigen" style="${previewSubtitleStyle(s, hd, lang, mode)}${textHiddenCss(hd, 'subtitle')}">${esc(heroSlotText(lang, 'hero.subtitle'))}</div>
           <div data-hdchips style="display:grid;grid-template-columns:repeat(${chipCols},1fr);gap:9.6px;margin-top:32px;visibility:${hd.showChips === false ? 'hidden' : 'visible'}">${chips}</div>
           <div class="${slotAnimClass(getTextStyle(lang, 'hero.cta'))}" data-hdcta role="button" tabindex="0" title="Klicken: Einstellungen des CTA-Buttons anzeigen" style="${previewCtaStyle(s, hd, lang, mode)}${hd.showCta === false ? ';visibility:hidden' : ''}">${esc(heroSlotText(lang, 'hero.cta'))}</div>
         </div>
@@ -569,7 +575,15 @@ function centerPanel(lang) {
     })
     .join('');
   const ctaSel = hdSelected && hdSelected.kind === 'cta';
+  const showRow = (kind, field, label, margin) => {
+    const sel = hdSelected && hdSelected.kind === kind;
+    return `<label data-hdshowrow="${kind}" style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin:${margin};padding:.15rem .35rem;border-radius:6px;font-weight:600;${sel ? 'outline:2px solid var(--accent)' : ''}">
+        <input type="checkbox" data-hdshow="${field}" ${hd[field] === false ? '' : 'checked'} style="width:auto" /> ${label}
+      </label>`;
+  };
   const showBody = `
+      ${showRow('title', 'showTitle', 'Titel anzeigen', '0')}
+      ${showRow('subtitle', 'showSubtitle', 'Untertitel anzeigen', '0 0 .5rem')}
       <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin:0 0 .3rem;font-weight:600">
         <input type="checkbox" data-hdshow="showChips" ${hd.showChips === false ? '' : 'checked'} style="width:auto" /> Feature-Buttons (Chips) anzeigen
       </label>
@@ -577,7 +591,7 @@ function centerPanel(lang) {
       <label data-hdshowrow="cta" style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin:.5rem 0 0;padding:.15rem .35rem;border-radius:6px;font-weight:600;${ctaSel ? 'outline:2px solid var(--accent)' : ''}">
         <input type="checkbox" data-hdshow="showCta" ${hd.showCta === false ? '' : 'checked'} style="width:auto" /> CTA-Button („Jetzt starten") anzeigen
       </label>
-      <p class="hint" style="margin:.4rem 0 0">Jeder Button lässt sich einzeln ausblenden; der Schalter „Feature-Buttons anzeigen“ blendet alle Chips auf einmal aus. Ausgeblendete Buttons sind auf der Seite unsichtbar und nicht anklickbar; ihr Platz bleibt erhalten, der Hero behält seine Höhe (Vorschau oben folgt sofort). Ein Klick auf einen Button in der Vorschau springt zu seinen Einstellungen. Gilt für Hell und Dunkel und unabhängig von „Eigenes Hero-Design“.</p>`;
+      <p class="hint" style="margin:.4rem 0 0">Titel und Untertitel lassen sich ausblenden; jeder Button lässt sich einzeln ausblenden, der Schalter „Feature-Buttons anzeigen“ blendet alle Chips auf einmal aus. Ausgeblendete Texte und Buttons sind auf der Seite unsichtbar und nicht anklickbar; ihr Platz bleibt erhalten, der Hero behält seine Höhe (Vorschau oben folgt sofort). Ein Klick auf einen Text oder Button in der Vorschau springt zu seinen Einstellungen. Gilt für Hell und Dunkel und unabhängig von „Eigenes Hero-Design“.</p>`;
   return `
     <div class="panel">
       <h2>Hero-Design <span class="lang-badge">${lang.toUpperCase()}</span></h2>
@@ -597,9 +611,9 @@ function centerPanel(lang) {
         <p class="hint" style="margin:.35rem 0 0">Kopiert <strong>alle</strong> Hero-Design-Einstellungen (Hell + Dunkel: Schriften, Typografie, Farben, Transparenzen) sowie die Feinabstimmung der Hero-Texte (Schrift, Größe, Farbe Hell + Dunkel, Effekte) von ${lang === 'de' ? 'Deutsch' : 'English'} nach ${otherLabel}. Die <em>Texte</em> und Button-<em>Beschriftungen</em> bleiben je Sprache erhalten.</p>
       </div>
 
-      ${section('✍️ Hero-Texte – Titel, Untertitel, Button-Text', heroTextsBody(lang))}
+      ${section('✍️ Hero-Texte – Titel, Untertitel, Button-Text', heroTextsBody(lang), true, 'textsc')}
       ${section('🔤 Überschriften-Typografie &amp; globale Schrift <span class="hint" style="font-weight:400">(für beide Modi)</span>', typoBody)}
-      ${section('👁️ Buttons ein-/ausblenden', showBody, true, 'show')}
+      ${section('👁️ Texte &amp; Buttons ein-/ausblenden', showBody, true, 'show')}
       ${section('🔘 Buttons &amp; CTA – Text, Größen, Beschriftungen', buttonsBody, true, 'buttons')}
     </div>`;
 }
@@ -686,7 +700,7 @@ function sidePanel(lang, mode) {
   const textsBody = HERO_TEXT_SLOTS.map((sl) => {
     const st = getTextStyle(lang, sl.key);
     return `
-      <div style="margin-top:.6rem;padding-top:.5rem;border-top:1px dashed var(--border)">
+      <div data-hdtxtside="${sl.key}" style="margin-top:.6rem;padding:.5rem .3rem 0;border-top:1px dashed var(--border);border-radius:6px">
         <label style="margin:0 0 .3rem">${esc(sl.label)}</label>
         <div style="border:1px solid var(--border);border-radius:8px;padding:.5rem .7rem;background:${previewBg(mode)};overflow:hidden">
           <div data-txtprev="${sl.key}" data-mode="${mode}" class="${slotAnimClass(st)}" style="${slotPreviewStyle(st, mode)}">${esc(heroSlotText(lang, sl.key))}</div>
@@ -717,7 +731,7 @@ function sidePanel(lang, mode) {
       ${section('🏞️ Hintergrundbild', imageBody)}
       ${section('🔘 Buttons (Feature-Chips)', chipsBody, true, 'chips')}
       ${section('🚀 CTA-Button („Jetzt starten")', ctaBody, true, 'cta')}
-      ${section('✍️ Hero-Texte – Farbe je Text', `<p class="hint" style="margin:0">Leer (↺) = allgemeine Überschriften- bzw. CTA-Textfarbe.</p>${textsBody}`)}
+      ${section('✍️ Hero-Texte – Farbe je Text', `<p class="hint" style="margin:0">Leer (↺) = allgemeine Überschriften- bzw. CTA-Textfarbe.</p>${textsBody}`, true, 'texts')}
     </aside>`;
 }
 
@@ -748,7 +762,7 @@ function heroTextsBody(lang) {
     const tuned = slotTuned(st);
     const rowsAttr = key === 'hero.cta' ? 1 : 2;
     return `
-      <div style="margin-top:.75rem;padding-top:.6rem;border-top:1px dashed var(--border)">
+      <div data-hdtxtrow="${key}" style="margin-top:.75rem;padding:.6rem .35rem 0;border-top:1px dashed var(--border);border-radius:6px">
         <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap">
           <label style="margin:0">${esc(sl.label)}</label>
           <button type="button" class="hd-reset" data-txtreset="${key}:text" title="Text auf Standard zurücksetzen" aria-label="Text zurücksetzen">↺ Text</button>
@@ -824,13 +838,19 @@ function refreshPreview(pane, lang) {
     const title = root.querySelector('[data-hdtitle]');
     if (title) {
       title.textContent = heroSlotText(lang, 'hero.title');
-      title.setAttribute('style', previewTitleStyle(s, hd, lang, mode));
+      title.setAttribute(
+        'style',
+        previewTitleStyle(s, hd, lang, mode) + textHiddenCss(hd, 'title'),
+      );
       applyAnimClass(title, getTextStyle(lang, 'hero.title'));
     }
     const sub = root.querySelector('[data-hdsub]');
     if (sub) {
       sub.textContent = heroSlotText(lang, 'hero.subtitle');
-      sub.setAttribute('style', previewSubtitleStyle(s, hd, lang, mode));
+      sub.setAttribute(
+        'style',
+        previewSubtitleStyle(s, hd, lang, mode) + textHiddenCss(hd, 'subtitle'),
+      );
       applyAnimClass(sub, getTextStyle(lang, 'hero.subtitle'));
     }
     const feats = featureDefs(lang);
@@ -873,31 +893,50 @@ function applyHdSelection(pane, scroll = true) {
   const sel = hdSelected;
   pane.querySelectorAll('[data-hdsection]').forEach((d) => (d.style.boxShadow = ''));
   pane
-    .querySelectorAll('[data-hdshowrow],[data-hdfeatrow]')
+    .querySelectorAll('[data-hdshowrow],[data-hdfeatrow],[data-hdtxtrow],[data-hdtxtside]')
     .forEach((el) => (el.style.outline = ''));
-  pane.querySelectorAll('[data-hdchip],[data-hdcta]').forEach((el) => (el.style.outline = ''));
+  pane
+    .querySelectorAll('[data-hdchip],[data-hdcta],[data-hdtitle],[data-hdsub]')
+    .forEach((el) => (el.style.outline = ''));
   if (!sel) return;
-  const sectionId = sel.kind === 'cta' ? 'cta' : 'chips';
+  // Je Auswahl: Sektion in der offenen Seitenleiste, Zeilen in Mitte/Seitenleiste,
+  // Element in der Vorschau, ggf. Text-Schlüssel (Hero-Texte in der Mitte).
+  const map = {
+    chip: { section: 'chips', row: `chip:${sel.key}`, prev: `[data-hdchip="${sel.key}"]` },
+    cta: { section: 'cta', row: 'cta', prev: '[data-hdcta]', txt: 'hero.cta' },
+    title: { section: 'texts', row: 'title', prev: '[data-hdtitle]', txt: 'hero.title' },
+    subtitle: { section: 'texts', row: 'subtitle', prev: '[data-hdsub]', txt: 'hero.subtitle' },
+  };
+  const m = map[sel.kind];
+  if (!m) return;
   const side = pane.querySelector('.tc-side:not(.tc-side--collapsed)');
-  const det = side && side.querySelector(`[data-hdsection="${sectionId}"]`);
+  const det = side && side.querySelector(`[data-hdsection="${m.section}"]`);
+  const mark = (el) => (el.style.outline = '2px solid var(--accent)');
   if (det) {
     det.open = true;
     det.style.boxShadow = '0 0 0 2px var(--accent)';
+    let target = det;
+    if (m.txt) {
+      const blk = det.querySelector(`[data-hdtxtside="${m.txt}"]`);
+      if (blk) {
+        mark(blk);
+        target = blk;
+      }
+    }
     if (scroll) {
       const top =
-        det.getBoundingClientRect().top - side.getBoundingClientRect().top + side.scrollTop;
+        target.getBoundingClientRect().top - side.getBoundingClientRect().top + side.scrollTop;
       side.scrollTo({ top: Math.max(0, top - 8), behavior: 'smooth' });
     }
   }
-  const rowSel =
-    sel.kind === 'cta' ? '[data-hdshowrow="cta"]' : `[data-hdshowrow="chip:${sel.key}"]`;
-  pane.querySelectorAll(rowSel).forEach((el) => (el.style.outline = '2px solid var(--accent)'));
-  if (sel.kind === 'chip')
-    pane
-      .querySelectorAll(`[data-hdfeatrow="${sel.key}"]`)
-      .forEach((el) => (el.style.outline = '2px solid var(--accent)'));
-  const prevSel = sel.kind === 'cta' ? '[data-hdcta]' : `[data-hdchip="${sel.key}"]`;
-  pane.querySelectorAll(prevSel).forEach((el) => (el.style.outline = '3px solid var(--accent)'));
+  pane.querySelectorAll(`[data-hdshowrow="${m.row}"]`).forEach(mark);
+  if (sel.kind === 'chip') pane.querySelectorAll(`[data-hdfeatrow="${sel.key}"]`).forEach(mark);
+  if (m.txt) {
+    const detC = pane.querySelector('[data-hdsection="textsc"]');
+    if (detC) detC.open = true;
+    pane.querySelectorAll(`[data-hdtxtrow="${m.txt}"]`).forEach(mark);
+  }
+  pane.querySelectorAll(m.prev).forEach((el) => (el.style.outline = '3px solid var(--accent)'));
 }
 
 export function renderHeroDesign() {
@@ -1196,15 +1235,19 @@ export function renderHeroDesign() {
       }
     });
   });
-  pane.querySelectorAll('[data-hdcta]').forEach((c) => {
-    c.addEventListener('click', () => selectPart('cta', ''));
-    c.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        selectPart('cta', '');
-      }
+  const bindSelect = (sel, kind) =>
+    pane.querySelectorAll(sel).forEach((c) => {
+      c.addEventListener('click', () => selectPart(kind, ''));
+      c.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          selectPart(kind, '');
+        }
+      });
     });
-  });
+  bindSelect('[data-hdcta]', 'cta');
+  bindSelect('[data-hdtitle]', 'title');
+  bindSelect('[data-hdsub]', 'subtitle');
 
   // Schriftauswahl (Überschriften / Buttons) – gilt für beide Modi.
   pane.querySelectorAll('[data-hdfont]').forEach((el) => {

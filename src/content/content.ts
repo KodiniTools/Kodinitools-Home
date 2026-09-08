@@ -566,7 +566,9 @@ export interface HeroDesign {
   subtitleFontSize: number; // px – Untertitel
   chipFontSize: number; // px – Feature-Chips
   ctaFontSize: number; // px – CTA-Button
-  // Buttons im Hero ein-/ausblenden (gilt für beide Modi).
+  // Texte und Buttons im Hero ein-/ausblenden (gilt für beide Modi).
+  showTitle: boolean; // Titel
+  showSubtitle: boolean; // Untertitel
   showChips: boolean; // Feature-Buttons (Chips) insgesamt
   hiddenChips: string[]; // einzeln ausgeblendete Feature-Buttons (Schlüssel aus hero.features)
   showCta: boolean; // CTA-Button („Jetzt starten")
@@ -649,6 +651,8 @@ const MEDIA_DEFAULTS: MediaConfig = {
     subtitleFontSize: 0,
     chipFontSize: 0,
     ctaFontSize: 0,
+    showTitle: true,
+    showSubtitle: true,
     showChips: true,
     hiddenChips: [],
     showCta: true,
