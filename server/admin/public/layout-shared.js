@@ -58,33 +58,36 @@ const TRANSITION_LABELS = {
 // Einstellungen einer Diashow (Banner: attr 'slideshow', Raster: 'gridslideshow'):
 // Anzeigedauer, Übergangsdauer, Übergang, Pause bei Mauszeiger, Punkte, optional
 // „versetzt wechseln" (nur Raster).
-export function slideshowSettingsHtml(ss, attr, disabled, withStagger) {
+// opts.idPrefix: eigener Präfix der Regler-IDs (Standard ly:slideshow bzw.
+// ly:gridslideshow); opts.extraAttrs: weitere Attribute je Feld (z. B. data-mode).
+export function slideshowSettingsHtml(ss, attr, disabled, withStagger, opts = {}) {
   const dis = disabled ? 'disabled' : '';
-  const pre = attr === 'gridslideshow' ? 'ly:gridslideshow' : 'ly:slideshow';
+  const pre = opts.idPrefix || (attr === 'gridslideshow' ? 'ly:gridslideshow' : 'ly:slideshow');
+  const extra = opts.extraAttrs ? ` ${opts.extraAttrs}` : '';
   return `
       <div class="row" style="align-items:flex-end;margin-top:.7rem">
         <div style="flex:1 1 220px">
-          ${slider({ id: `${pre}:interval`, label: 'Anzeigedauer je Bild', unit: 's', min: 1, max: 30, value: ss.interval, attrs: `data-${attr}="interval"`, resetAttrs: `data-${attr}reset="interval"`, disabled })}
+          ${slider({ id: `${pre}:interval`, label: 'Anzeigedauer je Bild', unit: 's', min: 1, max: 30, value: ss.interval, attrs: `data-${attr}="interval"${extra}`, resetAttrs: `data-${attr}reset="interval"${extra}`, disabled })}
         </div>
         <div style="flex:1 1 220px">
-          ${slider({ id: `${pre}:duration`, label: 'Übergangsdauer', unit: 'ms', min: 0, max: 5000, step: 50, value: ss.duration, attrs: `data-${attr}="duration"`, resetAttrs: `data-${attr}reset="duration"`, disabled })}
+          ${slider({ id: `${pre}:duration`, label: 'Übergangsdauer', unit: 'ms', min: 0, max: 5000, step: 50, value: ss.duration, attrs: `data-${attr}="duration"${extra}`, resetAttrs: `data-${attr}reset="duration"${extra}`, disabled })}
         </div>
         <div style="flex:0 0 auto">
           <label>Übergang</label>
-          <select data-${attr}="transition" ${dis} style="width:auto;height:38px">${BANNER_TRANSITIONS.map((t) => `<option value="${t}" ${t === ss.transition ? 'selected' : ''}>${TRANSITION_LABELS[t] || t}</option>`).join('')}</select>
+          <select data-${attr}="transition"${extra} ${dis} style="width:auto;height:38px">${BANNER_TRANSITIONS.map((t) => `<option value="${t}" ${t === ss.transition ? 'selected' : ''}>${TRANSITION_LABELS[t] || t}</option>`).join('')}</select>
         </div>
       </div>
       <div class="row" style="align-items:center;margin-top:.4rem;gap:1rem">
         <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);cursor:pointer;margin:0">
-          <input type="checkbox" data-${attr}="pauseOnHover" ${ss.pauseOnHover ? 'checked' : ''} ${dis} style="width:auto" /> Pause bei Mauszeiger
+          <input type="checkbox" data-${attr}="pauseOnHover"${extra} ${ss.pauseOnHover ? 'checked' : ''} ${dis} style="width:auto" /> Pause bei Mauszeiger
         </label>
         <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);cursor:pointer;margin:0">
-          <input type="checkbox" data-${attr}="dots" ${ss.dots ? 'checked' : ''} ${dis} style="width:auto" /> Punkte zum Umschalten
+          <input type="checkbox" data-${attr}="dots"${extra} ${ss.dots ? 'checked' : ''} ${dis} style="width:auto" /> Punkte zum Umschalten
         </label>
         ${
           withStagger
             ? `<label style="display:flex;align-items:center;gap:.4rem;color:var(--text);cursor:pointer;margin:0">
-          <input type="checkbox" data-${attr}="stagger" ${ss.stagger !== false ? 'checked' : ''} ${dis} style="width:auto" /> Versetzt wechseln (Kacheln nacheinander)
+          <input type="checkbox" data-${attr}="stagger"${extra} ${ss.stagger !== false ? 'checked' : ''} ${dis} style="width:auto" /> Versetzt wechseln (Kacheln nacheinander)
         </label>`
             : ''
         }

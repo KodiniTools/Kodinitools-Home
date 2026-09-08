@@ -18,8 +18,9 @@ interface Props {
   variant: 'banner' | 'cell';
   offset?: number; // ms – versetzter Start (Kacheln nacheinander)
   total: number; // Anzahl aller Bilder inkl. dem ersten (für die Punkte)
+  pauseTarget?: string; // Selektor eines Vorfahren, dessen Hover pausiert (z. B. '.hero' für den Hintergrund)
 }
-const { slides, settings, variant, offset = 0, total } = Astro.props;
+const { slides, settings, variant, offset = 0, total, pauseTarget } = Astro.props;
 const interval = Math.max(1, Math.min(30, Number(settings.interval) || 5));
 const duration = Math.max(
   0,
@@ -37,6 +38,7 @@ const showDots = settings.dots !== false;
   data-interval={interval}
   data-pause={settings.pauseOnHover === false ? '0' : '1'}
   data-offset={Math.max(0, Math.round(offset))}
+  data-pause-target={pauseTarget || undefined}
   style={`--slide-dur:${interval}s;--slide-fade:${duration}ms`}
 >
   <slot />
@@ -123,8 +125,11 @@ const showDots = settings.dots !== false;
       });
     });
     if (pause) {
-      box.addEventListener('mouseenter', stop);
-      box.addEventListener('mouseleave', () => start());
+      // Hintergrund-Diashow: die Ebene selbst nimmt keine Mausereignisse an,
+      // deshalb pausiert der Hover auf dem angegebenen Vorfahren (z. B. .hero).
+      const hoverEl = (box.dataset.pauseTarget && box.closest(box.dataset.pauseTarget)) || box;
+      hoverEl.addEventListener('mouseenter', stop);
+      hoverEl.addEventListener('mouseleave', () => start());
     }
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) stop();

@@ -176,7 +176,15 @@ function heroSideDark() {
 }
 // Hintergrundbild des Hero je Modus: URL (leer = kein Bild) + Bildbearbeitung.
 function heroImageDefaults() {
-  return { bgImage: '', bgImageOpacity: 100, bgImageDarken: 0, bgImageBlur: 0, bgImageSaturate: 100 };
+  return {
+    bgImage: '',
+    bgImageOpacity: 100,
+    bgImageDarken: 0,
+    bgImageBlur: 0,
+    bgImageSaturate: 100,
+    bgSlides: [], // weitere Bilder der Hintergrund-Diashow
+    bgSlideshow: { ...defaultBannerSlideshow(), dots: false },
+  };
 }
 // Buchstaben-Konturbreite: [0, 5] px, auf 0,5 gerundet.
 function clampStroke(v, def) {
@@ -246,6 +254,12 @@ function validateHeroSide(s, def) {
     bgImageDarken: clampNum(s.bgImageDarken, 0, 100, def.bgImageDarken),
     bgImageBlur: clampNum(s.bgImageBlur, 0, 20, def.bgImageBlur),
     bgImageSaturate: clampNum(s.bgImageSaturate, 0, 200, def.bgImageSaturate),
+    bgSlides: validateSlideList(s.bgSlides, 'Hero-Hintergrund-Diashow'),
+    bgSlideshow: (() => {
+      const ss = validateBannerSlideshow(s.bgSlideshow);
+      ss.dots = isPlainObject(s.bgSlideshow) && s.bgSlideshow.dots === true;
+      return ss;
+    })(),
   };
 }
 
