@@ -193,6 +193,13 @@
   color: var(--hero-title-color, #f8e1a9);
 }
 
+/* Ausgeblendete Hero-Buttons (Admin > Hero-Design): unsichtbar und nicht
+   bedienbar, der Platz bleibt erhalten – der Hero behält seine Höhe. */
+.hero .hero-hidden {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 /* Hero CTA Button */
 .hero-cta-wrap {
   display: flex;
