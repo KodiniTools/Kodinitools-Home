@@ -336,8 +336,8 @@ function previewHtml(lang, mode) {
           ${previewImageLayer(s)}
           <div class="${slotAnimClass(getTextStyle(lang, 'hero.title'))}" style="${previewTitleStyle(s, hd, lang, mode)}" data-hdtitle>${esc(heroSlotText(lang, 'hero.title'))}</div>
           <div class="${slotAnimClass(getTextStyle(lang, 'hero.subtitle'))}" style="${previewSubtitleStyle(s, hd, lang, mode)}" data-hdsub>${esc(heroSlotText(lang, 'hero.subtitle'))}</div>
-          <div data-hdchips style="display:${hd.showChips === false ? 'none' : 'grid'};grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.9rem">${chips}</div>
-          <div class="${slotAnimClass(getTextStyle(lang, 'hero.cta'))}" data-hdcta style="${previewCtaStyle(s, hd, lang, mode)}${hd.showCta === false ? ';display:none' : ''}">${esc(heroSlotText(lang, 'hero.cta'))}</div>
+          <div data-hdchips style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.9rem;visibility:${hd.showChips === false ? 'hidden' : 'visible'}">${chips}</div>
+          <div class="${slotAnimClass(getTextStyle(lang, 'hero.cta'))}" data-hdcta style="${previewCtaStyle(s, hd, lang, mode)}${hd.showCta === false ? ';visibility:hidden' : ''}">${esc(heroSlotText(lang, 'hero.cta'))}</div>
         </div>
       </div>`;
 }
@@ -469,7 +469,7 @@ function centerPanel(lang) {
           <input type="checkbox" data-hdshow="showCta" ${hd.showCta === false ? '' : 'checked'} style="width:auto" /> CTA-Button („Jetzt starten") anzeigen
         </label>
       </div>
-      <p class="hint" style="margin:.4rem 0 0">Ausgeblendete Buttons erscheinen nicht auf der Seite (Vorschau oben folgt sofort). Gilt für Hell und Dunkel und unabhängig von „Eigenes Hero-Design“.</p>`;
+      <p class="hint" style="margin:.4rem 0 0">Ausgeblendete Buttons sind auf der Seite unsichtbar und nicht anklickbar; ihr Platz bleibt erhalten, der Hero behält seine Höhe (Vorschau oben folgt sofort). Gilt für Hell und Dunkel und unabhängig von „Eigenes Hero-Design“.</p>`;
   return `
     <div class="panel">
       <h2>Hero-Design <span class="lang-badge">${lang.toUpperCase()}</span></h2>
@@ -707,7 +707,7 @@ function refreshPreview(pane, lang) {
       else if (layer) layer.remove();
     }
     const chipsBox = root.querySelector('[data-hdchips]');
-    if (chipsBox) chipsBox.style.display = hd.showChips === false ? 'none' : 'grid';
+    if (chipsBox) chipsBox.style.visibility = hd.showChips === false ? 'hidden' : 'visible';
     const title = root.querySelector('[data-hdtitle]');
     if (title) {
       title.textContent = heroSlotText(lang, 'hero.title');
@@ -734,7 +734,7 @@ function refreshPreview(pane, lang) {
       cta.textContent = heroSlotText(lang, 'hero.cta');
       cta.setAttribute(
         'style',
-        previewCtaStyle(s, hd, lang, mode) + (hd.showCta === false ? ';display:none' : ''),
+        previewCtaStyle(s, hd, lang, mode) + (hd.showCta === false ? ';visibility:hidden' : ''),
       );
       applyAnimClass(cta, getTextStyle(lang, 'hero.cta'));
     }

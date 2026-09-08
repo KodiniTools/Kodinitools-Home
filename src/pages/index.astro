@@ -374,23 +374,19 @@ const pageI18n = {
           <p class="hero-subtitle" data-i18n="hero.subtitle">Sichere Bearbeitung - Im Browser oder auf unseren Servern<br/>Keine Installation, keine Anmeldung</p>
         </div>
 
-        <!-- Features Grid (Admin > Hero-Design: ausblendbar) -->
-        {media.heroDesign.showChips !== false && (
-          <div class="features-grid">
-            {features.map((feature) => (
-              <div class="feature-card">
-                <div class="feature-text" data-i18n={feature.i18nKey}>{feature.text}</div>
-              </div>
-            ))}
-          </div>
-        )}
+        <!-- Features Grid (Admin > Hero-Design: ausblendbar – der Platz bleibt erhalten) -->
+        <div class={`features-grid${media.heroDesign.showChips === false ? ' hero-hidden' : ''}`} aria-hidden={media.heroDesign.showChips === false ? 'true' : undefined}>
+          {features.map((feature) => (
+            <div class="feature-card">
+              <div class="feature-text" data-i18n={feature.i18nKey}>{feature.text}</div>
+            </div>
+          ))}
+        </div>
 
-        <!-- Hero CTA (Admin > Hero-Design: ausblendbar) -->
-        {media.heroDesign.showCta !== false && (
-          <div class="hero-cta-wrap">
-            <a href="#audio-tools" class="hero-cta-btn" data-i18n="hero.cta">Jetzt starten</a>
-          </div>
-        )}
+        <!-- Hero CTA (Admin > Hero-Design: ausblendbar – der Platz bleibt erhalten) -->
+        <div class={`hero-cta-wrap${media.heroDesign.showCta === false ? ' hero-hidden' : ''}`} aria-hidden={media.heroDesign.showCta === false ? 'true' : undefined}>
+          <a href="#audio-tools" class="hero-cta-btn" data-i18n="hero.cta" tabindex={media.heroDesign.showCta === false ? -1 : undefined}>Jetzt starten</a>
+        </div>
       </div>
 
       <!-- Scroll Indicator -->
