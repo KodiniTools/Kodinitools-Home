@@ -58,6 +58,10 @@ const heroGridHiddenArr = Array.isArray(media.heroGridHidden) ? media.heroGridHi
 const heroGridCells = media.heroGrid.slice(0, heroGridCount).map((src, i) => ({ src, i })).filter(({ i }) => heroGridHiddenArr[i] !== true)
 const heroGridReflow = heroGridCells.length < heroGridCount
 const heroGridCols = heroGridReflowCols(media.heroLayout, heroGridCells.length)
+// Verschiebung des Hero-Mediums (Banner/Raster; Admin > Medien > Ganze Seite): relative Position.
+const heroPromoOffX = Math.max(-400, Math.min(400, typeof media.heroMediaOffsetX === 'number' ? media.heroMediaOffsetX : 0))
+const heroPromoOffY = Math.max(-300, Math.min(300, typeof media.heroMediaOffsetY === 'number' ? media.heroMediaOffsetY : 0))
+const heroPromoStyle = heroPromoOffX || heroPromoOffY ? `position:relative;left:${heroPromoOffX}px;top:${heroPromoOffY}px` : undefined
 // Verschiebung einzelner Feature-Buttons (Admin > Hero-Design): relative Position, der Platz bleibt.
 const chipOffsetStyle = (k: string): string | undefined => {
   const o = media.heroDesign.chipOffsets?.[k]
@@ -303,7 +307,7 @@ const pageI18n = {
       <div class="noise-overlay"></div>
 
       <div class="hero-content">
-        <div class="hero-promo">
+        <div class="hero-promo" style={heroPromoStyle}>
           {media.heroMode === 'grid' ? (
             <div
               class={`hero-grid layout-${media.heroLayout}${heroGridReflow ? ' hero-grid--reflow' : ''}`}

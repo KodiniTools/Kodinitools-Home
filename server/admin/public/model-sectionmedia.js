@@ -49,7 +49,17 @@ export function defaultSectionMedia() {
     slides: [],
     slideshow: defaultBannerSlideshow(),
     text: defaultSectionMediaText(),
+    // Verschiebung des Medium-Blocks auf der Seite (px, relative Position; Ganzseiten-Vorschau).
+    offsetX: 0,
+    offsetY: 0,
   };
+}
+// Größte Verschiebung eines Mediums (px) waagerecht/senkrecht.
+export const MEDIA_OFFSET_MAX = { x: 400, y: 300 };
+export function normMediaOffset(v, axis) {
+  const m = axis === 'y' ? MEDIA_OFFSET_MAX.y : MEDIA_OFFSET_MAX.x;
+  const n = Number(v);
+  return Number.isFinite(n) ? Math.max(-m, Math.min(m, Math.round(n))) : 0;
 }
 export function defaultSectionMediaAll() {
   const out = {};
@@ -108,6 +118,8 @@ export function normSectionMedia(o) {
     slides: normBannerSlides(o.slides),
     slideshow: normBannerSlideshow(o.slideshow),
     text: normSectionMediaText(o.text),
+    offsetX: normMediaOffset(o.offsetX, 'x'),
+    offsetY: normMediaOffset(o.offsetY, 'y'),
   };
 }
 export function normSectionMediaAll(o) {

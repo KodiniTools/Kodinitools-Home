@@ -25,6 +25,11 @@ const slides =
 const t = cfg && cfg.text ? cfg.text : null;
 const hasText = !!(t && typeof t.text === 'string' && t.text.trim() !== '');
 const VALID_FONT = /^[a-zA-Z0-9][a-zA-Z0-9._ -]*\.(woff2|woff|ttf|otf)$/i;
+// Verschiebung des Blocks (Admin > Medien > Ganze Seite): relative Position, der
+// Platz im Fluss bleibt (.section-media-wrapper ist position:relative).
+const offX = Math.max(-400, Math.min(400, typeof cfg?.offsetX === 'number' ? cfg.offsetX : 0));
+const offY = Math.max(-300, Math.min(300, typeof cfg?.offsetY === 'number' ? cfg.offsetY : 0));
+const wrapStyle = offX || offY ? `left:${offX}px;top:${offY}px` : undefined;
 
 function hexToRgba(hex: string, alpha: number): string {
   const m = /^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.exec((hex || '').trim());
@@ -66,7 +71,7 @@ function textStyle(): string {
 
 {
   src && (
-    <div class="section-video-wrapper section-media-wrapper" data-section-media={section}>
+    <div class="section-video-wrapper section-media-wrapper" data-section-media={section} style={wrapStyle}>
       {slides.length > 0 && cfg ? (
         <HeroSlides
           slides={slides}
