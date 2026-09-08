@@ -615,8 +615,9 @@
 
 /* Hero-Raster: Kacheln in wählbarer Anordnung (Layout) und Form (Ratio). */
 .hero-grid {
+  --hero-gap: 1rem;
   display: grid;
-  gap: 1rem;
+  gap: var(--hero-gap);
   width: 100%;
   max-width: 720px;
   margin: 0 auto;
@@ -696,9 +697,25 @@
   object-fit: var(--hero-cell-fit, cover);
   display: block;
 }
+/* Ausgeblendete Kacheln (Admin > Layout): die übrigen teilen den Platz symmetrisch –
+   Flex-Umbruch mit zentrierten Reihen, --hero-cols = Kacheln je Reihe (Seite setzt
+   ihn inline). Einblenden entfernt die Klasse, die Anordnung ist wieder die alte. */
+.hero-grid.hero-grid--reflow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  aspect-ratio: auto;
+}
+.hero-grid.hero-grid--reflow > .hero-grid-cell,
+.hero-grid.hero-grid--reflow > .hero-media-link > .hero-grid-cell {
+  flex: 0 0 calc((100% - (var(--hero-cols, 1) - 1) * var(--hero-gap)) / var(--hero-cols, 1));
+  max-width: calc((100% - (var(--hero-cols, 1) - 1) * var(--hero-gap)) / var(--hero-cols, 1));
+  aspect-ratio: var(--hero-cell-ratio, 1 / 1);
+  height: auto;
+}
 @media (max-width: 640px) {
   .hero-grid {
-    gap: 0.5rem;
+    --hero-gap: 0.5rem;
   }
 }
 

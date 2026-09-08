@@ -25,6 +25,8 @@ import {
   getGridSlides,
   getGridSlideshow,
   defaultGridSlideshow,
+  heroGridReflowCols,
+  visibleGridCells,
 } from './model.js';
 import { objUrl, openMediaPicker } from './media.js';
 import { fontOptionsHtml } from './fonts.js';
@@ -159,25 +161,58 @@ function cellTextOverlayStyle(color, size, x, y, font) {
 function previewHtml(lang, layout, cellsN, ratio) {
   const ar = RATIO_AR[ratio] || '1 / 1';
   const fit = state.media[lang].heroGridFit === 'contain' ? 'contain' : 'cover';
-  const cells = Array.from({ length: cellsN }, (_, i) => {
-    const s = getEffectiveCellStyle(lang, i);
-    const bg = rgbaFromHex(s.bgColor, s.bgOpacity);
-    let box = `aspect-ratio:${ar};`;
-    let span = '';
-    if (layout === 'mosaic') {
-      box = 'height:100%;';
-      if (i === 0) span = 'grid-row:1 / span 2;';
-    }
-    const media = cellMediaHtml(lang, i, fit, s);
-    const base = media || `<span style="color:var(--muted);font-size:.72rem">${i + 1}</span>`;
-    const textOverlay = s.text
-      ? `<div data-prevtext="${i}" title="Zum Verschieben ziehen" style="${cellTextOverlayStyle(s.textColor, s.textSize, s.textX, s.textY, s.font)}">${esc(s.text)}</div>`
-      : `<div data-prevtext="${i}"></div>`;
-    return `<div data-prevcell="${i}" title="Kachel ${i + 1} bearbeiten" style="position:relative;${box}${span}border-radius:8px;overflow:hidden;background:${bg};border:${s.borderWidth}px solid ${s.borderColor};display:flex;align-items:center;justify-content:center;cursor:pointer">${base}${textOverlay}</div>`;
-  }).join('');
-  const rows = layout === 'mosaic' ? 'grid-template-rows:1fr 1fr;aspect-ratio:2 / 1;' : '';
+  // Ausgeblendete Kacheln entfallen; die übrigen teilen den Platz symmetrisch
+  // (wie auf der Seite: Flex-Umbruch, zentrierte Reihen, `cols` Kacheln je Reihe).
+  const visible = visibleGridCells(lang, layout);
+  const reflow = visible.length < cellsN;
+  const cols = heroGridReflowCols(layout, visible.length);
+  const GAP = '.45rem';
+  const cells = visible
+    .map((i) => {
+      const s = getEffectiveCellStyle(lang, i);
+      const bg = rgbaFromHex(s.bgColor, s.bgOpacity);
+      let box = `aspect-ratio:${ar};`;
+      let span = '';
+      if (reflow) {
+        box += `flex:0 0 calc((100% - ${cols - 1} * ${GAP}) / ${cols});max-width:calc((100% - ${cols - 1} * ${GAP}) / ${cols});`;
+      } else if (layout === 'mosaic') {
+        box = 'height:100%;';
+        if (i === 0) span = 'grid-row:1 / span 2;';
+      }
+      const media = cellMediaHtml(lang, i, fit, s);
+      const base = media || `<span style="color:var(--muted);font-size:.72rem">${i + 1}</span>`;
+      const textOverlay = s.text
+        ? `<div data-prevtext="${i}" title="Zum Verschieben ziehen" style="${cellTextOverlayStyle(s.textColor, s.textSize, s.textX, s.textY, s.font)}">${esc(s.text)}</div>`
+        : `<div data-prevtext="${i}"></div>`;
+      return `<div data-prevcell="${i}" title="Kachel ${i + 1} bearbeiten" style="position:relative;${box}${span}border-radius:8px;overflow:hidden;background:${bg};border:${s.borderWidth}px solid ${s.borderColor};display:flex;align-items:center;justify-content:center;cursor:pointer">${base}${textOverlay}</div>`;
+    })
+    .join('');
+  const rows =
+    layout === 'mosaic' && !reflow ? 'grid-template-rows:1fr 1fr;aspect-ratio:2 / 1;' : '';
   const maxW = layout === 'big2' ? '440px' : layout === 'vrow' ? '190px' : '400px';
-  return `<div style="display:grid;grid-template-columns:${gridCols(layout)};${rows}gap:.45rem;max-width:${maxW};margin:.2rem auto">${cells}</div>`;
+  const disp = reflow
+    ? `display:flex;flex-wrap:wrap;justify-content:center;`
+    : `display:grid;grid-template-columns:${gridCols(layout)};`;
+  const empty = visible.length
+    ? ''
+    : `<p class="hint" style="margin:.4rem 0;text-align:center;width:100%">Alle Kacheln ausgeblendet – auf der Seite erscheint kein Raster.</p>`;
+  return `<div data-layprevgrid data-reflow="${reflow ? cols : ''}" style="${disp}${rows}gap:${GAP};max-width:${maxW};margin:.2rem auto">${cells}${empty}</div>`;
+}
+// Hinweiszeile unter der Vorschau: ausgeblendete Kacheln mit „einblenden“-Knopf.
+function hiddenCellsInfo(lang, layout) {
+  const hidden = state.media[lang].heroGridHidden;
+  const n = heroLayoutCells(layout);
+  const list = [];
+  for (let i = 0; i < n; i++) if (Array.isArray(hidden) && hidden[i] === true) list.push(i);
+  if (!list.length) return '';
+  return `<p class="hint" data-hiddeninfo style="margin:0 0 .35rem;display:flex;flex-wrap:wrap;gap:.3rem .5rem;align-items:center">👁 Ausgeblendet: ${list
+    .map(
+      (i) =>
+        `<button type="button" class="hd-reset" data-cellshowbtn="${i}" title="Kachel ${i + 1} wieder einblenden">Kachel ${i + 1} einblenden</button>`,
+    )
+    .join(
+      '',
+    )} <span>– die übrigen Kacheln teilen den Platz symmetrisch; Einblenden stellt die Anordnung wieder her.</span></p>`;
 }
 
 // Bild-Block eines Kachel-Editors: Vorschaubild, Einfügen aus der Zwischenablage
@@ -247,9 +282,17 @@ function cellContentEditor(lang, i, bigLabel) {
   const note = inherited
     ? `<p class="hint" style="margin:.3rem 0 0;color:var(--accent)">↳ Bildbearbeitung und Schriftart von Kachel ${masterIdx + 1}; Bild und Text bleiben eigen.</p>`
     : '';
+  const hiddenArr = state.media[lang].heroGridHidden;
+  const hidden = Array.isArray(hiddenArr) && hiddenArr[i] === true;
   return `
-    <div class="panel" data-celleditor="${i}" style="padding:.7rem .9rem;margin-bottom:.6rem;scroll-margin-top:.5rem">
-      <strong style="font-size:.85rem">Kachel ${i + 1}${bigLabel ? ' (groß)' : ''}</strong>
+    <div class="panel" data-celleditor="${i}" style="padding:.7rem .9rem;margin-bottom:.6rem;scroll-margin-top:.5rem${hidden ? ';opacity:.75' : ''}">
+      <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap">
+        <strong style="font-size:.85rem">Kachel ${i + 1}${bigLabel ? ' (groß)' : ''}</strong>
+        <label style="display:inline-flex;align-items:center;gap:.3rem;margin:0;font-weight:400;color:var(--text)" title="Ausgeblendet: Kachel entfällt auf der Seite, die übrigen teilen den Platz symmetrisch; Einblenden stellt die Anordnung wieder her">
+          <input type="checkbox" data-cellshow="${i}" ${hidden ? '' : 'checked'} style="width:auto" /> anzeigen
+        </label>
+        ${hidden ? '<span class="hint" style="margin:0;color:var(--accent)">ausgeblendet</span>' : ''}
+      </div>
       ${note}
       ${cellImageBlock(lang, i, inherited)}
       <div class="row" style="align-items:flex-end;margin-top:.4rem">
@@ -344,6 +387,7 @@ export function gridLayoutHtml(lang, modePanel) {
         <span class="hint" style="margin:0">👁 Live-Vorschau (${cellsN} Kachel${cellsN === 1 ? '' : 'n'}) — Kachel anklicken zum Bearbeiten:</span>
         ${undoRedoBar()}
       </div>
+      ${hiddenCellsInfo(lang, layout)}
       <div data-layprev>${previewHtml(lang, layout, cellsN, ratio)}</div>
     </div>`;
   const layoutSel = `
@@ -518,6 +562,22 @@ export function bindGrid(pane, lang, rr) {
     .forEach((el) =>
       el.addEventListener('focusin', () => markCell(pane, Number(el.dataset.celleditor))),
     );
+
+  // Kachel ein-/ausblenden (Editor-Schalter) bzw. wieder einblenden (Knopf unter der Vorschau).
+  const setCellHidden = (i, hidden) => {
+    const m = state.media[lang];
+    if (!Array.isArray(m.heroGridHidden))
+      m.heroGridHidden = [false, false, false, false, false, false];
+    m.heroGridHidden[i] = hidden;
+    rr();
+    toast(hidden ? `Kachel ${i + 1} ausgeblendet` : `Kachel ${i + 1} eingeblendet`);
+  };
+  pane.querySelectorAll('[data-cellshow]').forEach((el) => {
+    el.addEventListener('change', () => setCellHidden(Number(el.dataset.cellshow), !el.checked));
+  });
+  pane.querySelectorAll('[data-cellshowbtn]').forEach((el) => {
+    el.addEventListener('click', () => setCellHidden(Number(el.dataset.cellshowbtn), false));
+  });
 
   // „Standard für alle Kacheln": diese Kachel wird Vorlage für alle anderen.
   // Ausschalten stellt die individuellen Werte wieder her – die eigenen Werte

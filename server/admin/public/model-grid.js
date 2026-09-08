@@ -20,6 +20,34 @@ export const HERO_LAYOUTS = {
   mosaic: { label: 'Mosaik (1 groß + 2 klein)', cells: 3 },
 };
 export const HERO_GRID_MAX = 6; // größtmögliche Kachelzahl über alle Layouts
+// Kacheln je Reihe des Layouts (Basis für die Neuaufteilung bei ausgeblendeten Kacheln).
+export const HERO_LAYOUT_COLS = {
+  grid2: 2,
+  grid3: 3,
+  row4: 4,
+  grid4: 2,
+  grid6: 3,
+  big2: 2,
+  vrow: 1,
+  mosaic: 3,
+};
+// Kacheln je Reihe, wenn nur n Kacheln sichtbar sind: Reihenzahl wie nötig, die
+// Kacheln gleichmäßig auf die Reihen verteilt (z. B. 3×2 mit 4 sichtbaren -> 2×2,
+// mit 5 -> 3 + 2 zentriert). Gleiche Formel wie auf der Seite (content.ts).
+export function heroGridReflowCols(layout, n) {
+  const c = HERO_LAYOUT_COLS[layout] || 3;
+  if (n <= 0) return 1;
+  const rows = Math.ceil(n / c);
+  return Math.max(1, Math.ceil(n / rows));
+}
+// Sichtbare Kachel-Indizes eines Layouts (ausgeblendete entfallen).
+export function visibleGridCells(lang, layout) {
+  const hidden = state.media[lang].heroGridHidden;
+  const n = heroLayoutCells(layout);
+  const out = [];
+  for (let i = 0; i < n; i++) if (!(Array.isArray(hidden) && hidden[i] === true)) out.push(i);
+  return out;
+}
 export function heroLayoutCells(layout) {
   return (HERO_LAYOUTS[layout] || HERO_LAYOUTS.grid3).cells;
 }
