@@ -334,8 +334,8 @@ function typoRange(hd, field, label, min, max, unit, step = 1) {
 }
 
 // Klappbare Sektion (Details/Summary) – standardmäßig geöffnet.
-function section(title, body, open = true) {
-  return `<details ${open ? 'open' : ''} style="border-top:1px solid var(--border);margin-top:.5rem;padding-top:.4rem">
+function section(title, body, open = true, id = '') {
+  return `<details ${open ? 'open' : ''}${id ? ` data-hdsection="${id}"` : ''} style="border-top:1px solid var(--border);margin-top:.5rem;padding-top:.4rem">
         <summary style="cursor:pointer;font-weight:600;font-size:.95rem">${title}</summary>
         <div style="padding-top:.5rem">${body}</div>
       </details>`;
@@ -393,17 +393,25 @@ function globalFontTiles() {
 }
 
 // Vorschau-Box eines Modus (Titel, Untertitel, erste drei Chips, CTA).
+// Einzeln ausgeblendeter Feature-Button?
+function chipHidden(hd, key) {
+  return Array.isArray(hd.hiddenChips) && hd.hiddenChips.includes(key);
+}
+// Zuletzt in der Vorschau angeklickter Button ({ kind: 'chip'|'cta', key }) –
+// seine Einstellungen bleiben in Seitenleiste und Mitte markiert.
+let hdSelected = null;
 function previewHtml(lang, mode) {
   const hd = heroDesignOf(lang);
   const s = sideOf(lang, mode);
-  const chips = featureDefs(lang)
-    .slice(0, 3)
+  const feats = featureDefs(lang);
+  const chips = feats
     .map(({ key, def }) => {
       const o = getPath(state.overrides[lang], ['hero', 'features', key]);
       const label = o != null && o !== '' ? o : def || key;
-      return `<div data-hdchip style="${previewChipStyle(s, hd)}">${esc(label)}</div>`;
+      return `<div data-hdchip="${esc(key)}" role="button" tabindex="0" title="Klicken: Einstellungen dieses Buttons anzeigen" style="${previewChipStyle(s, hd)};cursor:pointer${chipHidden(hd, key) ? ';visibility:hidden' : ''}">${esc(label)}</div>`;
     })
     .join('');
+  const chipCols = Math.max(1, Math.min(6, feats.length));
   return `
       <div class="tc-page" data-hdprev="${mode}" style="background:${previewBg(mode)}">
         <span class="tc-page-label">${mode === 'dark' ? 'Dunkel 🌙' : 'Hell ☀️'}</span>
@@ -411,8 +419,8 @@ function previewHtml(lang, mode) {
           ${previewImageLayer(s)}
           <div class="${slotAnimClass(getTextStyle(lang, 'hero.title'))}" style="${previewTitleStyle(s, hd, lang, mode)}" data-hdtitle>${esc(heroSlotText(lang, 'hero.title'))}</div>
           <div class="${slotAnimClass(getTextStyle(lang, 'hero.subtitle'))}" style="${previewSubtitleStyle(s, hd, lang, mode)}" data-hdsub>${esc(heroSlotText(lang, 'hero.subtitle'))}</div>
-          <div data-hdchips style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.9rem;visibility:${hd.showChips === false ? 'hidden' : 'visible'}">${chips}</div>
-          <div class="${slotAnimClass(getTextStyle(lang, 'hero.cta'))}" data-hdcta style="${previewCtaStyle(s, hd, lang, mode)}${hd.showCta === false ? ';visibility:hidden' : ''}">${esc(heroSlotText(lang, 'hero.cta'))}</div>
+          <div data-hdchips style="display:grid;grid-template-columns:repeat(${chipCols},1fr);gap:.5rem;margin-top:.9rem;visibility:${hd.showChips === false ? 'hidden' : 'visible'}">${chips}</div>
+          <div class="${slotAnimClass(getTextStyle(lang, 'hero.cta'))}" data-hdcta role="button" tabindex="0" title="Klicken: Einstellungen des CTA-Buttons anzeigen" style="${previewCtaStyle(s, hd, lang, mode)}${hd.showCta === false ? ';visibility:hidden' : ''}">${esc(heroSlotText(lang, 'hero.cta'))}</div>
         </div>
       </div>`;
 }
@@ -535,16 +543,26 @@ function centerPanel(lang) {
       ${featureLabelsBody(lang)}`;
 
   // Buttons im Hero ein-/ausblenden (gilt für beide Modi, unabhängig vom An-Schalter).
+  const chipRows = featureDefs(lang)
+    .map(({ key, def }) => {
+      const o = getPath(state.overrides[lang], ['hero', 'features', key]);
+      const label = o != null && o !== '' ? o : def || key;
+      const sel = hdSelected && hdSelected.kind === 'chip' && hdSelected.key === key;
+      return `<label data-hdshowrow="chip:${esc(key)}" style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin:0;padding:.15rem .35rem;border-radius:6px;${sel ? 'outline:2px solid var(--accent)' : ''}">
+          <input type="checkbox" data-hdchipshow="${esc(key)}" ${chipHidden(hd, key) ? '' : 'checked'} ${hd.showChips === false ? 'disabled' : ''} style="width:auto" /> ${esc(label)}
+        </label>`;
+    })
+    .join('');
+  const ctaSel = hdSelected && hdSelected.kind === 'cta';
   const showBody = `
-      <div class="row" style="gap:1.2rem;align-items:center">
-        <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin:0">
-          <input type="checkbox" data-hdshow="showChips" ${hd.showChips === false ? '' : 'checked'} style="width:auto" /> Feature-Buttons (Chips) anzeigen
-        </label>
-        <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin:0">
-          <input type="checkbox" data-hdshow="showCta" ${hd.showCta === false ? '' : 'checked'} style="width:auto" /> CTA-Button („Jetzt starten") anzeigen
-        </label>
-      </div>
-      <p class="hint" style="margin:.4rem 0 0">Ausgeblendete Buttons sind auf der Seite unsichtbar und nicht anklickbar; ihr Platz bleibt erhalten, der Hero behält seine Höhe (Vorschau oben folgt sofort). Gilt für Hell und Dunkel und unabhängig von „Eigenes Hero-Design“.</p>`;
+      <label style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin:0 0 .3rem;font-weight:600">
+        <input type="checkbox" data-hdshow="showChips" ${hd.showChips === false ? '' : 'checked'} style="width:auto" /> Feature-Buttons (Chips) anzeigen
+      </label>
+      <div class="row" data-hdchiprows style="gap:.3rem .9rem;align-items:center;margin-left:1.4rem">${chipRows}</div>
+      <label data-hdshowrow="cta" style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin:.5rem 0 0;padding:.15rem .35rem;border-radius:6px;font-weight:600;${ctaSel ? 'outline:2px solid var(--accent)' : ''}">
+        <input type="checkbox" data-hdshow="showCta" ${hd.showCta === false ? '' : 'checked'} style="width:auto" /> CTA-Button („Jetzt starten") anzeigen
+      </label>
+      <p class="hint" style="margin:.4rem 0 0">Jeder Button lässt sich einzeln ausblenden; der Schalter „Feature-Buttons anzeigen“ blendet alle Chips auf einmal aus. Ausgeblendete Buttons sind auf der Seite unsichtbar und nicht anklickbar; ihr Platz bleibt erhalten, der Hero behält seine Höhe (Vorschau oben folgt sofort). Ein Klick auf einen Button in der Vorschau springt zu seinen Einstellungen. Gilt für Hell und Dunkel und unabhängig von „Eigenes Hero-Design“.</p>`;
   return `
     <div class="panel">
       <h2>Hero-Design <span class="lang-badge">${lang.toUpperCase()}</span></h2>
@@ -566,8 +584,8 @@ function centerPanel(lang) {
 
       ${section('✍️ Hero-Texte – Titel, Untertitel, Button-Text', heroTextsBody(lang))}
       ${section('🔤 Überschriften-Typografie &amp; globale Schrift <span class="hint" style="font-weight:400">(für beide Modi)</span>', typoBody)}
-      ${section('👁️ Buttons ein-/ausblenden', showBody)}
-      ${section('🔘 Buttons &amp; CTA – Text, Größen, Beschriftungen', buttonsBody)}
+      ${section('👁️ Buttons ein-/ausblenden', showBody, true, 'show')}
+      ${section('🔘 Buttons &amp; CTA – Text, Größen, Beschriftungen', buttonsBody, true, 'buttons')}
     </div>`;
 }
 
@@ -682,8 +700,8 @@ function sidePanel(lang, mode) {
       ${section('🅰️ Überschriften-Farbe', headingBody)}
       ${section('🖼️ Rahmen &amp; Hintergrund', frameBody)}
       ${section('🏞️ Hintergrundbild', imageBody)}
-      ${section('🔘 Buttons (Feature-Chips)', chipsBody)}
-      ${section('🚀 CTA-Button („Jetzt starten")', ctaBody)}
+      ${section('🔘 Buttons (Feature-Chips)', chipsBody, true, 'chips')}
+      ${section('🚀 CTA-Button („Jetzt starten")', ctaBody, true, 'cta')}
       ${section('✍️ Hero-Texte – Farbe je Text', `<p class="hint" style="margin:0">Leer (↺) = allgemeine Überschriften- bzw. CTA-Textfarbe.</p>${textsBody}`)}
     </aside>`;
 }
@@ -757,12 +775,13 @@ function featureLabelsBody(lang) {
     .map(({ key, def }) => {
       const cur = getPath(state.overrides[lang], ['hero', 'features', key]);
       const val = cur != null ? cur : '';
-      return `<label>Button „${esc(def || key)}"</label>
+      const sel = hdSelected && hdSelected.kind === 'chip' && hdSelected.key === key;
+      return `<div data-hdfeatrow="${esc(key)}" style="padding:.1rem .35rem;border-radius:6px;${sel ? 'outline:2px solid var(--accent)' : ''}"><label>Button „${esc(def || key)}"</label>
         ${withReset(
           `<input data-feat="${esc(key)}" data-lang="${lang}" placeholder="${esc(def)}" value="${esc(val)}" />`,
           'feat',
           key,
-        )}`;
+        )}</div>`;
     })
     .join('');
 }
@@ -800,9 +819,13 @@ function refreshPreview(pane, lang) {
       applyAnimClass(sub, getTextStyle(lang, 'hero.subtitle'));
     }
     const feats = featureDefs(lang);
-    root.querySelectorAll('[data-hdchip]').forEach((c, i) => {
-      c.setAttribute('style', previewChipStyle(s, hd));
-      const f = feats[i];
+    root.querySelectorAll('[data-hdchip]').forEach((c) => {
+      const key = c.dataset.hdchip;
+      c.setAttribute(
+        'style',
+        `${previewChipStyle(s, hd)};cursor:pointer${chipHidden(hd, key) ? ';visibility:hidden' : ''}`,
+      );
+      const f = feats.find((x) => x.key === key);
       if (f) {
         const o = getPath(state.overrides[lang], ['hero', 'features', f.key]);
         c.textContent = o != null && o !== '' ? o : f.def || f.key;
@@ -823,6 +846,43 @@ function refreshPreview(pane, lang) {
   startHdSlideshow(pane, lang);
   const note = pane.querySelector('[data-hdnote]');
   if (note) note.textContent = heroPreviewNote(hd);
+  // Markierung des gewählten Buttons erneut setzen (style-Attribute wurden ersetzt).
+  applyHdSelection(pane, false);
+}
+
+// Markierung des in der Vorschau gewählten Buttons anwenden: Sektion in der
+// offenen Seitenleiste aufklappen, dorthin scrollen (nur innerhalb der
+// Seitenleiste) und hervorheben; in der Mitte Schalter- und Beschriftungszeile
+// hervorheben. scroll=false beim Neu-Rendern (Sichtzustand wird ohnehin erhalten).
+function applyHdSelection(pane, scroll = true) {
+  const sel = hdSelected;
+  pane.querySelectorAll('[data-hdsection]').forEach((d) => (d.style.boxShadow = ''));
+  pane
+    .querySelectorAll('[data-hdshowrow],[data-hdfeatrow]')
+    .forEach((el) => (el.style.outline = ''));
+  pane.querySelectorAll('[data-hdchip],[data-hdcta]').forEach((el) => (el.style.outline = ''));
+  if (!sel) return;
+  const sectionId = sel.kind === 'cta' ? 'cta' : 'chips';
+  const side = pane.querySelector('.tc-side:not(.tc-side--collapsed)');
+  const det = side && side.querySelector(`[data-hdsection="${sectionId}"]`);
+  if (det) {
+    det.open = true;
+    det.style.boxShadow = '0 0 0 2px var(--accent)';
+    if (scroll) {
+      const top =
+        det.getBoundingClientRect().top - side.getBoundingClientRect().top + side.scrollTop;
+      side.scrollTo({ top: Math.max(0, top - 8), behavior: 'smooth' });
+    }
+  }
+  const rowSel =
+    sel.kind === 'cta' ? '[data-hdshowrow="cta"]' : `[data-hdshowrow="chip:${sel.key}"]`;
+  pane.querySelectorAll(rowSel).forEach((el) => (el.style.outline = '2px solid var(--accent)'));
+  if (sel.kind === 'chip')
+    pane
+      .querySelectorAll(`[data-hdfeatrow="${sel.key}"]`)
+      .forEach((el) => (el.style.outline = '2px solid var(--accent)'));
+  const prevSel = sel.kind === 'cta' ? '[data-hdcta]' : `[data-hdchip="${sel.key}"]`;
+  pane.querySelectorAll(prevSel).forEach((el) => (el.style.outline = '3px solid var(--accent)'));
 }
 
 export function renderHeroDesign() {
@@ -1078,11 +1138,50 @@ export function renderHeroDesign() {
       renderHeroDesign();
     }),
   );
-  // Buttons ein-/ausblenden (Chips, CTA) – beide Modi.
+  // Buttons ein-/ausblenden (Chips insgesamt, CTA) – beide Modi.
   pane.querySelectorAll('[data-hdshow]').forEach((el) => {
     el.addEventListener('change', () => {
       heroDesignOf(lang)[el.dataset.hdshow] = el.checked;
+      if (el.dataset.hdshow === 'showChips')
+        pane.querySelectorAll('[data-hdchipshow]').forEach((c) => (c.disabled = !el.checked));
       refreshPreview(pane, lang);
+    });
+  });
+  // Einzelne Feature-Buttons ein-/ausblenden.
+  pane.querySelectorAll('[data-hdchipshow]').forEach((el) => {
+    el.addEventListener('change', () => {
+      const hd = heroDesignOf(lang);
+      const key = el.dataset.hdchipshow;
+      const set = new Set(Array.isArray(hd.hiddenChips) ? hd.hiddenChips : []);
+      if (el.checked) set.delete(key);
+      else set.add(key);
+      hd.hiddenChips = [...set];
+      refreshPreview(pane, lang);
+    });
+  });
+  // Klick auf einen Button in der Vorschau: Einstellungen in der offenen
+  // Seitenleiste (Farben) anspringen und in der Mitte (Schalter, Beschriftung)
+  // markieren – die Markierung bleibt bis zur nächsten Auswahl.
+  const selectPart = (kind, key) => {
+    hdSelected = { kind, key };
+    applyHdSelection(pane);
+  };
+  pane.querySelectorAll('[data-hdchip]').forEach((c) => {
+    c.addEventListener('click', () => selectPart('chip', c.dataset.hdchip));
+    c.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        selectPart('chip', c.dataset.hdchip);
+      }
+    });
+  });
+  pane.querySelectorAll('[data-hdcta]').forEach((c) => {
+    c.addEventListener('click', () => selectPart('cta', ''));
+    c.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        selectPart('cta', '');
+      }
     });
   });
 
@@ -1257,5 +1356,6 @@ export function renderHeroDesign() {
   bindSliders(pane); // nach den Feld-Handlern: Zahlenfeld löst deren input-Event aus
   bindColorPickers(pane);
   restoreView(pane, view);
+  applyHdSelection(pane, false);
   startHdSlideshow(pane, lang);
 }

@@ -97,6 +97,16 @@ export function heroSideDark() {
     ...heroImageDefaults(),
   };
 }
+// Einzeln ausgeblendete Feature-Buttons: eindeutige Schlüssel (max. 20).
+export function normHiddenChips(v) {
+  if (!Array.isArray(v)) return [];
+  const out = [];
+  for (const k of v) {
+    if (typeof k === 'string' && /^[a-zA-Z0-9_-]{1,40}$/.test(k) && !out.includes(k)) out.push(k);
+    if (out.length >= 20) break;
+  }
+  return out;
+}
 export function defaultHeroDesign() {
   return {
     enabled: false,
@@ -113,7 +123,8 @@ export function defaultHeroDesign() {
     chipFontSize: 0,
     ctaFontSize: 0,
     // Buttons im Hero ein-/ausblenden (gilt für beide Modi).
-    showChips: true, // Feature-Buttons (Chips)
+    showChips: true, // Feature-Buttons (Chips) insgesamt
+    hiddenChips: [], // einzeln ausgeblendete Feature-Buttons (Schlüssel aus hero.features)
     showCta: true, // CTA-Button („Jetzt starten")
     light: heroSideLight(),
     dark: heroSideDark(),
@@ -187,6 +198,7 @@ export function normHeroDesign(hd) {
     chipFontSize: fontSize(hd.chipFontSize),
     ctaFontSize: fontSize(hd.ctaFontSize),
     showChips: hd.showChips !== false,
+    hiddenChips: normHiddenChips(hd.hiddenChips),
     showCta: hd.showCta !== false,
     light: normHeroSide(hasSides ? hd.light : flat, heroSideLight()),
     dark: normHeroSide(hasSides ? hd.dark : flat, heroSideDark()),

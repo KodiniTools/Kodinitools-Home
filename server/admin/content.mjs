@@ -220,6 +220,7 @@ function defaultHeroDesign() {
     ctaFontSize: 0,
     // Buttons im Hero ein-/ausblenden (Feature-Chips, CTA); gilt für beide Modi.
     showChips: true,
+    hiddenChips: [], // einzeln ausgeblendete Feature-Buttons (Schlüssel aus hero.features)
     showCta: true,
     light: heroSideLight(),
     dark: heroSideDark(),
@@ -286,6 +287,15 @@ function validateHeroDesign(hd) {
     chipFontSize: clampFont(hd.chipFontSize),
     ctaFontSize: clampFont(hd.ctaFontSize),
     showChips: hd.showChips !== false,
+    hiddenChips: (() => {
+      const out = [];
+      if (!Array.isArray(hd.hiddenChips)) return out;
+      for (const k of hd.hiddenChips) {
+        if (typeof k === 'string' && /^[a-zA-Z0-9_-]{1,40}$/.test(k) && !out.includes(k)) out.push(k);
+        if (out.length >= 20) break;
+      }
+      return out;
+    })(),
     showCta: hd.showCta !== false,
     light: validateHeroSide(hasSides ? hd.light : flat, heroSideLight()),
     dark: validateHeroSide(hasSides ? hd.dark : flat, heroSideDark()),
