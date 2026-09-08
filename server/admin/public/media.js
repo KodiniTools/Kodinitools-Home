@@ -6,7 +6,7 @@ import { $, esc, api, toast, fmtBytes, mediaAll, mediaPut, mediaDel } from './co
 import { bindSliders } from './slider.js';
 import { bindColorPickers } from './color.js';
 import { captureView, restoreView } from './viewstate.js';
-import { centerHtml, leftHtml, rightHtml, bindSectionMedia, fullPageHtml } from './sectionmedia.js';
+import { centerHtml, leftHtml, rightHtml, bindSectionMedia } from './sectionmedia.js';
 import {
   state,
   getMediaVal,
@@ -333,7 +333,7 @@ function renderLangMedia(lang) {
       </div>`;
   // Dreispaltig: links Design/Diashow der gewählten Sektion, Mitte Sektionswahl +
   // Sticky-Vorschau + Medium-Slot + Hero-Bereich, rechts Text-Overlay.
-  return `<div class="tc-layout">${leftHtml(lang)}<div class="tc-main">${header}${centerHtml(lang)}${fullPageHtml(lang)}${heroPanel(lang)}</div>${rightHtml(lang)}</div>`;
+  return `<div class="tc-layout">${leftHtml(lang)}<div class="tc-main">${header}${centerHtml(lang)}${heroPanel(lang)}</div>${rightHtml(lang)}</div>`;
 }
 
 const LOC_LABEL = { de: 'DE', en: 'EN', '': 'Gemeinsam' };

@@ -231,6 +231,8 @@ export interface MediaConfig {
   // Verschiebung des Hero-Mediums (Banner bzw. Raster) in px (Admin > Medien > Ganze Seite).
   heroMediaOffsetX: number;
   heroMediaOffsetY: number;
+  // Verschiebung je Tool-Karte ('sektion.key' -> px), Admin > Layout > Ganze Seite.
+  toolCardOffsets: Record<string, { x: number; y: number }>;
   // Optionaler Text über dem Banner + Schriftart, Farbe, Größe, Position.
   heroBannerText: string;
   heroBannerFont: string;
@@ -608,6 +610,7 @@ const MEDIA_DEFAULTS: MediaConfig = {
   heroBannerShow: true,
   heroMediaOffsetX: 0,
   heroMediaOffsetY: 0,
+  toolCardOffsets: {},
   heroBannerText: '',
   heroBannerFont: '',
   heroBannerTextColor: '#ffffff',

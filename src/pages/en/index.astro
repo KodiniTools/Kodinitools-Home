@@ -62,6 +62,11 @@ const heroGridCols = heroGridReflowCols(media.heroLayout, heroGridCells.length)
 const heroPromoOffX = Math.max(-400, Math.min(400, typeof media.heroMediaOffsetX === 'number' ? media.heroMediaOffsetX : 0))
 const heroPromoOffY = Math.max(-300, Math.min(300, typeof media.heroMediaOffsetY === 'number' ? media.heroMediaOffsetY : 0))
 const heroPromoStyle = heroPromoOffX || heroPromoOffY ? `position:relative;left:${heroPromoOffX}px;top:${heroPromoOffY}px` : undefined
+// Verschiebung einzelner Tool-Karten (Admin > Layout > Ganze Seite): relative Position, der Platz bleibt.
+const cardOffsetStyle = (k: string): string | undefined => {
+  const o = media.toolCardOffsets?.[k]
+  return o && (o.x || o.y) ? `left:${o.x}px;top:${o.y}px` : undefined
+}
 // Verschiebung einzelner Feature-Buttons (Admin > Hero-Design): relative Position, der Platz bleibt.
 const chipOffsetStyle = (k: string): string | undefined => {
   const o = media.heroDesign.chipOffsets?.[k]
@@ -440,7 +445,7 @@ const pageI18n = {
 
       <div class="svg-card-grid">
         {audioTools.map((tool) => (
-          <a href={tool.link} class="svg-card-link" data-title={tool.title} data-description={tool.description} data-svg-en={tool.svg} data-i18n-key={tool.i18nKey}>
+          <a href={tool.link} class="svg-card-link" style={cardOffsetStyle(tool.i18nKey)} data-title={tool.title} data-description={tool.description} data-svg-en={tool.svg} data-i18n-key={tool.i18nKey}>
             <div class="tool-card">
               {tool.svg && (
                 <div class="tool-card-icon"><img src={tool.svg} alt={tool.title} loading="lazy" decoding="async" /></div>
@@ -477,7 +482,7 @@ const pageI18n = {
 
       <div class="svg-card-grid grid-centered">
         {imageTools.map((tool) => (
-          <a href={tool.link} class="svg-card-link" data-title={tool.title} data-description={tool.description} data-svg-en={tool.svg} data-i18n-key={tool.i18nKey}>
+          <a href={tool.link} class="svg-card-link" style={cardOffsetStyle(tool.i18nKey)} data-title={tool.title} data-description={tool.description} data-svg-en={tool.svg} data-i18n-key={tool.i18nKey}>
             <div class="tool-card">
               {tool.svg && (
                 <div class="tool-card-icon"><img src={tool.svg} alt={tool.title} loading="lazy" decoding="async" /></div>
@@ -514,7 +519,7 @@ const pageI18n = {
 
       <div class="svg-card-grid grid-centered">
         {diverseTools.map((tool) => (
-          <a href={tool.link} class="svg-card-link" data-title={tool.title} data-description={tool.description} data-svg-en={tool.svg} data-i18n-key={tool.i18nKey}>
+          <a href={tool.link} class="svg-card-link" style={cardOffsetStyle(tool.i18nKey)} data-title={tool.title} data-description={tool.description} data-svg-en={tool.svg} data-i18n-key={tool.i18nKey}>
             <div class="tool-card">
               {tool.svg && (
                 <div class="tool-card-icon"><img src={tool.svg} alt={tool.title} loading="lazy" decoding="async" /></div>
