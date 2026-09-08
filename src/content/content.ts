@@ -534,6 +534,13 @@ export interface HeroDesignSide {
   ctaHoverBgColor: string; // Hex – Hintergrund des CTA-Buttons beim Überfahren
   ctaHoverTextColor: string; // Hex – Schriftfarbe des CTA-Buttons beim Überfahren
   titleTextColor: string; // Hex – Textfarbe der Überschriften (Titel + Untertitel)
+  // Hintergrundbild des Hero-Bereichs (Admin > Hero-Design, je Modus); wirkt auch
+  // ohne „Eigenes Hero-Design". URL unter /uploads oder https://…; leer = kein Bild.
+  bgImage: string;
+  bgImageOpacity: number; // 0–100 (%) – Deckkraft des Bildes
+  bgImageDarken: number; // 0–100 (%) – Abdunkelung (brightness)
+  bgImageBlur: number; // 0–20 px – Weichzeichner
+  bgImageSaturate: number; // 0–200 (%) – Sättigung (0 = Graustufen)
 }
 
 /**
@@ -557,6 +564,9 @@ export interface HeroDesign {
   subtitleFontSize: number; // px – Untertitel
   chipFontSize: number; // px – Feature-Chips
   ctaFontSize: number; // px – CTA-Button
+  // Buttons im Hero ein-/ausblenden (gilt für beide Modi).
+  showChips: boolean; // Feature-Buttons (Chips)
+  showCta: boolean; // CTA-Button („Jetzt starten")
   light: HeroDesignSide;
   dark: HeroDesignSide;
 }
@@ -636,6 +646,8 @@ const MEDIA_DEFAULTS: MediaConfig = {
     subtitleFontSize: 0,
     chipFontSize: 0,
     ctaFontSize: 0,
+    showChips: true,
+    showCta: true,
     light: {
       borderColor: '#014f99',
       borderWidth: 1,
@@ -656,6 +668,11 @@ const MEDIA_DEFAULTS: MediaConfig = {
       ctaHoverBgColor: '#003971',
       ctaHoverTextColor: '#ffffff',
       titleTextColor: '#003971',
+      bgImage: '',
+      bgImageOpacity: 100,
+      bgImageDarken: 0,
+      bgImageBlur: 0,
+      bgImageSaturate: 100,
     },
     dark: {
       borderColor: '#e8a945',
@@ -677,6 +694,11 @@ const MEDIA_DEFAULTS: MediaConfig = {
       ctaHoverBgColor: '#a07030',
       ctaHoverTextColor: '#ffffff',
       titleTextColor: '#f9f2d5',
+      bgImage: '',
+      bgImageOpacity: 100,
+      bgImageDarken: 0,
+      bgImageBlur: 0,
+      bgImageSaturate: 100,
     },
   },
   toolCards: {
@@ -772,6 +794,44 @@ export function heroCellImageVars(cs: HeroCellStyle | null | undefined): string 
  * den Dunkelmodus „durchbluten". Bei Standardwerten `undefined`, damit
  * unveränderte Seiten identisch bleiben (Basis-Aussehen aus hero.css).
  */
+/**
+ * Hintergrundbild des Hero-Bereichs je Modus (Admin > Hero-Design, Seitenleisten):
+ * CSS-Variablen für die Bildebene `.hero::before` (hero.css). Unabhängig vom
+ * An-Schalter des Hero-Designs; ohne Bild in beiden Modi keine Regel. Die
+ * Dunkel-Regel setzt immer alle Variablen, damit ein helles Bild nicht in den
+ * Dunkelmodus erbt.
+ */
+export function getHeroImageCss(media: MediaConfig): string | undefined {
+  const hd = media.heroDesign;
+  if (!isPlainObject(hd)) return undefined;
+  const num = (v: unknown, min: number, max: number, def: number): number => {
+    const n = typeof v === 'number' ? v : Number(v);
+    return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : def;
+  };
+  const vars = (side: Partial<HeroDesignSide> | undefined): string => {
+    const img = side && typeof side.bgImage === 'string' ? side.bgImage.trim() : '';
+    if (!img || !SITE_MEDIA_URL.test(img))
+      return '--hero-img:none;--hero-img-opacity:1;--hero-img-filter:none;--hero-img-inset:0';
+    const s = side as Partial<HeroDesignSide>;
+    const blur = num(s.bgImageBlur, 0, 20, 0);
+    const darken = num(s.bgImageDarken, 0, 100, 0);
+    const sat = num(s.bgImageSaturate, 0, 200, 100);
+    const f: string[] = [];
+    if (blur > 0) f.push(`blur(${blur}px)`);
+    if (darken > 0) f.push(`brightness(${(1 - darken / 100).toFixed(3)})`);
+    if (sat !== 100) f.push(`saturate(${sat}%)`);
+    // Weichzeichner: Ebene über den Rand hinaus vergrößern (gegen helle Ränder).
+    const inset = blur > 0 ? `${-blur * 2}px` : '0';
+    return `--hero-img:url("${img.replace(/["\\]/g, '')}");--hero-img-opacity:${(num(s.bgImageOpacity, 0, 100, 100) / 100).toFixed(2)};--hero-img-filter:${f.join(' ') || 'none'};--hero-img-inset:${inset}`;
+  };
+  const light = isPlainObject(hd.light) ? (hd.light as Partial<HeroDesignSide>) : undefined;
+  const dark = isPlainObject(hd.dark) ? (hd.dark as Partial<HeroDesignSide>) : undefined;
+  const hasImg = (side?: Partial<HeroDesignSide>): boolean =>
+    !!(side && typeof side.bgImage === 'string' && side.bgImage.trim());
+  if (!hasImg(light) && !hasImg(dark)) return undefined;
+  return `.hero{${vars(light)}}\n[data-theme="dark"] .hero{${vars(dark)}}`;
+}
+
 export function getHeroBannerCss(media: MediaConfig): string | undefined {
   const d = HERO_BANNER_STYLE_DEFAULTS;
   const raw = isPlainObject(media.heroBannerStyle)

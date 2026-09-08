@@ -1,10 +1,33 @@
 // Datenmodell – Hero-Design (Farben je Hell/Dunkel) und Text-Stile der
 // Hero-/Abschnitts-Texte (Tabs „Hero-Design" und „Texte").
 
-import { normFontFile, clampSpacing, BANNER_ANIM_TYPES, BANNER_ANIM_SPEEDS } from './model-core.js';
+import {
+  normFontFile,
+  clampSpacing,
+  normSiteMediaUrl,
+  getPath,
+  setPath,
+  MEDIA_LANGS,
+  BANNER_ANIM_TYPES,
+  BANNER_ANIM_SPEEDS,
+} from './model-core.js';
 import { state } from './model-state.js';
 
 // --- Medien-Standard & -Normalisierung ---
+// Hintergrundbild des Hero-Bereichs je Modus (Tab „Hero-Design", Seitenleisten):
+// Bild (Server-URL oder 'staged:<id>' bis zum Veröffentlichen) mit Bildbearbeitung.
+// Unabhängig vom An-Schalter „Eigenes Hero-Design" wirksam.
+export const HERO_IMG_FIELDS = {
+  bgImageOpacity: { min: 0, max: 100, def: 100, label: 'Deckkraft', unit: '%' },
+  bgImageDarken: { min: 0, max: 100, def: 0, label: 'Abdunkelung', unit: '%' },
+  bgImageBlur: { min: 0, max: 20, def: 0, label: 'Weichzeichner', unit: 'px' },
+  bgImageSaturate: { min: 0, max: 200, def: 100, label: 'Sättigung', unit: '%' },
+};
+function heroImageDefaults() {
+  const o = { bgImage: '' };
+  for (const [k, c] of Object.entries(HERO_IMG_FIELDS)) o[k] = c.def;
+  return o;
+}
 // Standard-Design des Hero-Bereichs, getrennt für Hell- und Dunkelmodus
 // (entspricht dem jeweiligen Aussehen in global.css).
 export function heroSideLight() {
@@ -28,6 +51,7 @@ export function heroSideLight() {
     ctaHoverBgColor: '#003971',
     ctaHoverTextColor: '#ffffff',
     titleTextColor: '#003971',
+    ...heroImageDefaults(),
   };
 }
 export function heroSideDark() {
@@ -51,6 +75,7 @@ export function heroSideDark() {
     ctaHoverBgColor: '#a07030',
     ctaHoverTextColor: '#ffffff',
     titleTextColor: '#f9f2d5',
+    ...heroImageDefaults(),
   };
 }
 export function defaultHeroDesign() {
@@ -68,6 +93,9 @@ export function defaultHeroDesign() {
     subtitleFontSize: 0,
     chipFontSize: 0,
     ctaFontSize: 0,
+    // Buttons im Hero ein-/ausblenden (gilt für beide Modi).
+    showChips: true, // Feature-Buttons (Chips)
+    showCta: true, // CTA-Button („Jetzt starten")
     light: heroSideLight(),
     dark: heroSideDark(),
   };
@@ -100,6 +128,11 @@ function normHeroSide(s, def) {
     ctaHoverBgColor: hex(s.ctaHoverBgColor, def.ctaHoverBgColor),
     ctaHoverTextColor: hex(s.ctaHoverTextColor, def.ctaHoverTextColor),
     titleTextColor: hex(s.titleTextColor, def.titleTextColor),
+    bgImage: normSiteMediaUrl(s.bgImage),
+    bgImageOpacity: num(s.bgImageOpacity, 0, 100, def.bgImageOpacity),
+    bgImageDarken: num(s.bgImageDarken, 0, 100, def.bgImageDarken),
+    bgImageBlur: num(s.bgImageBlur, 0, 20, def.bgImageBlur),
+    bgImageSaturate: num(s.bgImageSaturate, 0, 200, def.bgImageSaturate),
   };
 }
 // Geladenes Hero-Design normalisieren (getrennt Hell/Dunkel). Migriert die alte
@@ -132,9 +165,34 @@ export function normHeroDesign(hd) {
     subtitleFontSize: fontSize(hd.subtitleFontSize),
     chipFontSize: fontSize(hd.chipFontSize),
     ctaFontSize: fontSize(hd.ctaFontSize),
+    showChips: hd.showChips !== false,
+    showCta: hd.showCta !== false,
     light: normHeroSide(hasSides ? hd.light : flat, heroSideLight()),
     dark: normHeroSide(hasSides ? hd.dark : flat, heroSideDark()),
   };
+}
+// Bild-Plätze des Hero-Hintergrundbilds (je Sprache und Modus) – für Upload beim
+// Veröffentlichen, Auflösen von staged:-Referenzen und „wird verwendet in".
+export function heroImageSlots() {
+  const modeLabel = (m) => (m === 'dark' ? 'Dunkel' : 'Hell');
+  const slots = [];
+  for (const lang of MEDIA_LANGS)
+    for (const mode of ['light', 'dark'])
+      slots.push({
+        root: lang,
+        xLang: lang,
+        path: ['heroDesign', mode, 'bgImage'],
+        mode,
+        label: `${lang.toUpperCase()} · Hero-Hintergrund (${modeLabel(mode)})`,
+      });
+  for (const slot of slots) {
+    slot.get = () => {
+      const v = getPath(state.media[slot.root], slot.path);
+      return typeof v === 'string' ? v : '';
+    };
+    slot.set = (v) => setPath(state.media[slot.root], slot.path, normSiteMediaUrl(v));
+  }
+  return slots;
 }
 
 // Hero-Text-Slots (Tab „Hero-Design"): Text-Override-Pfad + Stil-Schlüssel.

@@ -15,6 +15,7 @@ import {
   normHeroDesign,
   normTextStyles,
   UNIFORM_TEXT_KEYS,
+  heroImageSlots,
 } from './model-hero.js';
 import {
   defaultToolCards,
@@ -100,6 +101,7 @@ export function allImageSlots() {
   return [
     ...siteImageSlots(),
     ...toolCardImageSlots(),
+    ...heroImageSlots(),
     ...heroSlideImageSlots(),
     ...sectionMediaImageSlots(),
   ];

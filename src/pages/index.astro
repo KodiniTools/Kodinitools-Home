@@ -8,7 +8,7 @@ import SectionMediaBlock from '../components/SectionMediaBlock.astro'
 import SiteFooter from '../components/SiteFooter.astro'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
-import { getContent, getMedia, HERO_LAYOUT_CELLS, effectiveHeroCellStyle, heroCellImageVars, getTextStylesCss, getHeroBannerCss, getSectionMediaCss, getToolCardsCss, getIconTintCss, getHiddenCards } from '../content/content'
+import { getContent, getMedia, HERO_LAYOUT_CELLS, effectiveHeroCellStyle, heroCellImageVars, getTextStylesCss, getHeroBannerCss, getHeroImageCss, getSectionMediaCss, getToolCardsCss, getIconTintCss, getHiddenCards } from '../content/content'
 
 // Inhalte aus der Content-Schicht (Standard-Locale + Admin-Overrides, gemergt).
 const de = getContent('de')
@@ -155,6 +155,7 @@ const heroCellFontCss = [
 const textStylesCss = getTextStylesCss(media)
 // Design des Einzelbanners (Rahmen, Ecken, Schatten, Deckkraft, Verdunkelung) aus dem Layout-Tab.
 const heroBannerCss = getHeroBannerCss(media)
+const heroImageCss = getHeroImageCss(media)
 // Design/Text-Schriften der Sektions-Medien (Tab „Medien").
 const sectionMediaCss = getSectionMediaCss(media)
 // Rahmen/Hintergrund der Tool-Karten aus dem Admin-Tab „Tool-Karten" (nur wenn aktiviert).
@@ -271,6 +272,7 @@ const pageI18n = {
     {heroCellFontCss && <style is:global set:html={heroCellFontCss} />}
     {textStylesCss && <style is:global set:html={textStylesCss} />}
     {heroBannerCss && <style is:global set:html={heroBannerCss} />}
+    {heroImageCss && <style is:global set:html={heroImageCss} />}
     {sectionMediaCss && <style is:global set:html={sectionMediaCss} />}
     {toolCardsCss && <style is:global set:html={toolCardsCss} />}
     <section class="hero">
@@ -372,19 +374,23 @@ const pageI18n = {
           <p class="hero-subtitle" data-i18n="hero.subtitle">Sichere Bearbeitung - Im Browser oder auf unseren Servern<br/>Keine Installation, keine Anmeldung</p>
         </div>
 
-        <!-- Features Grid -->
-        <div class="features-grid">
-          {features.map((feature) => (
-            <div class="feature-card">
-              <div class="feature-text" data-i18n={feature.i18nKey}>{feature.text}</div>
-            </div>
-          ))}
-        </div>
+        <!-- Features Grid (Admin > Hero-Design: ausblendbar) -->
+        {media.heroDesign.showChips !== false && (
+          <div class="features-grid">
+            {features.map((feature) => (
+              <div class="feature-card">
+                <div class="feature-text" data-i18n={feature.i18nKey}>{feature.text}</div>
+              </div>
+            ))}
+          </div>
+        )}
 
-        <!-- Hero CTA -->
-        <div class="hero-cta-wrap">
-          <a href="#audio-tools" class="hero-cta-btn" data-i18n="hero.cta">Jetzt starten</a>
-        </div>
+        <!-- Hero CTA (Admin > Hero-Design: ausblendbar) -->
+        {media.heroDesign.showCta !== false && (
+          <div class="hero-cta-wrap">
+            <a href="#audio-tools" class="hero-cta-btn" data-i18n="hero.cta">Jetzt starten</a>
+          </div>
+        )}
       </div>
 
       <!-- Scroll Indicator -->
