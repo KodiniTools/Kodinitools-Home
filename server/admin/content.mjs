@@ -223,6 +223,7 @@ function defaultHeroDesign() {
     showSubtitle: true,
     showChips: true,
     hiddenChips: [], // einzeln ausgeblendete Feature-Buttons (Schlüssel aus hero.features)
+    chipOffsets: {}, // Verschiebung je Feature-Button { key: { x, y } } (px, nur ≠ 0)
     showCta: true,
     light: heroSideLight(),
     dark: heroSideDark(),
@@ -297,6 +298,19 @@ function validateHeroDesign(hd) {
       for (const k of hd.hiddenChips) {
         if (typeof k === 'string' && /^[a-zA-Z0-9_-]{1,40}$/.test(k) && !out.includes(k)) out.push(k);
         if (out.length >= 20) break;
+      }
+      return out;
+    })(),
+    chipOffsets: (() => {
+      const out = {};
+      const v = hd.chipOffsets;
+      if (!isPlainObject(v)) return out;
+      for (const k of Object.keys(v)) {
+        if (!/^[a-zA-Z0-9_-]{1,40}$/.test(k) || !isPlainObject(v[k])) continue;
+        const x = clampNum(v[k].x, -400, 400, 0);
+        const y = clampNum(v[k].y, -300, 300, 0);
+        if (x || y) out[k] = { x, y };
+        if (Object.keys(out).length >= 20) break;
       }
       return out;
     })(),

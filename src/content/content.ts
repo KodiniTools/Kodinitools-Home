@@ -574,6 +574,7 @@ export interface HeroDesign {
   showSubtitle: boolean; // Untertitel
   showChips: boolean; // Feature-Buttons (Chips) insgesamt
   hiddenChips: string[]; // einzeln ausgeblendete Feature-Buttons (Schlüssel aus hero.features)
+  chipOffsets: Record<string, { x: number; y: number }>; // Verschiebung je Feature-Button (px)
   showCta: boolean; // CTA-Button („Jetzt starten")
   light: HeroDesignSide;
   dark: HeroDesignSide;
@@ -658,6 +659,7 @@ const MEDIA_DEFAULTS: MediaConfig = {
     showSubtitle: true,
     showChips: true,
     hiddenChips: [],
+    chipOffsets: {},
     showCta: true,
     light: {
       borderColor: '#014f99',

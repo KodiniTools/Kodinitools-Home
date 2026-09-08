@@ -51,6 +51,11 @@ const features = Object.entries(de.hero.features).map(([k, text]) => ({
 }))
 // Einzeln ausgeblendete Feature-Buttons (Admin > Hero-Design); Platz bleibt erhalten.
 const hiddenChips = new Set(Array.isArray(media.heroDesign.hiddenChips) ? media.heroDesign.hiddenChips : [])
+// Verschiebung einzelner Feature-Buttons (Admin > Hero-Design): relative Position, der Platz bleibt.
+const chipOffsetStyle = (k: string): string | undefined => {
+  const o = media.heroDesign.chipOffsets?.[k]
+  return o && (o.x || o.y) ? `position:relative;left:${o.x}px;top:${o.y}px` : undefined
+}
 
 // Admin-Design des Hero-Bereichs -> Inline-CSS-Variablen (nur wenn aktiviert;
 // sonst bleibt das Standard-Aussehen aus global.css, inkl. Dark Mode).
@@ -384,7 +389,7 @@ const pageI18n = {
         <!-- Features Grid (Admin > Hero-Design: ausblendbar – der Platz bleibt erhalten) -->
         <div class={`features-grid${media.heroDesign.showChips === false ? ' hero-hidden' : ''}`} aria-hidden={media.heroDesign.showChips === false ? 'true' : undefined}>
           {features.map((feature) => (
-            <div class={`feature-card${hiddenChips.has(feature.key) ? ' hero-hidden' : ''}`} aria-hidden={hiddenChips.has(feature.key) ? 'true' : undefined}>
+            <div class={`feature-card${hiddenChips.has(feature.key) ? ' hero-hidden' : ''}`} aria-hidden={hiddenChips.has(feature.key) ? 'true' : undefined} style={chipOffsetStyle(feature.key)}>
               <div class="feature-text" data-i18n={feature.i18nKey}>{feature.text}</div>
             </div>
           ))}
