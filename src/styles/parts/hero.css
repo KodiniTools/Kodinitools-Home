@@ -23,19 +23,34 @@
               0 0 0 1px rgba(232, 169, 69, 0.1) inset;
 }
 
-/* Hintergrundbild des Hero (Admin > Hero-Design, je Hell/Dunkel): eigene Ebene
-   unter dem Inhalt mit Deckkraft, Abdunkelung, Weichzeichner und Sättigung
-   (--hero-img-*, content.ts → getHeroImageCss). Ohne Bild: none (unsichtbar). */
-.hero::before {
-  content: '';
+/* Hintergrundbild des Hero (Admin > Hero-Design, je Hell/Dunkel; HeroBackground.astro):
+   eigene Ebene unter dem Inhalt – ein Bild oder eine Diashow (HeroSlides, Variante
+   „cell") – mit Deckkraft, Abdunkelung, Weichzeichner und Sättigung, die content.ts
+   (getHeroImageCss) je Modus auf .hero-bg--light/--dark setzt. Nicht bedienbar,
+   nur die Punkte der Diashow (falls aktiv) nehmen Klicks an. */
+.hero-bg {
   position: absolute;
-  inset: var(--hero-img-inset, 0);
+  inset: 0;
   z-index: 0;
   pointer-events: none;
   border-radius: inherit;
-  background: var(--hero-img, none) center / cover no-repeat;
-  opacity: var(--hero-img-opacity, 1);
-  filter: var(--hero-img-filter, none);
+  overflow: hidden;
+}
+.hero-bg .hero-bg-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.hero-bg .hero-slide-dots {
+  pointer-events: auto;
+}
+.hero-bg--dark,
+[data-theme="dark"] .hero-bg--light {
+  display: none;
+}
+[data-theme="dark"] .hero-bg--dark {
+  display: block;
 }
 
 /* Animated Mesh Gradient Background – deaktiviert.

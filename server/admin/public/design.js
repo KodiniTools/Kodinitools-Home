@@ -30,8 +30,12 @@ import {
   MEDIA_LANGS,
   HERO_IMG_FIELDS,
   normSiteMediaUrl,
+  BANNER_SLIDES_MAX,
+  BANNER_TRANSITIONS,
+  defaultHeroBgSlideshow,
 } from './model.js';
 import { objUrl, openMediaPicker } from './media.js';
+import { slideInfo, slideshowSettingsHtml } from './layout-shared.js';
 import { ensureFontFace, fontOptionsHtml } from './fonts.js';
 import { slider, bindSliders } from './slider.js';
 import { colorPicker, bindColorPickers } from './color.js';
@@ -129,8 +133,8 @@ function heroImgUrl(val) {
 }
 // Inline-Style der Bildebene in der Vorschau-Box (wie .hero::before auf der Seite):
 // Deckkraft, Abdunkelung, Weichzeichner, Sättigung; liegt unter dem Inhalt.
-function previewImageStyle(s) {
-  const url = heroImgUrl(s.bgImage);
+function previewImageStyle(s, urlOverride = '') {
+  const url = urlOverride || heroImgUrl(s.bgImage);
   if (!url) return '';
   const f = [];
   if (s.bgImageBlur > 0) f.push(`blur(${s.bgImageBlur}px)`);
@@ -142,6 +146,77 @@ function previewImageStyle(s) {
 function previewImageLayer(s) {
   const st = previewImageStyle(s);
   return st ? `<span data-hdimg style="${st}"></span>` : '';
+}
+// Weitere Bilder der Hintergrund-Diashow eines Modus (Liste mit Reihenfolge und
+// Entfernen) plus Takt/Übergang – das Hintergrundbild ist Bild 1.
+function bgSlidesOf(s) {
+  if (!Array.isArray(s.bgSlides)) s.bgSlides = [];
+  return s.bgSlides;
+}
+function heroSlidesBody(mode, s) {
+  const slides = bgSlidesOf(s);
+  if (!s.bgSlideshow || typeof s.bgSlideshow !== 'object') s.bgSlideshow = defaultHeroBgSlideshow();
+  const full = slides.length >= BANNER_SLIDES_MAX;
+  const rows = slides
+    .map((val, i) => {
+      const info = slideInfo(val);
+      const thumb = info
+        ? `<img src="${esc(info.src)}" alt="" />`
+        : '<span class="hint" style="margin:0">?</span>';
+      const title = info && info.item ? `${info.item.name} – lokal` : val;
+      return `
+        <div class="row" data-hdsliderow="${mode}:${i}" style="align-items:center;gap:.35rem;margin:.3rem 0">
+          <span class="hint" style="margin:0;flex:0 0 1.6rem;text-align:right">${i + 2}.</span>
+          <div class="bg-thumb" data-hdslidethumb="${mode}:${i}" style="width:72px;height:40px" title="${esc(title)}">${thumb}</div>
+          <span style="display:inline-flex;gap:.2rem;flex:0 0 auto;margin-left:auto">
+            <button type="button" class="hd-reset" data-hdslideup="${mode}:${i}" ${i === 0 ? 'disabled' : ''} title="Nach vorn">↑</button>
+            <button type="button" class="hd-reset" data-hdslidedown="${mode}:${i}" ${i === slides.length - 1 ? 'disabled' : ''} title="Nach hinten">↓</button>
+            <button type="button" class="hd-reset danger" data-hdslideremove="${mode}:${i}" title="Aus der Diashow entfernen">✕</button>
+          </span>
+        </div>`;
+    })
+    .join('');
+  return `
+      <details data-hdslides="${mode}" ${slides.length ? 'open' : ''} style="margin-top:.6rem;border-top:1px dashed var(--border);padding-top:.4rem">
+        <summary style="cursor:pointer;color:var(--text);font-weight:600">🎞️ Diashow – weitere Bilder${slides.length ? ` (${slides.length})` : ''}</summary>
+        <p class="hint" style="margin:.3rem 0">Weitere Bilder wechseln sich mit dem Hintergrundbild (Bild 1) ab; Bearbeitung (Deckkraft, Abdunkelung …) gilt für alle. Bis zu ${BANNER_SLIDES_MAX} weitere Bilder, gleiche Abmessungen empfohlen.</p>
+        ${rows || '<p class="hint" style="margin:.2rem 0">Noch keine weiteren Bilder – das Hintergrundbild bleibt statisch.</p>'}
+        <div class="row" style="margin-top:.4rem">
+          <button type="button" class="hd-reset" data-hdslideadd="${mode}" ${full ? 'disabled' : ''}>📂 Aus Mediathek anhängen</button>
+          ${slides.length ? `<button type="button" class="hd-reset danger" data-hdslideclear="${mode}">Alle entfernen</button>` : ''}
+        </div>
+        ${slideshowSettingsHtml(s.bgSlideshow, 'hdslideshow', !slides.length, false, { idPrefix: `hd:${mode}:bgslideshow`, extraAttrs: `data-mode="${mode}"` })}
+        <p class="hint" style="margin:.4rem 0 0">Die Vorschau oben wechselt die Bilder im Takt; „Pause bei Mauszeiger“ gilt auf der Seite für den ganzen Hero-Kasten.</p>
+      </details>`;
+}
+// Vorschau-Diashow des Hero-Hintergrunds: wechselt das Bild der Bildebene im
+// eingestellten Takt (nur der gezeigte Modus).
+let hdSlideTimer = null;
+function stopHdSlideshow() {
+  if (hdSlideTimer !== null) clearInterval(hdSlideTimer);
+  hdSlideTimer = null;
+}
+function startHdSlideshow(pane, lang) {
+  stopHdSlideshow();
+  const s = sideOf(lang, hdPrevMode);
+  const layer = pane.querySelector(`[data-hdprev="${hdPrevMode}"] [data-hdimg]`);
+  if (!layer) return;
+  const srcs = [heroImgUrl(s.bgImage), ...bgSlidesOf(s).map((v) => heroImgUrl(v))].filter(Boolean);
+  if (srcs.length < 2) return;
+  let cur = 0;
+  const ms = Math.max(1, (s.bgSlideshow && s.bgSlideshow.interval) || 5) * 1000;
+  hdSlideTimer = setInterval(() => {
+    if (!layer.isConnected) {
+      stopHdSlideshow();
+      return;
+    }
+    cur = (cur + 1) % srcs.length;
+    layer.setAttribute('style', previewImageStyle(sideOf(lang, hdPrevMode), srcs[cur]));
+    pane.querySelectorAll(`[data-hdslidethumb^="${hdPrevMode}:"]`).forEach((t) => {
+      const i = Number(t.dataset.hdslidethumb.split(':')[1]);
+      t.style.outline = i === cur - 1 ? '2px solid var(--accent)' : '';
+    });
+  }, ms);
 }
 function previewChipStyle(s, hd) {
   const bg = rgbaFromHex(s.chipBgColor, s.chipBgOpacity);
@@ -530,7 +605,7 @@ function sidePanel(lang, mode) {
           <div class="row" style="margin:0">
             <button type="button" data-hdimgpick="${mode}" style="flex:0 0 auto">📂 Mediathek</button>
             <button type="button" class="danger" data-hdimgclear="${mode}" ${imgOn ? '' : 'disabled'} style="flex:0 0 auto">Entfernen</button>
-            ${resetBtn('side', 'bgImage:' + Object.keys(HERO_IMG_FIELDS).join(':'), mode)}
+            ${resetBtn('side', 'bgImage:' + Object.keys(HERO_IMG_FIELDS).join(':') + ':bgSlides:bgSlideshow', mode)}
           </div>
           <label style="margin-top:.5rem">Bild-URL <span class="hint" style="margin:0">(/uploads/… oder https://…)</span></label>
           <input type="text" data-hdimgurl="${mode}" value="${esc(imgStaged ? '' : s.bgImage)}" placeholder="${imgStaged ? 'Lokales Medium (wird beim Veröffentlichen hochgeladen)' : '/uploads/…'}" ${imgStaged ? 'disabled' : ''} />
@@ -539,7 +614,8 @@ function sidePanel(lang, mode) {
       <div class="row" style="align-items:flex-end;margin-top:.2rem;${imgOn ? '' : 'opacity:.45'}" data-hdimgrow="${mode}">
         ${imgSliders}
       </div>
-      <p class="hint">Liegt hinter Titel, Buttons und Banner und wird auf den Hero-Kasten zugeschnitten (mittig). Wirkt auch ohne „Eigenes Hero-Design“. Empfehlung: <strong>1800 × 1000 px</strong> (Querformat, wichtiges Motiv in der Mitte – auf dem Handy wird links/rechts beschnitten), WebP Qualität 75–80 unter 250 KB, ruhiges Motiv ohne Text; Abdunkelung 30–50 % oder Weichzeichner 3–6 px für lesbaren Text.${imgStaged ? ' <strong>● lokal – wird beim Veröffentlichen hochgeladen.</strong>' : ''}</p>`;
+      <p class="hint">Liegt hinter Titel, Buttons und Banner und wird auf den Hero-Kasten zugeschnitten (mittig). Wirkt auch ohne „Eigenes Hero-Design“. Empfehlung: <strong>1800 × 1000 px</strong> (Querformat, wichtiges Motiv in der Mitte – auf dem Handy wird links/rechts beschnitten), WebP Qualität 75–80 unter 250 KB, ruhiges Motiv ohne Text; Abdunkelung 30–50 % oder Weichzeichner 3–6 px für lesbaren Text.${imgStaged ? ' <strong>● lokal – wird beim Veröffentlichen hochgeladen.</strong>' : ''}</p>
+      ${imgOn ? heroSlidesBody(mode, s) : '<p class="hint" style="margin:.3rem 0 0">🎞️ Diashow: zuerst ein Hintergrundbild wählen, dann lassen sich weitere Bilder anhängen.</p>'}`;
   const chipsBody = `
       <div class="row" style="align-items:flex-end">
         ${colorField(lang, mode, 'chipBgColor', 'Hintergrund', true, 'chipBgOpacity', s)}
@@ -741,6 +817,7 @@ function refreshPreview(pane, lang) {
   }
   const hs = pane.querySelector('[data-hdhoverstyle]');
   if (hs) hs.textContent = hoverRuleCss(lang);
+  startHdSlideshow(pane, lang);
   const note = pane.querySelector('[data-hdnote]');
   if (note) note.textContent = heroPreviewNote(hd);
 }
@@ -750,6 +827,7 @@ export function renderHeroDesign() {
   const pane = $('#content');
   // Sichtzustand (Scroll der Seite/Seitenleisten, auf-/zugeklappte Bereiche) erhalten.
   const view = captureView(pane);
+  stopHdSlideshow();
   pane.innerHTML = layoutHtml(lang);
 
   // Hell/Dunkel: Vorschau + bearbeitete Seitenleiste umschalten (Gegenseite klappt zu).
@@ -805,7 +883,8 @@ export function renderHeroDesign() {
       const hd = heroDesignOf(lang);
       // Farben kopieren – das Hintergrundbild des Ziel-Modus bleibt erhalten.
       const keepImg = {};
-      for (const k of ['bgImage', ...Object.keys(HERO_IMG_FIELDS)]) keepImg[k] = hd[to][k];
+      for (const k of ['bgImage', ...Object.keys(HERO_IMG_FIELDS), 'bgSlides', 'bgSlideshow'])
+        keepImg[k] = hd[to][k];
       hd[to] = { ...JSON.parse(JSON.stringify(hd[from])), ...keepImg };
       for (const sl of HERO_TEXT_SLOTS) {
         const st = getTextStyle(lang, sl.key);
@@ -875,6 +954,110 @@ export function renderHeroDesign() {
       sideOf(lang, btn.dataset.hdimgclear === 'dark' ? 'dark' : 'light').bgImage = '';
       renderHeroDesign();
       toast('Hintergrundbild entfernt');
+    }),
+  );
+  // Hintergrund-Diashow je Modus: Bilder anhängen / ordnen / entfernen + Einstellungen.
+  const slideRef = (v) => {
+    const [m, i] = String(v).split(':');
+    return { mode: m === 'dark' ? 'dark' : 'light', i: Number(i) };
+  };
+  pane.querySelectorAll('[data-hdslideadd]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      const mode = btn.dataset.hdslideadd === 'dark' ? 'dark' : 'light';
+      const srv = [lang, 'shared'].reduce((n, l) => n + (state.serverFiles[l] || []).length, 0);
+      if (!state.stagedItems.length && !srv) {
+        toast('Keine Bilder vorhanden — zuerst im Tab „Dateien" eine Datei hinzufügen.');
+        return;
+      }
+      openMediaPicker(lang, 'heroslide', {
+        imagesOnly: true,
+        title: `Weiteres Bild für die Hero-Diashow (${modeName(mode)}) wählen`,
+        onPick: (url) => {
+          const slides = bgSlidesOf(sideOf(lang, mode));
+          if (slides.length >= BANNER_SLIDES_MAX) {
+            toast(`Maximal ${BANNER_SLIDES_MAX} weitere Bilder`);
+            return;
+          }
+          slides.push(url);
+          renderHeroDesign();
+          toast('Bild an die Diashow angehängt');
+        },
+      });
+    }),
+  );
+  pane.querySelectorAll('[data-hdslideremove]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      const { mode, i } = slideRef(btn.dataset.hdslideremove);
+      bgSlidesOf(sideOf(lang, mode)).splice(i, 1);
+      renderHeroDesign();
+      toast('Bild aus der Diashow entfernt');
+    }),
+  );
+  pane.querySelectorAll('[data-hdslideclear]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      const mode = btn.dataset.hdslideclear === 'dark' ? 'dark' : 'light';
+      if (
+        !confirm('Alle weiteren Bilder aus der Hero-Diashow entfernen? Das Hintergrundbild bleibt.')
+      )
+        return;
+      bgSlidesOf(sideOf(lang, mode)).length = 0;
+      renderHeroDesign();
+      toast('Diashow geleert');
+    }),
+  );
+  const moveHdSlide = (mode, i, dir) => {
+    const slides = bgSlidesOf(sideOf(lang, mode));
+    const j = i + dir;
+    if (j < 0 || j >= slides.length) return;
+    [slides[i], slides[j]] = [slides[j], slides[i]];
+    renderHeroDesign();
+  };
+  pane.querySelectorAll('[data-hdslideup]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      const { mode, i } = slideRef(btn.dataset.hdslideup);
+      moveHdSlide(mode, i, -1);
+    }),
+  );
+  pane.querySelectorAll('[data-hdslidedown]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      const { mode, i } = slideRef(btn.dataset.hdslidedown);
+      moveHdSlide(mode, i, 1);
+    }),
+  );
+  pane.querySelectorAll('[data-hdslideshow]').forEach((el) => {
+    const f = el.dataset.hdslideshow;
+    const mode = el.dataset.mode === 'dark' ? 'dark' : 'light';
+    el.addEventListener(
+      el.type === 'checkbox' || el.tagName === 'SELECT' ? 'change' : 'input',
+      () => {
+        const s = sideOf(lang, mode);
+        if (!s.bgSlideshow || typeof s.bgSlideshow !== 'object')
+          s.bgSlideshow = defaultHeroBgSlideshow();
+        const ss = s.bgSlideshow;
+        if (f === 'interval') {
+          const n = parseInt(el.value, 10);
+          ss.interval = Math.max(1, Math.min(30, Number.isFinite(n) ? n : 5));
+        } else if (f === 'duration') {
+          const n = parseInt(el.value, 10);
+          ss.duration = Math.max(0, Math.min(5000, Number.isFinite(n) ? n : 800));
+        } else if (f === 'transition')
+          ss.transition = BANNER_TRANSITIONS.includes(el.value) ? el.value : 'fade';
+        else if (f === 'pauseOnHover') ss.pauseOnHover = el.checked;
+        else if (f === 'dots') ss.dots = el.checked;
+        refreshPreview(pane, lang);
+      },
+    );
+  });
+  pane.querySelectorAll('[data-hdslideshowreset]').forEach((el) =>
+    el.addEventListener('click', () => {
+      const f = el.dataset.hdslideshowreset;
+      const mode = el.dataset.mode === 'dark' ? 'dark' : 'light';
+      const d = defaultHeroBgSlideshow();
+      const s = sideOf(lang, mode);
+      if (!s.bgSlideshow || typeof s.bgSlideshow !== 'object')
+        s.bgSlideshow = defaultHeroBgSlideshow();
+      if (f in d) s.bgSlideshow[f] = d[f];
+      renderHeroDesign();
     }),
   );
   // Buttons ein-/ausblenden (Chips, CTA) – beide Modi.
@@ -1056,4 +1239,5 @@ export function renderHeroDesign() {
   bindSliders(pane); // nach den Feld-Handlern: Zahlenfeld löst deren input-Event aus
   bindColorPickers(pane);
   restoreView(pane, view);
+  startHdSlideshow(pane, lang);
 }

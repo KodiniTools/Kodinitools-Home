@@ -3,6 +3,7 @@ import EnLayout from '../../layouts/EnLayout.astro'
 import GlobalNav from '../../components/GlobalNav.astro'
 import TickerBar from '../../components/TickerBar.astro'
 import HeroBannerMedia from '../../components/HeroBannerMedia.astro'
+import HeroBackground from '../../components/HeroBackground.astro'
 import HeroCellMedia from '../../components/HeroCellMedia.astro'
 import SectionMediaBlock from '../../components/SectionMediaBlock.astro'
 import SiteFooter from '../../components/SiteFooter.astro'
@@ -276,6 +277,8 @@ const pageI18n = {
     {sectionMediaCss && <style is:global set:html={sectionMediaCss} />}
     {toolCardsCss && <style is:global set:html={toolCardsCss} />}
     <section class="hero">
+      <HeroBackground media={media} mode="light" />
+      <HeroBackground media={media} mode="dark" />
       <div class="mesh-gradient-container">
         <div class="mesh-blob mesh-blob-1"></div>
         <div class="mesh-blob mesh-blob-2"></div>

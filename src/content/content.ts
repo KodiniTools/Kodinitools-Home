@@ -541,6 +541,8 @@ export interface HeroDesignSide {
   bgImageDarken: number; // 0–100 (%) – Abdunkelung (brightness)
   bgImageBlur: number; // 0–20 px – Weichzeichner
   bgImageSaturate: number; // 0–200 (%) – Sättigung (0 = Graustufen)
+  bgSlides: string[]; // weitere Bilder: das Hintergrundbild läuft als Diashow
+  bgSlideshow: HeroSlideshowSettings; // Takt/Übergang der Hintergrund-Diashow (dots standardmäßig aus)
 }
 
 /**
@@ -673,6 +675,8 @@ const MEDIA_DEFAULTS: MediaConfig = {
       bgImageDarken: 0,
       bgImageBlur: 0,
       bgImageSaturate: 100,
+      bgSlides: [],
+      bgSlideshow: { interval: 5, duration: 800, transition: 'fade', pauseOnHover: true, dots: false },
     },
     dark: {
       borderColor: '#e8a945',
@@ -699,6 +703,8 @@ const MEDIA_DEFAULTS: MediaConfig = {
       bgImageDarken: 0,
       bgImageBlur: 0,
       bgImageSaturate: 100,
+      bgSlides: [],
+      bgSlideshow: { interval: 5, duration: 800, transition: 'fade', pauseOnHover: true, dots: false },
     },
   },
   toolCards: {
@@ -795,11 +801,29 @@ export function heroCellImageVars(cs: HeroCellStyle | null | undefined): string 
  * unveränderte Seiten identisch bleiben (Basis-Aussehen aus hero.css).
  */
 /**
- * Hintergrundbild des Hero-Bereichs je Modus (Admin > Hero-Design, Seitenleisten):
- * CSS-Variablen für die Bildebene `.hero::before` (hero.css). Unabhängig vom
- * An-Schalter des Hero-Designs; ohne Bild in beiden Modi keine Regel. Die
- * Dunkel-Regel setzt immer alle Variablen, damit ein helles Bild nicht in den
- * Dunkelmodus erbt.
+ * Bilder des Hero-Hintergrunds eines Modus (Admin > Hero-Design, Seitenleisten):
+ * das Hintergrundbild plus die weiteren Bilder der Diashow (nur gültige URLs).
+ * Leer, wenn kein Hintergrundbild gesetzt ist.
+ */
+export function heroBgImages(media: MediaConfig, mode: 'light' | 'dark'): string[] {
+  const hd = media.heroDesign;
+  const side =
+    isPlainObject(hd) && isPlainObject(hd[mode]) ? (hd[mode] as Partial<HeroDesignSide>) : undefined;
+  const img = side && typeof side.bgImage === 'string' ? side.bgImage.trim() : '';
+  if (!img || !SITE_MEDIA_URL.test(img) || !side) return [];
+  const slides = Array.isArray(side.bgSlides)
+    ? side.bgSlides.filter(
+        (v): v is string => typeof v === 'string' && SITE_MEDIA_URL.test(v.trim()),
+      )
+    : [];
+  return [img, ...slides.map((v) => v.trim())];
+}
+
+/**
+ * Bildbearbeitung des Hero-Hintergrunds je Modus (Deckkraft, Abdunkelung,
+ * Weichzeichner, Sättigung) als CSS auf die Ebene `.hero-bg--<modus>`
+ * (HeroBackground.astro, hero.css). Unabhängig vom An-Schalter des Hero-Designs;
+ * ohne Bild in einem Modus keine Regel (die Ebene wird dann gar nicht gerendert).
  */
 export function getHeroImageCss(media: MediaConfig): string | undefined {
   const hd = media.heroDesign;
@@ -808,11 +832,9 @@ export function getHeroImageCss(media: MediaConfig): string | undefined {
     const n = typeof v === 'number' ? v : Number(v);
     return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : def;
   };
-  const vars = (side: Partial<HeroDesignSide> | undefined): string => {
-    const img = side && typeof side.bgImage === 'string' ? side.bgImage.trim() : '';
-    if (!img || !SITE_MEDIA_URL.test(img))
-      return '--hero-img:none;--hero-img-opacity:1;--hero-img-filter:none;--hero-img-inset:0';
-    const s = side as Partial<HeroDesignSide>;
+  const rule = (mode: 'light' | 'dark'): string => {
+    if (heroBgImages(media, mode).length === 0) return '';
+    const s = hd[mode] as Partial<HeroDesignSide>;
     const blur = num(s.bgImageBlur, 0, 20, 0);
     const darken = num(s.bgImageDarken, 0, 100, 0);
     const sat = num(s.bgImageSaturate, 0, 200, 100);
@@ -822,14 +844,10 @@ export function getHeroImageCss(media: MediaConfig): string | undefined {
     if (sat !== 100) f.push(`saturate(${sat}%)`);
     // Weichzeichner: Ebene über den Rand hinaus vergrößern (gegen helle Ränder).
     const inset = blur > 0 ? `${-blur * 2}px` : '0';
-    return `--hero-img:url("${img.replace(/["\\]/g, '')}");--hero-img-opacity:${(num(s.bgImageOpacity, 0, 100, 100) / 100).toFixed(2)};--hero-img-filter:${f.join(' ') || 'none'};--hero-img-inset:${inset}`;
+    return `.hero-bg--${mode}{opacity:${(num(s.bgImageOpacity, 0, 100, 100) / 100).toFixed(2)};filter:${f.join(' ') || 'none'};inset:${inset}}`;
   };
-  const light = isPlainObject(hd.light) ? (hd.light as Partial<HeroDesignSide>) : undefined;
-  const dark = isPlainObject(hd.dark) ? (hd.dark as Partial<HeroDesignSide>) : undefined;
-  const hasImg = (side?: Partial<HeroDesignSide>): boolean =>
-    !!(side && typeof side.bgImage === 'string' && side.bgImage.trim());
-  if (!hasImg(light) && !hasImg(dark)) return undefined;
-  return `.hero{${vars(light)}}\n[data-theme="dark"] .hero{${vars(dark)}}`;
+  const css = [rule('light'), rule('dark')].filter(Boolean).join('\n');
+  return css || undefined;
 }
 
 export function getHeroBannerCss(media: MediaConfig): string | undefined {

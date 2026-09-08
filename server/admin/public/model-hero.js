@@ -12,6 +12,23 @@ import {
   BANNER_ANIM_SPEEDS,
 } from './model-core.js';
 import { state } from './model-state.js';
+import {
+  BANNER_SLIDES_MAX,
+  defaultBannerSlideshow,
+  normBannerSlides,
+  normBannerSlideshow,
+} from './model-grid.js';
+
+// Diashow-Einstellungen des Hero-Hintergrunds (je Modus): wie die Banner-Diashow,
+// aber ohne Punkte (Hintergrund) als Standard.
+export function defaultHeroBgSlideshow() {
+  return { ...defaultBannerSlideshow(), dots: false };
+}
+function normHeroBgSlideshow(o) {
+  const ss = normBannerSlideshow(o);
+  ss.dots = !!(o && typeof o === 'object' && o.dots === true);
+  return ss;
+}
 
 // --- Medien-Standard & -Normalisierung ---
 // Hintergrundbild des Hero-Bereichs je Modus (Tab „Hero-Design", Seitenleisten):
@@ -26,6 +43,8 @@ export const HERO_IMG_FIELDS = {
 function heroImageDefaults() {
   const o = { bgImage: '' };
   for (const [k, c] of Object.entries(HERO_IMG_FIELDS)) o[k] = c.def;
+  o.bgSlides = []; // weitere Bilder: das Hintergrundbild läuft als Diashow
+  o.bgSlideshow = defaultHeroBgSlideshow();
   return o;
 }
 // Standard-Design des Hero-Bereichs, getrennt für Hell- und Dunkelmodus
@@ -133,6 +152,8 @@ function normHeroSide(s, def) {
     bgImageDarken: num(s.bgImageDarken, 0, 100, def.bgImageDarken),
     bgImageBlur: num(s.bgImageBlur, 0, 20, def.bgImageBlur),
     bgImageSaturate: num(s.bgImageSaturate, 0, 200, def.bgImageSaturate),
+    bgSlides: normBannerSlides(s.bgSlides),
+    bgSlideshow: normHeroBgSlideshow(s.bgSlideshow),
   };
 }
 // Geladenes Hero-Design normalisieren (getrennt Hell/Dunkel). Migriert die alte
@@ -185,6 +206,24 @@ export function heroImageSlots() {
         mode,
         label: `${lang.toUpperCase()} · Hero-Hintergrund (${modeLabel(mode)})`,
       });
+  // Weitere Bilder der Hintergrund-Diashow (nur vorhandene Einträge).
+  for (const lang of MEDIA_LANGS)
+    for (const mode of ['light', 'dark']) {
+      const hd = state.media[lang] && state.media[lang].heroDesign;
+      const side = hd && hd[mode];
+      const n =
+        side && Array.isArray(side.bgSlides)
+          ? Math.min(side.bgSlides.length, BANNER_SLIDES_MAX)
+          : 0;
+      for (let i = 0; i < n; i++)
+        slots.push({
+          root: lang,
+          xLang: lang,
+          path: ['heroDesign', mode, 'bgSlides', i],
+          mode,
+          label: `${lang.toUpperCase()} · Hero-Hintergrund Diashow Bild ${i + 2} (${modeLabel(mode)})`,
+        });
+    }
   for (const slot of slots) {
     slot.get = () => {
       const v = getPath(state.media[slot.root], slot.path);

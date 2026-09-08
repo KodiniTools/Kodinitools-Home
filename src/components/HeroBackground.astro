@@ -1,0 +1,41 @@
+---
+// Hintergrundbild des Hero-Bereichs für einen Modus (Admin > Hero-Design,
+// Seitenleisten): ein Bild oder – mit weiteren Bildern – eine Diashow
+// (HeroSlides, Variante „cell"). Die Ebene liegt unter dem Inhalt (hero.css
+// .hero-bg); Deckkraft/Abdunkelung/Weichzeichner/Sättigung kommen aus content.ts
+// (getHeroImageCss). Ohne Bild wird nichts gerendert; die Dunkel-Ebene ist nur
+// im Dunkelmodus sichtbar (CSS).
+import HeroSlides from './HeroSlides.astro';
+import { heroBgImages, type MediaConfig } from '../content/content';
+
+interface Props {
+  media: MediaConfig;
+  mode: 'light' | 'dark';
+}
+const { media, mode } = Astro.props;
+const imgs = heroBgImages(media, mode);
+const side = media.heroDesign && media.heroDesign[mode];
+const ss = side && side.bgSlideshow ? side.bgSlideshow : {};
+---
+
+{
+  imgs.length > 0 && (
+    <div class={`hero-bg hero-bg--${mode}`} aria-hidden="true">
+      {imgs.length > 1 ? (
+        <HeroSlides
+          slides={imgs.slice(1)}
+          settings={ss}
+          variant="cell"
+          total={imgs.length}
+          pauseTarget=".hero"
+        >
+          <div class="hero-cell-media hero-slide is-active">
+            <img src={imgs[0]} alt="" class="hero-grid-media" loading="eager" decoding="async" />
+          </div>
+        </HeroSlides>
+      ) : (
+        <img src={imgs[0]} alt="" class="hero-bg-img" loading="eager" decoding="async" />
+      )}
+    </div>
+  )
+}
