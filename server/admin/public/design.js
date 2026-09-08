@@ -539,7 +539,7 @@ function sidePanel(lang, mode) {
       <div class="row" style="align-items:flex-end;margin-top:.2rem;${imgOn ? '' : 'opacity:.45'}" data-hdimgrow="${mode}">
         ${imgSliders}
       </div>
-      <p class="hint">Liegt hinter Titel, Buttons und Banner und wird auf den Hero-Kasten zugeschnitten (mittig). Wirkt auch ohne „Eigenes Hero-Design“. Empfehlung: ca. 1600 × 700 px, WebP; Abdunkelung 30–50 % für lesbaren Text.${imgStaged ? ' <strong>● lokal – wird beim Veröffentlichen hochgeladen.</strong>' : ''}</p>`;
+      <p class="hint">Liegt hinter Titel, Buttons und Banner und wird auf den Hero-Kasten zugeschnitten (mittig). Wirkt auch ohne „Eigenes Hero-Design“. Empfehlung: <strong>1800 × 1000 px</strong> (Querformat, wichtiges Motiv in der Mitte – auf dem Handy wird links/rechts beschnitten), WebP Qualität 75–80 unter 250 KB, ruhiges Motiv ohne Text; Abdunkelung 30–50 % oder Weichzeichner 3–6 px für lesbaren Text.${imgStaged ? ' <strong>● lokal – wird beim Veröffentlichen hochgeladen.</strong>' : ''}</p>`;
   const chipsBody = `
       <div class="row" style="align-items:flex-end">
         ${colorField(lang, mode, 'chipBgColor', 'Hintergrund', true, 'chipBgOpacity', s)}
