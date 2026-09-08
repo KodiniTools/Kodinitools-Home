@@ -174,6 +174,9 @@ export interface SectionMediaConfig {
   slides: string[];
   slideshow: HeroSlideshowSettings;
   text: SectionMediaText;
+  // Verschiebung des Medium-Blocks (px, relative Position; Admin > Medien > Ganze Seite).
+  offsetX?: number;
+  offsetY?: number;
 }
 export type SectionMediaKey = 'audio' | 'image' | 'diverse';
 export const SECTION_MEDIA_SIDE_DEFAULTS: SectionMediaSide = {
@@ -206,6 +209,8 @@ function defaultSectionMedia(): SectionMediaConfig {
     slides: [],
     slideshow: { interval: 5, duration: 800, transition: 'fade', pauseOnHover: true, dots: true },
     text: { ...SECTION_MEDIA_TEXT_DEFAULTS },
+    offsetX: 0,
+    offsetY: 0,
   };
 }
 
@@ -223,6 +228,9 @@ export interface MediaConfig {
   heroBannerLink: string;
   // Einzelbanner ein-/ausgeblendet (Admin > Layout). false = Banner wird nicht gerendert.
   heroBannerShow: boolean;
+  // Verschiebung des Hero-Mediums (Banner bzw. Raster) in px (Admin > Medien > Ganze Seite).
+  heroMediaOffsetX: number;
+  heroMediaOffsetY: number;
   // Optionaler Text über dem Banner + Schriftart, Farbe, Größe, Position.
   heroBannerText: string;
   heroBannerFont: string;
@@ -598,6 +606,8 @@ const MEDIA_DEFAULTS: MediaConfig = {
   heroBanner: '',
   heroBannerLink: '',
   heroBannerShow: true,
+  heroMediaOffsetX: 0,
+  heroMediaOffsetY: 0,
   heroBannerText: '',
   heroBannerFont: '',
   heroBannerTextColor: '#ffffff',

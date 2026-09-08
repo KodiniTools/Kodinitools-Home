@@ -497,6 +497,8 @@ function defaultMediaLocale() {
     heroLayout: 'grid3',
     heroBanner: '',
     heroBannerShow: true,
+    heroMediaOffsetX: 0,
+    heroMediaOffsetY: 0,
     heroBannerLink: '',
     heroBannerStyle: defaultBannerStyles(),
     heroBannerSlides: [],
@@ -764,6 +766,9 @@ function validateSectionMediaAll(o, langLabel) {
       slides: validateSlideList(v.slides, `media.${langLabel}.sectionMedia.${k}.slides`),
       slideshow: validateBannerSlideshow(v.slideshow),
       text: validateSectionMediaText(v.text),
+      // Verschiebung des Medium-Blocks (px, relative Position).
+      offsetX: clampNum(v.offsetX, -400, 400, 0),
+      offsetY: clampNum(v.offsetY, -300, 300, 0),
     };
   }
   return out;
@@ -1032,6 +1037,9 @@ function validateMediaLocale(m, langLabel) {
   // Option 1 – Hero-Banner: optional. Leerer String = kein Banner; sonst gültige URL.
   // Einzelbanner ein-/ausgeblendet (Tab „Layout“); ausgeblendet = wird nicht gerendert.
   out.heroBannerShow = m.heroBannerShow !== false;
+  // Verschiebung des Hero-Mediums (Banner/Raster) in px (Ganzseiten-Vorschau im Medien-Tab).
+  out.heroMediaOffsetX = clampNum(m.heroMediaOffsetX, -400, 400, 0);
+  out.heroMediaOffsetY = clampNum(m.heroMediaOffsetY, -300, 300, 0);
   out.heroBanner = '';
   if (m.heroBanner != null && m.heroBanner !== '') {
     if (!isValidMediaUrl(m.heroBanner)) throw new Error(`media.${langLabel}.heroBanner ungültig`);

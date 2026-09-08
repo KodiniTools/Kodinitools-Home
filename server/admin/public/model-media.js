@@ -44,6 +44,7 @@ import {
   defaultSectionMediaAll,
   normSectionMediaAll,
   sectionMediaImageSlots,
+  normMediaOffset,
 } from './model-sectionmedia.js';
 
 export function defaultMediaLocale() {
@@ -58,6 +59,8 @@ export function defaultMediaLocale() {
     heroBanner: '',
     heroBannerLink: '',
     heroBannerShow: true, // Einzelbanner ein-/ausgeblendet (Tab „Layout“)
+    heroMediaOffsetX: 0, // Verschiebung des Hero-Mediums (Banner/Raster) in px
+    heroMediaOffsetY: 0,
     heroBannerText: '', // Text über dem Einzelbanner
     heroBannerFont: '', // Schriftart des Banner-Textes (Dateiname im /fonts-Ordner)
     heroBannerTextColor: '#ffffff',
@@ -134,6 +137,8 @@ export function normalizeMedia(m) {
       heroBanner: o && typeof o.heroBanner === 'string' ? o.heroBanner : '',
       heroBannerLink: o && typeof o.heroBannerLink === 'string' ? o.heroBannerLink : '',
       heroBannerShow: !(o && o.heroBannerShow === false),
+      heroMediaOffsetX: normMediaOffset(o?.heroMediaOffsetX, 'x'),
+      heroMediaOffsetY: normMediaOffset(o?.heroMediaOffsetY, 'y'),
       heroBannerText: typeof o?.heroBannerText === 'string' ? o.heroBannerText.slice(0, 120) : '',
       heroBannerFont: normFontFile(o?.heroBannerFont),
       heroBannerTextColor: /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(o?.heroBannerTextColor))
