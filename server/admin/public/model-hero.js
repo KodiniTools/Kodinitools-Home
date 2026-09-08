@@ -122,7 +122,9 @@ export function defaultHeroDesign() {
     subtitleFontSize: 0,
     chipFontSize: 0,
     ctaFontSize: 0,
-    // Buttons im Hero ein-/ausblenden (gilt für beide Modi).
+    // Texte und Buttons im Hero ein-/ausblenden (gilt für beide Modi).
+    showTitle: true, // Titel
+    showSubtitle: true, // Untertitel
     showChips: true, // Feature-Buttons (Chips) insgesamt
     hiddenChips: [], // einzeln ausgeblendete Feature-Buttons (Schlüssel aus hero.features)
     showCta: true, // CTA-Button („Jetzt starten")
@@ -197,6 +199,8 @@ export function normHeroDesign(hd) {
     subtitleFontSize: fontSize(hd.subtitleFontSize),
     chipFontSize: fontSize(hd.chipFontSize),
     ctaFontSize: fontSize(hd.ctaFontSize),
+    showTitle: hd.showTitle !== false,
+    showSubtitle: hd.showSubtitle !== false,
     showChips: hd.showChips !== false,
     hiddenChips: normHiddenChips(hd.hiddenChips),
     showCta: hd.showCta !== false,
