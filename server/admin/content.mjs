@@ -499,6 +499,7 @@ function defaultMediaLocale() {
     heroBannerShow: true,
     heroMediaOffsetX: 0,
     heroMediaOffsetY: 0,
+    toolCardOffsets: {},
     heroBannerLink: '',
     heroBannerStyle: defaultBannerStyles(),
     heroBannerSlides: [],
@@ -1040,6 +1041,20 @@ function validateMediaLocale(m, langLabel) {
   // Verschiebung des Hero-Mediums (Banner/Raster) in px (Ganzseiten-Vorschau im Medien-Tab).
   out.heroMediaOffsetX = clampNum(m.heroMediaOffsetX, -400, 400, 0);
   out.heroMediaOffsetY = clampNum(m.heroMediaOffsetY, -300, 300, 0);
+  // Verschiebung je Tool-Karte ('sektion.key' -> { x, y }), nur ≠ 0/0, max. 60.
+  out.toolCardOffsets = (() => {
+    const res = {};
+    const v = m.toolCardOffsets;
+    if (!isPlainObject(v)) return res;
+    for (const k of Object.keys(v)) {
+      if (!/^(tools|imageTools|diverseTools)\.[a-zA-Z0-9_-]+$/.test(k) || !isPlainObject(v[k])) continue;
+      const x = clampNum(v[k].x, -400, 400, 0);
+      const y = clampNum(v[k].y, -300, 300, 0);
+      if (x || y) res[k] = { x, y };
+      if (Object.keys(res).length >= 60) break;
+    }
+    return res;
+  })();
   out.heroBanner = '';
   if (m.heroBanner != null && m.heroBanner !== '') {
     if (!isValidMediaUrl(m.heroBanner)) throw new Error(`media.${langLabel}.heroBanner ungültig`);

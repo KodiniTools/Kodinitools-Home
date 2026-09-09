@@ -24,17 +24,18 @@ import {
   rgbaFromHex,
   getPageBg,
   PAGE_BG_DEFAULT,
-  getPath,
-  normMediaOffset,
-  MEDIA_OFFSET_MAX,
-  HERO_LAYOUT_COLS,
-  visibleGridCells,
 } from './model.js';
 import { slider } from './slider.js';
 import { colorPicker } from './color.js';
 import { fontOptionsHtml } from './fonts.js';
 import { objUrl, openMediaPicker } from './media.js';
-import { dragHandle, overlayStyle, slideshowSettingsHtml, slideInfo, fontFF } from './layout.js';
+import {
+  dragHandle,
+  overlayStyle,
+  slideshowSettingsHtml,
+  slideInfo,
+  fontFF,
+} from './layout-shared.js';
 
 const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 const MODE_LABEL = { light: '☀️ Hell', dark: '🌙 Dunkel' };
@@ -56,7 +57,7 @@ export function selectedSection() {
 }
 
 // Aufgelöstes Medium der Sektion: { val, src, isVid, item } oder null.
-function mediaInfo(lang, key) {
+export function mediaInfo(lang, key) {
   const val = getMediaVal(lang, key);
   if (!val) return null;
   if (val.startsWith('staged:')) {
@@ -69,7 +70,7 @@ function mediaInfo(lang, key) {
 }
 
 // Design eines Modus als Inline-CSS: Wrapper (Rahmen, Radius) + Medium (Deckkraft, Filter).
-function designCss(lang, key, mode) {
+export function designCss(lang, key, mode) {
   const s = getSectionMedia(lang, key).style[mode];
   const border = s.customBorder
     ? s.borderWidth > 0
@@ -82,7 +83,7 @@ function designCss(lang, key, mode) {
   };
 }
 // Text-Overlay-Style (Vorschau) aus den Text-Feldern.
-function textStyle(t) {
+export function textStyle(t) {
   const shadow = t.shadow
     ? `${t.shadowX}px ${t.shadowY}px ${t.shadowBlur}px ${rgbaFromHex(t.shadowColor || '#000000', 60)}`
     : 'none';
@@ -101,7 +102,7 @@ function textStyle(t) {
   );
 }
 
-const MEDIA_BASE =
+export const MEDIA_BASE =
   'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block';
 
 // --- Mitte ---
@@ -438,7 +439,6 @@ export function bindSectionMedia(pane, lang, rerender) {
   const key = selectedSection();
   const cfg = getSectionMedia(lang, key);
   const rr = () => rerender();
-  bindFullPage(pane, lang, rr);
 
   pane.querySelector('[data-smsel]')?.addEventListener('change', (e) => {
     selected = SECTION_MEDIA_KEYS.includes(e.target.value) ? e.target.value : 'audio';
@@ -712,270 +712,5 @@ function wireTextDrag(pane, lang) {
     cfg.text.x = x;
     cfg.text.y = y;
     updatePreviewText(pane, lang);
-  });
-}
-
-// --- Ganze Seite: schematische Vorschau der Startseite, in der das Hero-Medium
-// (Banner/Raster) und die drei Sektions-Medien per Maus verschoben werden. Der
-// Versatz (px) wirkt auf der Seite als relative Position – der Platz im Fluss
-// bleibt. Die Seite wird in Originalbreite (1200 px) aufgebaut und per CSS
-// `zoom` in die Spalte eingepasst; Mausbewegungen werden durch den Zoom geteilt.
-const PAGE_W = 1200;
-const FULL_KEYS = ['hero', ...SECTION_MEDIA_KEYS];
-const FULL_LABELS = {
-  hero: 'Hero-Medium (Banner/Raster)',
-  audio: 'Medium Audio-Tools',
-  image: 'Medium Bild-Tools',
-  diverse: 'Medium Diverse Tools',
-};
-const FULL_TEXT = {
-  light: { title: '#003971', text: '#1e293b', muted: '#64748b', card: 'rgba(1,79,153,.08)' },
-  dark: { title: '#f9f2d5', text: '#e2e8f0', muted: '#94a3b8', card: 'rgba(255,255,255,.06)' },
-};
-function fullOffset(lang, key) {
-  if (key === 'hero') {
-    const m = state.media[lang];
-    return { x: m.heroMediaOffsetX || 0, y: m.heroMediaOffsetY || 0 };
-  }
-  const c = getSectionMedia(lang, key);
-  return { x: c.offsetX || 0, y: c.offsetY || 0 };
-}
-function setFullOffset(lang, key, x, y) {
-  const nx = normMediaOffset(x, 'x');
-  const ny = normMediaOffset(y, 'y');
-  if (key === 'hero') {
-    state.media[lang].heroMediaOffsetX = nx;
-    state.media[lang].heroMediaOffsetY = ny;
-  } else {
-    const c = getSectionMedia(lang, key);
-    c.offsetX = nx;
-    c.offsetY = ny;
-  }
-  return { x: nx, y: ny };
-}
-const fullMoveCss = (o) =>
-  `position:relative;left:${o.x}px;top:${o.y}px;cursor:move;touch-action:none;user-select:none`;
-// Hero-Medium der Vorschau: Banner (Bild/Video) oder Kachel-Raster (Anordnung,
-// ausgeblendete Kacheln entfallen) – wie im Tab „Layout“ eingestellt.
-function fullHeroMediaHtml(lang, mode) {
-  const m = state.media[lang];
-  const c = FULL_TEXT[mode];
-  if (m.heroMode === 'grid') {
-    const layout = m.heroLayout;
-    const cells = visibleGridCells(lang, layout);
-    const cols = Math.min(HERO_LAYOUT_COLS[layout] || 3, Math.max(1, cells.length));
-    const maxW = layout === 'row4' ? 860 : layout === 'big2' ? 900 : layout === 'vrow' ? 420 : 720;
-    const tiles = cells
-      .map((i) => {
-        const info = mediaInfo(lang, `grid${i}`);
-        const inner = info
-          ? info.isVid
-            ? `<video src="${esc(info.src)}" muted playsinline preload="metadata" style="${MEDIA_BASE}"></video>`
-            : `<img src="${esc(info.src)}" alt="" style="${MEDIA_BASE}" />`
-          : `<span style="color:${c.muted};font-size:14px">Kachel ${i + 1}</span>`;
-        return `<div style="position:relative;aspect-ratio:1 / 1;border-radius:14px;overflow:hidden;background:${c.card};display:flex;align-items:center;justify-content:center">${inner}</div>`;
-      })
-      .join('');
-    return `<div style="display:grid;grid-template-columns:repeat(${cols},1fr);gap:16px;width:100%;max-width:${maxW}px;margin:0 auto">${tiles || `<span style="color:${c.muted}">Alle Kacheln ausgeblendet</span>`}</div>`;
-  }
-  if (m.heroBannerShow === false)
-    return `<div style="color:${c.muted};font-size:14px;padding:12px">Banner ausgeblendet (Tab „Layout“)</div>`;
-  const info = mediaInfo(lang, 'heroBanner');
-  if (!info)
-    return `<div style="color:${c.muted};font-size:14px;padding:12px">Kein Hero-Medium</div>`;
-  const st =
-    'display:block;max-width:min(100%,900px);max-height:240px;width:auto;height:auto;object-fit:contain;border-radius:14px';
-  return info.isVid
-    ? `<video src="${esc(info.src)}" muted playsinline preload="metadata" style="${st}"></video>`
-    : `<img src="${esc(info.src)}" alt="" style="${st}" />`;
-}
-// Sektion der Vorschau: Überschrift, verschiebbares Medium, Karten-Platzhalter.
-function fullSectionHtml(lang, key, mode) {
-  const c = FULL_TEXT[mode];
-  const titlePath = { audio: 'tools', image: 'imageTools', diverse: 'diverseTools' }[key];
-  const title =
-    getPath(state.overrides[lang], [titlePath, 'sectionTitle']) ||
-    getPath(state.defaults[lang], [titlePath, 'sectionTitle']) ||
-    SECTION_MEDIA_LABELS[key];
-  const info = mediaInfo(lang, key);
-  const css = designCss(lang, key, mode);
-  const t = getSectionMedia(lang, key).text;
-  const media = !info
-    ? `<div style="${MEDIA_BASE};display:flex;align-items:center;justify-content:center;background:#1e293b"><span style="color:#94a3b8;font-size:14px">Kein Medium</span></div>`
-    : info.isVid
-      ? `<video src="${esc(info.src)}" muted playsinline preload="metadata" style="${MEDIA_BASE};${css.media}"></video>`
-      : `<img src="${esc(info.src)}" alt="" style="${MEDIA_BASE};${css.media}" />`;
-  const sel = key === selectedSection();
-  const cards = Array.from(
-    { length: 6 },
-    () => `<div style="height:120px;border-radius:16px;background:${c.card}"></div>`,
-  ).join('');
-  return `
-    <section data-smfullsection="${key}" style="max-width:${PAGE_W}px;margin:0 auto;padding:80px 32px;box-sizing:border-box">
-      <h2 style="text-align:center;font-size:40px;font-weight:600;letter-spacing:.04em;line-height:1.2;margin:0 0 40px;color:${c.title}">${esc(title)}</h2>
-      <div data-smfullmedia="${key}" role="button" tabindex="0" title="Ziehen: verschieben (Pfeiltasten: 1 px, Shift 10 px) · Klick: Sektion bearbeiten" style="width:100%;max-width:720px;margin:0 auto 24px;aspect-ratio:16 / 9;overflow:hidden;box-sizing:border-box;background:#000;${css.wrap};${fullMoveCss(fullOffset(lang, key))}${sel ? ';outline:3px solid var(--accent);outline-offset:2px' : ''}">
-        ${media}
-        <div style="${t.text ? textStyle(t) : ''}">${esc(t.text || '')}</div>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">${cards}</div>
-    </section>`;
-}
-// Felder „Verschiebung X / Y“ je Medium (folgen dem Ziehen live).
-function fullFieldsHtml(lang) {
-  return FULL_KEYS.map((key) => {
-    const o = fullOffset(lang, key);
-    return `<div data-smoffrow="${key}" style="display:flex;align-items:center;gap:.3rem;flex-wrap:wrap">
-        <span style="min-width:190px;font-size:.85rem;color:var(--text)">${FULL_LABELS[key]}</span>
-        <input type="number" data-smoff="${key}:x" min="-${MEDIA_OFFSET_MAX.x}" max="${MEDIA_OFFSET_MAX.x}" step="1" value="${o.x}" style="width:80px" title="Waagerecht (px): − links, + rechts" />
-        <input type="number" data-smoff="${key}:y" min="-${MEDIA_OFFSET_MAX.y}" max="${MEDIA_OFFSET_MAX.y}" step="1" value="${o.y}" style="width:80px" title="Senkrecht (px): − oben, + unten" />
-        <button type="button" class="hd-reset" data-smoffreset="${key}" title="Verschiebung zurücksetzen (0/0)" aria-label="Verschiebung zurücksetzen">↺</button>
-      </div>`;
-  }).join('');
-}
-export function fullPageHtml(lang) {
-  const mode = prevMode;
-  const c = FULL_TEXT[mode];
-  const m = state.media[lang];
-  const heroTitle =
-    getPath(state.overrides[lang], ['hero', 'title']) ||
-    getPath(state.defaults[lang], ['hero', 'title']) ||
-    '';
-  const heroSub =
-    getPath(state.overrides[lang], ['hero', 'subtitle']) ||
-    getPath(state.defaults[lang], ['hero', 'subtitle']) ||
-    '';
-  const feats = getPath(state.defaults[lang], ['hero', 'features']);
-  const chips = (feats && typeof feats === 'object' ? Object.values(feats) : [])
-    .slice(0, 6)
-    .map(
-      (label) =>
-        `<div style="padding:13.6px 8px;border-radius:12px;background:${c.card};font-size:15.2px;font-weight:600;text-align:center;color:${c.title}">${esc(String(label))}</div>`,
-    )
-    .join('');
-  const heroBg = mode === 'dark' ? 'rgba(14,28,50,.8)' : 'rgba(255,255,255,.7)';
-  const heroBorder = mode === 'dark' ? 'rgba(232,169,69,.28)' : 'rgba(1,79,153,.25)';
-  const hero = `
-    <div style="max-width:${PAGE_W}px;margin:32px auto 40px;padding:64px 32px;border-radius:32px;background:${heroBg};border:1px solid ${heroBorder};text-align:center;box-sizing:border-box">
-      <div data-smfullmedia="hero" role="button" tabindex="0" title="Ziehen: Hero-Medium verschieben (Pfeiltasten: 1 px, Shift 10 px) – Bild/Raster im Tab „Layout“" style="display:flex;flex-direction:column;align-items:center;gap:16px;margin-bottom:32px;${fullMoveCss(fullOffset(lang, 'hero'))}">${fullHeroMediaHtml(lang, mode)}</div>
-      <div style="font-size:40px;font-weight:800;line-height:1.2;margin-bottom:12px;color:${c.title}">${esc(heroTitle)}</div>
-      <div style="font-size:17.6px;max-width:600px;margin:0 auto;white-space:pre-line;color:${c.title}">${esc(heroSub)}</div>
-      <div style="display:grid;grid-template-columns:repeat(${Math.max(1, Math.min(6, chips ? 6 : 1))},1fr);gap:9.6px;margin-top:32px">${chips}</div>
-      <div style="display:inline-block;margin-top:32px;padding:13.6px 35.2px;border-radius:50px;background:${mode === 'dark' ? '#e8a945' : '#014f99'};color:${mode === 'dark' ? '#1e293b' : '#fff'};font-weight:700;font-size:16.8px">${esc(getPath(state.overrides[lang], ['hero', 'cta']) || getPath(state.defaults[lang], ['hero', 'cta']) || 'Jetzt starten')}</div>
-    </div>`;
-  const sections = SECTION_MEDIA_KEYS.map((k) => fullSectionHtml(lang, k, mode)).join('');
-  return `
-    <details class="panel" data-smfull open style="padding:.7rem .9rem">
-      <summary style="cursor:pointer;font-weight:700;color:var(--text)">🗺️ Ganze Seite – Vorschau: Medien verschieben</summary>
-      <p class="hint" style="margin:.4rem 0">Schematische Ansicht der ${lang === 'de' ? 'deutschen' : 'englischen'} Startseite im ${MODE_VIEW[mode]}-Modus (Umschalter oben). <strong>Hero-Medium</strong> und die drei <strong>Sektions-Medien</strong> lassen sich mit der Maus <strong>verschieben</strong> (Pfeiltasten auf dem fokussierten Medium: 1 px, Shift = 10 px) oder unten über die Felder setzen. Der Versatz gilt 1:1 in Pixeln auf der Seite; der Platz im Seitenfluss bleibt, nur das Medium wandert. Klick auf ein Sektions-Medium öffnet dessen Einstellungen. Karten und Texte sind Platzhalter.</p>
-      <div class="row" style="gap:.35rem .9rem;align-items:center;margin:.2rem 0 .6rem">${fullFieldsHtml(lang)}</div>
-      <div data-smfullwrap style="overflow:auto;max-height:70vh;border:1px solid var(--border);border-radius:10px;background:${prevBg(mode)};resize:vertical">
-        <div data-smpage data-scale="0.5" style="width:${PAGE_W}px;zoom:0.5;padding:8px 0 24px;color:${c.text};font-family:system-ui,sans-serif;line-height:1.6;box-sizing:border-box">
-          ${hero}${sections}
-        </div>
-      </div>
-      <p class="hint" style="margin:.4rem 0 0">Hero-Modus: ${m.heroMode === 'grid' ? 'Kachel-Raster' : 'Einzelbanner'} – Bild/Raster und Ein-/Ausblenden im Tab „Layout“.</p>
-    </details>`;
-}
-// Bindet Zoom, Ziehen, Pfeiltasten und Felder der Ganzseiten-Vorschau.
-let fullResizeObs = null;
-function bindFullPage(pane, lang, rr) {
-  const wrap = pane.querySelector('[data-smfullwrap]');
-  const page = pane.querySelector('[data-smpage]');
-  if (!wrap || !page) return;
-  // Zoom so, dass die 1200 px breite Seite in die Spalte passt (max. 1:1).
-  const fit = () => {
-    const w = wrap.clientWidth - 2;
-    const scale = w > 0 ? Math.min(1, w / PAGE_W) : 0.5;
-    page.style.zoom = String(scale);
-    page.dataset.scale = String(scale);
-  };
-  fit();
-  if (fullResizeObs) fullResizeObs.disconnect();
-  if (typeof ResizeObserver !== 'undefined') {
-    fullResizeObs = new ResizeObserver(fit);
-    fullResizeObs.observe(wrap);
-  }
-  const scaleOf = () => Number(page.dataset.scale) || 1;
-  const apply = (key) => {
-    const el = pane.querySelector(`[data-smfullmedia="${key}"]`);
-    const o = fullOffset(lang, key);
-    if (el) {
-      el.style.position = 'relative';
-      el.style.left = `${o.x}px`;
-      el.style.top = `${o.y}px`;
-    }
-    const ix = pane.querySelector(`[data-smoff="${key}:x"]`);
-    const iy = pane.querySelector(`[data-smoff="${key}:y"]`);
-    if (ix) ix.value = String(o.x);
-    if (iy) iy.value = String(o.y);
-  };
-  // Felder X/Y + ↺
-  pane.querySelectorAll('[data-smoff]').forEach((el) => {
-    const i = el.dataset.smoff.lastIndexOf(':');
-    const key = el.dataset.smoff.slice(0, i);
-    const axis = el.dataset.smoff.slice(i + 1) === 'y' ? 'y' : 'x';
-    el.addEventListener('input', () => {
-      const o = fullOffset(lang, key);
-      o[axis] = normMediaOffset(parseInt(el.value, 10), axis);
-      setFullOffset(lang, key, o.x, o.y);
-      apply(key);
-    });
-  });
-  pane.querySelectorAll('[data-smoffreset]').forEach((el) => {
-    el.addEventListener('click', () => {
-      setFullOffset(lang, el.dataset.smoffreset, 0, 0);
-      apply(el.dataset.smoffreset);
-      toast('Verschiebung zurückgesetzt');
-    });
-  });
-  // Ziehen (Zoom berücksichtigen), Pfeiltasten, Klick = Sektion wählen.
-  const ARROWS = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
-  pane.querySelectorAll('[data-smfullmedia]').forEach((el) => {
-    const key = el.dataset.smfullmedia;
-    let drag = null;
-    el.addEventListener('click', () => {
-      if (el.dataset.smDragged) {
-        delete el.dataset.smDragged;
-        return;
-      }
-      if (key !== 'hero' && key !== selectedSection()) {
-        selected = key;
-        rr();
-      }
-    });
-    el.addEventListener('keydown', (e) => {
-      if (!ARROWS[e.key]) return;
-      e.preventDefault();
-      const step = e.shiftKey ? 10 : 1;
-      const o = fullOffset(lang, key);
-      setFullOffset(lang, key, o.x + ARROWS[e.key][0] * step, o.y + ARROWS[e.key][1] * step);
-      apply(key);
-    });
-    el.addEventListener('pointerdown', (e) => {
-      if (e.button !== 0) return;
-      const o = fullOffset(lang, key);
-      drag = { x: e.clientX, y: e.clientY, ox: o.x, oy: o.y, moved: false };
-      el.setPointerCapture(e.pointerId);
-    });
-    el.addEventListener('pointermove', (e) => {
-      if (!drag) return;
-      const dx = e.clientX - drag.x;
-      const dy = e.clientY - drag.y;
-      if (!drag.moved && Math.abs(dx) < 3 && Math.abs(dy) < 3) return;
-      drag.moved = true;
-      const sc = scaleOf();
-      setFullOffset(lang, key, drag.ox + dx / sc, drag.oy + dy / sc);
-      apply(key);
-    });
-    const end = (e) => {
-      if (!drag) return;
-      const moved = drag.moved;
-      drag = null;
-      if (el.hasPointerCapture && el.hasPointerCapture(e.pointerId))
-        el.releasePointerCapture(e.pointerId);
-      if (moved) el.dataset.smDragged = '1';
-    };
-    el.addEventListener('pointerup', end);
-    el.addEventListener('pointercancel', end);
   });
 }

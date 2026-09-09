@@ -18,6 +18,7 @@ import { stopPreviewSlideshow } from './layout-shared.js';
 import { bannerLayoutHtml, bindBanner } from './layout-banner.js';
 import { gridLayoutHtml, bindGrid, markCell, getActiveCell } from './layout-grid.js';
 import { initPaste } from './layout-paste.js';
+import { fullPageHtml, bindFullPage } from './layout-fullpage.js';
 
 // Helfer, die andere Tabs (z. B. Medien) weiterhin aus layout.js beziehen.
 export {
@@ -59,6 +60,8 @@ export function renderLayout() {
   const modePanel = modePanelHtml(lang, mode);
   pane.innerHTML =
     mode === 'grid' ? gridLayoutHtml(lang, modePanel) : bannerLayoutHtml(lang, modePanel);
+  // Ganzseiten-Vorschau (Medien + Tool-Karten verschieben) unten in der Mitte.
+  pane.querySelector('.tc-main')?.insertAdjacentHTML('beforeend', fullPageHtml(lang));
 
   // Zustand der bereichsinternen ↶/↷-Buttons sofort von der Kopfleiste
   // übernehmen (danach hält publish.js beide synchron).
@@ -83,6 +86,7 @@ export function renderLayout() {
 
   if (mode === 'grid') bindGrid(pane, lang, renderLayout);
   else bindBanner(pane, lang, renderLayout);
+  bindFullPage(pane, lang, renderLayout);
   bindSliders(pane); // nach den Feld-Handlern: Zahlenfeld löst deren input-Event aus
   bindColorPickers(pane);
   restoreView(pane, view);

@@ -10,6 +10,7 @@ import {
   BANNER_ANIM_SPEEDS,
 } from './model-core.js';
 import { state } from './model-state.js';
+import { TOOL_CARD_KEY } from './model-toolcards.js';
 import {
   defaultHeroDesign,
   normHeroDesign,
@@ -61,6 +62,7 @@ export function defaultMediaLocale() {
     heroBannerShow: true, // Einzelbanner ein-/ausgeblendet (Tab „Layout“)
     heroMediaOffsetX: 0, // Verschiebung des Hero-Mediums (Banner/Raster) in px
     heroMediaOffsetY: 0,
+    toolCardOffsets: {}, // Verschiebung je Tool-Karte { 'sektion.key': { x, y } } (px, nur ≠ 0)
     heroBannerText: '', // Text über dem Einzelbanner
     heroBannerFont: '', // Schriftart des Banner-Textes (Dateiname im /fonts-Ordner)
     heroBannerTextColor: '#ffffff',
@@ -120,6 +122,19 @@ export function defaultMedia() {
 // Normalisiert einen geladenen Medien-Stand auf { de, en }. Akzeptiert auch die
 // alte, sprachunabhängige Struktur ({ sectionVideos, heroBanner }) und wendet
 // sie auf beide Sprachen an.
+// Verschiebung je Tool-Karte: { 'sektion.key': { x, y } }, nur Einträge ≠ 0/0, max. 60.
+export function normToolCardOffsets(v) {
+  const out = {};
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return out;
+  for (const k of Object.keys(v)) {
+    if (!TOOL_CARD_KEY.test(k) || !v[k] || typeof v[k] !== 'object') continue;
+    const x = normMediaOffset(v[k].x, 'x');
+    const y = normMediaOffset(v[k].y, 'y');
+    if (x || y) out[k] = { x, y };
+    if (Object.keys(out).length >= 60) break;
+  }
+  return out;
+}
 export function normalizeMedia(m) {
   const mk = (o) => {
     const d = defaultMediaLocale();
@@ -139,6 +154,7 @@ export function normalizeMedia(m) {
       heroBannerShow: !(o && o.heroBannerShow === false),
       heroMediaOffsetX: normMediaOffset(o?.heroMediaOffsetX, 'x'),
       heroMediaOffsetY: normMediaOffset(o?.heroMediaOffsetY, 'y'),
+      toolCardOffsets: normToolCardOffsets(o?.toolCardOffsets),
       heroBannerText: typeof o?.heroBannerText === 'string' ? o.heroBannerText.slice(0, 120) : '',
       heroBannerFont: normFontFile(o?.heroBannerFont),
       heroBannerTextColor: /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(o?.heroBannerTextColor))
