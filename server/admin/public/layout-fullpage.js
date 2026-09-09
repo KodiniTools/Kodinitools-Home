@@ -20,10 +20,29 @@ import {
   PAGE_BG_DEFAULT,
   isCardHidden,
   TOOL_CARD_KEY,
+  getToolCards,
+  rgbaFromHex,
+  getGlobalFont,
 } from './model.js';
+import { fontFF } from './layout-shared.js';
 import { mediaInfo, designCss, textStyle, MEDIA_BASE } from './sectionmedia.js';
 
 const PAGE_W = 1200;
+// Seitenschrift „Supreme“ (base.css) mit denselben Schnitten, damit Zeilenumbrüche
+// und Höhen der Vorschau der Seite entsprechen (Dateien wie die Seite aus /fonts).
+const PREV_FONT = 'kodini-prev-supreme';
+const PREV_FONT_FACES = [
+  ['Supreme-Regular.woff2', 400],
+  ['Supreme-Medium.woff2', 500],
+  ['Supreme-Bold.woff2', 700],
+  ['Supreme-Extrabold.woff2', 800],
+]
+  .map(
+    ([f, w]) =>
+      `@font-face{font-family:"${PREV_FONT}";src:url("/fonts/${f}") format("woff2");font-weight:${w};font-style:normal;font-display:swap;}`,
+  )
+  .join('');
+const PREV_FONT_STACK = `font-family:'${PREV_FONT}',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;`;
 const MODE_LABEL = { light: '☀️ Hell', dark: '🌙 Dunkel' };
 const FULL_KEYS = ['hero', ...SECTION_MEDIA_KEYS];
 const FULL_LABELS = {
@@ -64,7 +83,12 @@ function sectionCards(lang, sectionKey) {
     out.push({
       id,
       title: effText(lang, [sec, key, 'title']) || key,
-      svg: effText(lang, [sec, key, 'svg']),
+      // Wie auf der Seite: ein leerer Override ('') entfernt das Icon bewusst.
+      svg: (() => {
+        const o = getPath(state.overrides[lang], [sec, key, 'svg']);
+        return typeof o === 'string' ? o : effText(lang, [sec, key, 'svg']);
+      })(),
+      badge: effText(lang, [sec, key, 'badge']),
     });
   }
   return out;
@@ -143,14 +167,56 @@ function heroMediaHtml(lang, mode) {
     ? `<video src="${esc(info.src)}" muted playsinline preload="metadata" style="${st}"></video>`
     : `<img src="${esc(info.src)}" alt="" style="${st}" />`;
 }
-// Tool-Karte der Vorschau (verschiebbar): Icon-Platzhalter + Titel.
+// Tool-Karte der Vorschau (verschiebbar) mit den Maßen der Seite (tool-cards.css,
+// 16 px Grundschrift): Karte 1.1rem/0.85rem Innenabstand, Icon 44 px, Badge, Titel
+// (2 Zeilen reserviert), Fußzeile mit Favoriten-Knopf (28 px) – so stimmt der
+// Versatz aus der Vorschau 1:1 mit der Seite überein. Design (Rahmen, Hintergrund,
+// Typografie) aus dem Tab „Tool-Karten“ (Standard oder Einzel-Design), sonst Seitenstandard.
+function cardDesign(lang, id, mode) {
+  const tc = getToolCards(lang);
+  const st = tc.enabled ? tc.cards[id] || tc.default : null;
+  const side = st ? st[mode] : null;
+  const text = st ? st.text : null;
+  const dark = mode === 'dark';
+  let bg = dark ? '#142640' : '#ffffff';
+  let border = dark ? '1px solid rgba(232,169,69,.12)' : '1px solid #e5e7eb';
+  let radius = 16;
+  if (side) {
+    const c1 = rgbaFromHex(side.bgColor, side.bgOpacity);
+    bg =
+      side.gradient && side.bgColor2
+        ? `linear-gradient(${side.gradientAngle || 135}deg, ${c1}, ${rgbaFromHex(side.bgColor2, side.bgOpacity)})`
+        : c1;
+    border = `${side.borderWidth}px ${side.borderStyle || 'solid'} ${rgbaFromHex(side.borderColor, side.borderOpacity)}`;
+    radius = side.borderRadius;
+  }
+  const titleSize = text && text.titleSize > 0 ? text.titleSize : 14.4;
+  const titleWeight = text && text.titleWeight ? text.titleWeight : 600;
+  const badgeSize = text && text.badgeSize > 0 ? text.badgeSize : 9.92;
+  const align = text && text.align ? text.align : 'left';
+  const alignSelf = align === 'center' ? 'center' : align === 'right' ? 'flex-end' : 'flex-start';
+  const titleFont = text && text.titleFont ? fontFF(text.titleFont) : '';
+  return { bg, border, radius, titleSize, titleWeight, badgeSize, align, alignSelf, titleFont };
+}
 function cardHtml(lang, card, mode) {
   const c = FULL_TEXT[mode];
+  const d = cardDesign(lang, card.id, mode);
   const key = `card:${card.id}`;
+  const dark = mode === 'dark';
   const icon = card.svg
-    ? `<img src="${esc(card.svg)}" alt="" style="width:40px;height:40px;object-fit:contain" />`
-    : `<div style="width:40px;height:40px;border-radius:12px;background:${c.card}"></div>`;
-  return `<div data-smfullmedia="${esc(key)}" data-smcard="${esc(card.id)}" role="button" tabindex="0" title="${esc(card.title)} – Ziehen: verschieben (Pfeiltasten: 1 px, Shift 10 px)" style="min-height:120px;border-radius:16px;background:${c.card};padding:16px;display:flex;flex-direction:column;gap:10px;box-sizing:border-box;${moveCss(fullOffset(lang, key))}${activeCss(key)}">${icon}<div style="font-size:16px;font-weight:600;line-height:1.3;color:${c.title}">${esc(card.title)}</div></div>`;
+    ? `<div style="width:44px;height:44px;border-radius:9.6px;overflow:hidden;background:${dark ? '#eef1f5' : '#ffffff'};box-sizing:border-box;padding:5px;flex-shrink:0;align-self:${d.alignSelf}"><img src="${esc(card.svg)}" alt="" style="width:100%;height:100%;object-fit:contain;display:block" /></div>`
+    : '';
+  const badge = card.badge
+    ? `<span style="display:inline-block;font-size:${d.badgeSize}px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:${dark ? '#ffffff' : '#014f99'};background:${dark ? 'rgba(255,255,255,.1)' : 'rgba(1,79,153,.08)'};border:1px solid ${dark ? 'rgba(255,255,255,.25)' : 'rgba(1,79,153,.14)'};border-radius:5.6px;padding:2.4px 6.72px;white-space:nowrap;align-self:${d.alignSelf};margin-bottom:4.8px">${esc(card.badge)}</span>`
+    : '';
+  const fav = `<span style="display:inline-block;width:28px;height:28px;border-radius:50%;color:${c.muted}"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="padding:6px;box-sizing:border-box"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span>`;
+  return `<div data-smfullmedia="${esc(key)}" data-smcard="${esc(card.id)}" role="button" tabindex="0" title="${esc(card.title)} – Ziehen: verschieben (Pfeiltasten: 1 px, Shift 10 px)" style="z-index:1;${moveCss(fullOffset(lang, key))}${activeCss(key)}">
+      <div style="background:${d.bg};border:${d.border};border-radius:${d.radius}px;padding:17.6px 17.6px 13.6px;display:flex;flex-direction:column;gap:7.2px;height:100%;box-sizing:border-box;overflow:hidden">
+        ${icon}${badge}
+        <h3 style="font-size:${d.titleSize}px;font-weight:${d.titleWeight};color:${c.title};line-height:1.3;min-height:2.6em;margin:0 0 5.6px;white-space:pre-line;text-align:${d.align};${d.titleFont}">${esc(card.title)}</h3>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8.8px;padding-top:8.8px">${fav}<span style="font-size:12px;opacity:0">Öffnen</span></div>
+      </div>
+    </div>`;
 }
 // Sektion der Vorschau: Überschrift, verschiebbares Medium, verschiebbare Karten.
 function sectionHtml(lang, key, mode) {
@@ -174,7 +240,7 @@ function sectionHtml(lang, key, mode) {
         ${media}
         <div style="${t.text ? textStyle(t) : ''}">${esc(t.text || '')}</div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">${cards || `<p style="color:${c.muted};grid-column:1 / -1;text-align:center">Keine Karten</p>`}</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;grid-auto-rows:1fr;position:relative;z-index:1">${cards || `<p style="color:${c.muted};grid-column:1 / -1;text-align:center">Keine Karten</p>`}</div>
     </section>`;
 }
 // Felder „Verschiebung X / Y“ je Medium (folgen dem Ziehen live).
@@ -245,8 +311,9 @@ export function fullPageHtml(lang) {
       <p class="hint" style="margin:.3rem 0">Schematische Ansicht der ${lang === 'de' ? 'deutschen' : 'englischen'} Startseite. <strong>Hero-Medium</strong>, die drei <strong>Sektions-Medien</strong> und jede <strong>Tool-Karte</strong> lassen sich mit der Maus <strong>verschieben</strong> (Pfeiltasten auf dem fokussierten Element: 1 px, Shift = 10 px) oder unten über die Felder setzen. Der Versatz gilt 1:1 in Pixeln auf der Seite; der Platz im Seitenfluss bleibt, nur das Element wandert. Texte und Buttons sind Platzhalter (Hero-Design-Tab).</p>
       <div class="row" style="gap:.35rem .9rem;align-items:center;margin:.2rem 0 .4rem">${fieldsHtml(lang)}</div>
       <div data-smcardsinfo style="display:flex;flex-wrap:wrap;gap:.3rem .6rem;align-items:center;margin:0 0 .6rem">${cardsInfoHtml(lang)}</div>
+      <style>${PREV_FONT_FACES}</style>
       <div data-smfullwrap style="overflow:auto;max-height:70vh;border:1px solid var(--border);border-radius:10px;background:${prevBg(mode)};resize:vertical">
-        <div data-smpage data-scale="0.5" style="width:${PAGE_W}px;zoom:0.5;padding:8px 0 24px;color:${c.text};font-family:system-ui,sans-serif;line-height:1.6;box-sizing:border-box">
+        <div data-smpage data-scale="0.5" style="width:${PAGE_W}px;zoom:0.5;padding:8px 0 24px;color:${c.text};${fontFF(getGlobalFont()) || PREV_FONT_STACK}line-height:1.6;box-sizing:border-box">
           ${hero}${sections}
         </div>
       </div>
