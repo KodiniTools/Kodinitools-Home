@@ -59,13 +59,14 @@ const heroGridCells = media.heroGrid.slice(0, heroGridCount).map((src, i) => ({ 
 const heroGridReflow = heroGridCells.length < heroGridCount
 const heroGridCols = heroGridReflowCols(media.heroLayout, heroGridCells.length)
 // Verschiebung des Hero-Mediums (Banner/Raster; Admin > Medien > Ganze Seite): relative Position.
-const heroPromoOffX = Math.max(-400, Math.min(400, typeof media.heroMediaOffsetX === 'number' ? media.heroMediaOffsetX : 0))
-const heroPromoOffY = Math.max(-300, Math.min(300, typeof media.heroMediaOffsetY === 'number' ? media.heroMediaOffsetY : 0))
+const heroPromoOffX = Math.max(-1200, Math.min(1200, typeof media.heroMediaOffsetX === 'number' ? media.heroMediaOffsetX : 0))
+const heroPromoOffY = Math.max(-1200, Math.min(1200, typeof media.heroMediaOffsetY === 'number' ? media.heroMediaOffsetY : 0))
 const heroPromoStyle = heroPromoOffX || heroPromoOffY ? `position:relative;left:${heroPromoOffX}px;top:${heroPromoOffY}px` : undefined
 // Verschiebung einzelner Tool-Karten (Admin > Layout > Ganze Seite): relative Position, der Platz bleibt.
 const cardOffsetStyle = (k: string): string | undefined => {
   const o = media.toolCardOffsets?.[k]
-  return o && (o.x || o.y) ? `left:${o.x}px;top:${o.y}px` : undefined
+  // z-index 2: verschobene Karte liegt über unverschobenen (z-index 1), Hover (300) bleibt oben.
+  return o && (o.x || o.y) ? `left:${o.x}px;top:${o.y}px;z-index:2` : undefined
 }
 // Verschiebung einzelner Feature-Buttons (Admin > Hero-Design): relative Position, der Platz bleibt.
 const chipOffsetStyle = (k: string): string | undefined => {

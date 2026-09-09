@@ -54,8 +54,9 @@ export function defaultSectionMedia() {
     offsetY: 0,
   };
 }
-// Größte Verschiebung eines Mediums (px) waagerecht/senkrecht.
-export const MEDIA_OFFSET_MAX = { x: 400, y: 300 };
+// Größte Verschiebung eines Mediums/einer Tool-Karte (px) – großzügig, damit
+// z. B. eine Karte aus der letzten Reihe/Spalte überall auf der Seite landen kann.
+export const MEDIA_OFFSET_MAX = { x: 1200, y: 1200 };
 export function normMediaOffset(v, axis) {
   const m = axis === 'y' ? MEDIA_OFFSET_MAX.y : MEDIA_OFFSET_MAX.x;
   const n = Number(v);

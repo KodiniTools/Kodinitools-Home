@@ -768,8 +768,8 @@ function validateSectionMediaAll(o, langLabel) {
       slideshow: validateBannerSlideshow(v.slideshow),
       text: validateSectionMediaText(v.text),
       // Verschiebung des Medium-Blocks (px, relative Position).
-      offsetX: clampNum(v.offsetX, -400, 400, 0),
-      offsetY: clampNum(v.offsetY, -300, 300, 0),
+      offsetX: clampNum(v.offsetX, -1200, 1200, 0),
+      offsetY: clampNum(v.offsetY, -1200, 1200, 0),
     };
   }
   return out;
@@ -1039,8 +1039,8 @@ function validateMediaLocale(m, langLabel) {
   // Einzelbanner ein-/ausgeblendet (Tab „Layout“); ausgeblendet = wird nicht gerendert.
   out.heroBannerShow = m.heroBannerShow !== false;
   // Verschiebung des Hero-Mediums (Banner/Raster) in px (Ganzseiten-Vorschau im Medien-Tab).
-  out.heroMediaOffsetX = clampNum(m.heroMediaOffsetX, -400, 400, 0);
-  out.heroMediaOffsetY = clampNum(m.heroMediaOffsetY, -300, 300, 0);
+  out.heroMediaOffsetX = clampNum(m.heroMediaOffsetX, -1200, 1200, 0);
+  out.heroMediaOffsetY = clampNum(m.heroMediaOffsetY, -1200, 1200, 0);
   // Verschiebung je Tool-Karte ('sektion.key' -> { x, y }), nur ≠ 0/0, max. 60.
   out.toolCardOffsets = (() => {
     const res = {};
@@ -1048,8 +1048,8 @@ function validateMediaLocale(m, langLabel) {
     if (!isPlainObject(v)) return res;
     for (const k of Object.keys(v)) {
       if (!/^(tools|imageTools|diverseTools)\.[a-zA-Z0-9_-]+$/.test(k) || !isPlainObject(v[k])) continue;
-      const x = clampNum(v[k].x, -400, 400, 0);
-      const y = clampNum(v[k].y, -300, 300, 0);
+      const x = clampNum(v[k].x, -1200, 1200, 0);
+      const y = clampNum(v[k].y, -1200, 1200, 0);
       if (x || y) res[k] = { x, y };
       if (Object.keys(res).length >= 60) break;
     }

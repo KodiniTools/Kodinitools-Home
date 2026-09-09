@@ -27,8 +27,8 @@ const hasText = !!(t && typeof t.text === 'string' && t.text.trim() !== '');
 const VALID_FONT = /^[a-zA-Z0-9][a-zA-Z0-9._ -]*\.(woff2|woff|ttf|otf)$/i;
 // Verschiebung des Blocks (Admin > Medien > Ganze Seite): relative Position, der
 // Platz im Fluss bleibt (.section-media-wrapper ist position:relative).
-const offX = Math.max(-400, Math.min(400, typeof cfg?.offsetX === 'number' ? cfg.offsetX : 0));
-const offY = Math.max(-300, Math.min(300, typeof cfg?.offsetY === 'number' ? cfg.offsetY : 0));
+const offX = Math.max(-1200, Math.min(1200, typeof cfg?.offsetX === 'number' ? cfg.offsetX : 0));
+const offY = Math.max(-1200, Math.min(1200, typeof cfg?.offsetY === 'number' ? cfg.offsetY : 0));
 const wrapStyle = offX || offY ? `left:${offX}px;top:${offY}px` : undefined;
 
 function hexToRgba(hex: string, alpha: number): string {

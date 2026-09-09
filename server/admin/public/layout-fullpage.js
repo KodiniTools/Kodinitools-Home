@@ -130,7 +130,29 @@ export function setFullOffset(lang, key, x, y) {
   return { x: nx, y: ny };
 }
 const moveCss = (o) =>
-  `position:relative;left:${o.x}px;top:${o.y}px;cursor:move;touch-action:none;user-select:none`;
+  `position:relative;left:${o.x}px;top:${o.y}px;z-index:${o.x || o.y ? 2 : 1};cursor:move;touch-action:none;user-select:none`;
+// Verlauf der Verschiebungen je Sprache (für „↶ Rückgängig“): Einträge sind Gruppen
+// [{ key, x, y }] mit dem Zustand VOR der Änderung; bleibt über Neu-Rendern erhalten.
+const histBy = {};
+function hist(lang) {
+  if (!histBy[lang]) histBy[lang] = [];
+  return histBy[lang];
+}
+function pushHist(lang, entries) {
+  const h = hist(lang);
+  h.push(entries);
+  if (h.length > 200) h.shift();
+}
+// Alle Schlüssel mit Versatz ≠ 0 (Hero, Sektions-Medien, Tool-Karten).
+function movedKeys(lang) {
+  const out = [];
+  for (const k of FULL_KEYS) {
+    const o = fullOffset(lang, k);
+    if (o.x || o.y) out.push(k);
+  }
+  for (const id of Object.keys(cardOffsets(lang))) out.push(`card:${id}`);
+  return out;
+}
 const activeCss = (key) =>
   fullActive === key ? ';outline:3px solid var(--accent);outline-offset:2px' : '';
 // Hero-Medium der Vorschau: Banner (Bild/Video) oder Kachel-Raster (Anordnung,
@@ -306,6 +328,8 @@ export function fullPageHtml(lang) {
         <span class="mode-switch" title="Vorschau im Hell- oder Dunkelmodus anzeigen">
           ${['light', 'dark'].map((md) => `<button type="button" class="hd-reset${md === mode ? ' active' : ''}" data-smfullmode="${md}" aria-pressed="${md === mode}">${MODE_LABEL[md]}</button>`).join('')}
         </span>
+        <button type="button" class="hd-reset" data-smundo ${hist(lang).length ? '' : 'disabled'} title="Letzte Verschiebung rückgängig machen (auch nach dem Neu-Zeichnen)">↶ Rückgängig${hist(lang).length ? ` (${hist(lang).length})` : ''}</button>
+        <button type="button" class="hd-reset" data-smresetall title="Alle Verschiebungen (Hero-Medium, Sektions-Medien, Tool-Karten) auf 0 setzen – die ursprüngliche Anordnung der Seite; per „Rückgängig“ zurückholbar">↺ Ursprüngliche Anordnung</button>
         <span class="hint" style="margin:0">Hero-Modus: ${m.heroMode === 'grid' ? 'Kachel-Raster' : 'Einzelbanner'} (oben umschalten).</span>
       </div>
       <p class="hint" style="margin:.3rem 0">Schematische Ansicht der ${lang === 'de' ? 'deutschen' : 'englischen'} Startseite. <strong>Hero-Medium</strong>, die drei <strong>Sektions-Medien</strong> und jede <strong>Tool-Karte</strong> lassen sich mit der Maus <strong>verschieben</strong> (Pfeiltasten auf dem fokussierten Element: 1 px, Shift = 10 px) oder unten über die Felder setzen. Der Versatz gilt 1:1 in Pixeln auf der Seite; der Platz im Seitenfluss bleibt, nur das Element wandert. Texte und Buttons sind Platzhalter (Hero-Design-Tab).</p>
@@ -348,12 +372,42 @@ export function bindFullPage(pane, lang, rr) {
   }
   const scaleOf = () => Number(page.dataset.scale) || 1;
   const cardsInfo = pane.querySelector('[data-smcardsinfo]');
+  // Verlauf: Zustand vor einer Änderung merken; Pfeiltasten/Felder desselben
+  // Elements innerhalb von 800 ms werden zu einem Schritt zusammengefasst.
+  const undoBtn = pane.querySelector('[data-smundo]');
+  const updateUndo = () => {
+    if (!undoBtn) return;
+    const n = hist(lang).length;
+    undoBtn.disabled = !n;
+    undoBtn.textContent = n ? `↶ Rückgängig (${n})` : '↶ Rückgängig';
+  };
+  let lastRec = { key: '', t: 0 };
+  const record = (key, coalesce = false) => {
+    const now = Date.now();
+    if (coalesce && lastRec.key === key && now - lastRec.t < 800) {
+      lastRec.t = now;
+      return;
+    }
+    lastRec = { key, t: now };
+    pushHist(lang, [{ key, ...fullOffset(lang, key) }]);
+    updateUndo();
+  };
+  const recordGroup = (keys) => {
+    if (!keys.length) return;
+    lastRec = { key: '', t: 0 };
+    pushHist(
+      lang,
+      keys.map((key) => ({ key, ...fullOffset(lang, key) })),
+    );
+    updateUndo();
+  };
   const apply = (key) => {
     const o = fullOffset(lang, key);
     pane.querySelectorAll(`[data-smfullmedia="${CSS.escape(key)}"]`).forEach((el) => {
       el.style.position = 'relative';
       el.style.left = `${o.x}px`;
       el.style.top = `${o.y}px`;
+      el.style.zIndex = o.x || o.y ? '2' : '1';
     });
     const ix = pane.querySelector(`[data-smoff="${key}:x"]`);
     const iy = pane.querySelector(`[data-smoff="${key}:y"]`);
@@ -369,6 +423,7 @@ export function bindFullPage(pane, lang, rr) {
       if (el.dataset.bound) return;
       el.dataset.bound = '1';
       el.addEventListener('click', () => {
+        record(el.dataset.smoffreset);
         setFullOffset(lang, el.dataset.smoffreset, 0, 0);
         apply(el.dataset.smoffreset);
         toast('Verschiebung zurückgesetzt');
@@ -379,6 +434,7 @@ export function bindFullPage(pane, lang, rr) {
       el.dataset.bound = '1';
       el.addEventListener('click', () => {
         const ids = Object.keys(cardOffsets(lang));
+        recordGroup(ids.map((id) => `card:${id}`));
         ids.forEach((id) => setFullOffset(lang, `card:${id}`, 0, 0));
         ids.forEach((id) => apply(`card:${id}`));
         if (!ids.length && cardsInfo) cardsInfo.innerHTML = cardsInfoHtml(lang);
@@ -387,12 +443,44 @@ export function bindFullPage(pane, lang, rr) {
     });
   };
   bindResets();
+  // ↶ Rückgängig: letzten Verlaufseintrag (Gruppe) wiederherstellen.
+  undoBtn?.addEventListener('click', () => {
+    const grp = hist(lang).pop();
+    if (!grp) return;
+    lastRec = { key: '', t: 0 };
+    for (const e of grp) {
+      setFullOffset(lang, e.key, e.x, e.y);
+      apply(e.key);
+    }
+    if (grp[0]) mark(grp[0].key);
+    updateUndo();
+    toast('Verschiebung rückgängig gemacht');
+  });
+  // ↺ Ursprüngliche Anordnung: alle Versätze auf 0 (per Rückgängig zurückholbar).
+  pane.querySelector('[data-smresetall]')?.addEventListener('click', () => {
+    const keys = movedKeys(lang);
+    if (!keys.length) {
+      toast('Nichts verschoben – die Seite zeigt bereits die ursprüngliche Anordnung');
+      return;
+    }
+    recordGroup(keys);
+    for (const k of keys) {
+      setFullOffset(lang, k, 0, 0);
+      apply(k);
+    }
+    if (cardsInfo) {
+      cardsInfo.innerHTML = cardsInfoHtml(lang);
+      bindResets();
+    }
+    toast('Ursprüngliche Anordnung wiederhergestellt');
+  });
   // Felder X/Y (Hero + Sektions-Medien)
   pane.querySelectorAll('[data-smoff]').forEach((el) => {
     const i = el.dataset.smoff.lastIndexOf(':');
     const key = el.dataset.smoff.slice(0, i);
     const axis = el.dataset.smoff.slice(i + 1) === 'y' ? 'y' : 'x';
     el.addEventListener('input', () => {
+      record(key, true);
       const o = fullOffset(lang, key);
       o[axis] = normMediaOffset(parseInt(el.value, 10), axis);
       setFullOffset(lang, key, o.x, o.y);
@@ -422,6 +510,7 @@ export function bindFullPage(pane, lang, rr) {
     el.addEventListener('keydown', (e) => {
       if (!ARROWS[e.key]) return;
       e.preventDefault();
+      record(key, true);
       const step = e.shiftKey ? 10 : 1;
       const o = fullOffset(lang, key);
       setFullOffset(lang, key, o.x + ARROWS[e.key][0] * step, o.y + ARROWS[e.key][1] * step);
@@ -438,6 +527,11 @@ export function bindFullPage(pane, lang, rr) {
       const dx = e.clientX - drag.x;
       const dy = e.clientY - drag.y;
       if (!drag.moved && Math.abs(dx) < 3 && Math.abs(dy) < 3) return;
+      if (!drag.moved) {
+        lastRec = { key: '', t: 0 };
+        pushHist(lang, [{ key, x: drag.ox, y: drag.oy }]);
+        updateUndo();
+      }
       drag.moved = true;
       const sc = scaleOf();
       setFullOffset(lang, key, drag.ox + dx / sc, drag.oy + dy / sc);
