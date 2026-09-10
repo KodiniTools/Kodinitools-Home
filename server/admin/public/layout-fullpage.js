@@ -255,6 +255,13 @@ function sectionHtml(lang, key, mode) {
   const cards = sectionCards(lang, key)
     .map((card) => cardHtml(lang, card, mode))
     .join('');
+  // Raster wie auf der Seite: Audio-Tools .svg-card-grid (ab 1024 px 4 gleiche
+  // Spalten); Bild-/Diverse-Tools zusätzlich .grid-centered (Spalten 210–300 px,
+  // so viele wie passen, zentriert – bei wenigen Karten also 300 px breit und mittig).
+  const gridCols =
+    key === 'audio'
+      ? 'repeat(4,1fr)'
+      : 'repeat(auto-fit,minmax(210px,300px));justify-content:center';
   return `
     <section data-smfullsection="${key}" style="max-width:${PAGE_W}px;margin:0 auto;padding:80px 32px;box-sizing:border-box">
       <h2 style="text-align:center;font-size:40px;font-weight:600;letter-spacing:.04em;line-height:1.2;margin:0 0 40px;color:${c.title}">${esc(title)}</h2>
@@ -262,7 +269,7 @@ function sectionHtml(lang, key, mode) {
         ${media}
         <div style="${t.text ? textStyle(t) : ''}">${esc(t.text || '')}</div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;grid-auto-rows:1fr;position:relative;z-index:1">${cards || `<p style="color:${c.muted};grid-column:1 / -1;text-align:center">Keine Karten</p>`}</div>
+      <div data-smfullgrid="${key}" style="display:grid;grid-template-columns:${gridCols};gap:20px;grid-auto-rows:1fr;position:relative;z-index:1">${cards || `<p style="color:${c.muted};grid-column:1 / -1;text-align:center">Keine Karten</p>`}</div>
     </section>`;
 }
 // Felder „Verschiebung X / Y“ je Medium (folgen dem Ziehen live).
