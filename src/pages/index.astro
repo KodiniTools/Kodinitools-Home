@@ -66,7 +66,15 @@ const heroPromoStyle = heroPromoOffX || heroPromoOffY ? `position:relative;left:
 const cardOffsetStyle = (k: string): string | undefined => {
   const o = media.toolCardOffsets?.[k]
   // z-index 2: verschobene Karte liegt über unverschobenen (z-index 1), Hover (300) bleibt oben.
-  return o && (o.x || o.y) ? `left:${o.x}px;top:${o.y}px;z-index:2` : undefined
+  if (!o) return undefined
+  const w = typeof o.w === 'number' ? Math.max(25, Math.min(300, o.w)) : 100
+  const h = typeof o.h === 'number' ? Math.max(25, Math.min(300, o.h)) : 100
+  const moved = o.x || o.y
+  const scaled = w !== 100 || h !== 100
+  if (!moved && !scaled) return undefined
+  // Skalierung (Admin > Layout > Ganze Seite): transform ab der linken oberen Ecke, der
+  // Platz im Raster bleibt, der Inhalt (Icon, Badge, Titel) skaliert mit.
+  return `left:${o.x || 0}px;top:${o.y || 0}px;z-index:2${scaled ? `;transform:scale(${w / 100},${h / 100});transform-origin:top left` : ''}`
 }
 // Verschiebung einzelner Feature-Buttons (Admin > Hero-Design): relative Position, der Platz bleibt.
 const chipOffsetStyle = (k: string): string | undefined => {

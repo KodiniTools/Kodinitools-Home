@@ -1050,7 +1050,9 @@ function validateMediaLocale(m, langLabel) {
       if (!/^(tools|imageTools|diverseTools)\.[a-zA-Z0-9_-]+$/.test(k) || !isPlainObject(v[k])) continue;
       const x = clampNum(v[k].x, -1200, 1200, 0);
       const y = clampNum(v[k].y, -1200, 1200, 0);
-      if (x || y) res[k] = { x, y };
+      const w = clampNum(v[k].w, 25, 300, 100);
+      const h = clampNum(v[k].h, 25, 300, 100);
+      if (x || y || w !== 100 || h !== 100) res[k] = { x, y, ...(w !== 100 || h !== 100 ? { w, h } : {}) };
       if (Object.keys(res).length >= 60) break;
     }
     return res;

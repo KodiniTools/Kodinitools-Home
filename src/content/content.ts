@@ -232,7 +232,8 @@ export interface MediaConfig {
   heroMediaOffsetX: number;
   heroMediaOffsetY: number;
   // Verschiebung je Tool-Karte ('sektion.key' -> px), Admin > Layout > Ganze Seite.
-  toolCardOffsets: Record<string, { x: number; y: number }>;
+  // w/h: Skalierung in % (25–300; transform: scale, Inhalt skaliert mit), fehlt = 100.
+  toolCardOffsets: Record<string, { x: number; y: number; w?: number; h?: number }>;
   // Optionaler Text über dem Banner + Schriftart, Farbe, Größe, Position.
   heroBannerText: string;
   heroBannerFont: string;

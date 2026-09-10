@@ -123,6 +123,12 @@ export function defaultMedia() {
 // alte, sprachunabhängige Struktur ({ sectionVideos, heroBanner }) und wendet
 // sie auf beide Sprachen an.
 // Verschiebung je Tool-Karte: { 'sektion.key': { x, y } }, nur Einträge ≠ 0/0, max. 60.
+export const CARD_SCALE_MIN = 25;
+export const CARD_SCALE_MAX = 300;
+export function normCardScale(v) {
+  const n = Number(v);
+  return Number.isFinite(n) ? Math.max(CARD_SCALE_MIN, Math.min(CARD_SCALE_MAX, Math.round(n))) : 100;
+}
 export function normToolCardOffsets(v) {
   const out = {};
   if (!v || typeof v !== 'object' || Array.isArray(v)) return out;
@@ -130,7 +136,10 @@ export function normToolCardOffsets(v) {
     if (!TOOL_CARD_KEY.test(k) || !v[k] || typeof v[k] !== 'object') continue;
     const x = normMediaOffset(v[k].x, 'x');
     const y = normMediaOffset(v[k].y, 'y');
-    if (x || y) out[k] = { x, y };
+    // Skalierung (Breite/Höhe in %, 25–300; Inhalt skaliert mit), nur ≠ 100 gespeichert.
+    const w = normCardScale(v[k].w);
+    const h = normCardScale(v[k].h);
+    if (x || y || w !== 100 || h !== 100) out[k] = { x, y, ...(w !== 100 || h !== 100 ? { w, h } : {}) };
     if (Object.keys(out).length >= 60) break;
   }
   return out;
