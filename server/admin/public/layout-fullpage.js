@@ -285,17 +285,44 @@ function sectionHtml(lang, key, mode) {
       <div data-smfullgrid="${key}" style="display:grid;grid-template-columns:${gridCols};gap:20px;grid-auto-rows:1fr;position:relative;z-index:1">${cards || `<p style="color:${c.muted};grid-column:1 / -1;text-align:center">Keine Karten</p>`}</div>
     </section>`;
 }
-// Felder „Verschiebung X / Y“ je Medium (folgen dem Ziehen live).
-function fieldsHtml(lang) {
-  return FULL_KEYS.map((key) => {
-    const o = fullOffset(lang, key);
-    return `<div data-smoffrow="${key}" style="display:flex;align-items:center;gap:.3rem;flex-wrap:wrap">
-        <span style="min-width:190px;font-size:.85rem;color:var(--text)">${FULL_LABELS[key]}</span>
-        <input type="number" data-smoff="${key}:x" min="-${MEDIA_OFFSET_MAX.x}" max="${MEDIA_OFFSET_MAX.x}" step="1" value="${o.x}" style="width:80px" title="Waagerecht (px): − links, + rechts" />
-        <input type="number" data-smoff="${key}:y" min="-${MEDIA_OFFSET_MAX.y}" max="${MEDIA_OFFSET_MAX.y}" step="1" value="${o.y}" style="width:80px" title="Senkrecht (px): − oben, + unten" />
-        <button type="button" class="hd-reset" data-smoffreset="${key}" title="Verschiebung zurücksetzen (0/0)" aria-label="Verschiebung zurücksetzen">↺</button>
-      </div>`;
+// Auswahl-Panel: gewähltes Element (Klick in der Vorschau oder Dropdown) mit
+// X/Y-Spinnern zum exakten Positionieren (Versatz in px der Seite) und ↺.
+function allKeys(lang) {
+  const out = FULL_KEYS.map((key) => ({ key, label: FULL_LABELS[key], group: '' }));
+  for (const sec of SECTION_MEDIA_KEYS)
+    for (const card of sectionCards(lang, sec))
+      out.push({ key: `card:${card.id}`, label: card.title, group: SECTION_MEDIA_LABELS[sec] });
+  return out;
+}
+function activeKey(lang) {
+  const keys = allKeys(lang).map((k) => k.key);
+  return fullActive && keys.includes(fullActive) ? fullActive : 'hero';
+}
+function selectionHtml(lang) {
+  const cur = activeKey(lang);
+  const items = allKeys(lang);
+  const opt = (k) =>
+    `<option value="${esc(k.key)}" ${k.key === cur ? 'selected' : ''}>${esc(k.label)}</option>`;
+  const media = items
+    .filter((k) => !k.group)
+    .map(opt)
+    .join('');
+  const groups = SECTION_MEDIA_KEYS.map((sec) => {
+    const g = items.filter((k) => k.group === SECTION_MEDIA_LABELS[sec]);
+    return g.length
+      ? `<optgroup label="Tool-Karten ${esc(SECTION_MEDIA_LABELS[sec])}">${g.map(opt).join('')}</optgroup>`
+      : '';
   }).join('');
+  const o = fullOffset(lang, cur);
+  return `<div data-smselpanel style="display:flex;align-items:center;gap:.4rem .6rem;flex-wrap:wrap;padding:.45rem .6rem;border:1px solid var(--accent);border-radius:8px">
+      <span style="font-weight:600;color:var(--text)">🎯 Ausgewählt:</span>
+      <select data-smselkey style="width:auto;max-width:320px" title="Element wählen – oder in der Vorschau anklicken">${media}${groups}</select>
+      <label style="display:inline-flex;align-items:center;gap:.3rem;margin:0;color:var(--text)">X <input type="number" data-smselx min="-${MEDIA_OFFSET_MAX.x}" max="${MEDIA_OFFSET_MAX.x}" step="1" value="${o.x}" style="width:90px" title="Waagerechter Versatz (px): − links, + rechts; Pfeiltasten im Feld = 1 px" /></label>
+      <label style="display:inline-flex;align-items:center;gap:.3rem;margin:0;color:var(--text)">Y <input type="number" data-smsely min="-${MEDIA_OFFSET_MAX.y}" max="${MEDIA_OFFSET_MAX.y}" step="1" value="${o.y}" style="width:90px" title="Senkrechter Versatz (px): − oben, + unten; Pfeiltasten im Feld = 1 px" /></label>
+      <span class="hint" style="margin:0">px</span>
+      <button type="button" class="hd-reset" data-smselreset title="Verschiebung dieses Elements zurücksetzen (0/0)" aria-label="Verschiebung zurücksetzen">↺</button>
+      <span class="hint" style="margin:0">Element in der Vorschau anklicken (oder hier wählen), dann X/Y exakt eingeben.</span>
+    </div>`;
 }
 // Liste der verschobenen Tool-Karten (Titel, Versatz, ↺) + „alle zurücksetzen“.
 function cardsInfoHtml(lang) {
@@ -361,7 +388,7 @@ export function fullPageHtml(lang) {
         <span class="hint" style="margin:0">Hero-Modus: ${m.heroMode === 'grid' ? 'Kachel-Raster' : 'Einzelbanner'} (oben umschalten).</span>
       </div>
       <p class="hint" style="margin:.3rem 0">Schematische Ansicht der ${lang === 'de' ? 'deutschen' : 'englischen'} Startseite. <strong>Hero-Medium</strong>, die drei <strong>Sektions-Medien</strong> und jede <strong>Tool-Karte</strong> lassen sich mit der Maus <strong>verschieben</strong> (Pfeiltasten auf dem fokussierten Element: 1 px, Shift = 10 px) oder unten über die Felder setzen. Der Versatz gilt 1:1 in Pixeln auf der Seite; der Platz im Seitenfluss bleibt, nur das Element wandert. Texte und Buttons sind Platzhalter (Hero-Design-Tab).</p>
-      <div class="row" style="gap:.35rem .9rem;align-items:center;margin:.2rem 0 .4rem">${fieldsHtml(lang)}</div>
+      <div style="margin:.2rem 0 .4rem">${selectionHtml(lang)}</div>
       <div data-smcardsinfo style="display:flex;flex-wrap:wrap;gap:.3rem .6rem;align-items:center;margin:0 0 .6rem">${cardsInfoHtml(lang)}</div>
       <style>${PREV_FONT_FACES}</style>
       <div data-smfullwrap style="overflow:auto;max-height:70vh;border:1px solid var(--border);border-radius:10px;background:${prevBg(mode)};resize:vertical">
@@ -487,10 +514,7 @@ export function bindFullPage(pane, lang, rr) {
       el.style.top = `${o.y}px`;
       el.style.zIndex = o.x || o.y ? '2' : '1';
     });
-    const ix = pane.querySelector(`[data-smoff="${key}:x"]`);
-    const iy = pane.querySelector(`[data-smoff="${key}:y"]`);
-    if (ix) ix.value = String(o.x);
-    if (iy) iy.value = String(o.y);
+    if (key === activeKey(lang)) syncSel();
     showLive(key);
     if (key.startsWith('card:') && cardsInfo) {
       cardsInfo.innerHTML = cardsInfoHtml(lang);
@@ -553,18 +577,49 @@ export function bindFullPage(pane, lang, rr) {
     }
     toast('Ursprüngliche Anordnung wiederhergestellt');
   });
-  // Felder X/Y (Hero + Sektions-Medien)
-  pane.querySelectorAll('[data-smoff]').forEach((el) => {
-    const i = el.dataset.smoff.lastIndexOf(':');
-    const key = el.dataset.smoff.slice(0, i);
-    const axis = el.dataset.smoff.slice(i + 1) === 'y' ? 'y' : 'x';
-    el.addEventListener('input', () => {
-      record(key, true);
-      const o = fullOffset(lang, key);
-      o[axis] = normMediaOffset(parseInt(el.value, 10), axis);
-      setFullOffset(lang, key, o.x, o.y);
-      apply(key);
-    });
+  // Auswahl-Panel: Dropdown wählt (und markiert) das Element, X/Y-Spinner setzen
+  // seinen Versatz exakt, ↺ setzt ihn zurück. Klick/Zug in der Vorschau wählt ebenfalls.
+  const selKey = pane.querySelector('[data-smselkey]');
+  const selX = pane.querySelector('[data-smselx]');
+  const selY = pane.querySelector('[data-smsely]');
+  const syncSel = () => {
+    const key = activeKey(lang);
+    const o = fullOffset(lang, key);
+    if (selKey && selKey.value !== key) selKey.value = key;
+    if (selX && document.activeElement !== selX) selX.value = String(o.x);
+    if (selY && document.activeElement !== selY) selY.value = String(o.y);
+  };
+  const onSpin = (axis, input) => {
+    const key = activeKey(lang);
+    const n = parseInt(input.value, 10);
+    if (!Number.isFinite(n)) return;
+    record(key, true);
+    const o = fullOffset(lang, key);
+    o[axis] = normMediaOffset(n, axis);
+    setFullOffset(lang, key, o.x, o.y);
+    apply(key);
+  };
+  selX?.addEventListener('input', () => onSpin('x', selX));
+  selY?.addEventListener('input', () => onSpin('y', selY));
+  selKey?.addEventListener('change', () => {
+    mark(selKey.value);
+    // Gewähltes Element im Vorschau-Rahmen sichtbar machen (nur der Rahmen scrollt).
+    const el = pane.querySelector(`[data-smfullmedia="${CSS.escape(selKey.value)}"]`);
+    if (el) {
+      const r = el.getBoundingClientRect();
+      const w = wrap.getBoundingClientRect();
+      wrap.scrollTo({
+        top: wrap.scrollTop + (r.top - w.top) - w.height / 2 + r.height / 2,
+        behavior: 'smooth',
+      });
+    }
+  });
+  pane.querySelector('[data-smselreset]')?.addEventListener('click', () => {
+    const key = activeKey(lang);
+    record(key);
+    setFullOffset(lang, key, 0, 0);
+    apply(key);
+    toast('Verschiebung zurückgesetzt');
   });
   // Ziehen (Zoom berücksichtigen), Pfeiltasten, Klick = markieren.
   const ARROWS = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
@@ -575,6 +630,8 @@ export function bindFullPage(pane, lang, rr) {
       el.style.outline = on ? '3px solid var(--accent)' : '';
       el.style.outlineOffset = on ? '2px' : '';
     });
+    syncSel();
+    showLive(key);
   };
   pane.querySelectorAll('[data-smfullmedia]').forEach((el) => {
     const key = el.dataset.smfullmedia;
@@ -589,6 +646,8 @@ export function bindFullPage(pane, lang, rr) {
     el.addEventListener('keydown', (e) => {
       if (!ARROWS[e.key]) return;
       e.preventDefault();
+      // Per Tastatur bewegtes Element wird zur Auswahl (Spinner zeigen es).
+      if (fullActive !== key) mark(key);
       record(key, true);
       const o = fullOffset(lang, key);
       if (snapOn && gridOn) {
