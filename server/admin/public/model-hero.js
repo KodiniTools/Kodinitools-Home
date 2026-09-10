@@ -294,7 +294,7 @@ const textHalf = (v, min, max, def) => {
   return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n * 2) / 2)) : def;
 };
 // Größte Verschiebung eines Hero-Textes (px) waagerecht/senkrecht.
-export const TEXT_OFFSET_MAX = { x: 400, y: 300 };
+export const TEXT_OFFSET_MAX = { x: 1200, y: 1200 };
 export function normTextStyles(o) {
   const out = {};
   if (!o || typeof o !== 'object') return out;

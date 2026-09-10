@@ -572,8 +572,8 @@ function validateTextStyles(o) {
     const anim = BANNER_ANIM_TYPES.includes(s.anim) ? s.anim : 'none';
     const hasFx = shadow || strokeWidth > 0 || opacity < 100 || anim !== 'none';
     // Verschiebung (px) – Hero-Texte lassen sich im Admin verschieben.
-    const offsetX = clampNum(s.offsetX, -400, 400, 0);
-    const offsetY = clampNum(s.offsetY, -300, 300, 0);
+    const offsetX = clampNum(s.offsetX, -1200, 1200, 0);
+    const offsetY = clampNum(s.offsetY, -1200, 1200, 0);
     const hasOff = offsetX !== 0 || offsetY !== 0;
     if (size > 0 || colorLight || colorDark || font || hasFx || hasOff) {
       const entry = { size, colorLight, colorDark, font };

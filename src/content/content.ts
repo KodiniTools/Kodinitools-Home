@@ -1141,8 +1141,8 @@ export function getTextStylesCss(media: MediaConfig): string | undefined {
     // Verschiebung: relative Position (nicht transform – die Entrance-Animationen
     // setzen transform per fill-mode und würden es überschreiben); der Platz im
     // Fluss bleibt, der Hero behält seine Höhe.
-    const ox = typeof s.offsetX === 'number' ? Math.max(-400, Math.min(400, s.offsetX)) : 0;
-    const oy = typeof s.offsetY === 'number' ? Math.max(-300, Math.min(300, s.offsetY)) : 0;
+    const ox = typeof s.offsetX === 'number' ? Math.max(-1200, Math.min(1200, s.offsetX)) : 0;
+    const oy = typeof s.offsetY === 'number' ? Math.max(-1200, Math.min(1200, s.offsetY)) : 0;
     if (ox || oy) decl.push('position:relative', `left:${ox}px`, `top:${oy}px`);
     if (decl.length) rules.push(`${sel}{${decl.join(';')}}`);
     // Hell-Farbe nur im Hellmodus, Dunkel-Farbe nur im Dunkelmodus; fehlt eine
