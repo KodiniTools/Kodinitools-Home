@@ -23,6 +23,9 @@ import {
   getToolCards,
   rgbaFromHex,
   getGlobalFont,
+  normCardScale,
+  CARD_SCALE_MIN,
+  CARD_SCALE_MAX,
 } from './model.js';
 import { fontFF } from './layout-shared.js';
 import { mediaInfo, designCss, textStyle, MEDIA_BASE } from './sectionmedia.js';
@@ -119,12 +122,19 @@ export function fullOffset(lang, key) {
   }
   if (key.startsWith('card:')) {
     const o = cardOffsets(lang)[key.slice(5)];
-    return { x: (o && o.x) || 0, y: (o && o.y) || 0 };
+    return {
+      x: (o && o.x) || 0,
+      y: (o && o.y) || 0,
+      w: o && o.w != null ? normCardScale(o.w) : 100,
+      h: o && o.h != null ? normCardScale(o.h) : 100,
+    };
   }
   const c = getSectionMedia(lang, key);
   return { x: c.offsetX || 0, y: c.offsetY || 0 };
 }
-export function setFullOffset(lang, key, x, y) {
+// Versatz (und bei Tool-Karten optional Skalierung w/h in %) setzen; w/h undefined =
+// bisherige Skalierung behalten. Eintrag entfällt bei 0/0 und 100 %/100 %.
+export function setFullOffset(lang, key, x, y, w, h) {
   const nx = normMediaOffset(x, 'x');
   const ny = normMediaOffset(y, 'y');
   if (key === 'hero') {
@@ -133,7 +143,11 @@ export function setFullOffset(lang, key, x, y) {
   } else if (key.startsWith('card:')) {
     const id = key.slice(5);
     const all = cardOffsets(lang);
-    if (nx || ny) all[id] = { x: nx, y: ny };
+    const cur = fullOffset(lang, key);
+    const nw = w == null ? cur.w : normCardScale(w);
+    const nh = h == null ? cur.h : normCardScale(h);
+    if (nx || ny || nw !== 100 || nh !== 100)
+      all[id] = { x: nx, y: ny, ...(nw !== 100 || nh !== 100 ? { w: nw, h: nh } : {}) };
     else delete all[id];
   } else {
     const c = getSectionMedia(lang, key);
@@ -142,8 +156,11 @@ export function setFullOffset(lang, key, x, y) {
   }
   return { x: nx, y: ny };
 }
+const scaled = (o) => (o.w != null && o.w !== 100) || (o.h != null && o.h !== 100);
+const scaleCss = (o) =>
+  scaled(o) ? `;transform:scale(${o.w / 100},${o.h / 100});transform-origin:top left` : '';
 const moveCss = (o) =>
-  `position:relative;left:${o.x}px;top:${o.y}px;z-index:${o.x || o.y ? 2 : 1};cursor:move;touch-action:none;user-select:none`;
+  `position:relative;left:${o.x}px;top:${o.y}px;z-index:${o.x || o.y || scaled(o) ? 2 : 1};cursor:move;touch-action:none;user-select:none${scaleCss(o)}`;
 // Verlauf der Verschiebungen je Sprache (für „↶ Rückgängig“): Einträge sind Gruppen
 // [{ key, x, y }] mit dem Zustand VOR der Änderung; bleibt über Neu-Rendern erhalten.
 const histBy = {};
@@ -245,7 +262,19 @@ function cardHtml(lang, card, mode) {
     ? `<span style="display:inline-block;font-size:${d.badgeSize}px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:${dark ? '#ffffff' : '#014f99'};background:${dark ? 'rgba(255,255,255,.1)' : 'rgba(1,79,153,.08)'};border:1px solid ${dark ? 'rgba(255,255,255,.25)' : 'rgba(1,79,153,.14)'};border-radius:5.6px;padding:2.4px 6.72px;white-space:nowrap;align-self:${d.alignSelf};margin-bottom:4.8px">${esc(card.badge)}</span>`
     : '';
   const fav = `<span style="display:inline-block;width:28px;height:28px;border-radius:50%;color:${c.muted}"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="padding:6px;box-sizing:border-box"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span>`;
-  return `<div data-smfullmedia="${esc(key)}" data-smcard="${esc(card.id)}" role="button" tabindex="0" title="${esc(card.title)} – Ziehen: verschieben (Pfeiltasten: 1 px, Shift 10 px)" style="z-index:1;${moveCss(fullOffset(lang, key))}${activeCss(key)}">
+  const HANDLES = [
+    ['nw', 'left:-6px;top:-6px;cursor:nwse-resize'],
+    ['ne', 'right:-6px;top:-6px;cursor:nesw-resize'],
+    ['sw', 'left:-6px;bottom:-6px;cursor:nesw-resize'],
+    ['se', 'right:-6px;bottom:-6px;cursor:nwse-resize'],
+    ['e', 'right:-6px;top:50%;margin-top:-6px;cursor:ew-resize'],
+    ['s', 'bottom:-6px;left:50%;margin-left:-6px;cursor:ns-resize'],
+  ];
+  const handles = HANDLES.map(
+    ([h, pos]) =>
+      `<span data-smhandle="${h}" title="${h.length === 2 ? 'Ecke ziehen: proportional skalieren (Inhalt skaliert mit)' : h === 'e' ? 'Kante ziehen: Breite' : 'Kante ziehen: Höhe'}" style="position:absolute;width:12px;height:12px;box-sizing:border-box;background:var(--accent);border:2px solid #fff;border-radius:2px;z-index:5;${pos}"></span>`,
+  ).join('');
+  return `<div data-smfullmedia="${esc(key)}" data-smcard="${esc(card.id)}" role="button" tabindex="0" title="${esc(card.title)} – Ziehen: verschieben (Pfeiltasten: 1 px, Shift 10 px); Punkte: Größe" style="z-index:1;${moveCss(fullOffset(lang, key))}${activeCss(key)}"><span data-smhandles style="display:${fullActive === key ? 'contents' : 'none'}">${handles}</span>
       <div style="background:${d.bg};border:${d.border};border-radius:${d.radius}px;padding:17.6px 17.6px 13.6px;display:flex;flex-direction:column;gap:7.2px;height:100%;box-sizing:border-box;overflow:hidden">
         ${icon}${badge}
         <h3 style="font-size:${d.titleSize}px;font-weight:${d.titleWeight};color:${c.title};line-height:1.3;min-height:2.6em;margin:0 0 5.6px;white-space:pre-line;text-align:${d.align};${d.titleFont}">${esc(card.title)}</h3>
@@ -323,14 +352,22 @@ function selectionHtml(lang) {
       <span class="hint" style="margin:0;opacity:.7">|</span>
       <label style="display:inline-flex;align-items:center;gap:.3rem;margin:0;color:var(--muted)" title="Versatz gegenüber dem eigenen Ausgangsplatz (px): − links, + rechts">Versatz X <input type="number" data-smselx min="-${MEDIA_OFFSET_MAX.x}" max="${MEDIA_OFFSET_MAX.x}" step="1" value="${o.x}" style="width:80px" /></label>
       <label style="display:inline-flex;align-items:center;gap:.3rem;margin:0;color:var(--muted)" title="Versatz gegenüber dem eigenen Ausgangsplatz (px): − oben, + unten">Y <input type="number" data-smsely min="-${MEDIA_OFFSET_MAX.y}" max="${MEDIA_OFFSET_MAX.y}" step="1" value="${o.y}" style="width:80px" /></label>
-      <button type="button" class="hd-reset" data-smselreset title="Verschiebung dieses Elements zurücksetzen (0/0 = Ausgangsplatz)" aria-label="Verschiebung zurücksetzen">↺</button>
-      <span class="hint" style="margin:0;flex-basis:100%">Element in der Vorschau anklicken (oder hier wählen). <strong>Links/Oben</strong> = absolute Kante auf der Seite (gleiche Werte = bündig), <strong>Versatz</strong> = Abstand zum eigenen Ausgangsplatz (wird gespeichert).</span>
+      <span data-smselscale style="display:${cur.startsWith('card:') ? 'inline-flex' : 'none'};align-items:center;gap:.3rem">
+        <span class="hint" style="margin:0;opacity:.7">|</span>
+        <label style="display:inline-flex;align-items:center;gap:.3rem;margin:0;color:var(--text)" title="Skalierung der Breite in % (Inhalt skaliert mit); Ecken der Karte ziehen = proportional, rechte Kante = nur Breite">B <input type="number" data-smselw min="${CARD_SCALE_MIN}" max="${CARD_SCALE_MAX}" step="1" value="${o.w != null ? o.w : 100}" style="width:70px" /></label>
+        <label style="display:inline-flex;align-items:center;gap:.3rem;margin:0;color:var(--text)" title="Skalierung der Höhe in % (Inhalt skaliert mit); untere Kante ziehen = nur Höhe">H <input type="number" data-smselh min="${CARD_SCALE_MIN}" max="${CARD_SCALE_MAX}" step="1" value="${o.h != null ? o.h : 100}" style="width:70px" /></label>
+        <span class="hint" style="margin:0">%</span>
+      </span>
+      <button type="button" class="hd-reset" data-smselreset title="Verschiebung (0/0 = Ausgangsplatz) und Größe (100 %) dieses Elements zurücksetzen" aria-label="Verschiebung und Größe zurücksetzen">↺</button>
+      <span class="hint" style="margin:0;flex-basis:100%">Element in der Vorschau anklicken (oder hier wählen). <strong>Links/Oben</strong> = absolute Kante auf der Seite (gleiche Werte = bündig), <strong>Versatz</strong> = Abstand zum eigenen Ausgangsplatz (wird gespeichert). Tool-Karten: <strong>Skalierungspunkte</strong> an der markierten Karte ziehen – Ecken proportional, Kanten nur Breite/Höhe; der Inhalt skaliert mit.</span>
     </div>`;
 }
 // Liste der verschobenen Tool-Karten (Titel, Versatz, ↺) + „alle zurücksetzen“.
 function cardsInfoHtml(lang) {
   const all = cardOffsets(lang);
-  const ids = Object.keys(all).filter((id) => TOOL_CARD_KEY.test(id) && (all[id].x || all[id].y));
+  const ids = Object.keys(all).filter(
+    (id) => TOOL_CARD_KEY.test(id) && (all[id].x || all[id].y || scaled(all[id])),
+  );
   if (!ids.length)
     return '<span class="hint" style="margin:0">🃏 Tool-Karten: keine verschoben – Karte in der Vorschau ziehen.</span>';
   const titleOf = (id) => {
@@ -340,7 +377,7 @@ function cardsInfoHtml(lang) {
   return `<span class="hint" style="margin:0">🃏 Verschobene Tool-Karten:</span> ${ids
     .map(
       (id) =>
-        `<span style="display:inline-flex;align-items:center;gap:.25rem;font-size:.85rem;color:var(--text)">${esc(titleOf(id))} <span class="hint" style="margin:0">(${all[id].x}/${all[id].y})</span><button type="button" class="hd-reset" data-smoffreset="card:${esc(id)}" title="Verschiebung dieser Karte zurücksetzen" aria-label="Karte zurücksetzen">↺</button></span>`,
+        `<span style="display:inline-flex;align-items:center;gap:.25rem;font-size:.85rem;color:var(--text)">${esc(titleOf(id))} <span class="hint" style="margin:0">(${all[id].x}/${all[id].y}${scaled(all[id]) ? ` · ${all[id].w}×${all[id].h} %` : ''})</span><button type="button" class="hd-reset" data-smoffreset="card:${esc(id)}" title="Verschiebung und Größe dieser Karte zurücksetzen" aria-label="Karte zurücksetzen">↺</button></span>`,
     )
     .join(
       ' ',
@@ -515,7 +552,9 @@ export function bindFullPage(pane, lang, rr) {
       el.style.position = 'relative';
       el.style.left = `${o.x}px`;
       el.style.top = `${o.y}px`;
-      el.style.zIndex = o.x || o.y ? '2' : '1';
+      el.style.zIndex = o.x || o.y || scaled(o) ? '2' : '1';
+      el.style.transform = scaled(o) ? `scale(${o.w / 100},${o.h / 100})` : '';
+      el.style.transformOrigin = 'top left';
     });
     if (key === activeKey(lang)) syncSel();
     showLive(key);
@@ -530,7 +569,7 @@ export function bindFullPage(pane, lang, rr) {
       el.dataset.bound = '1';
       el.addEventListener('click', () => {
         record(el.dataset.smoffreset);
-        setFullOffset(lang, el.dataset.smoffreset, 0, 0);
+        setFullOffset(lang, el.dataset.smoffreset, 0, 0, 100, 100);
         apply(el.dataset.smoffreset);
         toast('Verschiebung zurückgesetzt');
       });
@@ -541,7 +580,7 @@ export function bindFullPage(pane, lang, rr) {
       el.addEventListener('click', () => {
         const ids = Object.keys(cardOffsets(lang));
         recordGroup(ids.map((id) => `card:${id}`));
-        ids.forEach((id) => setFullOffset(lang, `card:${id}`, 0, 0));
+        ids.forEach((id) => setFullOffset(lang, `card:${id}`, 0, 0, 100, 100));
         ids.forEach((id) => apply(`card:${id}`));
         if (!ids.length && cardsInfo) cardsInfo.innerHTML = cardsInfoHtml(lang);
         toast('Alle Tool-Karten zurückgesetzt');
@@ -555,7 +594,7 @@ export function bindFullPage(pane, lang, rr) {
     if (!grp) return;
     lastRec = { key: '', t: 0 };
     for (const e of grp) {
-      setFullOffset(lang, e.key, e.x, e.y);
+      setFullOffset(lang, e.key, e.x, e.y, e.w, e.h);
       apply(e.key);
     }
     if (grp[0]) mark(grp[0].key);
@@ -571,7 +610,7 @@ export function bindFullPage(pane, lang, rr) {
     }
     recordGroup(keys);
     for (const k of keys) {
-      setFullOffset(lang, k, 0, 0);
+      setFullOffset(lang, k, 0, 0, 100, 100);
       apply(k);
     }
     if (cardsInfo) {
@@ -587,6 +626,9 @@ export function bindFullPage(pane, lang, rr) {
   const selY = pane.querySelector('[data-smsely]');
   const selL = pane.querySelector('[data-smsell]');
   const selT = pane.querySelector('[data-smselt]');
+  const selW = pane.querySelector('[data-smselw]');
+  const selH = pane.querySelector('[data-smselh]');
+  const selScale = pane.querySelector('[data-smselscale]');
   const activeEl = () => pane.querySelector(`[data-smfullmedia="${CSS.escape(activeKey(lang))}"]`);
   const syncSel = () => {
     const key = activeKey(lang);
@@ -594,6 +636,12 @@ export function bindFullPage(pane, lang, rr) {
     if (selKey && selKey.value !== key) selKey.value = key;
     if (selX && document.activeElement !== selX) selX.value = String(o.x);
     if (selY && document.activeElement !== selY) selY.value = String(o.y);
+    const isCard = key.startsWith('card:');
+    if (selScale) selScale.style.display = isCard ? 'inline-flex' : 'none';
+    if (isCard) {
+      if (selW && document.activeElement !== selW) selW.value = String(o.w);
+      if (selH && document.activeElement !== selH) selH.value = String(o.h);
+    }
     // Absolute Kante = Ausgangsplatz + Versatz (Seiten-px).
     const el = activeEl();
     if (el) {
@@ -618,6 +666,19 @@ export function bindFullPage(pane, lang, rr) {
   };
   selL?.addEventListener('input', () => onAbs('x', selL));
   selT?.addEventListener('input', () => onAbs('y', selT));
+  // B/H-Spinner: Skalierung der gewählten Karte in %.
+  const onScale = (axis, input) => {
+    const key = activeKey(lang);
+    if (!key.startsWith('card:')) return;
+    const n = parseInt(input.value, 10);
+    if (!Number.isFinite(n)) return;
+    record(key, true);
+    const o = fullOffset(lang, key);
+    setFullOffset(lang, key, o.x, o.y, axis === 'w' ? n : o.w, axis === 'h' ? n : o.h);
+    apply(key);
+  };
+  selW?.addEventListener('input', () => onScale('w', selW));
+  selH?.addEventListener('input', () => onScale('h', selH));
   const onSpin = (axis, input) => {
     const key = activeKey(lang);
     const n = parseInt(input.value, 10);
@@ -646,7 +707,7 @@ export function bindFullPage(pane, lang, rr) {
   pane.querySelector('[data-smselreset]')?.addEventListener('click', () => {
     const key = activeKey(lang);
     record(key);
-    setFullOffset(lang, key, 0, 0);
+    setFullOffset(lang, key, 0, 0, 100, 100);
     apply(key);
     toast('Verschiebung zurückgesetzt');
   });
@@ -658,6 +719,8 @@ export function bindFullPage(pane, lang, rr) {
       const on = el.dataset.smfullmedia === key;
       el.style.outline = on ? '3px solid var(--accent)' : '';
       el.style.outlineOffset = on ? '2px' : '';
+      const hs = el.querySelector('[data-smhandles]');
+      if (hs) hs.style.display = on ? 'contents' : 'none';
     });
     syncSel();
     showLive(key);
@@ -703,6 +766,7 @@ export function bindFullPage(pane, lang, rr) {
     });
     el.addEventListener('pointerdown', (e) => {
       if (e.button !== 0) return;
+      if (e.target.closest && e.target.closest('[data-smhandle]')) return; // Skalierungspunkt
       const o = fullOffset(lang, key);
       drag = {
         x: e.clientX,
@@ -714,6 +778,78 @@ export function bindFullPage(pane, lang, rr) {
       };
       showLive(key);
       el.setPointerCapture(e.pointerId);
+    });
+    // Skalierungspunkte (nur Tool-Karten): Ecke = proportional, Kante = Breite bzw.
+    // Höhe; die gegenüberliegende Ecke/Kante bleibt stehen (Versatz wird angepasst).
+    el.querySelectorAll('[data-smhandle]').forEach((hd) => {
+      let rs = null;
+      hd.addEventListener('pointerdown', (e) => {
+        if (e.button !== 0) return;
+        e.stopPropagation();
+        e.preventDefault();
+        const o = fullOffset(lang, key);
+        const sc = scaleOf();
+        const r = el.getBoundingClientRect();
+        rs = {
+          h: hd.dataset.smhandle,
+          x: e.clientX,
+          y: e.clientY,
+          o,
+          // Grundmaße der Karte ohne Skalierung (Seiten-px).
+          W: r.width / sc / (o.w / 100),
+          H: r.height / sc / (o.h / 100),
+          rec: false,
+        };
+        hd.setPointerCapture(e.pointerId);
+        mark(key);
+      });
+      hd.addEventListener('pointermove', (e) => {
+        if (!rs) return;
+        const sc = scaleOf();
+        const dx = (e.clientX - rs.x) / sc;
+        const dy = (e.clientY - rs.y) / sc;
+        if (!rs.rec) {
+          if (Math.abs(dx) < 2 && Math.abs(dy) < 2) return;
+          rs.rec = true;
+          lastRec = { key: '', t: 0 };
+          pushHist(lang, [{ key, ...rs.o }]);
+          updateUndo();
+        }
+        const h = rs.h;
+        const sw = (rs.W * rs.o.w) / 100;
+        const sh = (rs.H * rs.o.h) / 100;
+        const growX = h.includes('e') ? dx : h.includes('w') ? -dx : 0;
+        const growY = h.includes('s') ? dy : h.includes('n') ? -dy : 0;
+        let nw;
+        let nh;
+        if (h.length === 2) {
+          // Ecke: proportional – die stärkere Bewegung bestimmt den Faktor.
+          const f = Math.abs(growX) >= Math.abs(growY) ? (sw + growX) / sw : (sh + growY) / sh;
+          nw = Math.floor(rs.o.w * f);
+          nh = Math.floor(rs.o.h * f);
+        } else {
+          nw = h === 'e' ? Math.round(((sw + growX) / rs.W) * 100) : rs.o.w;
+          nh = h === 's' ? Math.round(((sh + growY) / rs.H) * 100) : rs.o.h;
+        }
+        nw = normCardScale(nw);
+        nh = normCardScale(nh);
+        // Gegenüberliegende Kante fixieren: bei west/nord wandert der Versatz mit.
+        const x = h.includes('w') ? rs.o.x - (rs.W * (nw - rs.o.w)) / 100 : rs.o.x;
+        const y = h.includes('n') ? rs.o.y - (rs.H * (nh - rs.o.h)) / 100 : rs.o.y;
+        setFullOffset(lang, key, x, y, nw, nh);
+        apply(key);
+      });
+      const endR = (e) => {
+        if (!rs) return;
+        rs = null;
+        if (hd.hasPointerCapture && hd.hasPointerCapture(e.pointerId))
+          hd.releasePointerCapture(e.pointerId);
+        el.dataset.smDragged = '1';
+        setTimeout(() => delete el.dataset.smDragged, 0);
+      };
+      hd.addEventListener('pointerup', endR);
+      hd.addEventListener('pointercancel', endR);
+      hd.addEventListener('click', (e) => e.stopPropagation());
     });
     el.addEventListener('pointermove', (e) => {
       if (!drag) return;
