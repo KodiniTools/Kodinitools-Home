@@ -148,7 +148,9 @@
           "shadowBlur": 6,
           "strokeColor": "#000000",
           "strokeWidth": 0
-        }
+        },
+        "offsetX": 0,
+        "offsetY": 0
       },
       "image": {
         "style": {
@@ -192,7 +194,9 @@
           "shadowBlur": 6,
           "strokeColor": "#000000",
           "strokeWidth": 0
-        }
+        },
+        "offsetX": 0,
+        "offsetY": 0
       },
       "diverse": {
         "style": {
@@ -236,11 +240,26 @@
           "shadowBlur": 6,
           "strokeColor": "#000000",
           "strokeWidth": 0
-        }
+        },
+        "offsetX": 0,
+        "offsetY": 0
       }
     },
     "heroMode": "banner",
     "heroLayout": "row4",
+    "heroBannerShow": true,
+    "heroMediaOffsetX": 0,
+    "heroMediaOffsetY": 0,
+    "toolCardOffsets": {
+      "diverseTools.textEditor": {
+        "x": 238,
+        "y": -1
+      },
+      "diverseTools.videoConverter": {
+        "x": 135,
+        "y": -3
+      }
+    },
     "heroBanner": "/uploads/de/png--4--9a2e791b.png",
     "heroBannerLink": "https://kodinitools.com/audio-cutter/",
     "heroBannerText": "NEU",
@@ -304,6 +323,14 @@
       "",
       "",
       ""
+    ],
+    "heroGridHidden": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
     ],
     "heroGridLinks": [
       "",
@@ -458,11 +485,11 @@
       },
       "tools.sectionTitle": {
         "size": 0,
-        "colorLight": "#ffffff",
+        "colorLight": "#010f5a",
         "colorDark": "#eee8b0",
         "font": "Hind-Regular.woff2",
         "shadow": true,
-        "shadowColor": "#000000",
+        "shadowColor": "#999999",
         "shadowX": -3,
         "shadowY": -3,
         "shadowBlur": 0,
@@ -502,6 +529,12 @@
       "subtitleFontSize": 18,
       "chipFontSize": 16,
       "ctaFontSize": 0,
+      "showTitle": true,
+      "showSubtitle": true,
+      "showChips": true,
+      "hiddenChips": [],
+      "chipOffsets": {},
+      "showCta": true,
       "light": {
         "borderColor": "#29486a",
         "borderWidth": 2,
@@ -521,7 +554,20 @@
         "ctaBorderOpacity": 0,
         "ctaHoverBgColor": "#e1e0e0",
         "ctaHoverTextColor": "#33455b",
-        "titleTextColor": "#010f5a"
+        "titleTextColor": "#010f5a",
+        "bgImage": "",
+        "bgImageOpacity": 100,
+        "bgImageDarken": 0,
+        "bgImageBlur": 0,
+        "bgImageSaturate": 100,
+        "bgSlides": [],
+        "bgSlideshow": {
+          "interval": 5,
+          "duration": 800,
+          "transition": "fade",
+          "pauseOnHover": true,
+          "dots": false
+        }
       },
       "dark": {
         "borderColor": "#eee8b0",
@@ -542,7 +588,20 @@
         "ctaBorderOpacity": 0,
         "ctaHoverBgColor": "#14243e",
         "ctaHoverTextColor": "#f5f4d6",
-        "titleTextColor": "#eee8b0"
+        "titleTextColor": "#eee8b0",
+        "bgImage": "",
+        "bgImageOpacity": 100,
+        "bgImageDarken": 0,
+        "bgImageBlur": 0,
+        "bgImageSaturate": 100,
+        "bgSlides": [],
+        "bgSlideshow": {
+          "interval": 5,
+          "duration": 800,
+          "transition": "fade",
+          "pauseOnHover": true,
+          "dots": false
+        }
       }
     },
     "toolCards": {
@@ -1912,7 +1971,9 @@
           "shadowBlur": 6,
           "strokeColor": "#000000",
           "strokeWidth": 0
-        }
+        },
+        "offsetX": 0,
+        "offsetY": 0
       },
       "image": {
         "style": {
@@ -1956,7 +2017,9 @@
           "shadowBlur": 6,
           "strokeColor": "#000000",
           "strokeWidth": 0
-        }
+        },
+        "offsetX": 0,
+        "offsetY": 0
       },
       "diverse": {
         "style": {
@@ -2000,11 +2063,17 @@
           "shadowBlur": 6,
           "strokeColor": "#000000",
           "strokeWidth": 0
-        }
+        },
+        "offsetX": 0,
+        "offsetY": 0
       }
     },
     "heroMode": "banner",
     "heroLayout": "grid3",
+    "heroBannerShow": true,
+    "heroMediaOffsetX": 0,
+    "heroMediaOffsetY": 0,
+    "toolCardOffsets": {},
     "heroBanner": "/uploads/en/png--3--8b56ba31.png",
     "heroBannerLink": "https://kodinitools.com/audio-cutter/",
     "heroBannerText": "NEW",
@@ -2068,6 +2137,14 @@
       "",
       "",
       ""
+    ],
+    "heroGridHidden": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
     ],
     "heroGridLinks": [
       "",
@@ -2222,11 +2299,11 @@
       },
       "tools.sectionTitle": {
         "size": 0,
-        "colorLight": "#ffffff",
+        "colorLight": "#010f5a",
         "colorDark": "#eee8b0",
         "font": "Hind-Regular.woff2",
         "shadow": true,
-        "shadowColor": "#000000",
+        "shadowColor": "#999999",
         "shadowX": -3,
         "shadowY": -3,
         "shadowBlur": 0,
@@ -2266,6 +2343,12 @@
       "subtitleFontSize": 16,
       "chipFontSize": 18,
       "ctaFontSize": 0,
+      "showTitle": true,
+      "showSubtitle": true,
+      "showChips": true,
+      "hiddenChips": [],
+      "chipOffsets": {},
+      "showCta": true,
       "light": {
         "borderColor": "#29486a",
         "borderWidth": 2,
@@ -2285,7 +2368,20 @@
         "ctaBorderOpacity": 0,
         "ctaHoverBgColor": "#e1e0e0",
         "ctaHoverTextColor": "#33455b",
-        "titleTextColor": "#010f5a"
+        "titleTextColor": "#010f5a",
+        "bgImage": "",
+        "bgImageOpacity": 100,
+        "bgImageDarken": 0,
+        "bgImageBlur": 0,
+        "bgImageSaturate": 100,
+        "bgSlides": [],
+        "bgSlideshow": {
+          "interval": 5,
+          "duration": 800,
+          "transition": "fade",
+          "pauseOnHover": true,
+          "dots": false
+        }
       },
       "dark": {
         "borderColor": "#ffffff",
@@ -2306,7 +2402,20 @@
         "ctaBorderOpacity": 0,
         "ctaHoverBgColor": "#14243e",
         "ctaHoverTextColor": "#f5f4d6",
-        "titleTextColor": "#f9f8f6"
+        "titleTextColor": "#f9f8f6",
+        "bgImage": "",
+        "bgImageOpacity": 100,
+        "bgImageDarken": 0,
+        "bgImageBlur": 0,
+        "bgImageSaturate": 100,
+        "bgSlides": [],
+        "bgSlideshow": {
+          "interval": 5,
+          "duration": 800,
+          "transition": "fade",
+          "pauseOnHover": true,
+          "dots": false
+        }
       }
     },
     "toolCards": {
