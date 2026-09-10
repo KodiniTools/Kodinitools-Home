@@ -317,11 +317,14 @@ function selectionHtml(lang) {
   return `<div data-smselpanel style="display:flex;align-items:center;gap:.4rem .6rem;flex-wrap:wrap;padding:.45rem .6rem;border:1px solid var(--accent);border-radius:8px">
       <span style="font-weight:600;color:var(--text)">🎯 Ausgewählt:</span>
       <select data-smselkey style="width:auto;max-width:320px" title="Element wählen – oder in der Vorschau anklicken">${media}${groups}</select>
-      <label style="display:inline-flex;align-items:center;gap:.3rem;margin:0;color:var(--text)">X <input type="number" data-smselx min="-${MEDIA_OFFSET_MAX.x}" max="${MEDIA_OFFSET_MAX.x}" step="1" value="${o.x}" style="width:90px" title="Waagerechter Versatz (px): − links, + rechts; Pfeiltasten im Feld = 1 px" /></label>
-      <label style="display:inline-flex;align-items:center;gap:.3rem;margin:0;color:var(--text)">Y <input type="number" data-smsely min="-${MEDIA_OFFSET_MAX.y}" max="${MEDIA_OFFSET_MAX.y}" step="1" value="${o.y}" style="width:90px" title="Senkrechter Versatz (px): − oben, + unten; Pfeiltasten im Feld = 1 px" /></label>
-      <span class="hint" style="margin:0">px</span>
-      <button type="button" class="hd-reset" data-smselreset title="Verschiebung dieses Elements zurücksetzen (0/0)" aria-label="Verschiebung zurücksetzen">↺</button>
-      <span class="hint" style="margin:0">Element in der Vorschau anklicken (oder hier wählen), dann X/Y exakt eingeben.</span>
+      <label style="display:inline-flex;align-items:center;gap:.3rem;margin:0;color:var(--text)" title="Absolute Position: linke Kante des Elements, gemessen vom linken Rand der Seite (1200 px breite Inhaltsspalte) – zum bündigen Ausrichten">Links <input type="number" data-smsell step="1" value="" style="width:90px" /></label>
+      <label style="display:inline-flex;align-items:center;gap:.3rem;margin:0;color:var(--text)" title="Absolute Position: obere Kante des Elements, gemessen vom oberen Rand der Seite – zum bündigen Ausrichten">Oben <input type="number" data-smselt step="1" value="" style="width:90px" /></label>
+      <span class="hint" style="margin:0">px absolut</span>
+      <span class="hint" style="margin:0;opacity:.7">|</span>
+      <label style="display:inline-flex;align-items:center;gap:.3rem;margin:0;color:var(--muted)" title="Versatz gegenüber dem eigenen Ausgangsplatz (px): − links, + rechts">Versatz X <input type="number" data-smselx min="-${MEDIA_OFFSET_MAX.x}" max="${MEDIA_OFFSET_MAX.x}" step="1" value="${o.x}" style="width:80px" /></label>
+      <label style="display:inline-flex;align-items:center;gap:.3rem;margin:0;color:var(--muted)" title="Versatz gegenüber dem eigenen Ausgangsplatz (px): − oben, + unten">Y <input type="number" data-smsely min="-${MEDIA_OFFSET_MAX.y}" max="${MEDIA_OFFSET_MAX.y}" step="1" value="${o.y}" style="width:80px" /></label>
+      <button type="button" class="hd-reset" data-smselreset title="Verschiebung dieses Elements zurücksetzen (0/0 = Ausgangsplatz)" aria-label="Verschiebung zurücksetzen">↺</button>
+      <span class="hint" style="margin:0;flex-basis:100%">Element in der Vorschau anklicken (oder hier wählen). <strong>Links/Oben</strong> = absolute Kante auf der Seite (gleiche Werte = bündig), <strong>Versatz</strong> = Abstand zum eigenen Ausgangsplatz (wird gespeichert).</span>
     </div>`;
 }
 // Liste der verschobenen Tool-Karten (Titel, Versatz, ↺) + „alle zurücksetzen“.
@@ -582,13 +585,39 @@ export function bindFullPage(pane, lang, rr) {
   const selKey = pane.querySelector('[data-smselkey]');
   const selX = pane.querySelector('[data-smselx]');
   const selY = pane.querySelector('[data-smsely]');
+  const selL = pane.querySelector('[data-smsell]');
+  const selT = pane.querySelector('[data-smselt]');
+  const activeEl = () => pane.querySelector(`[data-smfullmedia="${CSS.escape(activeKey(lang))}"]`);
   const syncSel = () => {
     const key = activeKey(lang);
     const o = fullOffset(lang, key);
     if (selKey && selKey.value !== key) selKey.value = key;
     if (selX && document.activeElement !== selX) selX.value = String(o.x);
     if (selY && document.activeElement !== selY) selY.value = String(o.y);
+    // Absolute Kante = Ausgangsplatz + Versatz (Seiten-px).
+    const el = activeEl();
+    if (el) {
+      const org = originOf(el, key);
+      if (selL && document.activeElement !== selL) selL.value = String(Math.round(org.x + o.x));
+      if (selT && document.activeElement !== selT) selT.value = String(Math.round(org.y + o.y));
+    }
   };
+  // Absolute Position setzen: Versatz = gewünschte Kante − Ausgangsplatz.
+  const onAbs = (axis, input) => {
+    const key = activeKey(lang);
+    const n = parseInt(input.value, 10);
+    const el = activeEl();
+    if (!Number.isFinite(n) || !el) return;
+    record(key, true);
+    const org = originOf(el, key);
+    const o = fullOffset(lang, key);
+    if (axis === 'x') o.x = normMediaOffset(n - org.x, 'x');
+    else o.y = normMediaOffset(n - org.y, 'y');
+    setFullOffset(lang, key, o.x, o.y);
+    apply(key);
+  };
+  selL?.addEventListener('input', () => onAbs('x', selL));
+  selT?.addEventListener('input', () => onAbs('y', selT));
   const onSpin = (axis, input) => {
     const key = activeKey(lang);
     const n = parseInt(input.value, 10);
@@ -718,4 +747,6 @@ export function bindFullPage(pane, lang, rr) {
     el.addEventListener('pointerup', end);
     el.addEventListener('pointercancel', end);
   });
+  // Absolute Werte (Links/Oben) brauchen das fertige Layout inkl. Zoom.
+  syncSel();
 }
