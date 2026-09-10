@@ -408,9 +408,10 @@ function selectionHtml(lang) {
       <label style="display:inline-flex;align-items:center;gap:.3rem;margin:0;color:var(--muted)" title="Versatz gegenüber dem eigenen Ausgangsplatz (px): − oben, + unten">Y <input type="number" data-smsely min="-${MEDIA_OFFSET_MAX.y}" max="${MEDIA_OFFSET_MAX.y}" step="1" value="${o.y}" style="width:80px" /></label>
       <span data-smselscale style="display:${cur.startsWith('card:') ? 'inline-flex' : 'none'};align-items:center;gap:.3rem">
         <span class="hint" style="margin:0;opacity:.7">|</span>
-        <label style="display:inline-flex;align-items:center;gap:.3rem;margin:0;color:var(--text)" title="Skalierung der Breite in % (Inhalt skaliert mit); Ecken der Karte ziehen = proportional, rechte Kante = nur Breite">B <input type="number" data-smselw min="${CARD_SCALE_MIN}" max="${CARD_SCALE_MAX}" step="1" value="${o.w != null ? o.w : 100}" style="width:70px" /></label>
-        <label style="display:inline-flex;align-items:center;gap:.3rem;margin:0;color:var(--text)" title="Skalierung der Höhe in % (Inhalt skaliert mit); untere Kante ziehen = nur Höhe">H <input type="number" data-smselh min="${CARD_SCALE_MIN}" max="${CARD_SCALE_MAX}" step="1" value="${o.h != null ? o.h : 100}" style="width:70px" /></label>
-        <span class="hint" style="margin:0">%</span>
+        <label style="display:inline-flex;align-items:center;gap:.3rem;margin:0;color:var(--text)" title="Skalierung der Breite in % (Inhalt skaliert mit); Ecken der Karte ziehen = proportional, rechte Kante = nur Breite">B <input type="number" data-smselw min="${CARD_SCALE_MIN}" max="${CARD_SCALE_MAX}" step="1" value="${o.w != null ? o.w : 100}" style="width:70px" /> %</label>
+        <label style="display:inline-flex;align-items:center;gap:.3rem;margin:0;color:var(--text)" title="Breite der Karte in px der Seite (skaliert); Eingabe rechnet in Prozent um">= <input type="number" data-smselwpx min="1" step="1" value="" style="width:80px" /> px</label>
+        <label style="display:inline-flex;align-items:center;gap:.3rem;margin:0;color:var(--text)" title="Skalierung der Höhe in % (Inhalt skaliert mit); untere Kante ziehen = nur Höhe">H <input type="number" data-smselh min="${CARD_SCALE_MIN}" max="${CARD_SCALE_MAX}" step="1" value="${o.h != null ? o.h : 100}" style="width:70px" /> %</label>
+        <label style="display:inline-flex;align-items:center;gap:.3rem;margin:0;color:var(--text)" title="Höhe der Karte in px der Seite (skaliert); Eingabe rechnet in Prozent um">= <input type="number" data-smselhpx min="1" step="1" value="" style="width:80px" /> px</label>
       </span>
       <button type="button" class="hd-reset" data-smselreset title="Verschiebung (0/0 = Ausgangsplatz) und Größe (100 %) dieses Elements zurücksetzen" aria-label="Verschiebung und Größe zurücksetzen">↺</button>
       <span class="hint" style="margin:0;flex-basis:100%">Element in der Vorschau anklicken (oder hier wählen) – Medien, Tool-Karten und <strong>Texte</strong> (Hero-Titel/-Untertitel/-Button, Abschnitts-Überschriften; Versatz wie im Tab „Hero-Design“; bei „Standard für alle Slots“ im Texte-Tab bewegen sich die drei Überschriften gemeinsam). <strong>Links/Oben</strong> = absolute Kante auf der Seite (gleiche Werte = bündig), <strong>Versatz</strong> = Abstand zum eigenen Ausgangsplatz (wird gespeichert). Tool-Karten: <strong>Skalierungspunkte</strong> an der markierten Karte ziehen – Ecken proportional, Kanten nur Breite/Höhe; der Inhalt skaliert mit.</span>
@@ -691,7 +692,15 @@ export function bindFullPage(pane, lang, rr) {
   const selT = pane.querySelector('[data-smselt]');
   const selW = pane.querySelector('[data-smselw]');
   const selH = pane.querySelector('[data-smselh]');
+  const selWpx = pane.querySelector('[data-smselwpx]');
+  const selHpx = pane.querySelector('[data-smselhpx]');
   const selScale = pane.querySelector('[data-smselscale]');
+  // Grundmaße (ohne Skalierung) einer Karte in Seiten-px – für die Pixel-Spinner.
+  const baseSizeOf = (el, o) => {
+    const sc = Number(page.dataset.scale) || 1;
+    const r = el.getBoundingClientRect();
+    return { W: r.width / sc / (o.w / 100), H: r.height / sc / (o.h / 100) };
+  };
   const activeEl = () => pane.querySelector(`[data-smfullmedia="${CSS.escape(activeKey(lang))}"]`);
   const syncSel = () => {
     const key = activeKey(lang);
@@ -704,6 +713,14 @@ export function bindFullPage(pane, lang, rr) {
     if (isCard) {
       if (selW && document.activeElement !== selW) selW.value = String(o.w);
       if (selH && document.activeElement !== selH) selH.value = String(o.h);
+      const cel = activeEl();
+      if (cel) {
+        const b = baseSizeOf(cel, o);
+        if (selWpx && document.activeElement !== selWpx)
+          selWpx.value = String(Math.round((b.W * o.w) / 100));
+        if (selHpx && document.activeElement !== selHpx)
+          selHpx.value = String(Math.round((b.H * o.h) / 100));
+      }
     }
     // Absolute Kante = Ausgangsplatz + Versatz (Seiten-px).
     const el = activeEl();
@@ -742,6 +759,24 @@ export function bindFullPage(pane, lang, rr) {
   };
   selW?.addEventListener('input', () => onScale('w', selW));
   selH?.addEventListener('input', () => onScale('h', selH));
+  // Pixel-Spinner: gewünschte Breite/Höhe in Seiten-px -> Prozent der Grundmaße.
+  const onScalePx = (axis, input) => {
+    const key = activeKey(lang);
+    const el = activeEl();
+    const n = parseInt(input.value, 10);
+    if (!key.startsWith('card:') || !el || !Number.isFinite(n) || n <= 0) return;
+    const o = fullOffset(lang, key);
+    const b = baseSizeOf(el, o);
+    const pct = Math.round((n / (axis === 'w' ? b.W : b.H)) * 100);
+    record(key, true);
+    setFullOffset(lang, key, o.x, o.y, axis === 'w' ? pct : o.w, axis === 'h' ? pct : o.h);
+    apply(key);
+    // Prozent-Feld sofort nachziehen (das aktive px-Feld bleibt unangetastet).
+    if (axis === 'w' && selW) selW.value = String(fullOffset(lang, key).w);
+    if (axis === 'h' && selH) selH.value = String(fullOffset(lang, key).h);
+  };
+  selWpx?.addEventListener('input', () => onScalePx('w', selWpx));
+  selHpx?.addEventListener('input', () => onScalePx('h', selHpx));
   const onSpin = (axis, input) => {
     const key = activeKey(lang);
     const n = parseInt(input.value, 10);
