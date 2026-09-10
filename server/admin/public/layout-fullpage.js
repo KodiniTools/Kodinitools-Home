@@ -60,6 +60,19 @@ const FULL_TEXT = {
 // Vorschau-Modus und zuletzt angeklicktes Element (bleiben über Neu-Rendern erhalten).
 let fullMode = 'light';
 let fullActive = null;
+// Hilfsraster (temporär, nur in der Vorschau): an/aus, Rasterweite (px der Seite),
+// Einrasten beim Ziehen und mit Pfeiltasten. Bleibt über Neu-Rendern erhalten.
+let gridOn = false;
+let gridStep = 20;
+let snapOn = true;
+const GRID_STEPS = [10, 20, 25, 50, 100];
+// Linien alle `step` px, jede fünfte kräftiger – als Ebene über der Seite (nicht bedienbar).
+function gridOverlayCss(step, mode) {
+  const thin = mode === 'dark' ? 'rgba(255,255,255,.14)' : 'rgba(1,79,153,.16)';
+  const bold = mode === 'dark' ? 'rgba(255,255,255,.32)' : 'rgba(1,79,153,.38)';
+  const big = step * 5;
+  return `background-image:linear-gradient(to right,${bold} 1px,transparent 1px),linear-gradient(to bottom,${bold} 1px,transparent 1px),linear-gradient(to right,${thin} 1px,transparent 1px),linear-gradient(to bottom,${thin} 1px,transparent 1px);background-size:${big}px ${big}px,${big}px ${big}px,${step}px ${step}px,${step}px ${step}px`;
+}
 function prevBg(mode) {
   return getPageBg(mode) || PAGE_BG_DEFAULT[mode];
 }
@@ -337,6 +350,14 @@ export function fullPageHtml(lang) {
         </span>
         <button type="button" class="hd-reset" data-smundo ${hist(lang).length ? '' : 'disabled'} title="Letzte Verschiebung rückgängig machen (auch nach dem Neu-Zeichnen)">↶ Rückgängig${hist(lang).length ? ` (${hist(lang).length})` : ''}</button>
         <button type="button" class="hd-reset" data-smresetall title="Alle Verschiebungen (Hero-Medium, Sektions-Medien, Tool-Karten) auf 0 setzen – die ursprüngliche Anordnung der Seite; per „Rückgängig“ zurückholbar">↺ Ursprüngliche Anordnung</button>
+        <label style="display:inline-flex;align-items:center;gap:.3rem;margin:0;color:var(--text);font-size:.85rem" title="Temporäres Hilfsraster über der Vorschau (nicht auf der Seite) – erleichtert das exakte Anordnen">
+          <input type="checkbox" data-smgrid ${gridOn ? 'checked' : ''} style="width:auto" /> 📐 Hilfsraster
+        </label>
+        <select data-smgridstep style="width:auto;padding:.15rem .3rem" title="Rasterweite in px der Seite">${GRID_STEPS.map((n) => `<option value="${n}" ${n === gridStep ? 'selected' : ''}>${n} px</option>`).join('')}</select>
+        <label style="display:inline-flex;align-items:center;gap:.3rem;margin:0;color:var(--text);font-size:.85rem" title="Beim Ziehen rastet die Kante des Elements auf den Rasterlinien ein; Pfeiltasten bewegen um eine Rasterweite (Shift: fünf)">
+          <input type="checkbox" data-smsnap ${snapOn ? 'checked' : ''} style="width:auto" /> einrasten
+        </label>
+        <span class="hint" data-smlive style="margin:0;min-width:12rem"></span>
         <span class="hint" style="margin:0">Hero-Modus: ${m.heroMode === 'grid' ? 'Kachel-Raster' : 'Einzelbanner'} (oben umschalten).</span>
       </div>
       <p class="hint" style="margin:.3rem 0">Schematische Ansicht der ${lang === 'de' ? 'deutschen' : 'englischen'} Startseite. <strong>Hero-Medium</strong>, die drei <strong>Sektions-Medien</strong> und jede <strong>Tool-Karte</strong> lassen sich mit der Maus <strong>verschieben</strong> (Pfeiltasten auf dem fokussierten Element: 1 px, Shift = 10 px) oder unten über die Felder setzen. Der Versatz gilt 1:1 in Pixeln auf der Seite; der Platz im Seitenfluss bleibt, nur das Element wandert. Texte und Buttons sind Platzhalter (Hero-Design-Tab).</p>
@@ -344,8 +365,9 @@ export function fullPageHtml(lang) {
       <div data-smcardsinfo style="display:flex;flex-wrap:wrap;gap:.3rem .6rem;align-items:center;margin:0 0 .6rem">${cardsInfoHtml(lang)}</div>
       <style>${PREV_FONT_FACES}</style>
       <div data-smfullwrap style="overflow:auto;max-height:70vh;border:1px solid var(--border);border-radius:10px;background:${prevBg(mode)};resize:vertical">
-        <div data-smpage data-scale="0.5" style="width:${PAGE_W}px;zoom:0.5;padding:8px 0 24px;color:${c.text};${fontFF(getGlobalFont()) || PREV_FONT_STACK}line-height:1.6;box-sizing:border-box">
+        <div data-smpage data-scale="0.5" style="position:relative;width:${PAGE_W}px;zoom:0.5;padding:8px 0 24px;color:${c.text};${fontFF(getGlobalFont()) || PREV_FONT_STACK}line-height:1.6;box-sizing:border-box">
           ${hero}${sections}
+          <div data-smgridoverlay style="position:absolute;inset:0;pointer-events:none;z-index:60;display:${gridOn ? 'block' : 'none'};${gridOverlayCss(gridStep, mode)}"></div>
         </div>
       </div>
     </details>`;
@@ -379,6 +401,55 @@ export function bindFullPage(pane, lang, rr) {
   }
   const scaleOf = () => Number(page.dataset.scale) || 1;
   const cardsInfo = pane.querySelector('[data-smcardsinfo]');
+  // Hilfsraster: Ebene an/aus, Rasterweite, Einrasten; Live-Anzeige der Position.
+  const overlay = pane.querySelector('[data-smgridoverlay]');
+  const live = pane.querySelector('[data-smlive]');
+  const gridToggle = pane.querySelector('[data-smgrid]');
+  const stepSel = pane.querySelector('[data-smgridstep]');
+  const snapToggle = pane.querySelector('[data-smsnap]');
+  const refreshOverlay = () => {
+    if (!overlay) return;
+    overlay.style.display = gridOn ? 'block' : 'none';
+    overlay.setAttribute(
+      'style',
+      `position:absolute;inset:0;pointer-events:none;z-index:60;display:${gridOn ? 'block' : 'none'};${gridOverlayCss(gridStep, fullMode)}`,
+    );
+  };
+  gridToggle?.addEventListener('change', () => {
+    gridOn = gridToggle.checked;
+    refreshOverlay();
+  });
+  stepSel?.addEventListener('change', () => {
+    const n = parseInt(stepSel.value, 10);
+    gridStep = GRID_STEPS.includes(n) ? n : 20;
+    refreshOverlay();
+  });
+  snapToggle?.addEventListener('change', () => {
+    snapOn = snapToggle.checked;
+  });
+  const labelOf = (key) => {
+    if (FULL_LABELS[key]) return FULL_LABELS[key];
+    const [sec, k] = key.slice(5).split('.');
+    return effText(lang, [sec, k, 'title']) || key;
+  };
+  const showLive = (key) => {
+    if (!live) return;
+    const o = fullOffset(lang, key);
+    live.textContent = `${labelOf(key)}: ${o.x} / ${o.y} px`;
+  };
+  // Position des Elements ohne Versatz in Seiten-px (linke/obere Kante), für das
+  // Einrasten der Kante auf den Rasterlinien.
+  const originOf = (el, key) => {
+    const sc = Number(page.dataset.scale) || 1;
+    const r = el.getBoundingClientRect();
+    const pr = page.getBoundingClientRect();
+    const o = fullOffset(lang, key);
+    return { x: (r.left - pr.left) / sc - o.x, y: (r.top - pr.top) / sc - o.y };
+  };
+  const snapTo = (origin, x, y) => ({
+    x: Math.round((origin.x + x) / gridStep) * gridStep - origin.x,
+    y: Math.round((origin.y + y) / gridStep) * gridStep - origin.y,
+  });
   // Verlauf: Zustand vor einer Änderung merken; Pfeiltasten/Felder desselben
   // Elements innerhalb von 800 ms werden zu einem Schritt zusammengefasst.
   const undoBtn = pane.querySelector('[data-smundo]');
@@ -420,6 +491,7 @@ export function bindFullPage(pane, lang, rr) {
     const iy = pane.querySelector(`[data-smoff="${key}:y"]`);
     if (ix) ix.value = String(o.x);
     if (iy) iy.value = String(o.y);
+    showLive(key);
     if (key.startsWith('card:') && cardsInfo) {
       cardsInfo.innerHTML = cardsInfoHtml(lang);
       bindResets();
@@ -518,15 +590,41 @@ export function bindFullPage(pane, lang, rr) {
       if (!ARROWS[e.key]) return;
       e.preventDefault();
       record(key, true);
-      const step = e.shiftKey ? 10 : 1;
       const o = fullOffset(lang, key);
-      setFullOffset(lang, key, o.x + ARROWS[e.key][0] * step, o.y + ARROWS[e.key][1] * step);
+      if (snapOn && gridOn) {
+        // Zur nächsten Rasterlinie in Pfeilrichtung (Shift: fünf Linien). Liegt die
+        // Kante (bis auf Rundung) schon auf einer Linie, geht es von dort weiter.
+        const origin = originOf(el, key);
+        const lines = e.shiftKey ? 5 : 1;
+        const [dx, dy] = ARROWS[e.key];
+        const lineIdx = (v, d) => {
+          const n = Math.round(v / gridStep);
+          if (Math.abs(v - n * gridStep) < 1) return n + d * lines;
+          return d > 0 ? Math.floor(v / gridStep) + lines : Math.ceil(v / gridStep) - lines;
+        };
+        const ax = origin.x + o.x;
+        const ay = origin.y + o.y;
+        const nx = dx ? lineIdx(ax, dx) * gridStep : ax;
+        const ny = dy ? lineIdx(ay, dy) * gridStep : ay;
+        setFullOffset(lang, key, nx - origin.x, ny - origin.y);
+      } else {
+        const step = e.shiftKey ? 10 : 1;
+        setFullOffset(lang, key, o.x + ARROWS[e.key][0] * step, o.y + ARROWS[e.key][1] * step);
+      }
       apply(key);
     });
     el.addEventListener('pointerdown', (e) => {
       if (e.button !== 0) return;
       const o = fullOffset(lang, key);
-      drag = { x: e.clientX, y: e.clientY, ox: o.x, oy: o.y, moved: false };
+      drag = {
+        x: e.clientX,
+        y: e.clientY,
+        ox: o.x,
+        oy: o.y,
+        moved: false,
+        origin: originOf(el, key),
+      };
+      showLive(key);
       el.setPointerCapture(e.pointerId);
     });
     el.addEventListener('pointermove', (e) => {
@@ -541,7 +639,10 @@ export function bindFullPage(pane, lang, rr) {
       }
       drag.moved = true;
       const sc = scaleOf();
-      setFullOffset(lang, key, drag.ox + dx / sc, drag.oy + dy / sc);
+      let nx = drag.ox + dx / sc;
+      let ny = drag.oy + dy / sc;
+      if (snapOn && gridOn) ({ x: nx, y: ny } = snapTo(drag.origin, nx, ny));
+      setFullOffset(lang, key, nx, ny);
       apply(key);
     });
     const end = (e) => {
