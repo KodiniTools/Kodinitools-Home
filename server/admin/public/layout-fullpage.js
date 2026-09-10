@@ -26,6 +26,9 @@ import {
   normCardScale,
   CARD_SCALE_MIN,
   CARD_SCALE_MAX,
+  getTextStyle,
+  UNIFORM_TEXT_KEYS,
+  TEXT_OFFSET_MAX,
 } from './model.js';
 import { fontFF } from './layout-shared.js';
 import { mediaInfo, designCss, textStyle, MEDIA_BASE } from './sectionmedia.js';
@@ -53,6 +56,32 @@ const FULL_LABELS = {
   audio: 'Medium Audio-Tools',
   image: 'Medium Bild-Tools',
   diverse: 'Medium Diverse Tools',
+};
+// Verschiebbare Texte ('text:<slot>'): Versatz liegt in media.<lang>.textStyles[slot]
+// .offsetX/offsetY – derselbe Speicherort wie im Tab „Hero-Design“ (Hero-Texte)
+// bzw. wie die Seite die Abschnitts-Überschriften versetzt (getTextStylesCss).
+const TEXT_LABELS = {
+  'hero.title': 'Hero-Titel',
+  'hero.subtitle': 'Hero-Untertitel',
+  'hero.cta': 'Hero-Button „Jetzt starten“',
+  'tools.sectionTitle': 'Überschrift Audio-Tools',
+  'imageTools.sectionTitle': 'Überschrift Bild-Tools',
+  'diverseTools.sectionTitle': 'Überschrift Diverse Tools',
+};
+const TEXT_KEYS = Object.keys(TEXT_LABELS);
+// Bei „Standard für alle Slots“ (Texte-Tab) gilt für alle Abschnitts-Überschriften
+// der Stil (und Versatz) des Master-Slots – wie auf der Seite.
+function textSlotOf(lang, slot) {
+  const m = state.media[lang];
+  if (m.textStyleUniform && UNIFORM_TEXT_KEYS.includes(slot))
+    return UNIFORM_TEXT_KEYS.includes(m.textStyleUniformKey)
+      ? m.textStyleUniformKey
+      : UNIFORM_TEXT_KEYS[0];
+  return slot;
+}
+const clampText = (v, axis) => {
+  const m = axis === 'y' ? TEXT_OFFSET_MAX.y : TEXT_OFFSET_MAX.x;
+  return Math.max(-m, Math.min(m, Math.round(Number(v) || 0)));
 };
 // Tool-Sektionen der Seite: Sektions-Medium-Schlüssel -> Locale-Abschnitt der Karten.
 const CARD_SECTION = { audio: 'tools', image: 'imageTools', diverse: 'diverseTools' };
@@ -129,12 +158,22 @@ export function fullOffset(lang, key) {
       h: o && o.h != null ? normCardScale(o.h) : 100,
     };
   }
+  if (key.startsWith('text:')) {
+    const st = getTextStyle(lang, textSlotOf(lang, key.slice(5)));
+    return { x: st.offsetX || 0, y: st.offsetY || 0 };
+  }
   const c = getSectionMedia(lang, key);
   return { x: c.offsetX || 0, y: c.offsetY || 0 };
 }
 // Versatz (und bei Tool-Karten optional Skalierung w/h in %) setzen; w/h undefined =
 // bisherige Skalierung behalten. Eintrag entfällt bei 0/0 und 100 %/100 %.
 export function setFullOffset(lang, key, x, y, w, h) {
+  if (key.startsWith('text:')) {
+    const st = getTextStyle(lang, textSlotOf(lang, key.slice(5)));
+    st.offsetX = clampText(x, 'x');
+    st.offsetY = clampText(y, 'y');
+    return { x: st.offsetX, y: st.offsetY };
+  }
   const nx = normMediaOffset(x, 'x');
   const ny = normMediaOffset(y, 'y');
   if (key === 'hero') {
@@ -181,8 +220,17 @@ function movedKeys(lang) {
     if (o.x || o.y) out.push(k);
   }
   for (const id of Object.keys(cardOffsets(lang))) out.push(`card:${id}`);
+  for (const slot of TEXT_KEYS) {
+    const o = fullOffset(lang, `text:${slot}`);
+    if (o.x || o.y) out.push(`text:${slot}`);
+  }
   return out;
 }
+// Verschiebbarer Text der Vorschau (Attribute + Versatz-CSS).
+const textMove = (lang, slot) =>
+  `data-smfullmedia="text:${slot}" role="button" tabindex="0" title="${TEXT_LABELS[slot]} – Ziehen: verschieben (Pfeiltasten: 1 px, Shift 10 px)"`;
+const textMoveCss = (lang, slot) =>
+  `${moveCss(fullOffset(lang, `text:${slot}`))}${activeCss(`text:${slot}`)}`;
 const activeCss = (key) =>
   fullActive === key ? ';outline:3px solid var(--accent);outline-offset:2px' : '';
 // Hero-Medium der Vorschau: Banner (Bild/Video) oder Kachel-Raster (Anordnung,
@@ -306,7 +354,7 @@ function sectionHtml(lang, key, mode) {
       : 'repeat(auto-fit,minmax(210px,300px));justify-content:center';
   return `
     <section data-smfullsection="${key}" style="max-width:${PAGE_W}px;margin:0 auto;padding:80px 32px;box-sizing:border-box">
-      <h2 style="text-align:center;font-size:40px;font-weight:600;letter-spacing:.04em;line-height:1.2;margin:0 0 40px;color:${c.title}">${esc(title)}</h2>
+      <h2 ${textMove(lang, `${CARD_SECTION[key]}.sectionTitle`)} style="text-align:center;font-size:40px;font-weight:600;letter-spacing:.04em;line-height:1.2;margin:0 0 40px;color:${c.title};${textMoveCss(lang, `${CARD_SECTION[key]}.sectionTitle`)}">${esc(title)}</h2>
       <div data-smfullmedia="${key}" role="button" tabindex="0" title="${esc(FULL_LABELS[key])} – Ziehen: verschieben (Pfeiltasten: 1 px, Shift 10 px)" style="width:100%;max-width:720px;margin:0 auto 24px;aspect-ratio:16 / 9;overflow:hidden;box-sizing:border-box;background:#000;${css.wrap};${moveCss(fullOffset(lang, key))}${activeCss(key)}">
         ${media}
         <div style="${t.text ? textStyle(t) : ''}">${esc(t.text || '')}</div>
@@ -318,6 +366,8 @@ function sectionHtml(lang, key, mode) {
 // X/Y-Spinnern zum exakten Positionieren (Versatz in px der Seite) und ↺.
 function allKeys(lang) {
   const out = FULL_KEYS.map((key) => ({ key, label: FULL_LABELS[key], group: '' }));
+  for (const slot of TEXT_KEYS)
+    out.push({ key: `text:${slot}`, label: TEXT_LABELS[slot], group: 'Texte' });
   for (const sec of SECTION_MEDIA_KEYS)
     for (const card of sectionCards(lang, sec))
       out.push({ key: `card:${card.id}`, label: card.title, group: SECTION_MEDIA_LABELS[sec] });
@@ -336,6 +386,10 @@ function selectionHtml(lang) {
     .filter((k) => !k.group)
     .map(opt)
     .join('');
+  const texts = `<optgroup label="Texte">${items
+    .filter((k) => k.group === 'Texte')
+    .map(opt)
+    .join('')}</optgroup>`;
   const groups = SECTION_MEDIA_KEYS.map((sec) => {
     const g = items.filter((k) => k.group === SECTION_MEDIA_LABELS[sec]);
     return g.length
@@ -345,7 +399,7 @@ function selectionHtml(lang) {
   const o = fullOffset(lang, cur);
   return `<div data-smselpanel style="display:flex;align-items:center;gap:.4rem .6rem;flex-wrap:wrap;padding:.45rem .6rem;border:1px solid var(--accent);border-radius:8px">
       <span style="font-weight:600;color:var(--text)">🎯 Ausgewählt:</span>
-      <select data-smselkey style="width:auto;max-width:320px" title="Element wählen – oder in der Vorschau anklicken">${media}${groups}</select>
+      <select data-smselkey style="width:auto;max-width:320px" title="Element wählen – oder in der Vorschau anklicken">${media}${texts}${groups}</select>
       <label style="display:inline-flex;align-items:center;gap:.3rem;margin:0;color:var(--text)" title="Absolute Position: linke Kante des Elements, gemessen vom linken Rand der Seite (1200 px breite Inhaltsspalte) – zum bündigen Ausrichten">Links <input type="number" data-smsell step="1" value="" style="width:90px" /></label>
       <label style="display:inline-flex;align-items:center;gap:.3rem;margin:0;color:var(--text)" title="Absolute Position: obere Kante des Elements, gemessen vom oberen Rand der Seite – zum bündigen Ausrichten">Oben <input type="number" data-smselt step="1" value="" style="width:90px" /></label>
       <span class="hint" style="margin:0">px absolut</span>
@@ -359,7 +413,7 @@ function selectionHtml(lang) {
         <span class="hint" style="margin:0">%</span>
       </span>
       <button type="button" class="hd-reset" data-smselreset title="Verschiebung (0/0 = Ausgangsplatz) und Größe (100 %) dieses Elements zurücksetzen" aria-label="Verschiebung und Größe zurücksetzen">↺</button>
-      <span class="hint" style="margin:0;flex-basis:100%">Element in der Vorschau anklicken (oder hier wählen). <strong>Links/Oben</strong> = absolute Kante auf der Seite (gleiche Werte = bündig), <strong>Versatz</strong> = Abstand zum eigenen Ausgangsplatz (wird gespeichert). Tool-Karten: <strong>Skalierungspunkte</strong> an der markierten Karte ziehen – Ecken proportional, Kanten nur Breite/Höhe; der Inhalt skaliert mit.</span>
+      <span class="hint" style="margin:0;flex-basis:100%">Element in der Vorschau anklicken (oder hier wählen) – Medien, Tool-Karten und <strong>Texte</strong> (Hero-Titel/-Untertitel/-Button, Abschnitts-Überschriften; Versatz wie im Tab „Hero-Design“; bei „Standard für alle Slots“ im Texte-Tab bewegen sich die drei Überschriften gemeinsam). <strong>Links/Oben</strong> = absolute Kante auf der Seite (gleiche Werte = bündig), <strong>Versatz</strong> = Abstand zum eigenen Ausgangsplatz (wird gespeichert). Tool-Karten: <strong>Skalierungspunkte</strong> an der markierten Karte ziehen – Ecken proportional, Kanten nur Breite/Höhe; der Inhalt skaliert mit.</span>
     </div>`;
 }
 // Liste der verschobenen Tool-Karten (Titel, Versatz, ↺) + „alle zurücksetzen“.
@@ -402,10 +456,10 @@ export function fullPageHtml(lang) {
   const hero = `
     <div style="max-width:${PAGE_W}px;margin:32px auto 40px;padding:64px 32px;border-radius:32px;background:${heroBg};border:1px solid ${heroBorder};text-align:center;box-sizing:border-box">
       <div data-smfullmedia="hero" role="button" tabindex="0" title="Ziehen: Hero-Medium verschieben (Pfeiltasten: 1 px, Shift 10 px)" style="display:flex;flex-direction:column;align-items:center;gap:16px;margin-bottom:32px;${moveCss(fullOffset(lang, 'hero'))}${activeCss('hero')}">${heroMediaHtml(lang, mode)}</div>
-      <div style="font-size:40px;font-weight:800;line-height:1.2;margin-bottom:12px;color:${c.title}">${esc(heroTitle)}</div>
-      <div style="font-size:17.6px;max-width:600px;margin:0 auto;white-space:pre-line;color:${c.title}">${esc(heroSub)}</div>
+      <div ${textMove(lang, 'hero.title')} style="font-size:40px;font-weight:800;line-height:1.2;margin-bottom:12px;color:${c.title};${textMoveCss(lang, 'hero.title')}">${esc(heroTitle)}</div>
+      <div ${textMove(lang, 'hero.subtitle')} style="font-size:17.6px;max-width:600px;margin:0 auto;white-space:pre-line;color:${c.title};${textMoveCss(lang, 'hero.subtitle')}">${esc(heroSub)}</div>
       <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:9.6px;margin-top:32px">${chips}</div>
-      <div style="display:inline-block;margin-top:32px;padding:13.6px 35.2px;border-radius:50px;background:${mode === 'dark' ? '#e8a945' : '#014f99'};color:${mode === 'dark' ? '#1e293b' : '#fff'};font-weight:700;font-size:16.8px">${esc(effText(lang, ['hero', 'cta']) || 'Jetzt starten')}</div>
+      <div ${textMove(lang, 'hero.cta')} style="display:inline-block;margin-top:32px;padding:13.6px 35.2px;border-radius:50px;background:${mode === 'dark' ? '#e8a945' : '#014f99'};color:${mode === 'dark' ? '#1e293b' : '#fff'};font-weight:700;font-size:16.8px;${textMoveCss(lang, 'hero.cta')}">${esc(effText(lang, ['hero', 'cta']) || 'Jetzt starten')}</div>
     </div>`;
   const sections = SECTION_MEDIA_KEYS.map((k) => sectionHtml(lang, k, mode)).join('');
   return `
@@ -496,6 +550,7 @@ export function bindFullPage(pane, lang, rr) {
   });
   const labelOf = (key) => {
     if (FULL_LABELS[key]) return FULL_LABELS[key];
+    if (key.startsWith('text:')) return TEXT_LABELS[key.slice(5)] || key;
     const [sec, k] = key.slice(5).split('.');
     return effText(lang, [sec, k, 'title']) || key;
   };
@@ -548,14 +603,22 @@ export function bindFullPage(pane, lang, rr) {
   };
   const apply = (key) => {
     const o = fullOffset(lang, key);
-    pane.querySelectorAll(`[data-smfullmedia="${CSS.escape(key)}"]`).forEach((el) => {
-      el.style.position = 'relative';
-      el.style.left = `${o.x}px`;
-      el.style.top = `${o.y}px`;
-      el.style.zIndex = o.x || o.y || scaled(o) ? '2' : '1';
-      el.style.transform = scaled(o) ? `scale(${o.w / 100},${o.h / 100})` : '';
-      el.style.transformOrigin = 'top left';
-    });
+    // Bei „Standard für alle Slots“ teilen sich die drei Abschnitts-Überschriften
+    // den Versatz des Master-Slots – dann alle drei live mitbewegen (wie auf der Seite).
+    const uniform =
+      key.startsWith('text:') &&
+      state.media[lang].textStyleUniform &&
+      UNIFORM_TEXT_KEYS.includes(key.slice(5));
+    const targets = uniform ? UNIFORM_TEXT_KEYS.map((slot) => `text:${slot}`) : [key];
+    for (const k of targets)
+      pane.querySelectorAll(`[data-smfullmedia="${CSS.escape(k)}"]`).forEach((el) => {
+        el.style.position = 'relative';
+        el.style.left = `${o.x}px`;
+        el.style.top = `${o.y}px`;
+        el.style.zIndex = o.x || o.y || scaled(o) ? '2' : '1';
+        el.style.transform = scaled(o) ? `scale(${o.w / 100},${o.h / 100})` : '';
+        el.style.transformOrigin = 'top left';
+      });
     if (key === activeKey(lang)) syncSel();
     showLive(key);
     if (key.startsWith('card:') && cardsInfo) {
