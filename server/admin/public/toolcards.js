@@ -23,6 +23,8 @@ import {
   delPath,
   getIconTint,
   defaultToolCardText,
+  defaultToolCardShow,
+  TOOL_CARD_SHOW_KEYS,
   normFontFile,
   normSiteMediaUrl,
   TOOL_CARD_WEIGHTS,
@@ -215,7 +217,8 @@ function hiddenBlock(lang) {
 }
 // Beispiel-Karte für das Standard-Design (nutzt das Icon der ersten Karte).
 function sampleCard(lang) {
-  const first = cardList(lang)[0];
+  // Icon der ersten Karte, die eines hat (ein leerer svg-Override entfernt es).
+  const first = cardList(lang).find((c) => c.svg);
   return {
     id: '',
     section: '',
@@ -244,6 +247,30 @@ function editText(lang) {
 }
 function textResetSource(lang) {
   return (selected && getToolCards(lang).default.text) || defaultToolCardText();
+}
+// Sichtbarkeit der Karten-Elemente des bearbeiteten Designs (beide Modi); fehlend -> alle an.
+const TOOL_CARD_SHOW_LABEL = {
+  icon: 'Icon',
+  badge: 'Badge',
+  title: 'Titel',
+  fav: 'Favoriten-Knopf',
+  open: '„Öffnen"-Link',
+  popup: 'Popup (Beschreibung beim Überfahren)',
+};
+function editShow(lang) {
+  const st = effectiveStyle(lang, selected);
+  if (!st.show || typeof st.show !== 'object') st.show = defaultToolCardShow();
+  return st.show;
+}
+function showResetSource(lang) {
+  return (selected && getToolCards(lang).default.show) || defaultToolCardShow();
+}
+// Inline-Style eines ausgeblendeten Elements in der Vorschau (Platz bleibt erhalten).
+function hiddenCss(show, key) {
+  return show && show[key] === false ? 'visibility:hidden;' : '';
+}
+function hiddenCount(show) {
+  return show ? TOOL_CARD_SHOW_KEYS.filter((k) => show[k] === false).length : 0;
 }
 function clampHalf(v, min, max, def) {
   const n = Number(v);
@@ -340,7 +367,7 @@ function fontCss() {
 }
 // HTML einer Vorschau-Karte im Look der echten Tool-Karte (Icon, Badge, Titel,
 // Fußzeile mit Favoriten-Symbol und „Öffnen").
-function cardHtml(lang, card, theme, s, attrs = '', text = null) {
+function cardHtml(lang, card, theme, s, attrs = '', text = null, show = null) {
   const p = PAGE[theme];
   const ts = textStyles(s, theme, text);
   // Icon-Färbung (Tab „Icons"): Farbe als Maske, eigener Kasten-Hintergrund.
@@ -352,7 +379,7 @@ function cardHtml(lang, card, theme, s, attrs = '', text = null) {
     ? `<span style="display:block;width:100%;height:100%;background:${tintColor};-webkit-mask:url('${safeSvg}') center / contain no-repeat;mask:url('${safeSvg}') center / contain no-repeat"></span>`
     : `<img src="${esc(card.svg)}" alt="" loading="lazy" />`;
   const icon = card.svg
-    ? `<div class="tc-icon" style="background:${iconBg};${ts.alignSelf}">${iconInner}</div>`
+    ? `<div class="tc-icon" style="background:${iconBg};${ts.alignSelf}${hiddenCss(show, 'icon')}">${iconInner}</div>`
     : '';
   const imgUrl = cardImageUrl(s.bgImage);
   const imgLayer = imgUrl
@@ -361,14 +388,14 @@ function cardHtml(lang, card, theme, s, attrs = '', text = null) {
       }"></span>`
     : '';
   const badge = card.badge
-    ? `<span class="tc-badge" style="${ts.badge}">${esc(card.badge)}</span>`
+    ? `<span class="tc-badge" style="${ts.badge}${hiddenCss(show, 'badge')}">${esc(card.badge)}</span>`
     : '';
   return `<div class="tc-card" ${attrs} style="${cardStyle(s)}">
       ${imgLayer}${icon}${badge}
-      <h3 class="tc-title" style="${ts.title}">${esc(card.title)}</h3>
+      <h3 class="tc-title" style="${ts.title}${hiddenCss(show, 'title')}">${esc(card.title)}</h3>
       <div class="tc-footer">
-        <span class="tc-fav" style="color:${p.muted}">${ICON_BOOKMARK}</span>
-        <span class="tc-open" style="${ts.open}">${esc(openLabel(lang))} ${ICON_ARROW}</span>
+        <span class="tc-fav" style="color:${p.muted};${hiddenCss(show, 'fav')}">${ICON_BOOKMARK}</span>
+        <span class="tc-open" style="${ts.open}${hiddenCss(show, 'open')}">${esc(openLabel(lang))} ${ICON_ARROW}</span>
       </div>
     </div>`;
 }
@@ -461,8 +488,8 @@ function previewBlock(lang) {
   const page = (theme) =>
     `<div class="tc-page" data-tcprev="${theme}" style="background:${pageBg(theme)};${fontCss()}">
         <span class="tc-page-label">${themeLabel(theme)}</span>
-        ${cardHtml(lang, card, theme, st[theme], '', st.text)}
-        ${selected ? `<p class="hint" style="margin:.5rem 0 0;color:${PAGE[theme].muted}"><span>Popup:</span> <em data-tcdesc="${theme}" style="${textStyles(st[theme], theme, st.text).desc}">${esc(card.description || '(keine Beschreibung)')}</em></p>` : ''}
+        ${cardHtml(lang, card, theme, st[theme], '', st.text, st.show)}
+        ${selected ? `<p class="hint" style="margin:.5rem 0 0;color:${PAGE[theme].muted}"><span data-tcdesclabel>${descLabel(st.show)}</span> <em data-tcdesc="${theme}" style="${textStyles(st[theme], theme, st.text).desc}${descHiddenCss(st.show)}">${esc(card.description || '(keine Beschreibung)')}</em></p>` : ''}
       </div>`;
   return `
     <div class="tc-sticky">
@@ -728,7 +755,7 @@ function refreshCardTexts(pane, lang) {
   const card = selected ? cardById(lang, selected) || sampleCard(lang) : sampleCard(lang);
   for (const theme of ['light', 'dark']) {
     const old = pane.querySelector(`[data-tcprev="${theme}"] .tc-card`);
-    if (old) old.outerHTML = cardHtml(lang, card, theme, st[theme], '', st.text);
+    if (old) old.outerHTML = cardHtml(lang, card, theme, st[theme], '', st.text, st.show);
   }
   pane.querySelectorAll('[data-tcdesc]').forEach((desc) => {
     desc.textContent = card.description || '(keine Beschreibung)';
@@ -743,6 +770,7 @@ function refreshCardTexts(pane, lang) {
         st[ovTheme],
         `data-tcov="${esc(selected)}"`,
         st.text,
+        st.show,
       );
     const opt = pane.querySelector(`[data-tcsel] option[value="${selected}"]`);
     if (opt)
@@ -773,12 +801,45 @@ function ownToggleHtml(lang) {
 function editsOwnDesign(lang) {
   return !selected || !!getToolCards(lang).cards[selected];
 }
-// Mitte: modusunabhängige Einstellungen (Typografie, Design übertragen).
+// Popup-Beschreibung unter der Sticky-Vorschau: Beschriftung/Darstellung, wenn ausgeblendet.
+function descLabel(show) {
+  return show && show.popup === false ? 'Popup (ausgeblendet):' : 'Popup:';
+}
+function descHiddenCss(show) {
+  return show && show.popup === false ? 'text-decoration:line-through;opacity:.45;' : '';
+}
+function showInfoText(show) {
+  const n = hiddenCount(show);
+  return n
+    ? `${n} Element(e) ausgeblendet – die Karte behält ihre Größe.`
+    : 'Alle Elemente sichtbar.';
+}
+// „Elemente ein-/ausblenden": je Element der Karte ein Schalter (gilt für Hell + Dunkel).
+function showBody(lang) {
+  const show = editShow(lang);
+  const items = TOOL_CARD_SHOW_KEYS.map(
+    (k) =>
+      `<label style="display:flex;align-items:center;gap:.4rem;color:var(--text);margin:0">
+        <input type="checkbox" data-tcel="${k}" ${show[k] !== false ? 'checked' : ''} style="width:auto" /> ${esc(TOOL_CARD_SHOW_LABEL[k])}
+      </label>`,
+  ).join('');
+  return `
+    <div style="display:flex;flex-wrap:wrap;gap:.4rem 1.2rem">${items}</div>
+    <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-top:.5rem">
+      <button type="button" class="hd-reset" data-tcelall style="flex:0 0 auto" title="${selected ? 'Wie im Standard-Design' : 'Alle Elemente anzeigen'}">↺ Alle anzeigen</button>
+      <span class="hint" style="margin:0" data-tcshowinfo>${esc(showInfoText(show))}</span>
+    </div>
+    <p class="hint">Ausgeblendete Elemente sind unsichtbar und nicht bedienbar, ihr Platz bleibt frei – die Karte behält ihre Größe. ${
+      selected ? 'Gilt nur für diese Karte.' : 'Gilt für alle Karten ohne eigenes Design.'
+    }</p>`;
+}
+// Mitte: modusunabhängige Einstellungen (Typografie, Sichtbarkeit, Design übertragen).
 function centerFieldsBlock(lang) {
   if (!editsOwnDesign(lang)) return ownToggleHtml(lang);
   return `
     ${ownToggleHtml(lang)}
     ${section('🔠 Typografie <span class="hint" style="font-weight:400">(Hell + Dunkel)</span>', typoBody(lang))}
+    ${section('👁️ Elemente ein-/ausblenden <span class="hint" style="font-weight:400">(Hell + Dunkel)</span>', showBody(lang))}
     ${section('📋 Design übertragen <span class="hint" style="font-weight:400">(Hell + Dunkel)</span>', applyBody(lang))}`;
 }
 // Seitenleiste eines Modus: Rahmen, Hintergrund, Hintergrundbild, Hover, Text-Farben.
@@ -917,7 +978,7 @@ function overviewBlock(lang) {
         return `<div class="${cls}" ${attrs} title="${c.hidden ? 'Ausgeblendet – erscheint nicht auf der Seite. ' : ''}Klicken, um diese Karte zu bearbeiten">
             ${own ? '<span class="tc-own" title="Eigenes Design">●</span>' : ''}
             ${c.hidden ? '<span class="tc-hidden-badge">ausgeblendet</span>' : ''}
-            ${cardHtml(lang, c, ovTheme, effectiveStyle(lang, c.id)[ovTheme], `data-tcov="${esc(c.id)}"`, effectiveStyle(lang, c.id).text)}
+            ${cardHtml(lang, c, ovTheme, effectiveStyle(lang, c.id)[ovTheme], `data-tcov="${esc(c.id)}"`, effectiveStyle(lang, c.id).text, effectiveStyle(lang, c.id).show)}
           </div>`;
       })
       .join('');
@@ -977,12 +1038,17 @@ function refreshPreview(pane, lang) {
   // Karten komplett neu zeichnen (Rahmen/Hintergrund + Text-Farben/Typografie).
   for (const theme of ['light', 'dark']) {
     const card = pane.querySelector(`[data-tcprev="${theme}"] .tc-card`);
-    if (card) card.outerHTML = cardHtml(lang, cardObj, theme, st[theme], '', st.text);
+    if (card) card.outerHTML = cardHtml(lang, cardObj, theme, st[theme], '', st.text, st.show);
   }
   pane.querySelectorAll('[data-tcdesc]').forEach((desc) => {
     const t = desc.dataset.tcdesc === 'dark' ? 'dark' : 'light';
-    desc.setAttribute('style', textStyles(st[t], t, st.text).desc);
+    desc.setAttribute('style', textStyles(st[t], t, st.text).desc + descHiddenCss(st.show));
   });
+  pane.querySelectorAll('[data-tcdesclabel]').forEach((el) => {
+    el.textContent = descLabel(st.show);
+  });
+  const showInfo = pane.querySelector('[data-tcshowinfo]');
+  if (showInfo) showInfo.textContent = showInfoText(st.show);
   const hs = pane.querySelector('[data-tchover]');
   if (hs) hs.textContent = previewHoverCss(st);
   // Übersicht: jede Karte mit ihrem effektiven Design im bearbeiteten Modus.
@@ -992,7 +1058,15 @@ function refreshPreview(pane, lang) {
     const c = list.find((x) => x.id === id);
     if (!c) return;
     const stc = effectiveStyle(lang, id);
-    el.outerHTML = cardHtml(lang, c, ovTheme, stc[ovTheme], `data-tcov="${esc(id)}"`, stc.text);
+    el.outerHTML = cardHtml(
+      lang,
+      c,
+      ovTheme,
+      stc[ovTheme],
+      `data-tcov="${esc(id)}"`,
+      stc.text,
+      stc.show,
+    );
   });
   const ohs = pane.querySelector('[data-tcovhover]');
   if (ohs) ohs.textContent = overviewHoverCss(lang);
@@ -1154,6 +1228,23 @@ export function renderToolCards() {
       toast('Auf Standard zurückgesetzt');
     }),
   );
+  // Elemente ein-/ausblenden (gilt für beide Modi): Live in der Vorschau.
+  pane.querySelectorAll('[data-tcel]').forEach((cb) =>
+    cb.addEventListener('change', () => {
+      ensureEnabled(lang, pane);
+      editShow(lang)[cb.dataset.tcel] = cb.checked;
+      refreshPreview(pane, lang);
+    }),
+  );
+  const showAll = pane.querySelector('[data-tcelall]');
+  if (showAll)
+    showAll.addEventListener('click', () => {
+      const src = showResetSource(lang);
+      const show = editShow(lang);
+      for (const k of TOOL_CARD_SHOW_KEYS) show[k] = src[k] !== false;
+      rerender();
+      toast(selected ? 'Sichtbarkeit wie im Standard-Design' : 'Alle Elemente sichtbar');
+    });
   // Zurücksetzen (↺): ein Feld bzw. "a:b:c" mehrere Felder auf die Quelle
   // (Werkswerte bzw. Standard-Design) zurücksetzen.
   pane.querySelectorAll('[data-tcreset]').forEach((el) =>

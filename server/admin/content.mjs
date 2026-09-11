@@ -379,11 +379,7 @@ function toolCardSideDark() {
   };
 }
 function defaultToolCards() {
-  return {
-    enabled: false,
-    default: { light: toolCardSideLight(), dark: toolCardSideDark() },
-    cards: {},
-  };
+  return { enabled: false, default: validateToolCardStyle({}), cards: {} };
 }
 const TOOL_CARD_KEY = /^(tools|imageTools|diverseTools)\.[a-zA-Z0-9_-]+$/;
 const TOOL_CARD_BORDER_STYLES = ['solid', 'dashed', 'dotted', 'double'];
@@ -460,12 +456,21 @@ function validateToolCardText(t) {
     align: TOOL_CARD_ALIGNS.includes(t.align) ? t.align : '',
   };
 }
+// Sichtbarkeit der Karten-Elemente (false = ausgeblendet, Platz bleibt erhalten).
+const TOOL_CARD_SHOW_KEYS = ['icon', 'badge', 'title', 'fav', 'open', 'popup'];
+function validateToolCardShow(s) {
+  const o = isPlainObject(s) ? s : {};
+  const out = {};
+  for (const k of TOOL_CARD_SHOW_KEYS) out[k] = o[k] !== false;
+  return out;
+}
 function validateToolCardStyle(st) {
   const o = isPlainObject(st) ? st : {};
   return {
     light: validateToolCardSide(o.light, toolCardSideLight()),
     dark: validateToolCardSide(o.dark, toolCardSideDark()),
     text: validateToolCardText(o.text),
+    show: validateToolCardShow(o.show),
   };
 }
 /**
