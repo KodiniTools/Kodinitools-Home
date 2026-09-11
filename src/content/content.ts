@@ -380,12 +380,35 @@ export interface ToolCardText {
   align?: string; // '' | left | center | right – Icon, Badge, Titel, Popup-Text
 }
 
+/**
+ * Sichtbarkeit der Karten-Elemente (Hell + Dunkel gemeinsam); fehlend/true =
+ * sichtbar. Ausgeblendete Elemente behalten ihren Platz (visibility:hidden),
+ * die Karte behält ihre Größe; das Popup (absolut positioniert) wird entfernt.
+ */
+export interface ToolCardShow {
+  icon?: boolean;
+  badge?: boolean;
+  title?: boolean;
+  fav?: boolean;
+  open?: boolean;
+  popup?: boolean;
+}
 /** Design einer Karte bzw. der Standard-Karte: getrennt Hell/Dunkel. */
 export interface ToolCardStyle {
   light: ToolCardSide;
   dark: ToolCardSide;
   text?: ToolCardText;
+  show?: ToolCardShow;
 }
+// Element-Schlüssel -> Selektor innerhalb von .svg-card-link (Startseiten-Markup).
+const TOOL_CARD_SHOW_SEL: ReadonlyArray<[keyof ToolCardShow, string]> = [
+  ['icon', '.tool-card-icon'],
+  ['badge', '.tool-card-badge'],
+  ['title', '.tool-card-title'],
+  ['fav', '.tool-card-footer .fav-btn'],
+  ['open', '.tool-card-open'],
+  ['popup', '.tool-popup'],
+];
 const TOOL_CARD_TEXT_DEFAULT: ToolCardText = { titleFont: '', titleSize: 0, titleWeight: '', titleSpacing: 0, titleTransform: '', textFont: '', badgeSize: 0, badgeWeight: '', badgeTransform: '', openSize: 0, openWeight: '', descSize: 0, align: '' };
 const TOOL_CARD_WEIGHTS: readonly string[] = ['', '400', '500', '600', '700', '800'];
 const TOOL_CARD_TRANSFORMS: readonly string[] = ['', 'none', 'uppercase', 'capitalize'];
@@ -1250,6 +1273,24 @@ export function getToolCardsCss(media: MediaConfig): string | undefined {
     emit(`[data-theme="dark"] ${sel}`, dark);
   };
   pushText('#app .svg-card-link', def, true);
+  // Ein-/ausgeblendete Elemente: Standard blendet aus; eine Karte mit eigenem
+  // Design setzt nur die Abweichungen vom Standard (aus- oder wieder einblenden;
+  // ihr Selektor ist spezifischer). Platz bleibt erhalten – nur das Popup
+  // (absolut, per Hover) wird entfernt; auf Touch-Geräten bleibt es weiterhin aus.
+  const isHidden = (style: ToolCardStyle, k: keyof ToolCardShow) =>
+    isPlainObject(style.show) && style.show[k] === false;
+  const pushShow = (sel: string, style: ToolCardStyle, base: ToolCardStyle | null) => {
+    for (const [k, part] of TOOL_CARD_SHOW_SEL) {
+      const hide = isHidden(style, k);
+      if (hide === (base ? isHidden(base, k) : false)) continue;
+      if (k === 'popup') {
+        if (hide) rules.push(`${sel} ${part}{display:none}`);
+        else rules.push(`${sel} ${part}{display:flex}@media (hover:none){${sel} ${part}{display:none}}`);
+      } else if (hide) rules.push(`${sel} ${part}{visibility:hidden;pointer-events:none}`);
+      else rules.push(`${sel} ${part}{visibility:visible;pointer-events:auto}`);
+    }
+  };
+  pushShow('#app .svg-card-link', def, null);
   const cards = isPlainObject(tc.cards) ? tc.cards : {};
   for (const [key, style] of Object.entries(cards)) {
     if (!TOOL_CARD_KEY.test(key) || !isPlainObject(style)) continue;
@@ -1258,6 +1299,7 @@ export function getToolCardsCss(media: MediaConfig): string | undefined {
     if (isPlainObject(style.dark))
       rules.push(`[data-theme="dark"] ${sel}{${toolCardSideVars(style.dark)}}`);
     pushText(`#app .svg-card-link[data-i18n-key="${key}"]`, style, false);
+    pushShow(`#app .svg-card-link[data-i18n-key="${key}"]`, style, def);
   }
   if (!rules.length) return undefined;
   return [...faces, ...rules].join('');

@@ -296,7 +296,21 @@ function cardDesign(lang, id, mode) {
   const align = text && text.align ? text.align : 'left';
   const alignSelf = align === 'center' ? 'center' : align === 'right' ? 'flex-end' : 'flex-start';
   const titleFont = text && text.titleFont ? fontFF(text.titleFont) : '';
-  return { bg, border, radius, titleSize, titleWeight, badgeSize, align, alignSelf, titleFont };
+  // Ausgeblendete Elemente (Tab „Tool-Karten“): unsichtbar, Platz bleibt.
+  const show = st && st.show && typeof st.show === 'object' ? st.show : {};
+  const hid = (k) => (show[k] === false ? 'visibility:hidden;' : '');
+  return {
+    bg,
+    border,
+    radius,
+    titleSize,
+    titleWeight,
+    badgeSize,
+    align,
+    alignSelf,
+    titleFont,
+    hid,
+  };
 }
 function cardHtml(lang, card, mode) {
   const c = FULL_TEXT[mode];
@@ -304,12 +318,12 @@ function cardHtml(lang, card, mode) {
   const key = `card:${card.id}`;
   const dark = mode === 'dark';
   const icon = card.svg
-    ? `<div style="width:44px;height:44px;border-radius:9.6px;overflow:hidden;background:${dark ? '#eef1f5' : '#ffffff'};box-sizing:border-box;padding:5px;flex-shrink:0;align-self:${d.alignSelf}"><img src="${esc(card.svg)}" alt="" style="width:100%;height:100%;object-fit:contain;display:block" /></div>`
+    ? `<div style="width:44px;height:44px;border-radius:9.6px;overflow:hidden;background:${dark ? '#eef1f5' : '#ffffff'};box-sizing:border-box;padding:5px;flex-shrink:0;align-self:${d.alignSelf};${d.hid('icon')}"><img src="${esc(card.svg)}" alt="" style="width:100%;height:100%;object-fit:contain;display:block" /></div>`
     : '';
   const badge = card.badge
-    ? `<span style="display:inline-block;font-size:${d.badgeSize}px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:${dark ? '#ffffff' : '#014f99'};background:${dark ? 'rgba(255,255,255,.1)' : 'rgba(1,79,153,.08)'};border:1px solid ${dark ? 'rgba(255,255,255,.25)' : 'rgba(1,79,153,.14)'};border-radius:5.6px;padding:2.4px 6.72px;white-space:nowrap;align-self:${d.alignSelf};margin-bottom:4.8px">${esc(card.badge)}</span>`
+    ? `<span style="display:inline-block;font-size:${d.badgeSize}px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:${dark ? '#ffffff' : '#014f99'};background:${dark ? 'rgba(255,255,255,.1)' : 'rgba(1,79,153,.08)'};border:1px solid ${dark ? 'rgba(255,255,255,.25)' : 'rgba(1,79,153,.14)'};border-radius:5.6px;padding:2.4px 6.72px;white-space:nowrap;align-self:${d.alignSelf};margin-bottom:4.8px;${d.hid('badge')}">${esc(card.badge)}</span>`
     : '';
-  const fav = `<span style="display:inline-block;width:28px;height:28px;border-radius:50%;color:${c.muted}"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="padding:6px;box-sizing:border-box"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span>`;
+  const fav = `<span style="display:inline-block;width:28px;height:28px;border-radius:50%;color:${c.muted};${d.hid('fav')}"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="padding:6px;box-sizing:border-box"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span>`;
   const HANDLES = [
     ['nw', 'left:-6px;top:-6px;cursor:nwse-resize'],
     ['ne', 'right:-6px;top:-6px;cursor:nesw-resize'],
@@ -325,8 +339,8 @@ function cardHtml(lang, card, mode) {
   return `<div data-smfullmedia="${esc(key)}" data-smcard="${esc(card.id)}" role="button" tabindex="0" title="${esc(card.title)} – Ziehen: verschieben (Pfeiltasten: 1 px, Shift 10 px); Punkte: Größe" style="z-index:1;${moveCss(fullOffset(lang, key))}${activeCss(key)}"><span data-smhandles style="display:${fullActive === key ? 'contents' : 'none'}">${handles}</span>
       <div style="background:${d.bg};border:${d.border};border-radius:${d.radius}px;padding:17.6px 17.6px 13.6px;display:flex;flex-direction:column;gap:7.2px;height:100%;box-sizing:border-box;overflow:hidden">
         ${icon}${badge}
-        <h3 style="font-size:${d.titleSize}px;font-weight:${d.titleWeight};color:${c.title};line-height:1.3;min-height:2.6em;margin:0 0 5.6px;white-space:pre-line;text-align:${d.align};${d.titleFont}">${esc(card.title)}</h3>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8.8px;padding-top:8.8px">${fav}<span style="font-size:12px;opacity:0">Öffnen</span></div>
+        <h3 style="font-size:${d.titleSize}px;font-weight:${d.titleWeight};color:${c.title};line-height:1.3;min-height:2.6em;margin:0 0 5.6px;white-space:pre-line;text-align:${d.align};${d.titleFont}${d.hid('title')}">${esc(card.title)}</h3>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8.8px;padding-top:8.8px">${fav}<span style="font-size:12px;opacity:0;${d.hid('open')}">Öffnen</span></div>
       </div>
     </div>`;
 }

@@ -122,8 +122,27 @@ export function normToolCardText(t) {
     align: TOOL_CARD_ALIGNS.includes(t.align) ? t.align : '',
   };
 }
+// Sichtbarkeit der Karten-Elemente (Hell + Dunkel gemeinsam); false = ausgeblendet.
+// Der Platz bleibt erhalten (visibility:hidden), die Karte behält ihre Größe.
+export const TOOL_CARD_SHOW_KEYS = ['icon', 'badge', 'title', 'fav', 'open', 'popup'];
+export function defaultToolCardShow() {
+  const o = {};
+  for (const k of TOOL_CARD_SHOW_KEYS) o[k] = true;
+  return o;
+}
+export function normToolCardShow(s) {
+  const o = s && typeof s === 'object' ? s : {};
+  const out = {};
+  for (const k of TOOL_CARD_SHOW_KEYS) out[k] = o[k] !== false;
+  return out;
+}
 export function defaultToolCardStyle() {
-  return { light: toolCardSideLight(), dark: toolCardSideDark(), text: defaultToolCardText() };
+  return {
+    light: toolCardSideLight(),
+    dark: toolCardSideDark(),
+    text: defaultToolCardText(),
+    show: defaultToolCardShow(),
+  };
 }
 export function defaultToolCards() {
   return { enabled: false, default: defaultToolCardStyle(), cards: {} };
@@ -206,6 +225,7 @@ export function normToolCardStyle(st) {
     light: normToolCardSide(o.light, toolCardSideLight()),
     dark: normToolCardSide(o.dark, toolCardSideDark()),
     text: normToolCardText(o.text),
+    show: normToolCardShow(o.show),
   };
 }
 // Geladenes Tool-Karten-Design normalisieren (Standard + Einzel-Designs).
