@@ -124,7 +124,7 @@ const schemaBreadcrumb = {
   <script type="application/ld+json" set:html={JSON.stringify(schemaArticle)} />
   <script type="application/ld+json" set:html={JSON.stringify(schemaBreadcrumb)} />
 
-  <style>
+  <style is:global>
     .blog-main {
       min-height: calc(100vh - 140px);
       padding: 2rem 1rem 5rem;
@@ -306,6 +306,32 @@ const schemaBreadcrumb = {
       font-size: 0.85rem;
       margin: 0;
       color: var(--text-secondary, #4f6f8e);
+    }
+
+    /* Demo screenshot */
+    .blog-demo {
+      margin: 0.5rem 0 2rem;
+    }
+
+    .blog-demo img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 0.75rem;
+      border: 1px solid var(--border-color, #d4c09a);
+      box-shadow: 0 8px 24px rgba(1, 79, 153, 0.14);
+    }
+
+    [data-theme="dark"] .blog-demo img {
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .blog-demo figcaption {
+      margin-top: 0.6rem;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      color: var(--text-muted, #4f6f8e);
+      text-align: center;
     }
 
     /* Table */
