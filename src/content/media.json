@@ -245,7 +245,7 @@
         "offsetY": 0
       }
     },
-    "heroMode": "grid",
+    "heroMode": "banner",
     "heroLayout": "row4",
     "heroBannerShow": true,
     "heroMediaOffsetX": 0,
