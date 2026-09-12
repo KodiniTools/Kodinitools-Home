@@ -320,10 +320,23 @@ const schemaBreadcrumb = {
       border-radius: 0.75rem;
       border: 1px solid var(--border-color, #d4c09a);
       box-shadow: 0 8px 24px rgba(1, 79, 153, 0.14);
+      cursor: zoom-in;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .blog-demo img:hover,
+    .blog-demo img:focus-visible {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(1, 79, 153, 0.22);
     }
 
     [data-theme="dark"] .blog-demo img {
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    [data-theme="dark"] .blog-demo img:hover,
+    [data-theme="dark"] .blog-demo img:focus-visible {
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
     }
 
     .blog-demo figcaption {
@@ -332,6 +345,55 @@ const schemaBreadcrumb = {
       line-height: 1.5;
       color: var(--text-muted, #4f6f8e);
       text-align: center;
+    }
+
+    /* Lightbox for demo screenshots */
+    .lightbox-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(9, 20, 40, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(1rem, 5vw, 3rem);
+      z-index: 1000;
+      cursor: zoom-out;
+    }
+
+    .lightbox-overlay[hidden] {
+      display: none;
+    }
+
+    .lightbox-overlay img {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 0.75rem;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      cursor: default;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: clamp(0.75rem, 3vw, 1.5rem);
+      right: clamp(0.75rem, 3vw, 1.5rem);
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.12);
+      border: none;
+      border-radius: 50%;
+      color: #ffffff;
+      font-size: 1.5rem;
+      line-height: 1;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .lightbox-close:hover,
+    .lightbox-close:focus-visible {
+      background: rgba(255, 255, 255, 0.25);
     }
 
     /* Table */
@@ -566,10 +628,61 @@ const schemaBreadcrumb = {
   <SiteFooter lang={lang} />
   <Fragment set:html={cookieBannerHtml} />
 
+  <div id="blog-lightbox" class="lightbox-overlay" hidden>
+    <button type="button" class="lightbox-close" aria-label={lang === 'de' ? 'Schliessen' : 'Close'}>&times;</button>
+    <img src="" alt="" />
+  </div>
+
   <script is:inline>
   (function() {
     const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     document.documentElement.setAttribute('data-theme', theme);
+  })();
+  </script>
+
+  <script>
+  (function () {
+    const overlay = document.getElementById('blog-lightbox');
+    if (!overlay) return;
+    const overlayImg = overlay.querySelector('img');
+    const closeBtn = overlay.querySelector('.lightbox-close');
+    let lastFocused = null;
+
+    function openLightbox(sourceImg) {
+      lastFocused = document.activeElement;
+      overlayImg.src = sourceImg.currentSrc || sourceImg.src;
+      overlayImg.alt = sourceImg.alt;
+      overlay.hidden = false;
+      document.body.style.overflow = 'hidden';
+      closeBtn.focus();
+    }
+
+    function closeLightbox() {
+      overlay.hidden = true;
+      overlayImg.src = '';
+      document.body.style.overflow = '';
+      if (lastFocused) lastFocused.focus();
+    }
+
+    document.querySelectorAll('.blog-demo img').forEach((img) => {
+      img.setAttribute('role', 'button');
+      img.setAttribute('tabindex', '0');
+      img.addEventListener('click', () => openLightbox(img));
+      img.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          openLightbox(img);
+        }
+      });
+    });
+
+    closeBtn.addEventListener('click', closeLightbox);
+    overlay.addEventListener('click', (event) => {
+      if (event.target === overlay) closeLightbox();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !overlay.hidden) closeLightbox();
+    });
   })();
   </script>
 </body>
