@@ -32,7 +32,9 @@
       "svg": ""
     },
     "modernPlayer": {
-      "svg": ""
+      "svg": "",
+      "badge": "radio",
+      "title": "Moderner Musikplayer\nkodinitools Radio"
     },
     "playlistGenerator": {
       "svg": ""

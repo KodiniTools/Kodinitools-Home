@@ -245,21 +245,12 @@
         "offsetY": 0
       }
     },
-    "heroMode": "banner",
+    "heroMode": "grid",
     "heroLayout": "row4",
     "heroBannerShow": true,
     "heroMediaOffsetX": 0,
     "heroMediaOffsetY": 0,
-    "toolCardOffsets": {
-      "diverseTools.textEditor": {
-        "x": 238,
-        "y": -1
-      },
-      "diverseTools.videoConverter": {
-        "x": 135,
-        "y": -3
-      }
-    },
+    "toolCardOffsets": {},
     "heroBanner": "/uploads/de/png--4--9a2e791b.png",
     "heroBannerLink": "https://kodinitools.com/audio-cutter/",
     "heroBannerText": "NEU",
@@ -630,7 +621,7 @@
           "descColor": "#19242e",
           "descBgColor": "#ffffff",
           "bgImage": "",
-          "bgImageOpacity": 100,
+          "bgImageOpacity": 68,
           "bgImageDarken": 0
         },
         "dark": {
@@ -673,6 +664,14 @@
           "openWeight": "",
           "descSize": 18,
           "align": "center"
+        },
+        "show": {
+          "icon": true,
+          "badge": true,
+          "title": true,
+          "fav": true,
+          "open": true,
+          "popup": true
         }
       },
       "cards": {
@@ -743,6 +742,14 @@
             "openWeight": "",
             "descSize": 18,
             "align": "center"
+          },
+          "show": {
+            "icon": true,
+            "badge": true,
+            "title": true,
+            "fav": true,
+            "open": true,
+            "popup": true
           }
         },
         "tools.audioEqualizer": {
@@ -812,6 +819,14 @@
             "openWeight": "",
             "descSize": 18,
             "align": "center"
+          },
+          "show": {
+            "icon": true,
+            "badge": true,
+            "title": true,
+            "fav": true,
+            "open": true,
+            "popup": true
           }
         },
         "tools.musicPlayer": {
@@ -881,6 +896,14 @@
             "openWeight": "",
             "descSize": 18,
             "align": "center"
+          },
+          "show": {
+            "icon": true,
+            "badge": true,
+            "title": true,
+            "fav": true,
+            "open": true,
+            "popup": true
           }
         },
         "tools.audioVisualizer": {
@@ -950,6 +973,14 @@
             "openWeight": "",
             "descSize": 18,
             "align": "center"
+          },
+          "show": {
+            "icon": true,
+            "badge": true,
+            "title": true,
+            "fav": true,
+            "open": true,
+            "popup": true
           }
         },
         "tools.mp3Converter": {
@@ -1019,6 +1050,14 @@
             "openWeight": "",
             "descSize": 18,
             "align": "center"
+          },
+          "show": {
+            "icon": true,
+            "badge": true,
+            "title": true,
+            "fav": true,
+            "open": true,
+            "popup": true
           }
         },
         "tools.interactiveEqualizer": {
@@ -1088,6 +1127,14 @@
             "openWeight": "",
             "descSize": 18,
             "align": "center"
+          },
+          "show": {
+            "icon": true,
+            "badge": true,
+            "title": true,
+            "fav": true,
+            "open": true,
+            "popup": true
           }
         },
         "tools.modernPlayer": {
@@ -1157,6 +1204,14 @@
             "openWeight": "",
             "descSize": 18,
             "align": "center"
+          },
+          "show": {
+            "icon": true,
+            "badge": true,
+            "title": true,
+            "fav": true,
+            "open": true,
+            "popup": true
           }
         },
         "tools.playlistGenerator": {
@@ -1226,6 +1281,14 @@
             "openWeight": "",
             "descSize": 18,
             "align": "center"
+          },
+          "show": {
+            "icon": true,
+            "badge": true,
+            "title": true,
+            "fav": true,
+            "open": true,
+            "popup": true
           }
         },
         "tools.alarmTool": {
@@ -1295,6 +1358,14 @@
             "openWeight": "",
             "descSize": 18,
             "align": "center"
+          },
+          "show": {
+            "icon": true,
+            "badge": true,
+            "title": true,
+            "fav": true,
+            "open": true,
+            "popup": true
           }
         },
         "tools.audioNormalizer": {
@@ -1364,6 +1435,14 @@
             "openWeight": "",
             "descSize": 18,
             "align": "center"
+          },
+          "show": {
+            "icon": true,
+            "badge": true,
+            "title": true,
+            "fav": true,
+            "open": true,
+            "popup": true
           }
         },
         "tools.playlistToWebm": {
@@ -1433,6 +1512,14 @@
             "openWeight": "",
             "descSize": 18,
             "align": "center"
+          },
+          "show": {
+            "icon": true,
+            "badge": true,
+            "title": true,
+            "fav": true,
+            "open": true,
+            "popup": true
           }
         },
         "tools.audioCutter": {
@@ -1502,6 +1589,14 @@
             "openWeight": "",
             "descSize": 18,
             "align": "center"
+          },
+          "show": {
+            "icon": true,
+            "badge": true,
+            "title": true,
+            "fav": true,
+            "open": true,
+            "popup": true
           }
         },
         "imageTools.imageConverter": {
@@ -1571,6 +1666,14 @@
             "openWeight": "",
             "descSize": 18,
             "align": "center"
+          },
+          "show": {
+            "icon": true,
+            "badge": true,
+            "title": true,
+            "fav": true,
+            "open": true,
+            "popup": true
           }
         },
         "imageTools.batchImageEditor": {
@@ -1640,6 +1743,14 @@
             "openWeight": "",
             "descSize": 18,
             "align": "center"
+          },
+          "show": {
+            "icon": true,
+            "badge": true,
+            "title": true,
+            "fav": true,
+            "open": true,
+            "popup": true
           }
         },
         "imageTools.photoCollage": {
@@ -1709,6 +1820,14 @@
             "openWeight": "",
             "descSize": 18,
             "align": "center"
+          },
+          "show": {
+            "icon": true,
+            "badge": true,
+            "title": true,
+            "fav": true,
+            "open": true,
+            "popup": true
           }
         },
         "diverseTools.colorExtractor": {
@@ -1778,6 +1897,14 @@
             "openWeight": "",
             "descSize": 18,
             "align": "center"
+          },
+          "show": {
+            "icon": true,
+            "badge": true,
+            "title": true,
+            "fav": true,
+            "open": true,
+            "popup": true
           }
         },
         "diverseTools.videoConverter": {
@@ -1847,6 +1974,14 @@
             "openWeight": "",
             "descSize": 18,
             "align": "center"
+          },
+          "show": {
+            "icon": true,
+            "badge": true,
+            "title": true,
+            "fav": true,
+            "open": true,
+            "popup": true
           }
         },
         "diverseTools.textEditor": {
@@ -1916,6 +2051,14 @@
             "openWeight": "",
             "descSize": 18,
             "align": "center"
+          },
+          "show": {
+            "icon": true,
+            "badge": true,
+            "title": true,
+            "fav": true,
+            "open": true,
+            "popup": true
           }
         }
       }
@@ -2487,6 +2630,14 @@
           "openWeight": "",
           "descSize": 18,
           "align": "center"
+        },
+        "show": {
+          "icon": true,
+          "badge": true,
+          "title": true,
+          "fav": true,
+          "open": true,
+          "popup": true
         }
       },
       "cards": {}
