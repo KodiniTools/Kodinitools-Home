@@ -204,12 +204,18 @@ const paypalUrl = 'https://www.paypal.com/qrcodes/managed/3dd3fbb9-29f0-4293-809
       color: rgba(255, 255, 255, 0.85);
     }
 
-    .donate-buttons {
+    .donate-methods {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
-      gap: 1rem;
+      gap: 2.5rem;
       flex-wrap: wrap;
+    }
+
+    .donate-method {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .donate-btn {
@@ -360,16 +366,26 @@ const paypalUrl = 'https://www.paypal.com/qrcodes/managed/3dd3fbb9-29f0-4293-809
         </div>
 
         <div class="donate-action">
-          <p class="donate-action-text">Schnell &amp; sicher spenden – per PayPal (QR-Code oder Button) oder via Buy Me a Coffee.</p>
-          <div class="donate-qr">
-            <img src="/image/qrcode.png" alt="PayPal QR-Code zum Spenden an KodiniTools" width="160" height="160" loading="lazy" />
-            <span>Mit dem Smartphone scannen</span>
-          </div>
-          <div class="donate-buttons">
-            <a href={paypalUrl} class="donate-btn" target="_blank" rel="noopener">
-              Jetzt via PayPal spenden →
-            </a>
-            <script is:inline type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="dinkoramic" data-color="#5F7FFF" data-emoji="" data-font="Poppins" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#ffffff" data-coffee-color="#FFDD00"></script>
+          <p class="donate-action-text">Schnell &amp; sicher spenden – wähle deine bevorzugte Methode.</p>
+          <div class="donate-methods">
+            <div class="donate-method">
+              <div class="donate-qr">
+                <img src="/image/qrcode.png" alt="PayPal QR-Code zum Spenden an KodiniTools" width="160" height="160" loading="lazy" />
+                <span>Mit dem Smartphone scannen</span>
+              </div>
+              <a href={paypalUrl} class="donate-btn" target="_blank" rel="noopener">
+                Jetzt via PayPal spenden →
+              </a>
+            </div>
+            <div class="donate-method">
+              <div class="donate-qr">
+                <img src="/image/qr-code.png" alt="Buy Me a Coffee QR-Code zum Spenden an KodiniTools" width="160" height="160" loading="lazy" />
+                <span>Mit dem Smartphone scannen</span>
+              </div>
+              <a href="https://www.buymeacoffee.com/dinkoramic" class="donate-btn" target="_blank" rel="noopener">
+                Buy Me a Coffee →
+              </a>
+            </div>
           </div>
         </div>
 
