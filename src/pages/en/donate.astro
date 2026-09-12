@@ -1,0 +1,397 @@
+---
+import GlobalNav from '../../components/GlobalNav.astro'
+import TickerBar from '../../components/TickerBar.astro'
+import SiteFooter from '../../components/SiteFooter.astro'
+import SiteFont from '../../components/SiteFont.astro'
+import { readFileSync } from 'fs'
+import { resolve } from 'path'
+
+const cookieBannerHtml = readFileSync(resolve('public/partials/cookie-banner.html'), 'utf-8')
+
+const paypalUrl = 'https://www.paypal.com/qrcodes/managed/3dd3fbb9-29f0-4293-809e-171fccde19e1?utm_source=payandgetpaid'
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script is:inline>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);} // eslint-disable-line prefer-rest-params -- offizielles Google-Snippet, arguments bewusst
+  gtag('consent', 'default', {
+    'ad_storage': 'denied', 'ad_user_data': 'denied', 'ad_personalization': 'denied',
+    'analytics_storage': 'denied', 'functionality_storage': 'denied',
+    'personalization_storage': 'denied', 'security_storage': 'granted', 'wait_for_update': 500
+  });
+  (function() {
+    try {
+      const c = JSON.parse(localStorage.getItem('cookieConsent') || '{}');
+      if (c.analytics) gtag('consent', 'update', { 'analytics_storage': 'granted', 'functionality_storage': 'granted', 'personalization_storage': 'granted' });
+      if (c.marketing) gtag('consent', 'update', { 'ad_storage': 'granted', 'ad_user_data': 'granted', 'ad_personalization': 'granted' });
+    } catch { /* Consent optional – Fehler bewusst ignorieren */ }
+  })();
+  </script>
+  <script is:inline>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});const f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-T7NS656K');</script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support KodiniTools – Donate Voluntarily Instead of a Paywall | KodiniTools</title>
+  <meta name="description" content="Support KodiniTools voluntarily via PayPal. No paywalls, no subscription traps — just useful, free tools kept running by voluntary donations." />
+  <meta name="robots" content="index, follow" />
+  <meta name="language" content="en" />
+  <link rel="canonical" href="https://kodinitools.com/en/donate/" />
+  <link rel="alternate" hreflang="en" href="https://kodinitools.com/en/donate/" />
+  <link rel="alternate" hreflang="de" href="https://kodinitools.com/spenden/" />
+  <link rel="alternate" hreflang="x-default" href="https://kodinitools.com/spenden/" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://kodinitools.com/en/donate/" />
+  <meta property="og:title" content="Support KodiniTools – Donate Voluntarily Instead of a Paywall" />
+  <meta property="og:description" content="No paywalls. No subscription traps. Just useful tools — kept alive by voluntary donations." />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:site_name" content="KodiniTools" />
+
+  <meta name="theme-color" content="#014f99" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <style>
+    @import '../../styles/global.css';
+
+    .donate-main {
+      min-height: calc(100vh - 140px);
+      padding: 2rem 1rem 5rem;
+    }
+
+    .donate-container {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .donate-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.82rem;
+      color: var(--text-muted, #4f6f8e);
+      margin-bottom: 2rem;
+    }
+
+    .donate-breadcrumb a {
+      color: var(--primary-color, #014f99);
+      text-decoration: none;
+    }
+
+    .donate-breadcrumb a:hover { text-decoration: underline; }
+
+    .donate-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .donate-header h1 {
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, #014f99 0%, #003971 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.75rem;
+      line-height: 1.2;
+    }
+
+    [data-theme="dark"] .donate-header h1 {
+      background: linear-gradient(135deg, #c9984d 0%, #f8e1a9 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    .donate-subtitle {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-secondary, #014f99);
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .donate-content p {
+      font-size: 0.92rem;
+      line-height: 1.75;
+      color: var(--text-color, #003971);
+      margin: 0 0 1.25rem;
+    }
+
+    [data-theme="dark"] .donate-content p { color: var(--text-color, #f9f2d5); }
+
+    .donate-content h2 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-color, #003971);
+      margin: 2.25rem 0 1rem;
+    }
+
+    [data-theme="dark"] .donate-content h2 { color: var(--text-color, #f9f2d5); }
+
+    .donate-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: 0 0 1.5rem;
+    }
+
+    .donate-card {
+      background: var(--bg-secondary, #ffffff);
+      border: 1px solid var(--border-color, #d4c09a);
+      border-radius: 1rem;
+      padding: 1.25rem;
+    }
+
+    .donate-card strong {
+      display: block;
+      font-size: 0.92rem;
+      color: var(--text-color, #003971);
+      margin-bottom: 0.35rem;
+    }
+
+    [data-theme="dark"] .donate-card strong { color: var(--text-color, #f9f2d5); }
+
+    .donate-card p {
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--text-secondary, #4f6f8e);
+      margin: 0;
+    }
+
+    .donate-action {
+      background: linear-gradient(135deg, #014f99 0%, #003971 100%);
+      border-radius: 1.25rem;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      margin: 2rem 0;
+    }
+
+    [data-theme="dark"] .donate-action {
+      background: linear-gradient(135deg, #c9984d 0%, #a67d3d 100%);
+    }
+
+    .donate-action-text {
+      color: rgba(255, 255, 255, 0.92);
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin: 0 0 1.25rem;
+    }
+
+    .donate-qr {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .donate-qr img {
+      width: 160px;
+      height: 160px;
+      border-radius: 1rem;
+      background: #ffffff;
+      padding: 0.5rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .donate-qr span {
+      font-size: 0.78rem;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .donate-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: #ffffff;
+      color: var(--primary-color, #014f99);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 0.8rem 1.6rem;
+      border-radius: 0.75rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    [data-theme="dark"] .donate-btn { color: #091428; }
+
+    .donate-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+      text-decoration: none;
+    }
+
+    .donate-signature {
+      text-align: center;
+      font-style: italic;
+      color: var(--text-muted, #4f6f8e);
+      font-size: 0.9rem;
+      margin-top: 2rem !important;
+    }
+
+    .donate-back {
+      margin-top: 3rem;
+      text-align: center;
+    }
+
+    .donate-back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.7rem 1.4rem;
+      background: linear-gradient(135deg, #014f99 0%, #003971 100%);
+      color: #ffffff;
+      text-decoration: none;
+      border-radius: 0.75rem;
+      font-weight: 600;
+      font-size: 0.88rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 15px rgba(1, 79, 153, 0.3);
+    }
+
+    [data-theme="dark"] .donate-back-btn {
+      background: linear-gradient(135deg, #c9984d 0%, #a67d3d 100%);
+      color: #091428;
+    }
+
+    .donate-back-btn:hover {
+      transform: translateY(-2px);
+      text-decoration: none;
+    }
+
+    @media (max-width: 600px) {
+      .donate-main { padding: 1.5rem 0.75rem 3rem; }
+      .donate-header h1 { font-size: 1.4rem; }
+      .donate-action { padding: 1.5rem 1rem; }
+    }
+  </style>
+  <SiteFont />
+</head>
+<body>
+  <div class="global-background" aria-hidden="true">
+    <div class="global-gradient"></div>
+    <div class="global-noise"></div>
+  </div>
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T7NS656K" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+  <GlobalNav lang="en" />
+  <TickerBar lang="en" />
+
+  <main class="donate-main">
+    <div class="donate-container">
+
+      <nav class="donate-breadcrumb" aria-label="Breadcrumb">
+        <a href="/en/">Home</a>
+        <span aria-hidden="true">›</span>
+        <span aria-current="page">Donate</span>
+      </nav>
+
+      <header class="donate-header">
+        <h1>Support KodiniTools: Keeping Software Free</h1>
+        <p class="donate-subtitle">No paywalls. No subscription traps. Just useful tools.</p>
+      </header>
+
+      <div class="donate-content">
+
+        <p>
+          KodiniTools was born from a simple conviction: modern digital tools for audio, images, and media should be directly accessible to everyone — with no expensive monthly subscriptions, no forced registration, and no artificial barriers.
+        </p>
+
+        <p>
+          I develop and maintain this platform independently from Uster, Switzerland. Every tool is built from the ground up to save you time and make your work easier right away.
+        </p>
+
+        <h2>Why Voluntary Donations?</h2>
+
+        <p>Running KodiniTools comes with real costs:</p>
+
+        <div class="donate-grid">
+          <div class="donate-card">
+            <strong>Servers &amp; Infrastructure</strong>
+            <p>Fast load times, stable hosting, and reliable computing power.</p>
+          </div>
+          <div class="donate-card">
+            <strong>Active Development</strong>
+            <p>New features, bug fixes, and up-to-date browser compatibility.</p>
+          </div>
+          <div class="donate-card">
+            <strong>Independence</strong>
+            <p>No intrusive ad banners, no selling of data, and no investors putting profit ahead of usefulness.</p>
+          </div>
+        </div>
+
+        <p>
+          Instead of locking every feature behind a 20-euro paywall, I rely on trust and appreciation: those who use the tools regularly and benefit from them give something back voluntarily. Those who can't afford to right now still get to use them for free.
+        </p>
+
+        <h2>Make a Contribution</h2>
+
+        <p>
+          If KodiniTools has helped you finish a job, save time, or bring a creative project to life, I'd be grateful for your support:
+        </p>
+
+        <div class="donate-grid">
+          <div class="donate-card">
+            <strong>Buy a Coffee</strong>
+            <p>A small amount that keeps the code running.</p>
+          </div>
+          <div class="donate-card">
+            <strong>Project Supporter</strong>
+            <p>Help cover the monthly hosting and server costs directly.</p>
+          </div>
+          <div class="donate-card">
+            <strong>Any Amount</strong>
+            <p>Every franc or euro flows directly into further developing the tools.</p>
+          </div>
+        </div>
+
+        <div class="donate-action">
+          <p class="donate-action-text">Fast &amp; secure via PayPal — scan with your phone or click directly.</p>
+          <div class="donate-qr">
+            <img src="/image/qrcode.png" alt="PayPal QR code to donate to KodiniTools" width="160" height="160" loading="lazy" />
+            <span>Scan with your smartphone</span>
+          </div>
+          <div>
+            <a href={paypalUrl} class="donate-btn" target="_blank" rel="noopener">
+              Donate now via PayPal →
+            </a>
+          </div>
+        </div>
+
+        <p>
+          A huge thank you to everyone who helps carry this project forward. Your support helps keep the web a little more open, fair, and ad-free.
+        </p>
+
+        <p class="donate-signature">– Dinko Ramic, developer of KodiniTools</p>
+
+      </div>
+
+      <div class="donate-back">
+        <a href="/en/" class="donate-back-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>
+          </svg>
+          Back to Home
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <SiteFooter lang="en" />
+  <Fragment set:html={cookieBannerHtml} />
+
+  <script is:inline>
+  (function() {
+    const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+  })();
+  </script>
+</body>
+</html>
