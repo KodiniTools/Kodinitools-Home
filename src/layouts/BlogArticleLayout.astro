@@ -45,7 +45,7 @@ const schemaArticle = {
   datePublished: publishedDate,
   dateModified: modifiedDate ?? publishedDate,
   inLanguage: lang,
-  author: { '@type': 'Person', name: 'Dinko Ramic', url: 'https://kodinitools.com/uebermich' },
+  author: { '@type': 'Person', name: 'Dinko Ramic' },
   publisher: {
     '@type': 'Organization',
     name: 'KodiniTools',
@@ -394,6 +394,52 @@ const schemaBreadcrumb = {
     .lightbox-close:hover,
     .lightbox-close:focus-visible {
       background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Author card */
+    .blog-author {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 0 0 1.5rem;
+      padding: 1rem 1.25rem;
+      background: var(--bg-secondary, #ffffff);
+      border: 1px solid var(--border-color, #d4c09a);
+      border-radius: 1rem;
+    }
+
+    .blog-author img {
+      width: 72px;
+      height: 72px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: 50% 20%;
+      border: 2px solid var(--primary-color, #014f99);
+    }
+
+    [data-theme="dark"] .blog-author img {
+      border-color: var(--accent-color, #c9984d);
+    }
+
+    .blog-author-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .blog-author-info strong {
+      font-size: 0.95rem;
+      color: var(--text-color, #003971);
+    }
+
+    [data-theme="dark"] .blog-author-info strong {
+      color: var(--text-color, #f9f2d5);
+    }
+
+    .blog-author-info span {
+      font-size: 0.82rem;
+      color: var(--text-muted, #4f6f8e);
     }
 
     /* Table */
