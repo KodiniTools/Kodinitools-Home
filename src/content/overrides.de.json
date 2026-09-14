@@ -61,11 +61,11 @@
   "imageTools": {
     "imageConverter": {
       "svg": "",
-      "title": "Bildkonverter\npng-jpeg-webp-pdf"
+      "title": "Bildkonverter\npng-jpeg-webp-pdf-svg-gif-heif"
     },
     "batchImageEditor": {
       "svg": "",
-      "title": "Bilderserie Bildbearbeitung\npng-jpg-webp-pdf",
+      "title": "Bilderserie Bildbearbeitung\npng-jpg-webp-pdf-zip",
       "badge": "500+"
     },
     "photoCollage": {
@@ -77,7 +77,9 @@
       "svg": ""
     },
     "videoConverter": {
-      "svg": ""
+      "svg": "",
+      "badge": "5gb max",
+      "title": "Videokonverter\nmp4-webm-avi-mov-ts-flv-mkv"
     },
     "textEditor": {
       "svg": ""

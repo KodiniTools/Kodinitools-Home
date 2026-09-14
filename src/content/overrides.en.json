@@ -33,7 +33,8 @@
       "title": "Modern Music Player\nkodinitools radio"
     },
     "playlistGenerator": {
-      "svg": ""
+      "svg": "",
+      "title": "Audio Playlist Generator\nm3u-pls-cue-json-txt"
     },
     "alarmTool": {
       "svg": ""
@@ -53,10 +54,14 @@
   },
   "imageTools": {
     "imageConverter": {
-      "svg": ""
+      "svg": "",
+      "title": "Image Converter\npng-jpeg-webp-pdf-svg-gif-heif"
     },
     "batchImageEditor": {
-      "svg": ""
+      "svg": "",
+      "title": "Batch Image Editor\npng-jpg-webp-pdf-zip",
+      "badge": "500+",
+      "description": "Resize multiple images at once – 500+ images simultaneously, rename and export as ZIP or PDF. Batch convert images free."
     },
     "photoCollage": {
       "svg": ""
@@ -67,7 +72,9 @@
       "svg": ""
     },
     "videoConverter": {
-      "svg": ""
+      "svg": "",
+      "badge": "5gb max",
+      "title": "Video Converter\nmp4-webm-avi-mov-mkv-flv-wmv-ts"
     },
     "textEditor": {
       "svg": ""
