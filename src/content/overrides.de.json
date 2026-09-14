@@ -83,7 +83,8 @@
       "title": "Videokonverter\nmp4-webm-avi-mov-ts-flv-mkv"
     },
     "textEditor": {
-      "svg": ""
+      "svg": "",
+      "title": "Texteditor\ntxt-html-md-pdf"
     }
   }
 }
