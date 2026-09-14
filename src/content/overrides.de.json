@@ -74,7 +74,8 @@
   },
   "diverseTools": {
     "colorExtractor": {
-      "svg": ""
+      "svg": "",
+      "title": "Kodini Farbextraktor\nFarbgenerator"
     },
     "videoConverter": {
       "svg": "",
