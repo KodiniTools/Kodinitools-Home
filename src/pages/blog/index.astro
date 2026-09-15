@@ -20,6 +20,15 @@ const posts = [
     image: '/image/kodinitools-blog.webp',
   },
   {
+    slug: '/blog/wiedergabeliste-erstellen',
+    title: 'Wiedergabeliste erstellen: M3U, PLS & XSPF kostenlos im Browser generieren',
+    description: 'Audiodateien hinzufügen, Reihenfolge festlegen, als M3U, M3U8, PLS, XSPF, CUE, CSV oder JSON speichern – ohne Upload, direkt im Browser.',
+    date: '15. September 2026',
+    tag: 'Audio',
+    minutes: 5,
+    image: '/image/wiedergabeliste-generator.png',
+  },
+  {
     slug: '/blog/mp3-in-wav-umwandeln',
     title: 'MP3 in WAV umwandeln: Kostenlos & ohne Registrierung',
     description: 'Wann macht die Umwandlung Sinn? Was ist der Unterschied? Schritt-für-Schritt Anleitung.',
@@ -255,6 +264,13 @@ const regularPosts = posts.filter((post) => !post.featured)
       .blog-featured-media { min-height: 160px; }
     }
 
+
+    /* Regular post with image preview (same layout as featured card, sits inside the grid) */
+    .blog-featured-card.blog-card-image {
+      margin-bottom: 0;
+      border-radius: 1rem;
+    }
+
     .blog-card {
       display: block;
       background: var(--bg-secondary, #ffffff);
@@ -387,22 +403,44 @@ const regularPosts = posts.filter((post) => !post.featured)
       )}
 
       <div class="blog-grid">
-        {regularPosts.map((post) => (
-          <a href={post.slug} class="blog-card">
-            <div class="blog-card-header">
-              <span class="blog-card-tag">{post.tag}</span>
-              <span class="blog-card-meta">{post.date} · {post.minutes} Min.</span>
-            </div>
-            <h2>{post.title}</h2>
-            <p>{post.description}</p>
-            <div class="blog-card-arrow">
-              Artikel lesen
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
-              </svg>
-            </div>
-          </a>
-        ))}
+        {regularPosts.map((post) =>
+          post.image ? (
+            <a href={post.slug} class="blog-featured-card blog-card-image">
+              <div class="blog-featured-media">
+                <img src={post.image} alt="" width="640" height="360" loading="lazy" />
+              </div>
+              <div class="blog-featured-content">
+                <div class="blog-card-header">
+                  <span class="blog-card-tag">{post.tag}</span>
+                  <span class="blog-card-meta">{post.date} · {post.minutes} Min.</span>
+                </div>
+                <h2>{post.title}</h2>
+                <p>{post.description}</p>
+                <div class="blog-card-arrow">
+                  Artikel lesen
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+                  </svg>
+                </div>
+              </div>
+            </a>
+          ) : (
+            <a href={post.slug} class="blog-card">
+              <div class="blog-card-header">
+                <span class="blog-card-tag">{post.tag}</span>
+                <span class="blog-card-meta">{post.date} · {post.minutes} Min.</span>
+              </div>
+              <h2>{post.title}</h2>
+              <p>{post.description}</p>
+              <div class="blog-card-arrow">
+                Artikel lesen
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+                </svg>
+              </div>
+            </a>
+          )
+        )}
       </div>
 
     </div>
