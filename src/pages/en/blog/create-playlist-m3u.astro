@@ -1,0 +1,152 @@
+---
+import BlogArticleLayout from '../../../layouts/BlogArticleLayout.astro'
+---
+
+<BlogArticleLayout
+  title="How to Create a Playlist: Generate M3U, PLS & XSPF Free in Your Browser | KodiniTools"
+  description="Create a playlist without any software: add audio files, set the order, save as M3U, M3U8, PLS, XSPF, CUE, CSV or JSON — free, directly in your browser."
+  canonical="https://kodinitools.com/en/blog/create-playlist-m3u/"
+  altHref="https://kodinitools.com/blog/wiedergabeliste-erstellen/"
+  publishedDate="2026-09-15"
+  lang="en"
+>
+
+  <h1>How to Create a Playlist: Generate M3U, PLS &amp; XSPF Free in Your Browser</h1>
+
+  <div class="blog-meta">
+    <span class="blog-meta-badge">How-to</span>
+    <span>September 15, 2026</span>
+    <span>· 5 min read</span>
+  </div>
+
+  <p>
+    Writing a playlist by hand is tedious: typing file names, checking paths, getting the syntax right. The KodiniTools Audio Playlist Generator does it for you. Drop your audio files into the browser, set the order, and save the finished playlist in the format your player understands — no installation, no registration.
+  </p>
+
+  <figure class="blog-demo">
+    <img
+      src="/image/playlist-generator.png"
+      alt="Screenshot of the KodiniTools Audio Playlist Generator with interactive track list, playback order selection and M3U preview"
+      width="1920"
+      height="945"
+      loading="lazy"
+    />
+    <figcaption>Configuration with track list and playback order on the left, live preview of the playlist in the selected format on the right.</figcaption>
+  </figure>
+
+  <h2>What Does a Playlist Generator Do?</h2>
+
+  <p>
+    A playlist file contains no music — only references to audio files in a defined order. Media players such as VLC, Winamp or Foobar2000 read this file and play the tracks one after another. The generator builds exactly this file automatically from the files you add: correct file names, clean syntax, and optional metadata such as title and duration.
+  </p>
+
+  <h2>Supported Playlist Formats at a Glance</h2>
+
+  <div class="blog-table-wrap">
+    <table class="blog-table">
+      <thead>
+        <tr>
+          <th>Format</th>
+          <th>Type</th>
+          <th>Best for</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>M3U</td><td>Text list</td><td>Standard for VLC, Winamp and almost every player</td></tr>
+        <tr><td>M3U8</td><td>Text list (UTF-8)</td><td>File names with accents or special characters</td></tr>
+        <tr><td>PLS</td><td>INI structure</td><td>Winamp, streaming clients, older players</td></tr>
+        <tr><td>XSPF</td><td>XML</td><td>VLC, open standard with metadata</td></tr>
+        <tr><td>CUE</td><td>Cue sheet</td><td>Burning software, track markers</td></tr>
+        <tr><td>TXT / CSV</td><td>Text / table</td><td>Documentation, Excel, overviews</td></tr>
+        <tr><td>JSON</td><td>Structured data</td><td>Custom apps, web players, scripts</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="tip-box">
+    <p><strong>Which format should you pick?</strong> When in doubt, M3U — it works practically everywhere. If your file names contain accents or special characters, M3U8 is the safer choice. For VLC with extra information, use XSPF.</p>
+  </div>
+
+  <h2>Step by Step: Creating a Playlist</h2>
+
+  <ol class="steps">
+    <li>
+      <div class="step-content">
+        <strong>Open the Playlist Generator</strong>
+        <p>Go to <a href="https://kodinitools.com/playlist_generator/" target="_blank" rel="noopener">kodinitools.com/playlist_generator</a> — free, no registration.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Add audio files</strong>
+        <p>Select individual files or entire folders, drag and drop them, or paste with Ctrl+V. The interactive track list immediately shows the number of tracks, total size and total duration.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Set the playback order</strong>
+        <p>Alphabetical, by date, random or manual — in manual mode simply drag the tracks to the position you want. Individual tracks can be unchecked or removed.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Name the playlist &amp; choose a format</strong>
+        <p>Enter a name and click the preview format on the right. The preview updates live — you see exactly what ends up in the file.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Save or copy</strong>
+        <p>Use "Save As…" to download the playlist file. Alternatively, copy the content to the clipboard, for example for your own player.</p>
+      </div>
+    </li>
+  </ol>
+
+  <div class="tip-box">
+    <p><strong>Important for M3U and XSPF:</strong> Save the playlist file in the same folder as your audio files. Only then can VLC, Winamp and others find the tracks, because the list contains relative file names.</p>
+  </div>
+
+  <h2>Listen Before You Save</h2>
+
+  <p>
+    The built-in player at the bottom plays the track list directly — with previous/next, stop, repeat and a volume slider. Check the order before exporting the playlist and reorder if needed.
+  </p>
+
+  <h2>Privacy: Everything Stays in Your Browser</h2>
+
+  <p>
+    The generator processes your files locally in the browser. Nothing is uploaded — neither the audio files nor the file names. This also makes the tool practical for large collections with several hundred tracks: no upload waiting time and no size limits imposed by a server.
+  </p>
+
+  <h2>Typical Use Cases</h2>
+
+  <ul>
+    <li><strong>Parties and events:</strong> add the music folder, shuffle randomly, load as M3U in VLC.</li>
+    <li><strong>DJ sets and radio shows:</strong> manual order via drag and drop, export as CUE or PLS.</li>
+    <li><strong>Audiobooks and podcasts:</strong> sort chapters alphabetically or by date so nothing gets mixed up.</li>
+    <li><strong>Archives and documentation:</strong> export the track overview as CSV for Excel or as JSON for your own applications.</li>
+  </ul>
+
+  <div class="blog-cta">
+    <p>Create your playlist now — free, no upload, in every common format.</p>
+    <a href="https://kodinitools.com/playlist_generator/" class="blog-cta-btn" target="_blank" rel="noopener">
+      Open Playlist Generator →
+    </a>
+  </div>
+
+  <div class="blog-related">
+    <h2>Related articles</h2>
+    <div class="blog-related-grid">
+      <a href="/en/blog/change-audio-file-format/" class="blog-related-card">
+        <span>How to Change Audio File Format: GDPR-Compliant &amp; Free</span>
+      </a>
+      <a href="/en/blog/normalize-audio-online/" class="blog-related-card">
+        <span>How to Normalize Audio: LUFS &amp; dBFS Explained</span>
+      </a>
+      <a href="/en/blog/mp3-to-wav-converter/" class="blog-related-card">
+        <span>How to Convert MP3 to WAV Free Online</span>
+      </a>
+    </div>
+  </div>
+
+</BlogArticleLayout>

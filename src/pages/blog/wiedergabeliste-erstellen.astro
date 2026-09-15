@@ -1,0 +1,152 @@
+---
+import BlogArticleLayout from '../../layouts/BlogArticleLayout.astro'
+---
+
+<BlogArticleLayout
+  title="Wiedergabeliste erstellen: M3U, PLS & XSPF kostenlos im Browser generieren | KodiniTools"
+  description="Wiedergabeliste erstellen ohne Software: Audiodateien hinzufügen, Reihenfolge festlegen, als M3U, M3U8, PLS, XSPF, CUE, CSV oder JSON speichern – kostenlos, direkt im Browser."
+  canonical="https://kodinitools.com/blog/wiedergabeliste-erstellen/"
+  altHref="https://kodinitools.com/en/blog/create-playlist-m3u/"
+  publishedDate="2026-09-15"
+  lang="de"
+>
+
+  <h1>Wiedergabeliste erstellen: M3U, PLS &amp; XSPF kostenlos im Browser generieren</h1>
+
+  <div class="blog-meta">
+    <span class="blog-meta-badge">How-to</span>
+    <span>15. September 2026</span>
+    <span>· 5 Min. Lesezeit</span>
+  </div>
+
+  <p>
+    Eine Wiedergabeliste von Hand zu schreiben ist mühsam: Dateinamen abtippen, Pfade prüfen, auf die richtige Syntax achten. Der KodiniTools Wiedergabeliste Generator nimmt Ihnen das ab. Sie ziehen Ihre Audiodateien in den Browser, legen die Reihenfolge fest und speichern die fertige Playlist in dem Format, das Ihr Player versteht – ohne Installation, ohne Registrierung.
+  </p>
+
+  <figure class="blog-demo">
+    <img
+      src="/image/wiedergabeliste-generator.png"
+      alt="Screenshot des KodiniTools Wiedergabeliste Generators mit interaktiver Trackliste, Auswahl der Abspielreihenfolge und M3U-Vorschau"
+      width="1920"
+      height="945"
+      loading="lazy"
+    />
+    <figcaption>Links die Konfiguration mit Trackliste und Reihenfolge, rechts die Live-Vorschau der Playlist im gewählten Format.</figcaption>
+  </figure>
+
+  <h2>Was macht ein Wiedergabeliste Generator?</h2>
+
+  <p>
+    Eine Playlist-Datei enthält keine Musik, sondern nur Verweise auf Audiodateien – in einer festgelegten Reihenfolge. Mediaplayer wie VLC, Winamp oder Foobar2000 lesen diese Datei und spielen die Titel nacheinander ab. Der Generator erzeugt genau diese Datei automatisch aus den Dateien, die Sie hinzufügen: mit korrekten Dateinamen, sauberer Syntax und optionalen Metadaten wie Titel und Dauer.
+  </p>
+
+  <h2>Unterstützte Playlist-Formate im Überblick</h2>
+
+  <div class="blog-table-wrap">
+    <table class="blog-table">
+      <thead>
+        <tr>
+          <th>Format</th>
+          <th>Typ</th>
+          <th>Idealer Einsatz</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>M3U</td><td>Textliste</td><td>Standard für VLC, Winamp und fast alle Player</td></tr>
+        <tr><td>M3U8</td><td>Textliste (UTF-8)</td><td>Dateinamen mit Umlauten oder Sonderzeichen</td></tr>
+        <tr><td>PLS</td><td>INI-Struktur</td><td>Winamp, Streaming-Clients, ältere Player</td></tr>
+        <tr><td>XSPF</td><td>XML</td><td>VLC, offener Standard mit Metadaten</td></tr>
+        <tr><td>CUE</td><td>Cue-Sheet</td><td>Brennprogramme, Track-Marker</td></tr>
+        <tr><td>TXT / CSV</td><td>Text / Tabelle</td><td>Dokumentation, Excel, Übersichten</td></tr>
+        <tr><td>JSON</td><td>Strukturierte Daten</td><td>Eigene Apps, Web-Player, Skripte</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="tip-box">
+    <p><strong>Welches Format wählen?</strong> Im Zweifel M3U – es funktioniert praktisch überall. Enthalten Ihre Dateinamen Umlaute oder Sonderzeichen, ist M3U8 die sicherere Wahl. Für VLC mit Zusatzinformationen eignet sich XSPF.</p>
+  </div>
+
+  <h2>Schritt-für-Schritt: Wiedergabeliste erstellen</h2>
+
+  <ol class="steps">
+    <li>
+      <div class="step-content">
+        <strong>Wiedergabeliste Generator öffnen</strong>
+        <p>Besuchen Sie <a href="https://kodinitools.com/playlist_generator/" target="_blank" rel="noopener">kodinitools.com/playlist_generator</a> – kostenlos, keine Registrierung.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Audiodateien hinzufügen</strong>
+        <p>Einzelne Dateien oder ganze Ordner auswählen, per Drag &amp; Drop ablegen oder mit Strg+V einfügen. Die interaktive Trackliste zeigt sofort Anzahl, Gesamtgrösse und Gesamtdauer.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Abspielreihenfolge festlegen</strong>
+        <p>Alphabetisch, nach Datum, zufällig oder manuell – bei manueller Sortierung ziehen Sie die Titel einfach an die gewünschte Position. Einzelne Tracks lassen sich per Häkchen abwählen oder entfernen.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Wiedergabeliste benennen &amp; Format wählen</strong>
+        <p>Namen vergeben und rechts das Vorschau-Format anklicken. Die Vorschau aktualisiert sich live – Sie sehen exakt, was in der Datei landet.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Speichern oder kopieren</strong>
+        <p>Mit „Speichern unter…" laden Sie die Playlist-Datei herunter. Alternativ kopieren Sie den Inhalt in die Zwischenablage, etwa für einen eigenen Player.</p>
+      </div>
+    </li>
+  </ol>
+
+  <div class="tip-box">
+    <p><strong>Wichtig für M3U und XSPF:</strong> Speichern Sie die Playlist-Datei im selben Ordner wie Ihre Audiodateien. Nur so finden VLC, Winamp und Co. die Titel, da die Liste relative Dateinamen enthält.</p>
+  </div>
+
+  <h2>Vor dem Speichern anhören</h2>
+
+  <p>
+    Der integrierte Player am unteren Rand spielt die Trackliste direkt ab – mit Vor/Zurück, Stopp, Wiederholung und Lautstärkeregler. So prüfen Sie die Reihenfolge, bevor Sie die Playlist exportieren, und sortieren bei Bedarf noch einmal um.
+  </p>
+
+  <h2>Datenschutz: Alles bleibt im Browser</h2>
+
+  <p>
+    Der Generator verarbeitet Ihre Dateien lokal im Browser. Es wird nichts hochgeladen – weder die Audiodateien noch die Dateinamen. Das macht das Tool auch für grosse Sammlungen mit mehreren hundert Titeln praktikabel: Es gibt keine Upload-Wartezeit und keine Grössenlimits durch einen Server.
+  </p>
+
+  <h2>Typische Anwendungsfälle</h2>
+
+  <ul>
+    <li><strong>Party oder Veranstaltung:</strong> Musik-Ordner hinzufügen, zufällig mischen, als M3U in VLC laden.</li>
+    <li><strong>DJ-Sets und Radioshows:</strong> Manuelle Reihenfolge mit Drag &amp; Drop, Export als CUE oder PLS.</li>
+    <li><strong>Hörbücher und Podcasts:</strong> Kapitel alphabetisch oder nach Datum sortieren, damit nichts durcheinandergerät.</li>
+    <li><strong>Archiv und Dokumentation:</strong> Titelübersicht als CSV für Excel oder als JSON für eigene Anwendungen exportieren.</li>
+  </ul>
+
+  <div class="blog-cta">
+    <p>Jetzt Wiedergabeliste erstellen – kostenlos, ohne Upload, in jedem gängigen Format.</p>
+    <a href="https://kodinitools.com/playlist_generator/" class="blog-cta-btn" target="_blank" rel="noopener">
+      Wiedergabeliste Generator öffnen →
+    </a>
+  </div>
+
+  <div class="blog-related">
+    <h2>Verwandte Artikel</h2>
+    <div class="blog-related-grid">
+      <a href="/blog/audiodatei-format-aendern/" class="blog-related-card">
+        <span>Audiodatei Format ändern: DSGVO-konform &amp; kostenlos</span>
+      </a>
+      <a href="/blog/audio-normalisieren/" class="blog-related-card">
+        <span>Audio Lautstärke normalisieren: LUFS erklärt</span>
+      </a>
+      <a href="/blog/mp3-in-wav-umwandeln/" class="blog-related-card">
+        <span>MP3 in WAV umwandeln: Kostenlos &amp; ohne Registrierung</span>
+      </a>
+    </div>
+  </div>
+
+</BlogArticleLayout>
