@@ -152,6 +152,20 @@ const schemaBreadcrumb = {
 
     .blog-breadcrumb a:hover { text-decoration: underline; }
 
+    /* Article panel: keeps the text readable on the animated global background (watermark, grid) */
+    .blog-article {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--border-color, #d4c09a);
+      border-radius: 1.1rem;
+      padding: clamp(1.25rem, 4vw, 2.25rem);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+    }
+
+    [data-theme="dark"] .blog-article {
+      background: rgba(14, 28, 50, 0.92);
+    }
+
     /* Article typography */
     .blog-article h1 {
       font-size: clamp(1.5rem, 4vw, 2rem);
@@ -196,7 +210,7 @@ const schemaBreadcrumb = {
 
     [data-theme="dark"] .blog-meta-badge {
       background: rgba(201, 152, 77, 0.12);
-      color: var(--accent-color, #c9984d);
+      color: var(--primary-color, #e8a945);
     }
 
     .blog-article p {
@@ -225,7 +239,7 @@ const schemaBreadcrumb = {
       margin: 1.5rem 0 0.5rem;
     }
 
-    [data-theme="dark"] .blog-article h3 { color: var(--accent-color, #c9984d); }
+    [data-theme="dark"] .blog-article h3 { color: var(--primary-color, #e8a945); }
 
     .blog-article ul, .blog-article ol {
       margin: 0 0 1.25rem 1.5rem;
@@ -254,7 +268,7 @@ const schemaBreadcrumb = {
       text-underline-offset: 2px;
     }
 
-    [data-theme="dark"] .blog-article a { color: var(--accent-color, #c9984d); }
+    [data-theme="dark"] .blog-article a { color: var(--primary-color, #e8a945); }
 
     /* Steps */
     .steps {
@@ -294,7 +308,7 @@ const schemaBreadcrumb = {
       margin-top: 0.1rem;
     }
 
-    [data-theme="dark"] .steps li::before { background: var(--accent-color, #c9984d); color: #091428; }
+    [data-theme="dark"] .steps li::before { background: var(--primary-color, #e8a945); color: #091428; }
 
     .steps li .step-content strong {
       display: block;
@@ -419,7 +433,7 @@ const schemaBreadcrumb = {
     }
 
     [data-theme="dark"] .blog-author img {
-      border-color: var(--accent-color, #c9984d);
+      border-color: var(--primary-color, #e8a945);
     }
 
     .blog-author-info {
@@ -467,7 +481,7 @@ const schemaBreadcrumb = {
 
     [data-theme="dark"] .blog-table th {
       background: rgba(201, 152, 77, 0.08);
-      color: var(--accent-color, #c9984d);
+      color: var(--primary-color, #e8a945);
     }
 
     .blog-table td {
@@ -491,7 +505,7 @@ const schemaBreadcrumb = {
 
     [data-theme="dark"] .tip-box {
       background: rgba(201, 152, 77, 0.06);
-      border-left-color: var(--accent-color, #c9984d);
+      border-left-color: var(--primary-color, #e8a945);
     }
 
     .tip-box p {
@@ -578,7 +592,7 @@ const schemaBreadcrumb = {
     }
 
     [data-theme="dark"] .blog-related-card:hover {
-      border-color: var(--accent-color, #c9984d);
+      border-color: var(--primary-color, #e8a945);
     }
 
     .blog-related-card span {
@@ -625,6 +639,7 @@ const schemaBreadcrumb = {
     @media (max-width: 600px) {
       .blog-main { padding: 1.5rem 0.75rem 3rem; }
       .blog-article h1 { font-size: 1.35rem; }
+      .blog-article { padding: 1rem 0.9rem; border-radius: 0.9rem; }
       .steps li { padding: 0.85rem 1rem; }
     }
   </style>

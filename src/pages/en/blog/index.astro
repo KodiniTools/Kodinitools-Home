@@ -172,12 +172,22 @@ const regularPosts = posts.filter((post) => !post.featured)
       border-color: var(--primary-color, #014f99);
       box-shadow: 0 8px 28px rgba(1, 79, 153, 0.14); text-decoration: none;
     }
-    [data-theme="dark"] .blog-featured-card:hover { border-color: var(--accent-color, #c9984d); box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35); }
+    [data-theme="dark"] .blog-featured-card:hover { border-color: var(--primary-color, #e8a945); box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35); }
     .blog-featured-media { min-height: 180px; }
     .blog-featured-media img { display: block; width: 100%; height: 100%; object-fit: cover; }
     .blog-featured-content { padding: 1.5rem 1.75rem; display: flex; flex-direction: column; justify-content: center; }
     .blog-featured-content h2 { font-size: 1.2rem; font-weight: 800; color: var(--text-color, #003971); margin: 0 0 0.5rem; line-height: 1.3; }
     [data-theme="dark"] .blog-featured-content h2 { color: var(--text-color, #f9f2d5); }
+
+    /* Description inside image cards: explicit color, otherwise the browser link color of the <a> wrapper leaks through */
+    .blog-featured-content p {
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--text-secondary, #4f6f8e);
+      margin: 0;
+    }
+
+    [data-theme="dark"] .blog-featured-content p { color: var(--text-secondary, #f8e1a9); }
     .blog-card-tag-featured { background: linear-gradient(135deg, #014f99 0%, #003971 100%); color: #ffffff; }
     [data-theme="dark"] .blog-card-tag-featured { background: linear-gradient(135deg, #c9984d 0%, #a67d3d 100%); color: #091428; }
     @media (max-width: 640px) {
@@ -200,13 +210,13 @@ const regularPosts = posts.filter((post) => !post.featured)
       border-color: var(--primary-color, #014f99);
       box-shadow: 0 4px 20px rgba(1, 79, 153, 0.1); text-decoration: none;
     }
-    [data-theme="dark"] .blog-card:hover { border-color: var(--accent-color, #c9984d); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+    [data-theme="dark"] .blog-card:hover { border-color: var(--primary-color, #e8a945); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
     .blog-card-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
     .blog-card-tag {
       font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 999px;
       color: var(--primary-color, #014f99); background: rgba(1,79,153,0.08);
     }
-    [data-theme="dark"] .blog-card-tag { background: rgba(201,152,77,0.12); color: var(--accent-color, #c9984d); }
+    [data-theme="dark"] .blog-card-tag { background: rgba(201,152,77,0.12); color: var(--primary-color, #e8a945); }
     .blog-card-meta { font-size: 0.78rem; color: var(--text-muted, #4f6f8e); }
     .blog-card h2 { font-size: 1rem; font-weight: 700; color: var(--text-color, #003971); margin: 0 0 0.4rem; line-height: 1.35; }
     [data-theme="dark"] .blog-card h2 { color: var(--text-color, #f9f2d5); }
@@ -216,7 +226,7 @@ const regularPosts = posts.filter((post) => !post.featured)
       margin-top: 0.75rem; color: var(--primary-color, #014f99);
       font-size: 0.8rem; font-weight: 600; gap: 0.3rem;
     }
-    [data-theme="dark"] .blog-card-arrow { color: var(--accent-color, #c9984d); }
+    [data-theme="dark"] .blog-card-arrow { color: var(--primary-color, #e8a945); }
     @media (max-width: 600px) {
       .blog-index-main { padding: 1.5rem 0.75rem 3rem; }
       .blog-card { padding: 1rem 1.1rem; }
