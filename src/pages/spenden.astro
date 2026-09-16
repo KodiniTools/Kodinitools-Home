@@ -115,6 +115,29 @@ const paypalUrl = 'https://www.paypal.com/qrcodes/managed/3dd3fbb9-29f0-4293-809
       margin: 0 auto;
     }
 
+    /* Content panel: keeps text readable on the animated global background (watermark, grid) */
+    .donate-content {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--border-color, #d4c09a);
+      border-radius: 1.1rem;
+      padding: clamp(1.25rem, 4vw, 2.25rem);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+    }
+
+    [data-theme="dark"] .donate-content {
+      background: rgba(14, 28, 50, 0.92);
+    }
+
+    /* Subtitle sits inside the panel now; keep its own styling over the generic paragraph rule */
+    .donate-content p.donate-subtitle {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-secondary, #014f99);
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
     .donate-content p {
       font-size: 0.92rem;
       line-height: 1.75;
@@ -282,6 +305,7 @@ const paypalUrl = 'https://www.paypal.com/qrcodes/managed/3dd3fbb9-29f0-4293-809
     @media (max-width: 600px) {
       .donate-main { padding: 1.5rem 0.75rem 3rem; }
       .donate-header h1 { font-size: 1.4rem; }
+      .donate-content { padding: 1rem 0.9rem; border-radius: 0.9rem; }
       .donate-action { padding: 1.5rem 1rem; }
     }
   </style>
@@ -306,12 +330,12 @@ const paypalUrl = 'https://www.paypal.com/qrcodes/managed/3dd3fbb9-29f0-4293-809
         <span aria-current="page">Spenden</span>
       </nav>
 
+      <div class="donate-content">
+
       <header class="donate-header">
         <h1>Unterstütze KodiniTools: Software frei halten</h1>
         <p class="donate-subtitle">Keine Paywalls. Keine Abofallen. Einfach nützliche Werkzeuge.</p>
       </header>
-
-      <div class="donate-content">
 
         <p>
           KodiniTools entstand aus einer einfachen Überzeugung: Moderne digitale Werkzeuge für Audio, Bild und Medien sollten für jeden direkt zugänglich sein – ohne teure Monatsabos, ohne Registrierungszwang und ohne künstliche Barrieren.
