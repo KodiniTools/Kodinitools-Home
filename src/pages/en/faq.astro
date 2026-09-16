@@ -98,6 +98,8 @@ const schemaFaq = {
       </nav>
 
       <!-- Header -->
+      <div class="faq-panel">
+
       <header class="faq-header">
         <h1>{en.faq.title}</h1>
         <p class="faq-subtitle">{en.faq.subtitle}</p>
@@ -127,6 +129,8 @@ const schemaFaq = {
           </div>
         ))}
       </section>
+
+      </div>
 
       <!-- Back to home -->
       <div class="faq-back">
@@ -200,6 +204,20 @@ const schemaFaq = {
       margin: 0 auto;
     }
 
+    /* Content panel: keeps text readable on the animated global background (watermark, grid) */
+    .faq-panel {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--border-color, #d4c09a);
+      border-radius: 1.1rem;
+      padding: clamp(1.25rem, 4vw, 2.25rem);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+    }
+
+    [data-theme="dark"] .faq-panel {
+      background: rgba(14, 28, 50, 0.92);
+    }
+
     .faq-list {
       display: flex;
       flex-direction: column;
@@ -220,7 +238,7 @@ const schemaFaq = {
     }
 
     [data-theme="dark"] .faq-item:hover {
-      border-color: var(--accent-color, #c9984d);
+      border-color: var(--primary-color, #e8a945);
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
     }
 
@@ -230,7 +248,7 @@ const schemaFaq = {
     }
 
     [data-theme="dark"] .faq-item.is-open {
-      border-color: var(--accent-color, #c9984d);
+      border-color: var(--primary-color, #e8a945);
     }
 
     .faq-question {
@@ -321,6 +339,7 @@ const schemaFaq = {
 
     @media (max-width: 600px) {
       .faq-main { padding: 1.5rem 0.75rem 3rem; }
+      .faq-panel { padding: 1rem 0.9rem; border-radius: 0.9rem; }
       .faq-question { padding: 0.9rem 1rem; font-size: 0.88rem; }
       .faq-answer { padding: 0 1rem 1rem; }
       .faq-answer p { font-size: 0.85rem; }
