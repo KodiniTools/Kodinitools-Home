@@ -198,6 +198,20 @@ const regularPosts = posts.filter((post) => !post.featured)
       margin: 0 auto;
     }
 
+    /* Content panel: keeps text readable on the animated global background (watermark, grid) */
+    .blog-panel {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--border-color, #d4c09a);
+      border-radius: 1.1rem;
+      padding: clamp(1.25rem, 4vw, 2.25rem);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+    }
+
+    [data-theme="dark"] .blog-panel {
+      background: rgba(14, 28, 50, 0.92);
+    }
+
     .blog-grid {
       display: flex;
       flex-direction: column;
@@ -368,6 +382,7 @@ const regularPosts = posts.filter((post) => !post.featured)
 
     @media (max-width: 600px) {
       .blog-index-main { padding: 1.5rem 0.75rem 3rem; }
+      .blog-panel { padding: 1rem 0.9rem; border-radius: 0.9rem; }
       .blog-card { padding: 1rem 1.1rem; }
     }
   </style>
@@ -391,6 +406,8 @@ const regularPosts = posts.filter((post) => !post.featured)
         <span aria-hidden="true">›</span>
         <span aria-current="page">Blog</span>
       </nav>
+
+      <div class="blog-panel">
 
       <header class="blog-index-header">
         <h1>Blog – Tipps &amp; Anleitungen</h1>
@@ -458,6 +475,8 @@ const regularPosts = posts.filter((post) => !post.featured)
             </a>
           )
         )}
+      </div>
+
       </div>
 
     </div>
