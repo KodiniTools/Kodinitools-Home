@@ -1,9 +1,13 @@
 ---
 interface Props {
   lang: 'de' | 'en'
+  // Path or full URL of the same page in the other language (e.g. from a blog
+  // article's hreflang). When omitted, known page pairs are mapped by path and
+  // everything else falls back to the other language's home page.
+  altHref?: string
 }
 
-const { lang } = Astro.props
+const { lang, altHref } = Astro.props
 
 const t = {
   de: {
@@ -40,7 +44,6 @@ const t = {
     ariaMenuOpen: 'Menü öffnen',
     ariaMenuClose: 'Menü schliessen',
     ariaMainNav: 'Hauptnavigation',
-    enHref: '/en/',
     deActive: true,
   },
   en: {
@@ -77,13 +80,35 @@ const t = {
     ariaMenuOpen: 'Open menu',
     ariaMenuClose: 'Close menu',
     ariaMainNav: 'Main navigation',
-    enHref: '/en/',
     deActive: false,
   },
 } as const
 
 const c = t[lang]
-const deHref = '/'
+// Language switcher: link to the counterpart of the current page, not to the home page.
+const normalizePath = (path: string) => (path.endsWith('/') ? path : `${path}/`)
+const toPath = (href: string) => {
+  try {
+    return normalizePath(new URL(href, 'https://kodinitools.com').pathname)
+  } catch {
+    return undefined
+  }
+}
+const currentPath = normalizePath(Astro.url.pathname)
+// Pages that exist in both languages under different (or identical) paths.
+const pagePairs: Record<string, string> = {
+  '/': '/en/',
+  '/blog/': '/en/blog/',
+  '/faq/': '/en/faq/',
+  '/spenden/': '/en/donate/',
+}
+const enToDe = Object.fromEntries(Object.entries(pagePairs).map(([de, en]) => [en, de]))
+const counterpart =
+  (altHref && toPath(altHref)) ??
+  (lang === 'de' ? pagePairs[currentPath] : enToDe[currentPath]) ??
+  (lang === 'de' ? '/en/' : '/')
+const deHref = lang === 'de' ? currentPath : counterpart
+const enHref = lang === 'en' ? currentPath : counterpart
 ---
 
 <style>
@@ -654,7 +679,7 @@ html {
                 </button>
                 <div class="global-nav-lang-switcher" role="group" aria-label={c.ariaSelectLanguage}>
                     <a href={deHref} class:list={['global-nav-lang-btn', { active: c.deActive }]}>DE</a>
-                    <a href={c.enHref} class:list={['global-nav-lang-btn', { active: !c.deActive }]}>EN</a>
+                    <a href={enHref} class:list={['global-nav-lang-btn', { active: !c.deActive }]}>EN</a>
                 </div>
             </div>
         </div>
@@ -665,7 +690,7 @@ html {
             </button>
             <div class="global-nav-lang-switcher" role="group" aria-label={c.ariaSelectLanguage}>
                 <a href={deHref} class:list={['global-nav-lang-btn', { active: c.deActive }]}>DE</a>
-                <a href={c.enHref} class:list={['global-nav-lang-btn', { active: !c.deActive }]}>EN</a>
+                <a href={enHref} class:list={['global-nav-lang-btn', { active: !c.deActive }]}>EN</a>
             </div>
         </div>
     </div>
