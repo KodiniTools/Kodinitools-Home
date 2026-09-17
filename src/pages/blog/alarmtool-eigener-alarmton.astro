@@ -26,7 +26,7 @@ import BlogArticleLayout from '../../layouts/BlogArticleLayout.astro'
   <figure class="blog-demo">
     <img
       src="/image/alarmtool-blog-de.png"
-      alt="Screenshot des KodiniTools Alarmtools im Tab Oszillatoren mit Liste von 12 Oszillatoren, Wellenform-Auswahl Sinus, Rechteck, Sägezahn und Dreieck sowie Reglern für Frequenz, Lautstärke und Pan"
+      alt="Screenshot des KodiniTools Alarmtools im Tab Oszillatoren mit Liste von 12 Oszillatoren, Wellenform-Auswahl sowie Reglern für Frequenz, Lautstärke und Pan"
       width="1920"
       height="945"
       loading="lazy"
@@ -48,7 +48,7 @@ import BlogArticleLayout from '../../layouts/BlogArticleLayout.astro'
     <li><strong>FAQ:</strong> Kurze Antworten zu Bedienung und Export direkt im Tool.</li>
   </ul>
 
-  <h2>Die vier Wellenformen und ihr Charakter</h2>
+  <h2>Die sechs Wellenformen und ihr Charakter</h2>
 
   <div class="blog-table-wrap">
     <table class="blog-table">
@@ -64,12 +64,18 @@ import BlogArticleLayout from '../../layouts/BlogArticleLayout.astro'
         <tr><td>Rechteck</td><td>Hohl, kräftig, viele ungerade Obertöne</td><td>Klassischer Piepton, Timer, Retro-Signal</td></tr>
         <tr><td>Sägezahn</td><td>Scharf, schneidend, sehr obertonreich</td><td>Alarm, der auch bei Lärm auffällt</td></tr>
         <tr><td>Dreieck</td><td>Weich mit leichtem Biss</td><td>Freundliches Signal, Zwischenton</td></tr>
+        <tr><td>Puls</td><td>Rechteck mit 25 % Tastverhältnis, schärfer und nasaler als das normale Rechteck, band-limitiert über 64 Harmonische</td><td>Durchdringender Alarm ohne digitale Härte</td></tr>
+        <tr><td>Orgel</td><td>Additive Mischung aus Grundton plus 2., 3., 4., 6. und 8. Harmonischer, weich und voll</td><td>Angenehmer Wecker, Gong-artiges Signal</td></tr>
       </tbody>
     </table>
   </div>
 
   <p>
-    Interessant wird es beim Kombinieren: Ein Sinus bei 440 Hz plus ein leiser Sägezahn eine Oktave höher ergibt einen Ton, der warm klingt und trotzdem durchdringt. Mehrere Oszillatoren mit leicht versetzter Frequenz erzeugen ein Schweben, das die Aufmerksamkeit hält.
+    Puls und Orgel sind neu dazugekommen. Der Puls ist ein Rechteck, das nur zu einem Viertel der Periode „an" ist; das verschiebt die Obertöne und macht den Klang schneidender. Die Band-Limitierung sorgt dafür, dass auch bei hohen Frequenzen keine digitalen Artefakte entstehen. Die Orgel baut den Ton aus dem Grundton und ausgewählten Obertönen auf, ähnlich wie eine Kirchenorgel mit gezogenen Registern, und klingt dadurch rund und tragend.
+  </p>
+
+  <p>
+    Interessant wird es beim Kombinieren: Ein Sinus bei 440 Hz plus ein leiser Sägezahn eine Oktave höher ergibt einen Ton, der warm klingt und trotzdem durchdringt. Eine Orgel als Fundament mit einem leisen Puls darüber liefert einen vollen, aber deutlich wahrnehmbaren Alarm. Mehrere Oszillatoren mit leicht versetzter Frequenz erzeugen ein Schweben, das die Aufmerksamkeit hält.
   </p>
 
   <h2>Schritt-für-Schritt: Eigenen Alarmton bauen</h2>
@@ -108,7 +114,7 @@ import BlogArticleLayout from '../../layouts/BlogArticleLayout.astro'
   </ol>
 
   <div class="tip-box">
-    <p><strong>Lautstärke im Tool beim Abhören begrenzen:</strong> Der Regler unten rechts steuert nur die Vorschau. Sägezahn und Rechteck sind bei gleichem Wert deutlich lauter als Sinus, beginnen Sie mit 0.5 pro Oszillator und erhöhen Sie schrittweise.</p>
+    <p><strong>Lautstärke im Tool beim Abhören begrenzen:</strong> Der Regler unten rechts steuert nur die Vorschau. Sägezahn, Rechteck und Puls sind bei gleichem Wert deutlich lauter als Sinus, beginnen Sie mit 0.5 pro Oszillator und erhöhen Sie schrittweise.</p>
   </div>
 
   <h2>Wofür sich eigene Alarmtöne lohnen</h2>

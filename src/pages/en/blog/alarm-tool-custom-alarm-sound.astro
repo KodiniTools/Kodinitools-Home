@@ -26,7 +26,7 @@ import BlogArticleLayout from '../../../layouts/BlogArticleLayout.astro'
   <figure class="blog-demo">
     <img
       src="/image/alarmtool-blog-en.png"
-      alt="Screenshot of the KodiniTools Alarm Tool in the Oscillators tab with a list of 12 oscillators, waveform selection sine, square, sawtooth and triangle, and sliders for frequency, volume and pan"
+      alt="Screenshot of the KodiniTools Alarm Tool in the Oscillators tab with a list of 12 oscillators, waveform selection, and sliders for frequency, volume and pan"
       width="1920"
       height="945"
       loading="lazy"
@@ -48,7 +48,7 @@ import BlogArticleLayout from '../../../layouts/BlogArticleLayout.astro'
     <li><strong>FAQ:</strong> short answers about operation and export right inside the tool.</li>
   </ul>
 
-  <h2>The Four Waveforms and Their Character</h2>
+  <h2>The Six Waveforms and Their Character</h2>
 
   <div class="blog-table-wrap">
     <table class="blog-table">
@@ -64,12 +64,18 @@ import BlogArticleLayout from '../../../layouts/BlogArticleLayout.astro'
         <tr><td>Square</td><td>Hollow, strong, many odd overtones</td><td>Classic beep, timer, retro signal</td></tr>
         <tr><td>Sawtooth</td><td>Sharp, cutting, very rich in overtones</td><td>Alarm that stands out even in noise</td></tr>
         <tr><td>Triangle</td><td>Soft with a slight edge</td><td>Friendly signal, in-between tone</td></tr>
+        <tr><td>Pulse</td><td>Square with 25% duty cycle, sharper and more nasal than the regular square, band-limited over 64 harmonics</td><td>Piercing alarm without digital harshness</td></tr>
+        <tr><td>Organ</td><td>Additive mix of the fundamental plus the 2nd, 3rd, 4th, 6th and 8th harmonic, soft and full</td><td>Pleasant alarm clock, gong-like signal</td></tr>
       </tbody>
     </table>
   </div>
 
   <p>
-    Combining is where it gets interesting: a sine at 440 Hz plus a quiet sawtooth one octave higher gives a tone that sounds warm yet cuts through. Several oscillators at slightly offset frequencies create a beating effect that holds attention.
+    Pulse and organ are new additions. The pulse is a square wave that is "on" for only a quarter of its period; that shifts the overtones and makes the sound more cutting. Band-limiting ensures no digital artifacts appear even at high frequencies. The organ builds the tone from the fundamental and selected overtones, much like a church organ with drawn stops, which makes it sound round and sustained.
+  </p>
+
+  <p>
+    Combining is where it gets interesting: a sine at 440 Hz plus a quiet sawtooth one octave higher gives a tone that sounds warm yet cuts through. An organ as the foundation with a quiet pulse on top gives a full but clearly noticeable alarm. Several oscillators at slightly offset frequencies create a beating effect that holds attention.
   </p>
 
   <h2>Step by Step: Building Your Own Alarm Sound</h2>
@@ -108,7 +114,7 @@ import BlogArticleLayout from '../../../layouts/BlogArticleLayout.astro'
   </ol>
 
   <div class="tip-box">
-    <p><strong>Keep the preview volume in check:</strong> the slider at the bottom right only controls monitoring. Sawtooth and square are noticeably louder than sine at the same value; start at 0.5 per oscillator and increase step by step.</p>
+    <p><strong>Keep the preview volume in check:</strong> the slider at the bottom right only controls monitoring. Sawtooth, square and pulse are noticeably louder than sine at the same value; start at 0.5 per oscillator and increase step by step.</p>
   </div>
 
   <h2>Where Custom Alarm Sounds Pay Off</h2>
