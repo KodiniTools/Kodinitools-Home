@@ -1,0 +1,151 @@
+---
+import BlogArticleLayout from '../../layouts/BlogArticleLayout.astro'
+---
+
+<BlogArticleLayout
+  title="Alarmtool: Eigenen Alarmton mit Oszillatoren erstellen und aufnehmen | KodiniTools"
+  description="Alarmtool im Browser: Alarm- und Signaltöne aus bis zu 12 Oszillatoren gestalten, Wellenform, Frequenz, Hüllkurve und Filter einstellen, als Preset speichern und aufnehmen – kostenlos, ohne Registrierung."
+  canonical="https://kodinitools.com/blog/alarmtool-eigener-alarmton/"
+  altHref="https://kodinitools.com/en/blog/alarm-tool-custom-alarm-sound/"
+  publishedDate="2026-09-17"
+  lang="de"
+>
+
+  <h1>Alarmtool: Eigenen Alarmton mit Oszillatoren erstellen und aufnehmen</h1>
+
+  <div class="blog-meta">
+    <span class="blog-meta-badge">How-to</span>
+    <span>17. September 2026</span>
+    <span>· 5 Min. Lesezeit</span>
+  </div>
+
+  <p>
+    Der Standard-Wecker klingt wie bei allen anderen, das Benachrichtigungssignal in der App ist zu leise oder zu schrill, und für die Präsentation fehlt ein klarer Signalton. Das KodiniTools Alarmtool löst das im Browser: Sie bauen Alarm- und Signaltöne aus bis zu 12 Oszillatoren, hören das Ergebnis sofort, speichern es als Preset und nehmen es als Audiodatei auf. Ohne Installation, ohne Registrierung.
+  </p>
+
+  <figure class="blog-demo">
+    <img
+      src="/image/alarmtool-blog-de.png"
+      alt="Screenshot des KodiniTools Alarmtools im Tab Oszillatoren mit Liste von 12 Oszillatoren, Wellenform-Auswahl Sinus, Rechteck, Sägezahn und Dreieck sowie Reglern für Frequenz, Lautstärke und Pan"
+      width="1920"
+      height="945"
+      loading="lazy"
+    />
+    <figcaption>Der Tab „Oszillatoren": Links die 12 Klangquellen, rechts Wellenform und Grundparameter des gewählten Oszillators.</figcaption>
+  </figure>
+
+  <h2>So ist das Alarmtool aufgebaut</h2>
+
+  <p>
+    Die Oberfläche ist in fünf Tabs gegliedert. Der Klang entsteht im Tab „Oszillatoren", die weiteren Tabs formen, speichern und exportieren ihn:
+  </p>
+
+  <ul>
+    <li><strong>Filter:</strong> Frequenzanteile des Gesamtklangs beschneiden, damit ein Ton weicher oder durchdringender wird.</li>
+    <li><strong>Oszillatoren:</strong> Bis zu 12 Klangquellen, einzeln ein- und ausschaltbar. Jede hat Wellenform, Frequenz, Lautstärke, Pan sowie Hüllkurve und Muster.</li>
+    <li><strong>Aufnahme:</strong> Den fertigen Ton als Audiodatei mitschneiden und herunterladen.</li>
+    <li><strong>Presets:</strong> Fertige Klänge laden oder eigene Einstellungen ablegen, zusätzlich „Im Browser speichern", damit die Arbeit beim nächsten Besuch noch da ist.</li>
+    <li><strong>FAQ:</strong> Kurze Antworten zu Bedienung und Export direkt im Tool.</li>
+  </ul>
+
+  <h2>Die vier Wellenformen und ihr Charakter</h2>
+
+  <div class="blog-table-wrap">
+    <table class="blog-table">
+      <thead>
+        <tr>
+          <th>Wellenform</th>
+          <th>Klang</th>
+          <th>Geeignet für</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Sinus</td><td>Rein, weich, ohne Obertöne</td><td>Sanfter Wecker, dezente Benachrichtigung</td></tr>
+        <tr><td>Rechteck</td><td>Hohl, kräftig, viele ungerade Obertöne</td><td>Klassischer Piepton, Timer, Retro-Signal</td></tr>
+        <tr><td>Sägezahn</td><td>Scharf, schneidend, sehr obertonreich</td><td>Alarm, der auch bei Lärm auffällt</td></tr>
+        <tr><td>Dreieck</td><td>Weich mit leichtem Biss</td><td>Freundliches Signal, Zwischenton</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    Interessant wird es beim Kombinieren: Ein Sinus bei 440 Hz plus ein leiser Sägezahn eine Oktave höher ergibt einen Ton, der warm klingt und trotzdem durchdringt. Mehrere Oszillatoren mit leicht versetzter Frequenz erzeugen ein Schweben, das die Aufmerksamkeit hält.
+  </p>
+
+  <h2>Schritt-für-Schritt: Eigenen Alarmton bauen</h2>
+
+  <ol class="steps">
+    <li>
+      <div class="step-content">
+        <strong>Alarmtool öffnen</strong>
+        <p>Besuchen Sie <a href="https://kodinitools.com/alarmtool/" target="_blank" rel="noopener">kodinitools.com/alarmtool</a> – kostenlos, keine Registrierung.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Ersten Oszillator einstellen</strong>
+        <p>Im Tab „Oszillatoren" Oszillator 1 aktivieren, Wellenform wählen und Frequenz setzen. 440 Hz ist ein guter Ausgangspunkt, höhere Werte um 800 bis 1000 Hz sind besser hörbar.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Weitere Oszillatoren hinzufügen</strong>
+        <p>Zwei bis drei aktive Oszillatoren reichen meist. Mit „Einstellungen kopieren" und „Einstellungen einfügen" übertragen Sie Parameter von einem Oszillator auf den nächsten und ändern dann nur die Frequenz. Rückgängig und Wiederholen sind jederzeit verfügbar.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Hüllkurve und Muster formen</strong>
+        <p>Unter „Hüllkurve &amp; Muster" bestimmen Sie, wie ein Ton einsetzt und ausklingt, und ob er als Dauerton oder in Intervallen erklingt. Ein kurzer, wiederholter Impuls wirkt dringlicher als ein Dauerton.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Abhören, speichern, aufnehmen</strong>
+        <p>Mit Play, Pause und Stopp in der Leiste unten testen, Loop einschalten, um den Ton im Kreis zu hören. Zufrieden? Als Preset sichern und im Tab „Aufnahme" als Audiodatei exportieren.</p>
+      </div>
+    </li>
+  </ol>
+
+  <div class="tip-box">
+    <p><strong>Lautstärke im Tool beim Abhören begrenzen:</strong> Der Regler unten rechts steuert nur die Vorschau. Sägezahn und Rechteck sind bei gleichem Wert deutlich lauter als Sinus, beginnen Sie mit 0.5 pro Oszillator und erhöhen Sie schrittweise.</p>
+  </div>
+
+  <h2>Wofür sich eigene Alarmtöne lohnen</h2>
+
+  <ul>
+    <li><strong>Wecker und Erinnerungen:</strong> Ein selbst gebauter Ton, der sich von allen Handy-Standards unterscheidet, wird nicht überhört. Das Alarmtool lässt sich laut Tool-Beschreibung auch mit eigenen Audiodateien und Timer-Einstellungen als Wecker nutzen.</li>
+    <li><strong>Apps und Websites:</strong> Benachrichtigungs- und Fehlertöne, die zum Produkt passen, statt Stock-Sounds mit unklarer Lizenz.</li>
+    <li><strong>Präsentationen und Quiz:</strong> Signaltöne für Zeitablauf, richtige oder falsche Antwort.</li>
+    <li><strong>Werkstatt und Küche:</strong> Ein durchdringender Timer-Ton, der auch bei Maschinenlärm oder Dunstabzug ankommt.</li>
+  </ul>
+
+  <h2>Datenschutz: Alles bleibt im Browser</h2>
+
+  <p>
+    Klangerzeugung, Presets und Aufnahme laufen vollständig lokal über die Web Audio API. „Im Browser speichern" legt Ihre Einstellungen nur auf Ihrem Gerät ab, es wird nichts an einen Server übertragen.
+  </p>
+
+  <div class="blog-cta">
+    <p>Jetzt eigenen Alarmton gestalten – 12 Oszillatoren, Filter und Aufnahme, kostenlos im Browser.</p>
+    <a href="https://kodinitools.com/alarmtool/" class="blog-cta-btn" target="_blank" rel="noopener">
+      Alarmtool öffnen →
+    </a>
+  </div>
+
+  <div class="blog-related">
+    <h2>Verwandte Artikel</h2>
+    <div class="blog-related-grid">
+      <a href="/blog/equalizer-19-band/" class="blog-related-card">
+        <span>Equalizer online: 19-Band EQ mit Kompressor</span>
+      </a>
+      <a href="/blog/audiodatei-format-aendern/" class="blog-related-card">
+        <span>Audiodatei Format ändern: DSGVO-konform &amp; kostenlos</span>
+      </a>
+      <a href="/blog/audio-normalisieren/" class="blog-related-card">
+        <span>Audio Lautstärke normalisieren: LUFS erklärt</span>
+      </a>
+    </div>
+  </div>
+
+</BlogArticleLayout>
