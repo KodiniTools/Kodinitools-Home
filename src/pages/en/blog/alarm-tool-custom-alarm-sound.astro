@@ -1,0 +1,151 @@
+---
+import BlogArticleLayout from '../../../layouts/BlogArticleLayout.astro'
+---
+
+<BlogArticleLayout
+  title="Alarm Tool: Create and Record Your Own Alarm Sound with Oscillators | KodiniTools"
+  description="Alarm Tool in the browser: design alarm and signal tones from up to 12 oscillators, set waveform, frequency, envelope and filter, save as a preset and record — free, no registration."
+  canonical="https://kodinitools.com/en/blog/alarm-tool-custom-alarm-sound/"
+  altHref="https://kodinitools.com/blog/alarmtool-eigener-alarmton/"
+  publishedDate="2026-09-17"
+  lang="en"
+>
+
+  <h1>Alarm Tool: Create and Record Your Own Alarm Sound with Oscillators</h1>
+
+  <div class="blog-meta">
+    <span class="blog-meta-badge">How-to</span>
+    <span>September 17, 2026</span>
+    <span>· 5 min read</span>
+  </div>
+
+  <p>
+    The default alarm sounds like everyone else's, the notification in your app is too quiet or too shrill, and your presentation is missing a clear signal tone. The KodiniTools Alarm Tool solves this in the browser: build alarm and signal tones from up to 12 oscillators, hear the result instantly, save it as a preset and record it as an audio file. No installation, no registration.
+  </p>
+
+  <figure class="blog-demo">
+    <img
+      src="/image/alarmtool-blog-en.png"
+      alt="Screenshot of the KodiniTools Alarm Tool in the Oscillators tab with a list of 12 oscillators, waveform selection sine, square, sawtooth and triangle, and sliders for frequency, volume and pan"
+      width="1920"
+      height="945"
+      loading="lazy"
+    />
+    <figcaption>The "Oscillators" tab: the 12 sound sources on the left, waveform and base parameters of the selected oscillator on the right.</figcaption>
+  </figure>
+
+  <h2>How the Alarm Tool Is Organized</h2>
+
+  <p>
+    The interface is divided into five tabs. The sound is created in the "Oscillators" tab; the other tabs shape, store and export it:
+  </p>
+
+  <ul>
+    <li><strong>Filter:</strong> trim frequency content of the overall sound so a tone becomes softer or more piercing.</li>
+    <li><strong>Oscillators:</strong> up to 12 sound sources, each switchable on and off. Every one has waveform, frequency, volume, pan plus envelope and pattern.</li>
+    <li><strong>Recording:</strong> capture the finished tone as an audio file and download it.</li>
+    <li><strong>Presets:</strong> load ready-made sounds or store your own settings, plus "Save to browser" so your work is still there on the next visit.</li>
+    <li><strong>FAQ:</strong> short answers about operation and export right inside the tool.</li>
+  </ul>
+
+  <h2>The Four Waveforms and Their Character</h2>
+
+  <div class="blog-table-wrap">
+    <table class="blog-table">
+      <thead>
+        <tr>
+          <th>Waveform</th>
+          <th>Sound</th>
+          <th>Good for</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Sine</td><td>Pure, soft, no overtones</td><td>Gentle alarm clock, subtle notification</td></tr>
+        <tr><td>Square</td><td>Hollow, strong, many odd overtones</td><td>Classic beep, timer, retro signal</td></tr>
+        <tr><td>Sawtooth</td><td>Sharp, cutting, very rich in overtones</td><td>Alarm that stands out even in noise</td></tr>
+        <tr><td>Triangle</td><td>Soft with a slight edge</td><td>Friendly signal, in-between tone</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    Combining is where it gets interesting: a sine at 440 Hz plus a quiet sawtooth one octave higher gives a tone that sounds warm yet cuts through. Several oscillators at slightly offset frequencies create a beating effect that holds attention.
+  </p>
+
+  <h2>Step by Step: Building Your Own Alarm Sound</h2>
+
+  <ol class="steps">
+    <li>
+      <div class="step-content">
+        <strong>Open the Alarm Tool</strong>
+        <p>Go to <a href="https://kodinitools.com/alarmtool/" target="_blank" rel="noopener">kodinitools.com/alarmtool</a> — free, no registration.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Set up the first oscillator</strong>
+        <p>In the "Oscillators" tab, enable Oscillator 1, pick a waveform and set the frequency. 440 Hz is a good starting point; higher values around 800 to 1000 Hz are easier to hear.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Add more oscillators</strong>
+        <p>Two or three active oscillators are usually enough. Use "Copy settings" and "Paste settings" to transfer parameters from one oscillator to the next and then change only the frequency. Undo and redo are always available.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Shape envelope and pattern</strong>
+        <p>Under "Envelope &amp; Pattern" you define how a tone starts and fades, and whether it plays continuously or in intervals. A short, repeated pulse feels more urgent than a steady tone.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Listen, save, record</strong>
+        <p>Test with play, pause and stop in the bar at the bottom, enable loop to hear the tone repeatedly. Happy with it? Store it as a preset and export it as an audio file in the "Recording" tab.</p>
+      </div>
+    </li>
+  </ol>
+
+  <div class="tip-box">
+    <p><strong>Keep the preview volume in check:</strong> the slider at the bottom right only controls monitoring. Sawtooth and square are noticeably louder than sine at the same value; start at 0.5 per oscillator and increase step by step.</p>
+  </div>
+
+  <h2>Where Custom Alarm Sounds Pay Off</h2>
+
+  <ul>
+    <li><strong>Alarm clocks and reminders:</strong> a self-made tone that differs from every phone default does not get ignored. According to the tool description, the Alarm Tool can also be used as an alarm clock with your own audio files and timer settings.</li>
+    <li><strong>Apps and websites:</strong> notification and error sounds that match the product, instead of stock sounds with unclear licensing.</li>
+    <li><strong>Presentations and quizzes:</strong> signal tones for time-up, right or wrong answer.</li>
+    <li><strong>Workshop and kitchen:</strong> a piercing timer tone that gets through machine noise or a range hood.</li>
+  </ul>
+
+  <h2>Privacy: Everything Stays in Your Browser</h2>
+
+  <p>
+    Sound generation, presets and recording run entirely locally via the Web Audio API. "Save to browser" stores your settings only on your device; nothing is sent to a server.
+  </p>
+
+  <div class="blog-cta">
+    <p>Design your own alarm sound now — 12 oscillators, filter and recording, free in your browser.</p>
+    <a href="https://kodinitools.com/alarmtool/" class="blog-cta-btn" target="_blank" rel="noopener">
+      Open Alarm Tool →
+    </a>
+  </div>
+
+  <div class="blog-related">
+    <h2>Related articles</h2>
+    <div class="blog-related-grid">
+      <a href="/en/blog/19-band-equalizer/" class="blog-related-card">
+        <span>Online Equalizer: 19-Band EQ with Compressor</span>
+      </a>
+      <a href="/en/blog/change-audio-file-format/" class="blog-related-card">
+        <span>How to Change Audio File Format: GDPR-Compliant &amp; Free</span>
+      </a>
+      <a href="/en/blog/normalize-audio-online/" class="blog-related-card">
+        <span>How to Normalize Audio: LUFS &amp; dBFS Explained</span>
+      </a>
+    </div>
+  </div>
+
+</BlogArticleLayout>
