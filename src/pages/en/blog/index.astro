@@ -20,6 +20,16 @@ const posts = [
     image: '/image/kodinitools-blog.webp',
   },
   {
+    slug: '/en/blog/ultimate-music-player',
+    title: 'Ultimate Music Player: Play Local Music in Your Browser with a Visualizer',
+    description: 'Load files or whole folders via drag and drop, playlist with shuffle and repeat, LED equalizer visualizer, all common audio formats — no upload.',
+    date: 'September 18, 2026',
+    tag: 'Audio',
+    minutes: 4,
+    image: '/image/ultimativermusikplayer-blog-en.png',
+    newTab: true,
+  },
+  {
     slug: '/en/blog/alarm-tool-custom-alarm-sound',
     title: 'Alarm Tool: Create and Record Your Own Alarm Sound with Oscillators',
     description: 'Design alarm and signal tones from up to 12 oscillators, set waveform, frequency, envelope and filter, save as a preset and record — in your browser.',
@@ -334,7 +344,7 @@ const regularPosts = posts.filter((post) => !post.featured)
       <div class="blog-grid">
         {regularPosts.map((post) =>
           post.image ? (
-            <a href={post.slug} class="blog-featured-card blog-card-image">
+            <a href={post.slug} class="blog-featured-card blog-card-image" target={post.newTab ? '_blank' : undefined} rel={post.newTab ? 'noopener' : undefined}>
               <div class="blog-featured-media">
                 <img src={post.image} alt="" width="640" height="360" loading="lazy" />
               </div>
