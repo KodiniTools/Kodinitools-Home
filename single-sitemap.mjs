@@ -13,11 +13,13 @@
 //   - alle von Astro gebauten Seiten (ohne 404),
 //   - plus die eigenständigen Tool-Apps (extraPages, aus de.json),
 //   - plus hreflang-Alternates (de/en) für Seiten mit identischem Pfad in
-//     beiden Sprachen (/, /blog/, /faq/). Blog-Artikel mit abweichenden
-//     Slugs bekommen — wie zuvor — keine Alternates.
+//     beiden Sprachen; die Zuordnung wird aus den hreflang-Tags der gebauten
+//     Seiten gelesen, daher bekommen auch Blog-Artikel mit abweichenden Slugs
+//     und /spenden/ <-> /en/donate/ Alternates. Blog-Artikel erhalten zudem
+//     <lastmod> aus article:published_time.
 
 import { fileURLToPath } from 'node:url';
-import { writeFile, rm } from 'node:fs/promises';
+import { writeFile, rm, readFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const DEFAULT_LOCALE = 'de';
@@ -30,6 +32,31 @@ function xmlEscape(value) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&apos;');
+}
+
+// Liest aus einer gebauten HTML-Seite die hreflang-Alternates (inkl. x-default)
+// und das Veröffentlichungsdatum (article:published_time). So bekommen auch
+// Blog-Artikel mit sprachabhängigen Slugs und Seitenpaare wie /spenden/ <->
+// /en/donate/ korrekte Alternates, ohne dass die Integration die Zuordnung
+// kennen muss – die Seite selbst ist die Quelle der Wahrheit.
+async function readPageMeta(htmlPath) {
+  let html;
+  try {
+    html = await readFile(htmlPath, 'utf-8');
+  } catch {
+    return { alternates: [], lastmod: undefined };
+  }
+  const alternates = [];
+  const linkRe = /<link\s+[^>]*rel="alternate"[^>]*>/g;
+  for (const tag of html.match(linkRe) ?? []) {
+    const hreflang = tag.match(/hreflang="([^"]+)"/)?.[1];
+    const href = tag.match(/href="([^"]+)"/)?.[1];
+    if (hreflang && href) alternates.push({ hreflang, href });
+  }
+  const lastmod = html.match(
+    /<meta\s+property="article:published_time"\s+content="([^"]+)"/,
+  )?.[1];
+  return { alternates, lastmod };
 }
 
 // Pfad -> { locale, key }. Der "key" ist der sprachneutrale Pfad, über den
@@ -69,11 +96,13 @@ export default function singleSitemap({ extraPages = [] } = {}) {
           groups.get(key).set(locale, toUrl(pathname));
         }
 
-        // 2) Alle URL-Einträge sammeln: { loc, alternates: [{hreflang, href}] }.
+        // 2) Alle URL-Einträge sammeln: { loc, alternates: [{hreflang, href}], lastmod }.
+        //    Bevorzugt werden die hreflang-Tags aus dem gebauten HTML; nur wenn eine
+        //    Seite keine deklariert, greift die Zuordnung über identische Pfade.
+        const outDirPath = fileURLToPath(dir);
         const entries = [];
         for (const localeMap of groups.values()) {
-          // Alternates nur, wenn der Pfad in mehreren Sprachen existiert.
-          const alternates =
+          const pathAlternates =
             localeMap.size > 1
               ? LOCALE_ORDER.filter((l) => localeMap.has(l)).map((l) => ({
                   hreflang: l,
@@ -81,7 +110,12 @@ export default function singleSitemap({ extraPages = [] } = {}) {
                 }))
               : [];
           for (const loc of localeMap.values()) {
-            entries.push({ loc, alternates });
+            const pathname = loc.slice(origin.length + 1); // z.B. "blog/foo/"
+            const { alternates: htmlAlternates, lastmod } = await readPageMeta(
+              path.join(outDirPath, pathname, 'index.html'),
+            );
+            const alternates = htmlAlternates.length > 1 ? htmlAlternates : pathAlternates;
+            entries.push({ loc, alternates, lastmod });
           }
         }
 
@@ -108,7 +142,8 @@ export default function singleSitemap({ extraPages = [] } = {}) {
                   `    <xhtml:link rel="alternate" hreflang="${a.hreflang}" href="${xmlEscape(a.href)}" />`,
               )
               .join('\n');
-            return `  <url>\n    <loc>${xmlEscape(e.loc)}</loc>${alts ? '\n' + alts : ''}\n  </url>`;
+            const lastmod = e.lastmod ? `\n    <lastmod>${xmlEscape(e.lastmod)}</lastmod>` : '';
+            return `  <url>\n    <loc>${xmlEscape(e.loc)}</loc>${lastmod}${alts ? '\n' + alts : ''}\n  </url>`;
           })
           .join('\n');
 
