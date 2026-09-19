@@ -1,0 +1,124 @@
+---
+import BlogArticleLayout from '../../../layouts/BlogArticleLayout.astro'
+---
+
+<BlogArticleLayout
+  title="Cut Audio Online: Trim & Export with Millisecond Precision | KodiniTools"
+  description="Audio Cutter in the browser: cut MP3, WAV and other audio files with millisecond precision, set start and end via waveform or keyboard, fade-in and fade-out, preview and export — free, no upload."
+  canonical="https://kodinitools.com/en/blog/cut-audio-online/"
+  altHref="https://kodinitools.com/blog/audio-schneiden-online/"
+  publishedDate="2026-09-19"
+  lang="en"
+>
+
+  <h1>Cut Audio Online: Trim &amp; Export with Millisecond Precision</h1>
+
+  <div class="blog-meta">
+    <span class="blog-meta-badge">How-to</span>
+    <span>September 19, 2026</span>
+    <span>· 5 min read</span>
+  </div>
+
+  <p>
+    A ringtone from the chorus, the silence at the start of a recording, a sample from a long session: often all you need is one clean cut. The KodiniTools Audio Cutter does it in the browser, accurate to the millisecond. You see the waveform, set start and end, preview the selection and export the result. No installation, no registration, no upload.
+  </p>
+
+  <figure class="blog-demo">
+    <img
+      src="/image/audiocutter-blog-en.png"
+      alt="Screenshot of the KodiniTools Audio Cutter with waveform, highlighted selection, start and end fields with millisecond buttons, and cut and export settings"
+      width="1920"
+      height="945"
+      loading="lazy"
+    />
+    <figcaption>Cut and export settings on the left, the waveform with selection on the right, transport controls and the start and end fields below.</figcaption>
+  </figure>
+
+  <h2>What Sets the Audio Cutter Apart</h2>
+
+  <ul>
+    <li><strong>Millisecond precision:</strong> start and end can be entered as time or directly in milliseconds. Buttons for ±1, ±10 and ±100 ms nudge the markers without mouse jitter.</li>
+    <li><strong>Waveform with zoom:</strong> drag to select, drag the edges to fine-tune, wheel to zoom, Shift+wheel to pan. The display shows total duration, selection, cursor position and remaining time.</li>
+    <li><strong>Preview:</strong> listen to the selection before cutting; with "Follow marker" the play position moves visibly along.</li>
+    <li><strong>Fade-in and fade-out:</strong> fade in and out in milliseconds so the cut does not click.</li>
+    <li><strong>Cut repeatedly:</strong> every cut applies to the edited buffer. Undo and redo protect every step.</li>
+    <li><strong>Browser or server:</strong> processing runs locally in the browser by default. For very large files you can switch to server-side processing.</li>
+  </ul>
+
+  <h2>Step by Step: Cutting an Audio File</h2>
+
+  <ol class="steps">
+    <li>
+      <div class="step-content">
+        <strong>Open the Audio Cutter</strong>
+        <p>Go to <a href="https://kodinitools.com/audio-cutter/" target="_blank" rel="noopener">kodinitools.com/audio-cutter</a> — free, no registration.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Load a file</strong>
+        <p>Select an audio file. File name, sample rate, channels and length appear at the top, the waveform below.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Set the selection</strong>
+        <p>Drag across the waveform to mark the range you want. For precision, type the values under "Start" and "End" or nudge them with the ms buttons. The status line shows whether the selection is valid.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Preview and fades</strong>
+        <p>"Preview" plays only the selection. If needed, enter fade-in and fade-out in milliseconds, about 20 ms against clicks or 500 ms for soft transitions.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Cut and export</strong>
+        <p>Choose the action, click "Cut", add further cuts if needed. Then pick processing and format and press "Export". Cut first, then export.</p>
+      </div>
+    </li>
+  </ol>
+
+  <div class="tip-box">
+    <p><strong>Tip for exact cuts:</strong> zoom into the waveform with the mouse wheel until individual waves are visible and place the marker on a zero crossing. Together with a short fade of 5 to 10 ms the cut is guaranteed to be inaudible.</p>
+  </div>
+
+  <h2>Typical Use Cases</h2>
+
+  <ul>
+    <li><strong>Ringtones:</strong> 20 to 30 seconds from your favorite song, with a fade-out at the end.</li>
+    <li><strong>Podcasts and interviews:</strong> remove lead-in, slips or pauses, several cuts in a row.</li>
+    <li><strong>Samples and loops:</strong> cut out single hits or bars with millisecond accuracy.</li>
+    <li><strong>Voice messages and recordings:</strong> pass on only the relevant part instead of the whole file.</li>
+  </ul>
+
+  <h2>Privacy First</h2>
+
+  <p>
+    In browser mode the file is processed entirely locally; there is no upload. Only if you deliberately switch to server-side processing is the file transferred for the cut. For voice recordings, interviews and unreleased music, browser mode is the right choice.
+  </p>
+
+  <div class="blog-cta">
+    <p>Cut audio now — millisecond precision, preview and fades, free in your browser.</p>
+    <a href="https://kodinitools.com/audio-cutter/" class="blog-cta-btn" target="_blank" rel="noopener">
+      Open Audio Cutter →
+    </a>
+  </div>
+
+  <div class="blog-related">
+    <h2>Related articles</h2>
+    <div class="blog-related-grid">
+      <a href="/en/blog/change-audio-file-format/" class="blog-related-card">
+        <span>How to Change Audio File Format: GDPR-Compliant &amp; Free</span>
+      </a>
+      <a href="/en/blog/normalize-audio-online/" class="blog-related-card">
+        <span>How to Normalize Audio: LUFS &amp; dBFS Explained</span>
+      </a>
+      <a href="/en/blog/19-band-equalizer/" class="blog-related-card">
+        <span>Online Equalizer: 19-Band EQ with Compressor</span>
+      </a>
+    </div>
+  </div>
+
+</BlogArticleLayout>
