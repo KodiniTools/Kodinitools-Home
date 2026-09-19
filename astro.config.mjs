@@ -12,6 +12,8 @@ const toolPages = ['tools', 'imageTools', 'diverseTools'].flatMap((group) =>
     .filter((entry) => entry && typeof entry === 'object' && 'link' in entry)
     .map((entry) => entry.link),
 );
+// Unterseiten von Tool-Apps, die nicht als eigener Eintrag in de.json stehen.
+toolPages.push('https://kodinitools.com/kodini-color-extractor/generator');
 
 export default defineConfig({
   site: 'https://kodinitools.com',
