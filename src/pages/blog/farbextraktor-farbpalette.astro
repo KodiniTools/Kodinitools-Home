@@ -4,7 +4,7 @@ import BlogArticleLayout from '../../layouts/BlogArticleLayout.astro'
 
 <BlogArticleLayout
   title="Farben aus Bild extrahieren & Farbpalette generieren: Kostenlos im Browser | KodiniTools"
-  description="Kodini Farbextraktor und Farbpaletten-Generator: dominante Farben aus jedem Bild als HEX oder RGB auslesen, Bild live anpassen und harmonische Paletten per Leertaste erzeugen – kostenlos, ohne Upload."
+  description="Kodini Farbextraktor und Farbpaletten-Generator: dominante Farben aus jedem Bild auslesen, harmonische Paletten erzeugen und in neun Formaten exportieren – HEX, RGB, HSL, CSS, SCSS, Tailwind und Design Tokens. Kostenlos, ohne Upload."
   canonical="https://kodinitools.com/blog/farbextraktor-farbpalette/"
   altHref="https://kodinitools.com/en/blog/color-extractor-palette-generator/"
   publishedDate="2026-09-16"
@@ -48,7 +48,7 @@ import BlogArticleLayout from '../../layouts/BlogArticleLayout.astro'
     <li><strong>Format:</strong> Ausgabe der Farbwerte als HEX oder RGB, je nachdem, was Ihr Design-Tool erwartet.</li>
     <li><strong>Bildbearbeitung:</strong> Zoom, Helligkeit, Kontrast, Sättigung und Farbton lassen sich per Regler verändern. Die Extraktion reagiert darauf, so lässt sich zum Beispiel eine kräftigere oder gedämpftere Palette aus demselben Foto gewinnen.</li>
     <li><strong>Effekte:</strong> Weichzeichnen glättet Details und liefert ruhigere Mischfarben, Graustufen reduziert das Bild auf Helligkeitswerte.</li>
-    <li><strong>Export:</strong> Das bearbeitete Bild als PNG in wählbarer Grösse herunterladen.</li>
+    <li><strong>Export:</strong> Das bearbeitete Bild als PNG in wählbarer Grösse herunterladen – und die extrahierte Palette in neun Formaten, von der einfachen HEX-Liste bis zu Design Tokens.</li>
   </ul>
 
   <h3>Schritt-für-Schritt: Farben aus einem Bild auslesen</h3>
@@ -81,7 +81,7 @@ import BlogArticleLayout from '../../layouts/BlogArticleLayout.astro'
     <li>
       <div class="step-content">
         <strong>Farbcodes kopieren</strong>
-        <p>Einzelne Werte per Kopiersymbol übernehmen oder das Bild als PNG exportieren.</p>
+        <p>Einzelne Werte per Kopiersymbol übernehmen, die ganze Palette in einem der neun Export-Formate herunterladen oder das Bild als PNG exportieren.</p>
       </div>
     </li>
   </ol>
@@ -113,10 +113,49 @@ import BlogArticleLayout from '../../layouts/BlogArticleLayout.astro'
     <li><strong>Anpassungen:</strong> Helligkeit, Kontrast, Sättigung und Farbton für alle Farben gemeinsam oder für ein einzelnes Feld verändern. Rückgängig, Wiederholen und Zurücksetzen sind vorhanden.</li>
     <li><strong>Farbe wählen:</strong> Ein Feld anklicken und den Ton direkt im Farbwähler feinjustieren.</li>
     <li><strong>Kopieren:</strong> Einzelne HEX-Werte per Klick oder die ganze Palette über „Alle kopieren".</li>
+    <li><strong>Export:</strong> Dieselben neun Formate wie im Extraktor – die erzeugte Palette geht direkt als CSS, SCSS, Tailwind-Config oder Design Tokens ins Projekt.</li>
   </ul>
+
 
   <div class="tip-box">
     <p><strong>Beide Teile kombinieren:</strong> Farben aus einem Referenzfoto extrahieren, den Hauptton in den Generator übernehmen und dort passende Abstufungen für Buttons, Hintergründe und Texte erzeugen. So entsteht aus einem Bild ein vollständiges Farbschema.</p>
+  </div>
+
+  <h2>Neun Export-Formate in beiden Werkzeugen</h2>
+
+  <p>
+    Farben sind erst dann nützlich, wenn sie im Projekt ankommen. Extraktor und Paletten-Generator bieten deshalb dieselben neun Export-Formate an. Sie wählen das Format, das Ihr Werkzeug versteht, und laden die fertige Datei herunter – kein Abtippen, kein Umformatieren.
+  </p>
+
+  <div class="blog-table-wrap">
+    <table class="blog-table">
+      <thead>
+        <tr>
+          <th>Format</th>
+          <th>Datei</th>
+          <th>Idealer Einsatz</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>HEX</td><td>.txt</td><td>Der Klassiker – Liste für Design-Tools, Dokumentation, E-Mails</td></tr>
+        <tr><td>RGB</td><td>.txt</td><td>Bildbearbeitung und Programme, die Kanalwerte erwarten</td></tr>
+        <tr><td>RGBA</td><td>.txt</td><td>Wie RGB, zusätzlich mit Alphakanal für Transparenzen</td></tr>
+        <tr><td>HSL</td><td>.txt</td><td>Farbton, Sättigung, Helligkeit – ideal zum Ableiten von Abstufungen</td></tr>
+        <tr><td>HSLA</td><td>.txt</td><td>Wie HSL, zusätzlich mit Alphakanal</td></tr>
+        <tr><td>CSS Custom Properties</td><td>.css</td><td>Direkt als Variablen in jedes Stylesheet einbinden</td></tr>
+        <tr><td>SCSS-Variablen</td><td>.scss</td><td>Für Sass-Projekte mit Variablen und Mixins</td></tr>
+        <tr><td>Tailwind-v3-Config</td><td>.js</td><td>Farben in die <code>tailwind.config.js</code> übernehmen</td></tr>
+        <tr><td>W3C-DTCG Design Tokens</td><td>.json</td><td>Standardisierte Tokens für Figma, Style Dictionary und Design-Systeme</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    Die ersten fünf Formate sind schlichte Listen als Textdatei: eine Farbe pro Zeile, genau in der Schreibweise, die Sie brauchen. Die vier übrigen sind fertige Code-Dateien. Die CSS-Datei enthält Custom Properties, die SCSS-Datei benannte Variablen, die Tailwind-Datei einen Farbblock für die Konfiguration und die JSON-Datei Design Tokens nach dem Standard der W3C Design Tokens Community Group.
+  </p>
+
+  <div class="tip-box">
+    <p><strong>Welches Format wofür?</strong> Für eine klassische Website reicht CSS. Arbeiten Sie mit Sass, nehmen Sie SCSS. Nutzt Ihr Team Tailwind, sparen Sie sich mit der fertigen Config jede Handarbeit. Und wenn die Farben sprachübergreifend in Design und Code gelten sollen, sind Design Tokens die richtige Wahl.</p>
   </div>
 
   <h2>Typische Anwendungsfälle</h2>
