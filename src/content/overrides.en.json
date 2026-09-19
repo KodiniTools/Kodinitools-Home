@@ -74,7 +74,7 @@
     },
     "videoConverter": {
       "svg": "",
-      "badge": "5gb max",
+      "badge": "SERVER-5gb max",
       "title": "Video Converter\nmp4-webm-avi-mov-mkv-flv-wmv-ts"
     },
     "textEditor": {
