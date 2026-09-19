@@ -5,7 +5,8 @@
   "tools": {
     "audioConverter": {
       "svg": "",
-      "title": "Audio Converter\nmp3-wav-aac-flac-ogg"
+      "title": "Audio Converter\nmp3-wav-aac-flac-ogg",
+      "badge": "server"
     },
     "audioEqualizer": {
       "svg": "",
