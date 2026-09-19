@@ -28,7 +28,8 @@
       "title": "Audio Visualizer\nmp4-webm"
     },
     "mp3Converter": {
-      "svg": ""
+      "svg": "",
+      "badge": "MP3-browser-server"
     },
     "interactiveEqualizer": {
       "svg": ""
@@ -76,7 +77,8 @@
   "diverseTools": {
     "colorExtractor": {
       "svg": "",
-      "title": "Kodini Farbextraktor\nFarbgenerator"
+      "title": "Kodini Farbextraktor\nFarbgenerator",
+      "badge": "Farben-browser"
     },
     "videoConverter": {
       "svg": "",
@@ -85,7 +87,8 @@
     },
     "textEditor": {
       "svg": "",
-      "title": "Texteditor\ntxt-html-md-pdf"
+      "title": "Texteditor\ntxt-html-md-pdf",
+      "badge": "Text-browser"
     }
   }
 }

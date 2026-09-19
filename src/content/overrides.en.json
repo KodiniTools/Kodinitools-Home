@@ -23,7 +23,8 @@
       "badge": "50+ Visualizer-browser-server"
     },
     "mp3Converter": {
-      "svg": ""
+      "svg": "",
+      "badge": "MP3-browser-server"
     },
     "interactiveEqualizer": {
       "svg": ""
@@ -35,7 +36,8 @@
     },
     "playlistGenerator": {
       "svg": "",
-      "title": "Audio Playlist Generator\nm3u-pls-cue-json-txt"
+      "title": "Audio Playlist Generator\nm3u-pls-cue-json-txt",
+      "badge": "Playlist-browser"
     },
     "alarmTool": {
       "svg": ""
@@ -71,7 +73,8 @@
   "diverseTools": {
     "colorExtractor": {
       "svg": "",
-      "title": "Kodini Color Extractor\nColor Generator"
+      "title": "Kodini Color Extractor\nColor Generator",
+      "badge": "Colors-browser"
     },
     "videoConverter": {
       "svg": "",
@@ -80,7 +83,8 @@
     },
     "textEditor": {
       "svg": "",
-      "title": "Text Editor\ntxt-html-md-pdf"
+      "title": "Text Editor\ntxt-html-md-pdf",
+      "badge": "Text-browser"
     }
   }
 }
