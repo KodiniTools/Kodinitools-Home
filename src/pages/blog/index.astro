@@ -162,6 +162,10 @@ const posts = [
 
 const featuredPost = posts.find((post) => post.featured)
 const regularPosts = posts.filter((post) => !post.featured)
+// Ab dieser Anzahl Beiträge in der Liste wird die Liste im Panel scrollbar
+// (sichtbar bleiben 4 Karten, siehe .blog-grid-scroll und das Script unten).
+const SCROLL_FROM_POSTS = 5
+const isGridScrollable = regularPosts.length >= SCROLL_FROM_POSTS
 ---
 
 <!DOCTYPE html>
@@ -285,6 +289,33 @@ const regularPosts = posts.filter((post) => !post.featured)
       display: flex;
       flex-direction: column;
       gap: 1rem;
+    }
+
+    /* Ab 5 Beiträgen scrollt die Liste innerhalb des Panels. Die sichtbare Höhe
+       (4 Karten + kleiner Anriss der 5.) setzt das Script unten als CSS-Variable;
+       70vh ist der Fallback ohne JavaScript. */
+    .blog-grid-scroll {
+      max-height: var(--blog-grid-max-height, 70vh);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+      scrollbar-color: var(--primary-color, #014f99) transparent;
+      /* Innenabstand + negativer Rand: Hover-Schatten und Rahmen werden nicht abgeschnitten */
+      padding: 0.25rem 0.75rem 0.25rem 0.25rem;
+      margin: -0.25rem;
+    }
+
+    /* Karten dürfen im begrenzten Flex-Container nicht zusammengedrückt werden */
+    .blog-grid-scroll > * {
+      flex-shrink: 0;
+    }
+
+    [data-theme="dark"] .blog-grid-scroll {
+      scrollbar-color: var(--primary-color, #e8a945) transparent;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .blog-grid-scroll { scroll-behavior: smooth; }
     }
 
     .blog-featured-card {
@@ -450,9 +481,29 @@ const regularPosts = posts.filter((post) => !post.featured)
     [data-theme="dark"] .blog-card-arrow { color: var(--primary-color, #e8a945); }
 
     /* Back-to-top button below the post list */
+    /* „Nach oben" steht normal unter der Liste. Sobald diese Stelle aus dem
+       Viewport rutscht, dockt der Button unten rechts an (Script unten), damit er
+       beim Scrollen der Liste und der Seite immer erreichbar bleibt. Der Wrapper
+       behält seine Höhe (min-height per Script), damit das Layout nicht springt.
+       position: sticky ist hier keine Option, weil body site-weit overflow-x: hidden
+       hat und damit zum Scroll-Container wird. */
     .blog-top {
       margin-top: 2.5rem;
       text-align: center;
+    }
+
+    .blog-top-btn.is-docked {
+      position: fixed;
+      right: 1.5rem;
+      bottom: 1.5rem;
+      z-index: 900; /* über Inhalt, unter Cookie-Banner (10000) */
+    }
+
+    @media (max-width: 600px) {
+      .blog-top-btn.is-docked {
+        right: 0.9rem;
+        bottom: 0.9rem;
+      }
     }
 
     .blog-top-btn {
@@ -545,7 +596,7 @@ const regularPosts = posts.filter((post) => !post.featured)
         </a>
       )}
 
-      <div class="blog-grid">
+      <div class:list={['blog-grid', { 'blog-grid-scroll': isGridScrollable }]}>
         {regularPosts.map((post) =>
           post.image ? (
             <a href={post.slug} class="blog-featured-card blog-card-image" target={post.newTab ? '_blank' : undefined} rel={post.newTab ? 'noopener' : undefined}>
@@ -612,12 +663,55 @@ const regularPosts = posts.filter((post) => !post.featured)
 
   <script is:inline>
   (function() {
+    const grid = document.querySelector('.blog-grid-scroll');
     const btn = document.getElementById('blogScrollTop');
-    if (!btn) return;
-    btn.addEventListener('click', function() {
-      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
-    });
+
+    // Sichtbare Höhe der scrollbaren Liste: genau 4 Karten plus ein kleiner
+    // Anriss der 5. Karte als Hinweis, dass weitere Beiträge folgen.
+    const VISIBLE_CARDS = 4;
+    const PEEK_PX = 40;
+
+    function applyGridHeight() {
+      if (!grid) return;
+      const cards = grid.children;
+      if (cards.length <= VISIBLE_CARDS) {
+        grid.style.removeProperty('--blog-grid-max-height');
+        return;
+      }
+      const first = cards[0].getBoundingClientRect();
+      const last = cards[VISIBLE_CARDS - 1].getBoundingClientRect();
+      const cs = window.getComputedStyle(grid);
+      const padding = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+      const height = Math.round(last.bottom - first.top + padding + PEEK_PX);
+      if (height > 0) grid.style.setProperty('--blog-grid-max-height', height + 'px');
+    }
+
+    if (grid) {
+      applyGridHeight();
+      window.addEventListener('load', applyGridHeight);
+      window.addEventListener('resize', applyGridHeight, { passive: true });
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(applyGridHeight);
+    }
+
+    // Andocken: Wrapper (.blog-top) beobachten; ist er nicht im Viewport, wird der
+    // Button fixiert unten rechts angezeigt, sonst steht er normal unter der Liste.
+    const wrap = btn ? btn.parentElement : null;
+    if (btn && wrap && 'IntersectionObserver' in window) {
+      wrap.style.minHeight = btn.offsetHeight + 'px';
+      const observer = new IntersectionObserver(function(entries) {
+        btn.classList.toggle('is-docked', !entries[0].isIntersecting);
+      }, { threshold: 0 });
+      observer.observe(wrap);
+    }
+
+    if (btn) {
+      btn.addEventListener('click', function() {
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const behavior = reduce ? 'auto' : 'smooth';
+        if (grid) grid.scrollTo({ top: 0, behavior });
+        window.scrollTo({ top: 0, behavior });
+      });
+    }
   })();
   </script>
 </body>

@@ -554,17 +554,6 @@ const pageI18n = {
       </div>
     </section>
 
-    <!-- Scroll to Top Button -->
-    <button
-      id="scrollToTop"
-      class="scroll-to-top"
-      aria-label="Nach oben scrollen"
-      data-i18n-aria="search.scrollTop"
-      style="display: none;"
-    >
-      &uarr;
-    </button>
-
     <SiteFooter lang="de" />
     <Fragment set:html={cookieBannerHtml} />
     </div>
@@ -686,25 +675,15 @@ const pageI18n = {
       });
     }
 
-    // --- Scroll to Top ---
     // --- Scroll Indicator hide on scroll ---
     const scrollIndicator = document.getElementById('scrollIndicator');
     if (scrollIndicator) {
       scrollIndicator.addEventListener('click', function() {
         document.getElementById('audio-tools')?.scrollIntoView({ behavior: 'smooth' });
       });
-    }
-
-    const scrollBtn = document.getElementById('scrollToTop');
-    if (scrollBtn) {
       window.addEventListener('scroll', function() {
-        scrollBtn.style.display = window.scrollY > 400 ? 'flex' : 'none';
-        if (scrollIndicator) scrollIndicator.style.opacity = window.scrollY > 80 ? '0' : '0.7';
+        scrollIndicator.style.opacity = window.scrollY > 80 ? '0' : '0.7';
       }, { passive: true });
-
-      scrollBtn.addEventListener('click', function() {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
     }
 
     // --- 3D Tilt Effect for SVG Cards ---
