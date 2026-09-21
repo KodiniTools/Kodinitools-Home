@@ -1,0 +1,251 @@
+---
+import BlogArticleLayout from '../../layouts/BlogArticleLayout.astro'
+---
+
+<BlogArticleLayout
+  title="Visualizer-Effekte: Über 130 Audio-Visualisierungen, Multi-Layer & Beat-Reaktionen im Browser | KodiniTools"
+  description="Welche Effekte der KodiniTools Audio Visualizer bietet: GPU-Presets von Balken über Lichtstrahlen bis Mandala, Portrait-Effekte für eigene Bilder, mehrere Ebenen mit Mischmodi, Beat-Punch und Onset-Reaktionen – kostenlos, ohne Upload der Audiodatei."
+  canonical="https://kodinitools.com/blog/visualizer-effekte/"
+  altHref="https://kodinitools.com/en/blog/visualizer-effects/"
+  publishedDate="2026-09-21"
+  lang="de"
+>
+
+  <h1>Visualizer-Effekte: Über 130 Audio-Visualisierungen, Multi-Layer &amp; Beat-Reaktionen im Browser</h1>
+
+  <div class="blog-meta">
+    <span class="blog-meta-badge">Feature-Guide</span>
+    <span>21. September 2026</span>
+    <span>· 7 Min. Lesezeit</span>
+  </div>
+
+  <p>
+    Ein Audio Visualizer steht und fällt mit seinen Effekten. Der KodiniTools Audio Visualizer bringt über 130 davon mit: klassische Spektrum-Balken, pulsierende Ringe, Lichtstrahlen, Tunnel, Mandalas, Bühnenscheinwerfer, Laser, Feuerwerk und Nordlichter. Die meisten Effekte laufen als GPU-Presets per WebGL direkt auf der Grafikkarte, lassen sich als Ebenen übereinanderlegen und reagieren wahlweise auf Bass, Mitten, Höhen oder nur auf den Beat. Dieser Beitrag zeigt, welche Effekt-Familien es gibt, wie Sie sie kombinieren und wie Sie das Ergebnis als Video exportieren.
+  </p>
+
+  <figure class="blog-demo">
+    <img
+      src="/image/visualizer-blog.png"
+      alt="Audio Visualizer Effekt Balken: Spektrum-Balken mit abgerundeten Kappen und Glow, Farbverlauf von Cyan über Blau nach Pink auf schwarzem Hintergrund"
+      width="1920"
+      height="1080"
+      loading="lazy"
+    />
+    <figcaption>Der Klassiker: Spektrum-Balken mit Glow und Farbverlauf. Jeder Balken steht für einen Frequenzbereich, tiefe Töne links, hohe rechts.</figcaption>
+  </figure>
+
+  <h2>Vier Effekt-Gruppen auf einen Blick</h2>
+
+  <p>
+    Die Effektauswahl ist in vier Gruppen gegliedert. Die Zahl in der Überschrift der Liste zeigt jeweils, wie viele Effekte aktuell verfügbar sind.
+  </p>
+
+  <ul>
+    <li><strong>GPU-Presets:</strong> Der grösste Block. Diese Effekte werden als Shader auf der Grafikkarte berechnet und bleiben auch bei aufwendigen Szenen flüssig. Dazu gehören Spektrum, Geometrie, Licht, Laser, LED, Disco, Feuerwerk und Aurora.</li>
+    <li><strong>Portrait (Bild):</strong> Fünf Effekte, die ein eigenes Bild als Grundlage nehmen, etwa ein Foto oder Logo, und es zur Musik verformen, glitchen oder in LED-Punkte auflösen.</li>
+    <li><strong>Klassisch (Canvas2D):</strong> 47 ältere Effekte, die ohne WebGL auskommen. Sie dienen als Fallback für Geräte ohne WebGL2 und bleiben für bestehende Presets erhalten.</li>
+    <li><strong>Eigene Presets:</strong> Sobald Sie eine Ebenen-Kombination speichern, erscheint sie hier als eigener Eintrag.</li>
+  </ul>
+
+  <h2>Die wichtigsten Effekt-Familien</h2>
+
+  <h3>Spektrum und Wellenform</h3>
+
+  <p>
+    Die Basis jeder Visualisierung: „Balken", „Balken gespiegelt" und „Radiale Balken" zeigen das Frequenzspektrum als Säulen, im Kreis oder gespiegelt um die Mittellinie. „Wellenform" zeichnet das echte Zeitsignal als leuchtende Linie mit Geisterspuren, „Saiten" lässt Linien wie gestimmte Saiten vibrieren, und „LED-Pegelmeter" baut die bekannte Grün-Gelb-Rot-Kette mit Peak-Hold nach. „Audio-Landschaft" rollt die Spektrum-Historie als Gebirge auf den Betrachter zu, bei dem der Bass die Berge aufwirft.
+  </p>
+
+  <h3>Ringe, Kerne und Pulse</h3>
+
+  <figure class="blog-demo">
+    <img
+      src="/image/visualizer-blog-1.png"
+      alt="Audio Visualizer Effekt mit konzentrischen, gezackten Ringen in Blau und Violett um einen hell leuchtenden weissen Kern"
+      width="1920"
+      height="1080"
+      loading="lazy"
+    />
+    <figcaption>Konzentrische Ringe um einen leuchtenden Kern. Effekte wie „Puls-Ringe" und „Zentrifugale Ringe" lassen jede Welle vom Zentrum nach aussen laufen; die Zacken folgen dem Spektrum.</figcaption>
+  </figure>
+
+  <p>
+    Bei „Puls-Ringe" dehnen sich Ringe aus einem schlagenden Kern aus, moduliert vom Spektrum. „Zentrifugale Ringe" geht einen Schritt weiter: Jeder Frame des Spektrums wird als eigener Ring geboren und wandert nach aussen, so dass ein Beat zu einer dicken Welle wird. „Audio-Kugel" ist eine per Raymarching gezeichnete Kugel, deren Oberfläche vom Spektrum verformt wird, und „Blobs" lässt weiche Kugeln verschmelzen und wieder auseinanderplatzen, wobei der Bass sie aufbläht.
+  </p>
+
+  <h3>Licht, Bühne und Laser</h3>
+
+  <figure class="blog-demo">
+    <img
+      src="/image/visualizer-blog-2.png"
+      alt="Audio Visualizer Effekt Lichtstrahlen: helle volumetrische Strahlen in Weiss, Blau und Violett, die aus einem leuchtenden Zentrum nach allen Seiten schiessen"
+      width="1920"
+      height="1080"
+      loading="lazy"
+    />
+    <figcaption>„Lichtstrahlen": Volumetrische Strahlen aus einem hellen Kern. Jeder Strahl ist einem Frequenzbereich zugeordnet und wird länger, wenn dieser Bereich lauter wird.</figcaption>
+  </figure>
+
+  <p>
+    Neben „Lichtstrahlen" gibt es eine ganze Bühnenausstattung: „Bühnen-Scheinwerfer" leuchten von einer Traverse durch Nebel nach unten, „Rampenlicht" strahlt vom Bühnenrand nach oben, „Eck-Scheinwerfer", „Seiten-Scheinwerfer" und „Suchscheinwerfer" schwenken ihre Kegel zum Beat. Die „Lichtorgel" zitiert die 70er mit drei Milchglasfeldern für Bass, Mitten und Höhen. Elf Laser-Effekte, von „Laser-Fächer" über „Laser-Spirograph" bis „Laser-Oszilloskop", zeichnen dünne Strahlen in Nebel, bei denen Bass und Mitten die Geometrie bestimmen und Onsets die Figur neu ausrichten. Dazu kommen vier Disco-Effekte mit Spiegelkugel, Lichtreflexen und beleuchtetem Tanzboden.
+  </p>
+
+  <h3>Tunnel und Raum</h3>
+
+  <figure class="blog-demo">
+    <img
+      src="/image/visualizer-blog-3.png"
+      alt="Audio Visualizer Tunnel-Effekt: konzentrische leuchtende Ringe und radiale blaue Lichtbalken, die in ein dunkles Zentrum führen"
+      width="1920"
+      height="1080"
+      loading="lazy"
+    />
+    <figcaption>Flug in die Tiefe: Tunnel-Effekte wie „Tunnel", „Laser-Tunnel" und „Waben-Tunnel" ziehen den Betrachter ins Bild, das Tempo folgt dem Bass.</figcaption>
+  </figure>
+
+  <p>
+    „Tunnel" fliegt durch eine sich windende, mit Rauschen texturierte Röhre, die sich bei jedem Onset verdreht. „Waben-Tunnel" kleidet die Röhre mit Sechsecken aus, die je nach Frequenzband aufleuchten. „Sternentor" stapelt konzentrische Ringe aus leuchtenden Segmenten, die sich in eigener Geschwindigkeit und Richtung drehen. Für den Weltraum gibt es „Warp-Sterne" mit Hyperraum-Streifen, „Galaxie" mit rotierenden Spiralarmen und „Partikelsturm" mit tausenden Partikeln, die bei jedem Beat nach aussen platzen. „Neon-Grid" liefert den Synthwave-Boden mit gestreifter Sonne am Horizont.
+  </p>
+
+  <h3>Mandala, Fraktale und Geometrie</h3>
+
+  <figure class="blog-demo">
+    <img
+      src="/image/visualizer-blog-4.png"
+      alt="Audio Visualizer Mandala-Effekt: grün leuchtende, kaleidoskopische Blütenform mit mehreren Ringen und hellem Zentrum auf schwarzem Hintergrund"
+      width="1920"
+      height="1080"
+      loading="lazy"
+    />
+    <figcaption>Kaleidoskopische Symmetrie: „Mandala", „Fraktal-Blüte" und „Blume des Lebens" atmen mit dem Bass, die Ringe leuchten mit dem Spektrum nach aussen.</figcaption>
+  </figure>
+
+  <p>
+    „Mandala" verzerrt Rauschen kaleidoskopisch und legt Spektrum-Ringe um einen Bass-Kern. „Fraktal-Blüte" faltet ein Fraktal, dessen Abstände mit dem Bass atmen und dessen Rotation den Onsets folgt. „Blume des Lebens" ist ein Kreisgitter, das von innen nach aussen aufleuchtet. „Cymatics" zeigt Chladni-Figuren einer schwingenden Platte, „Interferenz" lässt kreisende Wellenquellen Moiré-Muster bilden, „Kristallzellen" leuchtet ein Voronoi-Netz an den Kanten mit den Höhen und in den Kernen mit dem Bass, und „Neon-Labyrinth" zieht endlose Kurven aus Truchet-Kacheln, die bei jedem Onset kippen.
+  </p>
+
+  <h3>Natur, Feuer und Feuerwerk</h3>
+
+  <p>
+    Sechs Aurora-Effekte, von „Nordlicht-Vorhang" über „Nordlicht-Spiegelung" mit See bis „Nordlicht-Wirbel", bringen ruhige Farbschleier für Ambient und Chill-out. „Feuer" lässt Flammen von unten aufsteigen, die beim Bass brüllen und bei den Höhen Funken werfen. Fünf Feuerwerk-Varianten, darunter Pfingstrose, Weiden, Ringe, Fontänen und ein „Finale" mit Himmelsblitz, starten bei jedem Onset eine Rakete. „Blitze" schlagen bei Beats vom Zentrum zum Rand ein, „Matrix-Regen" lässt Zeichenkolonnen fallen.
+  </p>
+
+  <h3>LED-Wände, Ziffern und Buchstaben</h3>
+
+  <p>
+    Wer den Look echter LED-Hardware sucht, findet „LED-Wand" (3×3 und 5×5), „LED-Matrix", „LED-Ring", „LED-Streifen", „LED-Blinder", „LED-Sunstrip" und „LED-Hexpanel". Besonders für Countdowns und Intros: „LED-Ziffer 0" bis „LED-Ziffer 9" sowie „LED-Buchstabe A" bis „E" formen eine 5×7-Punktmatrix, bei der jede einzelne Lampe ihr eigenes Frequenzband hat, Bass unten, Höhen oben.
+  </p>
+
+  <h3>Portrait-Effekte für eigene Bilder</h3>
+
+  <p>
+    Fünf Effekte nehmen ein Bild von der Leinwand oder aus der Galerie und machen es selbst zum Visualizer: „LED-Portrait" rastert das Bild in runde LEDs, „Glitch-Portrait" zerlegt es mit RGB-Versatz, verschobenen Zeilen und Scanlines, „Schallwellen-Portrait" wölbt es mit dem Bass und kräuselt es mit den Höhen, „Konturen-Portrait" zeigt nur leuchtende Kanten, und „Halbton-Portrait" druckt es als Rasterpunkte, die mit dem Bass wachsen. Ideal für Cover-Art, Logos und Künstlerporträts.
+  </p>
+
+  <h2>Multi-Layer: Effekte übereinanderlegen</h2>
+
+  <p>
+    Ein einzelner Effekt ist erst der Anfang. Im Multi-Layer-Modus stapeln Sie mehrere Effekte als Ebenen. Jede Ebene hat eigene Einstellungen:
+  </p>
+
+  <ul>
+    <li><strong>Mischmodus:</strong> 16 Modi wie Normal, Multiplizieren, Negativ multiplizieren, Ineinanderkopieren, Aufhellen, Differenz oder Luminanz bestimmen, wie die Ebene mit den darunterliegenden verschmilzt.</li>
+    <li><strong>Deckkraft und Farbtransparenz:</strong> Getrennt regelbar, damit ein Effekt als dezenter Hintergrund oder als kräftiger Vordergrund wirkt.</li>
+    <li><strong>Position und Grösse:</strong> Jede Ebene lässt sich frei verschieben und von 10 % bis 300 % skalieren. Verkleinerte Effekte bekommen automatisch weiche Kanten.</li>
+    <li><strong>Eigene Farbe und Reaktionsquelle:</strong> Eine Ebene kann auf den Bass hören, die nächste auf die Höhen.</li>
+    <li><strong>Ebenen-Verwaltung:</strong> Duplizieren, ein- und ausblenden, in der Reihenfolge verschieben und als eigenes Preset speichern.</li>
+  </ul>
+
+  <p>
+    Die mitgelieferten Vorlagen wie „Laser Club", „Disco Night" oder „Aurora Sky" zeigen, wie das aussieht: Sie kombinieren drei Ebenen mit unterschiedlichen Mischmodi und Reaktionsquellen zu einer fertigen Szene, die Sie als Ausgangspunkt anpassen können.
+  </p>
+
+  <h2>Beat-Reaktionen: Was die Effekte zum Tanzen bringt</h2>
+
+  <ul>
+    <li><strong>Reaktionsquelle:</strong> Pro Effekt oder Ebene wählen Sie, worauf er reagiert: Spektrum, Bass, Mitten, Höhen, Lautstärke oder ein Onset. Onset-Quellen springen nur bei Beats an und fallen dazwischen zurück, statt bei durchgehend lauter Musik dauerhaft auszuschlagen. Die Reaktionsstärke ist von 0 bis 100 regelbar.</li>
+    <li><strong>Beat-Punch:</strong> Ein Onset-Zoom der ganzen Ebene, der auf Beats statt auf Dauerlautstärke reagiert. Mit dem Regler „Variation" reagieren einzelne Bereiche der Ebene mit eigener Stärke und leichtem Versatz auf jeden Beat, so dass das Bild lebendiger wirkt als ein gleichmässiges Pumpen.</li>
+    <li><strong>Onset-Flourishes:</strong> Beat-getriggerte Zusatzeffekte in ausgewählten Visualizern, etwa Partikel-Burst, Blüten-Pop, Grid-Punch oder Orb-Pop. Sie werden automatisch normalisiert und feuern bei leisen wie bei lauten Titeln gleichermassen.</li>
+    <li><strong>Beat-Drop-Effekte:</strong> Bildfüllende Reaktionen wie Flash, Color Burst, Strobe und Vignette-Puls, jeweils mit Quelle, Intensität und Abklingzeit.</li>
+    <li><strong>Post-Processing:</strong> „Bloom / Glühen" mit Stärke, Schwelle und Radius, „Bewegungsspuren" mit einstellbarer Länge und eine „Adaptive Qualität", die die Bildrate stabil hält.</li>
+  </ul>
+
+  <h2>Schritt-für-Schritt: Eine Effekt-Szene aufbauen</h2>
+
+  <ol class="steps">
+    <li>
+      <div class="step-content">
+        <strong>Audio Visualizer öffnen</strong>
+        <p>Besuchen Sie <a href="https://kodinitools.com/visualizer/" target="_blank" rel="noopener">kodinitools.com/visualizer</a> – kostenlos, keine Registrierung. Audiodatei per Drag &amp; Drop laden oder das Mikrofon als Quelle wählen.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Format wählen</strong>
+        <p>In der Canvas-Steuerung das Zielformat setzen: 9:16 für TikTok, Reels und Shorts, 1:1 für Instagram-Posts, 16:9 für YouTube, oder eine freie Grösse.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Basis-Effekt wählen</strong>
+        <p>Im Panel „Visualizer-Typ" einen GPU-Effekt anklicken, etwa „Lichtstrahlen" oder „Mandala". Farbe und Deckkraft anpassen, die Vorschau reagiert sofort auf die laufende Musik.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Ebenen hinzufügen</strong>
+        <p>Über „Multi-Layer" eine zweite Ebene anlegen, zum Beispiel „Balken" mit Mischmodus „Negativ multiplizieren" und Reaktionsquelle „Bass-Onset". Position und Grösse so setzen, dass sich beide Effekte ergänzen.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Beat-Reaktionen feinjustieren</strong>
+        <p>Im Popover „Effekte (Post-Processing)" Beat-Punch aktivieren, Stärke und Variation einstellen, bei Bedarf Bloom und Bewegungsspuren dazuschalten.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Aufnehmen und exportieren</strong>
+        <p>Im Recorder 30 oder 60 fps wählen, „Vorbereiten" und „Start" klicken, den Titel abspielen und stoppen. Das Video wird als WebM gespeichert; auf Wunsch wird es in MP4 konvertiert oder per HQ-Frame-Export Bild für Bild in höchster Qualität gerendert.</p>
+      </div>
+    </li>
+  </ol>
+
+  <div class="tip-box">
+    <p><strong>Tipp für Social-Media-Clips:</strong> Kombinieren Sie einen ruhigen Hintergrund-Effekt wie „Aurora" oder „Flüssiges Licht" mit niedriger Deckkraft und einem harten Beat-Effekt wie „Zentrifugale Ringe" oder „Feuerwerk" im Vordergrund mit Reaktionsquelle „Bass-Onset". Der Hintergrund trägt die Stimmung, der Vordergrund macht den Beat sichtbar. Mit Beat-Markern können Sie zusätzlich beim Drop automatisch den Effekt, die Farbe oder den Hintergrund wechseln, auf Wunsch mit weichem Crossfade.</p>
+  </div>
+
+  <h2>Mehr als Effekte: Text, Bilder, Lauftext</h2>
+
+  <p>
+    Effekte sind nur eine Ebene der Leinwand. Dazu kommen Textelemente mit Schreibmaschinen-, Einblend-, Skalierungs- und Slide-Animationen und über 30 audio-reaktiven Texteffekten, ein Lauftext-Band, das zum Beat pulsiert oder die Farbe wechselt, eigene Bilder und Videos mit Filtern und Beat-Reaktionen, ein Kachel-Hintergrund mit bis zu zwölf Feldern sowie Farbverläufe, Hintergrundbilder und Hintergrundvideos. Alles lässt sich frei auf der Leinwand platzieren.
+  </p>
+
+  <h2>Datenschutz: Privacy First</h2>
+
+  <p>
+    Audio-Analyse, Effekt-Berechnung und Aufnahme laufen vollständig lokal in Ihrem Browser über Web Audio API, Canvas und WebGL. Ihre Audiodatei wird nicht hochgeladen. Nur die optionalen Server-Exporte, also die MP4-Konvertierung, der GIF-Export und der HQ-Frame-Export, senden das fertige Video beziehungsweise die gerenderten Einzelbilder an den KodiniTools-Server, wo die Dateien nach einer Stunde automatisch gelöscht werden. Wer das nicht möchte, nutzt den direkten WebM-Download und bleibt komplett im Browser.
+  </p>
+
+  <div class="blog-cta">
+    <p>Jetzt ausprobieren – über 130 Effekte, Multi-Layer und Beat-Reaktionen, kostenlos im Browser.</p>
+    <a href="https://kodinitools.com/visualizer/" class="blog-cta-btn" target="_blank" rel="noopener">
+      Audio Visualizer öffnen →
+    </a>
+  </div>
+
+  <div class="blog-related">
+    <h2>Verwandte Artikel</h2>
+    <div class="blog-related-grid">
+      <a href="/blog/musik-video-tiktok/" class="blog-related-card">
+        <span>Musik-Video für TikTok erstellen: Kostenlos &amp; ohne App</span>
+      </a>
+      <a href="/blog/ultimativer-musikplayer/" class="blog-related-card">
+        <span>Ultimativer Musikplayer: Lokale Musik im Browser abspielen mit Visualizer</span>
+      </a>
+      <a href="/blog/audio-normalisieren/" class="blog-related-card">
+        <span>Audio Lautstärke normalisieren: LUFS erklärt</span>
+      </a>
+    </div>
+  </div>
+
+</BlogArticleLayout>
