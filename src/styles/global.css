@@ -12,6 +12,6 @@
 @import './parts/hero.css'; /* Hero: Titel/CTA, Banner (+ Text-Animationen), Raster */
 @import './parts/components.css'; /* Features, Sektionen, Tool-/Bento-Karten, Badges, SVG-Grid */
 @import './parts/responsive.css'; /* zusammengefasste Media-Queries (Tablet/Mobile) */
-@import './parts/utilities.css'; /* Scroll/Focus/Performance, Reduced-Motion, Scroll-to-Top */
+@import './parts/utilities.css'; /* Scroll/Focus/Performance, Reduced-Motion */
 @import './parts/favorites.css'; /* Favoriten-Feature */
 @import './parts/tool-cards.css'; /* Tool-Karten (Text-first) + Hover-Popup */
