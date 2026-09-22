@@ -805,7 +805,7 @@ function validateCellStyle(s) {
     borderWidth: clampNum(s.borderWidth, 0, 20, d.borderWidth),
     bgColor: normHexColor(s.bgColor, d.bgColor),
     bgOpacity: clampNum(s.bgOpacity, 0, 100, d.bgOpacity),
-    text: typeof s.text === 'string' ? s.text.slice(0, 120) : '',
+    text: typeof s.text === 'string' ? s.text : '',
     font: normFontFile(s.font),
     textColor: normHexColor(s.textColor, d.textColor),
     textSize: clampNum(s.textSize, 0, 96, d.textSize),
@@ -1075,7 +1075,7 @@ function validateMediaLocale(m, langLabel) {
     out.heroBannerLink = m.heroBannerLink;
   }
   // Text über dem Banner (optional) + Schriftart, Farbe, Größe, Position.
-  out.heroBannerText = typeof m.heroBannerText === 'string' ? m.heroBannerText.slice(0, 120) : '';
+  out.heroBannerText = typeof m.heroBannerText === 'string' ? m.heroBannerText : '';
   out.heroBannerFont = normFontFile(m.heroBannerFont);
   out.heroBannerTextColor = normHexColor(m.heroBannerTextColor, '#ffffff');
   out.heroBannerTextSize = clampNum(m.heroBannerTextSize, 0, 96, 0);

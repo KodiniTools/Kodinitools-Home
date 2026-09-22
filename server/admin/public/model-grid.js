@@ -183,7 +183,7 @@ function normCellStyle(s) {
     borderWidth: num(s.borderWidth, 0, 20, d.borderWidth),
     bgColor: hex(s.bgColor, d.bgColor),
     bgOpacity: num(s.bgOpacity, 0, 100, d.bgOpacity),
-    text: typeof s.text === 'string' ? s.text.slice(0, 120) : '',
+    text: typeof s.text === 'string' ? s.text : '',
     font: normFontFile(s.font),
     textColor: hex(s.textColor, d.textColor),
     textSize: num(s.textSize, 0, 96, d.textSize),

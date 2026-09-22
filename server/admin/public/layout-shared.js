@@ -100,7 +100,7 @@ export function overlayStyle(color, size, x, y, font, fsDefault, shadow, extra) 
   const fs = size > 0 ? `${size}px` : fsDefault;
   const cx = clamp(Number(x) || 0, 0, 100);
   const cy = clamp(Number(y) || 0, 0, 100);
-  return `position:absolute;left:${cx}%;top:${cy}%;transform:translate(-50%,-50%);max-width:92%;text-align:center;padding:.1rem .3rem;color:${color || '#fff'};font-size:${fs};line-height:1.2;text-shadow:${shadow};word-break:break-word;cursor:move;pointer-events:auto;user-select:none;touch-action:none;${fontFF(font)}${extra || ''}`;
+  return `position:absolute;left:${cx}%;top:${cy}%;transform:translate(-50%,-50%);max-width:92%;text-align:center;padding:.1rem .3rem;color:${color || '#fff'};font-size:${fs};line-height:1.2;text-shadow:${shadow};white-space:pre-line;word-break:break-word;cursor:move;pointer-events:auto;user-select:none;touch-action:none;${fontFF(font)}${extra || ''}`;
 }
 
 // Macht ein Text-Overlay (handle) innerhalb seines Containers per Maus/Touch
