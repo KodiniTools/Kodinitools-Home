@@ -584,17 +584,28 @@
     animation: none;
   }
 }
-/* Nur-Text-Banner (kein Bild): normaler, mittiger Textblock. */
-.hero-banner-text--static {
-  position: static;
-  transform: none;
+/* Nur-Text-Banner (kein Bild): 1:1 wie die Admin-Vorschau (layout-banner.js,
+   Platzhalter-Kasten „box" + overlayStyle) – gleiche Breite (520px Vorschau
+   minus 2×1rem Innenabstand), Kasten im Banner-Design (getHeroBannerCss greift
+   über .hero-banner), Text frei per X/Y darüber, gleiche Umbrüche. */
+.hero-banner-textstage {
+  position: relative;
+  width: 100%;
+  max-width: 488px;
+  margin: 0 auto;
+}
+.hero-banner-wrapper .hero-banner.hero-banner-textbox {
+  width: 100%;
   max-width: 100%;
-  min-height: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-color);
-  text-shadow: none;
+  min-height: 110px;
+  max-height: none;
+  background: rgba(1, 79, 153, 0.12);
+  box-sizing: border-box;
+}
+.hero-banner-textstage .hero-banner-text {
+  max-width: 92%;
+  padding: 0.1rem 0.3rem;
+  font-size: 1.3rem;
 }
 
 .hero-banner {
