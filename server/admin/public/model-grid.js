@@ -117,6 +117,8 @@ export function defaultBannerStyle() {
     shadowOpacity: 40, // % (0–100)
     opacity: 100, // % Deckkraft des Banners (0–100)
     darken: 0, // % Verdunkelung (0–100)
+    bgColor: '#014f99', // Tönung des Nur-Text-Kastens (Banner ohne Bild)
+    bgOpacity: 12, // % Deckkraft der Tönung (0–100; 0 = keine Tönung)
   };
 }
 export function defaultBannerStyles() {
@@ -132,6 +134,7 @@ export const BANNER_STYLE_LIMITS = {
   shadowOpacity: { min: 0, max: 100 },
   opacity: { min: 0, max: 100 },
   darken: { min: 0, max: 100 },
+  bgOpacity: { min: 0, max: 100 },
 };
 function normBannerSide(s) {
   const d = defaultBannerStyle();
@@ -154,6 +157,8 @@ function normBannerSide(s) {
     shadowOpacity: num(s.shadowOpacity, 'shadowOpacity'),
     opacity: num(s.opacity, 'opacity'),
     darken: num(s.darken, 'darken'),
+    bgColor: hex(s.bgColor, d.bgColor),
+    bgOpacity: num(s.bgOpacity, 'bgOpacity'),
   };
 }
 // { light, dark }; Alt-Format (flaches Objekt) wird auf beide Modi übernommen.
