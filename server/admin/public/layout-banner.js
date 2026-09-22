@@ -67,7 +67,7 @@ const BANNER_TEXT_DESIGN_KEYS = [
 const BANNER_MEDIA_BASE = {
   media:
     'max-width:100%;max-height:240px;width:auto;height:auto;object-fit:contain;display:block;margin:0 auto;box-sizing:border-box',
-  box: 'width:100%;min-height:110px;display:flex;align-items:center;justify-content:center;background:rgba(1,79,153,.12);box-sizing:border-box',
+  box: 'width:100%;min-height:110px;display:flex;align-items:center;justify-content:center;box-sizing:border-box',
 };
 // Aktuell in der Banner-Vorschau gezeigter Modus (Hell/Dunkel). Wechselt beim
 // Klick auf die Umschalter über der Vorschau oder automatisch beim Bearbeiten
@@ -94,8 +94,11 @@ function bannerDesignCss(lang, mode) {
   return p.join(';');
 }
 // Vollständiger Inline-Style des Vorschau-Mediums (Basis je Art + Design des Modus).
+// Die Tönung gilt nur für den Kasten ohne Bild (wie hero.css → .hero-banner-textbox).
 function bannerMediaStyle(lang, kind, mode = bannerPrevMode) {
-  return `${BANNER_MEDIA_BASE[kind] || BANNER_MEDIA_BASE.media};${bannerDesignCss(lang, mode)}`;
+  const s = getBannerStyle(lang, mode);
+  const bg = kind === 'box' ? `;background:${rgbaFromHex(s.bgColor, s.bgOpacity)}` : '';
+  return `${BANNER_MEDIA_BASE[kind] || BANNER_MEDIA_BASE.media};${bannerDesignCss(lang, mode)}${bg}`;
 }
 // Das dem Einzelbanner zugewiesene Medium (Bild/Video) als <img>/<video> im
 // Banner-Design – oder ein Platzhalter-Kasten, wenn kein Banner gewählt ist.
@@ -374,6 +377,12 @@ function bannerDesignSection(lang, mode) {
       </div>
       <div style="margin-top:.5rem">
         ${slider({ id: id('darken'), label: 'Verdunkelung', unit: '%', min: L.darken.min, max: L.darken.max, value: bs.darken, attrs: attrs('darken'), resetAttrs: reset('darken') })}
+      </div>
+      <div style="border-top:1px solid var(--border);margin:.7rem 0 .5rem"></div>
+      <label>Tönung <span style="color:var(--muted);font-weight:400">— Hintergrund des Kastens, nur bei Banner ohne Bild (Nur-Text)</span></label>
+      ${colorPicker({ id: id('bgColor'), attrs: attrs('bgColor'), value: bs.bgColor, resetHtml: resetBtnM('bgColor') })}
+      <div style="margin-top:.5rem">
+        ${slider({ id: id('bgOpacity'), label: 'Tönung-Deckkraft (0 = keine Tönung)', unit: '%', min: L.bgOpacity.min, max: L.bgOpacity.max, value: bs.bgOpacity, attrs: attrs('bgOpacity'), resetAttrs: reset('bgOpacity') })}
       </div>
     </div>`;
 }
@@ -856,7 +865,7 @@ export function bindBanner(pane, lang, rr) {
       const mode = el.dataset.mode === 'dark' ? 'dark' : 'light';
       const bs = getBannerStyle(lang, mode);
       if (f === 'shadow') bs.shadow = el.checked;
-      else if (f === 'borderColor' || f === 'shadowColor') bs[f] = el.value;
+      else if (f === 'borderColor' || f === 'shadowColor' || f === 'bgColor') bs[f] = el.value;
       else if (f in BANNER_STYLE_LIMITS) {
         const n = parseInt(el.value, 10);
         const { min, max } = BANNER_STYLE_LIMITS[f];

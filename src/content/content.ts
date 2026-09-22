@@ -526,6 +526,8 @@ export interface HeroBannerStyle {
   shadowOpacity: number; // 0–100 (%) – Deckkraft des Schattens
   opacity: number; // 0–100 (%) – Deckkraft des Banners (100 = deckend)
   darken: number; // 0–100 (%) – Verdunkelung (0 = keine)
+  bgColor: string; // Hex – Tönung des Nur-Text-Kastens (Banner ohne Bild)
+  bgOpacity: number; // 0–100 (%) – Deckkraft der Tönung (0 = keine)
 }
 export const HERO_BANNER_STYLE_DEFAULTS: HeroBannerStyle = {
   borderColor: '#014f99',
@@ -539,6 +541,8 @@ export const HERO_BANNER_STYLE_DEFAULTS: HeroBannerStyle = {
   shadowOpacity: 40,
   opacity: 100,
   darken: 0,
+  bgColor: '#014f99',
+  bgOpacity: 12,
 };
 /** Einstellungen einer Diashow (Banner bzw. Raster-Kacheln). */
 export interface HeroSlideshowSettings {
@@ -969,6 +973,14 @@ export function getHeroBannerCss(media: MediaConfig): string | undefined {
     else if (light.has(k)) darkDecl.push(`${k}:${BASE[k]}`);
   }
   if (darkDecl.length) rules.push(`${darkSel}{${darkDecl.join(';')}}`);
+  // Tönung des Nur-Text-Kastens (nur ohne Bild; Standard steht in hero.css).
+  const tint = (s: Partial<HeroBannerStyle>): string =>
+    textHexToRgba(hex(s.bgColor, d.bgColor), num(s.bgOpacity, 0, 100, d.bgOpacity) / 100);
+  const tintSel = '.hero-banner-wrapper .hero-banner.hero-banner-textbox';
+  const lightTint = tint(sideOf('light'));
+  const darkTint = tint(sideOf('dark'));
+  if (lightTint !== tint(d)) rules.push(`${tintSel}{background:${lightTint}}`);
+  if (darkTint !== lightTint) rules.push(`[data-theme="dark"] ${tintSel}{background:${darkTint}}`);
   return rules.length ? rules.join('\n') : undefined;
 }
 

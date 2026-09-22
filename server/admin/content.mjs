@@ -660,6 +660,8 @@ function defaultBannerStyle() {
     shadowOpacity: 40,
     opacity: 100,
     darken: 0,
+    bgColor: '#014f99',
+    bgOpacity: 12,
   };
 }
 function defaultBannerStyles() {
@@ -680,6 +682,8 @@ function validateBannerSide(s) {
     shadowOpacity: clampNum(s.shadowOpacity, 0, 100, d.shadowOpacity),
     opacity: clampNum(s.opacity, 0, 100, d.opacity),
     darken: clampNum(s.darken, 0, 100, d.darken),
+    bgColor: normHexColor(s.bgColor, d.bgColor),
+    bgOpacity: clampNum(s.bgOpacity, 0, 100, d.bgOpacity),
   };
 }
 // { light, dark }; Alt-Format (flaches Objekt ohne light/dark) gilt für beide Modi.
