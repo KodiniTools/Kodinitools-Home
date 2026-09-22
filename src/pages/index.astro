@@ -396,11 +396,12 @@ const pageI18n = {
             )
           ) : media.heroBannerText ? (
             <div class="hero-banner-wrapper hero-banner-textonly">
-              <div
-                class={bannerTextClass('hero-banner-text hero-banner-text--static')}
-                style={bannerTextOverlayStyle(media)}
-              >
-                {media.heroBannerText}
+              <!-- Wie die Admin-Vorschau: Kasten im Banner-Design, Text frei darüber positioniert -->
+              <div class="hero-banner-textstage">
+                <div class="hero-banner hero-banner-textbox" aria-hidden="true"></div>
+                <div class={bannerTextClass('hero-banner-text')} style={bannerTextOverlayStyle(media)}>
+                  {media.heroBannerText}
+                </div>
               </div>
             </div>
           ) : null}
