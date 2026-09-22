@@ -298,7 +298,7 @@ function cellContentEditor(lang, i, bigLabel) {
       <div class="row" style="align-items:flex-end;margin-top:.4rem">
         <div style="flex:2 1 160px">
           <label>Text (über dem Bild / im leeren Kasten)</label>
-          ${withReset(`<input data-cellfield="${i}:text" value="${esc(s.text || '')}" placeholder="z.B. Neu" maxlength="120" style="${fontFF(s.font || '')}" />`, 'data-cellreset', `${i}:text`, false)}
+          ${withReset(`<textarea class="ly-text" data-cellfield="${i}:text" rows="2" placeholder="z.B. Neu (Enter = neue Zeile)" style="${fontFF(s.font || '')}">${esc(s.text || '')}</textarea>`, 'data-cellreset', `${i}:text`, false)}
         </div>
         <div style="flex:1 1 160px">
           <label>Schriftart des Textes</label>
@@ -655,7 +655,7 @@ export function bindGrid(pane, lang, rr) {
       } else if (field === 'bgOpacity') {
         s.bgOpacity = clamp(parseInt(el.value, 10) || 0, 0, 100);
       } else if (field === 'text') {
-        s.text = el.value.slice(0, 120);
+        s.text = el.value;
       } else if (field === 'textSize') {
         s.textSize = clamp(parseInt(el.value, 10) || 0, 0, 96);
       } else if (field in CELL_IMG_FIELDS) {

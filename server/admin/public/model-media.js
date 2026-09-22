@@ -164,7 +164,7 @@ export function normalizeMedia(m) {
       heroMediaOffsetX: normMediaOffset(o?.heroMediaOffsetX, 'x'),
       heroMediaOffsetY: normMediaOffset(o?.heroMediaOffsetY, 'y'),
       toolCardOffsets: normToolCardOffsets(o?.toolCardOffsets),
-      heroBannerText: typeof o?.heroBannerText === 'string' ? o.heroBannerText.slice(0, 120) : '',
+      heroBannerText: typeof o?.heroBannerText === 'string' ? o.heroBannerText : '',
       heroBannerFont: normFontFile(o?.heroBannerFont),
       heroBannerTextColor: /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(o?.heroBannerTextColor))
         ? o.heroBannerTextColor

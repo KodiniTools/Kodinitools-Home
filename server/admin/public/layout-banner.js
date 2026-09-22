@@ -454,7 +454,7 @@ export function bannerLayoutHtml(lang, modePanel) {
         <div class="row" style="align-items:flex-end">
           <div style="flex:2 1 160px">
             <label>Text</label>
-            ${withReset(`<input data-bannerfield="text" value="${esc(bText)}" placeholder="z.B. Willkommen" maxlength="120" style="${fontFF(bFont)}" />`, 'data-bannerreset', 'text', false)}
+            ${withReset(`<textarea class="ly-text" data-bannerfield="text" rows="3" placeholder="z.B. Willkommen (Enter = neue Zeile)" style="${fontFF(bFont)}">${esc(bText)}</textarea>`, 'data-bannerreset', 'text', false)}
           </div>
           <div style="flex:1 1 160px">
             <label>Schriftart des Textes</label>
@@ -666,7 +666,7 @@ export function bindBanner(pane, lang, rr) {
     el.addEventListener('input', () => {
       const f = el.dataset.bannerfield;
       const m = state.media[lang];
-      if (f === 'text') m.heroBannerText = el.value.slice(0, 120);
+      if (f === 'text') m.heroBannerText = el.value;
       else if (f === 'textColor') m.heroBannerTextColor = el.value;
       else if (f === 'textSize') m.heroBannerTextSize = clamp(parseInt(el.value, 10) || 0, 0, 96);
       else if (f === 'textShadow') m.heroBannerTextShadow = el.checked;
