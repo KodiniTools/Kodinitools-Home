@@ -83,7 +83,7 @@
       "description": "Minimalistischer Audioplayer mit Playlist, Shuffle, Repeat und Visualizer-Funktion.",
       "badge": "Neu",
       "processing": "browser",
-      "link": "https://kodinitools.com/ultimativermusikplayer/",
+      "link": "https://kodinitools.com/ultimativer-musikplayer/",
       "svg": "/image/musikplayer.svg"
     },
     "audioVisualizer": {
