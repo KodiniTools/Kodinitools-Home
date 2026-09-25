@@ -4,3 +4,4 @@ Allow: /
 Sitemap: https://kodinitools.com/sitemap.xml
 Sitemap: https://kodinitools.com/visualizer/sitemap.xml
 Sitemap: https://kodinitools.com/bildkonverter/sitemap.xml
+Sitemap: https://kodinitools.com/kodini-color-extractor/sitemap.xml
