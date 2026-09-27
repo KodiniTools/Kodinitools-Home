@@ -4,11 +4,13 @@
 //
 // eager=true  -> sofort sichtbares Medium (autoplay bei Video, eager-Bild)
 // eager=false -> unterhalb des Sichtbereichs (lazy: erst beim Scrollen laden)
+// priority=true -> Bild mit fetchpriority="high" (LCP-Kandidat im Hero)
 // wrapperClass/mediaClass -> Styling-Haken (Sektions-Video vs. Hero-Banner)
 // Leerer src -> es wird NICHTS gerendert.
 interface Props {
   src: string;
   eager?: boolean;
+  priority?: boolean;
   alt?: string;
   wrapperClass?: string;
   wrapperStyle?: string;
@@ -17,6 +19,7 @@ interface Props {
 const {
   src,
   eager = false,
+  priority = false,
   alt = '',
   wrapperClass = 'section-video-wrapper',
   wrapperStyle = '',
@@ -55,6 +58,7 @@ const mime = VIDEO_MIME[ext] || 'video/mp4';
           alt={alt}
           class={mediaClass}
           loading={eager ? 'eager' : 'lazy'}
+          fetchpriority={priority ? 'high' : undefined}
           decoding="async"
         />
       )}
