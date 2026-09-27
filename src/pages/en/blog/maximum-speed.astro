@@ -76,9 +76,11 @@ import BlogArticleLayout from '../../../layouts/BlogArticleLayout.astro'
   </figure>
 
   <ul>
-    <li><strong>Performance in the green zone:</strong> With 91 / 100 points, the home page loads quickly even on an average smartphone with a throttled mobile connection – just as Google simulates it in the test.</li>
-    <li><strong>Full marks for SEO:</strong> 100 out of 100 points show that the page is technically clean and easily understood by search engines.</li>
-    <li><strong>Accessible and reliable:</strong> 94 points for accessibility and 92 points for best practices ensure secure, modern access in your mobile browser.</li>
+    <li><strong>Something to see right away:</strong> After 1.4 seconds, the first content appears on screen (First Contentful Paint).</li>
+    <li><strong>Built twice as fast:</strong> The visible area is fully in place after 1.5 seconds – down from 3.0 seconds in the first test (Speed Index).</li>
+    <li><strong>Inputs respond instantly:</strong> Script blocking time has dropped from 30 to a negligible 10 milliseconds (Total Blocking Time). When you tap a button, the interface reacts immediately.</li>
+    <li><strong>Stable layout, no mis-taps:</strong> With a layout stability score of 0.053 (CLS), the page stays well below Google's threshold of 0.1 – elements don't jump around while loading.</li>
+    <li><strong>Technically clean:</strong> A full 100 points for SEO, 94 points for accessibility and 92 points for best practices ensure secure, modern access in your mobile browser.</li>
   </ul>
 
   <h2>What We Did to Speed Up Loading on Smartphones</h2>
@@ -94,7 +96,7 @@ import BlogArticleLayout from '../../../layouts/BlogArticleLayout.astro'
   </ul>
 
   <p>
-    Our goal remains for the mobile tools to feel just as weightless and immediate as they do on desktop – and we will keep working on it.
+    The time until the largest element in the visible area has fully loaded has also dropped, from 3.6 to 3.4 seconds (Largest Contentful Paint). This is where we are focusing next: the goal is a value below 2.5 seconds, so the mobile tools feel just as weightless and immediate as they do on desktop.
   </p>
 
   <div class="tip-box">
