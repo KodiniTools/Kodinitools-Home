@@ -183,8 +183,13 @@
   grid-area: 1 / 1;
 }
 
+/* opacity statt nur color: Admin-Textstile setzen -webkit-text-fill-color,
+   Verläufe oder Schatten auf .hero-title, die color: transparent übermalen.
+   opacity blendet alles aus, der Text bleibt für Screenreader/SEO lesbar. */
 .typing-title > .typed-ghost {
+  opacity: 0;
   color: transparent;
+  -webkit-text-fill-color: transparent;
   -webkit-text-stroke: 0;
   pointer-events: none;
   user-select: none;
