@@ -6,6 +6,7 @@
 import SectionMedia from './SectionMedia.astro';
 import HeroSlides from './HeroSlides.astro';
 import type { MediaConfig } from '../content/content';
+import { getPublicImageSize } from '../content/imageSize';
 
 interface Props {
   media: MediaConfig;
@@ -16,6 +17,9 @@ const slides = (Array.isArray(media.heroBannerSlides) ? media.heroBannerSlides :
   (s) => typeof s === 'string' && s.trim() !== '',
 );
 const ss = media.heroBannerSlideshow || {};
+// Pixelmaße des Einzel-Banners (nicht Diashow): reserviert den Platz vor dem
+// Laden, sonst verschiebt das spät ankommende Bild den Hero-Inhalt (CLS).
+const size = slides.length > 0 ? null : getPublicImageSize(media.heroBanner);
 ---
 
 {
@@ -35,6 +39,8 @@ const ss = media.heroBannerSlideshow || {};
       src={media.heroBanner}
       eager={true}
       priority={true}
+      width={size?.width}
+      height={size?.height}
       alt={alt}
       wrapperClass="hero-banner-inner"
       mediaClass="hero-banner"
