@@ -566,12 +566,10 @@ var CookieConsent = (function() {
     if (e.target === modal) hideSettings();
   });
 
-  // Initialize on DOM ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  // Sofort initialisieren: Banner und Modal stehen im Markup vor diesem Script.
+  // So erscheint das Banner schon im ersten Frame statt erst nach
+  // DOMContentLoaded (sonst wird es zum späten LCP-Element).
+  init();
 
   // Live-Update bei Sprachwechsel (ohne Reload)
   window.addEventListener('locale-changed', applyCookieTranslations);
