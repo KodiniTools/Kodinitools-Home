@@ -171,6 +171,25 @@
   animation: fadeInUp 0.7s ease forwards;
 }
 
+/* Tipp-Titel: unsichtbarer Platzhalter (voller Titel) und getippter Text liegen
+   im selben Grid-Feld. Die H1 hat so von Anfang an ihre Endhöhe und die
+   Tipp-Animation verschiebt keine Inhalte darunter (CLS). */
+.typing-title {
+  display: grid;
+}
+
+.typing-title > .typed-ghost,
+.typing-title > .typed-text {
+  grid-area: 1 / 1;
+}
+
+.typing-title > .typed-ghost {
+  color: transparent;
+  -webkit-text-stroke: 0;
+  pointer-events: none;
+  user-select: none;
+}
+
 .gradient-title {
   background: linear-gradient(135deg, #014f99 0%, #003971 100%);
   -webkit-background-clip: text;
