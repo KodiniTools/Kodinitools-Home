@@ -4,7 +4,7 @@ import BlogArticleLayout from '../../../layouts/BlogArticleLayout.astro'
 
 <BlogArticleLayout
   title="No Loading Bars, No Waiting: Why kodinitools.com Is Built for Maximum Speed | KodiniTools"
-  description="Google PageSpeed Insights confirms it: 97 out of 100 points on desktop, 89 on mobile. Why kodinitools.com is built for speed and what that means for your everyday work."
+  description="Google PageSpeed Insights confirms it: 97 out of 100 points on desktop, 91 on mobile. Why kodinitools.com is built for speed and what that means for your everyday work."
   canonical="https://kodinitools.com/en/blog/maximum-speed/"
   altHref="https://kodinitools.com/blog/maximale-geschwindigkeit/"
   publishedDate="2026-09-27"
@@ -58,33 +58,45 @@ import BlogArticleLayout from '../../../layouts/BlogArticleLayout.astro'
     You open the page, pick your tool and get straight to work.
   </p>
 
-  <h2>Strong on the Go, Too: Smooth Performance on Your Smartphone</h2>
+  <h2>Strong on the Go, Too: 91 out of 100 Points on Your Smartphone</h2>
 
   <p>
-    On mobile devices, connections on the go are often unreliable and smartphones have less computing power than a desktop computer. Even so, the mobile version achieves a solid 89 points in Google's test:
+    On mobile devices, connections on the go are often unreliable and smartphones have less computing power than a desktop computer. That is exactly why we fine-tuned the mobile version – and it paid off: in the latest Google test, mobile performance rises from 89 to 91 points, putting it firmly in the green zone.
   </p>
 
   <figure class="blog-demo">
     <img
       src="/image/speed-mobile-blog-en.webp"
-      alt="Google PageSpeed Insights, mobile view: kodinitools.com scores 89 for performance, 94 for accessibility, 96 for best practices and 100 for SEO"
+      alt="Google PageSpeed Insights, mobile view, report from 27 September 2026: kodinitools.com scores 91 for performance, 94 for accessibility, 92 for best practices and 100 for SEO"
       width="1920"
       height="945"
       loading="lazy"
     />
-    <figcaption>PageSpeed Insights on mobile: 89 points for performance, 100 points for SEO.</figcaption>
+    <figcaption>PageSpeed Insights on mobile: 91 points for performance, 100 points for SEO.</figcaption>
   </figure>
 
   <ul>
-    <li><strong>Inputs respond instantly:</strong> Script blocking time is a negligible 30 milliseconds (Total Blocking Time). When you tap a button, the interface reacts immediately and does not freeze.</li>
-    <li><strong>Stable layout, no mis-taps:</strong> Many mobile pages jump around while loading, so you accidentally tap the wrong thing. With a layout stability score of almost zero (0.015 CLS), every element on our pages stays exactly where it belongs.</li>
-    <li><strong>100 % technical standard:</strong> A full 100 points for SEO and 96 points for best practices ensure secure, modern and reliable access in your mobile browser.</li>
+    <li><strong>Something to see right away:</strong> After 1.4 seconds, the first content appears on screen (First Contentful Paint).</li>
+    <li><strong>Built twice as fast:</strong> The visible area is fully in place after 1.5 seconds – down from 3.0 seconds in the first test (Speed Index).</li>
+    <li><strong>Inputs respond instantly:</strong> Script blocking time has dropped from 30 to a negligible 10 milliseconds (Total Blocking Time). When you tap a button, the interface reacts immediately.</li>
+    <li><strong>Stable layout, no mis-taps:</strong> With a layout stability score of 0.053 (CLS), the page stays well below Google's threshold of 0.1 – elements don't jump around while loading.</li>
+    <li><strong>Technically clean:</strong> A full 100 points for SEO, 94 points for accessibility and 92 points for best practices ensure secure, modern access in your mobile browser.</li>
   </ul>
 
-  <h2>What We Are Improving for You Next</h2>
+  <h2>What We Did to Speed Up Loading on Smartphones</h2>
 
   <p>
-    Despite the strong mobile result, we want to get the most out of it on the go as well: we are currently optimising how the first graphical elements load on smartphones to push the current load time of 3.6 seconds even further down. The goal is for the mobile tools to feel just as weightless and immediate as they do on desktop.
+    The jump from 89 to 91 points is no accident – it is the result of targeted optimisations to the visible top of the page:
+  </p>
+
+  <ul>
+    <li><strong>A leaner header image:</strong> The large banner at the top now uses the modern WebP format and is around a third smaller than before.</li>
+    <li><strong>First things first:</strong> The browser loads the header image with top priority, before less important elements get their turn.</li>
+    <li><strong>Notices without delay:</strong> The cookie notice now appears with the very first render instead of popping in afterwards.</li>
+  </ul>
+
+  <p>
+    The time until the largest element in the visible area has fully loaded has also dropped, from 3.6 to 3.4 seconds (Largest Contentful Paint). This is where we are focusing next: the goal is a value below 2.5 seconds, so the mobile tools feel just as weightless and immediate as they do on desktop.
   </p>
 
   <div class="tip-box">

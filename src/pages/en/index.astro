@@ -407,7 +407,10 @@ const pageI18n = {
           ) : null}
           <!-- Titel/Untertitel (Admin > Hero-Design: ausblendbar – der Platz bleibt erhalten) -->
           <h1 class={`hero-title typing-title${media.heroDesign.showTitle === false ? ' hero-hidden' : ''}`} aria-hidden={media.heroDesign.showTitle === false ? 'true' : undefined}>
-            <span class="typed-text" id="typedText"></span>
+            {/* Platzhalter mit vollem Titel: reserviert die Endhöhe der H1, damit die
+                Tipp-Animation nichts darunter verschiebt (CLS); zugleich der zugängliche Titel. */}
+            <span class="typed-ghost">{pageI18n.en['hero.title'] || 'Free Online Tools for Audio & Images'}</span>
+            <span class="typed-text" id="typedText" aria-hidden="true"></span>
           </h1>
           <p class={`hero-subtitle${media.heroDesign.showSubtitle === false ? ' hero-hidden' : ''}`} data-i18n="hero.subtitle" aria-hidden={media.heroDesign.showSubtitle === false ? 'true' : undefined}>Secure editing - In browser or on our servers<br/>No installation, no registration</p>
         </div>
