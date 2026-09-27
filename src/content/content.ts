@@ -932,7 +932,11 @@ export function getHeroBannerCss(media: MediaConfig): string | undefined {
   const decls = (s: Partial<HeroBannerStyle>): Map<string, string> => {
     const m = new Map<string, string>();
     const bw = num(s.borderWidth, 0, 20, d.borderWidth);
-    if (bw > 0) m.set('border', `${bw}px solid ${hex(s.borderColor, d.borderColor)}`);
+    if (bw > 0) {
+      m.set('border', `${bw}px solid ${hex(s.borderColor, d.borderColor)}`);
+      // Rahmenbreite für die Größenberechnung des Banners mit bekannten Maßen (hero.css).
+      m.set('--hb-bw', `${bw}px`);
+    }
     const radius = num(s.borderRadius, 0, 80, d.borderRadius);
     if (radius !== d.borderRadius) m.set('border-radius', `${radius}px`);
     if (s.shadow === true) {
@@ -954,6 +958,7 @@ export function getHeroBannerCss(media: MediaConfig): string | undefined {
   // Basiswerte aus hero.css für Eigenschaften, die Hell setzt und Dunkel nicht.
   const BASE: Record<string, string> = {
     border: '0',
+    '--hb-bw': '0px',
     'border-radius': `${d.borderRadius}px`,
     'box-shadow': 'none',
     opacity: '1',

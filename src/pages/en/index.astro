@@ -412,7 +412,9 @@ const pageI18n = {
             <span class="typed-ghost">{pageI18n.en['hero.title'] || 'Free Online Tools for Audio & Images'}</span>
             <span class="typed-text" id="typedText" aria-hidden="true"></span>
           </h1>
-          <p class={`hero-subtitle${media.heroDesign.showSubtitle === false ? ' hero-hidden' : ''}`} data-i18n="hero.subtitle" aria-hidden={media.heroDesign.showSubtitle === false ? 'true' : undefined}>Secure editing - In browser or on our servers<br/>No installation, no registration</p>
+          {/* Untertitel direkt mit dem Admin-Text rendern (wie das Script, \n -> <br />), sonst
+              tauscht das Script beim Laden einen anderen Text ein und verschiebt den Inhalt darunter (CLS). */}
+          <p class={`hero-subtitle${media.heroDesign.showSubtitle === false ? ' hero-hidden' : ''}`} data-i18n="hero.subtitle" aria-hidden={media.heroDesign.showSubtitle === false ? 'true' : undefined}>{(pageI18n.en['hero.subtitle'] || '').split('\n').map((line, i) => (i > 0 ? [<br />, line] : line))}</p>
         </div>
 
         <!-- Features Grid (Admin > Hero-Design: ausblendbar – der Platz bleibt erhalten) -->

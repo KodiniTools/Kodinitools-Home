@@ -644,6 +644,30 @@
   }
 }
 
+/* Banner mit bekannten Pixelmaßen (SectionMedia setzt aspect-ratio, --media-ar,
+   --media-w; --hb-bw = Rahmenbreite aus dem Banner-Design): Breite direkt aus
+   denselben Grenzen wie oben berechnen – max. 900px bzw. 100% breit, nicht
+   breiter als das Bild selbst, max. 240px (mobil 150px) hoch inkl. Rahmen. Die
+   Höhe folgt aus dem Seitenverhältnis. Ergibt dieselbe Größe wie die Regel oben,
+   steht aber schon vor dem Laden fest -> keine Verschiebung (CLS). */
+.hero-banner[style*='--media-ar'] {
+  --hb-max-h: 240px;
+  width: min(
+    100%,
+    900px,
+    calc(var(--media-w) + 2 * var(--hb-bw, 0px)),
+    calc((var(--hb-max-h) - 2 * var(--hb-bw, 0px)) * var(--media-ar) + 2 * var(--hb-bw, 0px))
+  );
+  height: auto;
+  max-height: none;
+}
+
+@media (max-width: 640px) {
+  .hero-banner[style*='--media-ar'] {
+    --hb-max-h: 150px;
+  }
+}
+
 /* Hero-Raster: Kacheln in wählbarer Anordnung (Layout) und Form (Ratio). */
 .hero-grid {
   --hero-gap: 1rem;
