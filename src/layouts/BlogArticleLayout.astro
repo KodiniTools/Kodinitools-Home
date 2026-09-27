@@ -29,7 +29,7 @@ interface Props {
 }
 
 const { title, description, canonical, publishedDate, lang, altHref, modifiedDate, ogImage } = Astro.props
-const DEFAULT_OG_IMAGE = 'https://kodinitools.com/images/kodinitools-og-image.jpg'
+const DEFAULT_OG_IMAGE = 'https://kodinitools.com/image/kodinitools-og-image.jpg'
 const ogImageUrl = ogImage ? new URL(ogImage, 'https://kodinitools.com').href : DEFAULT_OG_IMAGE
 const cookieBannerHtml = readFileSync(resolve('public/partials/cookie-banner.html'), 'utf-8')
 
