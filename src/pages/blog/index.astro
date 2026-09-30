@@ -179,6 +179,11 @@ const posts = [
   },
 ]
 
+const postCount = posts.length
+// Volltext-Index (search-index.json.ts); BASE_URL berücksichtigt die Admin-Vorschau
+const searchIndexUrl = `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}blog/search-index.json`
+// Suchtext je Karte: Titel, Beschreibung, Kategorie, Datum
+const searchText = (post: (typeof posts)[number]) => [post.title, post.description, post.tag, post.date].join(' ')
 const featuredPost = posts.find((post) => post.featured)
 const regularPosts = posts.filter((post) => !post.featured)
 // Ab dieser Anzahl Beiträge in der Liste wird die Liste im Panel scrollbar
@@ -268,7 +273,7 @@ const isGridScrollable = regularPosts.length >= SCROLL_FROM_POSTS
 
     .blog-index-header {
       text-align: center;
-      margin-bottom: 3rem;
+      margin-bottom: 1.5rem;
     }
 
     .blog-index-header h1 {
@@ -294,6 +299,101 @@ const isGridScrollable = regularPosts.length >= SCROLL_FROM_POSTS
       max-width: 520px;
       margin: 0 auto;
     }
+
+    /* Anzahl der Beiträge + Suche zwischen Kopfbereich und Liste */
+    .blog-toolbar {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.85rem;
+      margin-bottom: 2rem;
+    }
+
+    .blog-count {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-color, #003971);
+      margin: 0;
+      text-align: center;
+    }
+
+    [data-theme="dark"] .blog-count { color: var(--text-color, #f9f2d5); }
+
+    .blog-search {
+      position: relative;
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .blog-search-icon {
+      position: absolute;
+      left: 0.95rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted, #4f6f8e);
+      pointer-events: none;
+    }
+
+    .blog-search-input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0.7rem 1rem 0.7rem 2.6rem;
+      font: inherit;
+      font-size: 0.92rem;
+      color: var(--text-color, #003971);
+      background: var(--bg-secondary, #ffffff);
+      border: 1px solid var(--border-color, #d4c09a);
+      border-radius: 999px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .blog-search-input::placeholder { color: var(--text-muted, #4f6f8e); opacity: 1; }
+
+    .blog-search-input:focus {
+      outline: none;
+      border-color: var(--primary-color, #014f99);
+      box-shadow: 0 0 0 3px rgba(1, 79, 153, 0.15);
+    }
+
+    [data-theme="dark"] .blog-search-input {
+      color: var(--text-color, #f9f2d5);
+      background: rgba(9, 20, 40, 0.6);
+    }
+
+    [data-theme="dark"] .blog-search-input:focus {
+      border-color: var(--primary-color, #e8a945);
+      box-shadow: 0 0 0 3px rgba(232, 169, 69, 0.2);
+    }
+
+    .blog-search-status {
+      min-height: 1.2em;
+      margin: 0;
+      font-size: 0.8rem;
+      color: var(--text-muted, #4f6f8e);
+    }
+
+    .blog-search-empty {
+      text-align: center;
+      font-size: 0.92rem;
+      color: var(--text-muted, #4f6f8e);
+      padding: 2rem 1rem;
+      margin: 0;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Karten setzen display: grid/block – hidden muss das übersteuern */
+    .blog-panel [hidden] { display: none !important; }
 
     /* Content panel: keeps text readable on the animated global background (watermark, grid) */
     .blog-panel {
@@ -597,9 +697,32 @@ const isGridScrollable = regularPosts.length >= SCROLL_FROM_POSTS
         <h1>Blog – Tipps &amp; Anleitungen</h1>
         <p class="blog-index-subtitle">How-to Guides für Audio- und Bildbearbeitung – kostenlos, DSGVO-konform, ohne Registrierung.</p>
       </header>
+      <div class="blog-toolbar">
+        <h2 class="blog-count">{postCount} Beiträge von Dinko Ramić</h2>
+        <div class="blog-search" role="search">
+          <label for="blogSearch" class="visually-hidden">Blog durchsuchen</label>
+          <svg class="blog-search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+          </svg>
+          <input
+            id="blogSearch"
+            class="blog-search-input"
+            type="search"
+            placeholder="Beiträge durchsuchen …"
+            autocomplete="off"
+            spellcheck="false"
+            aria-describedby="blogSearchStatus"
+            data-index-url={searchIndexUrl}
+            data-total={postCount}
+            data-found="{n} von {total} Beiträgen gefunden"
+            data-found-one="1 von {total} Beiträgen gefunden"
+          />
+        </div>
+        <p class="blog-search-status" id="blogSearchStatus" aria-live="polite"></p>
+      </div>
 
       {featuredPost && (
-        <a href={featuredPost.slug} class="blog-featured-card">
+        <a href={featuredPost.slug} class="blog-featured-card" data-slug={featuredPost.slug} data-search={searchText(featuredPost)}>
           <div class="blog-featured-media">
             <img src={featuredPost.image} alt="" width="640" height="360" loading="lazy" />
           </div>
@@ -623,7 +746,7 @@ const isGridScrollable = regularPosts.length >= SCROLL_FROM_POSTS
       <div class:list={['blog-grid', { 'blog-grid-scroll': isGridScrollable }]}>
         {regularPosts.map((post) =>
           post.image ? (
-            <a href={post.slug} class="blog-featured-card blog-card-image" target={post.newTab ? '_blank' : undefined} rel={post.newTab ? 'noopener' : undefined}>
+            <a href={post.slug} class="blog-featured-card blog-card-image" data-slug={post.slug} data-search={searchText(post)} target={post.newTab ? '_blank' : undefined} rel={post.newTab ? 'noopener' : undefined}>
               <div class="blog-featured-media">
                 <img src={post.image} alt="" width="640" height="360" loading="lazy" />
               </div>
@@ -643,7 +766,7 @@ const isGridScrollable = regularPosts.length >= SCROLL_FROM_POSTS
               </div>
             </a>
           ) : (
-            <a href={post.slug} class="blog-card">
+            <a href={post.slug} class="blog-card" data-slug={post.slug} data-search={searchText(post)}>
               <div class="blog-card-header">
                 <span class="blog-card-tag">{post.tag}</span>
                 <span class="blog-card-meta">{post.date} · {post.minutes} Min.</span>
@@ -660,6 +783,7 @@ const isGridScrollable = regularPosts.length >= SCROLL_FROM_POSTS
           )
         )}
       </div>
+      <p class="blog-search-empty" id="blogSearchEmpty" hidden>Keine Beiträge gefunden. Versuchen Sie einen anderen Suchbegriff.</p>
 
       </div>
 
@@ -697,7 +821,8 @@ const isGridScrollable = regularPosts.length >= SCROLL_FROM_POSTS
 
     function applyGridHeight() {
       if (!grid) return;
-      const cards = grid.children;
+      // Nur sichtbare Karten zählen (die Suche blendet Karten per hidden aus)
+      const cards = Array.from(grid.children).filter(function(el) { return !el.hidden; });
       if (cards.length <= VISIBLE_CARDS) {
         grid.style.removeProperty('--blog-grid-max-height');
         return;
@@ -728,6 +853,67 @@ const isGridScrollable = regularPosts.length >= SCROLL_FROM_POSTS
       observer.observe(wrap);
     }
 
+    // Suche: Titel, Beschreibung, Kategorie und Datum sofort; der Volltext der
+    // Artikel wird beim ersten Fokus/Tippen aus search-index.json nachgeladen.
+    // Mehrere Wörter müssen alle vorkommen; Gross-/Kleinschreibung, Akzente und
+    // ß/ss werden ignoriert.
+    const input = document.getElementById('blogSearch');
+    const status = document.getElementById('blogSearchStatus');
+    const empty = document.getElementById('blogSearchEmpty');
+    if (input) {
+      const normalize = function(text) {
+        return String(text || '').toLowerCase().replace(/ß/g, 'ss')
+          .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      };
+      const cards = Array.from(document.querySelectorAll('.blog-panel [data-search]'));
+      const metaText = cards.map(function(card) { return normalize(card.dataset.search); });
+      const total = Number(input.dataset.total) || cards.length;
+      let fullText = null;
+      let indexRequest = null;
+      const applySearch = function() {
+        const terms = normalize(input.value).split(/\s+/).filter(Boolean);
+        let matches = 0;
+        cards.forEach(function(card, i) {
+          const haystack = metaText[i] + ' ' + ((fullText && fullText[card.dataset.slug]) || '');
+          const hit = terms.every(function(term) { return haystack.indexOf(term) !== -1; });
+          card.hidden = !hit;
+          if (hit) matches++;
+        });
+        if (empty) empty.hidden = !terms.length || matches > 0;
+        if (status) {
+          status.textContent = !terms.length ? ''
+            : (matches === 1 ? input.dataset.foundOne : input.dataset.found)
+                .replace('{n}', String(matches)).replace('{total}', String(total));
+        }
+        if (grid) grid.scrollTop = 0;
+        applyGridHeight();
+        try {
+          const url = new URL(window.location.href);
+          if (terms.length) url.searchParams.set('q', input.value.trim());
+          else url.searchParams.delete('q');
+          history.replaceState(history.state, '', url);
+        } catch { /* URL-Update optional */ }
+      };
+      const loadIndex = function() {
+        if (indexRequest) return;
+        indexRequest = fetch(input.dataset.indexUrl)
+          .then(function(res) { return res.ok ? res.json() : {}; })
+          .then(function(data) {
+            fullText = {};
+            Object.keys(data).forEach(function(slug) { fullText[slug] = normalize(data[slug]); });
+            if (input.value.trim()) applySearch();
+          })
+          .catch(function() { /* Volltext optional – Suche über Titel/Beschreibung bleibt aktiv */ });
+      };
+      input.addEventListener('focus', loadIndex);
+      input.addEventListener('input', function() { loadIndex(); applySearch(); });
+      const initial = new URLSearchParams(window.location.search).get('q');
+      if (initial) {
+        input.value = initial;
+        loadIndex();
+        applySearch();
+      }
+    }
     if (btn) {
       btn.addEventListener('click', function() {
         const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
