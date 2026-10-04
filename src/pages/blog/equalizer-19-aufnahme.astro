@@ -1,0 +1,229 @@
+---
+import BlogArticleLayout from '../../layouts/BlogArticleLayout.astro'
+---
+
+<BlogArticleLayout
+  title="Audio aufnehmen im Equalizer: Aufnahmequelle, Einstellungen & Download im 19-Band EQ Pro | KodiniTools"
+  description="Die Aufnahmefunktion des 19-Band EQ Pro im Detail: Playlist, Mikrofon, Line-In oder PC-Ton als Quelle, WAV mit 16, 24 oder 32 Bit Float oder WebM (Opus), Startverzögerung mit Countdown und Download mit eigenem Dateinamen und Zielordner – kostenlos, ohne Upload."
+  canonical="https://kodinitools.com/blog/equalizer-19-aufnahme/"
+  altHref="https://kodinitools.com/en/blog/equalizer-19-recording/"
+  publishedDate="2026-10-04"
+  lang="de"
+>
+
+  <h1>Audio aufnehmen im Equalizer: Aufnahmequelle, Einstellungen &amp; Download im 19-Band EQ Pro</h1>
+
+  <div class="blog-meta">
+    <span class="blog-meta-badge">How-to</span>
+    <span>4. Oktober 2026</span>
+    <span>· 7 Min. Lesezeit</span>
+  </div>
+
+  <p>
+    Equalizer und Kompressor einzustellen ist die eine Hälfte der Arbeit, das Ergebnis als Datei zu behalten die andere. Der KodiniTools 19-Band EQ Pro nimmt deshalb nicht die Originaldatei auf, sondern das fertig bearbeitete Signal: Alles, was Sie hören, landet genau so in der Aufnahme. Als Quelle dient wahlweise die Playlist, ein Mikrofon, ein Line-In oder der Ton Ihres PCs. Dieser Beitrag zeigt, wie Sie die Aufnahmequelle wählen, welche Einstellungen es gibt und wie der Download funktioniert.
+  </p>
+
+  <figure class="blog-demo">
+    <img
+      src="/image/equalizer19-aufnahme-blog-de.webp"
+      alt="Screenshot des KodiniTools 19-Band EQ Pro während einer Live-Aufnahme: links die Karte Eingangsquelle mit aktivem Audio-Eingang „PC-Ton (Systemaudio)“ und eingeschaltetem Mithören, in der Mitte der Equalizer mit Preset Rock, Pegel-Meter und Spektrum, rechts der Dynamics Processor, unten die Player-Leiste mit Live-Eingang, Formatwahl WAV/WebM, Bit-Tiefe 16/24/32f, Startverzögerung 5 s und rotem Aufnahme-Knopf"
+      width="1920"
+      height="889"
+      loading="lazy"
+    />
+    <figcaption>Live-Aufnahme des PC-Tons: Die Eingangsquelle links liefert das Signal, die Player-Leiste unten rechts bündelt Format, Bit-Tiefe, Startverzögerung und den Aufnahme-Knopf.</figcaption>
+  </figure>
+
+  <h2>Was genau aufgenommen wird</h2>
+
+  <p>
+    Der Recorder sitzt am Ende der Verarbeitungskette, direkt hinter Equalizer und Kompressor. Aufgenommen wird also immer das bearbeitete Signal, nie die rohe Quelle. Das hat zwei praktische Folgen: Was Sie während der Aufnahme am Equalizer oder Kompressor ändern, ist ab diesem Moment in der Datei enthalten. Und die Aufnahme läuft ungestört weiter, wenn Sie zwischendurch den Kompressor umgehen, ein anderes Eingabegerät wählen oder von der Playlist auf den Audio-Eingang wechseln.
+  </p>
+
+  <p>
+    Die Aufnahme endet nicht automatisch mit dem Titel, sondern erst, wenn Sie auf Stopp klicken. Pausen zwischen zwei Titeln werden als Stille aufgezeichnet. Eine rote Zeitanzeige in der Player-Leiste zählt die Aufnahmedauer in Minuten und Sekunden mit.
+  </p>
+
+  <h2>Aufnahmequelle wählen: Playlist oder Audio-Eingang</h2>
+
+  <p>
+    Die Karte „Eingangsquelle“ links oben entscheidet, welches Signal durch Equalizer, Kompressor und Recorder läuft. Zwei Modi stehen zur Wahl:
+  </p>
+
+  <div class="blog-table-wrap">
+    <table class="blog-table">
+      <thead>
+        <tr>
+          <th>Quelle</th>
+          <th>Was aufgenommen wird</th>
+          <th>Typischer Einsatz</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Playlist</td><td>Die geladenen Audiodateien, so wie der Player sie abspielt</td><td>Vorhandene Titel klanglich anpassen und als neue Datei speichern</td></tr>
+        <tr><td>Audio-Eingang: Mikrofon, Line-In, Audio-Interface</td><td>Das Live-Signal des gewählten Aufnahmegeräts</td><td>Sprache, Instrumente oder einen Plattenspieler direkt mit EQ und Kompressor aufnehmen</td></tr>
+        <tr><td>Audio-Eingang: Stereomix oder virtuelles Audiokabel</td><td>Die Wiedergabe des Rechners als Eingangssignal</td><td>Beliebige Programme bearbeiten, wenn die Bildschirmfreigabe nicht in Frage kommt</td></tr>
+        <tr><td>Audio-Eingang: PC-Ton (Systemaudio)</td><td>Der Ton eines Browser-Tabs oder des ganzen Bildschirms, per Freigabe-Dialog des Browsers</td><td>YouTube, Spotify oder Internetradio live durch den Equalizer schicken und mitschneiden</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Playlist</h3>
+
+  <p>
+    Im Standardmodus liefern die Dateien in der Playlist das Signal. Laden Sie einzelne Titel oder ganze Ordner per Klick oder Drag &amp; Drop, starten Sie die Wiedergabe, und die Aufnahme nimmt den laufenden Titel auf. Mehrere Titel nacheinander ergeben eine zusammenhängende Datei.
+  </p>
+
+  <h3>Audio-Eingang</h3>
+
+  <p>
+    Mit dem Schalter „Audio-Eingang“ wechseln Sie auf ein Live-Signal. Das Dropdown „Gerät“ listet alle Aufnahmegeräte, die Ihr System dem Browser bereitstellt: den Standardeingang, Mikrofone, Line-In, Audio-Interfaces oder den Stereomix. Nach „Eingang starten“ fragt der Browser einmalig nach der Berechtigung, danach erscheinen die Gerätenamen. Ihre Auswahl merkt sich die App für den nächsten Besuch. Die Sprachfilter des Browsers (Echo- und Rauschunterdrückung, automatische Lautstärke) schaltet der Equalizer bewusst ab, damit Musik unverfälscht bleibt; wo möglich wird in Stereo aufgenommen.
+  </p>
+
+  <p>
+    Unter „Wiedergabe des PCs“ steht zusätzlich der Eintrag „PC-Ton (Systemaudio)“. Da Browser keine Ausgabegeräte öffnen können, läuft dieser Weg über den Freigabe-Dialog für Bildschirmfreigaben: Wählen Sie dort „Gesamter Bildschirm“ und setzen Sie den Haken „Systemaudio teilen“. Die App verwendet nur den Ton, das Bild wird sofort wieder verworfen. Das funktioniert in Chrome und Edge unter Windows; unter macOS und Linux lässt sich meist nur der Ton eines einzelnen Tabs teilen. Teilen Sie einen Browser-Tab, schaltet der Browser dessen Originalton stumm und Sie hören nur noch die bearbeitete Version, während die App im Vordergrund bleibt.
+  </p>
+
+  <div class="tip-box">
+    <p><strong>Mithören:</strong> Der Schalter „Mithören“ gibt das bearbeitete Signal auf die Lautsprecher. Bei Mikrofon oder Stereomix ist er standardmässig aus, weil der Ton sonst erneut aufgenommen würde und eine Rückkopplung entsteht. Schalten Sie ihn dort nur mit Kopfhörern ein. Aufnahme und Pegel-Meter arbeiten unabhängig davon, auch ohne Mithören.</p>
+  </div>
+
+  <h2>Einstellungen: Format, Bit-Tiefe und Startverzögerung</h2>
+
+  <p>
+    Alle Aufnahme-Einstellungen liegen in der Player-Leiste am unteren Bildschirmrand, rechts neben der Lautstärke. Solange keine Aufnahme läuft, sehen Sie dort die Formatwahl, bei WAV die Bit-Tiefe und das Timer-Symbol für die Startverzögerung.
+  </p>
+
+  <h3>WAV oder WebM</h3>
+
+  <p>
+    <strong>WAV</strong> ist unkomprimiert und verlustfrei. Der Equalizer greift die Abtastwerte direkt hinter der Verarbeitungskette ab und schreibt sie ohne verlustbehafteten Zwischenschritt in die Datei, mit der Abtastrate Ihres Audiosystems, in der Regel 44,1 oder 48 kHz. Der Preis ist die Dateigrösse: Eine Minute Stereo belegt bei 44,1 kHz rund 10 MB mit 16 Bit und rund 16 MB mit 24 Bit. <strong>WebM</strong> nutzt den Opus-Codec und erzeugt bei sehr guter Qualität deutlich kleinere Dateien, ideal für Sprachaufnahmen oder zum schnellen Teilen. Wer am Ende MP3, FLAC oder AAC braucht, wandelt die WAV-Datei anschliessend mit dem <a href="/blog/audiodatei-format-aendern/">Audio-Konverter</a> um.
+  </p>
+
+  <h3>Bit-Tiefe bei WAV</h3>
+
+  <div class="blog-table-wrap">
+    <table class="blog-table">
+      <thead>
+        <tr>
+          <th>Einstellung</th>
+          <th>Format</th>
+          <th>Wann sinnvoll</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>16</td><td>16 Bit PCM, CD-Qualität</td><td>Standard für fertige Titel, kleinste WAV-Datei, überall abspielbar</td></tr>
+        <tr><td>24</td><td>24 Bit PCM, Studio-Qualität</td><td>Material, das noch weiterbearbeitet wird, mehr Reserve bei leisen Passagen</td></tr>
+        <tr><td>32f</td><td>32 Bit Float, verlustfrei</td><td>Exakte Kopie der internen Verarbeitung; Pegel über 0 dBFS werden nicht abgeschnitten, sondern bleiben erhalten</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    Die Bit-Tiefe lässt sich auch nach der Aufnahme noch umschalten, solange Sie die Datei noch nicht gespeichert haben: Der Equalizer hält den Mitschnitt intern als Fliesskommawerte vor und wandelt ihn erst beim Speichern in die gewählte Tiefe um. Ihre Wahl bleibt für künftige Aufnahmen gespeichert.
+  </p>
+
+  <h3>Startverzögerung</h3>
+
+  <p>
+    Über das Timer-Symbol wählen Sie, ob die Aufnahme sofort oder nach 3, 5 oder 10 Sekunden beginnt. Nach einem Klick auf den Aufnahme-Knopf zählt ein grosser Countdown in der Bildschirmmitte herunter. Die App bleibt dabei bedienbar, Sie können also in Ruhe die Wiedergabe starten oder zum Mikrofon greifen. Abbrechen geht per Schaltfläche, mit einem Klick auf die Sekundenanzeige in der Leiste oder mit der Esc-Taste. Auch diese Einstellung wird gespeichert.
+  </p>
+
+  <h2>Schritt-für-Schritt: Vom Signal zur Datei</h2>
+
+  <ol class="steps">
+    <li>
+      <div class="step-content">
+        <strong>19-Band EQ Pro öffnen</strong>
+        <p>Besuchen Sie <a href="https://kodinitools.com/equaliser19/" target="_blank" rel="noopener">kodinitools.com/equaliser19</a> – kostenlos, keine Registrierung.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Aufnahmequelle festlegen</strong>
+        <p>Entweder Titel in die Playlist laden oder in der Karte „Eingangsquelle“ auf „Audio-Eingang“ wechseln, ein Gerät wählen und „Eingang starten“ klicken. Das Live-Abzeichen in der Karte und der Eintrag „Live-Eingang“ in der Player-Leiste zeigen, dass das Signal anliegt.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Klang einstellen</strong>
+        <p>Preset wählen, Bänder nachjustieren, bei Bedarf den Kompressor aktivieren. Das Pegel-Meter zeigt Eingang und Ausgang in dBFS; der Ausgangspegel sollte unter 0 dBFS bleiben, damit die Aufnahme nicht übersteuert.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Format und Verzögerung wählen</strong>
+        <p>In der Player-Leiste WAV oder WebM anklicken, bei WAV die Bit-Tiefe setzen und über das Timer-Symbol die Startverzögerung festlegen.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Aufnahme starten</strong>
+        <p>Auf den roten Aufnahme-Knopf klicken. Läuft ein Countdown, beginnt die Aufnahme bei null. Bei der Playlist jetzt die Wiedergabe starten; die Zeitanzeige zählt die Dauer mit.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Stoppen und herunterladen</strong>
+        <p>Mit dem Stopp-Knopf beenden. Anschliessend erscheinen der grüne Download-Knopf und „Neue Aufnahme“. Download öffnet den Dialog „Aufnahme herunterladen“ mit dem Feld für den Dateinamen; die Endung .wav oder .webm wird automatisch angehängt.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Speichern</strong>
+        <p>In Chrome und Edge am Desktop öffnet „Speichern“ den Systemdialog, in dem Sie den Zielordner wählen. Andere Browser legen die Datei im Standard-Download-Ordner ab. Nach dem Speichern ist der Aufnahme-Knopf wieder frei für die nächste Aufnahme.</p>
+      </div>
+    </li>
+  </ol>
+
+  <div class="tip-box">
+    <p><strong>Tipp:</strong> Brechen Sie den Systemdialog ab, bleibt die Aufnahme erhalten und Sie können den Download erneut starten. Erst „Neue Aufnahme“ verwirft den Mitschnitt. Dieser Weg ist auch nötig, wenn Sie nach einer Aufnahme das Format wechseln möchten.</p>
+  </div>
+
+  <h2>Typische Anwendungsfälle</h2>
+
+  <ul>
+    <li><strong>Podcast-Folge nachbearbeiten:</strong> Datei in die Playlist, Preset Podcast, Kompressor Vocal, als WAV mit 16 Bit aufnehmen und als fertige Version speichern.</li>
+    <li><strong>Plattenspieler oder Kassette digitalisieren:</strong> Line-In als Eingang, Rumpeln unter 45 Hz absenken, WAV mit 24 Bit für die spätere Bearbeitung.</li>
+    <li><strong>Internetradio oder Stream mitschneiden:</strong> PC-Ton als Eingang, Bildschirm mit Systemaudio teilen, Equalizer nach Geschmack, WebM für kleine Dateien.</li>
+    <li><strong>Sprachaufnahme mit Countdown:</strong> Mikrofon als Eingang, Mithören aus, 5 Sekunden Verzögerung, damit der Mausklick nicht in der Aufnahme landet.</li>
+  </ul>
+
+  <h2>Wenn etwas nicht klappt</h2>
+
+  <ul>
+    <li><strong>Die Aufnahme ist leer oder still:</strong> Bei der Playlist muss ein Titel laufen, beim Audio-Eingang muss der Eingang gestartet sein. Das Pegel-Meter zeigt, ob Signal anliegt.</li>
+    <li><strong>Es pfeift oder hallt:</strong> Rückkopplung durch Mithören bei Mikrofon oder Stereomix über Lautsprecher. Mithören ausschalten oder Kopfhörer nutzen.</li>
+    <li><strong>Beim PC-Ton kommt kein Ton an:</strong> Im Freigabe-Dialog war „Systemaudio teilen“ nicht angehakt, oder es wurde ein Fenster statt des ganzen Bildschirms gewählt. Freigabe beenden und erneut starten.</li>
+    <li><strong>Der Browser blockiert das Mikrofon:</strong> Zugriff in den Datenschutz-Einstellungen des Betriebssystems freigeben, danach „Eingang starten“ wiederholen.</li>
+  </ul>
+
+  <h2>Datenschutz: Die Aufnahme bleibt auf Ihrem Gerät</h2>
+
+  <p>
+    Die Aufnahme entsteht vollständig im Browser über die Web Audio API. Weder die Quelldateien noch der Mitschnitt werden auf einen Server übertragen; das gilt auch für Mikrofon- und Systemaudio-Signale. Die Datei existiert nur dort, wo Sie sie speichern.
+  </p>
+
+  <div class="blog-cta">
+    <p>Jetzt aufnehmen – Playlist, Mikrofon oder PC-Ton durch den Equalizer, gespeichert als WAV oder WebM.</p>
+    <a href="https://kodinitools.com/equaliser19/" class="blog-cta-btn" target="_blank" rel="noopener">
+      19-Band EQ Pro öffnen →
+    </a>
+  </div>
+
+  <div class="blog-related">
+    <h2>Verwandte Artikel</h2>
+    <div class="blog-related-grid">
+      <a href="/blog/equalizer-19-band/" class="blog-related-card">
+        <span>Equalizer online: 19-Band EQ mit Kompressor im Browser</span>
+      </a>
+      <a href="/blog/audio-schneiden-online/" class="blog-related-card">
+        <span>Audio schneiden online: Millisekunden-genau kürzen &amp; exportieren</span>
+      </a>
+      <a href="/blog/audiodatei-format-aendern/" class="blog-related-card">
+        <span>Audiodatei Format ändern: DSGVO-konform &amp; kostenlos</span>
+      </a>
+    </div>
+  </div>
+
+</BlogArticleLayout>
