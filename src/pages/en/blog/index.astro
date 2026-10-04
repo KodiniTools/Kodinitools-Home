@@ -8,22 +8,50 @@ import { resolve } from 'path'
 
 const cookieBannerHtml = readFileSync(resolve('public/partials/cookie-banner.html'), 'utf-8')
 
-const posts = [
+// Posts of the overview. `published` (ISO date YYYY-MM-DD) determines the order:
+// the newest post is automatically listed first, its position in the array does not matter.
+interface BlogPost {
+  slug: string
+  title: string
+  description: string
+  published: string
+  tag: string
+  minutes: number
+  image: string
+  // open the article in a new tab
+  newTab?: boolean
+}
+
+// Card in the overview: post plus formatted display date
+interface BlogCard extends BlogPost {
+  date: string
+}
+
+const posts: BlogPost[] = [
+  {
+    slug: '/en/blog/equalizer-19-recording/',
+    title: 'Record Audio in the Equalizer: Recording Source, Settings & Download in the 19-Band EQ Pro',
+    description: 'Playlist, microphone, line-in or PC audio as the recording source, WAV at 16, 24 or 32-bit float or WebM (Opus), start delay with countdown and download with your own file name and target folder — no upload.',
+    published: '2026-10-04',
+    tag: 'Audio',
+    minutes: 7,
+    image: '/image/equalizer19-recording-blog-en.webp',
+    newTab: true,
+  },
   {
     slug: '/en/blog/maximum-speed/',
     title: 'No Loading Bars, No Waiting: Why kodinitools.com Is Built for Maximum Speed',
     description: 'Google PageSpeed Insights confirms it: 100 out of 100 points on desktop, 97 on mobile – what the speed of kodinitools.com means for your everyday work and what we optimised to get there.',
-    date: 'September 27, 2026',
+    published: '2026-09-27',
     tag: 'Performance',
     minutes: 4,
-    featured: true,
     image: '/image/speed-desktop-blog-en.webp',
   },
   {
     slug: '/en/blog/single-image-editor/',
     title: 'Single Image Editor: Edit, Compare & Export One Photo in Detail',
     description: '8 presets, 11 filters, before/after comparison, text with stroke and shadow, crop, straighten, resize and export as PNG, JPEG, WebP or PDF — no upload.',
-    date: 'September 30, 2026',
+    published: '2026-09-30',
     tag: 'Image',
     minutes: 7,
     image: '/image/editor-blog-en.webp',
@@ -33,7 +61,7 @@ const posts = [
     slug: '/en/blog/end-of-subscription-madness/',
     title: 'No More Subscription Madness: Why KodiniTools Chooses Freedom Over Paywalls',
     description: 'The philosophy behind KodiniTools: free, unrestricted tools instead of forced subscriptions — funded by voluntary donations instead of rigid paywalls.',
-    date: 'June 25, 2026',
+    published: '2026-06-25',
     tag: 'Philosophy',
     minutes: 4,
     image: '/image/kodinitools-blog.webp',
@@ -42,7 +70,7 @@ const posts = [
     slug: '/en/blog/visualizer-effects/',
     title: 'Visualizer Effects: 130+ Audio Visualizations, Multi-Layer & Beat Reactions in Your Browser',
     description: 'GPU effects from bars to light rays to mandalas, portrait effects for your own images, multiple layers with blend modes, beat punch and onset reactions — free, no upload.',
-    date: 'September 21, 2026',
+    published: '2026-09-21',
     tag: 'Video',
     minutes: 7,
     image: '/image/visualizer-blog-3.png',
@@ -52,7 +80,7 @@ const posts = [
     slug: '/en/blog/watermark-multiple-images/',
     title: 'Watermark Multiple Images at Once: Protect Hundreds of Photos in One Pass',
     description: 'Set a text watermark with font, size, color, opacity, rotation and position once, check it live on all selected images and export as ZIP — no upload.',
-    date: 'September 20, 2026',
+    published: '2026-09-20',
     tag: 'Image',
     minutes: 5,
     image: '/image/watermark-blog-en.png',
@@ -62,7 +90,7 @@ const posts = [
     slug: '/en/blog/cut-audio-online/',
     title: 'Cut Audio Online: Trim & Export with Millisecond Precision',
     description: 'Set start and end via waveform or millisecond input, fade-in and fade-out, preview, cut repeatedly and export as WAV — no upload.',
-    date: 'September 19, 2026',
+    published: '2026-09-19',
     tag: 'Audio',
     minutes: 5,
     image: '/image/audiocutter-blog-en.png',
@@ -72,7 +100,7 @@ const posts = [
     slug: '/en/blog/ultimate-music-player/',
     title: 'Ultimate Music Player: Play Local Music in Your Browser with a Visualizer',
     description: 'Load files or whole folders via drag and drop, playlist with shuffle and repeat, LED equalizer visualizer, all common audio formats — no upload.',
-    date: 'September 18, 2026',
+    published: '2026-09-18',
     tag: 'Audio',
     minutes: 4,
     image: '/image/ultimativermusikplayer-blog-en.png',
@@ -82,7 +110,7 @@ const posts = [
     slug: '/en/blog/alarm-tool-custom-alarm-sound/',
     title: 'Alarm Tool: Create and Record Your Own Alarm Sound with Oscillators',
     description: 'Design alarm and signal tones from up to 12 oscillators, set waveform, frequency, envelope and filter, save as a preset and record — in your browser.',
-    date: 'September 17, 2026',
+    published: '2026-09-17',
     tag: 'Audio',
     minutes: 5,
     image: '/image/alarmtool-blog-en.png',
@@ -91,7 +119,7 @@ const posts = [
     slug: '/en/blog/color-extractor-palette-generator/',
     title: 'Extract Colors from an Image & Generate a Color Palette: Free in Your Browser',
     description: 'Read the dominant colors of any image as HEX or RGB, adjust the image live and create harmonious palettes with the spacebar — no upload.',
-    date: 'September 16, 2026',
+    published: '2026-09-16',
     tag: 'Image',
     minutes: 6,
     image: '/image/farbextraktor-blog-en.png',
@@ -100,7 +128,7 @@ const posts = [
     slug: '/en/blog/19-band-equalizer/',
     title: 'Online Equalizer: Use a 19-Band EQ with Compressor Free in Your Browser',
     description: '19 frequency bands from 20 Hz to 20 kHz, presets for rock, pop and podcast, dynamic compressor, level meter and export as WAV or WebM — no upload.',
-    date: 'September 16, 2026',
+    published: '2026-09-16',
     tag: 'Audio',
     minutes: 6,
     image: '/image/audio-equalizer19-blog-en.png',
@@ -109,7 +137,7 @@ const posts = [
     slug: '/en/blog/online-text-editor/',
     title: 'Online Text Editor: Write, Format & Export Text Without Installing Anything',
     description: 'Write, format, insert images, Markdown preview, word counter, print and save — free in your browser, no upload.',
-    date: 'September 16, 2026',
+    published: '2026-09-16',
     tag: 'Text',
     minutes: 5,
     image: '/image/texteditor-en.png',
@@ -118,7 +146,7 @@ const posts = [
     slug: '/en/blog/create-playlist-m3u/',
     title: 'How to Create a Playlist: Generate M3U, PLS & XSPF Free in Your Browser',
     description: 'Add audio files, set the order, save as M3U, M3U8, PLS, XSPF, CUE, CSV or JSON — no upload, directly in your browser.',
-    date: 'September 15, 2026',
+    published: '2026-09-15',
     tag: 'Audio',
     minutes: 5,
     image: '/image/playlist-generator.png',
@@ -127,7 +155,7 @@ const posts = [
     slug: '/en/blog/change-audio-file-format/',
     title: 'How to Change Audio File Format: GDPR-Compliant & Free',
     description: 'MP3, WAV, OGG, FLAC, AAC — which format for what? And what does GDPR-compliant mean for audio converters?',
-    date: 'June 20, 2026',
+    published: '2026-06-20',
     tag: 'Audio',
     minutes: 5,
     image: '/image/audiokonverter-blog-en.png',
@@ -136,7 +164,7 @@ const posts = [
     slug: '/en/blog/jpg-to-webp-converter/',
     title: 'How to Convert JPG to WebP: Images up to 30% Smaller',
     description: 'How WebP improves your Google rankings and how conversion works in 5 steps — free, no upload needed.',
-    date: 'June 5, 2026',
+    published: '2026-06-05',
     tag: 'Image',
     minutes: 4,
     image: '/image/bildkonverter-blog-en.png',
@@ -145,7 +173,7 @@ const posts = [
     slug: '/en/blog/normalize-audio-online/',
     title: 'How to Normalize Audio: LUFS & dBFS Explained',
     description: 'Spotify -14 LUFS, Podcasts -16 LUFS, Broadcasting -23 LUFS — which standard applies when?',
-    date: 'June 8, 2026',
+    published: '2026-06-08',
     tag: 'Audio',
     minutes: 5,
     image: '/image/normalieser-blog-en.png',
@@ -154,7 +182,7 @@ const posts = [
     slug: '/en/blog/music-video-tiktok-free/',
     title: 'How to Create a Music Video for TikTok Free (No App)',
     description: 'Use the Audio Visualizer in your browser — MP4 export in vertical 9:16 format for TikTok and Reels.',
-    date: 'June 11, 2026',
+    published: '2026-06-11',
     tag: 'Video',
     minutes: 4,
     image: '/image/visualizer-blog-en.png',
@@ -163,7 +191,7 @@ const posts = [
     slug: '/en/blog/batch-resize-images/',
     title: 'How to Resize Multiple Images at Once: Batch Editing Made Easy',
     description: 'Scale 100+ images in seconds, rename and export as ZIP — without installing any software.',
-    date: 'June 14, 2026',
+    published: '2026-06-14',
     tag: 'Image',
     minutes: 4,
     image: '/image/bilderserie-blog-en.png',
@@ -172,7 +200,7 @@ const posts = [
     slug: '/en/blog/photo-collage-free-online/',
     title: 'How to Create a Photo Collage Free Online Without an App',
     description: 'Layouts for Instagram, Pinterest and printing. Images never leave your browser — GDPR compliant.',
-    date: 'June 17, 2026',
+    published: '2026-06-17',
     tag: 'Image',
     minutes: 4,
     image: '/image/collagemaker-blog-en.png',
@@ -183,9 +211,26 @@ const postCount = posts.length
 // Volltext-Index (search-index.json.ts); BASE_URL berücksichtigt die Admin-Vorschau
 const searchIndexUrl = `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}en/blog/search-index.json`
 // Suchtext je Karte: Titel, Beschreibung, Kategorie, Datum
-const searchText = (post: (typeof posts)[number]) => [post.title, post.description, post.tag, post.date].join(' ')
-const featuredPost = posts.find((post) => post.featured)
-const regularPosts = posts.filter((post) => !post.featured)
+const searchText = (post: BlogCard) => [post.title, post.description, post.tag, post.date].join(' ')
+// Display date from the ISO date, e.g. "September 27, 2026"
+const dateFormat = new Intl.DateTimeFormat('en-US', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'UTC',
+})
+const formatDate = (iso: string): string => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) {
+    throw new Error(`Invalid date "${iso}" in the blog overview – expected YYYY-MM-DD`)
+  }
+  return dateFormat.format(new Date(`${iso}T00:00:00Z`))
+}
+// Newest first: `published` determines the order, not the position in the array.
+// The first post is highlighted as the large card, all others follow in the list.
+const cards: BlogCard[] = [...posts]
+  .sort((a, b) => b.published.localeCompare(a.published))
+  .map((post) => ({ ...post, date: formatDate(post.published) }))
+const [featuredPost, ...regularPosts] = cards
 // Ab dieser Anzahl Beiträge in der Liste wird die Liste im Panel scrollbar
 // (sichtbar bleiben 4 Karten, siehe .blog-grid-scroll und das Script unten).
 const SCROLL_FROM_POSTS = 5
@@ -588,7 +633,7 @@ const isGridScrollable = regularPosts.length >= SCROLL_FROM_POSTS
       </div>
 
       {featuredPost && (
-        <a href={featuredPost.slug} class="blog-featured-card" data-slug={featuredPost.slug} data-search={searchText(featuredPost)}>
+        <a href={featuredPost.slug} class="blog-featured-card" data-slug={featuredPost.slug} data-search={searchText(featuredPost)} target={featuredPost.newTab ? '_blank' : undefined} rel={featuredPost.newTab ? 'noopener' : undefined}>
           <div class="blog-featured-media">
             <img src={featuredPost.image} alt="" width="640" height="360" loading="lazy" />
           </div>

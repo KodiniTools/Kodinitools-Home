@@ -1,0 +1,229 @@
+---
+import BlogArticleLayout from '../../../layouts/BlogArticleLayout.astro'
+---
+
+<BlogArticleLayout
+  title="Record Audio in the Equalizer: Recording Source, Settings & Download in the 19-Band EQ Pro | KodiniTools"
+  description="The recording feature of the 19-Band EQ Pro in detail: playlist, microphone, line-in or PC audio as the source, WAV at 16, 24 or 32-bit float or WebM (Opus), start delay with countdown and download with your own file name and target folder — free, no upload."
+  canonical="https://kodinitools.com/en/blog/equalizer-19-recording/"
+  altHref="https://kodinitools.com/blog/equalizer-19-aufnahme/"
+  publishedDate="2026-10-04"
+  lang="en"
+>
+
+  <h1>Record Audio in the Equalizer: Recording Source, Settings &amp; Download in the 19-Band EQ Pro</h1>
+
+  <div class="blog-meta">
+    <span class="blog-meta-badge">How-to</span>
+    <span>October 4, 2026</span>
+    <span>· 7 min read</span>
+  </div>
+
+  <p>
+    Dialing in the equalizer and compressor is one half of the job; keeping the result as a file is the other. That is why the KodiniTools 19-Band EQ Pro does not record the original file but the fully processed signal: whatever you hear ends up in the recording exactly like that. The source can be the playlist, a microphone, a line-in or your PC's own sound. This guide shows how to choose the recording source, which settings are available and how the download works.
+  </p>
+
+  <figure class="blog-demo">
+    <img
+      src="/image/equalizer19-recording-blog-en.webp"
+      alt="Screenshot of the KodiniTools 19-Band EQ Pro during a live recording: the Input source card on the left with the active audio input “PC audio (system audio)” and monitoring switched on, the equalizer with the Rock preset, level meter and spectrum in the center, the Dynamics Processor on the right, and the player bar at the bottom with live input, WAV/WebM format toggle, 16/24/32f bit depth, 5 s start delay and the red record button"
+      width="1920"
+      height="889"
+      loading="lazy"
+    />
+    <figcaption>Live recording of the PC's sound: the input source on the left feeds the signal, the player bar at the bottom right gathers format, bit depth, start delay and the record button.</figcaption>
+  </figure>
+
+  <h2>What Exactly Gets Recorded</h2>
+
+  <p>
+    The recorder sits at the end of the processing chain, right behind the equalizer and compressor. So the recording always contains the processed signal, never the raw source. Two practical consequences: whatever you change on the equalizer or compressor while recording is captured from that moment on. And the recording keeps running undisturbed if you bypass the compressor in between, pick a different input device or switch from the playlist to the audio input.
+  </p>
+
+  <p>
+    Recording does not stop automatically at the end of a track; it runs until you click stop. Gaps between two tracks are recorded as silence. A red time display in the player bar counts the recording time in minutes and seconds.
+  </p>
+
+  <h2>Choosing the Recording Source: Playlist or Audio Input</h2>
+
+  <p>
+    The “Input source” card at the top left decides which signal runs through equalizer, compressor and recorder. Two modes are available:
+  </p>
+
+  <div class="blog-table-wrap">
+    <table class="blog-table">
+      <thead>
+        <tr>
+          <th>Source</th>
+          <th>What is recorded</th>
+          <th>Typical use</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Playlist</td><td>The loaded audio files, exactly as the player plays them</td><td>Shape existing tracks and save them as a new file</td></tr>
+        <tr><td>Audio input: microphone, line-in, audio interface</td><td>The live signal of the selected recording device</td><td>Record speech, instruments or a turntable straight through EQ and compressor</td></tr>
+        <tr><td>Audio input: Stereo Mix or virtual audio cable</td><td>The computer's playback as an input signal</td><td>Process any application when screen sharing is not an option</td></tr>
+        <tr><td>Audio input: PC audio (system audio)</td><td>The sound of a browser tab or the entire screen, via the browser's share dialog</td><td>Send YouTube, Spotify or online radio live through the equalizer and capture it</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Playlist</h3>
+
+  <p>
+    In the default mode the files in the playlist supply the signal. Load single tracks or whole folders by click or drag &amp; drop, start playback, and the recording captures the running track. Several tracks in a row end up in one continuous file.
+  </p>
+
+  <h3>Audio Input</h3>
+
+  <p>
+    The “Audio input” switch changes to a live signal. The “Device” dropdown lists every recording device your system offers to the browser: the system default input, microphones, line-in, audio interfaces or Stereo Mix. After “Start input” the browser asks for permission once; the device names appear after that. The app remembers your choice for the next visit. The equalizer deliberately switches off the browser's voice filters (echo and noise suppression, automatic gain) so music stays unaltered, and records in stereo wherever possible.
+  </p>
+
+  <p>
+    Under “PC playback” there is the additional entry “PC audio (system audio)”. Since browsers cannot open output devices, this path goes through the screen-sharing dialog: choose “Entire screen” there and tick “Share system audio”. The app only uses the sound; the picture is discarded immediately. This works in Chrome and Edge on Windows; on macOS and Linux usually only the sound of a single tab can be shared. If you share a browser tab, the browser mutes that tab's original sound and you hear only the processed version, while the app stays in front.
+  </p>
+
+  <div class="tip-box">
+    <p><strong>Monitor:</strong> the “Monitor” switch sends the processed signal to your speakers. With a microphone or Stereo Mix it is off by default, because the sound would otherwise be captured again and cause feedback. Only enable it there with headphones. Recording and level meter work independently of it, even without monitoring.</p>
+  </div>
+
+  <h2>Settings: Format, Bit Depth and Start Delay</h2>
+
+  <p>
+    All recording settings live in the player bar at the bottom of the screen, to the right of the volume control. As long as no recording is running you see the format toggle there, the bit depth for WAV, and the timer icon for the start delay.
+  </p>
+
+  <h3>WAV or WebM</h3>
+
+  <p>
+    <strong>WAV</strong> is uncompressed and lossless. The equalizer taps the samples right behind the processing chain and writes them to the file without any lossy intermediate step, at the sample rate of your audio system, usually 44.1 or 48 kHz. The price is file size: one minute of stereo at 44.1 kHz takes about 10 MB at 16-bit and about 16 MB at 24-bit. <strong>WebM</strong> uses the Opus codec and produces much smaller files at very good quality, ideal for voice recordings or quick sharing. If you need MP3, FLAC or AAC in the end, convert the WAV file afterwards with the <a href="/en/blog/change-audio-file-format/">Audio Converter</a>.
+  </p>
+
+  <h3>WAV Bit Depth</h3>
+
+  <div class="blog-table-wrap">
+    <table class="blog-table">
+      <thead>
+        <tr>
+          <th>Setting</th>
+          <th>Format</th>
+          <th>When to use</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>16</td><td>16-bit PCM, CD quality</td><td>Standard for finished tracks, smallest WAV file, plays everywhere</td></tr>
+        <tr><td>24</td><td>24-bit PCM, studio quality</td><td>Material that will be edited further, more headroom in quiet passages</td></tr>
+        <tr><td>32f</td><td>32-bit float, lossless</td><td>Exact copy of the internal processing; levels above 0 dBFS are not clipped but preserved</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    The bit depth can still be changed after recording, as long as you have not saved the file yet: the equalizer keeps the take internally as floating-point values and converts it to the chosen depth only when saving. Your choice is remembered for future recordings.
+  </p>
+
+  <h3>Start Delay</h3>
+
+  <p>
+    Via the timer icon you choose whether recording starts instantly or after 3, 5 or 10 seconds. After clicking the record button, a large countdown runs in the middle of the screen. The app stays usable, so you can calmly start playback or reach for the microphone. Cancel with the button, a click on the seconds display in the bar or the Esc key. This setting is remembered too.
+  </p>
+
+  <h2>Step by Step: From Signal to File</h2>
+
+  <ol class="steps">
+    <li>
+      <div class="step-content">
+        <strong>Open the 19-Band EQ Pro</strong>
+        <p>Go to <a href="https://kodinitools.com/equaliser19/" target="_blank" rel="noopener">kodinitools.com/equaliser19</a> — free, no registration.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Set the recording source</strong>
+        <p>Either load tracks into the playlist, or switch to “Audio input” in the “Input source” card, pick a device and click “Start input”. The live badge in the card and the “Live input” entry in the player bar show that the signal is present.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Shape the sound</strong>
+        <p>Choose a preset, fine-tune the bands and enable the compressor if needed. The level meter shows input and output in dBFS; keep the output below 0 dBFS so the recording does not clip.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Choose format and delay</strong>
+        <p>Click WAV or WebM in the player bar, set the bit depth for WAV, and pick the start delay via the timer icon.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Start recording</strong>
+        <p>Click the red record button. If a countdown is running, recording begins at zero. With the playlist, start playback now; the time display counts the duration.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Stop and download</strong>
+        <p>End with the stop button. The green download button and “New recording” then appear. Download opens the “Download recording” dialog with the file name field; the .wav or .webm extension is added automatically.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-content">
+        <strong>Save</strong>
+        <p>In Chrome and Edge on desktop, “Save” opens the system dialog where you choose the target folder. Other browsers put the file into the default download folder. After saving, the record button is free again for the next take.</p>
+      </div>
+    </li>
+  </ol>
+
+  <div class="tip-box">
+    <p><strong>Tip:</strong> if you cancel the system dialog, the recording is kept and you can start the download again. Only “New recording” discards the take. That is also the way to go if you want to switch the format after a recording.</p>
+  </div>
+
+  <h2>Typical Use Cases</h2>
+
+  <ul>
+    <li><strong>Polishing a podcast episode:</strong> file into the playlist, Podcast preset, compressor Vocal, record as 16-bit WAV and save it as the final version.</li>
+    <li><strong>Digitizing vinyl or cassette:</strong> line-in as the input, cut rumble below 45 Hz, 24-bit WAV for later editing.</li>
+    <li><strong>Capturing online radio or a stream:</strong> PC audio as the input, share the screen with system audio, equalizer to taste, WebM for small files.</li>
+    <li><strong>Voice recording with countdown:</strong> microphone as the input, monitoring off, 5 seconds delay so the mouse click does not end up in the recording.</li>
+  </ul>
+
+  <h2>If Something Does Not Work</h2>
+
+  <ul>
+    <li><strong>The recording is empty or silent:</strong> with the playlist a track has to be playing, with the audio input the input has to be started. The level meter shows whether a signal is present.</li>
+    <li><strong>It whistles or echoes:</strong> feedback from monitoring with a microphone or Stereo Mix over speakers. Switch monitoring off or use headphones.</li>
+    <li><strong>No sound arrives with PC audio:</strong> “Share system audio” was not ticked in the share dialog, or a window was chosen instead of the entire screen. Stop sharing and start again.</li>
+    <li><strong>The browser blocks the microphone:</strong> allow access in your operating system's privacy settings, then repeat “Start input”.</li>
+  </ul>
+
+  <h2>Privacy: The Recording Stays on Your Device</h2>
+
+  <p>
+    The recording is created entirely in your browser using the Web Audio API. Neither the source files nor the take are sent to a server; that also applies to microphone and system audio signals. The file exists only where you save it.
+  </p>
+
+  <div class="blog-cta">
+    <p>Record now — playlist, microphone or PC audio through the equalizer, saved as WAV or WebM.</p>
+    <a href="https://kodinitools.com/equaliser19/" class="blog-cta-btn" target="_blank" rel="noopener">
+      Open 19-Band EQ Pro →
+    </a>
+  </div>
+
+  <div class="blog-related">
+    <h2>Related articles</h2>
+    <div class="blog-related-grid">
+      <a href="/en/blog/19-band-equalizer/" class="blog-related-card">
+        <span>Online Equalizer: 19-Band EQ with Compressor in Your Browser</span>
+      </a>
+      <a href="/en/blog/cut-audio-online/" class="blog-related-card">
+        <span>Cut Audio Online: Trim &amp; Export with Millisecond Precision</span>
+      </a>
+      <a href="/en/blog/change-audio-file-format/" class="blog-related-card">
+        <span>How to Change Audio File Format: GDPR-Compliant &amp; Free</span>
+      </a>
+    </div>
+  </div>
+
+</BlogArticleLayout>
