@@ -1,10 +1,10 @@
 {
-  "enabled": false,
+  "enabled": true,
   "speed": "fast",
   "items": [
     {
       "id": "1790102100354",
-      "text": "⚠️ Geplante Serverwartung: Am Montag, 28. September 2026 ab 12:00 Uhr MESZ (10:00 UTC), kann es aufgrund von Wartungsarbeiten für bis zu 60 Minuten zu kurzen Ausfällen kommen. Vielen Dank für Ihr Verständnis!"
+      "text": "Update: Audioaufnahme direkt im [19-Band EQ Pro](https://kodinitools.com/equaliser19/)! (04.10.2026)\nAb sofort kannst du direkt im Browser Audio aufnehmen, in Echtzeit bearbeiten und sofort herunterladen"
     }
   ],
   "style": {
