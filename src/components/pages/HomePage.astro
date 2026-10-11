@@ -858,23 +858,34 @@ const pageI18n = {
   )}
 
   <script>
-    // Lazy-load videos below the fold via IntersectionObserver
-    const lazyVideos = document.querySelectorAll<HTMLVideoElement>('video.lazy-video');
-    if ('IntersectionObserver' in window && lazyVideos.length) {
-      const videoObserver = new IntersectionObserver(function(entries) {
-        entries.forEach(function(entry) {
-          if (entry.isIntersecting) {
-            const video = entry.target as HTMLVideoElement;
-            video.load();
-            video.play().catch(function() {});
-            videoObserver.unobserve(video);
-          }
-        });
-      }, { rootMargin: '200px' });
-      lazyVideos.forEach(function(v) { videoObserver.observe(v); });
-    } else {
-      // Fallback: just load them
-      lazyVideos.forEach(function(v) { v.load(); v.play().catch(function() {}); });
+    // Sektionsvideos (mehrere MB) erst nach dem Laden der Seite und nur in
+    // Sichtnähe laden: sonst konkurrieren sie mit Hero-Banner (LCP) und
+    // Hauptthread, wenn eine Sektion schon im ersten Bildschirm steht
+    // (z. B. Kompakt-Layout mit Medium seitlich).
+    function startLazyVideos() {
+      const lazyVideos = document.querySelectorAll<HTMLVideoElement>('video.lazy-video');
+      if ('IntersectionObserver' in window && lazyVideos.length) {
+        const videoObserver = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              const video = entry.target as HTMLVideoElement;
+              video.load();
+              video.play().catch(function() {});
+              videoObserver.unobserve(video);
+            }
+          });
+        }, { rootMargin: '200px' });
+        lazyVideos.forEach(function(v) { videoObserver.observe(v); });
+      } else {
+        // Fallback: just load them
+        lazyVideos.forEach(function(v) { v.load(); v.play().catch(function() {}); });
+      }
     }
+    function whenIdle(fn: () => void) {
+      if ('requestIdleCallback' in window) window.requestIdleCallback(fn, { timeout: 2000 });
+      else setTimeout(fn, 200);
+    }
+    if (document.readyState === 'complete') whenIdle(startLazyVideos);
+    else window.addEventListener('load', function() { whenIdle(startLazyVideos); }, { once: true });
   </script>
 </HomeLayout>
