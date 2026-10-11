@@ -211,7 +211,8 @@
 }
 
 /* Listenkarten: Badge, Titel und zwei Zeilen Beschreibung; Favoriten-Knopf oben
-   rechts; mit Icon steht es links neben dem Text. Das Popup entfällt. */
+   rechts; mit Icon steht es links neben dem Text. Beim Überfahren zeigt das
+   Popup wie im klassischen Layout die ganze Beschreibung. */
 /* Höhe je Reihe nach Inhalt (die Kachel-Regel gleicht alle Reihen der höchsten an). */
 #app[data-home-layout='compact'][data-card-form='list'] .svg-card-grid {
   grid-auto-rows: auto;
@@ -271,10 +272,6 @@
   display: none;
 }
 
-#app[data-home-layout='compact'][data-card-form='list'] .tool-popup {
-  display: none !important;
-}
-
 /* Handy: Kacheln zweispaltig wie im klassischen Layout, Listenkarten einspaltig
    mit weniger Innenabstand. */
 @media (max-width: 640px) {
@@ -300,10 +297,17 @@ body:has(#app[data-home-layout='compact']) {
 
 /* Leiste unter dem Hero: Sprunglinks (ohne JS nutzbar) und Suchfeld, das erst
    das Skript einblendet. Klebt beim Scrollen unter der Navigation. */
+/* Über einer Sektion mit gehoverter Karte (tool-cards.css hebt sie auf z-index
+   500, damit das Popup in die nächste Sektion ragen darf), sonst schöbe sie sich
+   beim Scrollen über die klebende Navigation und Leiste. */
+#app[data-home-layout='compact'] .global-nav {
+  z-index: 620;
+}
+
 #app[data-home-layout='compact'] .cat-bar {
   position: sticky;
   top: 70px;
-  z-index: 90;
+  z-index: 610;
   background: var(--nav-bg, var(--bg-color));
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
