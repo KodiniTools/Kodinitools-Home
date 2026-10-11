@@ -27,11 +27,13 @@ anpassen.
 
 ```
 src/
-├── pages/            # Astro-Seiten: index (DE), en/, blog/, faq, 404
+├── pages/            # Astro-Seiten: index (DE), en/, blog/ ([slug] + Übersicht), faq, 404
 ├── layouts/          # BaseLayout, EnLayout, BlogArticleLayout
 ├── components/       # Astro-Komponenten (GlobalNav, SiteFooter, TickerBar, SectionMedia, SiteFont)
 ├── content/          # content.ts: Locale-Texte + Admin-Overrides zusammenführen, CSS für
 │                     # Seitenhintergrund/Tool-Karten erzeugen; media.json, overrides
+│   └── blog/         # Blog-Artikel als Content Collection: de/<slug>.html, en/<slug>.html
+│                     # (Frontmatter + HTML, siehe src/content/README.md)
 ├── locales/          # de.json / en.json – Texte, Tool-Karten, Hero, FAQ, Blog (Single Source of Truth)
 └── styles/           # global.css (Aggregator) + parts/*.css
 server/admin/         # Admin-Dienst (Node, ohne Abhängigkeiten): Inhalte, Medien, Design,

@@ -66,3 +66,39 @@ Auslieferungszustand). Das Rendering (`TickerBar`) kommt in Phase 3b.
   (Home DE/EN, FAQ DE/EN, Blog). Direkt in `.astro` hartkodierte
   Texte sind (noch) nicht editierbar — sie werden bei Bedarf schrittweise an die
   Content-Schicht angebunden.
+
+## Blog (`blog/`)
+
+Jeder Artikel ist **eine Datei**: `blog/de/<slug>.html` bzw. `blog/en/<slug>.html`.
+Der Dateiname ist der Slug, die URL ergibt sich daraus (`/blog/<slug>/`,
+`/en/blog/<slug>/`). Seiten, Blog-Übersicht, Suchindex und Sitemap entstehen
+automatisch – es gibt keine Liste mehr, die man zusätzlich pflegen muss.
+
+```html
+---
+title: "Audio normalisieren: … | KodiniTools"   # <title>, og:title
+description: "…"                                # Meta-Description
+published: "2026-06-08"                         # JJJJ-MM-TT, in Anführungszeichen
+modified: "2026-07-01"                          # optional
+alternate: normalize-audio-online               # Slug der Übersetzung (Pflicht)
+ogImage: /image/foo-og.jpg                      # optional, 1200×630
+card:                                           # Karte in der Blog-Übersicht
+  title: "Audio normalisieren: …"
+  description: "…"
+  tag: Audio
+  minutes: 5
+  image: /image/normalieser-blog-de.png
+  newTab: true                                  # optional
+  order: 1                                      # optional, nur bei gleichem Datum
+---
+<h1>…</h1>
+…Artikel-HTML…
+```
+
+- Das Schema steht in `src/content.config.ts`; falsche oder fehlende Felder
+  brechen den Build mit Dateiname und Feld ab.
+- `alternate` muss in beide Richtungen stimmen, sonst bricht der Build ab
+  (hreflang-Paare).
+- Der Rumpf ist HTML (Tabellen, Figuren, Klassen wie `blog-meta`, `blog-demo`,
+  `blog-related`) und wird unverändert ausgegeben. Prettier lässt den Ordner aus.
+- Loader: `blogLoader.ts`, Hilfsfunktionen: `blog.ts`, Suchindex: `blogSearchIndex.ts`.

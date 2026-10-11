@@ -1,0 +1,25 @@
+---
+// Rendert einen Blog-Artikel aus der Collection (src/content/blog/) im Artikel-Layout.
+import BlogArticleLayout from '../layouts/BlogArticleLayout.astro';
+import { alternateUrl, articleUrl, type BlogEntry } from '../content/blog';
+
+interface Props {
+  entry: BlogEntry;
+}
+
+const { entry } = Astro.props;
+const { title, description, published, modified, lang, ogImage } = entry.data;
+---
+
+<BlogArticleLayout
+  title={title}
+  description={description}
+  canonical={articleUrl(entry)}
+  altHref={alternateUrl(entry)}
+  publishedDate={published}
+  modifiedDate={modified}
+  lang={lang}
+  ogImage={ogImage}
+>
+  <Fragment set:html={entry.body} />
+</BlogArticleLayout>

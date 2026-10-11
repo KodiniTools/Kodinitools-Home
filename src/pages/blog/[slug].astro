@@ -1,0 +1,16 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BlogArticle from '../../components/BlogArticle.astro';
+import { getArticles, slugOf } from '../../content/blog';
+
+// Ein Artikel je Datei in src/content/blog/de/
+export const getStaticPaths = (async () =>
+  (await getArticles('de')).map((entry) => ({
+    params: { slug: slugOf(entry) },
+    props: { entry },
+  }))) satisfies GetStaticPaths;
+
+const { entry } = Astro.props;
+---
+
+<BlogArticle entry={entry} />
