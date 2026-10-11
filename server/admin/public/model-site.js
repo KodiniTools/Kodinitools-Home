@@ -74,9 +74,13 @@ export function defaultSite() {
     // Hero-Banner bzw. -Raster im Kompakt-Layout auch auf dem Handy zeigen.
     homeLayout: 'classic',
     heroMediaMobile: true,
+    // Nur im Kompakt-Layout: Kartenform 'list' | 'tile', Kartenbreite 'narrow' | 'medium' | 'wide'.
+    cardForm: 'list',
+    cardWidth: 'medium',
   };
 }
 export const SITE_SECTION_KEYS = ['audio', 'image', 'diverse'];
+export const CARD_WIDTHS = ['narrow', 'medium', 'wide'];
 export const SECTION_LABELS = {
   audio: 'Audio-Tools',
   image: 'Bild-Tools',
@@ -207,6 +211,8 @@ export function normSite(s) {
     sections: normSections(s.sections),
     homeLayout: s.homeLayout === 'compact' ? 'compact' : 'classic',
     heroMediaMobile: s.heroMediaMobile !== false,
+    cardForm: s.cardForm === 'tile' ? 'tile' : 'list',
+    cardWidth: CARD_WIDTHS.includes(s.cardWidth) ? s.cardWidth : 'medium',
   };
 }
 // Seiten-Hintergrund eines Modus als CSS-background-Wert – identisch zur
@@ -473,4 +479,18 @@ export function getHeroMediaMobile() {
 }
 export function setHeroMediaMobile(on) {
   siteObj().heroMediaMobile = on === true;
+}
+// Kompakt-Layout: Kartenform ('list' | 'tile') und Kartenbreite ('narrow' | 'medium' | 'wide').
+export function getCardForm() {
+  return siteObj().cardForm === 'tile' ? 'tile' : 'list';
+}
+export function setCardForm(v) {
+  siteObj().cardForm = v === 'tile' ? 'tile' : 'list';
+}
+export function getCardWidth() {
+  const v = siteObj().cardWidth;
+  return CARD_WIDTHS.includes(v) ? v : 'medium';
+}
+export function setCardWidth(v) {
+  siteObj().cardWidth = CARD_WIDTHS.includes(v) ? v : 'medium';
 }

@@ -892,6 +892,9 @@ function defaultSite() {
     // Startseiten-Layout 'classic' | 'compact'; heroMediaMobile nur im Kompakt-Layout.
     homeLayout: 'classic',
     heroMediaMobile: true,
+    // Nur im Kompakt-Layout: Kartenform 'list' | 'tile', Kartenbreite 'narrow' | 'medium' | 'wide'.
+    cardForm: 'list',
+    cardWidth: 'medium',
   };
 }
 const SECTION_KEYS = ['audio', 'image', 'diverse'];
@@ -926,6 +929,7 @@ function validateSections(v) {
 }
 const SITE_GRADIENT_TYPES = ['linear', 'radial'];
 const SITE_PATTERNS = ['none', 'dots', 'grid'];
+const CARD_WIDTHS = ['narrow', 'medium', 'wide'];
 const SITE_IMAGE_URL = /^(\/[^\s"'()\\]*|https?:\/\/[^\s"'()\\]+)$/;
 /** Validiert die globalen Seiten-Einstellungen. */
 function validateSite(s) {
@@ -977,6 +981,8 @@ function validateSite(s) {
     sections: validateSections(s.sections),
     homeLayout: s.homeLayout === 'compact' ? 'compact' : 'classic',
     heroMediaMobile: s.heroMediaMobile !== false,
+    cardForm: s.cardForm === 'tile' ? 'tile' : 'list',
+    cardWidth: CARD_WIDTHS.includes(s.cardWidth) ? s.cardWidth : 'medium',
   };
 }
 

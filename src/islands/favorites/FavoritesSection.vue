@@ -32,6 +32,8 @@ const props = defineProps<{
   /** Im Admin ausgeblendete Karten (i18n-Schlüssel). */
   hiddenKeys: string[];
   texts: Texts;
+  /** Kompakt-Layout mit Listenkarten: Beschreibung in der Karte zeigen. */
+  showDesc?: boolean;
 }>();
 
 const favorites = ref<FavoriteItem[]>([]);
@@ -149,6 +151,7 @@ onBeforeUnmount(() => {
           </div>
           <span v-if="item.badge" class="tool-card-badge">{{ item.badge }}</span>
           <h3 class="tool-card-title">{{ item.title }}</h3>
+          <p v-if="showDesc && item.description" class="tool-card-desc">{{ item.description }}</p>
           <div class="tool-card-footer">
             <button
               type="button"
