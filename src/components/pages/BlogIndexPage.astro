@@ -47,15 +47,14 @@ const formatDate = (iso: string): string => {
   return dateFormat.format(new Date(`${iso}T00:00:00Z`))
 }
 // Neueste zuerst nach `published`; bei gleichem Datum entscheidet `card.order` (höher zuerst).
-// Der erste Beitrag wird als grosse Karte hervorgehoben, alle weiteren folgen in der Liste.
+// Alle Beiträge stehen gleichberechtigt in der Liste, der neueste oben.
 const cards: BlogCard[] = [...posts]
   .sort(compareNewestFirst)
   .map((post) => ({ ...post, date: formatDate(post.published) }))
-const [featuredPost, ...regularPosts] = cards
 // Ab dieser Anzahl Beiträge in der Liste wird die Liste im Panel scrollbar
 // (sichtbar bleiben 4 Karten, siehe .blog-grid-scroll und das Script unten).
 const SCROLL_FROM_POSTS = 5
-const isGridScrollable = regularPosts.length >= SCROLL_FROM_POSTS
+const isGridScrollable = cards.length >= SCROLL_FROM_POSTS
 ---
 
 <!DOCTYPE html>
@@ -370,16 +369,6 @@ const isGridScrollable = regularPosts.length >= SCROLL_FROM_POSTS
 
     [data-theme="dark"] .blog-featured-content p { color: var(--text-secondary, #f8e1a9); }
 
-    .blog-card-tag-featured {
-      background: linear-gradient(135deg, #014f99 0%, #003971 100%);
-      color: #ffffff;
-    }
-
-    [data-theme="dark"] .blog-card-tag-featured {
-      background: linear-gradient(135deg, #c9984d 0%, #a67d3d 100%);
-      color: #091428;
-    }
-
     @media (max-width: 640px) {
       .blog-featured-card { grid-template-columns: 1fr; }
       .blog-featured-media { min-height: 160px; }
@@ -587,30 +576,8 @@ const isGridScrollable = regularPosts.length >= SCROLL_FROM_POSTS
         <p class="blog-search-status" id="blogSearchStatus" aria-live="polite"></p>
       </div>
 
-      {featuredPost && (
-        <a href={featuredPost.slug} class="blog-featured-card" data-slug={featuredPost.slug} data-search={searchText(featuredPost)} target={featuredPost.newTab ? '_blank' : undefined} rel={featuredPost.newTab ? 'noopener' : undefined}>
-          <div class="blog-featured-media">
-            <img src={featuredPost.image} alt="" width="640" height="360" loading="lazy" />
-          </div>
-          <div class="blog-featured-content">
-            <div class="blog-card-header">
-              <span class="blog-card-tag blog-card-tag-featured">{featuredPost.tag}</span>
-              <span class="blog-card-meta">{featuredPost.date} · {featuredPost.minutes} {t.minutes}</span>
-            </div>
-            <h2>{featuredPost.title}</h2>
-            <p>{featuredPost.description}</p>
-            <div class="blog-card-arrow">
-              {t.readArticle}
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
-              </svg>
-            </div>
-          </div>
-        </a>
-      )}
-
       <div class:list={['blog-grid', { 'blog-grid-scroll': isGridScrollable }]}>
-        {regularPosts.map((post) =>
+        {cards.map((post) =>
           post.image ? (
             <a href={post.slug} class="blog-featured-card blog-card-image" data-slug={post.slug} data-search={searchText(post)} target={post.newTab ? '_blank' : undefined} rel={post.newTab ? 'noopener' : undefined}>
               <div class="blog-featured-media">
