@@ -126,6 +126,10 @@ describe('sitemap.xml', () => {
 
 const blogPages = pages.filter((f) => /^(en\/)?blog\//.test(f));
 
+it('liefert /kt-heartbeat.js aus', () => {
+  expect(allFiles).toContain('kt-heartbeat.js');
+});
+
 describe.each(blogPages)('Heartbeat in %s', (file) => {
   it('bindet /kt-heartbeat.js genau einmal mit defer ein', () => {
     const tags = read(file).match(/<script[^>]*src="\/kt-heartbeat\.js"[^>]*>/g) ?? [];
