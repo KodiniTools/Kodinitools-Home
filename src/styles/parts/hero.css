@@ -168,31 +168,8 @@
   -webkit-text-stroke: var(--hero-title-stroke, 0);
   line-height: 1.2;
   text-align: center;
-  animation: fadeInUp 0.7s ease forwards;
-}
-
-/* Tipp-Titel: unsichtbarer Platzhalter (voller Titel) und getippter Text liegen
-   im selben Grid-Feld. Die H1 hat so von Anfang an ihre Endhöhe und die
-   Tipp-Animation verschiebt keine Inhalte darunter (CLS). */
-.typing-title {
-  display: grid;
-}
-
-.typing-title > .typed-ghost,
-.typing-title > .typed-text {
-  grid-area: 1 / 1;
-}
-
-/* opacity statt nur color: Admin-Textstile setzen -webkit-text-fill-color,
-   Verläufe oder Schatten auf .hero-title, die color: transparent übermalen.
-   opacity blendet alles aus, der Text bleibt für Screenreader/SEO lesbar. */
-.typing-title > .typed-ghost {
-  opacity: 0;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 0;
-  pointer-events: none;
-  user-select: none;
+  /* Keine Einblend-/Tipp-Animation: der Titel ist das größte Element im
+     Sichtbereich (LCP) und soll mit dem ersten Frame sichtbar sein. */
 }
 
 .gradient-title {

@@ -196,3 +196,12 @@ describe('Ladeverhalten (PageSpeed)', () => {
     }
   });
 });
+
+describe('Hero-Titel (LCP)', () => {
+  it.each(['index.html', 'en/index.html'])('%s rendert den Titel vollständig im HTML', (file) => {
+    const html = read(file);
+    const title = /<h1 class="hero-title"[^>]*>([^<]+)<\/h1>/.exec(html)?.[1]?.trim() ?? '';
+    expect(title.length).toBeGreaterThan(10);
+    expect(html).not.toContain('id="typedText"');
+  });
+});

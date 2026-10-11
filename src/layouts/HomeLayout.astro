@@ -7,9 +7,11 @@ import { HOME_SCHEMA_TOOLS, HOME_SEO } from '../i18n/home-seo'
 // Kopf der Startseite (/ und /en/): Meta-Tags, Open Graph, JSON-LD, hreflang.
 interface Props {
   lang: Lang
+  /** Früh zu ladende Schriften (Pfade unter /fonts/, nur .woff2), z. B. die Hero-Titelschrift. */
+  preloadFonts?: string[]
 }
 
-const { lang } = Astro.props
+const { lang, preloadFonts = [] } = Astro.props
 const seo = HOME_SEO[lang]
 const pageUrl = `${SITE}${HOME_PATH[lang]}`
 const alt = alternates(HOME_PATH)
@@ -150,6 +152,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
+
+    <!-- Schriften des LCP-Elements (Hero-Titel) früh laden, statt sie erst über das CSS zu entdecken -->
+    {preloadFonts.map((href) => <link rel="preload" as="font" type="font/woff2" href={href} crossorigin>)}
 
     <!-- Preconnect -->
     <link rel="dns-prefetch" href="https://www.googletagmanager.com">
