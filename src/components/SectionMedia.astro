@@ -48,8 +48,9 @@ const hasSize = !!width && !!height && width > 0 && height > 0;
 // nach dem Laden durch das echte Seitenverhältnis ersetzt. --media-ar/--media-w:
 // Seitenverhältnis und natürliche Breite für die Größenberechnung in CSS
 // (siehe .hero-banner in hero.css).
+const aspectRatio = hasSize ? (width as number) / (height as number) : 0;
 const sizeStyle = hasSize
-  ? `aspect-ratio:auto ${width} / ${height};--media-ar:${(width! / height!).toFixed(4)};--media-w:${width}px`
+  ? `aspect-ratio:auto ${width} / ${height};--media-ar:${aspectRatio.toFixed(4)};--media-w:${width}px`
   : undefined;
 ---
 

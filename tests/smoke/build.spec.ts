@@ -1,0 +1,133 @@
+/**
+ * Smoke-Tests gegen die Build-Ausgabe (dist/).
+ *
+ * Sie sichern ab, was bei Umbauten (Content Collections, i18n-Routing, …) nicht
+ * kaputtgehen darf: dieselben URLs, korrekte Sprache, Canonical, hreflang-Paare
+ * und eine vollständige Sitemap. Vorher muss `npm run build` gelaufen sein –
+ * `npm run test:smoke` erledigt beides.
+ */
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { join, relative, sep } from 'node:path';
+import { describe, expect, it } from 'vitest';
+import expectedFiles from '../fixtures/build-files.json';
+
+const SITE = 'https://kodinitools.com';
+const DIST = join(process.cwd(), 'dist');
+
+if (!existsSync(join(DIST, 'index.html'))) {
+  throw new Error('dist/ fehlt – zuerst `npm run build` ausführen (oder `npm run test:smoke`).');
+}
+
+/** Alle Dateien unter dist/ als Pfade relativ zu dist/ mit „/“. */
+function listFiles(dir: string): string[] {
+  return readdirSync(dir).flatMap((name) => {
+    const full = join(dir, name);
+    return statSync(full).isDirectory()
+      ? listFiles(full)
+      : [relative(DIST, full).split(sep).join('/')];
+  });
+}
+
+const allFiles = listFiles(DIST);
+const buildFiles = allFiles
+  .filter((f) => /\.(html|xml|json)$/.test(f))
+  .filter((f) => !f.startsWith('fontawesome/') && !f.startsWith('partials/'))
+  .sort();
+
+/** Inhaltsseiten = alle index.html-Dateien (ohne 404 und SSI-Partials). */
+const pages = buildFiles.filter((f) => f === 'index.html' || f.endsWith('/index.html'));
+
+/** dist-Pfad → öffentliche URL, z. B. „blog/x/index.html“ → „https://kodinitools.com/blog/x/“. */
+const urlOf = (file: string) => `${SITE}/${file.replace(/index\.html$/, '')}`;
+/** Öffentliche URL → dist-Pfad. */
+const fileOf = (url: string) => `${url.slice(SITE.length + 1)}index.html`;
+
+const read = (file: string) => readFileSync(join(DIST, file), 'utf-8');
+
+function attr(html: string, pattern: RegExp): string[] {
+  return [...html.matchAll(pattern)].map((m) => m[1] ?? '');
+}
+
+function head(file: string) {
+  const html = read(file);
+  const alternates = Object.fromEntries(
+    [...html.matchAll(/<link rel="alternate" hreflang="([^"]+)" href="([^"]+)"/g)].map((m) => [
+      m[1],
+      m[2],
+    ]),
+  ) as Record<string, string>;
+  return {
+    lang: attr(html, /<html[^>]*\slang="([^"]+)"/g)[0],
+    canonicals: attr(html, /<link rel="canonical" href="([^"]+)"/g),
+    title: attr(html, /<title>([^<]*)<\/title>/g)[0]?.trim() ?? '',
+    description: attr(html, /<meta name="description" content="([^"]*)"/g)[0] ?? '',
+    alternates,
+  };
+}
+
+describe('Build-Ausgabe', () => {
+  it('erzeugt genau die erwarteten Seiten und Dateien (URL-Stabilität)', () => {
+    // Bei gewollten neuen/entfernten Seiten tests/fixtures/build-files.json anpassen.
+    expect(buildFiles).toEqual(expectedFiles);
+  });
+
+  it('enthält die 404-Seite', () => {
+    expect(allFiles).toContain('404.html');
+  });
+});
+
+describe.each(pages)('Seite %s', (file) => {
+  const meta = head(file);
+  const expectedLang = file.startsWith('en/') ? 'en' : 'de';
+
+  it(`hat <html lang="${expectedLang}">`, () => {
+    expect(meta.lang).toBe(expectedLang);
+  });
+
+  it('hat genau einen Canonical auf die eigene URL', () => {
+    expect(meta.canonicals).toEqual([urlOf(file)]);
+  });
+
+  it('hat Titel und Meta-Description', () => {
+    expect(meta.title.length).toBeGreaterThan(0);
+    expect(meta.description.length).toBeGreaterThan(0);
+  });
+
+  it('hat wechselseitige hreflang-Paare (de/en/x-default)', () => {
+    const { de, en } = meta.alternates;
+    expect(de, 'hreflang="de" fehlt').toBeTruthy();
+    expect(en, 'hreflang="en" fehlt').toBeTruthy();
+    expect(meta.alternates['x-default']).toBe(de);
+    expect(meta.alternates[expectedLang]).toBe(urlOf(file));
+
+    const other = expectedLang === 'de' ? en : de;
+    expect(pages, `Gegenstück ${other} nicht gebaut`).toContain(fileOf(other));
+    expect(head(fileOf(other)).alternates[expectedLang]).toBe(urlOf(file));
+  });
+});
+
+describe('sitemap.xml', () => {
+  const xml = read('sitemap.xml');
+  const locs = attr(xml, /<loc>([^<]+)<\/loc>/g);
+
+  it('enthält jede Inhaltsseite', () => {
+    for (const file of pages) expect(locs).toContain(urlOf(file));
+  });
+
+  it('enthält keine doppelten URLs', () => {
+    expect(new Set(locs).size).toBe(locs.length);
+  });
+
+  it('enthält nur absolute URLs der Domain', () => {
+    for (const loc of locs) expect(loc.startsWith(`${SITE}/`)).toBe(true);
+  });
+});
+
+describe.each(['blog/search-index.json', 'en/blog/search-index.json'])('%s', (file) => {
+  it('ist gültiges JSON und verweist nur auf gebaute Blogartikel', () => {
+    const index = JSON.parse(read(file)) as Record<string, string>;
+    const urls = Object.keys(index);
+    expect(urls.length).toBeGreaterThan(0);
+    for (const path of urls) expect(pages).toContain(fileOf(`${SITE}${path}`));
+  });
+});

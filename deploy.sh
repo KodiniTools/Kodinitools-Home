@@ -76,7 +76,7 @@ log "Stand: $(git rev-parse --short HEAD) — $(git log -1 --pretty=%s)"
 
 # --- 2. Bauen ---
 # --include=dev erzwingt die devDependencies (z.B. eslint/prettier-Plugins,
-# vite), die der Build/Toolchain braucht. Ohne das lässt npm sie unter
+# vitest), die der Build/Toolchain braucht. Ohne das lässt npm sie unter
 # NODE_ENV=production weg — der
 # Admin-Dienst läuft mit NODE_ENV=production, daher ist das Flag hier Pflicht.
 # npm ci löscht node_modules komplett und installiert neu – auf dem VPS mehrere

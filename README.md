@@ -14,7 +14,14 @@ npm run build      # statischer Build nach dist/
 npm run preview    # gebauten Stand ansehen
 npm run lint       # ESLint (Astro, TS, Admin-Server)
 npm run format     # Prettier
+npm run typecheck  # astro check (TypeScript in .astro/.ts)
+npm run test:smoke # Build + Smoke-Tests gegen dist/ (Vitest)
 ```
+
+Die Smoke-Tests (`tests/smoke/`) prüfen die Build-Ausgabe: dieselben Seiten/URLs wie
+in `tests/fixtures/build-files.json`, `lang`, Canonical, wechselseitige hreflang-Paare,
+Sitemap und Blog-Suchindex. Kommt eine Seite gewollt hinzu oder fällt weg, die Fixture
+anpassen.
 
 ## Projekt-Struktur
 

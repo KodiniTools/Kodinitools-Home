@@ -719,26 +719,27 @@ const schemaBreadcrumb = {
     const overlay = document.getElementById('blog-lightbox');
     if (!overlay) return;
     const overlayImg = overlay.querySelector('img');
-    const closeBtn = overlay.querySelector('.lightbox-close');
-    let lastFocused = null;
+    const closeBtn = overlay.querySelector<HTMLElement>('.lightbox-close');
+    if (!overlayImg || !closeBtn) return;
+    let lastFocused: HTMLElement | null = null;
 
-    function openLightbox(sourceImg) {
-      lastFocused = document.activeElement;
+    const openLightbox = (sourceImg: HTMLImageElement) => {
+      lastFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       overlayImg.src = sourceImg.currentSrc || sourceImg.src;
       overlayImg.alt = sourceImg.alt;
       overlay.hidden = false;
       document.body.style.overflow = 'hidden';
       closeBtn.focus();
-    }
+    };
 
-    function closeLightbox() {
+    const closeLightbox = () => {
       overlay.hidden = true;
       overlayImg.src = '';
       document.body.style.overflow = '';
       if (lastFocused) lastFocused.focus();
-    }
+    };
 
-    document.querySelectorAll('.blog-demo img').forEach((img) => {
+    document.querySelectorAll<HTMLImageElement>('.blog-demo img').forEach((img) => {
       img.setAttribute('role', 'button');
       img.setAttribute('tabindex', '0');
       img.addEventListener('click', () => openLightbox(img));
