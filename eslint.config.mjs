@@ -2,6 +2,7 @@ import js from '@eslint/js';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 import pluginAstro from 'eslint-plugin-astro';
+import pluginVue from 'eslint-plugin-vue';
 import configPrettier from 'eslint-config-prettier';
 
 export default tseslint.config(
@@ -13,6 +14,16 @@ export default tseslint.config(
 
   // Astro rules
   ...pluginAstro.configs.recommended,
+
+  // Vue-Islands (src/islands/**/*.vue): empfohlene Regeln, TypeScript im <script setup>
+  ...pluginVue.configs['flat/recommended'],
+  {
+    files: ['**/*.vue'],
+    languageOptions: {
+      parserOptions: { parser: tseslint.parser },
+      globals: { ...globals.browser },
+    },
+  },
 
   // Disable ESLint formatting rules that conflict with Prettier
   configPrettier,

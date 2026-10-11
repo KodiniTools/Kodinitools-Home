@@ -12,6 +12,7 @@ import { resolve } from 'path'
 import { getContent, getMedia, HERO_LAYOUT_CELLS, heroGridReflowCols, effectiveHeroCellStyle, heroCellImageVars, getTextStylesCss, getHeroBannerCss, getHeroImageCss, getSectionMediaCss, getToolCardsCss, getIconTintCss, getHiddenCards } from '../../content/content'
 import type { Lang } from '../../i18n/lang'
 import { HOME_UI } from '../../i18n/home-ui'
+import FavoritesSection from '../../islands/favorites/FavoritesSection.vue'
 
 // Inhalte aus der Content-Schicht (Standard-Locale + Admin-Overrides, gemergt).
 // Startseite für / (de) und /en/ (en); die Routen in src/pages/ sind nur Hüllen.
@@ -451,14 +452,13 @@ const pageI18n = {
       </div>
     </section>
 
-    <!-- Favorites Section (hidden until at least one favorite is saved) -->
-    <section id="favoritesSection" class="tools-section favorites-section" style="display: none;">
-      <div class="section-header">
-        <h2 data-i18n="favorites.sectionTitle">{ui.favoritesTitle}</h2>
-        <button id="favClearAll" class="fav-clear-btn" data-i18n="favorites.clearAll">{ui.favoritesClearAll}</button>
-      </div>
-      <div id="favoritesGrid" class="svg-card-grid" data-hidden-keys={[...hiddenCards].join(',')}></div>
-    </section>
+    <!-- Favoriten (Vue-Island, versteckt bis mindestens ein Favorit gespeichert ist) -->
+    <FavoritesSection
+      client:load
+      lang={lang}
+      hiddenKeys={[...hiddenCards]}
+      texts={{ title: ui.favoritesTitle, clearAll: ui.favoritesClearAll, favRemove: ui.favRemove, favTitle: ui.favTitle, open: ui.open }}
+    />
 
     <!-- Audio Tools Section -->
     <section id="audio-tools" class="tools-section" data-bgsection="audio">
@@ -576,7 +576,7 @@ const pageI18n = {
     </div>
 
   <!-- Minimal Vanilla JS for interactivity -->
-  <script is:inline define:vars={{ pageI18n, pageLang: lang, clientUi: { heroTitleFallback: ui.heroTitleFallback, favRemove: ui.favRemove, favTitle: ui.favTitle, open: ui.open } }}>
+  <script is:inline define:vars={{ pageI18n, pageLang: lang, clientUi: { heroTitleFallback: ui.heroTitleFallback } }}>
   document.addEventListener('DOMContentLoaded', function() {
     // --- Page i18n ---
     const PAGE_I18N = pageI18n;
@@ -786,175 +786,6 @@ const pageI18n = {
         });
       }
     }
-
-    // --- Favorites ---
-    const FAV_KEY = 'kdt-favorites';
-
-    function getFavorites() {
-      try {
-        const raw = JSON.parse(localStorage.getItem(FAV_KEY)) || [];
-        // filter out legacy string-only entries from old format
-        // Im Admin ausgeblendete Karten auch aus gespeicherten Favoriten ausblenden.
-        const hiddenAttr = (document.getElementById('favoritesGrid') || {}).dataset;
-        const hidden = new Set((hiddenAttr && hiddenAttr.hiddenKeys ? hiddenAttr.hiddenKeys.split(',') : []).filter(Boolean));
-        return raw.filter(function(f) { return f && typeof f === 'object' && f.key && !hidden.has(f.key); });
-      } catch { return []; }
-    }
-
-    function saveFavorites(favs) {
-      localStorage.setItem(FAV_KEY, JSON.stringify(favs));
-    }
-
-    function buildFavCard(item) {
-      const a = document.createElement('a');
-      a.href = item.link;
-      a.className = 'svg-card-link';
-      a.setAttribute('data-i18n-key', item.key);
-      a.setAttribute('data-title', item.title);
-      a.setAttribute('data-description', item.description);
-
-      const card = document.createElement('div');
-      card.className = 'tool-card';
-
-      if (item.svg) {
-        const iconWrap = document.createElement('div');
-        iconWrap.className = 'tool-card-icon';
-        const iconImg = document.createElement('img');
-        iconImg.src = item.svg;
-        iconImg.alt = item.title || '';
-        iconImg.loading = 'lazy';
-        iconWrap.appendChild(iconImg);
-        card.appendChild(iconWrap);
-      }
-
-      if (item.badge) {
-        const badge = document.createElement('span');
-        badge.className = 'tool-card-badge';
-        badge.textContent = item.badge;
-        card.appendChild(badge);
-      }
-
-      const h3 = document.createElement('h3');
-      h3.className = 'tool-card-title';
-      h3.textContent = item.title;
-      card.appendChild(h3);
-
-      const footer = document.createElement('div');
-      footer.className = 'tool-card-footer';
-
-      const favBtn = document.createElement('button');
-      favBtn.className = 'fav-btn is-active';
-      favBtn.setAttribute('aria-label', clientUi.favRemove);
-      favBtn.title = clientUi.favTitle;
-      favBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>';
-      footer.appendChild(favBtn);
-
-      const openSpan = document.createElement('span');
-      openSpan.className = 'tool-card-open';
-      openSpan.innerHTML = clientUi.open + ' <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
-      footer.appendChild(openSpan);
-
-      card.appendChild(footer);
-      a.appendChild(card);
-
-      const popup = document.createElement('div');
-      popup.className = 'tool-popup';
-      popup.setAttribute('role', 'tooltip');
-      const popupDesc = document.createElement('p');
-      popupDesc.className = 'tool-popup-desc';
-      popupDesc.textContent = item.description;
-      popup.appendChild(popupDesc);
-      a.appendChild(popup);
-
-      return a;
-    }
-
-    function renderFavorites() {
-      const favs = getFavorites();
-      const section = document.getElementById('favoritesSection');
-      const grid = document.getElementById('favoritesGrid');
-      if (!section || !grid) return;
-      grid.innerHTML = '';
-      if (favs.length === 0) {
-        section.style.display = 'none';
-        return;
-      }
-      section.style.display = 'block';
-      favs.forEach(function(item) {
-        const cardEl = buildFavCard(item);
-        attachFavBtn(cardEl);
-        grid.appendChild(cardEl);
-      });
-    }
-
-    function updateAllFavButtons() {
-      const favs = getFavorites();
-      const favKeys = favs.map(function(f) { return f.key; });
-      document.querySelectorAll('.svg-card-link[data-i18n-key]').forEach(function(card) {
-        const key = card.getAttribute('data-i18n-key');
-        const btn = card.querySelector('.fav-btn');
-        if (!btn) return;
-        const inFavSection = !!card.closest('#favoritesSection');
-        btn.classList.toggle('is-active', inFavSection || favKeys.indexOf(key) !== -1);
-      });
-    }
-
-    function toggleFavorite(key, btnEl, cardEl) {
-      const favs = getFavorites();
-      const idx = favs.findIndex(function(f) { return f.key === key; });
-      if (idx === -1) {
-        const badgeEl = cardEl ? cardEl.querySelector('.tool-card-badge') : null;
-        favs.push({
-          key: key,
-          title: cardEl ? (cardEl.getAttribute('data-title') || '') : key,
-          description: cardEl ? (cardEl.getAttribute('data-description') || '') : '',
-          link: cardEl ? (cardEl.getAttribute('href') || '#') : '#',
-          badge: badgeEl ? badgeEl.textContent : '',
-          svg: cardEl ? (cardEl.getAttribute('data-svg-de') || '') : ''
-        });
-      } else {
-        favs.splice(idx, 1);
-      }
-      saveFavorites(favs);
-      if (btnEl) {
-        btnEl.classList.add('pop');
-        btnEl.addEventListener('animationend', function() { btnEl.classList.remove('pop'); }, { once: true });
-      }
-      renderFavorites();
-      updateAllFavButtons();
-    }
-
-    function attachFavBtn(cardEl) {
-      const btn = cardEl.querySelector('.fav-btn');
-      if (!btn) return;
-      btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        const key = cardEl.getAttribute('data-i18n-key');
-        toggleFavorite(key, btn, cardEl);
-      });
-    }
-
-    document.querySelectorAll('.svg-card-link[data-i18n-key]').forEach(function(card) {
-      attachFavBtn(card);
-    });
-
-    const favClearBtn = document.getElementById('favClearAll');
-    if (favClearBtn) {
-      favClearBtn.addEventListener('click', function() {
-        saveFavorites([]);
-        renderFavorites();
-        updateAllFavButtons();
-      });
-    }
-
-    renderFavorites();
-    updateAllFavButtons();
-
-    window.addEventListener('locale-changed', function() {
-      renderFavorites();
-      updateAllFavButtons();
-    });
   });
   </script>
 

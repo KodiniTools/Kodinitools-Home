@@ -2,8 +2,9 @@
 
 Statische Website mit **Astro 5**: Startseite (DE/EN), Blog, FAQ, Tool-Übersicht.
 Die Tool-Apps selbst liegen als eigenständige Anwendungen in Unterverzeichnissen
-(z. B. `/audiokonverter/`) und sind nicht Teil dieses Builds. Im Browser läuft nur
-schlankes Vanilla-JavaScript (kein Framework-Runtime).
+(z. B. `/audiokonverter/`) und sind nicht Teil dieses Builds. Im Browser läuft überwiegend
+schlankes Vanilla-JavaScript; einzelne interaktive Teile sind Vue-3-Islands (`src/islands/`),
+die nur auf den Seiten geladen werden, die sie nutzen.
 
 ## Start
 
@@ -32,6 +33,8 @@ src/
 ├── layouts/          # HomeLayout (Kopf der Startseite, DE/EN), BlogArticleLayout
 ├── components/       # Astro-Komponenten (GlobalNav, SiteFooter, TickerBar, SectionMedia, SiteFont)
 │   └── pages/        # Seiten-Vorlagen je Sprache: HomePage, FaqPage, DonatePage, BlogIndexPage (Prop `lang`)
+├── islands/          # Vue-3-Islands (<script setup lang="ts">), z. B. favorites/: Favoriten der
+│                     # Startseite (Logik in favorites.ts, Komponente FavoritesSection.vue)
 ├── i18n/             # Sprachen (lang.ts) und feste, nicht admin-editierbare Seitentexte je Sprache
 │                     # (home-seo.ts, home-ui.ts, faq.ts, donate.ts, blog-index.ts) – typisiert, fehlt eine
 │                     # Übersetzung, schlägt `npm run typecheck` fehl
@@ -59,6 +62,17 @@ docs/                 # ADMIN_DEPLOY_PLAN.md – Architektur und Betriebsablauf 
 - `<html class="kt-a11y">` (in allen Layouts gesetzt) aktiviert `parts/a11y.css`: lesbare
   Standardwerte für den CTA im Dunkelmodus, das Server-Badge und Kartenbeschreibungen.
   Admin-Farben haben Vorrang. Zum Abschalten die Klasse entfernen.
+
+## Vue-Islands
+
+- Interaktive Teile, die eigenen Zustand haben, werden als Vue-3-Komponente in `src/islands/`
+  gebaut und in Astro mit `client:load`/`client:idle`/`client:visible` eingebunden.
+- Logik ohne DOM gehört in eine eigene `.ts`-Datei (Unit-Test ohne Browser), die Komponente
+  wird mit `@vue/test-utils` + `happy-dom` getestet (`tests/unit/*.spec.ts`).
+- Budget: alle Island-Bundles zusammen ≤ 40 KB gzip, Vue nur auf Seiten mit Island – der
+  Smoke-Test prüft beides. Aktuell: Favoriten auf der Startseite (Vue-Runtime ≈ 29 KB gzip).
+- `npm run typecheck` prüft `.astro`/`.ts` (astro check) und `.vue` (vue-tsc); ESLint nutzt
+  `eslint-plugin-vue`.
 
 ## Inhalte und Übersetzungen
 

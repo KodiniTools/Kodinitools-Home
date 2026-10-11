@@ -8,6 +8,7 @@
  */
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
+import { gzipSync } from 'node:zlib';
 import { describe, expect, it } from 'vitest';
 import expectedFiles from '../fixtures/build-files.json';
 
@@ -158,5 +159,20 @@ describe.each(pages)('Bild-URLs in %s', (file) => {
 describe('Barrierearme Variante', () => {
   it.each([...pages, '404.html'])('%s setzt class="kt-a11y" auf <html>', (file) => {
     expect(read(file)).toMatch(/<html[^>]*\sclass="kt-a11y"/);
+  });
+});
+
+describe('JavaScript-Budget (Vue-Islands)', () => {
+  const jsFiles = allFiles.filter((f) => f.startsWith('_astro/') && f.endsWith('.js'));
+  const gzipSize = (file: string) => gzipSync(readFileSync(join(DIST, file))).length;
+
+  it('alle Island-Bundles zusammen ≤ 40 KB gzip', () => {
+    const total = jsFiles.reduce((sum, f) => sum + gzipSize(f), 0);
+    expect(total).toBeLessThanOrEqual(40 * 1024);
+  });
+
+  it('Vue wird nur auf Seiten mit Island geladen (Startseiten)', () => {
+    const withIslands = pages.filter((file) => read(file).includes('<astro-island'));
+    expect(withIslands.sort()).toEqual(['en/index.html', 'index.html']);
   });
 });
