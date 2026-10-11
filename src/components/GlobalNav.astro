@@ -369,7 +369,10 @@ html {
     transform: rotate(-45deg);
 }
 
-@media (max-width: 768px) {
+/* Hamburger-Menü bis 1100px: Die volle Leiste braucht mit Hell/Dunkel und DE/EN
+   etwa 1020px (EN), darunter lagen die Bedienelemente ausserhalb des Bildschirms.
+   Der Rest deckt längere Labels und eine im Admin gewählte breitere Schrift ab. */
+@media (max-width: 1100px) {
     .global-nav-container {
         padding: 0 16px;
         height: 60px;
