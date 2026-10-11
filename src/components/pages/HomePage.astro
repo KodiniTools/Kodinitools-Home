@@ -32,6 +32,8 @@ const media = getMedia(lang)
 // das klassische Layout bleibt im HTML unverändert.
 const homeLayout = getHomeLayout()
 const compact = homeLayout.layout === 'compact'
+// Listenkarten (nur Kompakt): Beschreibung steht in der Karte statt im Popup.
+const cardList = compact && homeLayout.cardForm === 'list'
 // Die Regeln kommen nur ins HTML, wenn das Kompakt-Layout aktiv ist (Kommentare
 // und Einrückung entfernt) – andere Seiten und das klassische Layout tragen nichts.
 const homeCompactCss = compact
@@ -326,6 +328,8 @@ const pageI18n = {
     id="app"
     data-home-layout={compact ? 'compact' : undefined}
     data-hero-media-mobile={compact && !homeLayout.heroMediaMobile ? 'off' : undefined}
+    data-card-form={compact ? homeLayout.cardForm : undefined}
+    data-card-width={compact ? homeLayout.cardWidth : undefined}
   >
     <!-- Global Background Effects -->
     <div class="global-background">
@@ -479,6 +483,7 @@ const pageI18n = {
       client:idle
       lang={lang}
       hiddenKeys={[...hiddenCards]}
+      {...(cardList ? { showDesc: true } : {})}
       texts={{ title: ui.favoritesTitle, clearAll: ui.favoritesClearAll, favRemove: ui.favRemove, favTitle: ui.favTitle, open: ui.open }}
     />
 
@@ -501,6 +506,7 @@ const pageI18n = {
               )}
               {tool.badge && <span class="tool-card-badge">{tool.badge}</span>}
               <h3 class="tool-card-title">{tool.title}</h3>
+              {cardList && <p class="tool-card-desc">{tool.description}</p>}
               <div class="tool-card-footer">
                 <button class="fav-btn" aria-label={ui.favAdd} title={ui.favTitle}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -538,6 +544,7 @@ const pageI18n = {
               )}
               {tool.badge && <span class="tool-card-badge">{tool.badge}</span>}
               <h3 class="tool-card-title">{tool.title}</h3>
+              {cardList && <p class="tool-card-desc">{tool.description}</p>}
               <div class="tool-card-footer">
                 <button class="fav-btn" aria-label={ui.favAdd} title={ui.favTitle}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -575,6 +582,7 @@ const pageI18n = {
               )}
               {tool.badge && <span class="tool-card-badge">{tool.badge}</span>}
               <h3 class="tool-card-title">{tool.title}</h3>
+              {cardList && <p class="tool-card-desc">{tool.description}</p>}
               <div class="tool-card-footer">
                 <button class="fav-btn" aria-label={ui.favAdd} title={ui.favTitle}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

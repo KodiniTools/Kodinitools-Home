@@ -1535,6 +1535,10 @@ export interface SiteConfig {
   homeLayout: 'classic' | 'compact';
   // Nur im Kompakt-Layout: Hero-Banner bzw. -Raster auf dem Handy (≤ 640px) zeigen.
   heroMediaMobile: boolean;
+  // Nur im Kompakt-Layout: Kartenform ('list' = mit sichtbarer Beschreibung,
+  // 'tile' = Kachel wie bisher) und Mindestbreite der Karten im Raster.
+  cardForm: 'tile' | 'list';
+  cardWidth: 'narrow' | 'medium' | 'wide';
 }
 export interface SiteSectionSide {
   color: string; // '' = keine Tönung
@@ -1618,6 +1622,8 @@ const SITE_DEFAULTS: SiteConfig = {
   },
   homeLayout: 'classic',
   heroMediaMobile: true,
+  cardForm: 'list',
+  cardWidth: 'medium',
 };
 // Erlaubte Bild-URL (interner Pfad oder http(s)), ohne Zeichen, die url("…") brechen.
 const SITE_MEDIA_URL = /^(\/[^\s"'()\\]*|https?:\/\/[^\s"'()\\]+)$/;
@@ -1642,11 +1648,18 @@ export function getSite(): SiteConfig {
  * Startseiten-Layout (Admin > Layout). Unbekannte Werte fallen auf 'classic'
  * zurück, damit die Seite ohne gültige Einstellung unverändert bleibt.
  */
-export function getHomeLayout(): { layout: SiteConfig['homeLayout']; heroMediaMobile: boolean } {
+export function getHomeLayout(): {
+  layout: SiteConfig['homeLayout'];
+  heroMediaMobile: boolean;
+  cardForm: SiteConfig['cardForm'];
+  cardWidth: SiteConfig['cardWidth'];
+} {
   const site = getSite();
   return {
     layout: site.homeLayout === 'compact' ? 'compact' : 'classic',
     heroMediaMobile: site.heroMediaMobile !== false,
+    cardForm: site.cardForm === 'tile' ? 'tile' : 'list',
+    cardWidth: site.cardWidth === 'narrow' || site.cardWidth === 'wide' ? site.cardWidth : 'medium',
   };
 }
 

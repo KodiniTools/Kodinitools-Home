@@ -26,6 +26,18 @@ describe.each([
     });
   });
 
+  it('Karten: Standard Liste und mittel, übernimmt Kachel und breit', () => {
+    expect(norm({})).toMatchObject({ cardForm: 'list', cardWidth: 'medium' });
+    expect(norm({ cardForm: 'tile', cardWidth: 'wide' })).toMatchObject({
+      cardForm: 'tile',
+      cardWidth: 'wide',
+    });
+    expect(norm({ cardForm: 'raster', cardWidth: 'xl' })).toMatchObject({
+      cardForm: 'list',
+      cardWidth: 'medium',
+    });
+  });
+
   it('fällt bei unbekanntem Wert auf Klassisch zurück', () => {
     expect(norm({ homeLayout: 'grid', heroMediaMobile: 'nein' })).toMatchObject({
       homeLayout: 'classic',

@@ -19,6 +19,10 @@ import {
   setHomeLayout,
   getHeroMediaMobile,
   setHeroMediaMobile,
+  getCardForm,
+  setCardForm,
+  getCardWidth,
+  setCardWidth,
 } from './model.js';
 import { stopPreviewSlideshow } from './layout-shared.js';
 import { bannerLayoutHtml, bindBanner } from './layout-banner.js';
@@ -48,6 +52,7 @@ function pageLayoutPanelHtml() {
     <div class="panel" data-homelayoutpanel>
       <h2>Seiten-Layout <span class="lang-badge">DE + EN</span></h2>
       <p class="hint"><strong>Kompakt</strong> ordnet den Hero platzsparend an: auf dem Desktop Texte links und Banner bzw. Raster rechts, auf dem Handy kleiner mit den Feature-Buttons in einer wischbaren Zeile.
+        Die Tool-Karten stehen in einem Raster, das sich der Breite anpasst; als <strong>Liste</strong> zeigen sie zwei Zeilen Beschreibung statt des Popups.
         Farben, Schriften, Texte und Medien bleiben wie eingestellt. Ausgeblendete Feature-Buttons nehmen im Kompakt-Layout keinen Platz ein, Verschiebungen des Hero-Mediums, der Hero-Texte und der Buttons wirken nur im klassischen Layout.
         Die Wirkung siehst du in der <strong>Vorschau</strong> der Seite.</p>
       <div class="row" style="gap:1.25rem;margin-top:.4rem">
@@ -58,8 +63,27 @@ function pageLayoutPanelHtml() {
         <input type="checkbox" data-heromediamobile ${getHeroMediaMobile() ? 'checked' : ''} ${compact ? '' : 'disabled'} style="width:auto" />
         Banner bzw. Raster auf dem Handy zeigen
       </label>
+      <div class="row" style="gap:1.25rem;margin-top:.6rem;flex-wrap:wrap${compact ? '' : ';opacity:.5'}">
+        <label style="display:flex;align-items:center;gap:.4rem;color:var(--text)" title="Liste: Titel mit zwei Zeilen Beschreibung, auf dem Handy einspaltig. Kachel: wie im klassischen Layout, Beschreibung im Popup.">
+          Kartenform
+          <select data-cardform ${compact ? '' : 'disabled'} style="width:auto">
+            ${opt(getCardForm(), 'list', 'Liste mit Beschreibung')}
+            ${opt(getCardForm(), 'tile', 'Kachel')}
+          </select>
+        </label>
+        <label style="display:flex;align-items:center;gap:.4rem;color:var(--text)" title="Mindestbreite einer Karte; das Raster setzt so viele Spalten, wie Platz haben.">
+          Kartenbreite
+          <select data-cardwidth ${compact ? '' : 'disabled'} style="width:auto">
+            ${opt(getCardWidth(), 'narrow', 'Schmal')}
+            ${opt(getCardWidth(), 'medium', 'Mittel')}
+            ${opt(getCardWidth(), 'wide', 'Breit')}
+          </select>
+        </label>
+      </div>
     </div>`;
 }
+const opt = (cur, val, label) =>
+  `<option value="${val}" ${cur === val ? 'selected' : ''}>${label}</option>`;
 
 // Panel „Hero-Layout" (Modus-Wahl Banner/Raster) oben in der Mitte.
 function modePanelHtml(lang, mode) {
@@ -135,6 +159,14 @@ export function renderLayout() {
       toast(el.checked ? 'Medien auf dem Handy eingeblendet' : 'Medien auf dem Handy ausgeblendet');
     }),
   );
+  pane.querySelector('[data-cardform]')?.addEventListener('change', (e) => {
+    setCardForm(e.target.value);
+    toast(e.target.value === 'tile' ? 'Kartenform: Kachel' : 'Kartenform: Liste');
+  });
+  pane.querySelector('[data-cardwidth]')?.addEventListener('change', (e) => {
+    setCardWidth(e.target.value);
+    toast('Kartenbreite geändert');
+  });
 
   if (mode === 'grid') bindGrid(pane, lang, renderLayout);
   else bindBanner(pane, lang, renderLayout);
