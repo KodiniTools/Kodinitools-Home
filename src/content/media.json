@@ -2511,8 +2511,10 @@
       "ctaFontSize": 0,
       "showTitle": true,
       "showSubtitle": true,
-      "showChips": true,
-      "hiddenChips": [],
+      "showChips": false,
+      "hiddenChips": [
+        "free"
+      ],
       "chipOffsets": {},
       "showCta": true,
       "light": {
