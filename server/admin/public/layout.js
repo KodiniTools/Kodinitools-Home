@@ -10,10 +10,16 @@
 // (Zwischenablage). Diese Datei rendert den Tab und verdrahtet den Modus-Wechsel.
 
 import { captureView, restoreView } from './viewstate.js';
-import { $ } from './core.js';
+import { $, toast } from './core.js';
 import { bindSliders } from './slider.js';
 import { bindColorPickers } from './color.js';
-import { state } from './model.js';
+import {
+  state,
+  getHomeLayout,
+  setHomeLayout,
+  getHeroMediaMobile,
+  setHeroMediaMobile,
+} from './model.js';
 import { stopPreviewSlideshow } from './layout-shared.js';
 import { bannerLayoutHtml, bindBanner } from './layout-banner.js';
 import { gridLayoutHtml, bindGrid, markCell, getActiveCell } from './layout-grid.js';
@@ -28,6 +34,32 @@ export {
   overlayStyle,
   dragHandle,
 } from './layout-shared.js';
+
+// Panel „Seiten-Layout" (Klassisch/Kompakt, gilt für DE + EN) oben in der Mitte.
+function pageLayoutPanelHtml() {
+  const layout = getHomeLayout();
+  const compact = layout === 'compact';
+  const radio = (val, label) => `
+        <label style="display:flex;align-items:center;gap:.4rem;color:var(--text)">
+          <input type="radio" name="lay-home" data-homelayout="${val}" ${layout === val ? 'checked' : ''} style="width:auto" />
+          ${label}
+        </label>`;
+  return `
+    <div class="panel" data-homelayoutpanel>
+      <h2>Seiten-Layout <span class="lang-badge">DE + EN</span></h2>
+      <p class="hint"><strong>Kompakt</strong> ordnet den Hero platzsparend an: auf dem Desktop Texte links und Banner bzw. Raster rechts, auf dem Handy kleiner mit den Feature-Buttons in einer wischbaren Zeile.
+        Farben, Schriften, Texte und Medien bleiben wie eingestellt. Ausgeblendete Feature-Buttons nehmen im Kompakt-Layout keinen Platz ein, Verschiebungen des Hero-Mediums, der Hero-Texte und der Buttons wirken nur im klassischen Layout.
+        Die Wirkung siehst du in der <strong>Vorschau</strong> der Seite.</p>
+      <div class="row" style="gap:1.25rem;margin-top:.4rem">
+        ${radio('classic', 'Klassisch')}
+        ${radio('compact', 'Kompakt')}
+      </div>
+      <label style="display:flex;align-items:center;gap:.4rem;margin-top:.6rem;color:var(--text)${compact ? '' : ';opacity:.5'}" title="Nur im Kompakt-Layout: Banner bzw. Raster auf Bildschirmen bis 640 px zeigen">
+        <input type="checkbox" data-heromediamobile ${getHeroMediaMobile() ? 'checked' : ''} ${compact ? '' : 'disabled'} style="width:auto" />
+        Banner bzw. Raster auf dem Handy zeigen
+      </label>
+    </div>`;
+}
 
 // Panel „Hero-Layout" (Modus-Wahl Banner/Raster) oben in der Mitte.
 function modePanelHtml(lang, mode) {
@@ -57,7 +89,7 @@ export function renderLayout() {
   const view = captureView(pane);
   stopPreviewSlideshow();
   const mode = state.media[lang].heroMode === 'grid' ? 'grid' : 'banner';
-  const modePanel = modePanelHtml(lang, mode);
+  const modePanel = pageLayoutPanelHtml() + modePanelHtml(lang, mode);
   pane.innerHTML =
     mode === 'grid' ? gridLayoutHtml(lang, modePanel) : bannerLayoutHtml(lang, modePanel);
   // Ganzseiten-Vorschau (Medien + Tool-Karten verschieben) unten in der Mitte.
@@ -81,6 +113,26 @@ export function renderLayout() {
         state.media[el.dataset.lang].heroMode = el.dataset.heromode;
         renderLayout();
       }
+    }),
+  );
+
+  // Seiten-Layout (global): Klassisch/Kompakt und Medien auf dem Handy.
+  pane.querySelectorAll('[data-homelayout]').forEach((el) =>
+    el.addEventListener('change', () => {
+      if (!el.checked) return;
+      setHomeLayout(el.dataset.homelayout);
+      renderLayout();
+      toast(
+        el.dataset.homelayout === 'compact'
+          ? 'Kompakt-Layout gewählt'
+          : 'Klassisches Layout gewählt',
+      );
+    }),
+  );
+  pane.querySelectorAll('[data-heromediamobile]').forEach((el) =>
+    el.addEventListener('change', () => {
+      setHeroMediaMobile(el.checked);
+      toast(el.checked ? 'Medien auf dem Handy eingeblendet' : 'Medien auf dem Handy ausgeblendet');
     }),
   );
 

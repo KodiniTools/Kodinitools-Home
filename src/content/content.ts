@@ -1170,7 +1170,9 @@ export function getTextStylesCss(media: MediaConfig): string | undefined {
     const dark = isHex(s.colorDark) ? s.colorDark : legacy;
     // Basis-Regel (beide Modi): Größe + Schrift + Effekte. Farben je Modus getrennt.
     const decl: string[] = [];
-    if (typeof s.size === 'number' && s.size > 0) decl.push(`font-size:${s.size}px`);
+    // --ts-fs: dieselbe Größe als Variable, damit das Kompakt-Layout sie auf
+    // schmalen Bildschirmen begrenzen kann (home-compact.css).
+    if (typeof s.size === 'number' && s.size > 0) decl.push(`font-size:${s.size}px`, `--ts-fs:${s.size}px`);
     const font = (s.font || '').trim();
     if (font && TEXT_FONT_FILE.test(font)) {
       faces.add(textFontFaceCss(font));
@@ -1528,6 +1530,11 @@ export interface SiteConfig {
   // eine Tönung (Farbe + Deckkraft) und/oder ein Bild; style = Vollbreite-Band
   // oder abgerundete Fläche innerhalb der Sektion.
   sections: SiteSections;
+  // Startseiten-Layout (Admin > Layout, gilt für DE + EN): 'classic' = bisherige
+  // Anordnung, 'compact' = kompakter Hero (Desktop zweispaltig, Handy flach).
+  homeLayout: 'classic' | 'compact';
+  // Nur im Kompakt-Layout: Hero-Banner bzw. -Raster auf dem Handy (≤ 640px) zeigen.
+  heroMediaMobile: boolean;
 }
 export interface SiteSectionSide {
   color: string; // '' = keine Tönung
@@ -1609,6 +1616,8 @@ const SITE_DEFAULTS: SiteConfig = {
     image: emptySectionCfg(),
     diverse: emptySectionCfg(),
   },
+  homeLayout: 'classic',
+  heroMediaMobile: true,
 };
 // Erlaubte Bild-URL (interner Pfad oder http(s)), ohne Zeichen, die url("…") brechen.
 const SITE_MEDIA_URL = /^(\/[^\s"'()\\]*|https?:\/\/[^\s"'()\\]+)$/;
@@ -1627,6 +1636,18 @@ export function getSite(): SiteConfig {
   const m = mediaOverrides as Record<string, unknown>;
   const site = isPlainObject(m) && isPlainObject(m.site) ? m.site : {};
   return deepMerge(SITE_DEFAULTS, site);
+}
+
+/**
+ * Startseiten-Layout (Admin > Layout). Unbekannte Werte fallen auf 'classic'
+ * zurück, damit die Seite ohne gültige Einstellung unverändert bleibt.
+ */
+export function getHomeLayout(): { layout: SiteConfig['homeLayout']; heroMediaMobile: boolean } {
+  const site = getSite();
+  return {
+    layout: site.homeLayout === 'compact' ? 'compact' : 'classic',
+    heroMediaMobile: site.heroMediaMobile !== false,
+  };
 }
 
 /** Ausgeblendete Tool-Karten (Admin > Tool-Karten > „Ausblenden") als Menge gültiger Schlüssel. */

@@ -889,6 +889,9 @@ function defaultSite() {
     bgImageFixedDark: true,
     // Abgesetzte Tool-Sektionen: style 'band' | 'card', je Sektion Hell/Dunkel.
     sections: defaultSections(),
+    // Startseiten-Layout 'classic' | 'compact'; heroMediaMobile nur im Kompakt-Layout.
+    homeLayout: 'classic',
+    heroMediaMobile: true,
   };
 }
 const SECTION_KEYS = ['audio', 'image', 'diverse'];
@@ -972,6 +975,8 @@ function validateSite(s) {
     bgImageFixed: s.bgImageFixed !== false,
     bgImageFixedDark: s.bgImageFixedDark !== false,
     sections: validateSections(s.sections),
+    homeLayout: s.homeLayout === 'compact' ? 'compact' : 'classic',
+    heroMediaMobile: s.heroMediaMobile !== false,
   };
 }
 

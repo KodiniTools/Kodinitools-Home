@@ -70,6 +70,10 @@ export function defaultSite() {
     // Breite) | 'card' (abgerundet in der Sektion); je Sektion Hell/Dunkel mit
     // Tönung (color '' = keine, opacity %) und optionalem Bild.
     sections: defaultSections(),
+    // Startseiten-Layout (Tab „Layout“): 'classic' | 'compact'; heroMediaMobile =
+    // Hero-Banner bzw. -Raster im Kompakt-Layout auch auf dem Handy zeigen.
+    homeLayout: 'classic',
+    heroMediaMobile: true,
   };
 }
 export const SITE_SECTION_KEYS = ['audio', 'image', 'diverse'];
@@ -201,6 +205,8 @@ export function normSite(s) {
     bgImageFixed: s.bgImageFixed !== false,
     bgImageFixedDark: s.bgImageFixedDark !== false,
     sections: normSections(s.sections),
+    homeLayout: s.homeLayout === 'compact' ? 'compact' : 'classic',
+    heroMediaMobile: s.heroMediaMobile !== false,
   };
 }
 // Seiten-Hintergrund eines Modus als CSS-background-Wert – identisch zur
@@ -453,4 +459,18 @@ export function getGlobalFont() {
 export function setGlobalFont(file) {
   if (!state.media.site || typeof state.media.site !== 'object') state.media.site = defaultSite();
   state.media.site.globalFont = normFontFile(file);
+}
+// Startseiten-Layout ('classic' | 'compact'), gilt für DE + EN.
+export function getHomeLayout() {
+  return siteObj().homeLayout === 'compact' ? 'compact' : 'classic';
+}
+export function setHomeLayout(v) {
+  siteObj().homeLayout = v === 'compact' ? 'compact' : 'classic';
+}
+// Kompakt-Layout: Hero-Banner bzw. -Raster auf dem Handy zeigen.
+export function getHeroMediaMobile() {
+  return siteObj().heroMediaMobile !== false;
+}
+export function setHeroMediaMobile(on) {
+  siteObj().heroMediaMobile = on === true;
 }

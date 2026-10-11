@@ -8,8 +8,9 @@ import HeroCellMedia from '../HeroCellMedia.astro'
 import SectionMediaBlock from '../SectionMediaBlock.astro'
 import SiteFooter from '../SiteFooter.astro'
 import { readFileSync } from 'fs'
+import homeCompactCssRaw from '../../styles/parts/home-compact.css?raw'
 import { resolve } from 'path'
-import { getContent, getMedia, HERO_LAYOUT_CELLS, heroGridReflowCols, effectiveHeroCellStyle, heroCellImageVars, getTextStylesCss, getHeroBannerCss, getHeroImageCss, getSectionMediaCss, getToolCardsCss, getIconTintCss, getHiddenCards } from '../../content/content'
+import { getContent, getMedia, HERO_LAYOUT_CELLS, heroGridReflowCols, effectiveHeroCellStyle, heroCellImageVars, getTextStylesCss, getHeroBannerCss, getHeroImageCss, getSectionMediaCss, getToolCardsCss, getIconTintCss, getHiddenCards, getHomeLayout } from '../../content/content'
 import type { Lang } from '../../i18n/lang'
 import { HOME_UI } from '../../i18n/home-ui'
 import FavoritesSection from '../../islands/favorites/FavoritesSection.vue'
@@ -27,6 +28,19 @@ const en = getContent('en')
 // Inhalte der Seitensprache (Werkzeugkarten, Feature-Buttons).
 const page = lang === 'de' ? de : (en as typeof de)
 const media = getMedia(lang)
+// Seiten-Layout (Admin > Layout): nur im Kompakt-Layout bekommt #app Attribute,
+// das klassische Layout bleibt im HTML unverändert.
+const homeLayout = getHomeLayout()
+const compact = homeLayout.layout === 'compact'
+// Die Regeln kommen nur ins HTML, wenn das Kompakt-Layout aktiv ist (Kommentare
+// und Einrückung entfernt) – andere Seiten und das klassische Layout tragen nichts.
+const homeCompactCss = compact
+  ? homeCompactCssRaw.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ').trim()
+  : undefined
+// Rendert der Hero ein Medium (Raster, Banner oder Nur-Text-Banner)? Ohne Medium
+// bleibt der kompakte Desktop-Hero einspaltig.
+const heroHasMedia =
+  media.heroMode === 'grid' || (media.heroBannerShow !== false && Boolean(media.heroBanner || media.heroBannerText))
 
 const cookieBannerHtml = readFileSync(resolve('public/partials/cookie-banner.html'), 'utf-8')
 
@@ -308,7 +322,11 @@ const pageI18n = {
 ---
 
 <HomeLayout lang={lang} preloadFonts={heroTitleFontPreload}>
-  <div id="app">
+  <div
+    id="app"
+    data-home-layout={compact ? 'compact' : undefined}
+    data-hero-media-mobile={compact && !homeLayout.heroMediaMobile ? 'off' : undefined}
+  >
     <!-- Global Background Effects -->
     <div class="global-background">
       <div class="global-gradient"></div>
@@ -328,6 +346,7 @@ const pageI18n = {
     {heroImageCss && <style is:global set:html={heroImageCss} />}
     {sectionMediaCss && <style is:global set:html={sectionMediaCss} />}
     {toolCardsCss && <style is:global set:html={toolCardsCss} />}
+    {homeCompactCss && <style is:global set:html={homeCompactCss} />}
     <section class="hero">
       <HeroBackground media={media} mode="light" />
       <HeroBackground media={media} mode="dark" />
@@ -339,7 +358,7 @@ const pageI18n = {
       </div>
       <div class="noise-overlay"></div>
 
-      <div class="hero-content">
+      <div class="hero-content" data-hero-media={compact && !heroHasMedia ? 'none' : undefined}>
         <div class="hero-promo" style={heroPromoStyle}>
           {media.heroMode === 'grid' ? (
             <div

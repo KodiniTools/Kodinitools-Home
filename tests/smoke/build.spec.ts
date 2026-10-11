@@ -11,6 +11,7 @@ import { join, relative, sep } from 'node:path';
 import { gzipSync } from 'node:zlib';
 import { describe, expect, it } from 'vitest';
 import expectedFiles from '../fixtures/build-files.json';
+import mediaJson from '../../src/content/media.json';
 
 const SITE = 'https://kodinitools.com';
 const DIST = join(process.cwd(), 'dist');
@@ -237,4 +238,21 @@ describe('Navigation (Tablet-Breite)', () => {
       expect(Number(rule?.[1])).toBeGreaterThanOrEqual(1024);
     },
   );
+});
+
+describe('Seiten-Layout (Admin > Layout)', () => {
+  // Folgt der Einstellung in media.json: Klassisch = HTML ohne Attribut und ohne
+  // Kompakt-CSS, Kompakt = Attribut an #app und die Regeln inline.
+  const site = (mediaJson as { site?: { homeLayout?: string } }).site;
+  const compact = site?.homeLayout === 'compact';
+  it.each(['index.html', 'en/index.html'])(`%s entspricht dem Layout aus media.json`, (file) => {
+    const html = read(file);
+    if (compact) {
+      expect(html).toContain('<div id="app" data-home-layout="compact"');
+      expect(html).toContain("#app[data-home-layout='compact'] .hero-content");
+    } else {
+      expect(html).not.toContain('data-home-layout');
+      expect(html).not.toContain('data-hero-media');
+    }
+  });
 });
