@@ -31,9 +31,9 @@ src/
 │                     # blog/ ([slug] + Übersicht), 404
 ├── layouts/          # HomeLayout (Kopf der Startseite, DE/EN), BlogArticleLayout
 ├── components/       # Astro-Komponenten (GlobalNav, SiteFooter, TickerBar, SectionMedia, SiteFont)
-│   └── pages/        # Seiten-Vorlagen je Sprache: HomePage, FaqPage, DonatePage (Prop `lang`)
+│   └── pages/        # Seiten-Vorlagen je Sprache: HomePage, FaqPage, DonatePage, BlogIndexPage (Prop `lang`)
 ├── i18n/             # Sprachen (lang.ts) und feste, nicht admin-editierbare Seitentexte je Sprache
-│                     # (home-seo.ts, home-ui.ts, faq.ts, donate.ts) – typisiert, fehlt eine
+│                     # (home-seo.ts, home-ui.ts, faq.ts, donate.ts, blog-index.ts) – typisiert, fehlt eine
 │                     # Übersetzung, schlägt `npm run typecheck` fehl
 ├── content/          # content.ts: Locale-Texte + Admin-Overrides zusammenführen, CSS für
 │                     # Seitenhintergrund/Tool-Karten erzeugen; media.json, overrides
