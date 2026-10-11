@@ -5,7 +5,8 @@
  * reihenfolge, damit die CSS-Kaskade unverändert bleibt (keine Regression).
  * @import wird von Vite beim Build inline zusammengeführt (kein Extra-Request).
  */
-@import './parts/base.css'; /* @font-face, Reset, :root-Farb-/Theme-Variablen */
+@import './parts/base.css'; /* @font-face, Reset */
+@import './parts/tokens.css'; /* Design-Tokens (generiert aus ../tokens.json) */
 @import './parts/keyframes.css'; /* geteilte Keyframes (fadeInUp, shimmer, …) */
 @import './parts/background.css'; /* globaler Hintergrund, Aurora-Mesh, Spotlight */
 @import './parts/nav.css'; /* Header, Dropdown-Navigation, Hamburger */
@@ -15,3 +16,4 @@
 @import './parts/utilities.css'; /* Scroll/Focus/Performance, Reduced-Motion */
 @import './parts/favorites.css'; /* Favoriten-Feature */
 @import './parts/tool-cards.css'; /* Tool-Karten (Text-first) + Hover-Popup */
+@import './parts/a11y.css'; /* Barrierearme Variante (.kt-a11y auf <html>) */

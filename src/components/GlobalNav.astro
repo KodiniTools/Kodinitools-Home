@@ -258,28 +258,6 @@ html {
     box-shadow: 0 4px 12px var(--nav-shadow);
 }
 
-.global-nav-donate {
-    color: #ffffff !important;
-    background: linear-gradient(135deg, #014f99 0%, #003971 100%) !important;
-    font-weight: 600;
-}
-
-.global-nav-donate:hover {
-    color: #ffffff !important;
-    background: linear-gradient(135deg, #003971 0%, #014f99 100%) !important;
-    box-shadow: 0 4px 14px rgba(1, 79, 153, 0.35);
-}
-
-:global([data-theme="dark"]) .global-nav-donate {
-    color: #091428 !important;
-    background: linear-gradient(135deg, #c9984d 0%, #a67d3d 100%) !important;
-}
-
-:global([data-theme="dark"]) .global-nav-donate:hover {
-    color: #091428 !important;
-    box-shadow: 0 4px 14px rgba(201, 152, 77, 0.35);
-}
-
 .global-nav-dropdown-arrow {
     font-size: 0.7rem;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -670,7 +648,7 @@ html {
             </div>
 
             <div class="global-nav-item">
-                <a href={c.donateHref} class="global-nav-link global-nav-donate">♥ {c.donate}</a>
+                <a href={c.donateHref} class="global-nav-link">{c.donate}</a>
             </div>
 
             <div class="global-nav-controls global-nav-controls-mobile">

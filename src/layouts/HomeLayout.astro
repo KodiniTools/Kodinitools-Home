@@ -1,0 +1,172 @@
+---
+import '../styles/global.css'
+import { getSiteFontStyle, getSiteBackgroundStyle } from '../content/content'
+import { alternates, HOME_PATH, OG_LOCALE, SITE, type Lang } from '../i18n/lang'
+import { HOME_SCHEMA_TOOLS, HOME_SEO } from '../i18n/home-seo'
+
+// Kopf der Startseite (/ und /en/): Meta-Tags, Open Graph, JSON-LD, hreflang.
+interface Props {
+  lang: Lang
+}
+
+const { lang } = Astro.props
+const seo = HOME_SEO[lang]
+const pageUrl = `${SITE}${HOME_PATH[lang]}`
+const alt = alternates(HOME_PATH)
+// Kostenlos; Währung einheitlich CHF (Sitz in der Schweiz), unabhängig von der Seitensprache.
+const offer = { '@type': 'Offer', price: '0', priceCurrency: 'CHF' }
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'KodiniTools',
+  url: seo.schemaUrl,
+  description: seo.schemaDescription,
+  applicationCategory: 'MultimediaApplication',
+  operatingSystem: 'Web Browser',
+  inLanguage: lang,
+  offers: offer,
+  author: { '@type': 'Person', name: 'Dinko Ramic' },
+  publisher: { '@type': 'Organization', name: 'KodiniTools', url: SITE },
+  featureList: seo.featureList,
+  hasPart: HOME_SCHEMA_TOOLS.map((tool) => ({
+    '@type': 'SoftwareApplication',
+    name: tool.name[lang],
+    description: tool.description[lang],
+    url: tool.url,
+    applicationCategory: 'MultimediaApplication',
+    offers: offer,
+  })),
+}
+
+// Globale Basis-Schrift (im Admin per Kachel gesetzt, sprachübergreifend).
+const siteFontStyle = getSiteFontStyle()
+// Globale Seiten-Hintergrundfarbe (Admin-Tab „Hintergrund", sprachübergreifend).
+const siteBgStyle = getSiteBackgroundStyle()
+---
+
+<!DOCTYPE html>
+<html lang={lang} class="kt-a11y">
+<head>
+    <!-- Google Consent Mode v2 - DSGVO/GDPR -->
+    <script is:inline>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);} // eslint-disable-line prefer-rest-params -- offizielles Google-Snippet, arguments bewusst
+    gtag('consent', 'default', {
+      'ad_storage': 'denied',
+      'ad_user_data': 'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage': 'denied',
+      'functionality_storage': 'denied',
+      'personalization_storage': 'denied',
+      'security_storage': 'granted',
+      'wait_for_update': 500
+    });
+    (function() {
+      try {
+        const savedConsent = localStorage.getItem('cookieConsent');
+        if (savedConsent) {
+          const consent = JSON.parse(savedConsent);
+          if (consent.analytics) {
+            gtag('consent', 'update', {
+              'analytics_storage': 'granted',
+              'functionality_storage': 'granted',
+              'personalization_storage': 'granted'
+            });
+          }
+          if (consent.marketing) {
+            gtag('consent', 'update', {
+              'ad_storage': 'granted',
+              'ad_user_data': 'granted',
+              'ad_personalization': 'granted'
+            });
+          }
+        }
+      } catch { /* Consent optional – Fehler bewusst ignorieren */ }
+    })();
+    </script>
+
+    <!-- Google Tag Manager -->
+    <script is:inline>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});const f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T7NS656K');</script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Primary Meta Tags -->
+    <title>{seo.title}</title>
+    <meta name="title" content={seo.metaTitle}>
+    <meta name="description" content={seo.description}>
+    <meta name="author" content="Dinko Ramic">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content={lang}>
+    <meta name="keywords" content={seo.keywords}>
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content={pageUrl}>
+    <meta property="og:title" content={seo.ogTitle}>
+    <meta property="og:description" content={seo.ogDescription}>
+    <meta property="og:image" content="https://kodinitools.com/image/kodinitools-og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:locale" content={OG_LOCALE[lang]}>
+    {lang !== 'de' && <meta property="og:locale:alternate" content={OG_LOCALE.de}>}
+    <meta property="og:site_name" content="KodiniTools">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content={pageUrl}>
+    <meta property="twitter:title" content={seo.twitterTitle}>
+    <meta property="twitter:description" content={seo.twitterDescription}>
+    <meta property="twitter:image" content="https://kodinitools.com/image/kodinitools-og-image.jpg">
+    <meta property="twitter:creator" content="@kodinitools">
+
+    <!-- Additional SEO -->
+    <meta name="theme-color" content="#014f99">
+    <meta name="msapplication-TileColor" content="#014f99">
+    <meta name="msapplication-config" content="/browserconfig.xml">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="geo.region" content="CH-ZH">
+    <meta name="geo.placename" content="Uster">
+    <meta name="geo.position" content="47.3467;8.7208">
+    <meta name="ICBM" content="47.3467, 8.7208">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json" set:html={JSON.stringify(schema)}></script>
+
+    <!-- Links -->
+    <link rel="canonical" href={pageUrl}>
+    <link rel="alternate" hreflang="de" href={alt.de}>
+    <link rel="alternate" hreflang="en" href={alt.en}>
+    <link rel="alternate" hreflang="x-default" href={alt.xDefault}>
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <!-- Preconnect -->
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+
+    <!-- Sprache für die Client-Übersetzungen merken (nur EN, wie bisher) -->
+    {lang === 'en' && <script is:inline>localStorage.setItem('locale', 'en');</script>}
+
+    <!-- Globale Basis-Schrift (Admin, sprachübergreifend) -->
+    {siteFontStyle && <style set:html={siteFontStyle}></style>}
+    <!-- Globale Seiten-Hintergrundfarbe (Admin, sprachübergreifend) -->
+    {siteBgStyle && <style set:html={siteBgStyle}></style>}
+</head>
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T7NS656K"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+    <slot />
+</body>
+</html>

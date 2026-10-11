@@ -4,3 +4,4 @@ node_modules/
 public/fontawesome/
 public/fonts/
 package-lock.json
+src/content/blog/
