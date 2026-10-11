@@ -454,7 +454,7 @@ const pageI18n = {
 
     <!-- Favoriten (Vue-Island, versteckt bis mindestens ein Favorit gespeichert ist) -->
     <FavoritesSection
-      client:load
+      client:idle
       lang={lang}
       hiddenKeys={[...hiddenCards]}
       texts={{ title: ui.favoritesTitle, clearAll: ui.favoritesClearAll, favRemove: ui.favRemove, favTitle: ui.favTitle, open: ui.open }}
@@ -467,7 +467,8 @@ const pageI18n = {
         <h2 data-i18n="tools.sectionTitle">Audio Tools</h2>
       </div>
 
-      <SectionMediaBlock media={media} section="audio" eager={true} />
+      <!-- Lazy: liegt mobil unterhalb des Sichtbereichs; das Video (mehrere MB) lädt erst in Sichtnähe. -->
+      <SectionMediaBlock media={media} section="audio" />
 
       <div class="svg-card-grid">
         {audioTools.map((tool) => (

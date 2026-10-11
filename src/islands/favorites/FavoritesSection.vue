@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Favoriten-Sektion der Startseite (Vue-Island, client:load).
+ * Favoriten-Sektion der Startseite (Vue-Island, client:idle).
  *
  * - Liest/schreibt die Favoriten in localStorage (FAV_KEY) und rendert sie als
  *   Karten im selben Markup wie die übrigen Tool-Karten.

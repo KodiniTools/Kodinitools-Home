@@ -176,3 +176,23 @@ describe('JavaScript-Budget (Vue-Islands)', () => {
     expect(withIslands.sort()).toEqual(['en/index.html', 'index.html']);
   });
 });
+
+describe('Ladeverhalten (PageSpeed)', () => {
+  it.each(pages)('%s lädt keine render-blockierenden Stylesheets', (file) => {
+    expect(read(file)).not.toMatch(/<link[^>]+rel="stylesheet"[^>]+href="[^"]*\/_astro\//);
+  });
+
+  it.each(['index.html', 'en/index.html'])('%s lädt keine Videos sofort (nur lazy)', (file) => {
+    const videos = read(file).match(/<video[^>]*>/g) ?? [];
+    for (const video of videos) {
+      expect(video).toContain('preload="none"');
+      expect(video).not.toContain('autoplay');
+    }
+  });
+
+  it.each(['index.html', 'en/index.html'])('%s hydriert Islands erst im Leerlauf', (file) => {
+    for (const island of read(file).match(/<astro-island[^>]*>/g) ?? []) {
+      expect(island).toContain('client="idle"');
+    }
+  });
+});
