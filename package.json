@@ -14,7 +14,8 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:smoke": "astro build && vitest run tests/smoke",
-    "typecheck": "astro check"
+    "typecheck": "astro check",
+    "tokens": "node scripts/build-tokens.mjs"
   },
   "dependencies": {
     "astro": "^5.17.2",

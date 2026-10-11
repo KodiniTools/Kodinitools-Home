@@ -1,0 +1,97 @@
+/*
+ * Design-Tokens – GENERIERT aus src/styles/tokens.json (npm run tokens).
+ * Nicht von Hand bearbeiten; Änderungen in tokens.json vornehmen.
+ */
+
+:root {
+  /* Schrift */
+  --site-font: 'Supreme', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+  /* Markenfarben */
+  --color-gold: #e8a945;
+  --color-blue: #014f99;
+  --color-blue-dark: #003971;
+  --color-gold-light: #f8e1a9;
+  --color-cream: #f9f2d5;
+  /* Flächen und Text */
+  --bg-color: #fafafa;
+  --bg-secondary: #ffffff;
+  --text-color: #003971;
+  --text-secondary: #014f99;
+  --text-muted: #4f6f8e;
+  --border-color: #e5e7eb;
+  /* Interaktion */
+  --primary-color: #014f99;
+  --primary-dark: #003971;
+  --primary-light: #3a7bc8;
+  --accent-color: #e8a945;
+  /* Verläufe */
+  --gradient-1: linear-gradient(135deg, #014f99 0%, #003971 100%);
+  --gradient-2: linear-gradient(135deg, #e8a945 0%, #014f99 100%);
+  --gradient-3: linear-gradient(135deg, #003971 0%, #001d3d 100%);
+  --gradient-hero: linear-gradient(135deg, #014f99 0%, #003971 50%, #001d3d 100%);
+  /* Schatten */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 57, 113, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 57, 113, 0.08);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 57, 113, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 57, 113, 0.12);
+  /* Barrierearme Variante (kt-a11y) */
+  --on-gold: #091428;
+  --text-muted-a11y: #4f6f8e;
+  /* Abstände */
+  --space-2xs: 0.35rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.25rem;
+  --space-xl: 2rem;
+  --space-2xl: 2.5rem;
+  --space-3xl: 4rem;
+  --space-4xl: 5rem;
+  /* Radien */
+  --radius-badge: 0.3rem;
+  --radius-tag: 0.35rem;
+  --radius-item: 0.4rem;
+  --radius-icon: 0.6rem;
+  --radius-menu: 0.75rem;
+  --radius-popup: 0.9rem;
+  --radius-card: 1rem;
+  --radius-section: 1.5rem;
+  --radius-hero: 2rem;
+  --radius-pill: 50px;
+}
+
+[data-theme="dark"] {
+  /* Markenfarben */
+  --color-gold: #e8a945;
+  --color-blue: #014f99;
+  --color-blue-dark: #0a2e5c;
+  --color-gold-light: #f8e1a9;
+  --color-cream: #f9f2d5;
+  /* Flächen und Text */
+  --bg-color: #091428;
+  --bg-secondary: #0E1C32;
+  --card-bg: #142640;
+  --text-color: #f9f2d5;
+  --text-secondary: #f8e1a9;
+  --text-muted: #7A8DA0;
+  --border-color: #1d3a5c;
+  /* Interaktion */
+  --primary-color: #e8a945;
+  --primary-dark: #c07830;
+  --primary-light: #f8e1a9;
+  --accent-color: #014f99;
+  --accent-text: #091428;
+  /* Verläufe */
+  --gradient-1: linear-gradient(135deg, #e8a945 0%, #014f99 100%);
+  --gradient-2: linear-gradient(135deg, #014f99 0%, #0a2e5c 100%);
+  --gradient-3: linear-gradient(135deg, #142640 0%, #0E1C32 100%);
+  --gradient-hero: linear-gradient(135deg, #091428 0%, #0E1C32 50%, #142640 100%);
+  /* Schatten */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.7);
+  /* Barrierearme Variante (kt-a11y) */
+  --text-muted-a11y: #8296a8;
+  --gradient-cta-a11y: linear-gradient(135deg, #e8a945 0%, #c07830 100%);
+}

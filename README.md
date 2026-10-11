@@ -40,12 +40,25 @@ src/
 │   └── blog/         # Blog-Artikel als Content Collection: de/<slug>.html, en/<slug>.html
 │                     # (Frontmatter + HTML, siehe src/content/README.md)
 ├── locales/          # de.json / en.json – Texte, Tool-Karten, Hero, FAQ, Blog (Single Source of Truth)
-└── styles/           # global.css (Aggregator) + parts/*.css
+└── styles/           # global.css (Aggregator) + parts/*.css; tokens.json = Design-Tokens
+                      # (Farben, Verläufe, Schatten, Abstände, Radien) -> parts/tokens.css
 server/admin/         # Admin-Dienst (Node, ohne Abhängigkeiten): Inhalte, Medien, Design,
                       # Hintergrund, Tool-Karten, Vorschau, Veröffentlichen (siehe server/admin/README.md)
 deploy/, deploy.sh    # Server-Deployment (nginx, systemd)
 docs/                 # ADMIN_DEPLOY_PLAN.md – Architektur und Betriebsablauf des Admin-Bereichs
 ```
+
+## Design-Tokens und barrierearme Variante
+
+- Farben, Verläufe, Schatten, Abstände und Radien stehen in `src/styles/tokens.json`
+  (je Token Wert für hell/dunkel und ein Verwendungshinweis). `npm run tokens` erzeugt
+  daraus `src/styles/parts/tokens.css` – diese Datei nicht von Hand ändern. Ein Test
+  schlägt fehl, wenn sie veraltet ist.
+- `tokens.json` › `contrast` listet Farbpaare mit Mindestkontrast (WCAG); die Unit-Tests
+  rechnen sie bei jeder Änderung nach.
+- `<html class="kt-a11y">` (in allen Layouts gesetzt) aktiviert `parts/a11y.css`: lesbare
+  Standardwerte für den CTA im Dunkelmodus, das Server-Badge und Kartenbeschreibungen.
+  Admin-Farben haben Vorrang. Zum Abschalten die Klasse entfernen.
 
 ## Inhalte und Übersetzungen
 

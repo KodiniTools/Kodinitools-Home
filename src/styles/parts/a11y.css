@@ -1,0 +1,29 @@
+/* ===== BARRIEREARME VARIANTE (.kt-a11y) =====
+   Aktiv, solange <html> die Klasse kt-a11y trägt (alle Layouts setzen sie).
+   Hebt drei Stellen, die im Original unter 4,5:1 Kontrast liegen, auf lesbare
+   Werte an – ohne die Markenfarben zu ändern. Admin-Overrides (--hero-cta-*)
+   haben weiterhin Vorrang; die Regeln greifen nur bei den Standardwerten.
+   Werte und Kontraste: src/styles/tokens.json (Gruppe „Barrierearme Variante"). */
+
+/* 1. CTA im dunklen Modus: Weiss auf Gold (2,1:1) -> on-gold auf Gold/#c07830 (≥ 5,2:1) */
+.kt-a11y[data-theme='dark'] .hero-cta-btn {
+  background: var(--hero-cta-bg, var(--gradient-cta-a11y));
+  color: var(--hero-cta-text, var(--on-gold));
+}
+
+.kt-a11y[data-theme='dark'] .hero-cta-btn:hover {
+  background: var(--hero-cta-hover-bg, var(--hero-cta-bg, var(--gradient-cta-a11y)));
+  color: var(--hero-cta-hover-text, var(--hero-cta-text, var(--on-gold)));
+}
+
+/* 2. Server-Badge: Weiss auf Gold-Verlauf (2,1:1 am Goldende) -> on-gold auf Gold (8,9:1).
+   Unterscheidet sich damit in der Helligkeit klar vom Navy-Browser-Badge. */
+.kt-a11y .processing-badge.server {
+  background: var(--color-gold);
+  color: var(--on-gold);
+}
+
+/* 3. Kartenbeschreibung im dunklen Modus: text-muted auf card-bg (4,45:1) -> 5,0:1 */
+.kt-a11y[data-theme='dark'] .tool-card-desc {
+  color: var(--text-muted-a11y);
+}

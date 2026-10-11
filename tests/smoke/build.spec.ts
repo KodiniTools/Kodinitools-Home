@@ -154,3 +154,9 @@ describe.each(pages)('Bild-URLs in %s', (file) => {
     expect(attr(read(file), /<meta name="theme-color" content="([^"]+)"/g)).toEqual(['#014f99']);
   });
 });
+
+describe('Barrierearme Variante', () => {
+  it.each([...pages, '404.html'])('%s setzt class="kt-a11y" auf <html>', (file) => {
+    expect(read(file)).toMatch(/<html[^>]*\sclass="kt-a11y"/);
+  });
+});
