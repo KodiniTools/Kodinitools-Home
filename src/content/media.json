@@ -97,7 +97,15 @@
           "imageOpacity": 100
         }
       }
-    }
+    },
+    "homeLayout": "compact",
+    "heroMediaMobile": true,
+    "cardForm": "tile",
+    "cardWidth": "medium",
+    "catBar": true,
+    "catSearch": true,
+    "mediaPosDesktop": "side",
+    "mediaPosMobile": "bottom"
   },
   "de": {
     "sectionVideos": {
@@ -527,7 +535,14 @@
       "showTitle": true,
       "showSubtitle": true,
       "showChips": true,
-      "hiddenChips": [],
+      "hiddenChips": [
+        "free",
+        "privacy",
+        "browserBased",
+        "serverBased",
+        "multiLanguage",
+        "noInstall"
+      ],
       "chipOffsets": {},
       "showCta": true,
       "light": {
