@@ -14,6 +14,8 @@ export interface HomeUi {
   favRemove: string;
   favTitle: string;
   open: string;
+  /** Beschriftung der Kategorie-Leiste (Kompakt-Layout) für Screenreader. */
+  catNavLabel: string;
   /** Alt-Text einer Hero-Kachel (Index ab 0). */
   heroCellAlt: (index: number) => string;
 }
@@ -29,6 +31,7 @@ export const HOME_UI: Record<Lang, HomeUi> = {
     favRemove: 'Aus Favoriten entfernen',
     favTitle: 'Favorit',
     open: 'Öffnen',
+    catNavLabel: 'Tool-Kategorien',
     heroCellAlt: (index) => `Bild ${index + 1}`,
   },
   en: {
@@ -41,6 +44,7 @@ export const HOME_UI: Record<Lang, HomeUi> = {
     favRemove: 'Remove from favorites',
     favTitle: 'Favorite',
     open: 'Open',
+    catNavLabel: 'Tool categories',
     heroCellAlt: (index) => `Image ${index + 1}`,
   },
 };

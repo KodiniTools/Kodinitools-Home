@@ -23,6 +23,14 @@ import {
   setCardForm,
   getCardWidth,
   setCardWidth,
+  getCatBar,
+  setCatBar,
+  getCatSearch,
+  setCatSearch,
+  getMediaPosDesktop,
+  setMediaPosDesktop,
+  getMediaPosMobile,
+  setMediaPosMobile,
 } from './model.js';
 import { stopPreviewSlideshow } from './layout-shared.js';
 import { bannerLayoutHtml, bindBanner } from './layout-banner.js';
@@ -43,6 +51,7 @@ export {
 function pageLayoutPanelHtml() {
   const layout = getHomeLayout();
   const compact = layout === 'compact';
+  const catBar = getCatBar();
   const radio = (val, label) => `
         <label style="display:flex;align-items:center;gap:.4rem;color:var(--text)">
           <input type="radio" name="lay-home" data-homelayout="${val}" ${layout === val ? 'checked' : ''} style="width:auto" />
@@ -53,7 +62,9 @@ function pageLayoutPanelHtml() {
       <h2>Seiten-Layout <span class="lang-badge">DE + EN</span></h2>
       <p class="hint"><strong>Kompakt</strong> ordnet den Hero platzsparend an: auf dem Desktop Texte links und Banner bzw. Raster rechts, auf dem Handy kleiner mit den Feature-Buttons in einer wischbaren Zeile.
         Die Tool-Karten stehen in einem Raster, das sich der Breite anpasst; als <strong>Liste</strong> zeigen sie zwei Zeilen Beschreibung statt des Popups.
-        Farben, Schriften, Texte und Medien bleiben wie eingestellt. Ausgeblendete Feature-Buttons nehmen im Kompakt-Layout keinen Platz ein, Verschiebungen des Hero-Mediums, der Hero-Texte und der Buttons wirken nur im klassischen Layout.
+        Die <strong>Kategorie-Leiste</strong> unter dem Hero springt zu Audio, Bild und Diverse und bleibt beim Scrollen oben; ihr Suchfeld filtert die Karten.
+        Sektionsmedien (Bild bzw. Video je Sektion) stehen auf dem Desktop oben, seitlich neben den Karten oder darunter, auf Handy und Tablet oben oder darunter, oder sie entfallen.
+        Farben, Schriften, Texte und Medien bleiben wie eingestellt. Ausgeblendete Feature-Buttons nehmen im Kompakt-Layout keinen Platz ein, Verschiebungen des Hero-Mediums, der Hero-Texte und der Buttons wirken nur im klassischen Layout, die der Sektionsmedien im Kompakt-Layout nur auf dem Desktop bei „Oben“ oder „Unten“.
         Die Wirkung siehst du in der <strong>Vorschau</strong> der Seite.</p>
       <div class="row" style="gap:1.25rem;margin-top:.4rem">
         ${radio('classic', 'Klassisch')}
@@ -77,6 +88,35 @@ function pageLayoutPanelHtml() {
             ${opt(getCardWidth(), 'narrow', 'Schmal')}
             ${opt(getCardWidth(), 'medium', 'Mittel')}
             ${opt(getCardWidth(), 'wide', 'Breit')}
+          </select>
+        </label>
+      </div>
+      <div class="row" style="gap:1.25rem;margin-top:.6rem;flex-wrap:wrap${compact ? '' : ';opacity:.5'}">
+        <label style="display:flex;align-items:center;gap:.4rem;color:var(--text)" title="Sprunglinks zu Audio, Bild und Diverse; bleibt beim Scrollen unter der Navigation stehen.">
+          <input type="checkbox" data-catbar ${catBar ? 'checked' : ''} ${compact ? '' : 'disabled'} style="width:auto" />
+          Kategorie-Leiste
+        </label>
+        <label style="display:flex;align-items:center;gap:.4rem;color:var(--text)${catBar ? '' : ';opacity:.5'}" title="Suchfeld in der Kategorie-Leiste; filtert die Karten nach Titel und Beschreibung.">
+          <input type="checkbox" data-catsearch ${getCatSearch() ? 'checked' : ''} ${compact && catBar ? '' : 'disabled'} style="width:auto" />
+          Suche in der Leiste
+        </label>
+      </div>
+      <div class="row" style="gap:1.25rem;margin-top:.6rem;flex-wrap:wrap${compact ? '' : ';opacity:.5'}">
+        <label style="display:flex;align-items:center;gap:.4rem;color:var(--text)" title="Lage von Bild bzw. Video einer Sektion zu ihren Karten ab 1024 px Breite.">
+          Sektionsmedien Desktop
+          <select data-mediaposdesktop ${compact ? '' : 'disabled'} style="width:auto">
+            ${opt(getMediaPosDesktop(), 'top', 'Oben')}
+            ${opt(getMediaPosDesktop(), 'side', 'Seitlich')}
+            ${opt(getMediaPosDesktop(), 'bottom', 'Unten')}
+            ${opt(getMediaPosDesktop(), 'off', 'Aus')}
+          </select>
+        </label>
+        <label style="display:flex;align-items:center;gap:.4rem;color:var(--text)" title="Lage von Bild bzw. Video einer Sektion zu ihren Karten unter 1024 px Breite (Handy und Tablet).">
+          Sektionsmedien Handy/Tablet
+          <select data-mediaposmobile ${compact ? '' : 'disabled'} style="width:auto">
+            ${opt(getMediaPosMobile(), 'top', 'Oben')}
+            ${opt(getMediaPosMobile(), 'bottom', 'Unten')}
+            ${opt(getMediaPosMobile(), 'off', 'Aus')}
           </select>
         </label>
       </div>
@@ -166,6 +206,24 @@ export function renderLayout() {
   pane.querySelector('[data-cardwidth]')?.addEventListener('change', (e) => {
     setCardWidth(e.target.value);
     toast('Kartenbreite geändert');
+  });
+  pane.querySelector('[data-catbar]')?.addEventListener('change', (e) => {
+    setCatBar(e.target.checked);
+    // Suchfeld-Schalter hängt an der Leiste -> neu rendern.
+    renderLayout();
+    toast(e.target.checked ? 'Kategorie-Leiste eingeblendet' : 'Kategorie-Leiste ausgeblendet');
+  });
+  pane.querySelector('[data-catsearch]')?.addEventListener('change', (e) => {
+    setCatSearch(e.target.checked);
+    toast(e.target.checked ? 'Suche eingeblendet' : 'Suche ausgeblendet');
+  });
+  pane.querySelector('[data-mediaposdesktop]')?.addEventListener('change', (e) => {
+    setMediaPosDesktop(e.target.value);
+    toast('Sektionsmedien Desktop geändert');
+  });
+  pane.querySelector('[data-mediaposmobile]')?.addEventListener('change', (e) => {
+    setMediaPosMobile(e.target.value);
+    toast('Sektionsmedien Handy/Tablet geändert');
   });
 
   if (mode === 'grid') bindGrid(pane, lang, renderLayout);

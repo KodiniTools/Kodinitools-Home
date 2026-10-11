@@ -895,6 +895,12 @@ function defaultSite() {
     // Nur im Kompakt-Layout: Kartenform 'list' | 'tile', Kartenbreite 'narrow' | 'medium' | 'wide'.
     cardForm: 'list',
     cardWidth: 'medium',
+    // Nur im Kompakt-Layout: Kategorie-Leiste (Sprunglinks) mit Suchfeld und
+    // Lage der Sektionsmedien je Gerät.
+    catBar: true,
+    catSearch: true,
+    mediaPosDesktop: 'side',
+    mediaPosMobile: 'bottom',
   };
 }
 const SECTION_KEYS = ['audio', 'image', 'diverse'];
@@ -930,6 +936,8 @@ function validateSections(v) {
 const SITE_GRADIENT_TYPES = ['linear', 'radial'];
 const SITE_PATTERNS = ['none', 'dots', 'grid'];
 const CARD_WIDTHS = ['narrow', 'medium', 'wide'];
+const MEDIA_POS_DESKTOP = ['top', 'side', 'bottom', 'off'];
+const MEDIA_POS_MOBILE = ['top', 'bottom', 'off'];
 const SITE_IMAGE_URL = /^(\/[^\s"'()\\]*|https?:\/\/[^\s"'()\\]+)$/;
 /** Validiert die globalen Seiten-Einstellungen. */
 function validateSite(s) {
@@ -983,6 +991,10 @@ function validateSite(s) {
     heroMediaMobile: s.heroMediaMobile !== false,
     cardForm: s.cardForm === 'tile' ? 'tile' : 'list',
     cardWidth: CARD_WIDTHS.includes(s.cardWidth) ? s.cardWidth : 'medium',
+    catBar: s.catBar !== false,
+    catSearch: s.catSearch !== false,
+    mediaPosDesktop: MEDIA_POS_DESKTOP.includes(s.mediaPosDesktop) ? s.mediaPosDesktop : 'side',
+    mediaPosMobile: MEDIA_POS_MOBILE.includes(s.mediaPosMobile) ? s.mediaPosMobile : 'bottom',
   };
 }
 

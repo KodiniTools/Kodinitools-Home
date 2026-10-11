@@ -38,6 +38,28 @@ describe.each([
     });
   });
 
+  it('Leiste und Sektionsmedien: Standard an, seitlich bzw. unten; übernimmt gültige Werte', () => {
+    expect(norm({})).toMatchObject({
+      catBar: true,
+      catSearch: true,
+      mediaPosDesktop: 'side',
+      mediaPosMobile: 'bottom',
+    });
+    expect(
+      norm({ catBar: false, catSearch: false, mediaPosDesktop: 'off', mediaPosMobile: 'top' }),
+    ).toMatchObject({
+      catBar: false,
+      catSearch: false,
+      mediaPosDesktop: 'off',
+      mediaPosMobile: 'top',
+    });
+    // „seitlich" gibt es nur auf dem Desktop.
+    expect(norm({ mediaPosDesktop: 'left', mediaPosMobile: 'side' })).toMatchObject({
+      mediaPosDesktop: 'side',
+      mediaPosMobile: 'bottom',
+    });
+  });
+
   it('fällt bei unbekanntem Wert auf Klassisch zurück', () => {
     expect(norm({ homeLayout: 'grid', heroMediaMobile: 'nein' })).toMatchObject({
       homeLayout: 'classic',
@@ -62,6 +84,8 @@ describe('home-compact.css', () => {
   });
 
   it('beschränkt jede Regel auf das Kompakt-Layout', () => {
-    for (const sel of selectors) expect(sel.startsWith(SCOPE), sel).toBe(true);
+    // Ausnahme: html/body nur, solange die Seite das Kompakt-Layout trägt.
+    const root = (sel: string) => sel === `html:has(${SCOPE})` || sel === `body:has(${SCOPE})`;
+    for (const sel of selectors) expect(sel.startsWith(SCOPE) || root(sel), sel).toBe(true);
   });
 });
