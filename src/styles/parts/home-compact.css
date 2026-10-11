@@ -1,0 +1,182 @@
+/*
+ * Kompakt-Layout der Startseite (Admin > Layout > Seiten-Layout „Kompakt").
+ * HomePage.astro bindet die Datei nur bei aktivem Kompakt-Layout inline ein
+ * (?raw), dann trägt #app das Attribut data-home-layout="compact"; das
+ * klassische Layout und alle anderen Seiten bleiben unberührt. Die Selektoren beginnen mit #app[…], damit
+ * sie die Admin-Regeln (#app .hero-title { font-size: …px } usw.) schlagen.
+ *
+ * Desktop (≥ 1024px): Texte, Feature-Buttons und CTA links, Banner bzw. Raster rechts.
+ * Tablet: wie klassisch untereinander, aber mit weniger Abständen.
+ * Handy (≤ 640px): kleineres Medium, Feature-Buttons als eine wischbare Zeile.
+ * Inhalte stehen sofort da (keine Einblend-Animationen im Hero).
+ */
+
+#app[data-home-layout='compact'] .hero {
+  padding: clamp(1.25rem, 4vw, 3rem) clamp(1rem, 4vw, 3rem);
+  margin-top: clamp(0.75rem, 2vw, 1.5rem);
+  margin-bottom: clamp(1.25rem, 3vw, 2rem);
+}
+
+#app[data-home-layout='compact'] .hero-promo {
+  gap: 0.75rem;
+  margin-bottom: 0;
+}
+
+/* Admin-Größen sind feste px-Werte; auf schmalen Bildschirmen begrenzt die
+   Viewport-Breite sie, damit Titel und Untertitel nicht den ganzen Hero füllen.
+   --ts-fs setzt der Admin-Textstil (content.ts), sonst gilt der Hero-Design-Wert. */
+#app[data-home-layout='compact'] .hero-title {
+  font-size: min(var(--ts-fs, var(--hero-title-fs, 2.5rem)), 8vw);
+  margin-bottom: 0;
+}
+
+#app[data-home-layout='compact'] .hero-subtitle {
+  font-size: min(var(--ts-fs, var(--hero-subtitle-fs, 1.1rem)), 4.4vw);
+}
+
+/* Sofort sichtbar statt Einblenden (Mobil-Performance, kein Layout-Flackern). */
+#app[data-home-layout='compact'] .hero-subtitle,
+#app[data-home-layout='compact'] .hero-cta-btn,
+#app[data-home-layout='compact'] .feature-card {
+  animation: none;
+  opacity: 1;
+}
+
+/* Verschiebungen aus dem Admin (Hero-Medium, Hero-Texte, Feature-Buttons) gelten
+   nur im klassischen Layout; hier ordnet das Raster selbst an. */
+#app[data-home-layout='compact'] .hero-promo,
+#app[data-home-layout='compact'] .hero-title,
+#app[data-home-layout='compact'] .hero-subtitle,
+#app[data-home-layout='compact'] .feature-card {
+  left: 0 !important;
+  top: 0 !important;
+}
+
+#app[data-home-layout='compact'] .features-grid {
+  margin-top: 1.25rem;
+}
+
+/* Ausgeblendete Feature-Buttons nehmen hier keinen Platz ein. */
+#app[data-home-layout='compact'] .feature-card.hero-hidden {
+  display: none;
+}
+
+#app[data-home-layout='compact'] .hero-cta-wrap {
+  margin-top: 1.25rem;
+}
+
+#app[data-home-layout='compact'] .scroll-indicator {
+  display: none;
+}
+
+/* Handy */
+@media (max-width: 640px) {
+  #app[data-home-layout='compact'] .hero-banner {
+    max-height: 110px;
+  }
+
+  #app[data-home-layout='compact'] .hero-banner[style*='--media-ar'] {
+    --hb-max-h: 110px;
+  }
+
+  #app[data-home-layout='compact'][data-hero-media-mobile='off']
+    .hero-promo
+    > :not(.hero-title):not(.hero-subtitle) {
+    display: none;
+  }
+
+  /* Feature-Buttons: eine Zeile, seitlich wischbar, bis an den Hero-Rand. */
+  #app[data-home-layout='compact'] .features-grid {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    margin-inline: calc(-1 * clamp(1rem, 4vw, 3rem));
+    padding-inline: clamp(1rem, 4vw, 3rem);
+    padding-bottom: 2px;
+  }
+
+  #app[data-home-layout='compact'] .features-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  #app[data-home-layout='compact'] .feature-card {
+    flex: 0 0 auto;
+    padding: 0.55rem 0.9rem;
+    white-space: nowrap;
+    scroll-snap-align: start;
+  }
+}
+
+/* Desktop: zweispaltig. .hero-promo löst sich auf, damit Medium, Titel und
+   Untertitel direkt im Raster von .hero-content stehen. */
+@media (min-width: 1024px) {
+  #app[data-home-layout='compact'] .hero-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    grid-template-areas:
+      'title media'
+      'sub media'
+      'chips media'
+      'cta media';
+    grid-template-rows: auto auto auto 1fr;
+    column-gap: clamp(2rem, 4vw, 3.5rem);
+    align-items: start;
+    text-align: left;
+  }
+
+  #app[data-home-layout='compact'] .hero-content[data-hero-media='none'] {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'title' 'sub' 'chips' 'cta';
+    max-width: 52rem;
+    margin-inline: auto;
+  }
+
+  #app[data-home-layout='compact'] .hero-promo {
+    display: contents;
+  }
+
+  #app[data-home-layout='compact'] .hero-promo > :not(.hero-title):not(.hero-subtitle) {
+    grid-area: media;
+    align-self: center;
+    width: 100%;
+  }
+
+  #app[data-home-layout='compact'] .hero-banner[style*='--media-ar'] {
+    --hb-max-h: 340px;
+  }
+
+  #app[data-home-layout='compact'] .hero-banner {
+    max-height: 340px;
+  }
+
+  #app[data-home-layout='compact'] .hero-title {
+    grid-area: title;
+    text-align: left;
+  }
+
+  #app[data-home-layout='compact'] .hero-subtitle {
+    grid-area: sub;
+    margin: 0.75rem 0 0;
+    max-width: 36rem;
+    text-align: left;
+  }
+
+  #app[data-home-layout='compact'] .features-grid {
+    grid-area: chips;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  #app[data-home-layout='compact'] .feature-card {
+    padding: 0.55rem 0.9rem;
+  }
+
+  #app[data-home-layout='compact'] .hero-cta-wrap {
+    grid-area: cta;
+    justify-content: flex-start;
+  }
+}
