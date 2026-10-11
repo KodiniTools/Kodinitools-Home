@@ -133,6 +133,16 @@ it('bindet /kt-heartbeat.js nicht selbst ein (sonst doppelt neben nginx)', () =>
   for (const file of pages) expect(read(file), file).not.toContain('/kt-heartbeat.js');
 });
 
+describe.each(['blog/index.html', 'en/blog/index.html'])('Blog-Übersicht %s', (file) => {
+  it('hebt keinen Beitrag separat hervor, alle stehen in der Liste', () => {
+    const html = read(file);
+    expect(html).not.toMatch(/class="blog-featured-card"/);
+    const listStart = html.indexOf('class="blog-grid');
+    expect(listStart).toBeGreaterThan(-1);
+    expect(html.indexOf('data-slug=')).toBeGreaterThan(listStart);
+  });
+});
+
 describe.each(['blog/search-index.json', 'en/blog/search-index.json'])('%s', (file) => {
   it('ist gültiges JSON und verweist nur auf gebaute Blogartikel', () => {
     const index = JSON.parse(read(file)) as Record<string, string>;
