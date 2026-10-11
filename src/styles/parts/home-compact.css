@@ -287,3 +287,194 @@
     padding: 0.7rem 2.4rem 0.7rem 0.9rem;
   }
 }
+
+/* ===== Kategorie-Leiste und Sektionsmedien (Schritt 4) ===== */
+
+/* overflow-x: hidden (utilities.css) macht body zum Scroll-Container, der nie
+   scrollt; dann kleben weder Navigation noch Leiste. clip schneidet genauso ab,
+   ohne Scroll-Container (ältere Browser: hidden bleibt, nichts klebt). */
+html:has(#app[data-home-layout='compact']),
+body:has(#app[data-home-layout='compact']) {
+  overflow-x: clip;
+}
+
+/* Leiste unter dem Hero: Sprunglinks (ohne JS nutzbar) und Suchfeld, das erst
+   das Skript einblendet. Klebt beim Scrollen unter der Navigation. */
+#app[data-home-layout='compact'] .cat-bar {
+  position: sticky;
+  top: 70px;
+  z-index: 90;
+  background: var(--nav-bg, var(--bg-color));
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--nav-border, var(--border-color));
+}
+
+#app[data-home-layout='compact'] .cat-bar-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0.5rem clamp(0.75rem, 3vw, 2rem);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+#app[data-home-layout='compact'] .cat-links {
+  display: flex;
+  gap: 0.5rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+#app[data-home-layout='compact'] .cat-links::-webkit-scrollbar {
+  display: none;
+}
+
+#app[data-home-layout='compact'] .cat-link {
+  flex: 0 0 auto;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--card-bg, #fff);
+  color: var(--text-color);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+#app[data-home-layout='compact'] .cat-link:hover,
+#app[data-home-layout='compact'] .cat-link:focus-visible {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+#app[data-home-layout='compact'] .cat-search {
+  flex: 0 1 16rem;
+  min-width: 0;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--card-bg, #fff);
+  color: var(--text-color);
+  font: inherit;
+  font-size: 0.9rem;
+}
+
+#app[data-home-layout='compact'] .cat-search[hidden],
+#app[data-home-layout='compact'] .cat-noresults[hidden] {
+  display: none;
+}
+
+#app[data-home-layout='compact'] .cat-noresults {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 clamp(0.75rem, 3vw, 2rem) 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* Suchtreffer: Karten ohne Treffer und leere Sektionen entfallen. */
+#app[data-home-layout='compact'] .svg-card-link.cat-miss,
+#app[data-home-layout='compact'] .tools-section.cat-empty {
+  display: none !important;
+}
+
+/* Sektionen: weniger Abstand; Sprungziele landen unter Navigation und Leiste.
+   Als Raster, damit das Medium per order bzw. Spalte umgestellt werden kann. */
+#app[data-home-layout='compact'] .tools-section {
+  padding-block: clamp(1.5rem, 4vw, 3.5rem);
+  scroll-margin-top: 7.5rem;
+}
+
+#app[data-home-layout='compact'] .tools-section[data-bgsection] {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+}
+
+@media (max-width: 1100px) {
+  #app[data-home-layout='compact'] .cat-bar {
+    top: 60px;
+  }
+}
+
+/* Handy und Tablet: Medium oben (wie klassisch), unten oder aus. Verschiebungen
+   aus „Ganze Seite" gelten hier nicht. */
+@media (max-width: 1023px) {
+  #app[data-home-layout='compact'] .section-media-wrapper {
+    left: 0 !important;
+    top: 0 !important;
+  }
+
+  #app[data-home-layout='compact'][data-media-pos-mobile='bottom'] .section-media-wrapper {
+    order: 1;
+    margin: 1.25rem auto 0;
+  }
+
+  #app[data-home-layout='compact'][data-media-pos-mobile='off'] .section-media-wrapper {
+    display: none;
+  }
+}
+
+/* Handy: Suchfeld schmal, beim Tippen breiter. */
+@media (max-width: 640px) {
+  #app[data-home-layout='compact'] .cat-search {
+    flex: 0 0 6.5rem;
+    transition: flex-basis 0.2s ease;
+  }
+
+  #app[data-home-layout='compact'] .cat-search:focus,
+  #app[data-home-layout='compact'] .cat-search:not(:placeholder-shown) {
+    flex-basis: 55%;
+  }
+}
+
+/* Desktop: Medium oben, seitlich (links neben den Karten, klebt beim Scrollen),
+   unten oder aus. Ohne Medium bleibt die Sektion einspaltig. */
+@media (min-width: 1024px) {
+  #app[data-home-layout='compact'][data-media-pos-desktop='bottom'] .section-media-wrapper {
+    order: 1;
+    margin: 1.5rem auto 0;
+  }
+
+  #app[data-home-layout='compact'][data-media-pos-desktop='off'] .section-media-wrapper {
+    display: none;
+  }
+
+  #app[data-home-layout='compact'][data-media-pos-desktop='side']
+    .tools-section:has(> .section-media-wrapper) {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    column-gap: clamp(1.5rem, 3vw, 2.5rem);
+    align-items: start;
+  }
+
+  #app[data-home-layout='compact'][data-media-pos-desktop='side'] .section-header {
+    grid-column: 1 / -1;
+  }
+
+  #app[data-home-layout='compact'][data-media-pos-desktop='side'] .section-media-wrapper {
+    grid-column: 1;
+    position: sticky;
+    left: 0 !important;
+    top: calc(70px + 4.5rem) !important;
+    max-width: none;
+    margin: 0;
+  }
+
+  #app[data-home-layout='compact'][data-media-pos-desktop='side']
+    .tools-section:has(> .section-media-wrapper)
+    > .svg-card-grid {
+    grid-column: 2;
+  }
+
+  /* auto-fit zählt Spalten nach der Höchstbreite; in der schmaleren Spalte
+     neben dem Medium daher wie das normale Raster füllen. */
+  #app[data-home-layout='compact'][data-media-pos-desktop='side']
+    .tools-section:has(> .section-media-wrapper)
+    > .svg-card-grid.grid-centered {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--kt-card-min)), 1fr));
+  }
+}

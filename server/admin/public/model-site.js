@@ -77,10 +77,18 @@ export function defaultSite() {
     // Nur im Kompakt-Layout: Kartenform 'list' | 'tile', Kartenbreite 'narrow' | 'medium' | 'wide'.
     cardForm: 'list',
     cardWidth: 'medium',
+    // Nur im Kompakt-Layout: Kategorie-Leiste (Sprunglinks) mit Suchfeld und
+    // Lage der Sektionsmedien je Gerät.
+    catBar: true,
+    catSearch: true,
+    mediaPosDesktop: 'side',
+    mediaPosMobile: 'bottom',
   };
 }
 export const SITE_SECTION_KEYS = ['audio', 'image', 'diverse'];
 export const CARD_WIDTHS = ['narrow', 'medium', 'wide'];
+export const MEDIA_POS_DESKTOP = ['top', 'side', 'bottom', 'off'];
+export const MEDIA_POS_MOBILE = ['top', 'bottom', 'off'];
 export const SECTION_LABELS = {
   audio: 'Audio-Tools',
   image: 'Bild-Tools',
@@ -213,6 +221,10 @@ export function normSite(s) {
     heroMediaMobile: s.heroMediaMobile !== false,
     cardForm: s.cardForm === 'tile' ? 'tile' : 'list',
     cardWidth: CARD_WIDTHS.includes(s.cardWidth) ? s.cardWidth : 'medium',
+    catBar: s.catBar !== false,
+    catSearch: s.catSearch !== false,
+    mediaPosDesktop: MEDIA_POS_DESKTOP.includes(s.mediaPosDesktop) ? s.mediaPosDesktop : 'side',
+    mediaPosMobile: MEDIA_POS_MOBILE.includes(s.mediaPosMobile) ? s.mediaPosMobile : 'bottom',
   };
 }
 // Seiten-Hintergrund eines Modus als CSS-background-Wert – identisch zur
@@ -493,4 +505,32 @@ export function getCardWidth() {
 }
 export function setCardWidth(v) {
   siteObj().cardWidth = CARD_WIDTHS.includes(v) ? v : 'medium';
+}
+// Kompakt-Layout: Kategorie-Leiste und Suchfeld darin.
+export function getCatBar() {
+  return siteObj().catBar !== false;
+}
+export function setCatBar(on) {
+  siteObj().catBar = on === true;
+}
+export function getCatSearch() {
+  return siteObj().catSearch !== false;
+}
+export function setCatSearch(on) {
+  siteObj().catSearch = on === true;
+}
+// Kompakt-Layout: Lage der Sektionsmedien je Gerät.
+export function getMediaPosDesktop() {
+  const v = siteObj().mediaPosDesktop;
+  return MEDIA_POS_DESKTOP.includes(v) ? v : 'side';
+}
+export function setMediaPosDesktop(v) {
+  siteObj().mediaPosDesktop = MEDIA_POS_DESKTOP.includes(v) ? v : 'side';
+}
+export function getMediaPosMobile() {
+  const v = siteObj().mediaPosMobile;
+  return MEDIA_POS_MOBILE.includes(v) ? v : 'bottom';
+}
+export function setMediaPosMobile(v) {
+  siteObj().mediaPosMobile = MEDIA_POS_MOBILE.includes(v) ? v : 'bottom';
 }

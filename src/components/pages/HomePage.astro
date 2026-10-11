@@ -34,6 +34,11 @@ const homeLayout = getHomeLayout()
 const compact = homeLayout.layout === 'compact'
 // Listenkarten (nur Kompakt): Beschreibung steht in der Karte statt im Popup.
 const cardList = compact && homeLayout.cardForm === 'list'
+// Kategorie-Leiste (nur Kompakt): Sprunglinks zu den Sektionen, optional mit
+// Suchfeld. Die Links funktionieren ohne JS; das Suchfeld blendet erst das
+// Skript unten ein.
+const catBar = compact && homeLayout.catBar
+const catSearch = catBar && homeLayout.catSearch
 // Die Regeln kommen nur ins HTML, wenn das Kompakt-Layout aktiv ist (Kommentare
 // und Einrückung entfernt) – andere Seiten und das klassische Layout tragen nichts.
 const homeCompactCss = compact
@@ -330,6 +335,8 @@ const pageI18n = {
     data-hero-media-mobile={compact && !homeLayout.heroMediaMobile ? 'off' : undefined}
     data-card-form={compact ? homeLayout.cardForm : undefined}
     data-card-width={compact ? homeLayout.cardWidth : undefined}
+    data-media-pos-desktop={compact ? homeLayout.mediaPosDesktop : undefined}
+    data-media-pos-mobile={compact ? homeLayout.mediaPosMobile : undefined}
   >
     <!-- Global Background Effects -->
     <div class="global-background">
@@ -478,6 +485,22 @@ const pageI18n = {
       </div>
     </section>
 
+    {catBar && (
+      <nav class="cat-bar" aria-label={ui.catNavLabel}>
+        <div class="cat-bar-inner">
+          <div class="cat-links">
+            <a href="#audio-tools" class="cat-link">{pageI18n[lang]['tools.sectionTitle']}</a>
+            <a href="#image-tools" class="cat-link">{pageI18n[lang]['imageTools.sectionTitle']}</a>
+            <a href="#diverse-tools" class="cat-link">{pageI18n[lang]['diverseTools.sectionTitle']}</a>
+          </div>
+          {catSearch && (
+            <input type="search" class="cat-search" hidden placeholder={pageI18n[lang]['search.placeholder']} aria-label={pageI18n[lang]['search.placeholder']} autocomplete="off" enterkeyhint="search" />
+          )}
+        </div>
+        {catSearch && <p class="cat-noresults" role="status" hidden>{pageI18n[lang]['search.noResults']}</p>}
+      </nav>
+    )}
+
     <!-- Favoriten (Vue-Island, versteckt bis mindestens ein Favorit gespeichert ist) -->
     <FavoritesSection
       client:idle
@@ -527,7 +550,7 @@ const pageI18n = {
     </section>
 
     <!-- Image Tools Section -->
-    <section class="tools-section" data-bgsection="image">
+    <section id={compact ? 'image-tools' : undefined} class="tools-section" data-bgsection="image">
       <div class="section-bg" aria-hidden="true"></div>
       <div class="section-header">
         <h2 data-i18n="imageTools.sectionTitle">{ui.imageToolsTitle}</h2>
@@ -565,7 +588,7 @@ const pageI18n = {
     </section>
 
     <!-- Diverse Tools Section -->
-    <section class="tools-section" data-bgsection="diverse">
+    <section id={compact ? 'diverse-tools' : undefined} class="tools-section" data-bgsection="diverse">
       <div class="section-bg" aria-hidden="true"></div>
       <div class="section-header">
         <h2 data-i18n="diverseTools.sectionTitle">Diverse Tools</h2>
@@ -798,6 +821,41 @@ const pageI18n = {
     }
   });
   </script>
+
+  {catSearch && (
+    <script is:inline>
+    (function () {
+      // Suche der Kategorie-Leiste (Kompakt-Layout): filtert die Karten nach
+      // Titel und Beschreibung (data-*, folgen der Seitensprache) und blendet
+      // Sektionen ohne Treffer aus.
+      const input = document.querySelector('.cat-search');
+      const none = document.querySelector('.cat-noresults');
+      if (!input) return;
+      input.hidden = false;
+      const sections = document.querySelectorAll('#app .tools-section[data-bgsection]');
+      input.addEventListener('input', function () {
+        const q = input.value.trim().toLowerCase();
+        let total = 0;
+        sections.forEach(function (sec) {
+          let hits = 0;
+          sec.querySelectorAll('.svg-card-link').forEach(function (card) {
+            const text = ((card.getAttribute('data-title') || '') + ' ' + (card.getAttribute('data-description') || '')).toLowerCase();
+            const hit = !q || text.indexOf(q) !== -1;
+            card.classList.toggle('cat-miss', !hit);
+            if (hit) hits++;
+          });
+          sec.classList.toggle('cat-empty', hits === 0);
+          total += hits;
+        });
+        if (none) none.hidden = total > 0;
+        // Klebt die Leiste schon (weiter unten gescrollt), zum ersten Treffer
+        // springen, statt im kürzeren Inhalt am Seitenende zu stehen.
+        const first = document.querySelector('#app .tools-section[data-bgsection]:not(.cat-empty)');
+        if (first && first.getBoundingClientRect().top < 0) first.scrollIntoView({ block: 'start' });
+      });
+    })();
+    </script>
+  )}
 
   <script>
     // Lazy-load videos below the fold via IntersectionObserver

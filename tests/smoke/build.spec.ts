@@ -243,8 +243,9 @@ describe('Navigation (Tablet-Breite)', () => {
 describe('Seiten-Layout (Admin > Layout)', () => {
   // Folgt der Einstellung in media.json: Klassisch = HTML ohne Attribut und ohne
   // Kompakt-CSS, Kompakt = Attribut an #app und die Regeln inline.
-  const site = (mediaJson as { site?: { homeLayout?: string } }).site;
+  const site = (mediaJson as { site?: { homeLayout?: string; catBar?: boolean } }).site;
   const compact = site?.homeLayout === 'compact';
+  const catBar = compact && site?.catBar !== false;
   it.each(['index.html', 'en/index.html'])(`%s entspricht dem Layout aus media.json`, (file) => {
     const html = read(file);
     if (compact) {
@@ -253,6 +254,17 @@ describe('Seiten-Layout (Admin > Layout)', () => {
     } else {
       expect(html).not.toContain('data-home-layout');
       expect(html).not.toContain('data-hero-media');
+      expect(html).not.toContain('data-media-pos');
+      expect(html).not.toContain('id="image-tools"');
+    }
+    // Kategorie-Leiste: Sprunglinks zeigen auf vorhandene Sektionen.
+    if (catBar) {
+      for (const id of ['audio-tools', 'image-tools', 'diverse-tools']) {
+        expect(html).toContain(`href="#${id}"`);
+        expect(html).toContain(`id="${id}"`);
+      }
+    } else {
+      expect(html).not.toContain('class="cat-bar"');
     }
   });
 });

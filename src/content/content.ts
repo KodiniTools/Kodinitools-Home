@@ -1539,6 +1539,13 @@ export interface SiteConfig {
   // 'tile' = Kachel wie bisher) und Mindestbreite der Karten im Raster.
   cardForm: 'tile' | 'list';
   cardWidth: 'narrow' | 'medium' | 'wide';
+  // Nur im Kompakt-Layout: Kategorie-Leiste mit Sprunglinks unter dem Hero und
+  // darin ein Suchfeld, das die Karten filtert.
+  catBar: boolean;
+  catSearch: boolean;
+  // Nur im Kompakt-Layout: Lage der Sektionsmedien (Bild/Video) zu den Karten.
+  mediaPosDesktop: 'top' | 'side' | 'bottom' | 'off';
+  mediaPosMobile: 'top' | 'bottom' | 'off';
 }
 export interface SiteSectionSide {
   color: string; // '' = keine Tönung
@@ -1624,6 +1631,10 @@ const SITE_DEFAULTS: SiteConfig = {
   heroMediaMobile: true,
   cardForm: 'list',
   cardWidth: 'medium',
+  catBar: true,
+  catSearch: true,
+  mediaPosDesktop: 'side',
+  mediaPosMobile: 'bottom',
 };
 // Erlaubte Bild-URL (interner Pfad oder http(s)), ohne Zeichen, die url("…") brechen.
 const SITE_MEDIA_URL = /^(\/[^\s"'()\\]*|https?:\/\/[^\s"'()\\]+)$/;
@@ -1644,6 +1655,9 @@ export function getSite(): SiteConfig {
   return deepMerge(SITE_DEFAULTS, site);
 }
 
+const MEDIA_POS_DESKTOP = ['top', 'side', 'bottom', 'off'] as const;
+const MEDIA_POS_MOBILE = ['top', 'bottom', 'off'] as const;
+
 /**
  * Startseiten-Layout (Admin > Layout). Unbekannte Werte fallen auf 'classic'
  * zurück, damit die Seite ohne gültige Einstellung unverändert bleibt.
@@ -1653,6 +1667,10 @@ export function getHomeLayout(): {
   heroMediaMobile: boolean;
   cardForm: SiteConfig['cardForm'];
   cardWidth: SiteConfig['cardWidth'];
+  catBar: boolean;
+  catSearch: boolean;
+  mediaPosDesktop: SiteConfig['mediaPosDesktop'];
+  mediaPosMobile: SiteConfig['mediaPosMobile'];
 } {
   const site = getSite();
   return {
@@ -1660,6 +1678,14 @@ export function getHomeLayout(): {
     heroMediaMobile: site.heroMediaMobile !== false,
     cardForm: site.cardForm === 'tile' ? 'tile' : 'list',
     cardWidth: site.cardWidth === 'narrow' || site.cardWidth === 'wide' ? site.cardWidth : 'medium',
+    catBar: site.catBar !== false,
+    catSearch: site.catSearch !== false,
+    mediaPosDesktop: (MEDIA_POS_DESKTOP as readonly string[]).includes(site.mediaPosDesktop)
+      ? site.mediaPosDesktop
+      : 'side',
+    mediaPosMobile: (MEDIA_POS_MOBILE as readonly string[]).includes(site.mediaPosMobile)
+      ? site.mediaPosMobile
+      : 'bottom',
   };
 }
 
