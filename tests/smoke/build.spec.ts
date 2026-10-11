@@ -124,17 +124,13 @@ describe('sitemap.xml', () => {
   });
 });
 
-const blogPages = pages.filter((f) => /^(en\/)?blog\//.test(f));
-
+// Die Einbindung in alle HTML-Seiten übernimmt nginx (sub_filter vor </body>).
 it('liefert /kt-heartbeat.js aus', () => {
   expect(allFiles).toContain('kt-heartbeat.js');
 });
 
-describe.each(blogPages)('Heartbeat in %s', (file) => {
-  it('bindet /kt-heartbeat.js genau einmal mit defer ein', () => {
-    const tags = read(file).match(/<script[^>]*src="\/kt-heartbeat\.js"[^>]*>/g) ?? [];
-    expect(tags).toEqual(['<script src="/kt-heartbeat.js" defer>']);
-  });
+it('bindet /kt-heartbeat.js nicht selbst ein (sonst doppelt neben nginx)', () => {
+  for (const file of pages) expect(read(file), file).not.toContain('/kt-heartbeat.js');
 });
 
 describe.each(['blog/search-index.json', 'en/blog/search-index.json'])('%s', (file) => {
