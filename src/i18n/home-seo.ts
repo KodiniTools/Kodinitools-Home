@@ -12,13 +12,9 @@ export interface HomeSeo {
   ogDescription: string;
   twitterTitle: string;
   twitterDescription: string;
-  /** theme-color / msapplication-TileColor */
-  themeColor: string;
-  /** JSON-LD: url, description, inLanguage, priceCurrency, featureList */
+  /** JSON-LD: url, description, featureList */
   schemaUrl: string;
   schemaDescription: string;
-  schemaInLanguage?: string;
-  currency: string;
   featureList: string[];
 }
 
@@ -39,11 +35,9 @@ export const HOME_SEO: Record<Lang, HomeSeo> = {
       'KodiniTools – MP3 in WAV umwandeln, JPG zu WebP, Audio normalisieren | Kostenlos',
     twitterDescription:
       'MP3 in WAV umwandeln · JPG zu WebP · Audio normalisieren · Bilder Batch konvertieren · Musik-Video für TikTok · Fotocollage ohne App · Browser-Equalizer. Kostenlos, keine Registrierung.',
-    themeColor: '#014f99',
     schemaUrl: 'https://kodinitools.com',
     schemaDescription:
       'MP3 in WAV umwandeln kostenlos, JPG zu WebP konvertieren, Audio Lautstärke normalisieren, Bilder Batch konvertieren, Audiodatei Format ändern DSGVO-konform. Direkt im Browser, keine Registrierung.',
-    currency: 'CHF',
     featureList: [
       'MP3 in WAV umwandeln kostenlos online',
       'MP3 Konverter ohne Registrierung',
@@ -73,12 +67,9 @@ export const HOME_SEO: Record<Lang, HomeSeo> = {
       'KodiniTools – Convert MP3 to WAV Free, JPG to WebP, Normalize Audio | No Registration',
     twitterDescription:
       'Convert MP3 to WAV free · JPG to WebP · Normalize audio online · Batch resize images · Music video for TikTok free · Photo collage without app · Browser equalizer. No registration.',
-    themeColor: '#005cda',
     schemaUrl: 'https://kodinitools.com/en/',
     schemaDescription:
       'Convert MP3 to WAV free online, JPG to WebP converter, normalize audio volume online, batch resize images, change audio file format GDPR compliant. Directly in your browser, no registration.',
-    schemaInLanguage: 'en',
-    currency: 'USD',
     featureList: [
       'Convert MP3 to WAV free online',
       'MP3 converter without registration',

@@ -13,7 +13,8 @@ const { lang } = Astro.props
 const seo = HOME_SEO[lang]
 const pageUrl = `${SITE}${HOME_PATH[lang]}`
 const alt = alternates(HOME_PATH)
-const offer = { '@type': 'Offer', price: '0', priceCurrency: seo.currency }
+// Kostenlos; Währung einheitlich CHF (Sitz in der Schweiz), unabhängig von der Seitensprache.
+const offer = { '@type': 'Offer', price: '0', priceCurrency: 'CHF' }
 const schema = {
   '@context': 'https://schema.org',
   '@type': 'WebApplication',
@@ -22,7 +23,7 @@ const schema = {
   description: seo.schemaDescription,
   applicationCategory: 'MultimediaApplication',
   operatingSystem: 'Web Browser',
-  ...(seo.schemaInLanguage ? { inLanguage: seo.schemaInLanguage } : {}),
+  inLanguage: lang,
   offers: offer,
   author: { '@type': 'Person', name: 'Dinko Ramic' },
   publisher: { '@type': 'Organization', name: 'KodiniTools', url: SITE },
@@ -120,12 +121,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <meta property="twitter:url" content={pageUrl}>
     <meta property="twitter:title" content={seo.twitterTitle}>
     <meta property="twitter:description" content={seo.twitterDescription}>
-    <meta property="twitter:image" content="https://kodinitools.com/images/kodinitools-twitter-image.jpg">
+    <meta property="twitter:image" content="https://kodinitools.com/image/kodinitools-og-image.jpg">
     <meta property="twitter:creator" content="@kodinitools">
 
     <!-- Additional SEO -->
-    <meta name="theme-color" content={seo.themeColor}>
-    <meta name="msapplication-TileColor" content={seo.themeColor}>
+    <meta name="theme-color" content="#014f99">
+    <meta name="msapplication-TileColor" content="#014f99">
     <meta name="msapplication-config" content="/browserconfig.xml">
     <meta name="format-detection" content="telephone=no">
     <meta name="geo.region" content="CH-ZH">

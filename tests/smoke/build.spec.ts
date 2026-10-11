@@ -131,3 +131,26 @@ describe.each(['blog/search-index.json', 'en/blog/search-index.json'])('%s', (fi
     for (const path of urls) expect(pages).toContain(fileOf(`${SITE}${path}`));
   });
 });
+
+describe.each(pages)('Bild-URLs in %s', (file) => {
+  it('og:image, twitter:image und JSON-LD-Bilder zeigen auf gebaute Dateien', () => {
+    const html = read(file);
+    const urls = [
+      ...attr(html, /<meta (?:property|name)="(?:og:image|twitter:image)" content="([^"]+)"/g),
+      ...[
+        ...html.matchAll(
+          /"(?:url|image)":"(https:\/\/kodinitools\.com\/[^"]+\.(?:png|jpe?g|webp))"/g,
+        ),
+      ].map((m) => m[1] ?? ''),
+    ];
+    expect(urls.length).toBeGreaterThan(0);
+    for (const url of urls) {
+      expect(url.startsWith(`${SITE}/`), url).toBe(true);
+      expect(allFiles, url).toContain(url.slice(SITE.length + 1));
+    }
+  });
+
+  it('nutzt die einheitliche theme-color', () => {
+    expect(attr(read(file), /<meta name="theme-color" content="([^"]+)"/g)).toEqual(['#014f99']);
+  });
+});
