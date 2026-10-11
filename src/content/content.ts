@@ -1649,7 +1649,7 @@ function siteFontId(file: string): string {
  * CSS zum Setzen der globalen Basis-Schrift der ganzen Seite (@font-face plus
  * Überschreiben der CSS-Variable --site-font). Gibt `undefined` zurück, wenn
  * keine (gültige) globale Schrift gesetzt ist – dann bleibt der Standard.
- * Wird von allen Layouts (BaseLayout, EnLayout, BlogArticleLayout) im <head>
+ * Wird von allen Layouts (HomeLayout, BlogArticleLayout) im <head>
  * eingebunden, damit die Schrift auf der GANZEN Website greift.
  */
 export function getSiteFontStyle(): string | undefined {

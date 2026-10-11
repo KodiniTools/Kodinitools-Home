@@ -27,9 +27,14 @@ anpassen.
 
 ```
 src/
-├── pages/            # Astro-Seiten: index (DE), en/, blog/ ([slug] + Übersicht), faq, 404
-├── layouts/          # BaseLayout, EnLayout, BlogArticleLayout
+├── pages/            # Routen: index, faq, spenden + en/… (nur Hüllen: <HomePage lang="de" /> usw.),
+│                     # blog/ ([slug] + Übersicht), 404
+├── layouts/          # HomeLayout (Kopf der Startseite, DE/EN), BlogArticleLayout
 ├── components/       # Astro-Komponenten (GlobalNav, SiteFooter, TickerBar, SectionMedia, SiteFont)
+│   └── pages/        # Seiten-Vorlagen je Sprache: HomePage, FaqPage, DonatePage (Prop `lang`)
+├── i18n/             # Sprachen (lang.ts) und feste, nicht admin-editierbare Seitentexte je Sprache
+│                     # (home-seo.ts, home-ui.ts, faq.ts, donate.ts) – typisiert, fehlt eine
+│                     # Übersetzung, schlägt `npm run typecheck` fehl
 ├── content/          # content.ts: Locale-Texte + Admin-Overrides zusammenführen, CSS für
 │                     # Seitenhintergrund/Tool-Karten erzeugen; media.json, overrides
 │   └── blog/         # Blog-Artikel als Content Collection: de/<slug>.html, en/<slug>.html
@@ -44,7 +49,9 @@ docs/                 # ADMIN_DEPLOY_PLAN.md – Architektur und Betriebsablauf 
 
 ## Inhalte und Übersetzungen
 
-Texte kommen aus `src/locales/de.json` und `en.json`. Der Admin-Bereich legt Änderungen
+Admin-editierbare Texte kommen aus `src/locales/de.json` und `en.json`; feste Seitentexte
+(SEO-Meta, Spenden-Seite, Buttons) aus `src/i18n/`. Jede Seite existiert nur einmal als Vorlage
+in `src/components/pages/` und wird je Sprache über eine kleine Route gerendert. Der Admin-Bereich legt Änderungen
 als Overrides ab; `src/content/content.ts` mischt beides beim Build zusammen. Auf den
 Seiten werden Texte serverseitig eingesetzt, kleine sprachabhängige Stellen im Browser
 über `data-i18n`-Attribute befüllt.
