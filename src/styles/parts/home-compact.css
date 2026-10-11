@@ -56,8 +56,15 @@
   margin-top: 1.25rem;
 }
 
-/* Ausgeblendete Feature-Buttons nehmen hier keinen Platz ein. */
-#app[data-home-layout='compact'] .feature-card.hero-hidden {
+/* Ausgeblendete Hero-Teile (Admin > Hero-Design: einzelne Feature-Buttons, die
+   ganze Button-Zeile, Untertitel, CTA) nehmen hier keinen Platz ein; im
+   klassischen Layout bleibt ihr Platz frei (hero.css: visibility hidden). */
+#app[data-home-layout='compact'] .hero .hero-hidden {
+  display: none;
+}
+
+/* Alle Feature-Buttons einzeln ausgeblendet: die leere Zeile entfällt ebenfalls. */
+#app[data-home-layout='compact'] .features-grid:not(:has(.feature-card:not(.hero-hidden))) {
   display: none;
 }
 
@@ -116,12 +123,16 @@
   #app[data-home-layout='compact'] .hero-content {
     display: grid;
     grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    /* Leerzeilen oben und unten nehmen die Resthöhe auf: der Textblock steht
+       mittig neben dem Medium, auch wenn Teile ausgeblendet sind. */
     grid-template-areas:
+      '. media'
       'title media'
       'sub media'
       'chips media'
-      'cta media';
-    grid-template-rows: auto auto auto 1fr;
+      'cta media'
+      '. media';
+    grid-template-rows: 1fr auto auto auto auto 1fr;
     column-gap: clamp(2rem, 4vw, 3.5rem);
     align-items: start;
     text-align: left;
@@ -130,6 +141,7 @@
   #app[data-home-layout='compact'] .hero-content[data-hero-media='none'] {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas: 'title' 'sub' 'chips' 'cta';
+    grid-template-rows: auto;
     max-width: 52rem;
     margin-inline: auto;
   }

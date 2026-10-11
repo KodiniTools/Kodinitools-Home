@@ -79,6 +79,12 @@ describe('home-compact.css', () => {
     .filter((s) => s && !s.startsWith('@'))
     .flatMap((s) => s.split(',').map((p) => p.trim()));
 
+  it('ausgeblendete Hero-Teile nehmen im Kompakt-Layout keinen Platz ein', () => {
+    expect(css).toMatch(
+      /#app\[data-home-layout='compact'\] \.hero \.hero-hidden \{\s*display: none;/,
+    );
+  });
+
   it('enthält Regeln', () => {
     expect(selectors.length).toBeGreaterThan(10);
   });
