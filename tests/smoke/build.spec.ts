@@ -224,3 +224,17 @@ describe('Hero-Titel (LCP)', () => {
     expect(html).not.toContain('id="typedText"');
   });
 });
+
+describe('Navigation (Tablet-Breite)', () => {
+  // Die volle Leiste braucht etwa 1020px; darunter muss das Hamburger-Menü greifen,
+  // sonst liegen Hell/Dunkel und DE/EN ausserhalb des Bildschirms.
+  it.each(['index.html', 'en/index.html', 'blog/index.html', 'en/faq/index.html'])(
+    '%s schaltet erst ab 1024px auf die volle Leiste um',
+    (file) => {
+      const html = read(file);
+      const rule = /@media\s*\(max-width:\s*(\d+)px\)\s*\{[^@]*?\.global-nav-hamburger\[[^\]]*\]\{display:flex\}/.exec(html);
+      expect(rule, 'Media-Query des Hamburger-Menüs').not.toBeNull();
+      expect(Number(rule?.[1])).toBeGreaterThanOrEqual(1024);
+    },
+  );
+});
