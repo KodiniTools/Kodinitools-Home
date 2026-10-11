@@ -124,6 +124,15 @@ describe('sitemap.xml', () => {
   });
 });
 
+const blogPages = pages.filter((f) => /^(en\/)?blog\//.test(f));
+
+describe.each(blogPages)('Heartbeat in %s', (file) => {
+  it('bindet /kt-heartbeat.js genau einmal mit defer ein', () => {
+    const tags = read(file).match(/<script[^>]*src="\/kt-heartbeat\.js"[^>]*>/g) ?? [];
+    expect(tags).toEqual(['<script src="/kt-heartbeat.js" defer>']);
+  });
+});
+
 describe.each(['blog/search-index.json', 'en/blog/search-index.json'])('%s', (file) => {
   it('ist gültiges JSON und verweist nur auf gebaute Blogartikel', () => {
     const index = JSON.parse(read(file)) as Record<string, string>;
