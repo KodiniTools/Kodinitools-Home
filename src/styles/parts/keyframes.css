@@ -71,7 +71,8 @@ body {
 
 #app {
   min-height: 100vh;
-  animation: fadeIn 0.6s ease-in;
+  /* Kein seitenweites Einblenden (früher fadeIn 0.6s von opacity 0): Inhalte –
+     v. a. der Hero-Titel als LCP-Element – sind mit dem ersten Frame sichtbar. */
   position: relative;
 }
 

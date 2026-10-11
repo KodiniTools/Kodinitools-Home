@@ -265,6 +265,13 @@ function bannerTextClass(base: string): string {
   return type && type !== 'none' ? `${base} hero-banner-text--${type}` : base
 }
 
+// Hero-Titelschrift (Admin > Hero-Design) vorab laden: der Titel ist das LCP-Element.
+const heroTitleFontFile = typeof media.heroDesign?.titleFont === 'string' ? media.heroDesign.titleFont.trim() : ''
+const heroTitleFontPreload =
+  VALID_FONT_FILE.test(heroTitleFontFile) && heroTitleFontFile.toLowerCase().endsWith('.woff2')
+    ? [`/fonts/${encodeURIComponent(heroTitleFontFile)}`]
+    : []
+
 // Build focused i18n map for vanilla JS (only keys used on this page)
 const SKIP = new Set(['sectionTitle', 'sectionDescription', 'processingBadge'])
 
@@ -300,7 +307,7 @@ const pageI18n = {
 }
 ---
 
-<HomeLayout lang={lang}>
+<HomeLayout lang={lang} preloadFonts={heroTitleFontPreload}>
   <div id="app">
     <!-- Global Background Effects -->
     <div class="global-background">
@@ -418,12 +425,8 @@ const pageI18n = {
             </div>
           ) : null}
           <!-- Titel/Untertitel (Admin > Hero-Design: ausblendbar – der Platz bleibt erhalten) -->
-          <h1 class={`hero-title typing-title${media.heroDesign.showTitle === false ? ' hero-hidden' : ''}`} aria-hidden={media.heroDesign.showTitle === false ? 'true' : undefined}>
-            {/* Platzhalter mit vollem Titel: reserviert die Endhöhe der H1, damit die
-                Tipp-Animation nichts darunter verschiebt (CLS); zugleich der zugängliche Titel. */}
-            <span class="typed-ghost">{pageI18n[lang]['hero.title'] || ui.heroTitleFallback}</span>
-            <span class="typed-text" id="typedText" aria-hidden="true"></span>
-          </h1>
+          {/* Titel sofort vollständig (keine Tipp-Animation): größtes Element im Sichtbereich (LCP). */}
+          <h1 class={`hero-title${media.heroDesign.showTitle === false ? ' hero-hidden' : ''}`} aria-hidden={media.heroDesign.showTitle === false ? 'true' : undefined}>{pageI18n[lang]['hero.title'] || ui.heroTitleFallback}</h1>
           {/* Untertitel direkt mit dem Admin-Text rendern (wie das Script, \n -> <br />), sonst
               tauscht das Script beim Laden einen anderen Text ein und verschiebt den Inhalt darunter (CLS). */}
           <p class={`hero-subtitle${media.heroDesign.showSubtitle === false ? ' hero-hidden' : ''}`} data-i18n="hero.subtitle" aria-hidden={media.heroDesign.showSubtitle === false ? 'true' : undefined}>{(pageI18n[lang]['hero.subtitle'] || '').split('\n').map((line, i) => (i > 0 ? [<br />, line] : line))}</p>
@@ -577,7 +580,7 @@ const pageI18n = {
     </div>
 
   <!-- Minimal Vanilla JS for interactivity -->
-  <script is:inline define:vars={{ pageI18n, pageLang: lang, clientUi: { heroTitleFallback: ui.heroTitleFallback } }}>
+  <script is:inline define:vars={{ pageI18n, pageLang: lang }}>
   document.addEventListener('DOMContentLoaded', function() {
     // --- Page i18n ---
     const PAGE_I18N = pageI18n;
@@ -645,12 +648,6 @@ const pageI18n = {
           if (popupDescEl) popupDescEl.textContent = pageT[descKey];
         }
       });
-
-      // Typing-Text aktualisieren (sofort, ohne Animation bei Sprachwechsel)
-      const typedEl = document.getElementById('typedText');
-      if (typedEl && typedEl.textContent.length > 0) {
-        typedEl.textContent = pageT['hero.title'] || '';
-      }
     }
 
     // Initial anwenden
@@ -658,21 +655,6 @@ const pageI18n = {
 
     // Live-Update bei Sprachwechsel (ohne Reload)
     window.addEventListener('locale-changed', applyPageTranslations);
-
-    // --- Typing Animation ---
-    const typedTextEl = document.getElementById('typedText');
-    if (typedTextEl) {
-      const fullTitle = pageT['hero.title'] || clientUi.heroTitleFallback;
-      let currentIndex = 0;
-      function typeNextChar() {
-        if (currentIndex < fullTitle.length) {
-          typedTextEl.textContent += fullTitle[currentIndex];
-          currentIndex++;
-          setTimeout(typeNextChar, Math.random() * 50 + 50);
-        }
-      }
-      setTimeout(typeNextChar, 500);
-    }
 
     // --- Mouse Spotlight ---
     // Nur aktiv, wenn im Admin eingeschaltet (--fx-spotlight = Intensität 0–1,
