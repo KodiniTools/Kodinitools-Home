@@ -61,7 +61,7 @@ function pageLayoutPanelHtml() {
     <div class="panel" data-homelayoutpanel>
       <h2>Seiten-Layout <span class="lang-badge">DE + EN</span></h2>
       <p class="hint"><strong>Kompakt</strong> ordnet den Hero platzsparend an: auf dem Desktop Texte links und Banner bzw. Raster rechts, auf dem Handy kleiner mit den Feature-Buttons in einer wischbaren Zeile.
-        Die Tool-Karten stehen in einem Raster, das sich der Breite anpasst; als <strong>Liste</strong> zeigen sie zwei Zeilen Beschreibung statt des Popups.
+        Die Tool-Karten stehen in einem Raster, das sich der Breite anpasst; als <strong>Liste</strong> zeigen sie zusätzlich zwei Zeilen Beschreibung, das Popup mit der ganzen Beschreibung bleibt.
         Die <strong>Kategorie-Leiste</strong> unter dem Hero springt zu Audio, Bild und Diverse und bleibt beim Scrollen oben; ihr Suchfeld filtert die Karten.
         Sektionsmedien (Bild bzw. Video je Sektion) stehen auf dem Desktop oben, seitlich neben den Karten oder darunter, auf Handy und Tablet oben oder darunter, oder sie entfallen.
         Farben, Schriften, Texte und Medien bleiben wie eingestellt. Ausgeblendete Feature-Buttons nehmen im Kompakt-Layout keinen Platz ein, Verschiebungen des Hero-Mediums, der Hero-Texte und der Buttons wirken nur im klassischen Layout, die der Sektionsmedien im Kompakt-Layout nur auf dem Desktop bei „Oben“ oder „Unten“.
@@ -75,7 +75,7 @@ function pageLayoutPanelHtml() {
         Banner bzw. Raster auf dem Handy zeigen
       </label>
       <div class="row" style="gap:1.25rem;margin-top:.6rem;flex-wrap:wrap${compact ? '' : ';opacity:.5'}">
-        <label style="display:flex;align-items:center;gap:.4rem;color:var(--text)" title="Liste: Titel mit zwei Zeilen Beschreibung, auf dem Handy einspaltig. Kachel: wie im klassischen Layout, Beschreibung im Popup.">
+        <label style="display:flex;align-items:center;gap:.4rem;color:var(--text)" title="Liste: Titel mit zwei Zeilen Beschreibung, auf dem Handy einspaltig. Kachel: wie im klassischen Layout. Beide zeigen beim Überfahren das Popup mit der Beschreibung.">
           Kartenform
           <select data-cardform ${compact ? '' : 'disabled'} style="width:auto">
             ${opt(getCardForm(), 'list', 'Liste mit Beschreibung')}
