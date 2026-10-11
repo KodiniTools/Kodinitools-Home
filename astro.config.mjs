@@ -23,6 +23,9 @@ export default defineConfig({
   // Ausgabeverzeichnis), damit die Vorschau die Live-Auslieferung nicht berührt.
   base: process.env.ASTRO_BASE || '/',
   outDir: process.env.ASTRO_OUT_DIR || './dist',
+  // CSS direkt ins HTML einbetten: keine render-blockierenden Stylesheet-Requests
+  // (PageSpeed: „Anfragen zum Blockieren des Renderings"). Die Seiten-CSS ist klein (~15 KB).
+  build: { inlineStylesheets: 'always' },
   integrations: [
     // Eigene Integration: erzeugt EINE flache sitemap.xml statt des von
     // @astrojs/sitemap erzwungenen Paars sitemap-index.xml + sitemap-0.xml.
