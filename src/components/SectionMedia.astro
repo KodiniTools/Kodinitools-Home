@@ -7,6 +7,7 @@
 // priority=true -> Bild mit fetchpriority="high" (LCP-Kandidat im Hero)
 // width/height -> Pixelmaße des Bildes: width/height-Attribute + aspect-ratio,
 //                 damit der Platz vor dem Laden reserviert ist (CLS)
+// srcset/sizes -> kleinere Bildfassungen (responsiveImage.ts), nur für Bilder
 // wrapperClass/mediaClass -> Styling-Haken (Sektions-Video vs. Hero-Banner)
 // Leerer src -> es wird NICHTS gerendert.
 interface Props {
@@ -15,6 +16,8 @@ interface Props {
   priority?: boolean;
   width?: number;
   height?: number;
+  srcset?: string;
+  sizes?: string;
   alt?: string;
   wrapperClass?: string;
   wrapperStyle?: string;
@@ -26,6 +29,8 @@ const {
   priority = false,
   width,
   height,
+  srcset,
+  sizes,
   alt = '',
   wrapperClass = 'section-video-wrapper',
   wrapperStyle = '',
@@ -70,6 +75,8 @@ const sizeStyle = hasSize
       ) : (
         <img
           src={src}
+          srcset={srcset}
+          sizes={srcset ? sizes : undefined}
           alt={alt}
           class={mediaClass}
           width={hasSize ? width : undefined}

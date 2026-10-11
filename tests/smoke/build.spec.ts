@@ -240,6 +240,14 @@ describe('Navigation (Tablet-Breite)', () => {
   );
 });
 
+describe('Verkleinerte Bildfassungen (srcset)', () => {
+  it.each(['index.html', 'en/index.html'])('%s: jede srcset-Fassung liegt im Build', (file) => {
+    const html = read(file);
+    const urls = [...html.matchAll(/\/(_astro\/rsz\/[^\s",]+)/g)].map((m) => m[1]);
+    for (const u of urls) expect(existsSync(join(DIST, u)), u).toBe(true);
+  });
+});
+
 describe('Seiten-Layout (Admin > Layout)', () => {
   // Folgt der Einstellung in media.json: Klassisch = HTML ohne Attribut und ohne
   // Kompakt-CSS, Kompakt = Attribut an #app und die Regeln inline.

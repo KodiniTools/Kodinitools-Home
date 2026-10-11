@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import { readFileSync } from 'node:fs';
 import vue from '@astrojs/vue';
 import singleSitemap from './single-sitemap.mjs';
+import rszIntegration from './rsz-integration.mjs';
 
 // Tool pages live as standalone apps in sub-directories (e.g. /audiokonverter/),
 // so Astro does not build them and they are missing from the generated sitemap.
@@ -34,5 +35,7 @@ export default defineConfig({
     singleSitemap({ extraPages: toolPages }),
     // Vue 3 für interaktive Islands (src/islands/), nur dort im Browser geladen.
     vue(),
+    // Verkleinerte Fassungen hochgeladener Bilder für srcset (Hero-Banner).
+    rszIntegration(),
   ],
 });
