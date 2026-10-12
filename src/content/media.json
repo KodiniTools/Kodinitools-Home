@@ -296,7 +296,7 @@
         "bgOpacity": 12
       },
       "dark": {
-        "borderColor": "#34d399",
+        "borderColor": "#a3b2cb",
         "borderWidth": 2,
         "borderRadius": 14,
         "shadow": true,
@@ -2273,7 +2273,7 @@
         "bgOpacity": 12
       },
       "dark": {
-        "borderColor": "#34d399",
+        "borderColor": "#a3b2cb",
         "borderWidth": 2,
         "borderRadius": 14,
         "shadow": true,
