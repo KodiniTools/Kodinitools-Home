@@ -112,7 +112,7 @@ export function normalizeTickerStyle(raw: unknown): TickerStyle {
     return Number.isFinite(n) ? Math.max(-5, Math.min(20, Math.round(n * 2) / 2)) : d;
   };
   const colors = (side: unknown, def: TickerColorSet): TickerColorSet => {
-    const o: Record<string, unknown> = isPlainObject(side) ? side : flat ?? {};
+    const o: Record<string, unknown> = isPlainObject(side) ? side : (flat ?? {});
     const hex = (v: unknown, d: string) => (TICKER_HEX.test(String(v)) ? String(v) : d);
     return {
       textColor: hex(o.textColor, def.textColor),
@@ -120,9 +120,10 @@ export function normalizeTickerStyle(raw: unknown): TickerStyle {
       bgOpacity: int(o.bgOpacity, 0, 100, def.bgOpacity),
     };
   };
-  const font = typeof s.fontFamily === 'string' && TICKER_FONT_FILE.test(s.fontFamily.trim())
-    ? s.fontFamily.trim()
-    : '';
+  const font =
+    typeof s.fontFamily === 'string' && TICKER_FONT_FILE.test(s.fontFamily.trim())
+      ? s.fontFamily.trim()
+      : '';
   return {
     enabled: s.enabled === true,
     fontSize: int(s.fontSize, 8, 48, 14),
@@ -409,7 +410,21 @@ const TOOL_CARD_SHOW_SEL: ReadonlyArray<[keyof ToolCardShow, string]> = [
   ['open', '.tool-card-open'],
   ['popup', '.tool-popup'],
 ];
-const TOOL_CARD_TEXT_DEFAULT: ToolCardText = { titleFont: '', titleSize: 0, titleWeight: '', titleSpacing: 0, titleTransform: '', textFont: '', badgeSize: 0, badgeWeight: '', badgeTransform: '', openSize: 0, openWeight: '', descSize: 0, align: '' };
+const TOOL_CARD_TEXT_DEFAULT: ToolCardText = {
+  titleFont: '',
+  titleSize: 0,
+  titleWeight: '',
+  titleSpacing: 0,
+  titleTransform: '',
+  textFont: '',
+  badgeSize: 0,
+  badgeWeight: '',
+  badgeTransform: '',
+  openSize: 0,
+  openWeight: '',
+  descSize: 0,
+  align: '',
+};
 const TOOL_CARD_WEIGHTS: readonly string[] = ['', '400', '500', '600', '700', '800'];
 const TOOL_CARD_TRANSFORMS: readonly string[] = ['', 'none', 'uppercase', 'capitalize'];
 // Ausrichtung -> text-align der Texte und align-self von Icon/Badge in der Flex-Spalte.
@@ -630,7 +645,11 @@ const MEDIA_DEFAULTS: MediaConfig = {
     image: '/videos/image-tools.mp4',
     diverse: '/videos/diverse-tools.mp4',
   },
-  sectionMedia: { audio: defaultSectionMedia(), image: defaultSectionMedia(), diverse: defaultSectionMedia() },
+  sectionMedia: {
+    audio: defaultSectionMedia(),
+    image: defaultSectionMedia(),
+    diverse: defaultSectionMedia(),
+  },
   heroMode: 'banner',
   heroLayout: 'grid3',
   heroBanner: '',
@@ -657,14 +676,30 @@ const MEDIA_DEFAULTS: MediaConfig = {
   heroBannerTextAnim: 'none',
   heroBannerTextAnimIntensity: 5,
   heroBannerTextAnimSpeed: 'normal',
-  heroBannerStyle: { light: { ...HERO_BANNER_STYLE_DEFAULTS }, dark: { ...HERO_BANNER_STYLE_DEFAULTS } },
+  heroBannerStyle: {
+    light: { ...HERO_BANNER_STYLE_DEFAULTS },
+    dark: { ...HERO_BANNER_STYLE_DEFAULTS },
+  },
   heroBannerSlides: [],
-  heroBannerSlideshow: { interval: 5, duration: 800, transition: 'fade', pauseOnHover: true, dots: true },
+  heroBannerSlideshow: {
+    interval: 5,
+    duration: 800,
+    transition: 'fade',
+    pauseOnHover: true,
+    dots: true,
+  },
   heroGrid: ['', '', '', '', '', ''],
   heroGridHidden: [false, false, false, false, false, false],
   heroGridLinks: ['', '', '', '', '', ''],
   heroGridSlides: [[], [], [], [], [], []],
-  heroGridSlideshow: { interval: 5, duration: 800, transition: 'fade', pauseOnHover: true, dots: true, stagger: true },
+  heroGridSlideshow: {
+    interval: 5,
+    duration: 800,
+    transition: 'fade',
+    pauseOnHover: true,
+    dots: true,
+    stagger: true,
+  },
   heroGridStyles: Array.from({ length: 6 }, () => ({
     borderColor: '#014f99',
     borderWidth: 0,
@@ -735,7 +770,13 @@ const MEDIA_DEFAULTS: MediaConfig = {
       bgImageBlur: 0,
       bgImageSaturate: 100,
       bgSlides: [],
-      bgSlideshow: { interval: 5, duration: 800, transition: 'fade', pauseOnHover: true, dots: false },
+      bgSlideshow: {
+        interval: 5,
+        duration: 800,
+        transition: 'fade',
+        pauseOnHover: true,
+        dots: false,
+      },
     },
     dark: {
       borderColor: '#e8a945',
@@ -763,7 +804,13 @@ const MEDIA_DEFAULTS: MediaConfig = {
       bgImageBlur: 0,
       bgImageSaturate: 100,
       bgSlides: [],
-      bgSlideshow: { interval: 5, duration: 800, transition: 'fade', pauseOnHover: true, dots: false },
+      bgSlideshow: {
+        interval: 5,
+        duration: 800,
+        transition: 'fade',
+        pauseOnHover: true,
+        dots: false,
+      },
     },
   },
   toolCards: {
@@ -867,7 +914,9 @@ export function heroCellImageVars(cs: HeroCellStyle | null | undefined): string 
 export function heroBgImages(media: MediaConfig, mode: 'light' | 'dark'): string[] {
   const hd = media.heroDesign;
   const side =
-    isPlainObject(hd) && isPlainObject(hd[mode]) ? (hd[mode] as Partial<HeroDesignSide>) : undefined;
+    isPlainObject(hd) && isPlainObject(hd[mode])
+      ? (hd[mode] as Partial<HeroDesignSide>)
+      : undefined;
   const img = side && typeof side.bgImage === 'string' ? side.bgImage.trim() : '';
   if (!img || !SITE_MEDIA_URL.test(img) || !side) return [];
   const slides = Array.isArray(side.bgSlides)
@@ -969,7 +1018,8 @@ export function getHeroBannerCss(media: MediaConfig): string | undefined {
   // Gilt für das Banner-Bild/-Video und – bei einer Diashow – für deren Container
   // (dort setzt hero.css die Einzelbilder auf neutral, damit nichts doppelt wirkt).
   const sel = '.hero-banner-wrapper .hero-banner,.hero-banner-wrapper .hero-slides';
-  const darkSel = '[data-theme="dark"] .hero-banner-wrapper .hero-banner,[data-theme="dark"] .hero-banner-wrapper .hero-slides';
+  const darkSel =
+    '[data-theme="dark"] .hero-banner-wrapper .hero-banner,[data-theme="dark"] .hero-banner-wrapper .hero-slides';
   const rules: string[] = [];
   if (light.size) rules.push(`${sel}{${[...light].map(([k, v]) => `${k}:${v}`).join(';')}}`);
   const darkDecl: string[] = [];
@@ -1030,7 +1080,9 @@ function textFxDecls(s: MediaConfig['textStyles'][string]): string[] {
   const decl: string[] = [];
   const strokeW = typeof s.strokeWidth === 'number' ? s.strokeWidth : 0;
   if (strokeW > 0)
-    decl.push(`-webkit-text-stroke:${strokeW}px ${isHex(s.strokeColor) ? s.strokeColor : '#000000'}`);
+    decl.push(
+      `-webkit-text-stroke:${strokeW}px ${isHex(s.strokeColor) ? s.strokeColor : '#000000'}`,
+    );
   if (s.shadow === true) {
     const sc = isHex(s.shadowColor) ? s.shadowColor : '#000000';
     const sx = typeof s.shadowX === 'number' ? s.shadowX : 0;
@@ -1118,20 +1170,32 @@ export function getSectionMediaCss(media: MediaConfig): string | undefined {
     const st = isPlainObject(cfg.style) ? cfg.style : ({} as SectionMediaConfig['style']);
     const L = decls(isPlainObject(st.light) ? st.light : {});
     const D = decls(isPlainObject(st.dark) ? st.dark : {});
-    const BASE_W: Record<string, string> = { border: '1.5px solid rgba(1, 79, 153, 0.2)', 'border-radius': '12px' };
+    const BASE_W: Record<string, string> = {
+      border: '1.5px solid rgba(1, 79, 153, 0.2)',
+      'border-radius': '12px',
+    };
     const BASE_M: Record<string, string> = { opacity: '1', filter: 'none' };
-    const emit = (sel: string, light: Map<string, string>, dark: Map<string, string>, base: Record<string, string>) => {
+    const emit = (
+      sel: string,
+      light: Map<string, string>,
+      dark: Map<string, string>,
+      base: Record<string, string>,
+    ) => {
       if (light.size) rules.push(`${sel}{${[...light].map(([k, v]) => `${k}:${v}`).join(';')}}`);
       const dd: string[] = [];
       for (const k of Object.keys(base)) {
         if (dark.has(k)) dd.push(`${k}:${dark.get(k)}`);
         else if (light.has(k)) dd.push(`${k}:${base[k]}`);
       }
-      if (dd.length) rules.push(`[data-theme="dark"] ${sel.split(',').join(',[data-theme="dark"] ')}{${dd.join(';')}}`);
+      if (dd.length)
+        rules.push(
+          `[data-theme="dark"] ${sel.split(',').join(',[data-theme="dark"] ')}{${dd.join(';')}}`,
+        );
     };
     emit(wrap, L.w, D.w, BASE_W);
     emit(inner, L.m, D.m, BASE_M);
-    const font = isPlainObject(cfg.text) && typeof cfg.text.font === 'string' ? cfg.text.font.trim() : '';
+    const font =
+      isPlainObject(cfg.text) && typeof cfg.text.font === 'string' ? cfg.text.font.trim() : '';
     if (font && TEXT_FONT_FILE.test(font)) faces.add(font);
   }
   const css = [...faces].map(textFontFaceCss).join('') + rules.join('\n');
@@ -1172,7 +1236,8 @@ export function getTextStylesCss(media: MediaConfig): string | undefined {
     const decl: string[] = [];
     // --ts-fs: dieselbe Größe als Variable, damit das Kompakt-Layout sie auf
     // schmalen Bildschirmen begrenzen kann (home-compact.css).
-    if (typeof s.size === 'number' && s.size > 0) decl.push(`font-size:${s.size}px`, `--ts-fs:${s.size}px`);
+    if (typeof s.size === 'number' && s.size > 0)
+      decl.push(`font-size:${s.size}px`, `--ts-fs:${s.size}px`);
     const font = (s.font || '').trim();
     if (font && TEXT_FONT_FILE.test(font)) {
       faces.add(textFontFaceCss(font));
@@ -1212,7 +1277,9 @@ function toolCardSideVars(side: ToolCardSide): string {
   const num = (n: unknown, min: number, max: number, d: number) =>
     typeof n === 'number' && Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : d;
   if (isHex(side.borderColor))
-    v.push(`--tc-bc:${textHexToRgba(side.borderColor, num(side.borderOpacity, 0, 100, 100) / 100)}`);
+    v.push(
+      `--tc-bc:${textHexToRgba(side.borderColor, num(side.borderOpacity, 0, 100, 100) / 100)}`,
+    );
   v.push(`--tc-bw:${num(side.borderWidth, 0, 8, 1)}px`);
   const bs = TOOL_CARD_BORDER_STYLES.includes(side.borderStyle) ? side.borderStyle : 'solid';
   v.push(`--tc-bs:${bs}`);
@@ -1288,7 +1355,9 @@ export function getToolCardsCss(media: MediaConfig): string | undefined {
     const D = isDefault ? defD : colorMap(style.dark);
     const typo = isPlainObject(style.text) ? toolCardTextVars(style.text, faces) : [];
     emit(sel, [...L.entries(), ...typo]);
-    const dark = isDefault ? darkEntries([defL, defD], [defD]) : darkEntries([defL, defD, L, D], [D, defD]);
+    const dark = isDefault
+      ? darkEntries([defL, defD], [defD])
+      : darkEntries([defL, defD, L, D], [D, defD]);
     emit(`[data-theme="dark"] ${sel}`, dark);
   };
   pushText('#app .svg-card-link', def, true);
@@ -1304,7 +1373,10 @@ export function getToolCardsCss(media: MediaConfig): string | undefined {
       if (hide === (base ? isHidden(base, k) : false)) continue;
       if (k === 'popup') {
         if (hide) rules.push(`${sel} ${part}{display:none}`);
-        else rules.push(`${sel} ${part}{display:flex}@media (hover:none){${sel} ${part}{display:none}}`);
+        else
+          rules.push(
+            `${sel} ${part}{display:flex}@media (hover:none){${sel} ${part}{display:none}}`,
+          );
       } else if (hide) rules.push(`${sel} ${part}{visibility:hidden;pointer-events:none}`);
       else rules.push(`${sel} ${part}{visibility:visible;pointer-events:auto}`);
     }
@@ -1501,10 +1573,10 @@ export interface SiteConfig {
   fxNoiseIntensity: number;
   fxSpotlight: boolean;
   fxSpotlightIntensity: number;
-  // Muster je Modus (reines CSS): Punktraster oder feines Gitter – Farbe,
-  // Abstand (px), Stärke (px) und Deckkraft (%). 'none' = kein Muster.
-  bgPattern: 'none' | 'dots' | 'grid';
-  bgPatternDark: 'none' | 'dots' | 'grid';
+  // Muster je Modus (reines CSS, siehe SITE_PATTERNS) – Farbe, Abstand (px),
+  // Stärke (px) und Deckkraft (%). 'none' = kein Muster.
+  bgPattern: SitePattern;
+  bgPatternDark: SitePattern;
   bgPatternColor: string;
   bgPatternColorDark: string;
   bgPatternSpacing: number;
@@ -1566,6 +1638,21 @@ export interface SiteSections {
   image: SiteSectionCfg;
   diverse: SiteSectionCfg;
 }
+// Muster-Arten der Seite (Admin > Hintergrund > Muster); gleiche Liste in
+// server/admin/content.mjs und server/admin/public/model-site.js.
+export const SITE_PATTERNS = [
+  'none',
+  'dots',
+  'grid',
+  'cross',
+  'diagonal',
+  'diamond',
+  'triangles',
+  'waves',
+  'blueprint',
+] as const;
+export type SitePattern = (typeof SITE_PATTERNS)[number];
+
 export const SITE_SECTION_KEYS = ['audio', 'image', 'diverse'] as const;
 const EMPTY_SECTION_SIDE: SiteSectionSide = {
   color: '',
@@ -1693,7 +1780,8 @@ export function getHomeLayout(): {
 export function getHiddenCards(): Set<string> {
   const raw = getSite().hiddenCards;
   const out = new Set<string>();
-  if (Array.isArray(raw)) for (const k of raw) if (typeof k === 'string' && TOOL_CARD_KEY.test(k)) out.add(k);
+  if (Array.isArray(raw))
+    for (const k of raw) if (typeof k === 'string' && TOOL_CARD_KEY.test(k)) out.add(k);
   return out;
 }
 
@@ -1777,7 +1865,9 @@ function siteSectionRules(site: SiteConfig): string[] {
   const decl = (side: Partial<SiteSectionSide> | undefined): string | null => {
     if (!isPlainObject(side)) return null;
     const color = String(side.color ?? '');
-    const tint = SITE_HEX.test(color) ? textHexToRgba(color, num(side.opacity, 0, 100, 8) / 100) : '';
+    const tint = SITE_HEX.test(color)
+      ? textHexToRgba(color, num(side.opacity, 0, 100, 8) / 100)
+      : '';
     const img = String(side.image ?? '');
     const hasImg = img !== '' && SITE_MEDIA_URL.test(img);
     if (!tint && !hasImg) return null;
@@ -1925,7 +2015,7 @@ function siteBgRules(site: SiteConfig, mode: 'light' | 'dark'): SiteBgRules {
     }
   }
 
-  // 2. Muster (Punktraster / Gitter) als sich wiederholende Ebene(n) über der Farbe.
+  // 2. Muster (SITE_PATTERNS) als sich wiederholende Ebene(n) über der Farbe.
   const layers = [
     ...sitePatternLayers(
       String(s[`bgPattern${sfx}`] ?? 'none'),
@@ -1986,21 +2076,84 @@ function siteBgRules(site: SiteConfig, mode: 'light' | 'dark'): SiteBgRules {
 /**
  * CSS-Hintergrund-Ebenen für ein Muster (als Einträge einer background-Liste
  * mit Position/Größe/Wiederholung). Leer bei 'none' oder ungültiger Farbe.
+ * Reine CSS-Verläufe in festen Kacheln (Abstand = Kachelmaß), keine Bilder.
+ * Identisch zu server/admin/public/model-site.js sitePatternLayers (Admin-Vorschau).
  */
-function sitePatternLayers(
+export function sitePatternLayers(
   type: string,
   color: string,
   spacing: number,
   thickness: number,
   opacityPct: number,
 ): string[] {
-  if ((type !== 'dots' && type !== 'grid') || !SITE_HEX.test(color)) return [];
+  if (
+    type === 'none' ||
+    !(SITE_PATTERNS as readonly string[]).includes(type) ||
+    !SITE_HEX.test(color)
+  )
+    return [];
   const c = textHexToRgba(color, opacityPct / 100);
-  const size = `${spacing}px ${spacing}px`;
-  if (type === 'dots')
-    return [`radial-gradient(circle, ${c} ${thickness}px, transparent ${thickness + 0.5}px) 0 0 / ${size} repeat`];
-  return [
-    `linear-gradient(${c} ${thickness}px, transparent ${thickness}px) 0 0 / ${size} repeat`,
-    `linear-gradient(90deg, ${c} ${thickness}px, transparent ${thickness}px) 0 0 / ${size} repeat`,
+  const sp = spacing;
+  const t = thickness;
+  const px = (n: number): string => `${Math.round(n * 100) / 100}px`;
+  const h = t / 2;
+  const tile = (w: number, ht = w): string => `0 0 / ${px(w)} ${px(ht)} repeat`;
+  const grid = (col: string, th: number, w: number): string[] => [
+    `linear-gradient(${col} ${th}px, transparent ${th}px) ${tile(w)}`,
+    `linear-gradient(90deg, ${col} ${th}px, transparent ${th}px) ${tile(w)}`,
   ];
+  // Diagonale Linie durch zwei Kachelecken (50 %) samt Parallelen durch die
+  // übrigen Ecken (0 %/100 %) – mit 0,5 px Kantenglättung.
+  const diag = (dir: string): string =>
+    `linear-gradient(${dir}, ${c} ${px(h)}, transparent ${px(h + 0.5)} calc(50% - ${px(h + 0.5)}), ` +
+    `${c} calc(50% - ${px(h)}) calc(50% + ${px(h)}), transparent calc(50% + ${px(h + 0.5)}) calc(100% - ${px(h + 0.5)}), ` +
+    `${c} calc(100% - ${px(h)}))`;
+  switch (type) {
+    case 'dots':
+      return [`radial-gradient(circle, ${c} ${t}px, transparent ${t + 0.5}px) ${tile(sp)}`];
+    case 'grid':
+      return grid(c, t, sp);
+    case 'cross': {
+      // Plus-Zeichen an jedem Rasterpunkt: zwei Balken als conic-Rechtecke.
+      const len = Math.min(sp, Math.max(t * 3, Math.round(sp * 0.3)));
+      const bar = (w: number, ht: number): string =>
+        `conic-gradient(from 270deg at ${px(w)} ${px(ht)}, ${c} 0 90deg, transparent 0)`;
+      return [
+        `${bar(len, t)} ${px(-len / 2)} ${px(-h)} / ${px(sp)} ${px(sp)} repeat`,
+        `${bar(t, len)} ${px(-h)} ${px(-len / 2)} / ${px(sp)} ${px(sp)} repeat`,
+      ];
+    }
+    case 'diagonal':
+      return [`${diag('to top right')} ${tile(sp)}`];
+    case 'diamond':
+      return [`${diag('to top right')} ${tile(sp)}`, `${diag('to top left')} ${tile(sp)}`];
+    case 'triangles': {
+      // Isometrisches Dreiecksgitter: Kachel Breite × Breite·√3 (gerade Höhe),
+      // beide Diagonalen + Waagerechte auf halber Höhe treffen sich in den Ecken.
+      const ht = Math.max(2, 2 * Math.round((sp * Math.sqrt(3)) / 2));
+      return [
+        `${diag('to top right')} ${tile(sp, ht)}`,
+        `${diag('to top left')} ${tile(sp, ht)}`,
+        `linear-gradient(${c} ${t}px, transparent ${t}px) 0 ${px(-h)} / ${px(sp)} ${px(ht / 2)} repeat`,
+      ];
+    }
+    case 'waves': {
+      // Wellenlinien aus Halbkreis-Ringen: oben offener Bogen unten in der
+      // Kachel, unten offener Bogen oben – die Kachelkante schneidet je halb ab.
+      const r = sp / 4;
+      const inner = Math.max(0, r - h);
+      const ring = (x: number, y: number): string =>
+        `radial-gradient(circle at ${px(x)} ${px(y)}, transparent ${px(Math.max(0, inner - 0.5))}, ` +
+        `${c} ${px(inner)} ${px(r + h)}, transparent ${px(r + h + 0.5)}) ${tile(sp, sp / 2)}`;
+      return [ring(sp / 4, sp / 2), ring((sp * 3) / 4, 0)];
+    }
+    case 'blueprint':
+      // Blueprint-Karo: Hauptgitter + feines Untergitter (¼ Abstand, 1 px, 40 % Deckkraft).
+      return [
+        ...grid(c, t, sp),
+        ...grid(textHexToRgba(color, Math.round(opacityPct * 0.4) / 100), 1, sp / 4),
+      ];
+    default:
+      return [];
+  }
 }

@@ -42,7 +42,7 @@ export function defaultSite() {
     fxNoiseIntensity: 50,
     fxSpotlight: false,
     fxSpotlightIntensity: 50,
-    // Muster je Modus: 'none' | 'dots' | 'grid' mit Farbe, Abstand (px),
+    // Muster je Modus (SITE_PATTERNS, 'none' = aus) mit Farbe, Abstand (px),
     // Stärke (px) und Deckkraft (%).
     bgPattern: 'none',
     bgPatternDark: 'none',
@@ -137,7 +137,17 @@ export function normSections(v) {
   return o;
 }
 export const SITE_GRADIENT_TYPES = ['linear', 'radial'];
-export const SITE_PATTERNS = ['none', 'dots', 'grid'];
+export const SITE_PATTERNS = [
+  'none',
+  'dots',
+  'grid',
+  'cross',
+  'diagonal',
+  'diamond',
+  'triangles',
+  'waves',
+  'blueprint',
+];
 // Bild-Felder in media.site (Hintergrundbild Hell/Dunkel) – können wie die
 // Sprach-Slots eine gestagte Datei ('staged:<id>') referenzieren.
 export const SITE_MEDIA_KEYS = ['bgImage', 'bgImageDark'];
@@ -259,19 +269,75 @@ export function siteBgSplit(mode) {
   }
   return { ground, overlay: layers.join(', ') };
 }
-// Muster-Ebenen (Punktraster / Gitter) als background-Einträge – identisch zu
-// content.ts sitePatternLayers. Leer bei 'none'.
+// Muster-Ebenen als background-Einträge – identisch zu content.ts
+// sitePatternLayers (Test prüft Gleichheit). Leer bei 'none'. Alles reine
+// CSS-Verläufe in festen Kacheln (Abstand = Kachelmaß), keine Bilder.
 export function sitePatternLayers(s) {
-  if ((s.pattern !== 'dots' && s.pattern !== 'grid') || !s.patternColor) return [];
+  if (!SITE_PATTERNS.includes(s.pattern) || s.pattern === 'none' || !s.patternColor) return [];
   const c = rgbaFromHex(s.patternColor, s.patternOpacity);
+  const sp = s.patternSpacing;
   const t = s.patternThickness;
-  const size = `${s.patternSpacing}px ${s.patternSpacing}px`;
-  if (s.pattern === 'dots')
-    return [`radial-gradient(circle, ${c} ${t}px, transparent ${t + 0.5}px) 0 0 / ${size} repeat`];
-  return [
-    `linear-gradient(${c} ${t}px, transparent ${t}px) 0 0 / ${size} repeat`,
-    `linear-gradient(90deg, ${c} ${t}px, transparent ${t}px) 0 0 / ${size} repeat`,
+  const px = (n) => `${Math.round(n * 100) / 100}px`;
+  const h = t / 2;
+  const tile = (w, ht = w) => `0 0 / ${px(w)} ${px(ht)} repeat`;
+  const grid = (col, th, w) => [
+    `linear-gradient(${col} ${th}px, transparent ${th}px) ${tile(w)}`,
+    `linear-gradient(90deg, ${col} ${th}px, transparent ${th}px) ${tile(w)}`,
   ];
+  // Diagonale Linie durch zwei Kachelecken (50 %) samt Parallelen durch die
+  // übrigen Ecken (0 %/100 %) – mit 0,5 px Kantenglättung.
+  const diag = (dir) =>
+    `linear-gradient(${dir}, ${c} ${px(h)}, transparent ${px(h + 0.5)} calc(50% - ${px(h + 0.5)}), ` +
+    `${c} calc(50% - ${px(h)}) calc(50% + ${px(h)}), transparent calc(50% + ${px(h + 0.5)}) calc(100% - ${px(h + 0.5)}), ` +
+    `${c} calc(100% - ${px(h)}))`;
+  switch (s.pattern) {
+    case 'dots':
+      return [`radial-gradient(circle, ${c} ${t}px, transparent ${t + 0.5}px) ${tile(sp)}`];
+    case 'grid':
+      return grid(c, t, sp);
+    case 'cross': {
+      // Plus-Zeichen an jedem Rasterpunkt: zwei Balken als conic-Rechtecke.
+      const len = Math.min(sp, Math.max(t * 3, Math.round(sp * 0.3)));
+      const bar = (w, ht) =>
+        `conic-gradient(from 270deg at ${px(w)} ${px(ht)}, ${c} 0 90deg, transparent 0)`;
+      return [
+        `${bar(len, t)} ${px(-len / 2)} ${px(-h)} / ${px(sp)} ${px(sp)} repeat`,
+        `${bar(t, len)} ${px(-h)} ${px(-len / 2)} / ${px(sp)} ${px(sp)} repeat`,
+      ];
+    }
+    case 'diagonal':
+      return [`${diag('to top right')} ${tile(sp)}`];
+    case 'diamond':
+      return [`${diag('to top right')} ${tile(sp)}`, `${diag('to top left')} ${tile(sp)}`];
+    case 'triangles': {
+      // Isometrisches Dreiecksgitter: Kachel Breite × Breite·√3 (gerade Höhe),
+      // beide Diagonalen + Waagerechte auf halber Höhe treffen sich in den Ecken.
+      const ht = Math.max(2, 2 * Math.round((sp * Math.sqrt(3)) / 2));
+      return [
+        `${diag('to top right')} ${tile(sp, ht)}`,
+        `${diag('to top left')} ${tile(sp, ht)}`,
+        `linear-gradient(${c} ${t}px, transparent ${t}px) 0 ${px(-h)} / ${px(sp)} ${px(ht / 2)} repeat`,
+      ];
+    }
+    case 'waves': {
+      // Wellenlinien aus Halbkreis-Ringen: oben offener Bogen unten in der
+      // Kachel, unten offener Bogen oben – die Kachelkante schneidet je halb ab.
+      const r = sp / 4;
+      const inner = Math.max(0, r - h);
+      const ring = (x, y) =>
+        `radial-gradient(circle at ${px(x)} ${px(y)}, transparent ${px(Math.max(0, inner - 0.5))}, ` +
+        `${c} ${px(inner)} ${px(r + h)}, transparent ${px(r + h + 0.5)}) ${tile(sp, sp / 2)}`;
+      return [ring(sp / 4, sp / 2), ring((sp * 3) / 4, 0)];
+    }
+    case 'blueprint':
+      // Blueprint-Karo: Hauptgitter + feines Untergitter (¼ Abstand, 1 px, 40 % Deckkraft).
+      return [
+        ...grid(c, t, sp),
+        ...grid(rgbaFromHex(s.patternColor, Math.round(s.patternOpacity * 0.4)), 1, sp / 4),
+      ];
+    default:
+      return [];
+  }
 }
 // Bild-Ebene eines Modus für die Admin-Vorschau: null ohne Bild, sonst
 // { url, filter, opacity, fixed } (url = auflösbare Vorschau-URL, staged via objUrl).
