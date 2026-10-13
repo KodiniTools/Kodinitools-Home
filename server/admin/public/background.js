@@ -2,7 +2,7 @@
 // Website – getrennt für Hell- und Dunkelmodus – mit Live-Vorschau. Je Modus:
 // eigene Farbe, Deckkraft (Mischung mit der Standardfarbe des Modus) und
 // optionaler Farbverlauf (Endfarbe, linear mit Richtung oder radial).
-// Dazu je Modus ein reines CSS-Muster (Punktraster/Gitter: Farbe, Abstand,
+// Dazu je Modus ein reines CSS-Muster (Punkte, Gitter, Linien, Wellen …: Farbe, Abstand,
 // Stärke, Deckkraft) und ein Hintergrundbild aus der Mediathek (Abdunkelung,
 // Weichzeichner, Deckkraft, fixiert beim Scrollen).
 // Gespeichert wird global in media.site (bgColor*, bgOpacity*, bgGradient*,
@@ -73,7 +73,17 @@ const GRADIENT_TYPE_LABEL = {
   linear: 'Linear (Richtung wählbar)',
   radial: 'Radial (von oben Mitte)',
 };
-const PATTERN_LABEL = { none: 'Kein Muster', dots: 'Punktraster', grid: 'Feines Gitter' };
+const PATTERN_LABEL = {
+  none: 'Kein Muster',
+  dots: 'Punktraster',
+  grid: 'Feines Gitter',
+  cross: 'Plus-Raster',
+  diagonal: 'Diagonallinien',
+  diamond: 'Rautengitter',
+  triangles: 'Dreiecksgitter (isometrisch)',
+  waves: 'Wellen',
+  blueprint: 'Blueprint-Karo',
+};
 
 // Sektionen: Vorschlag für die Tönungsfarbe je Modus (Markenfarben) und Stil-Beschriftung.
 const SECTION_TINT_DEFAULT = { light: '#014f99', dark: '#e8a945' };
@@ -154,7 +164,7 @@ function extrasNote(mode) {
   return parts.length ? `✅ ${parts.join(' · ')}.` : 'Kein Muster und kein Hintergrundbild.';
 }
 
-// Abschnitt „Muster" eines Modus (reines CSS: Punktraster oder Gitter).
+// Abschnitt „Muster" eines Modus (reines CSS, Arten siehe PATTERN_LABEL).
 function patternRow(mode) {
   const s = getSiteBg(mode);
   const on = s.pattern !== 'none';
@@ -163,7 +173,7 @@ function patternRow(mode) {
   ).join('');
   return `
     <div class="bg-sub" data-bgpattern="${mode}">
-      <div class="bg-sub-title">Muster <span class="hint" style="margin:0;font-weight:400">– Punktraster oder feines Gitter (reines CSS, liegt über Farbe und Hintergrundbild)</span></div>
+      <div class="bg-sub-title">Muster <span class="hint" style="margin:0;font-weight:400">– Punkte, Gitter, Linien, Wellen u. a. (reines CSS, liegt über Farbe und Hintergrundbild)</span></div>
       <div class="row" style="align-items:flex-end">
         <div style="flex:0 0 auto">
           <label>Art</label>

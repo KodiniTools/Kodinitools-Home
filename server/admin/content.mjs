@@ -296,7 +296,8 @@ function validateHeroDesign(hd) {
       const out = [];
       if (!Array.isArray(hd.hiddenChips)) return out;
       for (const k of hd.hiddenChips) {
-        if (typeof k === 'string' && /^[a-zA-Z0-9_-]{1,40}$/.test(k) && !out.includes(k)) out.push(k);
+        if (typeof k === 'string' && /^[a-zA-Z0-9_-]{1,40}$/.test(k) && !out.includes(k))
+          out.push(k);
         if (out.length >= 20) break;
       }
       return out;
@@ -712,13 +713,31 @@ function validateBannerSlideshow(o, withStagger = false) {
 // Sektions-Medien (Audio/Bild/Diverse): Design je Modus, Diashow, Text-Overlay.
 const SECTION_MEDIA_KEYS = ['audio', 'image', 'diverse'];
 function defaultSectionMediaSide() {
-  return { customBorder: false, borderColor: '#014f99', borderWidth: 2, borderRadius: 12, opacity: 100, darken: 0 };
+  return {
+    customBorder: false,
+    borderColor: '#014f99',
+    borderWidth: 2,
+    borderRadius: 12,
+    opacity: 100,
+    darken: 0,
+  };
 }
 function defaultSectionMediaText() {
   return {
-    text: '', font: '', color: '#ffffff', size: 0, x: 50, y: 50, opacity: 100,
-    shadow: true, shadowColor: '#000000', shadowX: 0, shadowY: 2, shadowBlur: 6,
-    strokeColor: '#000000', strokeWidth: 0,
+    text: '',
+    font: '',
+    color: '#ffffff',
+    size: 0,
+    x: 50,
+    y: 50,
+    opacity: 100,
+    shadow: true,
+    shadowColor: '#000000',
+    shadowX: 0,
+    shadowY: 2,
+    shadowBlur: 6,
+    strokeColor: '#000000',
+    strokeWidth: 0,
   };
 }
 function defaultSectionMedia() {
@@ -865,7 +884,7 @@ function defaultSite() {
     fxNoiseIntensity: 50,
     fxSpotlight: false,
     fxSpotlightIntensity: 50,
-    // Muster je Modus (Punktraster/Gitter): Art, Farbe, Abstand, Stärke, Deckkraft.
+    // Muster je Modus (SITE_PATTERNS): Art, Farbe, Abstand, Stärke, Deckkraft.
     bgPattern: 'none',
     bgPatternDark: 'none',
     bgPatternColor: '#014f99',
@@ -934,7 +953,17 @@ function validateSections(v) {
   return out;
 }
 const SITE_GRADIENT_TYPES = ['linear', 'radial'];
-const SITE_PATTERNS = ['none', 'dots', 'grid'];
+const SITE_PATTERNS = [
+  'none',
+  'dots',
+  'grid',
+  'cross',
+  'diagonal',
+  'diamond',
+  'triangles',
+  'waves',
+  'blueprint',
+];
 const CARD_WIDTHS = ['narrow', 'medium', 'wide'];
 const MEDIA_POS_DESKTOP = ['top', 'side', 'bottom', 'off'];
 const MEDIA_POS_MOBILE = ['top', 'bottom', 'off'];
@@ -1079,12 +1108,14 @@ function validateMediaLocale(m, langLabel) {
     const v = m.toolCardOffsets;
     if (!isPlainObject(v)) return res;
     for (const k of Object.keys(v)) {
-      if (!/^(tools|imageTools|diverseTools)\.[a-zA-Z0-9_-]+$/.test(k) || !isPlainObject(v[k])) continue;
+      if (!/^(tools|imageTools|diverseTools)\.[a-zA-Z0-9_-]+$/.test(k) || !isPlainObject(v[k]))
+        continue;
       const x = clampNum(v[k].x, -1200, 1200, 0);
       const y = clampNum(v[k].y, -1200, 1200, 0);
       const w = clampNum(v[k].w, 25, 300, 100);
       const h = clampNum(v[k].h, 25, 300, 100);
-      if (x || y || w !== 100 || h !== 100) res[k] = { x, y, ...(w !== 100 || h !== 100 ? { w, h } : {}) };
+      if (x || y || w !== 100 || h !== 100)
+        res[k] = { x, y, ...(w !== 100 || h !== 100 ? { w, h } : {}) };
       if (Object.keys(res).length >= 60) break;
     }
     return res;
@@ -1137,7 +1168,10 @@ function validateMediaLocale(m, langLabel) {
   // Design des Banners selbst (Rahmen, Ecken, Schatten, Deckkraft, Verdunkelung).
   out.heroBannerStyle = validateBannerStyle(m.heroBannerStyle);
   // Diashow: weitere Bilder (je '' übersprungen, sonst gültige URL) + Einstellungen.
-  out.heroBannerSlides = validateSlideList(m.heroBannerSlides, `media.${langLabel}.heroBannerSlides`);
+  out.heroBannerSlides = validateSlideList(
+    m.heroBannerSlides,
+    `media.${langLabel}.heroBannerSlides`,
+  );
   out.heroBannerSlideshow = validateBannerSlideshow(m.heroBannerSlideshow);
   // Option 2 – Hero-Raster: bis zu sechs Felder, je '' oder gültige URL.
   out.heroGrid = ['', '', '', '', '', ''];
