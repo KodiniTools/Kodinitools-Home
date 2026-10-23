@@ -33,6 +33,12 @@ import {
   isCardHidden,
   setCardHidden,
   hiddenCardIds,
+  toolCardKeys,
+  isCustomCard,
+  duplicateCard,
+  createCard,
+  deleteCustomCard,
+  TOOL_CARD_SECTIONS,
 } from './model.js';
 import { objUrl, openMediaPicker } from './media.js';
 import { ensureFontFace, fontOptionsHtml } from './fonts.js';
@@ -55,7 +61,7 @@ let selected = '';
 // Zielkarten für „Design übertragen" (Karten-IDs); wird nach dem Anwenden geleert.
 const targets = new Set();
 
-const SECTIONS = ['tools', 'imageTools', 'diverseTools'];
+const SECTIONS = TOOL_CARD_SECTIONS;
 const SECTION_LABEL = {
   tools: 'Audio-Tools',
   imageTools: 'Bild-Tools',
@@ -163,13 +169,9 @@ function defText(lang, path) {
 // Alle Tool-Karten der Sprache (Reihenfolge wie auf der Startseite).
 function cardList(lang) {
   const out = [];
-  const defs = state.defaults[lang] || {};
   for (const section of SECTIONS) {
-    const sec = defs[section];
-    if (!sec || typeof sec !== 'object') continue;
-    for (const [key, entry] of Object.entries(sec)) {
-      if (!entry || typeof entry !== 'object' || !('title' in entry) || !('link' in entry))
-        continue;
+    // Karten der Sprachdatei plus im Admin angelegte (Duplikat/neu, nur Override).
+    for (const key of toolCardKeys(lang, section)) {
       out.push({
         id: `${section}.${key}`,
         section,
@@ -180,6 +182,7 @@ function cardList(lang) {
         svg: effText(lang, [section, key, 'svg']),
         tint: getIconTint(lang, `${section}.${key}`),
         hidden: isCardHidden(`${section}.${key}`), // auf der Seite ausgeblendet (DE + EN)
+        custom: isCustomCard(`${section}.${key}`), // im Admin angelegt (löschbar)
       });
     }
   }
@@ -214,6 +217,22 @@ function hiddenBlock(lang) {
     body,
     ids.length > 0,
   );
+}
+// Bereich „Neue Karte": Sektion wählen + anlegen (Duplizieren steht oben neben der Auswahl).
+function newCardBlock() {
+  const cur = selected ? selected.split('.')[0] : 'tools';
+  const opts = SECTIONS.map(
+    (sec) =>
+      `<option value="${sec}" ${sec === cur ? 'selected' : ''}>${esc(SECTION_LABEL[sec])}</option>`,
+  ).join('');
+  return `<div style="margin:.6rem 0 .2rem;padding:.5rem .6rem;border:1px dashed var(--border);border-radius:8px">
+      <div class="row" style="align-items:center;gap:.5rem">
+        <label style="margin:0;flex:0 0 auto">➕ Neue Karte in</label>
+        <select data-tcnewsec style="width:auto;flex:0 0 auto">${opts}</select>
+        <button type="button" data-tcnew style="width:auto;flex:0 0 auto">➕ Neue Karte anlegen</button>
+      </div>
+      <p class="hint" style="margin:.35rem 0 0">Legt eine leere Karte in <strong>DE + EN</strong> mit Standard-Design an. Sie bleibt ausgeblendet, bis du Titel und Link ausgefüllt und „Wieder einblenden" geklickt hast; das Icon setzt du im Tab „Icons". Eine bestehende Karte kopierst du oben mit „⧉ Duplizieren" (Texte DE + EN und Einzel-Design, Titel mit „(Kopie)"). Neue Karten stehen am Ende ihres Bereichs.</p>
+    </div>`;
 }
 // Beispiel-Karte für das Standard-Design (nutzt das Icon der ersten Karte).
 function sampleCard(lang) {
@@ -498,6 +517,16 @@ function previewBlock(lang) {
         ${cardSelect(lang)}
         ${
           selected
+            ? `<button type="button" data-tcdup="${esc(selected)}" style="flex:0 0 auto;width:auto" title="Kopie dieser Karte in DE + EN anlegen (Texte + Einzel-Design)">⧉ Duplizieren</button>`
+            : ''
+        }
+        ${
+          selected && isCustomCard(selected)
+            ? `<button type="button" data-tcdel="${esc(selected)}" class="danger" style="flex:0 0 auto;width:auto" title="Im Admin angelegte Karte in DE + EN löschen">🗑 Löschen</button>`
+            : ''
+        }
+        ${
+          selected
             ? `<button type="button" data-tchide="${esc(selected)}" class="${isCardHidden(selected) ? 'primary' : 'danger'}" style="flex:0 0 auto" title="Gilt für DE + EN; jederzeit umkehrbar">${isCardHidden(selected) ? '👁 Wieder einblenden' : '🙈 Von der Seite ausblenden'}</button>`
             : ''
         }
@@ -649,6 +678,7 @@ const CARD_TEXT_FIELDS = [
     key: 'title',
     label: 'Titel',
     hint: 'Leer = Standardtext aus der Sprachdatei. Enter = zweite Zeile (max. 2 Zeilen; Karten sind für zwei Zeilen ausgelegt).',
+    customHint: 'Enter = zweite Zeile (max. 2 Zeilen; Karten sind für zwei Zeilen ausgelegt).',
     multiline: true,
     rows: 2,
   },
@@ -656,17 +686,20 @@ const CARD_TEXT_FIELDS = [
     key: 'badge',
     label: 'Badge (kleines Etikett)',
     hint: 'Leer = kein Badge; „↺" = Standard-Badge.',
+    customHint: 'Leer = kein Badge.',
   },
   {
     key: 'description',
     label: 'Beschreibung (Popup beim Überfahren)',
     hint: 'Leer = Standardtext aus der Sprachdatei.',
+    customHint: 'Text im Popup beim Überfahren der Karte.',
     multiline: true,
   },
   {
     key: 'link',
     label: 'Link (URL des Tools)',
     hint: 'https://… oder /pfad/; leer = Standard-Link.',
+    customHint: 'https://… oder /pfad/ – ohne Link führt die Karte nirgendwohin.',
   },
 ];
 function hasTextOverride(lang, id, key) {
@@ -693,25 +726,27 @@ function textsBlock(lang) {
   const c = cardById(lang, selected);
   if (!c) return '';
   const path = selected.split('.');
+  // Im Admin angelegte Karte: kein Standardtext, die Felder sind die Texte selbst.
+  const custom = isCustomCard(selected);
   const rows = CARD_TEXT_FIELDS.map((f) => {
     const val = effText(lang, [...path, f.key]);
-    const ov = hasTextOverride(lang, selected, f.key);
+    const ov = !custom && hasTextOverride(lang, selected, f.key);
     const input = f.multiline
-      ? `<textarea data-tctx="${f.key}" rows="${f.rows || 3}" placeholder="${esc(defText(lang, [...path, f.key]))}" style="min-height:${f.rows === 2 ? 48 : 64}px">${esc(val)}</textarea>`
-      : `<input type="text" data-tctx="${f.key}" value="${esc(val)}" placeholder="${esc(defText(lang, [...path, f.key]))}" />`;
+      ? `<textarea data-tctx="${f.key}" rows="${f.rows || 3}" placeholder="${esc(custom ? f.label : defText(lang, [...path, f.key]))}" style="min-height:${f.rows === 2 ? 48 : 64}px">${esc(val)}</textarea>`
+      : `<input type="text" data-tctx="${f.key}" value="${esc(val)}" placeholder="${esc(custom ? f.label : defText(lang, [...path, f.key]))}" />`;
     return `
       <div style="margin-top:.5rem">
         <label>${f.label}${ov ? ' <span class="lang-badge">geändert</span>' : ''}</label>
         <div style="display:flex;gap:.3rem;align-items:flex-start">
           ${input}
-          <button type="button" class="hd-reset" data-tctxreset="${f.key}" title="Auf Standardtext zurücksetzen" aria-label="Zurücksetzen" ${ov ? '' : 'disabled'}>↺</button>
+          ${custom ? '' : `<button type="button" class="hd-reset" data-tctxreset="${f.key}" title="Auf Standardtext zurücksetzen" aria-label="Zurücksetzen" ${ov ? '' : 'disabled'}>↺</button>`}
         </div>
-        <p class="hint" style="margin:.15rem 0 0">${f.hint}</p>
+        <p class="hint" style="margin:.15rem 0 0">${custom ? f.customHint || f.hint : f.hint}</p>
       </div>`;
   }).join('');
   return section(
     `📝 Texte der Karte „${esc(oneLine(c.title))}" ${badgeHtml(lang)}`,
-    `<p class="hint" style="margin:0">Änderungen wirken sofort in Vorschau und Übersicht und werden als Text-Override der Sprache <strong>${lang.toUpperCase()}</strong> gespeichert (wie im Tab „Texte").</p>${rows}`,
+    `<p class="hint" style="margin:0">Änderungen wirken sofort in Vorschau und Übersicht und werden als Text-Override der Sprache <strong>${lang.toUpperCase()}</strong> gespeichert (wie im Tab „Texte").${custom ? ` Im Admin angelegte Karte – die Texte der anderen Sprache bearbeitest du im Sprach-Tab ${lang === 'de' ? 'English' : 'Deutsch'}.` : ''}</p>${rows}`,
     true,
   );
 }
@@ -736,6 +771,11 @@ function oneLine(t) {
 function setCardText(lang, id, key, value) {
   const path = [...id.split('.'), key];
   const v = String(value ?? '');
+  // Angelegte Karte: kein Standardtext – leer bleibt '' (ohne title/link fiele die Karte weg).
+  if (isCustomCard(id) && v.trim() === '') {
+    setPath(state.overrides[lang], path, '');
+    return true;
+  }
   if (key === 'link') {
     const t = v.trim();
     if (t === '') delPath(state.overrides[lang], path);
@@ -774,7 +814,7 @@ function refreshCardTexts(pane, lang) {
       );
     const opt = pane.querySelector(`[data-tcsel] option[value="${selected}"]`);
     if (opt)
-      opt.textContent = `${oneLine(card.title)}${getToolCards(lang).cards[selected] ? ' ●' : ''}`;
+      opt.textContent = `${card.hidden ? '🙈 ' : ''}${oneLine(card.title)}${getToolCards(lang).cards[selected] ? ' ●' : ''}`;
   } else {
     // „Öffnen"-Beschriftung: alle Übersichtskarten
     pane.querySelectorAll('[data-tcov] .tc-open').forEach((el) => {
@@ -1014,6 +1054,7 @@ function panelHtml(lang) {
         <button type="button" data-tccopylang="${lang === 'de' ? 'en' : 'de'}" style="width:auto" title="Standard + Einzel-Designs (Hell + Dunkel) und Typografie in die andere Sprache übernehmen – Karten-Texte bleiben je Sprache">📋 Tool-Karten-Design nach ${lang === 'de' ? 'English' : 'Deutsch'} übertragen</button>
         <p class="hint" style="margin:.35rem 0 0">Kopiert <strong>alle</strong> Design-Einstellungen (An-Schalter, Standard + Einzel-Designs, Hell + Dunkel, Typografie) von ${lang === 'de' ? 'Deutsch nach English' : 'English nach Deutsch'}. Karten-<em>Texte</em> (Titel, Badge, Beschreibung, Link) bleiben je Sprache.</p>
       </div>
+      ${newCardBlock()}
       ${hiddenBlock(lang)}
       ${textsBlock(lang)}
       ${centerFieldsBlock(lang)}
@@ -1391,6 +1432,35 @@ export function renderToolCards() {
       toast('Auf Standardtext zurückgesetzt');
     }),
   );
+  // Karte duplizieren (DE + EN) und die Kopie direkt auswählen.
+  pane.querySelector('[data-tcdup]')?.addEventListener('click', (e) => {
+    const src = cardById(lang, e.currentTarget.dataset.tcdup);
+    const id = duplicateCard(e.currentTarget.dataset.tcdup);
+    if (!id) return;
+    selected = id;
+    rerender();
+    toast(`Kopie von „${oneLine(src ? src.title : id)}" angelegt (DE + EN) und ausgewählt`);
+  });
+  // Neue, leere Karte im gewählten Bereich anlegen (DE + EN, startet ausgeblendet).
+  pane.querySelector('[data-tcnew]')?.addEventListener('click', () => {
+    const sec = pane.querySelector('[data-tcnewsec]')?.value || 'tools';
+    const id = createCard(sec);
+    if (!id) return;
+    selected = id;
+    rerender();
+    toast('Neue Karte angelegt (DE + EN) – Titel und Link ausfüllen, dann „Wieder einblenden"');
+  });
+  // Im Admin angelegte Karte löschen (DE + EN; Rückgängig über ↶).
+  pane.querySelector('[data-tcdel]')?.addEventListener('click', (e) => {
+    const id = e.currentTarget.dataset.tcdel;
+    const c = cardById(lang, id);
+    const name = oneLine(c ? c.title : id);
+    if (!confirm(`Karte „${name}" in DE + EN löschen? (Rückgängig mit ↶ möglich)`)) return;
+    if (!deleteCustomCard(id)) return;
+    selected = '';
+    rerender();
+    toast(`Karte „${name}" gelöscht`);
+  });
   // Karte ausblenden / wieder einblenden (global, DE + EN; jederzeit umkehrbar).
   pane.querySelector('[data-tchide]')?.addEventListener('click', (e) => {
     const id = e.currentTarget.dataset.tchide;

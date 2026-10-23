@@ -13,6 +13,8 @@ import {
   delPath,
   getIconTint,
   setIconTint,
+  toolCardKeys,
+  TOOL_CARD_SECTIONS,
 } from './model.js';
 import { colorPicker, bindColorPickers } from './color.js';
 
@@ -47,17 +49,16 @@ const iconUrl = (cat, name) =>
   `${ICON_BASE[cat] || '/fontawesome/svgs/' + cat}/${encodeURIComponent(name)}`;
 const iconLabel = (name) => name.replace(/\.svg$/i, '');
 
-// Alle Tools (section+key+Titel) aus den Standard-Locales – für das Ziel-Dropdown.
+// Alle Tools (section+key+Titel) – Karten der Sprachdateien plus im Tab
+// „Tool-Karten" angelegte Karten (nur Override) – für das Ziel-Dropdown.
 function toolList() {
   const out = [];
-  const defs = (state.defaults && state.defaults.de) || {};
-  for (const section of ['tools', 'imageTools', 'diverseTools']) {
-    const sec = defs[section];
-    if (!sec || typeof sec !== 'object') continue;
-    for (const [key, entry] of Object.entries(sec)) {
-      if (entry && typeof entry === 'object' && (entry.link || entry.svg)) {
-        out.push({ section, key, title: entry.title || key });
-      }
+  for (const section of TOOL_CARD_SECTIONS) {
+    for (const key of toolCardKeys('de', section)) {
+      const ov = getPath(state.overrides.de, [section, key, 'title']);
+      const def = getPath(state.defaults.de, [section, key, 'title']);
+      const title = (typeof ov === 'string' && ov) || (typeof def === 'string' && def) || key;
+      out.push({ section, key, title });
     }
   }
   return out;
