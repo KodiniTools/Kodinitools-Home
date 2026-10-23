@@ -5,6 +5,7 @@
 // Aufgeteilt in Teilmodule (diese Datei bündelt sie, alle Importe bleiben bei
 // './model.js'): model-core.js (Helfer, Konstanten, Pfade, Navigation),
 // model-state.js (App-Zustand), model-ticker.js, model-hero.js, model-toolcards.js,
+// model-cardlist.js (Kartenliste, Duplizieren/Neu),
 // model-grid.js, model-site.js, model-sectionmedia.js, model-media.js.
 
 import { state } from './model-state.js';
@@ -16,6 +17,7 @@ export * from './model-state.js';
 export * from './model-ticker.js';
 export * from './model-hero.js';
 export * from './model-toolcards.js';
+export * from './model-cardlist.js';
 export * from './model-grid.js';
 export * from './model-site.js';
 export * from './model-sectionmedia.js';

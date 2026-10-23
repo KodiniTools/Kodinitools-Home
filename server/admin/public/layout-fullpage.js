@@ -19,6 +19,7 @@ import {
   getPageBg,
   PAGE_BG_DEFAULT,
   isCardHidden,
+  toolCardKeys,
   TOOL_CARD_KEY,
   getToolCards,
   rgbaFromHex,
@@ -118,11 +119,9 @@ function effText(lang, path) {
 // Sichtbare Tool-Karten einer Sektion (Reihenfolge wie auf der Seite).
 function sectionCards(lang, sectionKey) {
   const sec = CARD_SECTION[sectionKey];
-  const defs = (state.defaults[lang] || {})[sec];
   const out = [];
-  if (!defs || typeof defs !== 'object') return out;
-  for (const [key, entry] of Object.entries(defs)) {
-    if (!entry || typeof entry !== 'object' || !('title' in entry) || !('link' in entry)) continue;
+  // Karten der Sprachdatei plus im Tab „Tool-Karten" angelegte Karten.
+  for (const key of toolCardKeys(lang, sec)) {
     const id = `${sec}.${key}`;
     if (isCardHidden(id)) continue;
     out.push({
