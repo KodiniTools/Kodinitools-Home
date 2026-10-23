@@ -86,6 +86,13 @@
       "svg": "",
       "title": "Text Editor\ntxt-html-md-pdf",
       "badge": "Text-browser"
+    },
+    "textEditor-kopie": {
+      "title": "Favicon Converter\nico, png, webp, gif, bmp, svg",
+      "badge": "browser favicon",
+      "description": "Standard formats for all platforms: favicon.ico (16, 32, 48 px), PNG 16 and 32 px, Apple Touch Icon 180 px, Android icons 192 and 512 px (including maskable), site.webmanifest, HTML code, and favicon.svg if the source is SVG.",
+      "link": "https://kodinitools.com/favicon-tool/",
+      "svg": ""
     }
   }
 }
