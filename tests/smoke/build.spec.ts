@@ -227,17 +227,47 @@ describe('Hero-Titel (LCP)', () => {
 });
 
 describe('Navigation (Tablet-Breite)', () => {
-  // Die volle Leiste braucht etwa 1020px; darunter muss das Hamburger-Menü greifen,
+  // Die volle Leiste braucht etwa 1145px (EN); darunter muss das Hamburger-Menü greifen,
   // sonst liegen Hell/Dunkel und DE/EN ausserhalb des Bildschirms.
   it.each(['index.html', 'en/index.html', 'blog/index.html', 'en/faq/index.html'])(
-    '%s schaltet erst ab 1024px auf die volle Leiste um',
+    '%s schaltet erst ab 1180px auf die volle Leiste um',
     (file) => {
       const html = read(file);
       const rule = /@media\s*\(max-width:\s*(\d+)px\)\s*\{[^@]*?\.global-nav-hamburger\[[^\]]*\]\{display:flex\}/.exec(html);
       expect(rule, 'Media-Query des Hamburger-Menüs').not.toBeNull();
-      expect(Number(rule?.[1])).toBeGreaterThanOrEqual(1024);
+      expect(Number(rule?.[1])).toBeGreaterThanOrEqual(1180);
     },
   );
+});
+
+describe('Navigation (Bildergalerie)', () => {
+  it.each([
+    ['index.html', 'Bildergalerie', '/blog/', '/faq/'],
+    ['en/index.html', 'Image Gallery', '/en/blog/', '/en/faq/'],
+  ])('%s verlinkt die Bildergalerie zwischen Blog und FAQ', (file, label, blog, faq) => {
+    const html = read(file);
+    // Astro hängt Scope-Attribute an (data-astro-cid-…), daher nur bis zur Klasse prüfen.
+    const navLink = (href: string) => html.indexOf(`<a href="${href}" class="global-nav-link"`);
+    const at = navLink('https://kodinitools.com/bildergalerie/');
+    expect(at, 'Bildergalerie-Link').toBeGreaterThan(-1);
+    expect(html.indexOf(`>${label}</a>`, at)).toBeGreaterThan(at);
+    expect(navLink(blog)).toBeLessThan(at);
+    expect(navLink(faq)).toBeGreaterThan(at);
+  });
+});
+
+describe('Navigation (Favicon Konverter)', () => {
+  it.each([
+    ['index.html', 'Favicon Konverter'],
+    ['en/index.html', 'Favicon Converter'],
+  ])('%s führt den Favicon Konverter im Tools-Menü', (file, label) => {
+    const html = read(file);
+    const at = html.indexOf('<a href="https://kodinitools.com/favicon-tool/" class="global-nav-dropdown-item"');
+    expect(at, 'Favicon-Link').toBeGreaterThan(-1);
+    expect(html.indexOf(`>${label}</a>`, at)).toBeGreaterThan(at);
+    // Steht hinter dem Texteditor, also im selben Dropdown „Tools“.
+    expect(html.indexOf('<a href="https://kodinitools.com/texteditor/"')).toBeLessThan(at);
+  });
 });
 
 describe('Verkleinerte Bildfassungen (srcset)', () => {

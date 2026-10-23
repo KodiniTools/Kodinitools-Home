@@ -17,6 +17,7 @@ const t = {
     contact: 'Kontakt',
     blog: 'Blog',
     blogHref: '/blog/',
+    gallery: 'Bildergalerie',
     faq: 'FAQ',
     faqHref: '/faq/',
     donate: 'Spenden',
@@ -39,6 +40,7 @@ const t = {
     colorExtractor: 'Kodini Farbextraktor',
     videoConverter: 'Videokonverter',
     textEditor: 'Texteditor',
+    faviconConverter: 'Favicon Konverter',
     ariaToggleTheme: 'Theme wechseln',
     ariaSelectLanguage: 'Sprache wählen',
     ariaMenuOpen: 'Menü öffnen',
@@ -53,6 +55,7 @@ const t = {
     contact: 'Contact',
     blog: 'Blog',
     blogHref: '/en/blog/',
+    gallery: 'Image Gallery',
     faq: 'FAQ',
     faqHref: '/en/faq/',
     donate: 'Donate',
@@ -75,6 +78,7 @@ const t = {
     colorExtractor: 'Kodini Color Extractor',
     videoConverter: 'Video Converter',
     textEditor: 'Text Editor',
+    faviconConverter: 'Favicon Converter',
     ariaToggleTheme: 'Toggle theme',
     ariaSelectLanguage: 'Select language',
     ariaMenuOpen: 'Open menu',
@@ -369,10 +373,11 @@ html {
     transform: rotate(-45deg);
 }
 
-/* Hamburger-Menü bis 1100px: Die volle Leiste braucht mit Hell/Dunkel und DE/EN
-   etwa 1020px (EN), darunter lagen die Bedienelemente ausserhalb des Bildschirms.
-   Der Rest deckt längere Labels und eine im Admin gewählte breitere Schrift ab. */
-@media (max-width: 1100px) {
+/* Hamburger-Menü bis 1240px: Die volle Leiste braucht mit Hell/Dunkel und DE/EN
+   etwa 1145px (EN, seit dem Punkt „Image Gallery“), darunter lagen die Bedienelemente
+   ausserhalb des Bildschirms. Der Rest deckt längere Labels und eine im Admin
+   gewählte breitere Schrift ab. Gleicher Wert wie .cat-bar in home-compact.css. */
+@media (max-width: 1240px) {
     .global-nav-container {
         padding: 0 16px;
         height: 60px;
@@ -635,11 +640,16 @@ html {
                     <a href="https://kodinitools.com/kodini-color-extractor/" class="global-nav-dropdown-item" role="menuitem">{c.colorExtractor}</a>
                     <a href="https://kodinitools.com/videokonverter/" class="global-nav-dropdown-item" role="menuitem">{c.videoConverter}</a>
                     <a href="https://kodinitools.com/texteditor/" class="global-nav-dropdown-item" role="menuitem">{c.textEditor}</a>
+                    <a href="https://kodinitools.com/favicon-tool/" class="global-nav-dropdown-item" role="menuitem">{c.faviconConverter}</a>
                 </div>
             </div>
 
             <div class="global-nav-item">
                 <a href={c.blogHref} class="global-nav-link">{c.blog}</a>
+            </div>
+
+            <div class="global-nav-item">
+                <a href="https://kodinitools.com/bildergalerie/" class="global-nav-link">{c.gallery}</a>
             </div>
 
             <div class="global-nav-item">
