@@ -1,4 +1,6 @@
 ---
+import { IMPRINT_PATH } from '../i18n/imprint'
+
 interface Props {
   lang: 'de' | 'en'
 }
@@ -8,6 +10,7 @@ const { lang } = Astro.props
 const t = {
   de: {
     privacy: 'Datenschutz',
+    imprint: 'Impressum',
     contact: 'Kontakt',
     cookieSettings: 'Cookie-Einstellungen',
     blog: 'Blog',
@@ -25,6 +28,7 @@ const t = {
   },
   en: {
     privacy: 'Privacy Policy',
+    imprint: 'Legal Notice',
     contact: 'Contact',
     cookieSettings: 'Cookie Settings',
     blog: 'Blog',
@@ -166,6 +170,7 @@ const footerNav = [
 
     <div class="footer-links">
       <a href="https://kodinitools.com/datenschutz/" class="footer-link">{c.privacy}</a>
+      <a href={IMPRINT_PATH[lang]} class="footer-link">{c.imprint}</a>
       <a href="https://kodinitools.com/kontaktformular/" class="footer-link">{c.contact}</a>
       <button class="footer-link" onclick="window.CookieConsent && window.CookieConsent.showSettings()">{c.cookieSettings}</button>
       <a href="https://www.facebook.com/KodiniTools" target="_blank" rel="noopener noreferrer" class="footer-link social-link" aria-label="Facebook">

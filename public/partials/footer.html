@@ -106,6 +106,7 @@
   <div class="footer-content">
     <div class="footer-links">
       <a href="https://kodinitools.com/datenschutz/" class="footer-link" data-i18n="footer.privacy">Datenschutz</a>
+      <a href="https://kodinitools.com/impressum/" class="footer-link" data-i18n="footer.imprint" data-i18n-href="footer.imprintHref">Impressum</a>
       <a href="https://kodinitools.com/kontaktformular/" class="footer-link" data-i18n="footer.contact">Kontakt</a>
       <a href="#cookie-einstellungen" class="footer-link" onclick="if (window.CookieConsent) { event.preventDefault(); CookieConsent.showSettings(); }" data-i18n="footer.cookieSettings">Cookie-Einstellungen</a>
       <a href="https://www.facebook.com/KodiniTools" target="_blank" rel="noopener noreferrer" class="footer-link social-link" aria-label="Facebook">
@@ -126,11 +127,15 @@
   var FOOTER_TRANSLATIONS = {
     de: {
       'footer.privacy': 'Datenschutz',
+      'footer.imprint': 'Impressum',
+      'footer.imprintHref': 'https://kodinitools.com/impressum/',
       'footer.contact': 'Kontakt',
       'footer.cookieSettings': 'Cookie-Einstellungen'
     },
     en: {
       'footer.privacy': 'Privacy Policy',
+      'footer.imprint': 'Legal Notice',
+      'footer.imprintHref': 'https://kodinitools.com/en/legal-notice/',
       'footer.contact': 'Contact',
       'footer.cookieSettings': 'Cookie Settings'
     }
@@ -144,6 +149,10 @@
     footer.querySelectorAll('[data-i18n]').forEach(function(el) {
       var key = el.getAttribute('data-i18n');
       if (t[key]) el.textContent = t[key];
+    });
+    footer.querySelectorAll('[data-i18n-href]').forEach(function(el) {
+      var key = el.getAttribute('data-i18n-href');
+      if (t[key]) el.setAttribute('href', t[key]);
     });
   }
 
