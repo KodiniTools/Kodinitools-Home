@@ -9,6 +9,7 @@ import { alternates, HOME_LABEL, HOME_PATH, OG_LOCALE, SITE, type Lang } from '.
 import {
   CONTACT_URL,
   FONT_AWESOME_LICENSE_URL,
+  GALLERY_URL,
   IMPRINT_OPERATOR,
   IMPRINT_PAGE,
   IMPRINT_PATH,
@@ -276,6 +277,10 @@ const cookieBannerHtml = readFileSync(resolve('public/partials/cookie-banner.htm
             <li>{l.label}: <a href={l.url} target="_blank" rel="noopener noreferrer">{l.name}</a></li>
           ))}
         </ul>
+
+        <h2>{t.gallery.heading}</h2>
+        {t.gallery.paragraphs.map((text) => <p>{text}</p>)}
+        <p>{t.gallery.linkIntro} <a href={GALLERY_URL}>{t.gallery.linkText}</a></p>
 
         <h2>{t.privacyHeading}</h2>
         <p>{t.privacyText} <a href={PRIVACY_URL}>{t.privacyLink}</a>.</p>

@@ -11,6 +11,7 @@ export const IMPRINT_PATH: Record<Lang, string> = { de: '/impressum/', en: '/en/
 /** Link-Ziele, die das Impressum referenziert (sprachunabhängige URLs). */
 export const PRIVACY_URL = 'https://kodinitools.com/datenschutz/';
 export const CONTACT_URL = 'https://kodinitools.com/kontaktformular/';
+export const GALLERY_URL = 'https://kodinitools.com/bildergalerie/';
 export const FONT_AWESOME_LICENSE_URL = 'https://fontawesome.com/license/free';
 
 /** Anbieterangaben (Name, Ort, E-Mail wie in der Datenschutzerklärung). */
@@ -54,6 +55,8 @@ export interface ImprintPage {
   licenseIntroLink: string;
   licenseIntroEnd: string;
   licenses: License[];
+  /** Kurzfassung der Nutzungsbedingungen der Bildergalerie; Volltext steht in der Galerie. */
+  gallery: { heading: string; paragraphs: string[]; linkIntro: string; linkText: string };
   privacyHeading: string;
   privacyText: string;
   privacyLink: string;
@@ -111,6 +114,16 @@ export const IMPRINT_PAGE: Record<Lang, ImprintPage> = {
       },
       { label: 'Code/Stylesheets', name: 'MIT License', url: 'https://opensource.org/license/mit' },
     ],
+    gallery: {
+      heading: 'Bilder der Bildergalerie',
+      paragraphs: [
+        'Die meisten Bilder der KodiniTools-Bildergalerie wurden mit KI (Leonardo.ai) erstellt und sind dort mit „KI“ gekennzeichnet.',
+        'Alle Bilder der Galerie dürfen kostenlos heruntergeladen und für private, nicht-kommerzielle Zwecke genutzt werden, auch verändert und ohne Namensnennung. Eine kommerzielle Nutzung ist nicht gestattet.',
+        'Die Nutzung erfolgt auf eigene Verantwortung und ohne Gewähr, dass keine Rechte Dritter berührt sind. Die Bilder dürfen nicht verwendet werden, um über ihre KI-Herkunft zu täuschen oder Personen falsch darzustellen.',
+      ],
+      linkIntro: 'Erlaubte und nicht erlaubte Nutzungen im Detail:',
+      linkText: 'Bildergalerie',
+    },
     privacyHeading: 'Datenschutz',
     privacyText: 'Wie personenbezogene Daten verarbeitet werden, erklärt die',
     privacyLink: 'Datenschutzerklärung',
@@ -166,6 +179,16 @@ export const IMPRINT_PAGE: Record<Lang, ImprintPage> = {
       },
       { label: 'Code/Stylesheets', name: 'MIT License', url: 'https://opensource.org/license/mit' },
     ],
+    gallery: {
+      heading: 'Images in the image gallery',
+      paragraphs: [
+        'Most images in the KodiniTools image gallery were created with AI (Leonardo.ai) and are marked “AI” there.',
+        'All gallery images may be downloaded free of charge and used for private, non-commercial purposes, including modified and without attribution. Commercial use is not permitted.',
+        'Use is at your own risk and without warranty that no third-party rights are affected. The images must not be used to hide their AI origin or to misrepresent people.',
+      ],
+      linkIntro: 'Allowed and prohibited uses in detail:',
+      linkText: 'Image gallery',
+    },
     privacyHeading: 'Privacy',
     privacyText: 'How personal data is processed is explained in the',
     privacyLink: 'Privacy Policy',

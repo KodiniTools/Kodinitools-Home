@@ -15,6 +15,7 @@ describe('Impressum-Texte', () => {
     expect(Object.keys(en).sort()).toEqual(Object.keys(de).sort());
     expect(en.sections).toHaveLength(de.sections.length);
     expect(en.licenses.map((l) => l.url)).toEqual(de.licenses.map((l) => l.url));
+    expect(en.gallery.paragraphs).toHaveLength(de.gallery.paragraphs.length);
     en.sections.forEach((s, i) => {
       expect(s.paragraphs).toHaveLength(de.sections[i]!.paragraphs.length);
     });
