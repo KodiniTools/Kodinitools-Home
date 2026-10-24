@@ -2,35 +2,36 @@
 //
 // Rechtsrahmen: Betreiber mit Wohnsitz in der Schweiz → Angaben nach
 // Art. 3 Abs. 1 lit. s UWG (Identität + Kontaktadresse inkl. E-Mail).
-// Angaben mit Wert `null` sind noch offen und erscheinen auf der Seite als
-// deutlich markierter Platzhalter, bis sie hier eingetragen werden.
+// Betreiber ist Privatperson → keine UID.
 
 import type { Lang } from './lang';
 
 export const IMPRINT_PATH: Record<Lang, string> = { de: '/impressum/', en: '/en/legal-notice/' };
 
-/** Link-Ziele, die das Impressum referenziert (bestehende Seiten, sprachunabhängige URL). */
+/** Link-Ziele, die das Impressum referenziert (sprachunabhängige URLs). */
 export const PRIVACY_URL = 'https://kodinitools.com/datenschutz/';
 export const CONTACT_URL = 'https://kodinitools.com/kontaktformular/';
+export const FONT_AWESOME_LICENSE_URL = 'https://fontawesome.com/license/free';
 
-/**
- * Anbieterangaben. Name, Ort und E-Mail stammen aus der bestehenden
- * Datenschutzerklärung (Abschnitt „Verantwortliche Stelle“).
- */
+/** Anbieterangaben (Name, Ort, E-Mail wie in der Datenschutzerklärung). */
 export const IMPRINT_OPERATOR = {
   name: 'Dinko Ramic',
   brand: 'KodiniTools',
-  street: null as string | null,
-  postalCode: null as string | null,
+  street: 'Kanalweg 1',
+  postalCode: '8610',
   city: 'Uster',
   email: 'kodinitools@kodinitools.com',
-  /** UID (CHE-xxx.xxx.xxx), nur falls im Handelsregister eingetragen. */
-  uid: null as string | null,
 };
 
 interface Section {
   heading: string;
   paragraphs: string[];
+}
+
+interface License {
+  label: string;
+  name: string;
+  url: string;
 }
 
 export interface ImprintPage {
@@ -45,11 +46,14 @@ export interface ImprintPage {
   emailLabel: string;
   contactFormLabel: string;
   contactFormText: string;
-  uidHeading: string;
   responsibleHeading: string;
   responsibleNote: string;
-  placeholder: { street: string; postalCode: string; uid: string };
   sections: Section[];
+  licenseHeading: string;
+  licenseIntro: string;
+  licenseIntroLink: string;
+  licenseIntroEnd: string;
+  licenses: License[];
   privacyHeading: string;
   privacyText: string;
   privacyLink: string;
@@ -70,14 +74,8 @@ export const IMPRINT_PAGE: Record<Lang, ImprintPage> = {
     emailLabel: 'E-Mail',
     contactFormLabel: 'Kontaktformular',
     contactFormText: 'Nachricht senden',
-    uidHeading: 'Unternehmens-Identifikationsnummer (UID)',
     responsibleHeading: 'Verantwortlich für den Inhalt',
     responsibleNote: 'Anschrift wie oben.',
-    placeholder: {
-      street: 'Strasse und Hausnummer',
-      postalCode: 'PLZ',
-      uid: 'UID-Nummer eintragen oder Abschnitt entfernen',
-    },
     sections: [
       {
         heading: 'Haftungsausschluss',
@@ -100,6 +98,19 @@ export const IMPRINT_PAGE: Record<Lang, ImprintPage> = {
         ],
       },
     ],
+    licenseHeading: 'Urheberrechtlicher Lizenzhinweis',
+    licenseIntro: 'Auf dieser Plattform werden Schriftarten und Vektorsymbole von',
+    licenseIntroLink: 'Font Awesome Free',
+    licenseIntroEnd: ' genutzt:',
+    licenses: [
+      { label: 'Webfonts', name: 'SIL Open Font License 1.1', url: 'https://openfontlicense.org/' },
+      {
+        label: 'Icons (Vektoren)',
+        name: 'Creative Commons Attribution 4.0 International (CC BY 4.0)',
+        url: 'https://creativecommons.org/licenses/by/4.0/',
+      },
+      { label: 'Code/Stylesheets', name: 'MIT License', url: 'https://opensource.org/license/mit' },
+    ],
     privacyHeading: 'Datenschutz',
     privacyText: 'Wie personenbezogene Daten verarbeitet werden, erklärt die',
     privacyLink: 'Datenschutzerklärung',
@@ -118,14 +129,8 @@ export const IMPRINT_PAGE: Record<Lang, ImprintPage> = {
     emailLabel: 'Email',
     contactFormLabel: 'Contact form',
     contactFormText: 'Send a message',
-    uidHeading: 'Business identification number (UID)',
     responsibleHeading: 'Responsible for the content',
     responsibleNote: 'Address as above.',
-    placeholder: {
-      street: 'Street and house number',
-      postalCode: 'Postcode',
-      uid: 'Enter UID number or remove this section',
-    },
     sections: [
       {
         heading: 'Disclaimer',
@@ -147,6 +152,19 @@ export const IMPRINT_PAGE: Record<Lang, ImprintPage> = {
           'Files you process with the tools remain your property.',
         ],
       },
+    ],
+    licenseHeading: 'Copyright and license notice',
+    licenseIntro: 'This platform uses fonts and vector icons from',
+    licenseIntroLink: 'Font Awesome Free',
+    licenseIntroEnd: ':',
+    licenses: [
+      { label: 'Webfonts', name: 'SIL Open Font License 1.1', url: 'https://openfontlicense.org/' },
+      {
+        label: 'Icons (vectors)',
+        name: 'Creative Commons Attribution 4.0 International (CC BY 4.0)',
+        url: 'https://creativecommons.org/licenses/by/4.0/',
+      },
+      { label: 'Code/Stylesheets', name: 'MIT License', url: 'https://opensource.org/license/mit' },
     ],
     privacyHeading: 'Privacy',
     privacyText: 'How personal data is processed is explained in the',

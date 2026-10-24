@@ -6,7 +6,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { IMPRINT_PAGE, IMPRINT_PATH } from '../../src/i18n/imprint';
+import { IMPRINT_OPERATOR, IMPRINT_PAGE, IMPRINT_PATH } from '../../src/i18n/imprint';
 
 describe('Impressum-Texte', () => {
   it('haben in DE und EN dieselbe Struktur', () => {
@@ -14,9 +14,14 @@ describe('Impressum-Texte', () => {
     const en = IMPRINT_PAGE.en;
     expect(Object.keys(en).sort()).toEqual(Object.keys(de).sort());
     expect(en.sections).toHaveLength(de.sections.length);
+    expect(en.licenses.map((l) => l.url)).toEqual(de.licenses.map((l) => l.url));
     en.sections.forEach((s, i) => {
       expect(s.paragraphs).toHaveLength(de.sections[i]!.paragraphs.length);
     });
+  });
+
+  it('enthalten keine offenen Platzhalter mehr', () => {
+    expect(JSON.stringify(IMPRINT_OPERATOR)).not.toMatch(/null|\[/);
   });
 
   it('liegen unter /impressum/ und /en/legal-notice/', () => {

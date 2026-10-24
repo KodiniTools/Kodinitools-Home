@@ -6,7 +6,14 @@ import SiteFont from '../SiteFont.astro'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
 import { alternates, HOME_LABEL, HOME_PATH, OG_LOCALE, SITE, type Lang } from '../../i18n/lang'
-import { CONTACT_URL, IMPRINT_OPERATOR, IMPRINT_PAGE, IMPRINT_PATH, PRIVACY_URL } from '../../i18n/imprint'
+import {
+  CONTACT_URL,
+  FONT_AWESOME_LICENSE_URL,
+  IMPRINT_OPERATOR,
+  IMPRINT_PAGE,
+  IMPRINT_PATH,
+  PRIVACY_URL,
+} from '../../i18n/imprint'
 
 // Impressum für /impressum/ (de) und /en/legal-notice/ (en); die Routen in src/pages/ sind nur Hüllen.
 interface Props {
@@ -164,15 +171,15 @@ const cookieBannerHtml = readFileSync(resolve('public/partials/cookie-banner.htm
 
     [data-theme="dark"] .imprint-content a { color: #f8e1a9; }
 
-    /* Noch offene Angabe (Wert null in src/i18n/imprint.ts) */
-    .imprint-placeholder {
-      background: #fff3b0;
-      color: #6b4e00;
-      border: 1px dashed #c9984d;
-      border-radius: 0.3rem;
-      padding: 0 0.3rem;
-      font-weight: 600;
+    .imprint-licenses {
+      font-size: 0.92rem;
+      line-height: 1.75;
+      color: var(--text-color, #003971);
+      margin: 0 0 1rem;
+      padding-left: 1.25rem;
     }
+
+    [data-theme="dark"] .imprint-licenses { color: var(--text-color, #f9f2d5); }
 
     .imprint-back {
       margin-top: 3rem;
@@ -241,8 +248,8 @@ const cookieBannerHtml = readFileSync(resolve('public/partials/cookie-banner.htm
         <address>
           {op.name}<br />
           {op.brand}<br />
-          {op.street ?? <mark class="imprint-placeholder">[{t.placeholder.street}]</mark>}<br />
-          {op.postalCode ?? <mark class="imprint-placeholder">[{t.placeholder.postalCode}]</mark>} {op.city}<br />
+          {op.street}<br />
+          {op.postalCode} {op.city}<br />
           {t.country}
         </address>
 
@@ -251,9 +258,6 @@ const cookieBannerHtml = readFileSync(resolve('public/partials/cookie-banner.htm
           {t.emailLabel}: <a href={`mailto:${op.email}`}>{op.email}</a><br />
           {t.contactFormLabel}: <a href={CONTACT_URL}>{t.contactFormText}</a>
         </p>
-
-        <h2>{t.uidHeading}</h2>
-        <p>{op.uid ?? <mark class="imprint-placeholder">[{t.placeholder.uid}]</mark>}</p>
 
         <h2>{t.responsibleHeading}</h2>
         <p>{op.name}, {op.city}. {t.responsibleNote}</p>
@@ -264,6 +268,14 @@ const cookieBannerHtml = readFileSync(resolve('public/partials/cookie-banner.htm
             {section.paragraphs.map((text) => <p>{text}</p>)}
           </>
         ))}
+
+        <h2>{t.licenseHeading}</h2>
+        <p>{t.licenseIntro} <a href={FONT_AWESOME_LICENSE_URL} target="_blank" rel="noopener noreferrer">{t.licenseIntroLink}</a>{t.licenseIntroEnd}</p>
+        <ul class="imprint-licenses">
+          {t.licenses.map((l) => (
+            <li>{l.label}: <a href={l.url} target="_blank" rel="noopener noreferrer">{l.name}</a></li>
+          ))}
+        </ul>
 
         <h2>{t.privacyHeading}</h2>
         <p>{t.privacyText} <a href={PRIVACY_URL}>{t.privacyLink}</a>.</p>
