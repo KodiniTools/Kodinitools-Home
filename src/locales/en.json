@@ -526,7 +526,7 @@
       },
       "q3": {
         "question": "Which file formats are supported?",
-        "answer": "Our audio tools support MP3, WAV, OGG, FLAC, AAC, and M4A. The image tools work with JPG, PNG, WebP, AVIF, GIF, and BMP. The video converter supports MP4, WebM, AVI, and other common formats."
+        "answer": "Our audio tools support MP3, WAV, OGG, FLAC, AAC, and M4A. The image tools work with JPG, PNG, WebP, AVIF, GIF, and BMP. The Video Converter supports MP4, WebM, AVI, and other common formats."
       },
       "q4": {
         "question": "What is the difference between browser and server processing?",
@@ -538,7 +538,7 @@
       },
       "q6": {
         "question": "Is there a file size limit?",
-        "answer": "For browser-based tools, the maximum file size depends on your device memory. For server-based tools, there are different limits depending on the tool – the video converter, for example, supports files up to 5 GB."
+        "answer": "For browser-based tools, the maximum file size depends on your device memory. For server-based tools, there are different limits depending on the tool – the Video Converter, for example, supports files up to 5 GB."
       },
       "q7": {
         "question": "Do the tools work on mobile devices?",
@@ -587,6 +587,26 @@
       "q18": {
         "question": "Can I prepare audio files for podcasts?",
         "answer": "Yes, KodiniTools offers several tools specifically for podcasters: the Audio Normalizer ensures consistent volume, the MP3 Converter creates compatible podcast files, and the Audio Converter lets you switch between formats like WAV, MP3 or M4A. All tools are free and usable without registration."
+      },
+      "q19": {
+        "question": "What is the KodiniTools Image Gallery and may I use the images?",
+        "answer": "The Image Gallery offers images sorted by category, most of them created with AI and marked “AI”. All images may be downloaded free of charge and used for private, non-commercial purposes, including modified and without attribution; commercial use is not permitted. You can pass an image straight from the preview to the Photo Collage tool, the Image Converter, the Batch Image Editor or the Kodini Color Extractor."
+      },
+      "q20": {
+        "question": "How do I cut an audio file with millisecond precision?",
+        "answer": "With the Audio Cutter: load your file, set start and end in the waveform or by entering times, keep or remove the selection and optionally add fade-ins and fade-outs. Cutting is sample-accurate and happens directly in your browser, without any upload. Export as WAV, MP3 or FLAC, and depending on your browser also as AAC (M4A) or Opus (WebM); an optional server mode handles OGG."
+      },
+      "q21": {
+        "question": "How do I create a favicon for my website?",
+        "answer": "With the Favicon Converter: upload an image, for example a PNG or SVG, and get all common formats at once: favicon.ico (16, 32, 48 px), PNG at 16 and 32 px, Apple Touch Icon 180 px, Android icons 192 and 512 px (including maskable), site.webmanifest and the matching HTML code. With an SVG source you also get favicon.svg. The conversion runs entirely in your browser."
+      },
+      "q22": {
+        "question": "How do I find out the color palette of an image?",
+        "answer": "With the Kodini Color Extractor: upload an image, choose the number of colors (1 to 20) and drag the color markers on the image to pick other colors. Color codes are available as HEX, RGB, RGBA, HSL, HSLA or CSS variables, copyable with one click or downloadable as a TXT or PNG file. Your images are not uploaded."
+      },
+      "q23": {
+        "question": "How do I merge several audio files into one file?",
+        "answer": "With the Audio Playlist Converter: drag and drop up to 50 audio tracks, set their order and convert everything into a single MP3 or WebM file. Processing runs on our servers with a progress display, and the files are deleted automatically after download."
       }
     }
   }

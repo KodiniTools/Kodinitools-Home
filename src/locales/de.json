@@ -587,6 +587,26 @@
       "q18": {
         "question": "Kann ich Audiodateien für Podcasts vorbereiten?",
         "answer": "Ja, KodiniTools bietet mehrere Tools speziell für Podcaster: Mit dem Audio Normalizer stellen Sie eine konstante Lautstärke sicher, mit dem MP3 Konverter erstellen Sie kompatible Podcast-Dateien und mit dem Audio Konverter wechseln Sie zwischen Formaten wie WAV, MP3 oder M4A. Alle Tools sind kostenlos und ohne Registrierung nutzbar."
+      },
+      "q19": {
+        "question": "Was ist die KodiniTools Bildergalerie und darf ich die Bilder verwenden?",
+        "answer": "Die Bildergalerie bietet nach Kategorien sortierte Bilder, die meisten davon mit KI erstellt und mit „KI“ gekennzeichnet. Alle Bilder dürfen kostenlos heruntergeladen und für private, nicht-kommerzielle Zwecke genutzt werden, auch verändert und ohne Namensnennung; eine kommerzielle Nutzung ist nicht gestattet. Ein Bild lässt sich direkt aus der Vorschau an das Fotocollage-Tool, den Bildkonverter, den Batch Bildbearbeiter oder den Kodini Farbextraktor übergeben."
+      },
+      "q20": {
+        "question": "Wie schneide ich eine Audiodatei millisekundengenau?",
+        "answer": "Mit dem Audio-Schneider: Datei laden, Start und Ende in der Wellenform oder per Zeiteingabe festlegen, Teil behalten oder entfernen und optional Ein- und Ausblendungen setzen. Geschnitten wird sample-genau direkt im Browser, ohne Upload. Exportiert wird als WAV, MP3 oder FLAC, je nach Browser auch als AAC (M4A) oder Opus (WebM); für OGG gibt es einen optionalen Server-Modus."
+      },
+      "q21": {
+        "question": "Wie erstelle ich ein Favicon für meine Website?",
+        "answer": "Mit dem Favicon Konverter: Bild hochladen, zum Beispiel als PNG oder SVG, und alle gängigen Formate auf einmal erhalten: favicon.ico (16, 32, 48 px), PNG in 16 und 32 px, Apple-Touch-Icon 180 px, Android-Icons 192 und 512 px (auch maskable), site.webmanifest und den passenden HTML-Code. Bei einer SVG-Quelle gibt es zusätzlich favicon.svg. Die Umwandlung läuft komplett im Browser."
+      },
+      "q22": {
+        "question": "Wie finde ich die Farbpalette eines Bildes heraus?",
+        "answer": "Mit dem Kodini Farbextraktor: Bild hochladen, die Anzahl der Farben (1 bis 20) wählen und die Farbpunkte auf dem Bild verschieben, um andere Farben aufzunehmen. Die Farbcodes gibt es als HEX, RGB, RGBA, HSL, HSLA oder CSS-Variablen, mit einem Klick kopierbar oder als TXT- und PNG-Datei zum Download. Ihre Bilder werden nicht hochgeladen."
+      },
+      "q23": {
+        "question": "Wie füge ich mehrere Audiodateien zu einer Datei zusammen?",
+        "answer": "Mit dem Wiedergabeliste Konverter: bis zu 50 Audio-Tracks per Drag-and-Drop hochladen, die Reihenfolge festlegen und alles in eine einzige MP3- oder WebM-Datei umwandeln. Die Verarbeitung läuft auf unseren Servern mit Fortschrittsanzeige, die Dateien werden nach dem Download automatisch gelöscht."
       }
     }
   }
