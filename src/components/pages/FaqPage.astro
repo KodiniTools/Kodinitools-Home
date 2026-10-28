@@ -7,7 +7,7 @@ import { readFileSync } from 'fs'
 import { resolve } from 'path'
 import { getContent } from '../../content/content'
 import { alternates, HOME_LABEL, HOME_PATH, OG_LOCALE, SITE, type Lang } from '../../i18n/lang'
-import { FAQ_PAGE, FAQ_PATH } from '../../i18n/faq'
+import { FAQ_LINKS, FAQ_PAGE, FAQ_PATH, faqSegmentsToHtml, linkFaqAnswer } from '../../i18n/faq'
 
 // FAQ-Seite für /faq/ (de) und /en/faq/ (en); die Routen in src/pages/ sind nur Hüllen.
 interface Props {
@@ -22,7 +22,11 @@ const alt = alternates(FAQ_PATH)
 
 const cookieBannerHtml = readFileSync(resolve('public/partials/cookie-banner.html'), 'utf-8')
 
-const questions = Object.values(content.faq.questions)
+// Tool-Namen in den Antworten auf die Live-URLs verlinken (Liste in src/i18n/faq.ts).
+const questions = Object.values(content.faq.questions).map((q) => ({
+  ...q,
+  segments: linkFaqAnswer(q.answer, FAQ_LINKS[lang]),
+}))
 
 const schemaFaq = {
   '@context': 'https://schema.org',
@@ -30,7 +34,7 @@ const schemaFaq = {
   mainEntity: questions.map((q) => ({
     '@type': 'Question',
     name: q.question,
-    acceptedAnswer: { '@type': 'Answer', text: q.answer },
+    acceptedAnswer: { '@type': 'Answer', text: faqSegmentsToHtml(q.segments) },
   })),
 }
 ---
@@ -141,7 +145,7 @@ const schemaFaq = {
               id={`faq-answer-${index + 1}`}
               hidden
             >
-              <p>{item.answer}</p>
+              <p>{item.segments.map((s) => (s.href ? <a href={s.href}>{s.text}</a> : s.text))}</p>
             </div>
           </div>
         ))}
@@ -318,6 +322,17 @@ const schemaFaq = {
     }
 
     [data-theme="dark"] .faq-answer p { color: var(--text-secondary, #f8e1a9); }
+
+    .faq-answer a {
+      color: var(--primary-color, #014f99);
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .faq-answer a:hover { text-decoration-thickness: 2px; }
+
+    [data-theme="dark"] .faq-answer a { color: var(--primary-color, #e8a945); }
 
     .faq-back {
       margin-top: 3rem;
