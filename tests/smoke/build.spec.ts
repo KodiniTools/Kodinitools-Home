@@ -116,6 +116,18 @@ describe('sitemap.xml', () => {
     for (const file of pages) expect(locs).toContain(urlOf(file));
   });
 
+  it('enthält verlinkte Seiten außerhalb von Astro (Galerie, Datenschutz, Tool-Unterseiten)', () => {
+    for (const url of [
+      `${SITE}/bildergalerie/`,
+      `${SITE}/datenschutz/`,
+      `${SITE}/equaliser19/faq`,
+      `${SITE}/playlistkonverter/faq.html`,
+      `${SITE}/playlistkonverter/funktion.html`,
+    ]) {
+      expect(locs).toContain(url);
+    }
+  });
+
   it('enthält keine doppelten URLs', () => {
     expect(new Set(locs).size).toBe(locs.length);
   });

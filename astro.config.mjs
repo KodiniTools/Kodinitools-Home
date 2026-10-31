@@ -14,8 +14,17 @@ const toolPages = ['tools', 'imageTools', 'diverseTools'].flatMap((group) =>
     .filter((entry) => entry && typeof entry === 'object' && 'link' in entry)
     .map((entry) => entry.link),
 );
-// Unterseiten von Tool-Apps, die nicht als eigener Eintrag in de.json stehen.
-toolPages.push('https://kodinitools.com/kodini-color-extractor/generator');
+// Unterseiten von Tool-Apps und verlinkte Seiten, die nicht als eigener
+// Eintrag in de.json stehen (Liste mit tests/smoke/build.spec.ts abgleichen).
+const EXTRA_SITEMAP_PAGES = [
+  'https://kodinitools.com/kodini-color-extractor/generator',
+  'https://kodinitools.com/equaliser19/faq',
+  'https://kodinitools.com/playlistkonverter/faq.html',
+  'https://kodinitools.com/playlistkonverter/funktion.html',
+  'https://kodinitools.com/bildergalerie/',
+  'https://kodinitools.com/datenschutz/',
+];
+toolPages.push(...EXTRA_SITEMAP_PAGES);
 
 export default defineConfig({
   site: 'https://kodinitools.com',
