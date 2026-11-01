@@ -1,7 +1,7 @@
 import { defineConfig } from 'astro/config';
 import { readFileSync } from 'node:fs';
 import vue from '@astrojs/vue';
-import singleSitemap from './single-sitemap.mjs';
+import singleSitemap, { langAlternatePages } from './single-sitemap.mjs';
 import rszIntegration from './rsz-integration.mjs';
 
 // Tool pages live as standalone apps in sub-directories (e.g. /audiokonverter/),
@@ -39,9 +39,9 @@ export default defineConfig({
   integrations: [
     // Eigene Integration: erzeugt EINE flache sitemap.xml statt des von
     // @astrojs/sitemap erzwungenen Paars sitemap-index.xml + sitemap-0.xml.
-    // Die Tool-Apps (toolPages) und die hreflang-Alternates (de/en) bleiben
-    // erhalten. Siehe single-sitemap.mjs.
-    singleSitemap({ extraPages: toolPages }),
+    // Die Tool-Apps (toolPages) stehen je mit deutscher URL und englischer
+    // Fassung (?lang=en) samt hreflang de/en/x-default drin. Siehe single-sitemap.mjs.
+    singleSitemap({ extraPages: langAlternatePages(toolPages) }),
     // Vue 3 für interaktive Islands (src/islands/), nur dort im Browser geladen.
     vue(),
     // Verkleinerte Fassungen hochgeladener Bilder für srcset (Hero-Banner).

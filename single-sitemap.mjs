@@ -11,7 +11,9 @@
 //
 // Diese Integration bildet das bisherige Verhalten 1:1 nach:
 //   - alle von Astro gebauten Seiten (ohne 404),
-//   - plus die eigenständigen Tool-Apps (extraPages, aus de.json),
+//   - plus die eigenständigen Tool-Apps (extraPages, aus de.json), je Seite
+//     mit englischer Fassung unter ?lang=en und hreflang de/en/x-default
+//     (siehe langAlternatePages),
 //   - plus hreflang-Alternates (de/en) für Seiten mit identischem Pfad in
 //     beiden Sprachen; die Zuordnung wird aus den hreflang-Tags der gebauten
 //     Seiten gelesen, daher bekommen auch Blog-Artikel mit abweichenden Slugs
@@ -53,10 +55,28 @@ async function readPageMeta(htmlPath) {
     const href = tag.match(/href="([^"]+)"/)?.[1];
     if (hreflang && href) alternates.push({ hreflang, href });
   }
-  const lastmod = html.match(
-    /<meta\s+property="article:published_time"\s+content="([^"]+)"/,
-  )?.[1];
+  const lastmod = html.match(/<meta\s+property="article:published_time"\s+content="([^"]+)"/)?.[1];
   return { alternates, lastmod };
+}
+
+// Tool-Apps liefern Englisch unter derselben URL mit ?lang=en (Deutsch ohne
+// Parameter, x-default = Deutsch). Für jede URL entstehen zwei Einträge, die
+// sich gegenseitig als Alternate nennen – wie es die Seiten selbst per
+// <link rel="alternate" hreflang> tun.
+export function langAlternatePages(urls) {
+  return urls.flatMap((url) => {
+    const de = url;
+    const en = `${url}?lang=en`;
+    const alternates = [
+      { hreflang: 'de', href: de },
+      { hreflang: 'en', href: en },
+      { hreflang: 'x-default', href: de },
+    ];
+    return [
+      { loc: de, alternates },
+      { loc: en, alternates },
+    ];
+  });
 }
 
 // Pfad -> { locale, key }. Der "key" ist der sprachneutrale Pfad, über den
@@ -119,9 +139,10 @@ export default function singleSitemap({ extraPages = [] } = {}) {
           }
         }
 
-        // 3) Eigenständige Tool-Apps (feste Einzel-URLs, keine Alternates).
-        for (const loc of extraPages) {
-          entries.push({ loc: loc.replace(/\/$/, '/'), alternates: [] });
+        // 3) Eigenständige Tool-Apps: URL-String (ohne Alternates) oder
+        //    { loc, alternates } (siehe langAlternatePages).
+        for (const page of extraPages) {
+          entries.push(typeof page === 'string' ? { loc: page, alternates: [] } : page);
         }
 
         // Deduplizieren und stabil (alphabetisch) sortieren.
