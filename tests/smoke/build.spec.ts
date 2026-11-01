@@ -128,6 +128,27 @@ describe('sitemap.xml', () => {
     }
   });
 
+  it('Tool-Seiten: englische Fassung (?lang=en) mit hreflang de/en/x-default', () => {
+    for (const url of [
+      `${SITE}/audiokonverter/`,
+      `${SITE}/bilderseriebearbeiten/`,
+      `${SITE}/playlistkonverter/faq.html`,
+      `${SITE}/datenschutz/`,
+    ]) {
+      expect(locs).toContain(`${url}?lang=en`);
+      for (const loc of [url, `${url}?lang=en`]) {
+        const entry = xml.split('<url>').find((u) => u.includes(`<loc>${loc}</loc>`)) ?? '';
+        expect(attr(entry, /hreflang="([^"]+)" href="([^"]+)"/g)).toEqual([
+          'de',
+          'en',
+          'x-default',
+        ]);
+        expect(entry).toContain(`hreflang="en" href="${url}?lang=en"`);
+        expect(entry).toContain(`hreflang="x-default" href="${url}"`);
+      }
+    }
+  });
+
   it('enthält keine doppelten URLs', () => {
     expect(new Set(locs).size).toBe(locs.length);
   });
