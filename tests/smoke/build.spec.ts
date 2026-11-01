@@ -120,6 +120,7 @@ describe('sitemap.xml', () => {
     for (const url of [
       `${SITE}/bildergalerie/`,
       `${SITE}/datenschutz/`,
+      `${SITE}/favicon-tool/`,
       `${SITE}/equaliser19/faq`,
       `${SITE}/playlistkonverter/faq.html`,
       `${SITE}/playlistkonverter/funktion.html`,
@@ -134,6 +135,7 @@ describe('sitemap.xml', () => {
       `${SITE}/bilderseriebearbeiten/`,
       `${SITE}/playlistkonverter/faq.html`,
       `${SITE}/datenschutz/`,
+      `${SITE}/favicon-tool/`,
     ]) {
       expect(locs).toContain(`${url}?lang=en`);
       for (const loc of [url, `${url}?lang=en`]) {

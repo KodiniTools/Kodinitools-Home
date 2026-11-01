@@ -23,6 +23,8 @@ const EXTRA_SITEMAP_PAGES = [
   'https://kodinitools.com/playlistkonverter/funktion.html',
   'https://kodinitools.com/bildergalerie/',
   'https://kodinitools.com/datenschutz/',
+  // Steht nur in overrides.*.json (Admin-Karten), nicht in de.json
+  'https://kodinitools.com/favicon-tool/',
 ];
 toolPages.push(...EXTRA_SITEMAP_PAGES);
 
