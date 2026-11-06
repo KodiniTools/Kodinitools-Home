@@ -151,6 +151,23 @@ describe('sitemap.xml', () => {
     }
   });
 
+  it('Unterseiten der Tool-Apps (früher eigene Tool-Sitemaps) mit ?lang=en', () => {
+    for (const url of [
+      `${SITE}/collagemaker/editor`,
+      `${SITE}/texteditor/blog`,
+      `${SITE}/videokonverter/converter.html`,
+      `${SITE}/bildkonverter/konvertieren/heic-zu-jpg`,
+    ]) {
+      expect(locs).toContain(url);
+      expect(locs).toContain(`${url}?lang=en`);
+    }
+  });
+
+  it('robots.txt verweist nur auf diese eine Sitemap', () => {
+    const robots = read('robots.txt');
+    expect(attr(robots, /^Sitemap: (.+)$/gm)).toEqual([`${SITE}/sitemap.xml`]);
+  });
+
   it('enthält keine doppelten URLs', () => {
     expect(new Set(locs).size).toBe(locs.length);
   });
