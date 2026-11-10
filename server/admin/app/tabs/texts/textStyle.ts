@@ -195,6 +195,9 @@ export type FxNumField =
   | 'opacity'
   | 'animIntensity';
 
+/** Nicht-numerische Effekt-Felder (Schalter, Farben, Auswahl). */
+export type FxField = 'shadow' | 'shadowColor' | 'strokeColor' | 'anim' | 'animSpeed';
+
 /** Begrenzungen der Effekt-Zahlenfelder (wie Server-Validierung). */
 export const FX_LIMITS: Record<FxNumField, { min: number; max: number; step: number }> = {
   shadowX: { min: -50, max: 50, step: 1 },
@@ -246,26 +249,11 @@ export function slotAnimClass(st: TextStyle): string {
 }
 
 /**
- * Inline-Style der Slot-Vorschau (Farbe des Modus + Effekte), identisch zu
- * `slotPreviewStyle` in `public/textstyle.js`. `family` = Ergebnis von
- * `ensureFontFace(st.font)` bzw. '' ohne eigene Schrift.
+ * Nur die Effekt-Deklarationen (Deckkraft, Umriss, Schatten, Animations-
+ * Variablen) eines Slots – wie `slotFxParts` in `public/textstyle.js`.
  */
-export function slotPreviewStyle(st: TextStyle, mode: ThemeMode, family: string): string {
-  const dark = mode === 'dark';
-  const color = (dark ? st.colorDark : st.colorLight) || DEFAULT_TEXT_COLOR[mode];
-  const size = st.size > 0 ? Math.max(12, Math.min(40, st.size)) : 22;
-  const parts = [
-    `font-size:${size}px`,
-    'line-height:1.25',
-    'font-weight:700',
-    'display:inline-block',
-    'max-width:100%',
-    'white-space:pre-line',
-    'word-break:break-word',
-    `color:${color}`,
-    `-webkit-text-fill-color:${color}`,
-  ];
-  if (st.font && family) parts.push(`font-family:${fontFamilyCss(family)}`);
+export function slotFxParts(st: TextStyle): string[] {
+  const parts: string[] = [];
   const op = st.opacity ?? 100;
   if (op < 100) parts.push(`opacity:${op / 100}`);
   const sw = st.strokeWidth ?? 0;
@@ -286,7 +274,31 @@ export function slotPreviewStyle(st: TextStyle, mode: ThemeMode, family: string)
     else if (st.anim === 'wobble') parts.push(`--anim-rot:${it}deg`);
     else if (st.anim === 'glow') parts.push(`--anim-glow:${it * 2}px`);
   }
-  return parts.join(';');
+  return parts;
+}
+
+/**
+ * Inline-Style der Slot-Vorschau (Farbe des Modus + Effekte), identisch zu
+ * `slotPreviewStyle` in `public/textstyle.js`. `family` = Ergebnis von
+ * `ensureFontFace(st.font)` bzw. '' ohne eigene Schrift.
+ */
+export function slotPreviewStyle(st: TextStyle, mode: ThemeMode, family: string): string {
+  const dark = mode === 'dark';
+  const color = (dark ? st.colorDark : st.colorLight) || DEFAULT_TEXT_COLOR[mode];
+  const size = st.size > 0 ? Math.max(12, Math.min(40, st.size)) : 22;
+  const parts = [
+    `font-size:${size}px`,
+    'line-height:1.25',
+    'font-weight:700',
+    'display:inline-block',
+    'max-width:100%',
+    'white-space:pre-line',
+    'word-break:break-word',
+    `color:${color}`,
+    `-webkit-text-fill-color:${color}`,
+  ];
+  if (st.font && family) parts.push(`font-family:${fontFamilyCss(family)}`);
+  return parts.concat(slotFxParts(st)).join(';');
 }
 
 /** Textfarben aller Slots von einem Modus in den anderen kopieren. */

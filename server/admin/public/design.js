@@ -60,6 +60,7 @@ import {
   updateSlotPreview,
 } from './textstyle.js';
 import { captureView, restoreView } from './viewstate.js';
+import { mountVueTab } from './islands.js';
 
 const MODES = ['light', 'dark'];
 const modeName = (mode) => (mode === 'dark' ? 'Dunkel' : 'Hell');
@@ -1011,9 +1012,67 @@ function applyHdSelection(pane, scroll = true) {
   pane.querySelectorAll(m.prev).forEach((el) => (el.style.outline = '3px solid var(--accent)'));
 }
 
+// Service für die Vue-Fassung des Tabs (app/tabs/hero): kapselt die Zugriffe auf
+// den Admin-Zustand, damit das Vue-Bundle model.js nicht selbst importiert.
+export function heroService(lang) {
+  return {
+    lang,
+    design: () => heroDesignOf(lang),
+    designOf: (l) => heroDesignOf(l),
+    media: () => state.media[lang],
+    mediaOf: (l) => state.media[l],
+    overrides: () => state.overrides[lang],
+    defaults: () => state.defaults[lang] || {},
+    features: () => featureDefs(lang),
+    globalFont: getGlobalFont,
+    // Globale Schrift + Hero-Schriften beider Sprachen (wie die Kachel-Klicks unten).
+    setGlobalFont: (name) => {
+      setGlobalFont(name);
+      const file = getGlobalFont();
+      for (const l of MEDIA_LANGS) {
+        const hd = heroDesignOf(l);
+        hd.titleFont = file;
+        hd.buttonFont = file;
+      }
+    },
+    homeLayout: getHomeLayout,
+    fonts: () => state.fonts,
+    ensureFontFace,
+    resolveUrl: heroImgUrl,
+    slideInfo: (val) => {
+      const info = slideInfo(val);
+      return info ? { src: info.src, name: info.item ? info.item.name : '' } : null;
+    },
+    pick: (kind, title, onPick) => {
+      const srv = [lang, 'shared'].reduce((n, l) => n + (state.serverFiles[l] || []).length, 0);
+      if (!state.stagedItems.length && !srv) return false;
+      openMediaPicker(lang, kind === 'heroslide' ? 'heroslide' : 'heroimg', {
+        imagesOnly: true,
+        title,
+        onPick,
+      });
+      return true;
+    },
+    previewMedia: () => previewMedia(lang),
+    mediaStyle: (mode, compact) => heroPreviewMediaStyle(lang, mode, compact),
+    layoutCss: HERO_PREVIEW_LAYOUT_CSS,
+    sideDefault,
+    designDefault: defaultHeroDesign,
+    slideshowDefault: defaultHeroBgSlideshow,
+    imgFields: HERO_IMG_FIELDS,
+    slidesMax: BANNER_SLIDES_MAX,
+    transitions: BANNER_TRANSITIONS,
+    offsetMax: TEXT_OFFSET_MAX,
+    textSlots: HERO_TEXT_SLOTS,
+  };
+}
+
 export function renderHeroDesign() {
   const lang = state.nav.section;
   const pane = $('#content');
+  // Vue-Fassung (app/tabs/hero), sonst unten die Vanilla-Fassung.
+  stopHdSlideshow();
+  if (mountVueTab(pane, 'hero', { service: heroService(lang === 'en' ? 'en' : 'de') })) return;
   // Sichtzustand (Scroll der Seite/Seitenleisten, auf-/zugeklappte Bereiche) erhalten.
   const view = captureView(pane);
   // Vom Admin gezogene Höhe des Vorschau-Rahmens merken.

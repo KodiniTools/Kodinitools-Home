@@ -155,132 +155,16 @@
               </label>
             </div>
 
-            <details class="tx-fx" :open="isFxOpen(f)" data-tx-fx @toggle="onFxToggle(f, $event)">
-              <summary :class="{ 'tx-fx__sum--on': fxActive(st(f)) }">
-                Effekte — Schatten, Umriss, Deckkraft, Animation{{ fxActive(st(f)) ? ' •' : '' }}
-              </summary>
-              <div class="tx-row">
-                <label class="tx-field">
-                  <span>Schatten</span>
-                  <span class="tx-inline tx-check">
-                    <input
-                      type="checkbox"
-                      :checked="st(f).shadow"
-                      :disabled="slot(f).inherited"
-                      data-tx-fx-field="shadow"
-                      @change="setFx(f, 'shadow', ($event.target as HTMLInputElement).checked)"
-                    />
-                    anzeigen
-                  </span>
-                </label>
-                <div class="tx-field">
-                  <span>Schattenfarbe</span>
-                  <ColorField
-                    :model-value="st(f).shadowColor || '#000000'"
-                    :disabled="slot(f).inherited"
-                    :label="`${f.label}: Schattenfarbe`"
-                    @update:model-value="setFx(f, 'shadowColor', $event)"
-                  />
-                </div>
-                <label v-for="n in SHADOW_NUMS" :key="n.field" class="tx-field">
-                  <span>{{ n.label }}</span>
-                  <input
-                    type="number"
-                    class="tx-num"
-                    :min="FX_LIMITS[n.field].min"
-                    :max="FX_LIMITS[n.field].max"
-                    :step="FX_LIMITS[n.field].step"
-                    :value="st(f)[n.field]"
-                    :disabled="slot(f).inherited"
-                    :data-tx-fx-field="n.field"
-                    @input="setFxNum(f, n.field, ($event.target as HTMLInputElement).value)"
-                    @change="syncInput($event, st(f)[n.field])"
-                  />
-                </label>
-              </div>
-              <div class="tx-row">
-                <div class="tx-field">
-                  <span>Umriss-Farbe</span>
-                  <ColorField
-                    :model-value="st(f).strokeColor || '#000000'"
-                    :disabled="slot(f).inherited"
-                    :label="`${f.label}: Umriss-Farbe`"
-                    @update:model-value="setFx(f, 'strokeColor', $event)"
-                  />
-                </div>
-                <label v-for="n in STROKE_NUMS" :key="n.field" class="tx-field">
-                  <span>{{ n.label }}</span>
-                  <input
-                    type="number"
-                    class="tx-num"
-                    :min="FX_LIMITS[n.field].min"
-                    :max="FX_LIMITS[n.field].max"
-                    :step="FX_LIMITS[n.field].step"
-                    :value="st(f)[n.field]"
-                    :disabled="slot(f).inherited"
-                    :data-tx-fx-field="n.field"
-                    @input="setFxNum(f, n.field, ($event.target as HTMLInputElement).value)"
-                    @change="syncInput($event, st(f)[n.field])"
-                  />
-                </label>
-              </div>
-              <div class="tx-row">
-                <label class="tx-field">
-                  <span>Animation</span>
-                  <select
-                    :value="st(f).anim"
-                    :disabled="slot(f).inherited"
-                    data-tx-fx-field="anim"
-                    @change="setFx(f, 'anim', ($event.target as HTMLSelectElement).value)"
-                  >
-                    <option v-for="o in ANIM_OPTIONS" :key="o.value" :value="o.value">
-                      {{ o.label }}
-                    </option>
-                  </select>
-                </label>
-                <label class="tx-field">
-                  <span>Intensität (1–10)</span>
-                  <input
-                    type="number"
-                    class="tx-num"
-                    min="1"
-                    max="10"
-                    step="1"
-                    :value="st(f).animIntensity"
-                    :disabled="slot(f).inherited"
-                    data-tx-fx-field="animIntensity"
-                    @input="setFxNum(f, 'animIntensity', ($event.target as HTMLInputElement).value)"
-                    @change="syncInput($event, st(f).animIntensity)"
-                  />
-                </label>
-                <label class="tx-field">
-                  <span>Geschwindigkeit</span>
-                  <select
-                    :value="st(f).animSpeed"
-                    :disabled="slot(f).inherited"
-                    data-tx-fx-field="animSpeed"
-                    @change="setFx(f, 'animSpeed', ($event.target as HTMLSelectElement).value)"
-                  >
-                    <option v-for="o in ANIM_SPEED_OPTIONS" :key="o.value" :value="o.value">
-                      {{ o.label }}
-                    </option>
-                  </select>
-                </label>
-                <div class="tx-field tx-field--end">
-                  <button
-                    type="button"
-                    class="hd-reset"
-                    :disabled="slot(f).inherited"
-                    title="Effekte zurücksetzen"
-                    aria-label="Effekte zurücksetzen"
-                    data-tx-reset="fx"
-                    @click="reset(f, 'fx')"
-                  >
-                    ↺ Effekte
-                  </button>
-                </div>
-              </div>
-            </details>
+            <TextFxFields
+              :st="st(f)"
+              :label="f.label"
+              :open="isFxOpen(f)"
+              :disabled="slot(f).inherited"
+              @set="(field, v) => setFx(f, field, v)"
+              @set-num="(field, v) => setFxNum(f, field, v)"
+              @reset="reset(f, 'fx')"
+              @toggle="textsUi.fxOpen[f.key] = $event"
+            />
             <p class="hint">
               Leer lassen = Standardtext. Mehrere Zeilen mit Enter; Größe 0 = Standard. Schrift,
               Größe und Effekte gelten für Hell und Dunkel; die <strong>Textfarbe</strong> je Modus
@@ -392,10 +276,7 @@ import {
 } from '../../components/ui';
 import { useToastStore } from '../../stores/toast';
 import {
-  ANIM_OPTIONS,
-  ANIM_SPEED_OPTIONS,
   DEFAULT_TEXT_COLOR,
-  FX_LIMITS,
   PREVIEW_BG,
   TEXT_FIELDS,
   TEXT_FX_DEFAULTS,
@@ -412,11 +293,13 @@ import {
   slotAnimClass,
   slotPreviewStyle,
   slotState,
+  type FxField,
   type FxNumField,
   type TextField,
   type TextStyle,
   type TextStyleHost,
 } from './textStyle';
+import TextFxFields from './TextFxFields.vue';
 import { textsUi } from './textsUi';
 
 /**
@@ -455,15 +338,6 @@ const MODE_WORD: Record<ThemeMode, string> = { light: 'Hell', dark: 'Dunkel' };
 const MODE_OPTIONS = [
   { value: 'light', label: '☀️ Hell' },
   { value: 'dark', label: '🌙 Dunkel' },
-];
-const SHADOW_NUMS: { field: FxNumField; label: string }[] = [
-  { field: 'shadowX', label: 'Versatz X (px)' },
-  { field: 'shadowY', label: 'Versatz Y (px)' },
-  { field: 'shadowBlur', label: 'Weichzeichnung (px)' },
-];
-const STROKE_NUMS: { field: FxNumField; label: string }[] = [
-  { field: 'strokeWidth', label: 'Umriss-Dicke (px, 0=aus)' },
-  { field: 'opacity', label: 'Deckkraft (%)' },
 ];
 
 // UI-Zustand bleibt über Neu-Mounts (Undo, Sprachwechsel) erhalten.
@@ -542,11 +416,7 @@ function setFont(f: TextField, v: string) {
 function setColor(f: TextField, mode: ThemeMode, hex: string) {
   own(f)[colorField(mode)] = hex;
 }
-function setFx(
-  f: TextField,
-  field: 'shadow' | 'shadowColor' | 'strokeColor' | 'anim' | 'animSpeed',
-  v: string | boolean,
-) {
+function setFx(f: TextField, field: FxField, v: string | boolean) {
   const s = own(f);
   if (field === 'shadow') s.shadow = v === true;
   else if (field === 'anim') s.anim = v as TextStyle['anim'];
@@ -587,10 +457,6 @@ function reset(f: TextField, what: ResetWhat, mode: ThemeMode = 'light') {
 // ---- Effekte auf-/zuklappen -------------------------------------------------
 function isFxOpen(f: TextField): boolean {
   return textsUi.fxOpen[f.key] ?? fxActive(st(f));
-}
-function onFxToggle(f: TextField, e: Event) {
-  const open = (e.target as HTMLDetailsElement).open;
-  if (open !== isFxOpen(f)) textsUi.fxOpen[f.key] = open;
 }
 
 // ---- Master, Farben kopieren, DE → EN --------------------------------------
@@ -687,8 +553,7 @@ function confirmCopy() {
 .tx-master--on {
   color: var(--ds-accent);
 }
-.tx-master input,
-.tx-check input {
+.tx-master input {
   width: auto;
   margin: 0;
 }
@@ -714,33 +579,16 @@ function confirmCopy() {
 .tx-field--grow {
   flex: 1 1 200px;
 }
-.tx-field--end {
-  justify-content: flex-end;
-}
 .tx-inline {
   display: flex;
   align-items: center;
   gap: var(--ds-space-1);
-}
-.tx-check {
-  min-height: 38px;
-  color: var(--ds-text);
-  cursor: pointer;
 }
 .tx-num {
   width: 90px;
 }
 .tx-num--w {
   width: 120px;
-}
-.tx-fx summary {
-  cursor: pointer;
-  color: var(--ds-text-3);
-  font-size: var(--ds-text-sm);
-  user-select: none;
-}
-.tx-fx summary.tx-fx__sum--on {
-  color: var(--ds-accent);
 }
 .tx-icon {
   font-size: 1.3rem;
