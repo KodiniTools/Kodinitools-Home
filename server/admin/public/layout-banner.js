@@ -39,6 +39,7 @@ import {
   stopPreviewSlideshow,
 } from './layout-shared.js';
 import { pasteFromClipboardApi } from './layout-paste.js';
+import { refreshFullPageBanner } from './layout-fullpage.js';
 
 // Felder des Banner-Text-Designs (alles außer dem Text selbst) – für „Text-Design
 // nach DE/EN übertragen".
@@ -567,6 +568,8 @@ function updateBannerPreviewMedia(pane, lang) {
   const el = pane.querySelector('[data-bannermedia]');
   if (!el) return;
   el.setAttribute('style', bannerMediaStyle(lang, el.dataset.bannermedia, bannerPrevMode));
+  // Die Ganzseiten-Vorschau darunter zeigt dasselbe Banner: mit aktualisieren.
+  refreshFullPageBanner(pane, lang);
 }
 // Vorschau-Modus (Hell/Dunkel) umschalten. Bei einem Wechsel wird neu gerendert,
 // damit in der Seitenleiste der bearbeitete Modus offen und der andere
