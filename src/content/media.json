@@ -2,15 +2,15 @@
   "site": {
     "hiddenCards": [],
     "globalFont": "Hind-Medium.woff2",
-    "bgColor": "",
+    "bgColor": "#fafafa",
     "bgColorDark": "",
     "bgOpacity": 100,
     "bgOpacityDark": 100,
     "bgGradient": false,
     "bgGradientDark": false,
-    "bgColor2": "",
+    "bgColor2": "#e3ecf6",
     "bgColor2Dark": "",
-    "bgGradientType": "linear",
+    "bgGradientType": "radial",
     "bgGradientTypeDark": "linear",
     "bgAngle": 180,
     "bgAngleDark": 180,
@@ -20,8 +20,8 @@
     "fxNoiseIntensity": 72,
     "fxSpotlight": false,
     "fxSpotlightIntensity": 74,
-    "bgPattern": "blueprint",
-    "bgPatternDark": "blueprint",
+    "bgPattern": "none",
+    "bgPatternDark": "none",
     "bgPatternColor": "#014f99",
     "bgPatternColorDark": "#eaffe0",
     "bgPatternSpacing": 70,
@@ -42,19 +42,19 @@
     "bgImageFixedDark": true,
     "sections": {
       "style": "band",
-      "gap": 5,
+      "gap": 0,
       "audio": {
         "light": {
           "color": "#014f99",
-          "opacity": 8,
+          "opacity": 5,
           "image": "",
           "imageDarken": 0,
           "imageBlur": 0,
           "imageOpacity": 100
         },
         "dark": {
-          "color": "",
-          "opacity": 8,
+          "color": "#1c68ba",
+          "opacity": 15,
           "image": "",
           "imageDarken": 0,
           "imageBlur": 0,
@@ -63,16 +63,16 @@
       },
       "image": {
         "light": {
-          "color": "#015cb2",
-          "opacity": 8,
+          "color": "#014f99",
+          "opacity": 10,
           "image": "",
           "imageDarken": 0,
           "imageBlur": 0,
           "imageOpacity": 100
         },
         "dark": {
-          "color": "",
-          "opacity": 8,
+          "color": "#1c68ba",
+          "opacity": 10,
           "image": "",
           "imageDarken": 0,
           "imageBlur": 0,
@@ -81,7 +81,7 @@
       },
       "diverse": {
         "light": {
-          "color": "#0184fe",
+          "color": "#014f99",
           "opacity": 15,
           "image": "",
           "imageDarken": 0,
@@ -89,8 +89,8 @@
           "imageOpacity": 100
         },
         "dark": {
-          "color": "",
-          "opacity": 8,
+          "color": "#1c68ba",
+          "opacity": 5,
           "image": "",
           "imageDarken": 0,
           "imageBlur": 0,
