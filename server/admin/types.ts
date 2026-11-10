@@ -73,6 +73,40 @@ export type MediaState = ReturnType<typeof normalizeMedia>;
 /** Globale Seiten-Einstellungen (sprachübergreifend). */
 export type SiteSettings = MediaState['site'];
 
+/** Animation eines Text-Slots (wie Banner-Text). */
+export type TextAnim = 'none' | 'pulse' | 'float' | 'shake' | 'wobble' | 'glow';
+/** Tempo der Text-Animation. */
+export type TextAnimSpeed = 'slow' | 'normal' | 'fast';
+/**
+ * Vollständiger Stil eines Text-Slots (`media.<lang>.textStyles[key]`), wie ihn
+ * `getTextStyle` beim Bearbeiten ergänzt. Gespeichert/normalisiert sind nur
+ * Teile davon (siehe `TextStyleEntry`).
+ */
+export interface TextStyle {
+  /** px, 0 = Standard (0–120). */
+  size: number;
+  colorLight: string;
+  colorDark: string;
+  /** Schriftdatei aus `/fonts` oder '' (Standard). */
+  font: string;
+  shadow: boolean;
+  shadowColor: string;
+  shadowX: number;
+  shadowY: number;
+  shadowBlur: number;
+  strokeColor: string;
+  strokeWidth: number;
+  /** Deckkraft in % (0–100). */
+  opacity: number;
+  anim: TextAnim;
+  animIntensity: number;
+  animSpeed: TextAnimSpeed;
+  offsetX: number;
+  offsetY: number;
+}
+/** Eintrag in `media.<lang>.textStyles` (Effekte/Versatz nur, wenn gesetzt). */
+export type TextStyleEntry = Partial<TextStyle>;
+
 /** Schlüssel-Pfad in verschachtelte Objekte, z. B. `['hero', 'title']` oder `['items', 0]`. */
 export type ObjPath = Array<string | number>;
 /** Offenes Objekt für die Pfad-Helfer (`setPath`/`delPath`). */

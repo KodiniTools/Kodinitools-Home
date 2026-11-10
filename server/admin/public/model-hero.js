@@ -295,6 +295,10 @@ const textHalf = (v, min, max, def) => {
 };
 // Größte Verschiebung eines Hero-Textes (px) waagerecht/senkrecht.
 export const TEXT_OFFSET_MAX = { x: 1200, y: 1200 };
+/**
+ * @param {unknown} o
+ * @returns {Record<string, import('../types.ts').TextStyleEntry>}
+ */
 export function normTextStyles(o) {
   const out = {};
   if (!o || typeof o !== 'object') return out;
