@@ -18,7 +18,7 @@ import {
   getEffectiveTextStyle,
   UNIFORM_TEXT_KEYS,
 } from './model.js';
-import { fontOptionsHtml } from './fonts.js';
+import { fontOptionsHtml, ensureFontFace } from './fonts.js';
 import {
   fontFF,
   fxControls,
@@ -31,6 +31,7 @@ import {
 } from './textstyle.js';
 import { goto } from './admin.js';
 import { captureView, restoreView } from './viewstate.js';
+import { mountVueTab } from './islands.js';
 
 const MODES = ['light', 'dark'];
 const colorField = (mode) => (mode === 'dark' ? 'colorDark' : 'colorLight');
@@ -111,6 +112,21 @@ const TXT_MODE_LABEL = { light: '☀️ Hell', dark: '🌙 Dunkel' };
 export function renderTexts() {
   const pane = $('#content');
   const lang = state.nav.section;
+  // Vue-Fassung (app/tabs/texts), sonst unten die Vanilla-Fassung.
+  if (
+    mountVueTab(pane, 'texts', {
+      lang,
+      overrides: state.overrides[lang],
+      defaults: state.defaults[lang],
+      media: state.media[lang],
+      mediaDe: state.media.de,
+      mediaEn: state.media.en,
+      fonts: state.fonts,
+      ensureFontFace,
+      gotoDesign: () => goto(lang, 'design'),
+    })
+  )
+    return;
   const view = captureView(pane); // Scroll/Seitenleisten/Details über das Neu-Rendern erhalten
   pane.innerHTML = layoutHtml(lang);
   // Hell/Dunkel: bearbeitete Seitenleiste umschalten (Gegenseite klappt zu).

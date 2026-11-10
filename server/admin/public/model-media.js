@@ -49,7 +49,7 @@ import {
   normMediaOffset,
 } from './model-sectionmedia.js';
 
-/** @import { Lang, MediaKey, SectionVideoKey, ToolCardOffset } from '../types.ts' */
+/** @import { Lang, MediaKey, SectionVideoKey, TextStyleEntry, ToolCardOffset } from '../types.ts' */
 
 export function defaultMediaLocale() {
   return {
@@ -98,7 +98,7 @@ export function defaultMediaLocale() {
     heroGridUniformCell: 0, // Index der Master-Kachel, deren Werte gelten
     heroGridRatio: '1:1',
     heroGridFit: /** @type {'cover' | 'contain'} */ ('cover'),
-    textStyles: {}, // { "<textKey>": { size: px (0=auto), colorLight: Hex|'', colorDark: Hex|'', font: Datei|'' } }
+    textStyles: /** @type {Record<string, TextStyleEntry>} */ ({}), // { "<textKey>": { size: px (0=auto), colorLight: Hex|'', colorDark: Hex|'', font: Datei|'' } }
     textStyleUniform: false, // „Standard für alle Slots" (Tab „Texte") aktiv?
     textStyleUniformKey: 'tools.sectionTitle', // Slot, dessen Stil dann für alle Texte-Tab-Slots gilt
     heroDesign: defaultHeroDesign(),
