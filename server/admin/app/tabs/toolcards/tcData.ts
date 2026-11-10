@@ -387,7 +387,7 @@ export function bgCss(s: TcSide): string {
 /**
  * Inline-Style einer Vorschaukarte inkl. Hover-Werten als CSS-Variablen
  * (die :hover-Regel steht in TcCard.vue; ersetzt die erzeugten
- * `<style>`-Regeln der Vanilla-Fassung).
+ * `<style>`-Regeln der früheren Vanilla-Fassung).
  */
 export function cardStyle(s: TcSide, theme: ThemeMode): CSSProperties {
   const bg = bgCss(s);

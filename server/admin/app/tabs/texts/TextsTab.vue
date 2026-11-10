@@ -360,7 +360,7 @@ const masterLabel = computed(() => {
 
 // ---- Texte (Overrides) -----------------------------------------------------
 // Eingabe-Puffer je Slot: hält z. B. ein einzelnes Leerzeichen sichtbar, obwohl
-// der Override bei leerem Inhalt entfernt wird (wie die Vanilla-Fassung).
+// der Override bei leerem Inhalt entfernt wird (wie die frühere Vanilla-Fassung).
 const drafts = reactive<Record<string, string>>(
   Object.fromEntries(
     TEXT_FIELDS.map((f) => {

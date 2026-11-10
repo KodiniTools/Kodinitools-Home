@@ -3,7 +3,7 @@
 // erzeugen. Die Fonts liegen unter /fonts auf der Domain (Serverordner
 // /var/www/kodinitools.com/fonts bzw. public/fonts).
 
-import { api, esc } from './core.js';
+import { api } from './core.js';
 import { state } from './model.js';
 
 // Verfügbare Schriftarten laden (für die Schriftauswahl).
@@ -15,7 +15,7 @@ export async function loadFonts() {
 }
 
 // Dateiname -> CSS-sicherer Family-Name (identisch zu TickerBar.astro/index.astro).
-export function fontFamilyId(file) {
+function fontFamilyId(file) {
   return (
     'kodini-font-' +
     String(file)
@@ -41,34 +41,4 @@ export function ensureFontFace(file) {
     document.head.appendChild(st);
   }
   return fam;
-}
-
-// Options für eine Schriftauswahl. Enthält immer "Standard" und die vom Server
-// gemeldeten Schriften; eine ausgewählte, aber (noch) nicht gelistete Datei wird
-// zusätzlich aufgenommen, damit sie ausgewählt bleibt.
-// Jede Option wird in IHRER eigenen Schrift dargestellt (echtes Schriftmuster);
-// dafür wird pro Eintrag das passende @font-face eingefügt.
-export function fontOptionsHtml(current) {
-  const list = state.fonts.slice();
-  if (current && !list.some((f) => f.name === current)) {
-    list.unshift({ name: current, label: current + ' (nicht gefunden)' });
-  }
-  const opts = [`<option value="" ${!current ? 'selected' : ''}>Standard (System)</option>`];
-  for (const f of list) {
-    // @font-face laden, damit die Option wirklich in dieser Schrift erscheint.
-    const fam = ensureFontFace(f.name);
-    const style = fam ? ` style="font-family:'${fam}', system-ui, sans-serif"` : '';
-    opts.push(
-      `<option value="${esc(f.name)}" ${f.name === current ? 'selected' : ''}${style}>${esc(
-        f.label || f.name,
-      )}</option>`,
-    );
-  }
-  return opts.join('');
-}
-
-// CSS-sicherer Family-Wert für inline styles (mit System-Fallback) oder '' .
-export function fontFamilyCss(file) {
-  if (!file) return '';
-  return `"${fontFamilyId(file)}", system-ui, sans-serif`;
 }

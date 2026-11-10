@@ -99,10 +99,10 @@ npm run build   # -> dist/
 [ -d "$REPO_DIR/dist" ] || { err "Build-Ausgabe dist/ fehlt — Abbruch."; exit 1; }
 
 # Vue-Teile des Admins (server/admin/dist, nicht öffentlich – liefert nur der
-# Admin-Dienst unter /admin/app/ aus). Ein Fehler hier bricht den Deploy der
-# Seite NICHT ab: Der Admin läuft dann ohne die Vue-Teile weiter.
+# Admin-Dienst unter /admin/app/ aus). Pflicht: Ohne sie zeigt der Admin keine
+# Tabs, ein Fehler bricht den Deploy deshalb ab (set -e).
 log "npm run build:admin ..."
-npm run build:admin || err "Admin-UI-Build fehlgeschlagen – Admin läuft ohne Vue-Teile weiter."
+npm run build:admin || { err "Admin-UI-Build fehlgeschlagen – Deploy abgebrochen."; exit 1; }
 
 
 # --- 3. Spiegeln nach Webroot ---

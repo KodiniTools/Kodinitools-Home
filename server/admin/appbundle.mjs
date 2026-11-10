@@ -1,7 +1,7 @@
 // Auslieferung der gebauten Vue-Teile des Admins (`npm run build:admin` →
 // server/admin/dist/) unter /admin/app/…. Fehlt der Build, antwortet der Dienst
-// mit 404 – `public/index.html` lädt das Skript dann nicht und der Vanilla-Admin
-// läuft unverändert weiter (kein SPA-Fallback für /app/).
+// mit 404 – der Admin zeigt dann in jedem Tab einen Fehlerhinweis
+// (public/islands.js; kein SPA-Fallback für /app/).
 
 import { resolve, normalize, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';

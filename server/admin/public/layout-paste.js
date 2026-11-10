@@ -28,7 +28,7 @@ const MAX_PASTE_BYTES = 25 * 1024 * 1024;
 // Legt ein Bild (Blob) im Zwischenspeicher ab, weist es Kachel i (oder dem
 // Banner bei i === 'banner') zu und rendert den Tab neu (Scrollposition bleibt,
 // Kachel bleibt markiert).
-export async function assignImageBlob(lang, i, blob) {
+async function assignImageBlob(lang, i, blob) {
   const type = blob.type || 'image/png';
   const ext = IMG_EXT[type];
   if (!ext) {

@@ -498,7 +498,7 @@ function toggleOpen(t: ToolRef) {
 }
 const tintOf = (t: ToolRef): IconTint => getTint(media[props.lang], cardId(t));
 // Zuletzt gewählte Farbe eines ausgeschalteten Feldes (wie der Wert des
-// gesperrten Farbwählers in der Vanilla-Fassung) – sonst der Vorschlag.
+// gesperrten Farbwählers in der früheren Vanilla-Fassung) – sonst der Vorschlag.
 const tintDrafts = reactive<Record<string, string>>({});
 const draftTint = (t: ToolRef, f: TintField) => tintDrafts[`${cardId(t)}:${f}`] || TINT_SUGGEST[f];
 function setTintField(t: ToolRef, f: TintField, hex: string) {

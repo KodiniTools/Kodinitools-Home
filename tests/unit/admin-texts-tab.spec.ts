@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 /**
  * Tab „Texte“ als Vue-Insel (server/admin/app/tabs/texts): gleiche Regeln wie
- * die Vanilla-Fassung (public/content.js + public/textstyle.js) und Änderungen
+ * die frühere Vanilla-Fassung (model-hero.js) und Änderungen
  * landen direkt in den übergebenen state-Objekten (Autosave/Undo per Snapshot).
  */
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -32,7 +32,6 @@ import {
   getEffectiveTextStyle,
   UNIFORM_TEXT_KEYS as VANILLA_KEYS,
 } from '../../server/admin/public/model.js';
-import { slotPreviewStyle as vanillaPreviewStyle } from '../../server/admin/public/textstyle.js';
 import type { Overrides } from '../../server/admin/types';
 
 const clone = <T>(o: T): T => JSON.parse(JSON.stringify(o)) as T;
@@ -83,21 +82,36 @@ describe('textStyle (Regeln wie model-hero.js / textstyle.js)', () => {
     expect(effectiveTextStyle(host, 'tools.sectionTitle').size).toBe(10);
   });
 
-  it('Vorschau-Stil identisch zur Vanilla-Fassung (ohne eigene Schrift)', () => {
-    const variants = [
-      {},
-      { size: 80, colorLight: '#ff0000', colorDark: '#00ff00' },
-      { size: 5, shadow: true, shadowColor: '#abc', shadowX: 3, shadowY: -4, shadowBlur: 9 },
-      { strokeWidth: 1.5, strokeColor: '#ffffff', opacity: 40 },
-      { anim: 'pulse', animIntensity: 7, animSpeed: 'fast' },
-      { anim: 'wobble', animIntensity: 3 },
-      { anim: 'glow', animSpeed: 'slow' },
+  it('Vorschau-Stil wie die frühere Vanilla-Fassung (ohne eigene Schrift)', () => {
+    // Erwartete Werte stammen aus dem Paritätstest gegen public/textstyle.js
+    // (bis zur Entfernung der Vanilla-Tabs).
+    const base =
+      'line-height:1.25;font-weight:700;display:inline-block;max-width:100%;white-space:pre-line;word-break:break-word';
+    const light = 'color:#013f7a;-webkit-text-fill-color:#013f7a';
+    const dark = 'color:#f9f2d5;-webkit-text-fill-color:#f9f2d5';
+    const cases: [Record<string, unknown>, string, string][] = [
+      [{}, `font-size:22px;${base}`, ''],
+      [
+        { size: 5, shadow: true, shadowColor: '#abc', shadowX: 3, shadowY: -4, shadowBlur: 9 },
+        `font-size:12px;${base}`,
+        ';text-shadow:3px -4px 9px rgba(170, 187, 204, 0.6)',
+      ],
+      [
+        { strokeWidth: 1.5, strokeColor: '#ffffff', opacity: 40 },
+        `font-size:22px;${base}`,
+        ';opacity:0.4;-webkit-text-stroke:1.5px #ffffff',
+      ],
+      [
+        { anim: 'pulse', animIntensity: 7, animSpeed: 'fast' },
+        `font-size:22px;${base}`,
+        ';--anim-dur:1s;--anim-scale:1.140',
+      ],
     ];
-    for (const v of variants) {
+    for (const [v, head, fx] of cases) {
       const host: TextStyleHost = { textStyles: { k: v as never } };
       const st = readTextStyle(host, 'k');
-      for (const mode of ['light', 'dark'] as const)
-        expect(slotPreviewStyle(st, mode, '')).toBe(vanillaPreviewStyle(st, mode));
+      expect(slotPreviewStyle(st, 'light', '')).toBe(`${head};${light}${fx}`);
+      expect(slotPreviewStyle(st, 'dark', '')).toBe(`${head};${dark}${fx}`);
     }
   });
 

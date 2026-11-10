@@ -319,7 +319,7 @@ const imgUrl = computed(() => (s.value.bgImage ? service.resolveUrl(s.value.bgIm
 
 const pct = (v: unknown, def: number) => clampInt(v, 0, 100, def);
 const set = (patch: Partial<TcSide>) => setSide(props.mode, patch);
-/** Schreiben ohne automatisches Einschalten (Entfernen, wie in der Vanilla-Fassung). */
+/** Schreiben ohne automatisches Einschalten (Entfernen, wie in der früheren Vanilla-Fassung). */
 function setRaw(patch: Partial<TcSide>) {
   Object.assign(view.value.style[props.mode], patch);
 }
