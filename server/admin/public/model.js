@@ -1,3 +1,4 @@
+// @ts-check
 // Datenmodell des Adminbereichs: der zentrale App-Zustand plus alle reinen
 // Hilfsfunktionen zum Erzeugen/Normalisieren von Ticker- und Medien-Daten sowie
 // Pfad-Helfer für verschachtelte Overrides. Keine DOM-/API-Abhängigkeiten.
