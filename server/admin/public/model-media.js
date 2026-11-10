@@ -50,6 +50,7 @@ import {
 } from './model-sectionmedia.js';
 
 /** @import { IconTint, Lang, MediaKey, SectionVideoKey, TextStyleEntry, ToolCardOffset } from '../types.ts' */
+/** @import { HeroLayout, TextPos } from './model-grid.js' */
 
 export function defaultMediaLocale() {
   return {
@@ -59,7 +60,7 @@ export function defaultMediaLocale() {
       diverse: '/videos/diverse-tools.mp4',
     },
     heroMode: /** @type {'banner' | 'grid'} */ ('banner'),
-    heroLayout: 'grid3',
+    heroLayout: /** @type {HeroLayout} */ ('grid3'),
     heroBanner: '',
     heroBannerLink: '',
     heroBannerShow: true, // Einzelbanner ein-/ausgeblendet (Tab „Layout“)
@@ -70,7 +71,7 @@ export function defaultMediaLocale() {
     heroBannerFont: '', // Schriftart des Banner-Textes (Dateiname im /fonts-Ordner)
     heroBannerTextColor: '#ffffff',
     heroBannerTextSize: 0, // px (0 = automatisch)
-    heroBannerTextPos: 'center', // Alt: 'top'|'center'|'bottom' (nur noch Migration)
+    heroBannerTextPos: /** @type {TextPos} */ ('center'), // Alt: 'top'|'center'|'bottom' (nur noch Migration)
     heroBannerTextX: 50, // Freie Position in % (0=links, 100=rechts) – per Maus ziehbar
     heroBannerTextY: 50, // Freie Position in % (0=oben, 100=unten)
     heroBannerTextShadow: true, // Textschatten an/aus (Standard: an)

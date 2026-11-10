@@ -1,3 +1,4 @@
+// @ts-check
 // Datenmodell – Tool-Karten-Design (Rahmen, Hintergrund, Hover, Text-Farben,
 // Typografie je Hell/Dunkel) und Icon-Färbung je Karte, plus die Bild-Plätze der
 // Karten-Hintergrundbilder.
@@ -11,6 +12,14 @@ import {
   MEDIA_LANGS,
 } from './model-core.js';
 import { state } from './model-state.js';
+
+/** @import { Lang, ThemeMode, IconTint, IconTintField, ImageSlot, ImageSlotBase } from '../types.ts' */
+/** @typedef {ReturnType<typeof toolCardSideLight>} ToolCardSide */
+/** @typedef {ReturnType<typeof defaultToolCardText>} ToolCardText */
+/** @typedef {'icon' | 'badge' | 'title' | 'fav' | 'open' | 'popup'} ToolCardShowKey */
+/** @typedef {Record<ToolCardShowKey, boolean>} ToolCardShow */
+/** @typedef {ReturnType<typeof defaultToolCardStyle>} ToolCardStyle */
+/** @typedef {ReturnType<typeof defaultToolCards>} ToolCards */
 
 // --- Tool-Karten-Design (Tab „Tool-Karten") ---
 // Standard je Modus = eingebautes Aussehen aus tool-cards.css (Rahmen 1px,
@@ -93,19 +102,27 @@ export function defaultToolCardText() {
     align: '',
   };
 }
+/**
+ * @param {any} t
+ * @returns {ToolCardText}
+ */
 export function normToolCardText(t) {
   const d = defaultToolCardText();
   if (!t || typeof t !== 'object') return d;
+  /** @type {(v: unknown, min: number, max: number, def: number) => number} */
   const num = (v, min, max, def) => {
     const n = Number(v);
     return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : def;
   };
+  /** @type {(v: unknown, min: number, max: number, def: number) => number} */
   const half = (v, min, max, def) => {
     const n = Number(v);
     return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n * 2) / 2)) : def;
   };
+  /** @type {(v: unknown) => string} */
   const weight = (v) => (TOOL_CARD_WEIGHTS.includes(String(v ?? '')) ? String(v ?? '') : '');
-  const transform = (v) => (TOOL_CARD_TRANSFORMS.includes(v) ? v : '');
+  /** @type {(v: unknown) => string} */
+  const transform = (v) => (typeof v === 'string' && TOOL_CARD_TRANSFORMS.includes(v) ? v : '');
   return {
     titleFont: normFontFile(t.titleFont),
     titleSize: num(t.titleSize, 0, 40, 0),
@@ -119,20 +136,26 @@ export function normToolCardText(t) {
     openSize: num(t.openSize, 0, 20, 0),
     openWeight: weight(t.openWeight),
     descSize: num(t.descSize, 0, 24, 0),
-    align: TOOL_CARD_ALIGNS.includes(t.align) ? t.align : '',
+    align: typeof t.align === 'string' && TOOL_CARD_ALIGNS.includes(t.align) ? t.align : '',
   };
 }
 // Sichtbarkeit der Karten-Elemente (Hell + Dunkel gemeinsam); false = ausgeblendet.
 // Der Platz bleibt erhalten (visibility:hidden), die Karte behält ihre Größe.
+/** @type {ToolCardShowKey[]} */
 export const TOOL_CARD_SHOW_KEYS = ['icon', 'badge', 'title', 'fav', 'open', 'popup'];
+/** @returns {ToolCardShow} */
 export function defaultToolCardShow() {
-  const o = {};
+  const o = /** @type {ToolCardShow} */ ({});
   for (const k of TOOL_CARD_SHOW_KEYS) o[k] = true;
   return o;
 }
+/**
+ * @param {any} s
+ * @returns {ToolCardShow}
+ */
 export function normToolCardShow(s) {
   const o = s && typeof s === 'object' ? s : {};
-  const out = {};
+  const out = /** @type {ToolCardShow} */ ({});
   for (const k of TOOL_CARD_SHOW_KEYS) out[k] = o[k] !== false;
   return out;
 }
@@ -145,40 +168,57 @@ export function defaultToolCardStyle() {
   };
 }
 export function defaultToolCards() {
-  return { enabled: false, default: defaultToolCardStyle(), cards: {} };
+  return {
+    enabled: false,
+    default: defaultToolCardStyle(),
+    cards: /** @type {Record<string, ToolCardStyle>} */ ({}),
+  };
 }
 export const TOOL_CARD_KEY = /^(tools|imageTools|diverseTools)\.[a-zA-Z0-9_-]+$/;
 // --- Icon-Färbung je Tool-Karte (Tab „Icons") ---
 // light/dark = Icon-Farbe (SVG als einfarbige Maske), bg/bgDark = Kasten-
 // Hintergrund; '' = unverändert (Originalfarben bzw. Standard-Kasten).
+/** @type {IconTintField[]} */
 export const ICON_TINT_FIELDS = ['light', 'dark', 'bg', 'bgDark'];
 /**
  * @param {unknown} v
- * @returns {Record<string, import('../types.ts').IconTint>}
+ * @returns {Record<string, IconTint>}
  */
 export function normIconTint(v) {
+  /** @type {Record<string, IconTint>} */
   const out = {};
   if (!v || typeof v !== 'object') return out;
   for (const [key, t] of Object.entries(v)) {
     if (!TOOL_CARD_KEY.test(key) || !t || typeof t !== 'object') continue;
-    const e = {};
+    const e = /** @type {IconTint} */ ({});
     let any = false;
     for (const f of ICON_TINT_FIELDS) {
-      e[f] = normHexOrEmpty(t[f]);
+      e[f] = normHexOrEmpty(/** @type {Record<string, unknown>} */ (t)[f]);
       if (e[f]) any = true;
     }
     if (any) out[key] = e;
   }
   return out;
 }
+/**
+ * @param {Lang} lang
+ * @param {string} id
+ * @returns {IconTint}
+ */
 export function getIconTint(lang, id) {
-  const m = state.media[lang] || {};
-  const t = (m.iconTint && m.iconTint[id]) || {};
-  const out = {};
+  const m = state.media[lang];
+  /** @type {Partial<IconTint>} */
+  const t = (m && m.iconTint && m.iconTint[id]) || {};
+  const out = /** @type {IconTint} */ ({});
   for (const f of ICON_TINT_FIELDS) out[f] = normHexOrEmpty(t[f]);
   return out;
 }
 // Teilweise setzen; ein Eintrag ohne jede Farbe wird entfernt.
+/**
+ * @param {Lang} lang
+ * @param {string} id
+ * @param {Partial<Record<IconTintField, unknown>>} patch
+ */
 export function setIconTint(lang, id, patch) {
   if (!TOOL_CARD_KEY.test(id)) return;
   const m = state.media[lang];
@@ -189,9 +229,16 @@ export function setIconTint(lang, id, patch) {
   else delete m.iconTint[id];
 }
 export const TOOL_CARD_BORDER_STYLES = ['solid', 'dashed', 'dotted', 'double'];
+/**
+ * @param {any} s
+ * @param {ToolCardSide} def
+ * @returns {ToolCardSide}
+ */
 function normToolCardSide(s, def) {
   if (!s || typeof s !== 'object') return def;
-  const hex = (v, d) => (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? v : d);
+  /** @type {(v: unknown, d: string) => string} */
+  const hex = (v, d) => (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? String(v) : d);
+  /** @type {(v: unknown, min: number, max: number, d: number) => number} */
   const num = (v, min, max, d) => {
     const n = Number(v);
     return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : d;
@@ -223,6 +270,10 @@ function normToolCardSide(s, def) {
     bgImageDarken: num(s.bgImageDarken, 0, 100, 0),
   };
 }
+/**
+ * @param {any} st
+ * @returns {ToolCardStyle}
+ */
 export function normToolCardStyle(st) {
   const o = st && typeof st === 'object' ? st : {};
   return {
@@ -233,8 +284,13 @@ export function normToolCardStyle(st) {
   };
 }
 // Geladenes Tool-Karten-Design normalisieren (Standard + Einzel-Designs).
+/**
+ * @param {any} tc
+ * @returns {ToolCards}
+ */
 export function normToolCards(tc) {
   if (!tc || typeof tc !== 'object') return defaultToolCards();
+  /** @type {Record<string, ToolCardStyle>} */
   const cards = {};
   if (tc.cards && typeof tc.cards === 'object') {
     for (const [key, val] of Object.entries(tc.cards)) {
@@ -245,6 +301,10 @@ export function normToolCards(tc) {
   return { enabled: tc.enabled === true, default: normToolCardStyle(tc.default), cards };
 }
 // Sichert, dass media.<lang>.toolCards vollständig existiert, und gibt es zurück.
+/**
+ * @param {Lang} lang
+ * @returns {ToolCards}
+ */
 export function getToolCards(lang) {
   const m = state.media[lang];
   if (!m.toolCards || typeof m.toolCards !== 'object' || !m.toolCards.default || !m.toolCards.cards)
@@ -254,8 +314,10 @@ export function getToolCards(lang) {
 // Bild-Plätze der Tool-Karten (Hintergrundbild je Karte/Modus, beide Sprachen):
 // { root: 'de'|'en', xLang, path, label, get(), set(v) } – Upload in den
 // Ordner der Sprache.
+/** @returns {ImageSlot[]} */
 export function toolCardImageSlots() {
-  const modeLabel = (m) => (m === 'dark' ? 'Dunkel' : 'Hell');
+  const modeLabel = (/** @type {ThemeMode} */ m) => (m === 'dark' ? 'Dunkel' : 'Hell');
+  /** @type {ImageSlotBase[]} */
   const slots = [];
   for (const lang of MEDIA_LANGS) {
     const tc = state.media[lang] && state.media[lang].toolCards;
@@ -264,7 +326,7 @@ export function toolCardImageSlots() {
     for (const id of Object.keys(tc.cards && typeof tc.cards === 'object' ? tc.cards : {}))
       entries.push([id, id]);
     for (const [id, name] of entries)
-      for (const mode of ['light', 'dark']) {
+      for (const mode of /** @type {ThemeMode[]} */ (['light', 'dark'])) {
         const path =
           id === 'default'
             ? ['toolCards', 'default', mode, 'bgImage']
@@ -283,7 +345,8 @@ export function toolCardImageSlots() {
       const v = getPath(state.media[slot.root], slot.path);
       return typeof v === 'string' ? v : '';
     };
-    slot.set = (v) => setPath(state.media[slot.root], slot.path, normSiteMediaUrl(v));
+    slot.set = (/** @type {unknown} */ v) =>
+      setPath(state.media[slot.root], slot.path, normSiteMediaUrl(v));
   }
-  return slots;
+  return /** @type {ImageSlot[]} */ (slots);
 }

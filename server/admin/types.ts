@@ -49,6 +49,25 @@ export type SectionVideoKey = 'audio' | 'image' | 'diverse';
 /** Medien-Slot: Sektions-Video, Einzel-Banner oder eine der sechs Raster-Kacheln. */
 export type MediaKey = SectionVideoKey | 'heroBanner' | `grid${0 | 1 | 2 | 3 | 4 | 5}`;
 
+/**
+ * Bild-Platz für das Veröffentlichen (lokale Bilder hochladen, URL eintragen)
+ * und die Übersicht im Tab „Dateien“. `root` = Objekt in `state.media`
+ * ('site' | Sprache), `xLang` = Upload-Ordner ('shared' | Sprache).
+ */
+export interface ImageSlot {
+  root: 'site' | Lang;
+  xLang: 'shared' | Lang;
+  path: ObjPath;
+  label: string;
+  /** Modus, in dem der Platz gilt (fehlt = beide). */
+  mode?: ThemeMode;
+  get: () => string;
+  set: (v: unknown) => void;
+}
+/** Bild-Platz vor dem Anhängen von get/set. */
+export type ImageSlotBase = Omit<ImageSlot, 'get' | 'set'> &
+  Partial<Pick<ImageSlot, 'get' | 'set'>>;
+
 /** Verschiebung/Skalierung einer Tool-Karte (Tab „Layout“), Schlüssel `sektion.key`. */
 export interface ToolCardOffset {
   x: number;

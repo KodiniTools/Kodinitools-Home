@@ -89,7 +89,7 @@ describe('Tool-Karten: Duplizieren', () => {
     expect(getToolCards('de').cards['tools.mp3'].light.borderColor).toBe('#103ab7');
     expect(state.media.de.iconTint[id!].light).toBe('#ff0000');
     expect(getToolCards('en').cards[id!]).toBeUndefined(); // EN hatte kein Einzel-Design
-    expect(isCardHidden(id)).toBe(false);
+    expect(isCardHidden(id!)).toBe(false);
     expect(toolCardKeys('de', 'tools')).toEqual(['mp3', 'mp3-kopie']);
 
     expect(duplicateCard('tools.mp3')).toBe('tools.mp3-kopie-2');
@@ -112,7 +112,7 @@ describe('Tool-Karten: Neu anlegen und Löschen', () => {
       expect(toolCardKeys(l, 'imageTools')).toEqual(['neue-karte']);
       expect(getToolCards(l).cards[id!]).toBeUndefined();
     }
-    expect(isCardHidden(id)).toBe(true);
+    expect(isCardHidden(id!)).toBe(true);
     expect(createCard('imageTools')).toBe('imageTools.neue-karte-2');
     expect(createCard('unbekannt')).toBeNull();
   });

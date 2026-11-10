@@ -4,7 +4,7 @@
 // und Navigations-Daten. Alle anderen model-*.js bauen darauf auf; nach außen
 // wird alles über model.js gebündelt.
 
-/** @import { Lang, Subtab, MediaKey, ObjPath, AnyObj } from '../types.ts' */
+/** @import { Lang, Subtab, MediaKey, ObjPath, AnyObj, TextAnim, TextAnimSpeed } from '../types.ts' */
 
 // Buchstabenabstand auf [-5, 20] px begrenzen, auf 0,5 gerundet.
 /**
@@ -57,7 +57,9 @@ export function normHexOrEmpty(v) {
   return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? /** @type {string} */ (v) : '';
 }
 // Verfügbare Text-Animationen des Banner-Textes (zuschaltbar) und Tempo-Stufen.
+/** @type {TextAnim[]} */
 export const BANNER_ANIM_TYPES = ['none', 'pulse', 'float', 'shake', 'wobble', 'glow'];
+/** @type {TextAnimSpeed[]} */
 export const BANNER_ANIM_SPEEDS = ['slow', 'normal', 'fast'];
 // Erlaubte Medien-URLs der Bild-Plätze: interner Pfad, http(s)-URL oder eine
 // gestagte Datei ('staged:<id>') bis zum Veröffentlichen.
