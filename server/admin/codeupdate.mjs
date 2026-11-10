@@ -95,23 +95,24 @@ export async function updateCodeFromRemote(run, log, env) {
 export function needsAdminBuild(file) {
   return (
     file.startsWith('server/admin/app/') ||
+    // vom Vue-Bundle importiert
+    file === 'server/admin/public/model-core.js' ||
     file === 'vite.admin.config.ts' ||
     /^package(-lock)?\.json$/.test(file)
   );
 }
 
 /**
- * Baut die Vue-Teile des Admins neu (`npm run build:admin`). Best effort: Ein
- * Fehler wird nur protokolliert, der Admin läuft dann ohne Vue-Teile weiter.
+ * Baut die Vue-Teile des Admins neu (`npm run build:admin`). Ein Fehler wird
+ * protokolliert; der zuletzt erfolgreiche Build bleibt dann liegen (Vite leert
+ * dist erst beim Schreiben); deploy.sh bricht bei einem Fehler dagegen ab.
  */
 export async function buildAdminUi(run, log, env) {
   try {
     log('Admin-UI geändert → npm run build:admin');
     log(await run('npm', ['run', 'build:admin'], { env }));
   } catch (err) {
-    log(
-      `Admin-UI-Build fehlgeschlagen (Admin läuft ohne Vue-Teile weiter): ${err?.message || err}`,
-    );
+    log(`Admin-UI-Build fehlgeschlagen (Admin nutzt den letzten Build): ${err?.message || err}`);
   }
 }
 

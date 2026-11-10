@@ -1,7 +1,7 @@
-// KodiniTools Adminbereich — Einstiegsmodul (Vanilla JS, kein Build-Schritt).
-// Bindet Login, die zweistufige Navigation und den Startvorgang zusammen; die
-// einzelnen Bereiche liegen in eigenen Modulen (core/model/ticker/content/
-// media/publish) und werden hier verdrahtet.
+// KodiniTools Adminbereich — Einstiegsmodul. Bindet Login, die zweistufige
+// Navigation und den Startvorgang zusammen. Die Tabs sind Vue-Inseln
+// (app/tabs/…, gebaut mit `npm run build:admin`); die Module hier halten den
+// Zustand (model*.js) und reichen ihn als Props/Services an die Inseln.
 
 import { $, api, mediaAll } from './core.js';
 import { state, normTicker, normalizeMedia, SUBTABS, LANG_SECTIONS } from './model.js';
@@ -15,7 +15,7 @@ import { renderLayout } from './layout.js';
 import { renderMedia, renderFiles, loadServerFiles } from './media.js';
 import { renderIcons } from './icons.js';
 import { renderPublish, refreshPublishStatus, initSaveTracking } from './publish.js';
-import { unmountVueTab } from './islands.js';
+import { unmountVueTab, markVueMissing } from './islands.js';
 
 // --- Login ---
 $('#loginForm').addEventListener('submit', async (e) => {
@@ -145,11 +145,16 @@ async function boot() {
   initSaveTracking();
 }
 
-// Vue-Teile laden parallel (./app/main.js). Kommen sie nach dem ersten
-// Rendern an, den aktiven Tab einmal neu rendern, damit migrierte Tabs ihre
-// Vue-Fassung zeigen.
-window.addEventListener('kodini-admin-vue-ready', () => {
+// Vue-Teile (./app/main.js) parallel laden. Kommen sie nach dem ersten
+// Rendern an, den aktiven Tab neu rendern (er zeigt bis dahin einen
+// Ladehinweis); fehlen sie, zeigt der Tab einen Fehlerhinweis.
+const rerenderIfOpen = () => {
   if (!$('#appView').classList.contains('hidden')) renderMain();
+};
+window.addEventListener('kodini-admin-vue-ready', rerenderIfOpen);
+import('./app/main.js').catch((e) => {
+  markVueMissing(e);
+  rerenderIfOpen();
 });
 
 // --- Start ---

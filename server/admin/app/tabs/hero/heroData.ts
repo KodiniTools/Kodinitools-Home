@@ -208,7 +208,7 @@ const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(ma
 export function clampOffset(v: unknown, max: number): number {
   return clamp(Math.round(Number(v) || 0), -max, max);
 }
-/** Zahlenwert eines Modus begrenzen (wie der `data-hd`-Handler der Vanilla-Fassung). */
+/** Zahlenwert eines Modus begrenzen (wie der `data-hd`-Handler der früheren Vanilla-Fassung). */
 export function clampSideNum(
   field: HeroNumField,
   v: unknown,

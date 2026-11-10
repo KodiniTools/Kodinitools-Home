@@ -1,32 +1,20 @@
 // @ts-check
-// Vue-Inseln für einzelne Tabs (Schritt für Schritt migriert, siehe app/).
-// Ein Tab nutzt seine Vue-Fassung, wenn die Vue-Teile geladen sind und den Tab
-// anbieten; sonst rendert er wie bisher in Vanilla-JS. Notbremse: im Browser
-// `localStorage.kodiniAdminLegacy = '1'` erzwingt überall die Vanilla-Fassung.
+// Vue-Inseln der Tabs (app/tabs/…). Die Vue-Teile (`npm run build:admin` →
+// server/admin/dist, ausgeliefert unter ./app/) lädt admin.js parallel zum
+// Start. Bis sie da sind, zeigt der Tab einen Ladehinweis; fehlen sie (nicht
+// gebaut), einen Fehlerhinweis statt einer leeren Seite.
 
 /** @typedef {{ unmount: () => void }} Handle */
 
 /** @type {Handle | null} */
 let current = null;
+/** Grund, falls die Vue-Teile nicht geladen werden konnten. */
+let loadError = '';
 
-/** Vanilla-Fassung erzwungen? */
-export function legacyForced() {
-  try {
-    return window.localStorage.getItem('kodiniAdminLegacy') === '1';
-  } catch {
-    return false;
-  }
-}
-
-/** Gibt es für den Tab eine Vue-Fassung (und ist sie nicht abgeschaltet)? */
-export function hasVueTab(/** @type {string} */ name) {
-  const vue = window.kodiniAdminVue;
-  return (
-    !!vue &&
-    Array.isArray(vue.tabs) &&
-    vue.tabs.includes(/** @type {any} */ (name)) &&
-    !legacyForced()
-  );
+/** Vue-Teile konnten nicht geladen werden (admin.js, dynamischer Import). */
+export function markVueMissing(/** @type {unknown} */ err) {
+  loadError = String((err && /** @type {any} */ (err).message) || err || 'unbekannt');
+  console.error('[admin] Vue-Teile nicht geladen', err);
 }
 
 /** Hängt die aktuell gemountete Tab-Insel ab (vor jedem Tab-Wechsel/Neu-Rendern). */
@@ -40,23 +28,48 @@ export function unmountVueTab() {
   current = null;
 }
 
+/** Lade- bzw. Fehlerhinweis anstelle des Tabs. */
+function notice(/** @type {Element} */ el, /** @type {string} */ text, error = false) {
+  const p = document.createElement('p');
+  p.className = error ? 'err' : 'hint';
+  p.setAttribute('role', error ? 'alert' : 'status');
+  p.textContent = text;
+  el.replaceChildren(p);
+}
+
 /**
  * Mountet den Tab als Vue-Insel in `el` (ersetzt dessen Inhalt). Rückgabe:
- * true bei Erfolg; false → der Aufrufer rendert die Vanilla-Fassung.
+ * true bei Erfolg; false → Lade- oder Fehlerhinweis wird angezeigt (sind die
+ * Vue-Teile später da, rendert admin.js den Tab neu).
  * @param {Element} el
  * @param {string} name
  * @param {Record<string, unknown>} props
  */
 export function mountVueTab(el, name, props) {
   unmountVueTab();
-  if (!hasVueTab(name)) return false;
+  const vue = window.kodiniAdminVue;
+  if (!vue) {
+    if (loadError)
+      notice(
+        el,
+        `Admin-Oberfläche nicht verfügbar: Die Vue-Teile fehlen (auf dem Server „npm run build:admin“ ausführen). Details: ${loadError}`,
+        true,
+      );
+    else notice(el, 'Admin-Oberfläche wird geladen …');
+    return false;
+  }
+  if (!vue.tabs.includes(/** @type {any} */ (name))) {
+    notice(el, `Unbekannter Tab „${name}“.`, true);
+    return false;
+  }
   try {
-    el.innerHTML = '';
-    current = /** @type {any} */ (window.kodiniAdminVue).mountTab(el, name, props);
+    el.replaceChildren();
+    current = vue.mountTab(el, /** @type {any} */ (name), props);
     return true;
   } catch (e) {
-    console.error('[admin] Vue-Tab fehlgeschlagen, nutze Vanilla-Fassung', e);
+    console.error('[admin] Vue-Tab fehlgeschlagen', e);
     unmountVueTab();
+    notice(el, 'Dieser Bereich konnte nicht geladen werden (Details in der Konsole).', true);
     return false;
   }
 }
