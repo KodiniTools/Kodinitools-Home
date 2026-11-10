@@ -9,7 +9,7 @@
 // layout-banner.js (Einzelbanner), layout-grid.js (Bild-Raster), layout-paste.js
 // (Zwischenablage). Diese Datei rendert den Tab und verdrahtet den Modus-Wechsel.
 
-import { captureView, restoreView, withView } from './viewstate.js';
+import { captureView, restoreView } from './viewstate.js';
 import { $, toast, fmtBytes } from './core.js';
 import { mountVueTab, unmountVueTab } from './islands.js';
 import { objUrl, openMediaPicker } from './media.js';
@@ -53,12 +53,30 @@ import {
   getCellStyle,
   getGridSlides,
   getGridSlideshow,
+  normMediaOffset,
+  normCardScale,
+  CARD_SCALE_MIN,
+  CARD_SCALE_MAX,
+  MEDIA_OFFSET_MAX,
 } from './model.js';
 import { stopPreviewSlideshow } from './layout-shared.js';
 import { bannerLayoutHtml, bindBanner } from './layout-banner.js';
 import { gridLayoutHtml, bindGrid, markCell, getActiveCell } from './layout-grid.js';
 import { initPaste, pasteFromClipboardApi } from './layout-paste.js';
-import { fullPageHtml, bindFullPage, refreshFullPageBanner } from './layout-fullpage.js';
+import {
+  fullPageHtml,
+  bindFullPage,
+  fullPageModel,
+  fullPageKeys,
+  fullOffset,
+  setFullOffset,
+  fullMovedKeys,
+  fullCardOffsets,
+  fullCardOffsetIds,
+  fullLinkedTextKeys,
+  FULL_LABELS,
+  FULL_TEXT_LABELS,
+} from './layout-fullpage.js';
 
 // Helfer, die andere Tabs (z. B. Medien) weiterhin aus layout.js beziehen.
 export {
@@ -207,16 +225,6 @@ function resolveMedia(val) {
   return { src: val, isVid: /\.(mp4|webm|mov|ogg)$/i.test(val), localName: '', bytes: 0 };
 }
 
-// Ganzseiten-Vorschau (Vanilla) in einen Host der Vue-Fassung zeichnen.
-function drawFullPage(host, lang) {
-  const draw = () =>
-    withView(host, () => {
-      host.innerHTML = fullPageHtml(lang);
-      bindFullPage(host, lang, draw);
-    });
-  draw();
-}
-
 /**
  * Service für die Vue-Fassung des Tabs (app/tabs/layout): Zugriff auf den
  * Zustand, die Setter des Seiten-Layouts, Medien-Auswahl, Zwischenablage und
@@ -284,8 +292,23 @@ export function layoutService(lang) {
     cellDefault: defaultCellStyle,
     gridSlideshowDefault: defaultGridSlideshow,
     fullPage: {
-      draw: (el) => drawFullPage(el, lang),
-      refreshBanner: (el) => refreshFullPageBanner(el, lang),
+      model: (mode) => fullPageModel(lang, mode),
+      keys: () => fullPageKeys(lang),
+      offset: (key) => fullOffset(lang, key),
+      setOffset: (key, x, y, w, h) => {
+        setFullOffset(lang, key, x, y, w, h);
+        return fullOffset(lang, key);
+      },
+      movedKeys: () => fullMovedKeys(lang),
+      cardOffsets: () => fullCardOffsets(lang),
+      cardOffsetIds: () => fullCardOffsetIds(lang),
+      linkedKeys: (key) => fullLinkedTextKeys(lang, key),
+      labels: { ...FULL_LABELS, ...FULL_TEXT_LABELS },
+      normOffset: normMediaOffset,
+      normScale: normCardScale,
+      scaleMin: CARD_SCALE_MIN,
+      scaleMax: CARD_SCALE_MAX,
+      offsetMax: MEDIA_OFFSET_MAX,
     },
   };
 }

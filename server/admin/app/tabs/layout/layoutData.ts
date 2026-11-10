@@ -1,3 +1,4 @@
+import type { FullPageService } from './fullPageData';
 import type { Lang, ThemeMode } from '../../../types';
 import { rgbaFromHex } from '../../../public/model-core.js';
 import type {
@@ -573,14 +574,6 @@ export function fontOptionsOf(
   ];
 }
 
-/** Ganzseiten-Vorschau (bleibt bis PR 12c Vanilla und wird in einen Host gezeichnet). */
-export interface FullPageHost {
-  /** Vorschau in `el` (neu) zeichnen und verdrahten; Sichtzustand bleibt. */
-  draw: (el: HTMLElement) => void;
-  /** Nur das Banner der Vorschau mit dem aktuellen Design versehen (billig, live). */
-  refreshBanner: (el: HTMLElement) => void;
-}
-
 /** Ziel der Medien-Auswahl: Banner, Banner-Diashow, Kachel i, Diashow von Kachel i. */
 export type PickTarget = 'banner' | 'slide' | { cell: number } | { cellSlide: number };
 /** Ziel beim Einfügen aus der Zwischenablage (wie `assignImageBlob` in layout-paste.js). */
@@ -629,5 +622,6 @@ export interface LayoutService {
   syncProps: readonly CellField[];
   cellDefault: () => CellStyle;
   gridSlideshowDefault: () => GridSlideshow;
-  fullPage: FullPageHost;
+  /** Ganzseiten-Vorschau (Daten + Versatz, `public/layout-fullpage.js`). */
+  fullPage: FullPageService;
 }

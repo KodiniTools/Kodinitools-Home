@@ -1,5 +1,6 @@
 import { reactive, ref } from 'vue';
 import type { ThemeMode } from '../../../types';
+import { FpHistory } from './fullPageData';
 
 /**
  * UI-Zustand des Tabs „Layout“ (nicht gespeichert), modulweit, damit er ein
@@ -17,13 +18,30 @@ export const lyUi = reactive<{
   selSeq: number;
   /** Schritt der Kachel-Diashow (jede Kachel zeigt Bild `gridTick % Anzahl`). */
   gridTick: number;
+  // ---- Ganzseiten-Vorschau ----
+  /** Modus der Ganzseiten-Vorschau. */
+  fpMode: ThemeMode;
+  /** Zuletzt gewähltes Element (Schlüssel wie 'hero', 'card:tools.x', 'text:hero.title'). */
+  fpActive: string | null;
+  /** Hilfsraster an/aus, Rasterweite (px der Seite), Einrasten. */
+  fpGrid: boolean;
+  fpStep: number;
+  fpSnap: boolean;
 }>({
   prevMode: 'light',
   slideIdx: 0,
   activeCell: null,
   selSeq: 0,
   gridTick: 0,
+  fpMode: 'light',
+  fpActive: null,
+  fpGrid: false,
+  fpStep: 20,
+  fpSnap: true,
 });
+
+/** Eigener Verlauf der Ganzseiten-Vorschau (↶ Rückgängig), je Sprache. */
+export const fpHist = new FpHistory();
 
 /**
  * Änderungszähler für Schreibzugriffe am Proxy vorbei (Service-Setter, andere

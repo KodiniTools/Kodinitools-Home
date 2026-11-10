@@ -8,7 +8,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import LayoutTab from '../../server/admin/app/tabs/layout/LayoutTab.vue';
-import { lyRev, lyUi } from '../../server/admin/app/tabs/layout/layoutUi';
+import { fpHist, lyRev, lyUi } from '../../server/admin/app/tabs/layout/layoutUi';
+import {
+  FpHistory,
+  moveStyle,
+  nextLine,
+  resizeTo,
+  snapTo,
+} from '../../server/admin/app/tabs/layout/fullPageData';
 import {
   bannerDesignCss,
   bannerTextStyle,
@@ -48,7 +55,6 @@ function makeService(picked: string | null = '/uploads/de/banner.webp') {
     }),
     paste: vi.fn(),
     bindCells: vi.fn(() => () => {}),
-    fullPage: { draw: vi.fn(), refreshBanner: vi.fn() },
   };
   return service;
 }
@@ -159,7 +165,8 @@ describe('LayoutTab (Vue-Insel, Einzel-Banner)', () => {
     expect(w.find('[data-bannerdesign="light"] [data-bannercopyside="light"]').exists()).toBe(true);
     expect(w.find('[data-bannerdesign="dark"].tc-mode-collapsed').exists()).toBe(true);
     expect(w.find('[data-bannermedia="box"]').exists()).toBe(true);
-    expect(svc.fullPage.draw).toHaveBeenCalledTimes(1);
+    expect(w.find('[data-smfull] [data-smpage] [data-fpbox]').exists()).toBe(true);
+    expect(w.findAll('[data-smfullsection]').length).toBe(3);
     expect(JSON.stringify(state.media)).toBe(before);
     w.unmount();
   });
@@ -195,7 +202,11 @@ describe('LayoutTab (Vue-Insel, Einzel-Banner)', () => {
     await w.find('[data-bannerstyle="light:shadow"] button').trigger('click');
     expect(light().shadow).toBe(true);
     await flushPromises();
-    expect(svc.fullPage.refreshBanner).toHaveBeenCalled();
+    // Ganzseiten-Vorschau zieht das Banner-Design live nach.
+    m().heroBanner = '/uploads/de/b.webp';
+    lyRev.value++;
+    await flushPromises();
+    expect(w.find('[data-fpmedia] > img').attributes('style')).toContain('box-shadow: 50px');
     await w.find('[data-bannercopyside="light"]').trigger('click');
     expect(dark()).toEqual(light());
     expect(dark()).not.toBe(light());
@@ -235,7 +246,7 @@ describe('LayoutTab (Vue-Insel, Einzel-Banner)', () => {
     expect(lastToast()).toBe('Banner zugewiesen');
     await flushPromises();
     expect(w.find('img[data-bannermedia="media"]').exists()).toBe(true);
-    expect(svc.fullPage.draw).toHaveBeenCalledTimes(2);
+    expect(w.find('[data-fpmedia] > img').attributes('src')).toBe('/uploads/de/banner.webp');
     await w.find('input[data-bannerslot]').setValue('  /uploads/x.mp4 ');
     expect(m().heroBanner).toBe('/uploads/x.mp4');
     expect(w.find('video[data-bannermedia="media"]').exists()).toBe(true);
@@ -471,6 +482,138 @@ describe('LayoutTab (Vue-Insel, Bild-Raster)', () => {
     await w.find('[data-cellpaste="1"]').trigger('click');
     expect(svc.paste).toHaveBeenCalledWith(1);
     expect(hooks.active()).toBe(1);
+    w.unmount();
+  });
+});
+
+describe('fullPageData (Regeln wie public/layout-fullpage.js)', () => {
+  it('Versatz-Style, Einrasten, Pfeiltasten mit Raster, Skalieren an Punkten', () => {
+    expect(moveStyle({ x: 0, y: 0 }, false)).toContain('z-index:1');
+    expect(moveStyle({ x: 5, y: -3, w: 120, h: 100 }, true)).toMatch(
+      /left:5px;top:-3px;z-index:2.*scale\(1\.2,1\).*outline:3px/,
+    );
+    expect(snapTo({ x: 13, y: 0 }, 10, 31, 20)).toEqual({ x: 7, y: 40 });
+    expect(nextLine(40, 1, 20, 1)).toBe(60); // auf Linie → nächste
+    expect(nextLine(45, 1, 20, 1)).toBe(60); // zwischen Linien → nächste in Richtung
+    expect(nextLine(45, -1, 20, 5)).toBe(-40);
+    expect(nextLine(45, 0, 20, 1)).toBe(45);
+    const rs = { handle: 'se', o: { x: 0, y: 0, w: 100, h: 100 }, W: 200, H: 100 };
+    const norm = (v: number) => Math.max(25, Math.min(300, Math.round(v)));
+    expect(resizeTo(rs, 100, 10, norm)).toEqual({ x: 0, y: 0, w: 150, h: 150 });
+    expect(resizeTo({ ...rs, handle: 'e' }, 100, 50, norm)).toEqual({ x: 0, y: 0, w: 150, h: 100 });
+    // Westen: rechte Kante bleibt stehen → Versatz wandert mit
+    expect(resizeTo({ ...rs, handle: 'nw' }, -100, 0, norm)).toEqual({
+      x: -100,
+      y: -50,
+      w: 150,
+      h: 150,
+    });
+    expect(resizeTo(rs, -1000, 0, norm).w).toBe(25);
+  });
+
+  it('Verlauf: Gruppen, Zusammenfassen schneller Wiederholungen, je Sprache', () => {
+    let t = 0;
+    const h = new FpHistory(3, () => t);
+    expect(h.push('de', [{ key: 'hero', x: 0, y: 0 }], true)).toBe(true);
+    t = 500;
+    expect(h.push('de', [{ key: 'hero', x: 1, y: 0 }], true)).toBe(false);
+    t = 2000;
+    expect(h.push('de', [{ key: 'hero', x: 2, y: 0 }], true)).toBe(true);
+    h.push('de', [{ key: 'audio', x: 0, y: 0 }]);
+    h.push('de', [{ key: 'image', x: 0, y: 0 }]);
+    expect(h.stack('de').length).toBe(3); // max 3
+    expect(h.stack('en').length).toBe(0);
+    expect(h.pop('de')).toEqual([{ key: 'image', x: 0, y: 0 }]);
+  });
+});
+
+describe('LyFullPage (Ganzseiten-Vorschau als Vue)', () => {
+  beforeEach(() => {
+    Object.assign(lyUi, {
+      fpMode: 'light',
+      fpActive: null,
+      fpGrid: false,
+      fpStep: 20,
+      fpSnap: true,
+    });
+    for (const l of ['de', 'en']) fpHist.stack(l).length = 0;
+  });
+  const fp = (w: ReturnType<typeof mountTab>, key: string) => w.find(`[data-smfullmedia="${key}"]`);
+
+  it('Öffnen schreibt nichts (auch keine Text-Stile); Pfeiltasten, Verlauf, Rückgängig', async () => {
+    delete (state.media.de as { textStyles?: unknown }).textStyles;
+    const before = JSON.stringify(state.media);
+    const w = mountTab();
+    expect(JSON.stringify(state.media)).toBe(before);
+    await fp(w, 'hero').trigger('keydown', { key: 'ArrowRight' });
+    await fp(w, 'hero').trigger('keydown', { key: 'ArrowDown', shiftKey: true });
+    expect([state.media.de.heroMediaOffsetX, state.media.de.heroMediaOffsetY]).toEqual([1, 10]);
+    expect(fp(w, 'hero').attributes('style')).toContain('left: 1px');
+    expect(lyUi.fpActive).toBe('hero');
+    expect(w.find('[data-smlive]').text()).toContain('1 / 10 px');
+    expect(w.find('[data-smundo]').text()).toBe('↶ Rückgängig (1)'); // zusammengefasst
+    await w.find('[data-smundo]').trigger('click');
+    expect([state.media.de.heroMediaOffsetX, state.media.de.heroMediaOffsetY]).toEqual([0, 0]);
+    expect(w.find('[data-smundo]').attributes('disabled')).toBeDefined();
+    expect(lastToast()).toBe('Verschiebung rückgängig gemacht');
+    w.unmount();
+  });
+
+  it('Texte verschieben; gemeinsame Überschriften bei „Standard für alle Slots“', async () => {
+    const w = mountTab();
+    await fp(w, 'text:hero.title').trigger('keydown', { key: 'ArrowLeft', shiftKey: true });
+    const ts = () =>
+      (state.media.de as unknown as { textStyles: Record<string, { offsetX: number }> }).textStyles;
+    expect(ts()['hero.title']!.offsetX).toBe(-10);
+    (state.media.de as unknown as { textStyleUniform: boolean }).textStyleUniform = true;
+    await fp(w, 'text:imageTools.sectionTitle').trigger('keydown', { key: 'ArrowRight' });
+    await flushPromises();
+    for (const slot of ['tools', 'imageTools', 'diverseTools'])
+      expect(fp(w, `text:${slot}.sectionTitle`).attributes('style')).toContain('left: 1px');
+    w.unmount();
+  });
+
+  it('Auswahl-Panel: Element wählen, Versatz-Felder, zurücksetzen; Ursprüngliche Anordnung', async () => {
+    const w = mountTab();
+    await w.find('select[data-smselkey]').setValue('audio');
+    expect(lyUi.fpActive).toBe('audio');
+    await w.find('input[data-smselx]').setValue('25');
+    await w.find('input[data-smsely]').setValue('-7');
+    const sm = () =>
+      (
+        state.media.de as unknown as {
+          sectionMedia: Record<string, { offsetX: number; offsetY: number }>;
+        }
+      ).sectionMedia;
+    expect([sm().audio!.offsetX, sm().audio!.offsetY]).toEqual([25, -7]);
+    expect(fp(w, 'audio').attributes('style')).toContain('outline');
+    await w.find('[data-smselreset]').trigger('click');
+    expect([sm().audio!.offsetX, sm().audio!.offsetY]).toEqual([0, 0]);
+    await w.find('[data-smresetall]').trigger('click');
+    expect(lastToast()).toContain('Nichts verschoben');
+    await fp(w, 'image').trigger('keydown', { key: 'ArrowUp' });
+    await w.find('[data-smresetall]').trigger('click');
+    expect(sm().image!.offsetY).toBe(0);
+    expect(lastToast()).toBe('Ursprüngliche Anordnung wiederhergestellt');
+    w.unmount();
+  });
+
+  it('Hilfsraster mit Einrasten: Pfeiltaste springt zur nächsten Linie; Modus Dunkel', async () => {
+    const w = mountTab();
+    await w.find('[data-smgrid] button').trigger('click');
+    expect(lyUi.fpGrid).toBe(true);
+    await w.find('select[data-smgridstep]').setValue('50');
+    expect(lyUi.fpStep).toBe(50);
+    expect(w.find('[data-smgridoverlay]').attributes('style')).toContain('display: block');
+    await fp(w, 'diverse').trigger('keydown', { key: 'ArrowRight' });
+    const sm = () =>
+      (state.media.de as unknown as { sectionMedia: Record<string, { offsetX: number }> })
+        .sectionMedia;
+    expect(sm().diverse!.offsetX % 50).toBe(0);
+    expect(sm().diverse!.offsetX).not.toBe(0);
+    await w.find('[data-smfullmode="dark"]').trigger('click');
+    expect(lyUi.fpMode).toBe('dark');
+    expect(w.find('[data-fpcta]').attributes('style')).toContain('#e8a945');
     w.unmount();
   });
 });
