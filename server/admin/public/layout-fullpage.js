@@ -145,13 +145,19 @@ function cardOffsets(lang) {
   if (!m.toolCardOffsets || typeof m.toolCardOffsets !== 'object') m.toolCardOffsets = {};
   return m.toolCardOffsets;
 }
+// Nur lesen (legt nichts an): Lesen darf den Zustand nicht ändern, sonst gilt der
+// Tab beim Öffnen als geändert (Undo-Eintrag, „Ungespeicherte Änderungen“).
+function readCardOffsets(lang) {
+  const o = state.media[lang].toolCardOffsets;
+  return o && typeof o === 'object' ? o : {};
+}
 export function fullOffset(lang, key) {
   if (key === 'hero') {
     const m = state.media[lang];
     return { x: m.heroMediaOffsetX || 0, y: m.heroMediaOffsetY || 0 };
   }
   if (key.startsWith('card:')) {
-    const o = cardOffsets(lang)[key.slice(5)];
+    const o = readCardOffsets(lang)[key.slice(5)];
     return {
       x: (o && o.x) || 0,
       y: (o && o.y) || 0,
@@ -160,8 +166,10 @@ export function fullOffset(lang, key) {
     };
   }
   if (key.startsWith('text:')) {
-    const st = getTextStyle(lang, textSlotOf(lang, key.slice(5)));
-    return { x: st.offsetX || 0, y: st.offsetY || 0 };
+    // Ohne getTextStyle: das ergänzt fehlende Felder und würde beim Lesen schreiben.
+    const ts = state.media[lang].textStyles;
+    const st = ts && typeof ts === 'object' ? ts[textSlotOf(lang, key.slice(5))] : null;
+    return { x: (st && st.offsetX) || 0, y: (st && st.offsetY) || 0 };
   }
   const c = getSectionMedia(lang, key);
   return { x: c.offsetX || 0, y: c.offsetY || 0 };
@@ -220,7 +228,7 @@ function movedKeys(lang) {
     const o = fullOffset(lang, k);
     if (o.x || o.y) out.push(k);
   }
-  for (const id of Object.keys(cardOffsets(lang))) out.push(`card:${id}`);
+  for (const id of Object.keys(readCardOffsets(lang))) out.push(`card:${id}`);
   for (const slot of TEXT_KEYS) {
     const o = fullOffset(lang, `text:${slot}`);
     if (o.x || o.y) out.push(`text:${slot}`);
@@ -434,7 +442,7 @@ function selectionHtml(lang) {
 }
 // Liste der verschobenen Tool-Karten (Titel, Versatz, ↺) + „alle zurücksetzen“.
 function cardsInfoHtml(lang) {
-  const all = cardOffsets(lang);
+  const all = readCardOffsets(lang);
   const ids = Object.keys(all).filter(
     (id) => TOOL_CARD_KEY.test(id) && (all[id].x || all[id].y || scaled(all[id])),
   );
@@ -453,6 +461,120 @@ function cardsInfoHtml(lang) {
       ' ',
     )} <button type="button" class="hd-reset" data-smcardsreset title="Verschiebung aller Tool-Karten zurücksetzen">↺ alle Karten</button>`;
 }
+// ---- Daten für die Vue-Fassung (app/tabs/layout/LyFullPage.vue) ----------------
+// Gleiche Quellen wie fullPageHtml, aber als reine Daten; liest nur.
+const mediaOf = (info, style = '') => (info ? { src: info.src, isVid: info.isVid, style } : null);
+/** Schematische Startseite als Daten (Modus 'light' | 'dark'). */
+export function fullPageModel(lang, mode) {
+  const md = mode === 'dark' ? 'dark' : 'light';
+  const c = FULL_TEXT[md];
+  const m = state.media[lang];
+  const compact = getHomeLayout() === 'compact';
+  const hd = m.heroDesign || {};
+  const hiddenChips = new Set(Array.isArray(hd.hiddenChips) ? hd.hiddenChips : []);
+  let hero;
+  if (m.heroMode === 'grid') {
+    const layout = m.heroLayout;
+    const cells = visibleGridCells(lang, layout);
+    hero = {
+      kind: 'grid',
+      cols: Math.min(HERO_LAYOUT_COLS[layout] || 3, Math.max(1, cells.length)),
+      maxW: layout === 'row4' ? 860 : layout === 'big2' ? 900 : layout === 'vrow' ? 420 : 720,
+      tiles: cells.map((i) => ({ i, media: mediaOf(mediaInfo(lang, `grid${i}`), MEDIA_BASE) })),
+    };
+  } else if (m.heroBannerShow === false) hero = { kind: 'msg', text: 'Banner ausgeblendet' };
+  else {
+    const info = mediaInfo(lang, 'heroBanner');
+    hero = info
+      ? { kind: 'media', media: mediaOf(info, heroPreviewMediaStyle(lang, md, compact)) }
+      : { kind: 'msg', text: 'Kein Hero-Medium' };
+  }
+  const feats = getPath(state.defaults[lang], ['hero', 'features']);
+  const chips = (feats && typeof feats === 'object' ? Object.entries(feats) : [])
+    .slice(0, 6)
+    .map(([key, def]) => {
+      const o = getPath(state.overrides[lang], ['hero', 'features', key]);
+      return { key, label: String(o != null && o !== '' ? o : def), hidden: hiddenChips.has(key) };
+    });
+  const sections = SECTION_MEDIA_KEYS.map((key) => {
+    const css = designCss(lang, key, md);
+    const t = getSectionMedia(lang, key).text;
+    return {
+      key,
+      slot: `${CARD_SECTION[key]}.sectionTitle`,
+      title: effText(lang, [CARD_SECTION[key], 'sectionTitle']) || SECTION_MEDIA_LABELS[key],
+      label: FULL_LABELS[key],
+      media: mediaOf(mediaInfo(lang, key), `${MEDIA_BASE};${css.media}`),
+      wrapCss: css.wrap,
+      text: { text: t.text || '', css: t.text ? textStyle(t) : '' },
+      centered: key !== 'audio',
+      cards: sectionCards(lang, key).map((card) => {
+        const { hid, ...d } = cardDesign(lang, card.id, md);
+        const hidden = {};
+        for (const k of ['icon', 'badge', 'title', 'fav', 'open']) hidden[k] = hid(k) !== '';
+        return { ...card, d: { ...d, hidden } };
+      }),
+    };
+  });
+  return {
+    pageW: PAGE_W,
+    mode: md,
+    colors: c,
+    compact,
+    grid: m.heroMode === 'grid',
+    heroHasMedia:
+      m.heroMode === 'grid' ||
+      (m.heroBannerShow !== false && Boolean(mediaInfo(lang, 'heroBanner'))),
+    hero,
+    shown: {
+      title: hd.showTitle !== false,
+      subtitle: hd.showSubtitle !== false,
+      chips: hd.showChips !== false,
+      cta: hd.showCta !== false,
+    },
+    title: effText(lang, ['hero', 'title']),
+    subtitle: effText(lang, ['hero', 'subtitle']),
+    cta: effText(lang, ['hero', 'cta']) || 'Jetzt starten',
+    chips,
+    sections,
+    pageBg: prevBg(md),
+    fontCss: fontFF(getGlobalFont()) || PREV_FONT_STACK,
+    css: `${PREV_FONT_FACES}${heroCompactCss('fp')}`,
+  };
+}
+/** Wählbare Elemente (Medien, Texte, Tool-Karten je Sektion) für die Auswahl. */
+export function fullPageKeys(lang) {
+  return allKeys(lang).map((k) => ({
+    ...k,
+    group: k.group && k.group !== 'Texte' ? `Tool-Karten ${k.group}` : k.group,
+  }));
+}
+/** Verschobene/skalierte Tool-Karten (nur lesen). */
+export function fullCardOffsets(lang) {
+  const all = readCardOffsets(lang);
+  return Object.keys(all)
+    .filter((id) => TOOL_CARD_KEY.test(id) && (all[id].x || all[id].y || scaled(all[id])))
+    .map((id) => {
+      const [sec, key] = id.split('.');
+      return {
+        id,
+        title: effText(lang, [sec, key, 'title']) || id,
+        ...fullOffset(lang, `card:${id}`),
+      };
+    });
+}
+/** Alle Tool-Karten mit gespeichertem Versatz (für „alle Karten zurücksetzen“). */
+export const fullCardOffsetIds = (lang) => Object.keys(readCardOffsets(lang));
+/** Text-Schlüssel, die sich bei „Standard für alle Slots“ gemeinsam bewegen. */
+export function fullLinkedTextKeys(lang, key) {
+  const uniform =
+    key.startsWith('text:') &&
+    state.media[lang].textStyleUniform &&
+    UNIFORM_TEXT_KEYS.includes(key.slice(5));
+  return uniform ? UNIFORM_TEXT_KEYS.map((slot) => `text:${slot}`) : [key];
+}
+export { movedKeys as fullMovedKeys, FULL_LABELS, TEXT_LABELS as FULL_TEXT_LABELS };
+
 export function fullPageHtml(lang) {
   const mode = fullMode;
   const c = FULL_TEXT[mode];
