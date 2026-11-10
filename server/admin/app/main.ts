@@ -15,6 +15,7 @@ import FilesTab from './tabs/files/FilesTab.vue';
 import MediaTab from './tabs/media/MediaTab.vue';
 import BackgroundTab from './tabs/background/BackgroundTab.vue';
 import ToolCardsTab from './tabs/toolcards/ToolCardsTab.vue';
+import HeroTab from './tabs/hero/HeroTab.vue';
 import './design-system/tokens-v2.css';
 
 /** Migrierte Tabs (Name → Komponente). */
@@ -26,6 +27,7 @@ const TABS: Record<VueTabName, Component> = {
   media: MediaTab,
   background: BackgroundTab,
   toolcards: ToolCardsTab,
+  hero: HeroTab,
 };
 
 export function startAdminVue(doc: Document = document): KodiniAdminVue {
