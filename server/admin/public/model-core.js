@@ -1,20 +1,38 @@
+// @ts-check
 // Datenmodell des Adminbereichs – Kern: reine Helfer ohne Abhängigkeiten
 // (Farben, Schrift-Dateinamen, Medien-URLs, Pfad-Helfer), Sprach-/Slot-Konstanten
 // und Navigations-Daten. Alle anderen model-*.js bauen darauf auf; nach außen
 // wird alles über model.js gebündelt.
 
+/** @import { Lang, Subtab, MediaKey, ObjPath, AnyObj } from '../types.ts' */
+
 // Buchstabenabstand auf [-5, 20] px begrenzen, auf 0,5 gerundet.
+/**
+ * @param {unknown} v
+ * @param {number} def Rückgabe bei ungültigem Wert
+ * @returns {number}
+ */
 export function clampSpacing(v, def) {
   const n = Number(v);
   return Number.isFinite(n) ? Math.max(-5, Math.min(20, Math.round(n * 2) / 2)) : def;
 }
 // Erlaubt einen einfachen Schrift-Dateinamen oder '' (Standardschrift).
+/**
+ * @param {unknown} v
+ * @returns {string}
+ */
 export function normFontFile(v) {
   return typeof v === 'string' && /^[a-zA-Z0-9][a-zA-Z0-9._ -]*\.(woff2|woff|ttf|otf)$/i.test(v)
     ? v
     : '';
 }
-// Hex + Deckkraft(%) -> rgba() (für Vorschau).
+// Hex + Deckkraft(%) -> rgba() (für Vorschau). Ungültiges Hex kommt unverändert zurück.
+/**
+ * @template T
+ * @param {T} hex
+ * @param {unknown} opacityPct
+ * @returns {string | T}
+ */
 export function rgbaFromHex(hex, opacityPct) {
   const m = /^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.exec(String(hex || '').trim());
   if (!m) return hex;
@@ -31,8 +49,12 @@ export function rgbaFromHex(hex, opacityPct) {
   return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
 // Hex-Farbe (#rgb oder #rrggbb) oder '' (= Standard/keine eigene Farbe).
+/**
+ * @param {unknown} v
+ * @returns {string}
+ */
 export function normHexOrEmpty(v) {
-  return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? v : '';
+  return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? /** @type {string} */ (v) : '';
 }
 // Verfügbare Text-Animationen des Banner-Textes (zuschaltbar) und Tempo-Stufen.
 export const BANNER_ANIM_TYPES = ['none', 'pulse', 'float', 'shake', 'wobble', 'glow'];
@@ -40,6 +62,10 @@ export const BANNER_ANIM_SPEEDS = ['slow', 'normal', 'fast'];
 // Erlaubte Medien-URLs der Bild-Plätze: interner Pfad, http(s)-URL oder eine
 // gestagte Datei ('staged:<id>') bis zum Veröffentlichen.
 const SITE_MEDIA_URL = /^(\/[^\s"'()\\]*|https?:\/\/[^\s"'()\\]+|staged:[\w-]+)$/;
+/**
+ * @param {unknown} v
+ * @returns {string}
+ */
 export function normSiteMediaUrl(v) {
   const t = String(v ?? '').trim();
   return SITE_MEDIA_URL.test(t) ? t : '';
@@ -47,8 +73,10 @@ export function normSiteMediaUrl(v) {
 
 // Sprachen + Slots. 'heroBanner' liegt auf oberster Ebene der Sprache, die
 // anderen unter sectionVideos.
+/** @type {Lang[]} */
 export const MEDIA_LANGS = ['de', 'en'];
 // Slot-Schlüssel: Sektions-Videos, Einzel-Banner und die sechs Rasterbilder.
+/** @type {MediaKey[]} */
 export const MEDIA_KEYS = [
   'audio',
   'image',
@@ -63,7 +91,15 @@ export const MEDIA_KEYS = [
 ];
 
 // --- Pfad-Helfer für verschachtelte Overrides ---
+// Pfade sind Schlüssel-Listen, z. B. ['hero', 'title'] bzw. ['items', 0].
+
+/**
+ * @param {unknown} obj
+ * @param {ObjPath} path
+ * @returns {unknown}
+ */
 export function getPath(obj, path) {
+  /** @type {any} */
   let cur = obj;
   for (const k of path) {
     if (cur == null || typeof cur !== 'object') return undefined;
@@ -71,6 +107,13 @@ export function getPath(obj, path) {
   }
   return cur;
 }
+/**
+ * Legt fehlende Zwischen-Objekte an.
+ * @param {AnyObj} obj
+ * @param {ObjPath} path
+ * @param {unknown} value
+ * @returns {void}
+ */
 export function setPath(obj, path, value) {
   let cur = obj;
   for (let i = 0; i < path.length - 1; i++) {
@@ -79,6 +122,12 @@ export function setPath(obj, path, value) {
   }
   cur[path[path.length - 1]] = value;
 }
+/**
+ * Löscht den Schlüssel und räumt dabei leer gewordene Eltern-Objekte auf.
+ * @param {AnyObj} obj
+ * @param {ObjPath} path
+ * @returns {void}
+ */
 export function delPath(obj, path) {
   const stack = [obj];
   let cur = obj;
@@ -98,6 +147,7 @@ export function delPath(obj, path) {
 }
 
 // --- Navigation: Ebenen-Konstanten (reine Daten) ---
+/** @type {Subtab[]} */
 export const SUBTABS = [
   { key: 'ticker', label: 'Laufband' },
   { key: 'texts', label: 'Texte' },
@@ -110,4 +160,5 @@ export const SUBTABS = [
   { key: 'icons', label: 'Icons' },
   { key: 'advanced', label: 'Erweitert' },
 ];
+/** @type {Lang[]} */
 export const LANG_SECTIONS = ['de', 'en'];

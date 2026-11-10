@@ -1,0 +1,155 @@
+/**
+ * Typen des Admin-Datenmodells (nur Typen, kein Laufzeit-Code).
+ *
+ * Die Admin-Module unter `public/` bleiben Vanilla-JS ohne Build-Schritt und
+ * beziehen diese Typen per JSDoc (`@typedef {import('../types.ts').X} X`). Wo die
+ * Struktur bereits durch eine Normalisierungs-Funktion festgelegt ist, wird der
+ * Typ aus deren Rückgabe abgeleitet (eine Quelle der Wahrheit); nur offene
+ * Strukturen (Overrides, Text-Stile, Offsets) sind hier ausgeschrieben.
+ *
+ * Grundlage für die schrittweise Migration des Admins nach Vue 3 + Pinia.
+ */
+import type { normTickerStyle } from './public/model-ticker.js';
+import type { defaultMediaLocale, normalizeMedia } from './public/model-media.js';
+
+/** Inhalts-Sprachen der Seite. */
+export type Lang = 'de' | 'en';
+/** Darstellungs-Modus, für den Farben getrennt gepflegt werden. */
+export type ThemeMode = 'light' | 'dark';
+/** Wert je Sprache. */
+export type ByLang<T> = Record<Lang, T>;
+
+/** Tempo des Laufbands. */
+export type TickerSpeed = 'slow' | 'normal' | 'fast';
+/** Ein Eintrag des Laufbands. */
+export interface TickerItem {
+  id: string;
+  text: string;
+  link: string;
+}
+/** Farben des Laufbands für einen Modus. */
+export interface TickerColors {
+  textColor: string;
+  bgColor: string;
+  /** Deckkraft des Hintergrunds in % (0–100). */
+  bgOpacity: number;
+}
+/** Design des Laufbands (Typografie geteilt, Farben je Modus). */
+export type TickerStyle = ReturnType<typeof normTickerStyle>;
+/** Vollständige, normalisierte Laufband-Konfiguration einer Sprache. */
+export interface TickerConfig {
+  enabled: boolean;
+  speed: TickerSpeed;
+  items: TickerItem[];
+  style: TickerStyle;
+}
+
+/** Sektion mit eigenem Video/Bild (`sectionVideos`). */
+export type SectionVideoKey = 'audio' | 'image' | 'diverse';
+/** Medien-Slot: Sektions-Video, Einzel-Banner oder eine der sechs Raster-Kacheln. */
+export type MediaKey = SectionVideoKey | 'heroBanner' | `grid${0 | 1 | 2 | 3 | 4 | 5}`;
+
+/** Verschiebung/Skalierung einer Tool-Karte (Tab „Layout“), Schlüssel `sektion.key`. */
+export interface ToolCardOffset {
+  x: number;
+  y: number;
+  /** Breite in % (25–300), nur gespeichert, wenn ≠ 100. */
+  w?: number;
+  /** Höhe in % (25–300), nur gespeichert, wenn ≠ 100. */
+  h?: number;
+}
+
+/** Medien-/Design-Einstellungen einer Sprache (normalisiert). */
+export type MediaLocale = Omit<
+  ReturnType<typeof defaultMediaLocale>,
+  'toolCardOffsets' | 'heroMode' | 'heroGridFit'
+> & {
+  heroMode: 'banner' | 'grid';
+  heroGridFit: 'cover' | 'contain';
+  toolCardOffsets: Record<string, ToolCardOffset>;
+};
+/** Geladener/normalisierter Medien-Stand: globale `site` plus je Sprache. */
+export type MediaState = ReturnType<typeof normalizeMedia>;
+/** Globale Seiten-Einstellungen (sprachübergreifend). */
+export type SiteSettings = MediaState['site'];
+
+/** Schlüssel-Pfad in verschachtelte Objekte, z. B. `['hero', 'title']` oder `['items', 0]`. */
+export type ObjPath = Array<string | number>;
+/** Offenes Objekt für die Pfad-Helfer (`setPath`/`delPath`). */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type AnyObj = Record<string | number, any>;
+
+/** Text-Overrides einer Sprache (beliebig verschachtelt, Struktur der Locale-Dateien). */
+export type Overrides = Record<string, unknown>;
+
+/** Datei im Browser-Zwischenspeicher (IndexedDB), referenziert als `staged:<id>`. */
+export interface StagedItem {
+  id: string;
+  name: string;
+  type: string;
+  blob: Blob;
+  createdAt: number;
+  /** Server-URL nach dem Veröffentlichen, sonst `null`. */
+  publishedUrl: string | null;
+}
+
+/** Eintrag der Server-Uploads (`GET /api/uploads`). */
+export interface ServerFile {
+  name: string;
+  /** Pfad relativ zu `/uploads`, z. B. `de/bild.webp`. */
+  path: string;
+  url: string;
+  bytes: number;
+  mtime: number;
+}
+/** Server-Uploads getrennt nach Sprache; `shared` = alte, ungetrennte Dateien. */
+export type ServerFiles = ByLang<ServerFile[]> & { shared: ServerFile[] };
+
+/** Verfügbare Schrift (`GET /api/fonts`). */
+export interface FontEntry {
+  name: string;
+  label: string;
+  url: string;
+  bytes: number;
+}
+
+/** Schlüssel der Unter-Tabs je Sprache (Reihenfolge siehe `SUBTABS`). */
+export type SubtabKey =
+  | 'ticker'
+  | 'texts'
+  | 'media'
+  | 'layout'
+  | 'design'
+  | 'background'
+  | 'cards'
+  | 'files'
+  | 'icons'
+  | 'advanced';
+/** Eintrag der Unter-Navigation. */
+export interface Subtab {
+  key: SubtabKey;
+  label: string;
+}
+/** Ebene 1 der Navigation: Sprache oder Status/Veröffentlichen. */
+export type NavSection = Lang | 'publish';
+export interface NavState {
+  section: NavSection;
+  sub: SubtabKey;
+}
+
+/** Zentraler App-Zustand des Admins (`model-state.js`). */
+export interface AdminState {
+  overrides: ByLang<Overrides>;
+  ticker: ByLang<TickerConfig>;
+  media: MediaState;
+  /** Fallback für nicht aufgelöste Staging-Refs beim Speichern. */
+  loadedMedia: MediaState;
+  defaults: ByLang<Overrides>;
+  stagedItems: StagedItem[];
+  serverFiles: ServerFiles;
+  fonts: FontEntry[];
+  /** id → objectURL (Vorschau gestagter Dateien). */
+  objectUrls: Map<string, string>;
+  nav: NavState;
+  publishing: boolean;
+}

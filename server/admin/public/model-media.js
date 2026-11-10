@@ -1,3 +1,4 @@
+// @ts-check
 // Datenmodell – Medien je Sprache: Standardwerte, Normalisierung des geladenen
 // Stands (inkl. Migration alter Strukturen), Slot-Zugriff (Sektions-Videos,
 // Banner, Rasterbilder) und alle Bild-Plätze zusammen.
@@ -48,6 +49,8 @@ import {
   normMediaOffset,
 } from './model-sectionmedia.js';
 
+/** @import { Lang, MediaKey, SectionVideoKey, ToolCardOffset } from '../types.ts' */
+
 export function defaultMediaLocale() {
   return {
     sectionVideos: {
@@ -55,14 +58,14 @@ export function defaultMediaLocale() {
       image: '/videos/image-tools.mp4',
       diverse: '/videos/diverse-tools.mp4',
     },
-    heroMode: 'banner',
+    heroMode: /** @type {'banner' | 'grid'} */ ('banner'),
     heroLayout: 'grid3',
     heroBanner: '',
     heroBannerLink: '',
     heroBannerShow: true, // Einzelbanner ein-/ausgeblendet (Tab „Layout“)
     heroMediaOffsetX: 0, // Verschiebung des Hero-Mediums (Banner/Raster) in px
     heroMediaOffsetY: 0,
-    toolCardOffsets: {}, // Verschiebung je Tool-Karte { 'sektion.key': { x, y } } (px, nur ≠ 0)
+    toolCardOffsets: /** @type {Record<string, ToolCardOffset>} */ ({}), // Verschiebung je Tool-Karte { 'sektion.key': { x, y } } (px, nur ≠ 0)
     heroBannerText: '', // Text über dem Einzelbanner
     heroBannerFont: '', // Schriftart des Banner-Textes (Dateiname im /fonts-Ordner)
     heroBannerTextColor: '#ffffff',
@@ -94,7 +97,7 @@ export function defaultMediaLocale() {
     heroGridUniform: false, // „Standard für alle Kacheln" aktiv?
     heroGridUniformCell: 0, // Index der Master-Kachel, deren Werte gelten
     heroGridRatio: '1:1',
-    heroGridFit: 'cover',
+    heroGridFit: /** @type {'cover' | 'contain'} */ ('cover'),
     textStyles: {}, // { "<textKey>": { size: px (0=auto), colorLight: Hex|'', colorDark: Hex|'', font: Datei|'' } }
     textStyleUniform: false, // „Standard für alle Slots" (Tab „Texte") aktiv?
     textStyleUniformKey: 'tools.sectionTitle', // Slot, dessen Stil dann für alle Texte-Tab-Slots gilt
@@ -125,11 +128,22 @@ export function defaultMedia() {
 // Verschiebung je Tool-Karte: { 'sektion.key': { x, y } }, nur Einträge ≠ 0/0, max. 60.
 export const CARD_SCALE_MIN = 25;
 export const CARD_SCALE_MAX = 300;
+/**
+ * @param {unknown} v
+ * @returns {number}
+ */
 export function normCardScale(v) {
   const n = Number(v);
-  return Number.isFinite(n) ? Math.max(CARD_SCALE_MIN, Math.min(CARD_SCALE_MAX, Math.round(n))) : 100;
+  return Number.isFinite(n)
+    ? Math.max(CARD_SCALE_MIN, Math.min(CARD_SCALE_MAX, Math.round(n)))
+    : 100;
 }
+/**
+ * @param {any} v Roh-Wert aus der geladenen Config
+ * @returns {Record<string, ToolCardOffset>}
+ */
 export function normToolCardOffsets(v) {
+  /** @type {Record<string, ToolCardOffset>} */
   const out = {};
   if (!v || typeof v !== 'object' || Array.isArray(v)) return out;
   for (const k of Object.keys(v)) {
@@ -139,12 +153,17 @@ export function normToolCardOffsets(v) {
     // Skalierung (Breite/Höhe in %, 25–300; Inhalt skaliert mit), nur ≠ 100 gespeichert.
     const w = normCardScale(v[k].w);
     const h = normCardScale(v[k].h);
-    if (x || y || w !== 100 || h !== 100) out[k] = { x, y, ...(w !== 100 || h !== 100 ? { w, h } : {}) };
+    if (x || y || w !== 100 || h !== 100)
+      out[k] = { x, y, ...(w !== 100 || h !== 100 ? { w, h } : {}) };
     if (Object.keys(out).length >= 60) break;
   }
   return out;
 }
+/**
+ * @param {any} m Roh-Wert aus der geladenen Config (aktuelles oder altes Format)
+ */
 export function normalizeMedia(m) {
+  /** @param {any} o */
   const mk = (o) => {
     const d = defaultMediaLocale();
     const sv = o && typeof o.sectionVideos === 'object' && o.sectionVideos ? o.sectionVideos : {};
@@ -156,7 +175,7 @@ export function normalizeMedia(m) {
         image: sv.image || d.sectionVideos.image,
         diverse: sv.diverse || d.sectionVideos.diverse,
       },
-      heroMode: o && o.heroMode === 'grid' ? 'grid' : 'banner',
+      heroMode: /** @type {'banner' | 'grid'} */ (o && o.heroMode === 'grid' ? 'grid' : 'banner'),
       heroLayout: normHeroLayout(o?.heroLayout),
       heroBanner: o && typeof o.heroBanner === 'string' ? o.heroBanner : '',
       heroBannerLink: o && typeof o.heroBannerLink === 'string' ? o.heroBannerLink : '',
@@ -241,7 +260,9 @@ export function normalizeMedia(m) {
         ? Math.max(0, Math.min(HERO_GRID_MAX - 1, Math.round(Number(o.heroGridUniformCell))))
         : 0,
       heroGridRatio: ['1:1', '16:9', '2:3'].includes(o?.heroGridRatio) ? o.heroGridRatio : '1:1',
-      heroGridFit: o?.heroGridFit === 'contain' ? 'contain' : 'cover',
+      heroGridFit: /** @type {'cover' | 'contain'} */ (
+        o?.heroGridFit === 'contain' ? 'contain' : 'cover'
+      ),
       textStyles: normTextStyles(o?.textStyles),
       textStyleUniform: o?.textStyleUniform === true,
       textStyleUniformKey: UNIFORM_TEXT_KEYS.includes(o?.textStyleUniformKey)
@@ -258,12 +279,23 @@ export function normalizeMedia(m) {
   return { site: normSite(src.site), de: mk(src.de), en: mk(src.en) };
 }
 
+/**
+ * @param {Lang} lang
+ * @param {MediaKey} key
+ * @returns {string}
+ */
 export function getMediaVal(lang, key) {
   if (key === 'heroBanner') return state.media[lang].heroBanner || '';
   const g = /^grid([0-5])$/.exec(key);
   if (g) return (state.media[lang].heroGrid || [])[+g[1]] || '';
-  return state.media[lang].sectionVideos[key] || '';
+  return state.media[lang].sectionVideos[/** @type {SectionVideoKey} */ (key)] || '';
 }
+/**
+ * @param {Lang} lang
+ * @param {MediaKey} key
+ * @param {string} val
+ * @returns {void}
+ */
 export function setMediaVal(lang, key, val) {
   if (key === 'heroBanner') {
     state.media[lang].heroBanner = val;
@@ -276,14 +308,23 @@ export function setMediaVal(lang, key, val) {
     state.media[lang].heroGrid[+g[1]] = val;
     return;
   }
-  state.media[lang].sectionVideos[key] = val;
+  state.media[lang].sectionVideos[/** @type {SectionVideoKey} */ (key)] = val;
 }
+/**
+ * @param {MediaKey} key
+ * @returns {string}
+ */
 export function defMediaVal(key) {
   if (key === 'heroBanner' || /^grid[0-5]$/.test(key)) return '';
-  return defaultMediaLocale().sectionVideos[key];
+  return defaultMediaLocale().sectionVideos[/** @type {SectionVideoKey} */ (key)];
 }
 // Ersetzt eine Medien-URL in ALLEN Slots (beide Sprachen) — z.B. nachdem eine
 // Datei serverseitig verschoben wurde, damit die Zuweisungen erhalten bleiben.
+/**
+ * @param {string} oldUrl
+ * @param {string} newUrl
+ * @returns {void}
+ */
 export function updateMediaUrlEverywhere(oldUrl, newUrl) {
   for (const lang of MEDIA_LANGS) {
     for (const key of MEDIA_KEYS) {
