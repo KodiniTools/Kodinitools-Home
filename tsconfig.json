@@ -13,5 +13,6 @@
     "src/**/*.tsx",
     "src/**/*.astro",
     "tests/**/*.ts"
-  ]
+  ],
+  "exclude": ["server/admin/dist", "tests/unit/admin-ui/**"]
 }

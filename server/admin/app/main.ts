@@ -7,6 +7,7 @@ import { createPinia } from 'pinia';
 import { mountIsland, type KodiniAdminVue } from './bridge';
 import { useToastStore } from './stores/toast';
 import ToastHost from './components/ToastHost.vue';
+import './design-system/tokens-v2.css';
 
 export function startAdminVue(doc: Document = document): KodiniAdminVue {
   const pinia = createPinia();
