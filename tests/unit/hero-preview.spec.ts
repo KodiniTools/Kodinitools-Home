@@ -8,6 +8,7 @@ import {
   heroPreviewMedia,
   heroPreviewMediaStyle,
   HERO_PREVIEW_LAYOUT_CSS,
+  heroCompactCss,
 } from '../../server/admin/public/hero-preview.js';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -74,4 +75,12 @@ it('Kompakt-CSS gilt nur mit data-hdlayout="compact"', () => {
   const rules = HERO_PREVIEW_LAYOUT_CSS.split('\n').filter(Boolean);
   expect(rules.length).toBeGreaterThan(0);
   for (const r of rules) expect(r.startsWith('[data-hdbox][data-hdlayout="compact"]')).toBe(true);
+});
+
+it('Ganzseiten-Vorschau (Präfix fp) nutzt eigene Attribute, Kachel-Raster 1.1fr/1fr', () => {
+  const css = heroCompactCss('fp');
+  for (const r of css.split('\n'))
+    expect(r.startsWith('[data-fpbox][data-fplayout="compact"]')).toBe(true);
+  expect(css).not.toContain('data-hd');
+  expect(css).toContain('[data-fpgrid]{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)');
 });
