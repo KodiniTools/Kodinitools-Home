@@ -9,8 +9,11 @@
 // layout-banner.js (Einzelbanner), layout-grid.js (Bild-Raster), layout-paste.js
 // (Zwischenablage). Diese Datei rendert den Tab und verdrahtet den Modus-Wechsel.
 
-import { captureView, restoreView } from './viewstate.js';
-import { $, toast } from './core.js';
+import { captureView, restoreView, withView } from './viewstate.js';
+import { $, toast, fmtBytes } from './core.js';
+import { mountVueTab, unmountVueTab } from './islands.js';
+import { objUrl, openMediaPicker } from './media.js';
+import { ensureFontFace } from './fonts.js';
 import { bindSliders } from './slider.js';
 import { bindColorPickers } from './color.js';
 import {
@@ -31,12 +34,20 @@ import {
   setMediaPosDesktop,
   getMediaPosMobile,
   setMediaPosMobile,
+  getBannerStyle,
+  getBannerSlides,
+  getBannerSlideshow,
+  defaultBannerStyle,
+  defaultBannerSlideshow,
+  BANNER_STYLE_LIMITS,
+  BANNER_SLIDES_MAX,
+  BANNER_TRANSITIONS,
 } from './model.js';
 import { stopPreviewSlideshow } from './layout-shared.js';
 import { bannerLayoutHtml, bindBanner } from './layout-banner.js';
 import { gridLayoutHtml, bindGrid, markCell, getActiveCell } from './layout-grid.js';
-import { initPaste } from './layout-paste.js';
-import { fullPageHtml, bindFullPage } from './layout-fullpage.js';
+import { initPaste, pasteFromClipboardApi } from './layout-paste.js';
+import { fullPageHtml, bindFullPage, refreshFullPageBanner } from './layout-fullpage.js';
 
 // Helfer, die andere Tabs (z. B. Medien) weiterhin aus layout.js beziehen.
 export {
@@ -146,12 +157,121 @@ function modePanelHtml(lang, mode) {
     </div>`;
 }
 
+// Getter/Setter des Panels „Seiten-Layout" (global) für die Vue-Fassung.
+const PAGE_GET = {
+  homeLayout: getHomeLayout,
+  heroMediaMobile: getHeroMediaMobile,
+  cardForm: getCardForm,
+  cardWidth: getCardWidth,
+  catBar: getCatBar,
+  catSearch: getCatSearch,
+  mediaPosDesktop: getMediaPosDesktop,
+  mediaPosMobile: getMediaPosMobile,
+};
+const PAGE_SET = {
+  homeLayout: setHomeLayout,
+  heroMediaMobile: setHeroMediaMobile,
+  cardForm: setCardForm,
+  cardWidth: setCardWidth,
+  catBar: setCatBar,
+  catSearch: setCatSearch,
+  mediaPosDesktop: setMediaPosDesktop,
+  mediaPosMobile: setMediaPosMobile,
+};
+
+// Medium (Server-URL oder 'staged:<id>') für die Vue-Fassung auflösen.
+function resolveMedia(val) {
+  if (!val) return null;
+  if (val.startsWith('staged:')) {
+    const id = val.slice(7);
+    const item = state.stagedItems.find((x) => x.id === id);
+    if (!item) return null;
+    return {
+      src: objUrl(id),
+      isVid: /^video\//.test(item.type),
+      localName: item.name,
+      bytes: item.blob ? item.blob.size : 0,
+    };
+  }
+  return { src: val, isVid: /\.(mp4|webm|mov|ogg)$/i.test(val), localName: '', bytes: 0 };
+}
+
+// Ganzseiten-Vorschau (Vanilla) in einen Host der Vue-Fassung zeichnen.
+function drawFullPage(host, lang) {
+  const draw = () =>
+    withView(host, () => {
+      host.innerHTML = fullPageHtml(lang);
+      bindFullPage(host, lang, draw);
+    });
+  draw();
+}
+
+/**
+ * Service für die Vue-Fassung des Tabs (app/tabs/layout): Zugriff auf den
+ * Zustand, die Setter des Seiten-Layouts, Medien-Auswahl, Zwischenablage und
+ * die (noch Vanilla-)Ganzseiten-Vorschau – ohne model.js ins Bundle zu ziehen.
+ * @param {'de' | 'en'} lang
+ */
+export function layoutService(lang) {
+  return {
+    lang,
+    media: () => state.media[lang],
+    mediaOf: (l) => state.media[l],
+    ensureBanner: (l) => {
+      getBannerStyle(l, 'light');
+      getBannerSlides(l);
+      getBannerSlideshow(l);
+    },
+    page: () => Object.fromEntries(Object.entries(PAGE_GET).map(([k, get]) => [k, get()])),
+    setPage: (key, v) => PAGE_SET[key]?.(v),
+    // Raster-Modus bleibt (bis PR 12b) Vanilla: Tab nach dem Klick neu zeichnen.
+    setHeroMode: (mode) => {
+      state.media[lang].heroMode = mode === 'grid' ? 'grid' : 'banner';
+      setTimeout(renderLayout, 0);
+    },
+    resolve: resolveMedia,
+    pick: (kind, title, onPick) => {
+      const srv = [lang, 'shared'].reduce((n, l) => n + (state.serverFiles[l] || []).length, 0);
+      if (!state.stagedItems.length && !srv) return false;
+      openMediaPicker(lang, kind === 'slide' ? 'heroBannerSlide' : 'heroBanner', {
+        title,
+        imagesOnly: kind === 'slide',
+        onPick,
+      });
+      return true;
+    },
+    paste: (target) => pasteFromClipboardApi(lang, target === 'slide' ? 'slide' : 'banner'),
+    fonts: () => state.fonts,
+    ensureFontFace,
+    fmtBytes,
+    styleDefault: defaultBannerStyle,
+    styleLimits: BANNER_STYLE_LIMITS,
+    slideshowDefault: defaultBannerSlideshow,
+    slidesMax: BANNER_SLIDES_MAX,
+    transitions: BANNER_TRANSITIONS,
+    fullPage: {
+      draw: (el) => drawFullPage(el, lang),
+      refreshBanner: (el) => refreshFullPageBanner(el, lang),
+    },
+  };
+}
+
 export function renderLayout() {
   const lang = state.nav.section;
   const pane = $('#content');
+  stopPreviewSlideshow();
+  // Einzel-Banner: Vue-Fassung (app/tabs/layout); Raster und Notbremse: Vanilla.
+  const scrollY = window.scrollY;
+  if (
+    state.media[lang].heroMode !== 'grid' &&
+    mountVueTab(pane, 'layout', { service: layoutService(lang === 'en' ? 'en' : 'de') })
+  ) {
+    window.scrollTo(0, scrollY);
+    return;
+  }
   // Sichtzustand (Scroll der Seite/Seitenleisten, auf-/zugeklappte Bereiche) erhalten.
   const view = captureView(pane);
-  stopPreviewSlideshow();
+  unmountVueTab();
   const mode = state.media[lang].heroMode === 'grid' ? 'grid' : 'banner';
   const modePanel = pageLayoutPanelHtml() + modePanelHtml(lang, mode);
   pane.innerHTML =

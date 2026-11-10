@@ -45,7 +45,8 @@ export type VueTabName =
   | 'media'
   | 'background'
   | 'toolcards'
-  | 'hero';
+  | 'hero'
+  | 'layout';
 
 declare global {
   interface Window {
