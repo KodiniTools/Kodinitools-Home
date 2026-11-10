@@ -164,6 +164,35 @@
     max-height: 340px;
   }
 
+  /* Einzelbanner mit bekannten Maßen (z. B. Logo-PNG): Die Medienspalte ist nur
+     so breit wie das Bild, Text und Bild stehen als zentriertes Paar. Sonst
+     zentriert die 1fr-Spalte ein schmales Bild und lässt links und rechts davon
+     Lücken. Die Bildbreite hängt nicht an % (in einer auto-Spalte zirkulär),
+     sondern an denselben Grenzen wie in hero.css; 500px/40vw entsprechen der
+     bisherigen 1fr-Spalte, breite Banner bleiben so gleich gross.
+     Diashow, Video, Raster und Banner ohne Maße behalten das 1.1fr/1fr-Raster. */
+  #app[data-home-layout='compact']
+    .hero-content:has(.hero-banner-wrapper .hero-banner[style*='--media-ar']) {
+    grid-template-columns: minmax(0, 38rem) auto;
+    justify-content: center;
+  }
+
+  #app[data-home-layout='compact'] .hero-banner-wrapper:has(.hero-banner[style*='--media-ar']) {
+    width: auto;
+  }
+
+  #app[data-home-layout='compact'] .hero-banner-wrapper .hero-banner[style*='--media-ar'] {
+    width: min(
+      500px,
+      40vw,
+      calc(var(--media-w) + 2 * var(--hb-bw, 0px)),
+      calc((var(--hb-max-h) - 2 * var(--hb-bw, 0px)) * var(--media-ar) + 2 * var(--hb-bw, 0px))
+    );
+    /* Die Breite oben ist schon begrenzt; ohne max-width:100% bleibt die
+       Spalte so breit wie das Bild und der Text nimmt den Rest. */
+    max-width: none;
+  }
+
   #app[data-home-layout='compact'] .hero-title {
     grid-area: title;
     text-align: left;
