@@ -518,6 +518,17 @@ export function fullPageHtml(lang) {
       </div>
     </details>`;
 }
+// Banner der Ganzseiten-Vorschau live mit dem aktuellen Banner-Design versehen
+// (Regler im Tab „Layout“ ändern nur den Stil, ohne den Tab neu zu zeichnen).
+export function refreshFullPageBanner(pane, lang) {
+  const box = pane.querySelector('[data-fpbox]');
+  const el = box && box.querySelector('[data-fpmedia] > img, [data-fpmedia] > video');
+  if (!el) return;
+  el.setAttribute(
+    'style',
+    heroPreviewMediaStyle(lang, fullMode, box.dataset.fplayout === 'compact'),
+  );
+}
 // Bindet Modus, Zoom, Ziehen, Pfeiltasten und Felder der Ganzseiten-Vorschau.
 let resizeObs = null;
 export function bindFullPage(pane, lang, rr) {
