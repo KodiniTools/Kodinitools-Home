@@ -373,6 +373,15 @@ export function normBannerSlideshow(o, withStagger = false) {
   if (withStagger) out.stagger = o.stagger !== false;
   return out;
 }
+/** @typedef {Slideshow & { stagger: boolean }} GridSlideshow */
+/**
+ * Diashow der Raster-Kacheln (mit „versetzt wechseln“).
+ * @param {any} o
+ * @returns {GridSlideshow}
+ */
+export function normGridSlideshow(o) {
+  return /** @type {GridSlideshow} */ (normBannerSlideshow(o, true));
+}
 /**
  * @param {Lang} lang
  * @param {number} i
@@ -389,7 +398,7 @@ export function getGridSlides(lang, i) {
 export function getGridSlideshow(lang) {
   const m = state.media[lang];
   if (!m.heroGridSlideshow || typeof m.heroGridSlideshow !== 'object')
-    m.heroGridSlideshow = normBannerSlideshow(m.heroGridSlideshow, true);
+    m.heroGridSlideshow = normGridSlideshow(m.heroGridSlideshow);
   return m.heroGridSlideshow;
 }
 // Sichert die Diashow-Strukturen der Sprache und gibt sie zurück.

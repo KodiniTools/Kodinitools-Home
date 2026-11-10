@@ -320,6 +320,7 @@ export function heroImageSlots() {
 }
 
 // Hero-Text-Slots (Tab „Hero-Design"): Text-Override-Pfad + Stil-Schlüssel.
+/** @type {{ key: 'hero.title' | 'hero.subtitle' | 'hero.cta'; path: string[]; label: string }[]} */
 export const HERO_TEXT_SLOTS = [
   { key: 'hero.title', path: ['hero', 'title'], label: 'Titel' },
   { key: 'hero.subtitle', path: ['hero', 'subtitle'], label: 'Untertitel' },

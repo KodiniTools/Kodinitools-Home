@@ -28,6 +28,9 @@ import {
   normToolCardText,
   normHeroDesign,
   allImageSlots,
+  navLang,
+  isLangSection,
+  normGridSlideshow,
 } from '../../server/admin/public/model.js';
 import type {
   AdminState,
@@ -159,5 +162,31 @@ describe('@ts-check der übrigen Datenmodelle (Verhalten unverändert)', () => {
     expect(slide.get()).toBe('/uploads/de/a.webp');
     slide.set('  /uploads/de/b.webp ');
     expect(state.media.de.heroBannerSlides[0]).toBe('/uploads/de/b.webp');
+  });
+});
+
+describe('Navigations-Helfer (PR B)', () => {
+  it('navLang liefert nur de/en – auch im Veröffentlichen-Bereich', () => {
+    const prev = state.nav.section;
+    state.nav.section = 'en';
+    expect(navLang()).toBe('en');
+    state.nav.section = 'publish';
+    expect(navLang()).toBe('de');
+    state.nav.section = 'de';
+    expect(navLang()).toBe('de');
+    state.nav.section = prev;
+    expectTypeOf(navLang()).toEqualTypeOf<Lang>();
+  });
+
+  it('isLangSection erkennt nur Sprachbereiche', () => {
+    expect(isLangSection('de')).toBe(true);
+    expect(isLangSection('en')).toBe(true);
+    expect(isLangSection('publish')).toBe(false);
+    expect(isLangSection(undefined)).toBe(false);
+  });
+
+  it('normGridSlideshow setzt stagger immer als boolean', () => {
+    expect(typeof normGridSlideshow(undefined).stagger).toBe('boolean');
+    expect(typeof normGridSlideshow({ stagger: 'x' }).stagger).toBe('boolean');
   });
 });

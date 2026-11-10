@@ -1,10 +1,12 @@
+// @ts-check
 // KodiniTools Adminbereich — Einstiegsmodul. Bindet Login, die zweistufige
 // Navigation und den Startvorgang zusammen. Die Tabs sind Vue-Inseln
 // (app/tabs/…, gebaut mit `npm run build:admin`); die Module hier halten den
 // Zustand (model*.js) und reichen ihn als Props/Services an die Inseln.
 
 import { $, api, mediaAll } from './core.js';
-import { state, normTicker, normalizeMedia, SUBTABS, LANG_SECTIONS } from './model.js';
+/** @import { NavSection, SubtabKey } from '../types.ts' */
+import { state, normTicker, normalizeMedia, SUBTABS, isLangSection } from './model.js';
 import { renderTicker } from './ticker.js';
 import { loadFonts } from './fonts.js';
 import { renderTexts, renderAdvanced } from './content.js';
@@ -21,9 +23,12 @@ import { unmountVueTab, markVueMissing } from './islands.js';
 $('#loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   $('#loginErr').textContent = '';
-  const r = await api('/login', { method: 'POST', body: { password: $('#pw').value } });
+  const r = await api('/login', {
+    method: 'POST',
+    body: { password: /** @type {HTMLInputElement} */ ($('#pw')).value },
+  });
   if (r.ok) {
-    $('#pw').value = '';
+    /** @type {HTMLInputElement} */ ($('#pw')).value = '';
     await boot();
   } else {
     $('#loginErr').textContent = r.data?.error || 'Anmeldung fehlgeschlagen';
@@ -38,11 +43,11 @@ $('#logoutBtn').addEventListener('click', async () => {
 // --- Navigation (zwei Ebenen) ---
 function renderNav() {
   const { section, sub } = state.nav;
-  document
-    .querySelectorAll('#topnav button')
-    .forEach((b) => b.classList.toggle('active', b.dataset.sec === section));
+  document.querySelectorAll('#topnav button').forEach((b) => {
+    b.classList.toggle('active', /** @type {HTMLElement} */ (b).dataset.sec === section);
+  });
   const subnav = $('#subnav');
-  if (LANG_SECTIONS.includes(section)) {
+  if (isLangSection(section)) {
     subnav.classList.remove('hidden');
     subnav.innerHTML = SUBTABS.map(
       (t) =>
@@ -61,7 +66,7 @@ export function renderMain() {
   unmountVueTab();
   // Tabs mit dreispaltigem Layout (Seitenleisten Hell/Dunkel) brauchen einen breiteren Rahmen.
   const wide =
-    LANG_SECTIONS.includes(section) &&
+    isLangSection(section) &&
     (sub === 'cards' ||
       sub === 'texts' ||
       sub === 'background' ||
@@ -69,7 +74,7 @@ export function renderMain() {
       sub === 'layout' ||
       sub === 'media');
   $('#appView').classList.toggle('app-wide', wide);
-  if (LANG_SECTIONS.includes(section)) {
+  if (isLangSection(section)) {
     if (sub === 'ticker') renderTicker();
     else if (sub === 'texts') renderTexts();
     else if (sub === 'media') renderMedia();
@@ -86,6 +91,10 @@ export function renderMain() {
   }
 }
 
+/**
+ * @param {NavSection} section
+ * @param {SubtabKey} [sub]
+ */
 export function goto(section, sub) {
   state.nav.section = section;
   if (sub) state.nav.sub = sub;
@@ -94,12 +103,16 @@ export function goto(section, sub) {
 }
 
 $('#topnav').addEventListener('click', (e) => {
-  const btn = e.target.closest('button[data-sec]');
-  if (btn) goto(btn.dataset.sec);
+  const btn = /** @type {HTMLElement | null} */ (
+    /** @type {Element} */ (e.target).closest('button[data-sec]')
+  );
+  if (btn) goto(/** @type {NavSection} */ (btn.dataset.sec));
 });
 $('#subnav').addEventListener('click', (e) => {
-  const btn = e.target.closest('button[data-sub]');
-  if (btn) goto(state.nav.section, btn.dataset.sub);
+  const btn = /** @type {HTMLElement | null} */ (
+    /** @type {Element} */ (e.target).closest('button[data-sub]')
+  );
+  if (btn) goto(state.nav.section, /** @type {SubtabKey} */ (btn.dataset.sub));
 });
 
 // --- Laden & Anzeigen ---
@@ -152,7 +165,9 @@ const rerenderIfOpen = () => {
   if (!$('#appView').classList.contains('hidden')) renderMain();
 };
 window.addEventListener('kodini-admin-vue-ready', rerenderIfOpen);
-import('./app/main.js').catch((e) => {
+// Pfad als Variable: das Bundle entsteht erst mit `npm run build:admin`.
+const APP_ENTRY = './app/main.js';
+import(APP_ENTRY).catch((e) => {
   markVueMissing(e);
   rerenderIfOpen();
 });

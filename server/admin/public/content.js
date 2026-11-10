@@ -1,3 +1,4 @@
+// @ts-check
 // Reine Content-Bearbeitung pro Sprache: der „Texte"-Tab (formularbasierte
 // Overrides der Sektions-Überschriften) und der „Erweitert"-Tab (rohe
 // Overrides als JSON). Die Hero-Texte (Titel, Untertitel, Button-Text) werden
@@ -8,14 +9,14 @@
 // Hell links und Dunkel rechts = Vorschau + Textfarbe je Slot für den Modus.
 
 import { $, esc, toast } from './core.js';
-import { state } from './model.js';
+import { state, navLang } from './model.js';
 import { ensureFontFace } from './fonts.js';
 import { goto } from './admin.js';
 import { mountVueTab } from './islands.js';
 
 export function renderTexts() {
   const pane = $('#content');
-  const lang = state.nav.section;
+  const lang = navLang();
   // Vue-Insel (app/tabs/texts).
   mountVueTab(pane, 'texts', {
     lang,
@@ -32,7 +33,7 @@ export function renderTexts() {
 
 // ============ Erweitert (rohe Overrides, eine Sprache) ============
 export function renderAdvanced() {
-  const l = state.nav.section;
+  const l = navLang();
   const pane = $('#content');
   pane.innerHTML = `
     <div class="panel">
@@ -46,14 +47,15 @@ export function renderAdvanced() {
   $('#advApply').addEventListener('click', () => {
     $('#advErr').textContent = '';
     try {
-      const txt = pane.querySelector(`[data-adv="${l}"]`).value.trim();
+      const ta = /** @type {HTMLTextAreaElement} */ (pane.querySelector(`[data-adv="${l}"]`));
+      const txt = ta.value.trim();
       const obj = txt ? JSON.parse(txt) : {};
       if (typeof obj !== 'object' || obj === null || Array.isArray(obj))
         throw new Error(`${l}: kein Objekt`);
       state.overrides[l] = obj;
       toast('Overrides übernommen (noch nicht gespeichert)');
     } catch (e) {
-      $('#advErr').textContent = 'Fehler: ' + e.message;
+      $('#advErr').textContent = 'Fehler: ' + (e instanceof Error ? e.message : String(e));
     }
   });
 }

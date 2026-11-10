@@ -215,6 +215,7 @@ export function hiddenCardIds() {
   return [...hiddenList()];
 }
 // Effekt-Schlüssel (Feldpräfix in media.site) mit Beschriftung.
+/** @type {{ key: 'fxAurora' | 'fxNoise' | 'fxSpotlight'; label: string }[]} */
 export const SITE_FX = [
   { key: 'fxAurora', label: 'Aurora-Farbflecken' },
   { key: 'fxNoise', label: 'Feines Rauschen' },

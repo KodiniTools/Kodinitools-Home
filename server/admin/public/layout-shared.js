@@ -1,3 +1,4 @@
+// @ts-check
 // Gemeinsame Vorschau-Helfer (Ganzseiten-Vorschau, Hero-Design, Abschnitts-
 // Medien): fontFF, slideInfo, overlayStyle.
 
@@ -5,13 +6,19 @@ import { state } from './model.js';
 import { objUrl } from './media.js';
 import { ensureFontFace } from './fonts.js';
 
+/** @type {(v: number, min: number, max: number) => number} */
 const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 // font-family-CSS für eine Kachel-Textschrift (lädt @font-face für die Vorschau) oder ''.
+/** @param {string | null | undefined} file */
 export function fontFF(file) {
   return file ? `font-family:'${ensureFontFace(file)}', var(--site-font, sans-serif);` : '';
 }
 
 // Ein Diashow-Bild (Server-URL oder 'staged:<id>') auflösen: { src, item } oder null.
+/**
+ * @param {string | null | undefined} val
+ * @returns {{ src: string; item: import('../types.ts').StagedItem | null } | null}
+ */
 export function slideInfo(val) {
   if (!val) return null;
   if (val.startsWith('staged:')) {
@@ -25,6 +32,16 @@ export function slideInfo(val) {
 
 // Gemeinsamer Overlay-Style: der Text wird an (x,y) in % verankert (Mittelpunkt)
 // und lässt sich in der Vorschau mit der Maus frei verschieben (cursor:move).
+/**
+ * @param {string} color
+ * @param {number} size px, 0 = `fsDefault`
+ * @param {unknown} x Position in %
+ * @param {unknown} y Position in %
+ * @param {string} font
+ * @param {string} fsDefault
+ * @param {string} shadow text-shadow
+ * @param {string} [extra] weiteres CSS
+ */
 export function overlayStyle(color, size, x, y, font, fsDefault, shadow, extra) {
   const fs = size > 0 ? `${size}px` : fsDefault;
   const cx = clamp(Number(x) || 0, 0, 100);

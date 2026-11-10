@@ -1,3 +1,4 @@
+// @ts-check
 // Hero-Design-Vorschau (Admin > Hero-Design): Banner-Medium und Seiten-Layout
 // wie auf der Startseite (HomePage.astro, hero.css, home-compact.css), damit die
 // Vorschau dasselbe Bild zeigt wie die Seite. Reine Funktionen ohne DOM, damit
@@ -30,6 +31,9 @@ export function heroPreviewMedia(media, resolveStaged = () => null) {
  * Inline-Style des Banner-Mediums in der Vorschau: Größe wie auf der Seite
  * (klassisch max. 240 px hoch, kompakt max. 340 px hoch und 500 px breit) plus
  * Banner-Design des Modus (Rahmen, Ecken, Schatten, Deckkraft, Verdunkelung).
+ * @param {import('../types.ts').Lang} lang
+ * @param {string} mode
+ * @param {boolean} compact
  */
 export function heroPreviewMediaStyle(lang, mode, compact) {
   const s = getBannerStyle(lang, mode);
@@ -65,7 +69,7 @@ export function heroPreviewMediaStyle(lang, mode, compact) {
  */
 export function heroCompactCss(p = 'hd') {
   const box = `[data-${p}box][data-${p}layout="compact"]`;
-  const a = (n) => `[data-${p}${n}]`;
+  const a = (/** @type {string} */ n) => `[data-${p}${n}]`;
   return [
     `${box}{display:grid;column-gap:56px;align-items:start;text-align:left !important;padding:48px !important;` +
       "grid-template-columns:minmax(0,38rem) auto;justify-content:center;grid-template-areas:'. media' 'title media' 'sub media' 'chips media' 'cta media' '. media';grid-template-rows:1fr auto auto auto auto 1fr}",

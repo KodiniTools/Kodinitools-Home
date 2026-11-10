@@ -1,3 +1,4 @@
+// @ts-check
 // Hintergrund-Tab (global, sprachübergreifend): Hintergrund der GESAMTEN
 // Website – getrennt für Hell- und Dunkelmodus – mit Live-Vorschau. Je Modus:
 // eigene Farbe, Deckkraft (Mischung mit der Standardfarbe des Modus) und
@@ -36,6 +37,7 @@ import { objUrl, openMediaPicker } from './media.js';
 import { mountVueTab } from './islands.js';
 
 // Bild-URL für die Vorschau auflösen (staged:<id> -> Objekt-URL des Browsers).
+/** @param {string} val */
 function previewUrl(val) {
   if (!val) return '';
   if (val.startsWith('staged:')) return objUrl(val.slice(7));
@@ -47,9 +49,14 @@ const layerCss = siteBgLayerCss;
 
 // Zustandsgebundene Teile für die Vue-Fassung (app/tabs/background): Lesen und
 // Schreiben über die normalisierenden Funktionen aus model-site.js.
+/** @returns {import('../app/tabs/background/bgData').BgService} */
 function bgService() {
+  /** @type {(title: string, onPick: (url: string) => void) => boolean} */
   const pick = (title, onPick) => {
-    const srv = ['de', 'en', 'shared'].reduce((n, l) => n + (state.serverFiles[l] || []).length, 0);
+    const srv = /** @type {const} */ (['de', 'en', 'shared']).reduce(
+      (n, l) => n + (state.serverFiles[l] || []).length,
+      0,
+    );
     if (!state.stagedItems.length && !srv) return false;
     openMediaPicker('de', 'bgImage', { allLangs: true, imagesOnly: true, title, onPick });
     return true;
@@ -57,7 +64,7 @@ function bgService() {
   return {
     bg: getSiteBg,
     setBg: setSiteBg,
-    layers: (mode) => {
+    layers: (/** @type {import('../types.ts').ThemeMode} */ mode) => {
       const { ground, overlay } = siteBgSplit(mode);
       return { full: layerCss(mode), ground, overlay, image: siteBgImageLayer(mode, previewUrl) };
     },
