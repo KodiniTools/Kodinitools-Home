@@ -6,6 +6,7 @@ import { state, rgbaFromHex, clampSpacing, getPageBg, PAGE_BG_DEFAULT } from './
 import { ensureFontFace, fontOptionsHtml } from './fonts.js';
 import { slider, bindSliders } from './slider.js';
 import { colorPicker, bindColorPickers } from './color.js';
+import { mountVueTab } from './islands.js';
 
 // Laufband-Text mit Inline-Links [Wort](url) in sichere HTML-Vorschau wandeln
 // (gleiche Regel wie TickerBar.astro; Klicks in der Vorschau navigieren nicht).
@@ -60,6 +61,18 @@ function insertInlineLink(lang, i, word, url) {
 // --- Laufband (eine Sprache) ---
 export function renderTicker() {
   const pane = $('#content');
+  const lang = state.nav.section;
+  // Vue-Fassung (app/tabs/ticker), sofern geladen; sonst wie bisher.
+  if (
+    mountVueTab(pane, 'ticker', {
+      ticker: state.ticker[lang],
+      lang,
+      fonts: state.fonts,
+      pageBg: { light: tkPageBg('light'), dark: tkPageBg('dark') },
+      ensureFontFace,
+    })
+  )
+    return;
   pane.innerHTML = tickerPanel(state.nav.section);
   pane.querySelectorAll('[data-tk]').forEach(bindTickerControl);
   bindInlineLinkHelper(pane);

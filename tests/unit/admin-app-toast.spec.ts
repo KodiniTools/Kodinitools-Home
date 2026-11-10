@@ -98,6 +98,10 @@ describe('Brücke + ToastHost', () => {
       mountIsland: () => {
         throw new Error('n/a');
       },
+      tabs: [],
+      mountTab: () => {
+        throw new Error('n/a');
+      },
     };
     legacyToast('Trotzdem sichtbar');
     expect(document.querySelector('#toast')!.textContent).toBe('Trotzdem sichtbar');
