@@ -1,4 +1,5 @@
 dist/
+server/admin/dist/
 .astro/
 node_modules/
 public/fontawesome/

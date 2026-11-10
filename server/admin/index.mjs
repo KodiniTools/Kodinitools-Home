@@ -25,6 +25,7 @@ import { listFontAwesome } from './fontawesome.mjs';
 import { startPublish, getPublishState } from './publish.mjs';
 import { startPreview, getPreviewState, PREVIEW_DIR } from './preview.mjs';
 import { serverCodeChanged } from './codeupdate.mjs';
+import { isAppPath, resolveAppFile } from './appbundle.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = resolve(__dirname, 'public');
@@ -83,6 +84,26 @@ async function serveStatic(req, res, urlPath) {
     } catch {
       sendText(res, 404, 'Admin-Frontend noch nicht gebaut (Phase 4).');
     }
+  }
+}
+
+// --- Vue-Teile des Admins (server/admin/dist/) unter /admin/app/ ---
+async function serveApp(req, res, urlPath) {
+  const filePath = resolveAppFile(urlPath);
+  try {
+    if (!filePath) throw new Error('kein Pfad');
+    const s = await stat(filePath);
+    if (!s.isFile()) throw new Error('keine Datei');
+    const body = await readFile(filePath);
+    noindex(res);
+    res.writeHead(200, {
+      'Content-Type': MIME[extname(filePath)] || 'application/octet-stream',
+      'Cache-Control': 'no-store',
+    });
+    res.end(body);
+  } catch {
+    // Kein SPA-Fallback: Fehlt der Build, bleibt der Vanilla-Admin allein aktiv.
+    sendText(res, 404, 'Admin-UI (Vue) nicht gebaut – npm run build:admin');
   }
 }
 
@@ -322,6 +343,8 @@ const server = http.createServer(async (req, res) => {
     const path = url.pathname;
     if (path === '/api' || path.startsWith('/api/')) {
       await handleApi(req, res, path);
+    } else if (isAppPath(path)) {
+      await serveApp(req, res, path);
     } else if (path === '/preview' || path.startsWith('/preview/')) {
       await servePreview(req, res, path);
     } else {

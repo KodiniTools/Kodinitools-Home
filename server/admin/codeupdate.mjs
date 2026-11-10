@@ -82,11 +82,36 @@ export async function updateCodeFromRemote(run, log, env) {
       log('Abhängigkeiten geändert → npm ci --include=dev');
       log(await run('npm', ['ci', '--include=dev'], { env }));
     }
+    if (files.some(needsAdminBuild)) await buildAdminUi(run, log, env);
     return { updated: true, from: short(from), to: short(to), files };
   } catch (err) {
     const msg = `${err?.message || err}${err?.output ? `\n${err.output}` : ''}`.trim();
     log(`Code-Update übersprungen (Vorschau baut den lokalen Stand): ${msg}`);
     return { updated: false, from: short(from), to: '', files: [], error: msg };
+  }
+}
+
+/** Ändert die Datei die gebauten Vue-Teile des Admins (server/admin/dist)? */
+export function needsAdminBuild(file) {
+  return (
+    file.startsWith('server/admin/app/') ||
+    file === 'vite.admin.config.ts' ||
+    /^package(-lock)?\.json$/.test(file)
+  );
+}
+
+/**
+ * Baut die Vue-Teile des Admins neu (`npm run build:admin`). Best effort: Ein
+ * Fehler wird nur protokolliert, der Admin läuft dann ohne Vue-Teile weiter.
+ */
+export async function buildAdminUi(run, log, env) {
+  try {
+    log('Admin-UI geändert → npm run build:admin');
+    log(await run('npm', ['run', 'build:admin'], { env }));
+  } catch (err) {
+    log(
+      `Admin-UI-Build fehlgeschlagen (Admin läuft ohne Vue-Teile weiter): ${err?.message || err}`,
+    );
   }
 }
 

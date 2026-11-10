@@ -80,6 +80,7 @@ export default tseslint.config(
   {
     ignores: [
       'dist/**',
+      'server/admin/dist/**',
       '.astro/**',
       'node_modules/**',
       'public/fontawesome/**',

@@ -82,7 +82,19 @@ export function esc(s) {
   );
 }
 let toastTimer;
-export function toast(msg) {
+// Kurzmeldung. Sind die Vue-Teile geladen (window.kodiniAdminVue), übernimmt
+// deren Toast-Store (mehrere Meldungen, Schließen-Knopf, Fehler länger sichtbar);
+// sonst die bisherige Einzelmeldung in #toast.
+export function toast(msg, type = 'info') {
+  const vue = typeof window !== 'undefined' ? window.kodiniAdminVue : undefined;
+  if (vue && typeof vue.toast === 'function') {
+    try {
+      vue.toast(String(msg), { type });
+      return;
+    } catch {
+      /* Fallback auf den Vanilla-Toast */
+    }
+  }
   const t = $('#toast');
   t.textContent = msg;
   t.classList.add('show');
