@@ -107,6 +107,15 @@ export interface TextStyle {
 /** Eintrag in `media.<lang>.textStyles` (Effekte/Versatz nur, wenn gesetzt). */
 export type TextStyleEntry = Partial<TextStyle>;
 
+/** Feld der Icon-Färbung einer Tool-Karte (Tab „Icons“). */
+export type IconTintField = 'light' | 'dark' | 'bg' | 'bgDark';
+/**
+ * Icon-Färbung einer Tool-Karte (`media.<lang>.iconTint["sektion.key"]`):
+ * light/dark = Icon-Farbe (SVG als einfarbige Maske), bg/bgDark = Kasten;
+ * '' = unverändert.
+ */
+export type IconTint = Record<IconTintField, string>;
+
 /** Schlüssel-Pfad in verschachtelte Objekte, z. B. `['hero', 'title']` oder `['items', 0]`. */
 export type ObjPath = Array<string | number>;
 /** Offenes Objekt für die Pfad-Helfer (`setPath`/`delPath`). */

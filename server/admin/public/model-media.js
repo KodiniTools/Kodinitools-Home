@@ -49,7 +49,7 @@ import {
   normMediaOffset,
 } from './model-sectionmedia.js';
 
-/** @import { Lang, MediaKey, SectionVideoKey, TextStyleEntry, ToolCardOffset } from '../types.ts' */
+/** @import { IconTint, Lang, MediaKey, SectionVideoKey, TextStyleEntry, ToolCardOffset } from '../types.ts' */
 
 export function defaultMediaLocale() {
   return {
@@ -103,7 +103,7 @@ export function defaultMediaLocale() {
     textStyleUniformKey: 'tools.sectionTitle', // Slot, dessen Stil dann für alle Texte-Tab-Slots gilt
     heroDesign: defaultHeroDesign(),
     toolCards: defaultToolCards(), // Rahmen/Hintergrund der Tool-Karten (Tab „Tool-Karten")
-    iconTint: {}, // Icon-Färbung je Karte (Tab „Icons"): { "tools.x": { light, dark, bg, bgDark } }
+    iconTint: /** @type {Record<string, IconTint>} */ ({}), // Icon-Färbung je Karte (Tab „Icons"): { "tools.x": { light, dark, bg, bgDark } }
   };
 }
 // Alle Bild-Plätze außerhalb der Sprach-Slots (Seite + Tool-Karten + Diashows).

@@ -152,6 +152,10 @@ export const TOOL_CARD_KEY = /^(tools|imageTools|diverseTools)\.[a-zA-Z0-9_-]+$/
 // light/dark = Icon-Farbe (SVG als einfarbige Maske), bg/bgDark = Kasten-
 // Hintergrund; '' = unverändert (Originalfarben bzw. Standard-Kasten).
 export const ICON_TINT_FIELDS = ['light', 'dark', 'bg', 'bgDark'];
+/**
+ * @param {unknown} v
+ * @returns {Record<string, import('../types.ts').IconTint>}
+ */
 export function normIconTint(v) {
   const out = {};
   if (!v || typeof v !== 'object') return out;
