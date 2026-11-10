@@ -30,7 +30,9 @@ import {
   getTextStyle,
   UNIFORM_TEXT_KEYS,
   TEXT_OFFSET_MAX,
+  getHomeLayout,
 } from './model.js';
+import { heroPreviewMediaStyle, heroCompactCss } from './hero-preview.js';
 import { fontFF } from './layout-shared.js';
 import { mediaInfo, designCss, textStyle, MEDIA_BASE } from './sectionmedia.js';
 
@@ -234,7 +236,7 @@ const activeCss = (key) =>
   fullActive === key ? ';outline:3px solid var(--accent);outline-offset:2px' : '';
 // Hero-Medium der Vorschau: Banner (Bild/Video) oder Kachel-Raster (Anordnung,
 // ausgeblendete Kacheln entfallen) – wie im Tab „Layout“ eingestellt.
-function heroMediaHtml(lang, mode) {
+function heroMediaHtml(lang, mode, compact = false) {
   const m = state.media[lang];
   const c = FULL_TEXT[mode];
   if (m.heroMode === 'grid') {
@@ -260,8 +262,8 @@ function heroMediaHtml(lang, mode) {
   const info = mediaInfo(lang, 'heroBanner');
   if (!info)
     return `<div style="color:${c.muted};font-size:14px;padding:12px">Kein Hero-Medium</div>`;
-  const st =
-    'display:block;max-width:min(100%,900px);max-height:240px;width:auto;height:auto;object-fit:contain;border-radius:14px';
+  // Größe je Seiten-Layout und Banner-Design des Modus, wie auf der Seite.
+  const st = heroPreviewMediaStyle(lang, mode, compact);
   return info.isVid
     ? `<video src="${esc(info.src)}" muted playsinline preload="metadata" style="${st}"></video>`
     : `<img src="${esc(info.src)}" alt="" style="${st}" />`;
@@ -455,25 +457,34 @@ export function fullPageHtml(lang) {
   const mode = fullMode;
   const c = FULL_TEXT[mode];
   const m = state.media[lang];
+  const compact = getHomeLayout() === 'compact';
+  // Ein-/ausgeblendete Hero-Teile (Tab „Hero-Design“): klassisch bleibt der Platz,
+  // kompakt entfällt er (Kompakt-CSS wertet visibility:hidden aus).
+  const hd = m.heroDesign || {};
+  const hideCss = (shown) => (shown === false ? ';visibility:hidden' : '');
+  const hiddenChips = new Set(Array.isArray(hd.hiddenChips) ? hd.hiddenChips : []);
+  const heroHasMedia =
+    m.heroMode === 'grid' || (m.heroBannerShow !== false && Boolean(mediaInfo(lang, 'heroBanner')));
   const heroTitle = effText(lang, ['hero', 'title']);
   const heroSub = effText(lang, ['hero', 'subtitle']);
   const feats = getPath(state.defaults[lang], ['hero', 'features']);
-  const chips = (feats && typeof feats === 'object' ? Object.values(feats) : [])
+  const chips = (feats && typeof feats === 'object' ? Object.entries(feats) : [])
     .slice(0, 6)
-    .map(
-      (label) =>
-        `<div style="padding:13.6px 8px;border-radius:12px;background:${c.card};font-size:15.2px;font-weight:600;text-align:center;color:${c.title}">${esc(String(label))}</div>`,
-    )
+    .map(([key, def]) => {
+      const o = getPath(state.overrides[lang], ['hero', 'features', key]);
+      const label = o != null && o !== '' ? o : def;
+      return `<div data-fpchip style="padding:13.6px 8px;border-radius:12px;background:${c.card};font-size:15.2px;font-weight:600;text-align:center;color:${c.title}${hideCss(!hiddenChips.has(key))}">${esc(String(label))}</div>`;
+    })
     .join('');
   const heroBg = mode === 'dark' ? 'rgba(14,28,50,.8)' : 'rgba(255,255,255,.7)';
   const heroBorder = mode === 'dark' ? 'rgba(232,169,69,.28)' : 'rgba(1,79,153,.25)';
   const hero = `
-    <div style="max-width:${PAGE_W}px;margin:32px auto 40px;padding:64px 32px;border-radius:32px;background:${heroBg};border:1px solid ${heroBorder};text-align:center;box-sizing:border-box">
-      <div data-smfullmedia="hero" role="button" tabindex="0" title="Ziehen: Hero-Medium verschieben (Pfeiltasten: 1 px, Shift 10 px)" style="display:flex;flex-direction:column;align-items:center;gap:16px;margin-bottom:32px;${moveCss(fullOffset(lang, 'hero'))}${activeCss('hero')}">${heroMediaHtml(lang, mode)}</div>
-      <div ${textMove(lang, 'hero.title')} style="font-size:40px;font-weight:800;line-height:1.2;margin-bottom:12px;color:${c.title};${textMoveCss(lang, 'hero.title')}">${esc(heroTitle)}</div>
-      <div ${textMove(lang, 'hero.subtitle')} style="font-size:17.6px;max-width:600px;margin:0 auto;white-space:pre-line;color:${c.title};${textMoveCss(lang, 'hero.subtitle')}">${esc(heroSub)}</div>
-      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:9.6px;margin-top:32px">${chips}</div>
-      <div ${textMove(lang, 'hero.cta')} style="display:inline-block;margin-top:32px;padding:13.6px 35.2px;border-radius:50px;background:${mode === 'dark' ? '#e8a945' : '#014f99'};color:${mode === 'dark' ? '#1e293b' : '#fff'};font-weight:700;font-size:16.8px;${textMoveCss(lang, 'hero.cta')}">${esc(effText(lang, ['hero', 'cta']) || 'Jetzt starten')}</div>
+    <div data-fpbox data-fplayout="${compact ? 'compact' : 'classic'}"${heroHasMedia ? '' : ' data-fpnomedia'}${m.heroMode === 'grid' ? ' data-fpgrid' : ''} style="max-width:${PAGE_W}px;margin:32px auto 40px;padding:64px 32px;border-radius:32px;background:${heroBg};border:1px solid ${heroBorder};text-align:center;box-sizing:border-box">
+      ${heroHasMedia || !compact ? `<div data-fpmedia data-smfullmedia="hero" role="button" tabindex="0" title="Ziehen: Hero-Medium verschieben (Pfeiltasten: 1 px, Shift 10 px)${compact ? ' – im Kompakt-Layout ohne Wirkung' : ''}" style="display:flex;flex-direction:column;align-items:center;gap:16px;margin-bottom:32px;${moveCss(fullOffset(lang, 'hero'))}${activeCss('hero')}">${heroMediaHtml(lang, mode, compact)}</div>` : ''}
+      <div data-fptitle ${textMove(lang, 'hero.title')} style="font-size:40px;font-weight:800;line-height:1.2;margin-bottom:12px;color:${c.title};${textMoveCss(lang, 'hero.title')}${hideCss(hd.showTitle)}">${esc(heroTitle)}</div>
+      <div data-fpsub ${textMove(lang, 'hero.subtitle')} style="font-size:17.6px;max-width:600px;margin:0 auto;white-space:pre-line;color:${c.title};${textMoveCss(lang, 'hero.subtitle')}${hideCss(hd.showSubtitle)}">${esc(heroSub)}</div>
+      <div data-fpchips style="display:grid;grid-template-columns:repeat(6,1fr);gap:9.6px;margin-top:32px${hideCss(hd.showChips)}">${chips}</div>
+      <div data-fpcta ${textMove(lang, 'hero.cta')} style="display:inline-block;margin-top:32px;padding:13.6px 35.2px;border-radius:50px;background:${mode === 'dark' ? '#e8a945' : '#014f99'};color:${mode === 'dark' ? '#1e293b' : '#fff'};font-weight:700;font-size:16.8px;${textMoveCss(lang, 'hero.cta')}${hideCss(hd.showCta)}">${esc(effText(lang, ['hero', 'cta']) || 'Jetzt starten')}</div>
     </div>`;
   const sections = SECTION_MEDIA_KEYS.map((k) => sectionHtml(lang, k, mode)).join('');
   return `
@@ -493,12 +504,12 @@ export function fullPageHtml(lang) {
           <input type="checkbox" data-smsnap ${snapOn ? 'checked' : ''} style="width:auto" /> einrasten
         </label>
         <span class="hint" data-smlive style="margin:0;min-width:12rem"></span>
-        <span class="hint" style="margin:0">Hero-Modus: ${m.heroMode === 'grid' ? 'Kachel-Raster' : 'Einzelbanner'} (oben umschalten).</span>
+        <span class="hint" style="margin:0">Hero-Modus: ${m.heroMode === 'grid' ? 'Kachel-Raster' : 'Einzelbanner'}, Seiten-Layout: <strong>${compact ? 'Kompakt' : 'Klassisch'}</strong> (oben umschalten).${compact ? ' Im Kompakt-Layout stehen Hero-Medium und Texte fest nebeneinander; Verschiebungen im Hero wirken dort nicht.' : ''}</span>
       </div>
       <p class="hint" style="margin:.3rem 0">Schematische Ansicht der ${lang === 'de' ? 'deutschen' : 'englischen'} Startseite. <strong>Hero-Medium</strong>, die drei <strong>Sektions-Medien</strong> und jede <strong>Tool-Karte</strong> lassen sich mit der Maus <strong>verschieben</strong> (Pfeiltasten auf dem fokussierten Element: 1 px, Shift = 10 px) oder unten über die Felder setzen. Der Versatz gilt 1:1 in Pixeln auf der Seite; der Platz im Seitenfluss bleibt, nur das Element wandert. Texte und Buttons sind Platzhalter (Hero-Design-Tab).</p>
       <div style="margin:.2rem 0 .4rem">${selectionHtml(lang)}</div>
       <div data-smcardsinfo style="display:flex;flex-wrap:wrap;gap:.3rem .6rem;align-items:center;margin:0 0 .6rem">${cardsInfoHtml(lang)}</div>
-      <style>${PREV_FONT_FACES}</style>
+      <style>${PREV_FONT_FACES}${heroCompactCss('fp')}</style>
       <div data-smfullwrap style="overflow:auto;max-height:70vh;border:1px solid var(--border);border-radius:10px;background:${prevBg(mode)};resize:vertical">
         <div data-smpage data-scale="0.5" style="position:relative;width:${PAGE_W}px;zoom:0.5;padding:8px 0 24px;color:${c.text};${fontFF(getGlobalFont()) || PREV_FONT_STACK}line-height:1.6;box-sizing:border-box">
           ${hero}${sections}
