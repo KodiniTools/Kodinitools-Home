@@ -37,7 +37,7 @@ export interface KodiniAdminVue {
 }
 
 /** Tabs, die als Vue-Insel vorliegen (wächst mit jeder Migration). */
-export type VueTabName = 'ticker' | 'texts' | 'icons' | 'files';
+export type VueTabName = 'ticker' | 'texts' | 'icons' | 'files' | 'media';
 
 declare global {
   interface Window {

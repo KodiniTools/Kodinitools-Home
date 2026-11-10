@@ -19,7 +19,16 @@ import {
   HERO_LAYOUTS,
   heroLayoutCells,
   updateMediaUrlEverywhere,
+  getSectionMedia,
+  defaultSectionMediaSide,
+  defaultSectionMediaText,
+  defaultBannerSlideshow,
+  BANNER_SLIDES_MAX,
+  BANNER_TRANSITIONS,
+  getPageBg,
+  PAGE_BG_DEFAULT,
 } from './model.js';
+import { ensureFontFace } from './fonts.js';
 
 // Anzeige-Namen der Medien-Plätze (für „wird verwendet in").
 const SLOT_LABELS = {
@@ -400,6 +409,22 @@ function serverFilesPanel(lang) {
 export function renderMedia() {
   const lang = state.nav.section;
   const pane = $('#content');
+  // Vue-Fassung (app/tabs/media), sonst unten die Vanilla-Fassung.
+  if (
+    mountVueTab(pane, 'media', {
+      lang,
+      media: state.media[lang],
+      service: mediaService(lang),
+      pageBg: {
+        light: getPageBg('light') || PAGE_BG_DEFAULT.light,
+        dark: getPageBg('dark') || PAGE_BG_DEFAULT.dark,
+      },
+      fonts: state.fonts,
+      ensureFontFace,
+      gotoLayout: () => document.querySelector('#subnav button[data-sub="layout"]')?.click(),
+    })
+  )
+    return;
   const view = captureView(pane);
   pane.innerHTML = renderLangMedia(lang);
   // Anordnung/Form (heromode/herolayout/gridratio/gridfit) liegen jetzt im Layout-Tab.
@@ -440,6 +465,37 @@ export function renderMedia() {
   bindColorPickers(pane);
   verifyPublishedSlots(pane);
   restoreView(pane, view);
+}
+
+// Zustandsgebundene Teile des Medien-Tabs für die Vue-Fassung (app/tabs/media):
+// Struktur sichern, Zwischenspeicher auflösen, Auswahlfenster, Standardwerte.
+function mediaService(lang) {
+  return {
+    sectionMedia: (l, key) => getSectionMedia(l, key),
+    resolve: (val) => {
+      if (!val) return null;
+      if (val.startsWith('staged:')) {
+        const id = val.slice(7);
+        const item = state.stagedItems.find((x) => x.id === id);
+        if (!item) return null;
+        return { src: objUrl(id), isVid: /^video\//.test(item.type), localName: item.name };
+      }
+      return { src: val, isVid: /\.(mp4|webm|mov|m4v|ogv|ogg)$/i.test(val), localName: null };
+    },
+    pick: (opts, onPick) => {
+      const srv = [lang, 'shared'].reduce((n, l) => n + (state.serverFiles[l] || []).length, 0);
+      if (!state.stagedItems.length && !srv) return false;
+      openMediaPicker(lang, 'vue', { ...opts, onPick });
+      return true;
+    },
+    defaultVal: (key) => defMediaVal(key),
+    defaultSide: defaultSectionMediaSide,
+    defaultText: defaultSectionMediaText,
+    defaultSlideshow: defaultBannerSlideshow,
+    heroCells: (layout) => heroLayoutCells(layout),
+    slidesMax: BANNER_SLIDES_MAX,
+    transitions: BANNER_TRANSITIONS,
+  };
 }
 
 // ---- Datei-Aktionen (gemeinsam für Vanilla- und Vue-Fassung des Tabs) ----
