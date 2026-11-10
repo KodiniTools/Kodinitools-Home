@@ -34,7 +34,13 @@ import {
   BANNER_SLIDES_MAX,
   BANNER_TRANSITIONS,
   defaultHeroBgSlideshow,
+  getHomeLayout,
 } from './model.js';
+import {
+  heroPreviewMedia,
+  heroPreviewMediaStyle,
+  HERO_PREVIEW_LAYOUT_CSS,
+} from './hero-preview.js';
 import { objUrl, openMediaPicker } from './media.js';
 import { slideInfo, slideshowSettingsHtml } from './layout-shared.js';
 import { ensureFontFace, fontOptionsHtml } from './fonts.js';
@@ -442,6 +448,25 @@ function textHiddenCss(hd, which) {
 // Zuletzt in der Vorschau angeklickter Button ({ kind: 'chip'|'cta', key }) –
 // seine Einstellungen bleiben in Seitenleiste und Mitte markiert.
 let hdSelected = null;
+// Banner-Medium der Startseite (Layout > Banner) für die Vorschau; gestagte
+// Uploads über ihre Objekt-URL.
+function previewMedia(lang) {
+  return heroPreviewMedia(state.media[lang], (id) => {
+    const item = state.stagedItems.find((x) => x.id === id);
+    return item ? { src: objUrl(id), isVid: /^video\//.test(item.type) } : null;
+  });
+}
+// Banner wie auf der Seite: klassisch über dem Titel, kompakt rechts neben den
+// Texten (Stil aus Layout > Banner-Design des Modus).
+function previewMediaHtml(lang, mode, compact) {
+  const med = previewMedia(lang);
+  if (!med) return '';
+  const st = heroPreviewMediaStyle(lang, mode, compact);
+  const el = med.isVid
+    ? `<video src="${esc(med.src)}" muted playsinline style="${st}"></video>`
+    : `<img src="${esc(med.src)}" alt="" style="${st}" />`;
+  return `<div data-hdmedia style="margin-bottom:16px">${el}</div>`;
+}
 function previewHtml(lang, mode) {
   const hd = heroDesignOf(lang);
   const s = sideOf(lang, mode);
@@ -454,12 +479,15 @@ function previewHtml(lang, mode) {
     })
     .join('');
   const chipCols = Math.max(1, Math.min(6, feats.length));
+  const layout = getHomeLayout();
+  const media = previewMediaHtml(lang, mode, layout === 'compact');
   return `
       <div class="tc-page" data-hdprev="${mode}" style="background:${previewBg(mode)}">
         <span class="tc-page-label">${mode === 'dark' ? 'Dunkel 🌙' : 'Hell ☀️'}</span>
         <div data-hdscroll data-tcside="hdprev" title="Hero in Originalgröße – scrollen; unten rechts in der Höhe ziehen" style="overflow:auto;height:${hdPrevHeight}px;min-height:120px;resize:vertical;border-radius:8px;overscroll-behavior:contain;scrollbar-width:thin">
-        <div data-hdbox style="${previewBoxStyle(s)}">
+        <div data-hdbox data-hdlayout="${layout}"${media ? '' : ' data-hdnomedia'} style="${previewBoxStyle(s)}">
           ${previewImageLayer(s)}
+          ${media}
           <div class="${slotAnimClass(getTextStyle(lang, 'hero.title'))}" data-hdtitle role="button" tabindex="0" title="Klicken: Einstellungen des Titels anzeigen" style="${previewTitleStyle(s, hd, lang, mode)}${textHiddenCss(hd, 'title')}">${esc(heroSlotText(lang, 'hero.title'))}</div>
           <div class="${slotAnimClass(getTextStyle(lang, 'hero.subtitle'))}" data-hdsub role="button" tabindex="0" title="Klicken: Einstellungen des Untertitels anzeigen" style="${previewSubtitleStyle(s, hd, lang, mode)}${textHiddenCss(hd, 'subtitle')}">${esc(heroSlotText(lang, 'hero.subtitle'))}</div>
           <div data-hdchips style="display:grid;grid-template-columns:repeat(${chipCols},1fr);gap:9.6px;margin-top:32px;visibility:${hd.showChips === false ? 'hidden' : 'visible'}">${chips}</div>
@@ -482,9 +510,10 @@ function stickyPreview(lang) {
         <span class="mode-switch" title="Vorschau und Seitenleiste im Hell- oder Dunkelmodus">
           ${['light', 'dark'].map((md) => `<button type="button" class="hd-reset${md === hdPrevMode ? ' active' : ''}" data-hdprevmode="${md}" aria-pressed="${md === hdPrevMode}">${HD_MODE_LABEL[md]}</button>`).join('')}
         </span>
-        <span class="hint" style="margin:0"><em>Hero in Originalgröße</em> – im Rahmen scrollen (Höhe unten rechts ziehbar), <em>zum Testen über die Buttons fahren</em>; die Farben dieses Modus stehen in der offenen Seitenleiste, der andere Modus ist zugeklappt.</span>
+        <span class="hint" style="margin:0"><em>Hero in Originalgröße</em>, Layout <strong>${getHomeLayout() === 'compact' ? 'Kompakt' : 'Klassisch'}</strong> mit Banner (beides unter „Layout“) – im Rahmen scrollen (Höhe unten rechts ziehbar), <em>zum Testen über die Buttons fahren</em>; die Farben dieses Modus stehen in der offenen Seitenleiste, der andere Modus ist zugeklappt.</span>
       </div>
       <style data-hdhoverstyle>${hoverRuleCss(lang)}</style>
+      <style>${HERO_PREVIEW_LAYOUT_CSS}</style>
       <div class="tc-previews tc-previews--single">${previewHtml(lang, hdPrevMode)}</div>
       <p class="hint" data-hdnote style="margin-top:.35rem">${heroPreviewNote(hd)}</p>
     </div>`;
@@ -872,6 +901,12 @@ function refreshPreview(pane, lang) {
       if (layerStyle && !layer) box.insertAdjacentHTML('afterbegin', previewImageLayer(s));
       else if (layerStyle) layer.setAttribute('style', layerStyle);
       else if (layer) layer.remove();
+      const mediaEl = box.querySelector('[data-hdmedia] > img, [data-hdmedia] > video');
+      if (mediaEl)
+        mediaEl.setAttribute(
+          'style',
+          heroPreviewMediaStyle(lang, mode, box.dataset.hdlayout === 'compact'),
+        );
     }
     const chipsBox = root.querySelector('[data-hdchips]');
     if (chipsBox) chipsBox.style.visibility = hd.showChips === false ? 'hidden' : 'visible';
