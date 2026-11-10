@@ -17,6 +17,7 @@ import {
   TOOL_CARD_SECTIONS,
 } from './model.js';
 import { colorPicker, bindColorPickers } from './color.js';
+import { mountVueTab } from './islands.js';
 
 const ICON_CATS = ['solid', 'regular', 'brands', 'admin'];
 const CAT_LABEL = {
@@ -387,6 +388,17 @@ function copyUrl(pane) {
 
 export function renderIcons() {
   const pane = $('#content');
+  // Vue-Fassung (app/tabs/icons), sonst unten die Vanilla-Fassung.
+  if (
+    mountVueTab(pane, 'icons', {
+      lang: state.nav.section === 'en' ? 'en' : 'de',
+      overrides: state.overrides,
+      defaults: state.defaults,
+      media: state.media,
+      tools: toolList(),
+    })
+  )
+    return;
   const catOpts = ['<option value="">Alle Sets</option>']
     .concat(
       ICON_CATS.map(
