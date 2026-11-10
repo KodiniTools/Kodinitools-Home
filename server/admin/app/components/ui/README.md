@@ -33,8 +33,8 @@ import { UiButton, UiPanel, UiTextField } from '@/components/ui';
 | `UiTextArea`         | Mehrzeiliges Textfeld                      | `v-model`, `label`, `rows`, `placeholder`, `hint`, `disabled`, Attrs → textarea                                                                               |
 | `UiDialog`           | Modaler Dialog (Teleport nach `body`)      | `open`, `title`, `description`, `closeLabel`, `size` md · lg, `teleportTo`, `id`, Slots default · `footer`; Event `close`                                     |
 | `UiToast`            | Benachrichtigung                           | `message`, `type` success · error · warning · info, `actionLabel`, `dismissLabel`, `dismissOnClick`; Events `action`, `dismiss`                               |
-| `SliderField`        | Ersatz für `<input type="range">`          | `v-model` (number), `min`, `max`, `step`, `defaultValue` (Reset-Button), `disabled`; Events `start`, `change`, `reset`; Attrs → range                         |
-| `SliderControl`      | Regler-Zeile: Label · SliderField · Wert   | wie `SliderField`, dazu `label` (Pflicht), `valueText`, `inputClass`                                                                                          |
+| `SliderField`        | Ersatz für `<input type="range">`          | `v-model` (number), `min`, `max`, `step`, `defaultValue` (Reset), `disabled`, `showNumber`; Events `start`, `change`, `reset`; Attrs → range                  |
+| `SliderControl`      | Kompakt: Label · Wert, darunter Spur + ↺   | wie `SliderField`, dazu `label` (Pflicht), `valueText`, `inputClass`; ohne Zahlenfeld, Spur 4 px mit Akzent-Füllung                                           |
 | `ColorField`         | Ersatz für `<input type="color">`          | `v-model` (Hex `#rrggbb`), `label`, `disabled`; Events `start`, `change`, `open`, `close`; `class` → Wurzel, übrige Attrs → Button                            |
 
 ## Abweichungen zum Visualizer

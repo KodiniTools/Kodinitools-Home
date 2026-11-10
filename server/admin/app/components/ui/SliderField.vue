@@ -4,7 +4,7 @@
       type="range"
       class="slider-field__range"
       :class="$attrs.class"
-      :style="$attrs.style"
+      :style="[$attrs.style as StyleValue, { '--sf-fill': `${fillPct}%` }]"
       :aria-labelledby="autoLabelledby || undefined"
       v-bind="rangeAttrs($attrs)"
       :min="min"
@@ -18,6 +18,7 @@
       @change="commitInteraction"
     />
     <input
+      v-if="showNumber"
       ref="numEl"
       type="number"
       class="slider-field__num"
@@ -81,7 +82,16 @@
  * Damit deren *scoped* CSS auch den Range-Input trifft, erhält er zusätzlich die
  * Scope-Attribute des Elternkontexts (siehe `useParentScopeAttrs`).
  */
-import { computed, getCurrentInstance, onMounted, ref, useAttrs, useId, watch } from 'vue';
+import {
+  computed,
+  getCurrentInstance,
+  onMounted,
+  ref,
+  useAttrs,
+  useId,
+  watch,
+  type StyleValue,
+} from 'vue';
 import { useI18n } from '../../lib/i18n';
 import { clamp } from '../../lib/color';
 
@@ -96,8 +106,18 @@ const props = withDefaults(
     /** Wert für den Reset-Button. Ohne Angabe gibt es keinen Reset-Button. */
     defaultValue?: number | string;
     disabled?: boolean;
+    /** Zahlenfeld neben dem Regler zeigen (SliderControl zeigt den Wert kompakt selbst). */
+    showNumber?: boolean;
   }>(),
-  { modelValue: 0, min: 0, max: 100, step: 1, defaultValue: undefined, disabled: false },
+  {
+    modelValue: 0,
+    min: 0,
+    max: 100,
+    step: 1,
+    defaultValue: undefined,
+    disabled: false,
+    showNumber: true,
+  },
 );
 
 const emit = defineEmits<{
@@ -193,6 +213,16 @@ const maxNum = computed(() => toNumber(props.max, 100));
 const numericValue = computed(() => toNumber(props.modelValue, minNum.value));
 const hasDefault = computed(() => props.defaultValue !== undefined && props.defaultValue !== null);
 const defaultNum = computed(() => toNumber(props.defaultValue, minNum.value));
+/** Füllstand der Spur in % (für die Akzent-Füllung links vom Daumen). */
+const fillPct = computed(() => {
+  const span = maxNum.value - minNum.value;
+  if (!(span > 0)) return 0;
+  return (
+    Math.round(
+      ((clamp(numericValue.value, minNum.value, maxNum.value) - minNum.value) / span) * 1000,
+    ) / 10
+  );
+});
 const isAtDefault = computed(
   () => hasDefault.value && roundTo(numericValue.value) === roundTo(defaultNum.value),
 );

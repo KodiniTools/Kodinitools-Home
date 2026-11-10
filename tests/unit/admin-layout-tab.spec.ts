@@ -15,12 +15,22 @@ import {
   clampStyleNum,
   copyTextDesign,
   moveSlide,
+  POS_PRESET_Y,
   readBannerText,
   resetBannerText,
   setBannerText,
   type BannerHost,
   type LayoutService,
+  type PickTarget,
 } from '../../server/admin/app/tabs/layout/layoutData';
+import {
+  copyGridDesign,
+  effectiveCell,
+  previewLayout,
+  reflowCols,
+  setCellField,
+  type GridHost,
+} from '../../server/admin/app/tabs/layout/gridData';
 import { useToastStore } from '../../server/admin/app/stores/toast';
 import { layoutService } from '../../server/admin/public/layout.js';
 import { overlayStyle } from '../../server/admin/public/layout-shared.js';
@@ -31,13 +41,13 @@ function makeService(picked: string | null = '/uploads/de/banner.webp') {
   const service: LayoutService = {
     ...svc,
     ensureFontFace: (f: string) => `fam-${f}`,
-    pick: vi.fn((_k: 'banner' | 'slide', _t: string, onPick: (u: string) => void) => {
+    pick: vi.fn((_k: PickTarget, _t: string, onPick: (u: string) => void) => {
       if (picked === null) return false;
       onPick(picked);
       return true;
     }),
     paste: vi.fn(),
-    setHeroMode: vi.fn(),
+    bindCells: vi.fn(() => () => {}),
     fullPage: { draw: vi.fn(), refreshBanner: vi.fn() },
   };
   return service;
@@ -50,7 +60,7 @@ beforeEach(() => {
   state.media = defaultMedia() as typeof state.media;
   state.fonts = [{ name: 'Inter.woff2', label: 'Inter', url: '/fonts/Inter.woff2', bytes: 1 }];
   state.stagedItems = [];
-  Object.assign(lyUi, { prevMode: 'light', slideIdx: 0 });
+  Object.assign(lyUi, { prevMode: 'light', slideIdx: 0, activeCell: null, selSeq: 0, gridTick: 0 });
   lyRev.value = 0;
   document.body.innerHTML = '';
   vi.stubGlobal(
@@ -277,7 +287,10 @@ describe('LayoutTab (Vue-Insel, Einzel-Banner)', () => {
     await flushPromises();
     expect(w.find('[data-catsearch] button').attributes('disabled')).toBeDefined();
     await w.find('[data-heromode] [data-value="grid"]').trigger('click');
-    expect(svc.setHeroMode).toHaveBeenCalledWith('grid');
+    expect(state.media.de.heroMode).toBe('grid');
+    await flushPromises();
+    expect(w.findAll('[data-celleditor]').length).toBeGreaterThan(0);
+    expect(w.find('[data-bannerpick]').exists()).toBe(false);
     w.unmount();
   });
 });
@@ -291,7 +304,173 @@ describe('layoutService (public/layout.js)', () => {
     svc.setPage('mediaPosDesktop', 'bottom');
     expect(svc.page().mediaPosDesktop).toBe('bottom');
     delete (state.media.en as Partial<typeof state.media.en>).heroBannerSlides;
-    svc.ensureBanner('en');
+    svc.ensure('en');
     expect(state.media.en.heroBannerSlides).toEqual([]);
+  });
+});
+
+const g = () => state.media.de as unknown as GridHost;
+const gridSvc = (picked: string | null = '/uploads/de/k.webp') => {
+  const svc = makeService(picked);
+  state.media.de.heroMode = 'grid';
+  svc.ensure('de');
+  return svc;
+};
+
+describe('gridData (Regeln wie public/layout-grid.js)', () => {
+  it('Neuaufteilung wie heroGridReflowCols; Vorschau ohne ausgeblendete Kacheln', async () => {
+    const { heroGridReflowCols } = await import('../../server/admin/public/model-grid.js');
+    const svc = gridSvc();
+    for (const layout of Object.keys(svc.layouts))
+      for (let n = 0; n <= 6; n++)
+        expect(reflowCols(svc.layoutCols, layout, n)).toBe(heroGridReflowCols(layout, n));
+    g().heroLayout = 'grid6';
+    let pv = previewLayout(g(), svc.layouts, svc.layoutCols, svc.syncProps);
+    expect(pv.cells.map((c) => c.i)).toEqual([0, 1, 2, 3, 4, 5]);
+    expect(pv.reflow).toBe(0);
+    expect(pv.container).toContain('grid-template-columns:repeat(3, 1fr)');
+    g().heroGridHidden![1] = true;
+    g().heroGridHidden![4] = true;
+    pv = previewLayout(g(), svc.layouts, svc.layoutCols, svc.syncProps);
+    expect(pv.cells.map((c) => c.i)).toEqual([0, 2, 3, 5]);
+    expect(pv.reflow).toBe(2);
+    expect(pv.container).toContain('display:flex');
+  });
+
+  it('Feldgrenzen, Master-Kachel, Design übertragen (Text bleibt, keine geteilten Objekte)', () => {
+    const svc = gridSvc();
+    const s = g().heroGridStyles![0]!;
+    setCellField(s, 'borderWidth', '99', svc.imgFields);
+    setCellField(s, 'textSize', -4, svc.imgFields);
+    setCellField(s, 'bgOpacity', 'abc', svc.imgFields);
+    setCellField(s, 'imgBlur', 999, svc.imgFields);
+    setCellField(s, 'bgColor', '#123456', svc.imgFields);
+    expect([s.borderWidth, s.textSize, s.bgOpacity, s.bgColor]).toEqual([20, 0, 0, '#123456']);
+    expect(s.imgBlur).toBe(svc.imgFields.imgBlur.max);
+    g().heroGridStyles![1]!.text = 'Eins';
+    g().heroGridUniform = true;
+    g().heroGridUniformCell = 0;
+    const eff = effectiveCell(g(), 1, svc.syncProps);
+    expect(eff.bgColor).toBe('#123456');
+    expect(eff.text).toBe('Eins');
+    svc.ensure('en');
+    const en = state.media.en as unknown as GridHost;
+    en.heroGridStyles![0]!.text = 'EN';
+    copyGridDesign(g(), en, svc.cellDefault);
+    expect(en.heroGridStyles![0]!.bgColor).toBe('#123456');
+    expect(en.heroGridStyles![0]!.text).toBe('EN');
+    expect(en.heroGridUniform).toBe(true);
+    expect(en.heroGridSlideshow).not.toBe(g().heroGridSlideshow);
+    expect(en.heroGridSlideshow).toEqual(g().heroGridSlideshow);
+  });
+});
+
+describe('LayoutTab (Vue-Insel, Bild-Raster)', () => {
+  it('Kacheln je Layout, Bild wählen/entfernen, Ausblenden in der Vorschau', async () => {
+    const svc = gridSvc();
+    const w = mountTab(svc);
+    expect(svc.bindCells).toHaveBeenCalled();
+    await w.find('select[data-herolayout]').setValue('grid4');
+    expect(g().heroLayout).toBe('grid4');
+    await flushPromises();
+    expect(w.findAll('[data-celleditor]').length).toBe(8); // Inhalt + Design je Kachel
+    expect(w.findAll('[data-prevcell]').length).toBe(4);
+    await w.find('[data-cellimgpick="2"]').trigger('click');
+    expect(svc.pick).toHaveBeenCalledWith({ cell: 2 }, expect.any(String), expect.any(Function));
+    expect(g().heroGrid![2]).toBe('/uploads/de/k.webp');
+    await flushPromises();
+    expect(w.find('[data-prevmedia="2"] img').attributes('src')).toBe('/uploads/de/k.webp');
+    await w.find('[data-cellimgclear="2"]').trigger('click');
+    expect(g().heroGrid![2]).toBe('');
+    expect(lastToast()).toBe('Bild aus Kachel 3 entfernt');
+    await w.find('[data-cellshow="1"] button').trigger('click');
+    expect(g().heroGridHidden![1]).toBe(true);
+    await flushPromises();
+    expect(w.findAll('[data-prevcell]').map((c) => c.attributes('data-prevcell'))).toEqual([
+      '0',
+      '2',
+      '3',
+    ]);
+    await w.find('[data-cellshowbtn="1"]').trigger('click');
+    expect(g().heroGridHidden![1]).toBe(false);
+    expect(lastToast()).toBe('Kachel 2 eingeblendet');
+    w.unmount();
+  });
+
+  it('Standard für alle sperrt die übrigen Kacheln; Design-Felder; Kachel zurücksetzen', async () => {
+    const svc = gridSvc();
+    const w = mountTab(svc);
+    await w.find('[data-cellfield="1:borderWidth"]').setValue('7');
+    await w.find('[data-cellfield="1:borderWidth"]').trigger('input');
+    expect(g().heroGridStyles![1]!.borderWidth).toBe(7);
+    await w.find('[data-cellpospreset="1:top"]').trigger('click');
+    expect(g().heroGridStyles![1]!.textY).toBe(POS_PRESET_Y.top);
+    await w.find('[data-cellmaster="0"] button').trigger('click');
+    expect(g().heroGridUniform).toBe(true);
+    expect(g().heroGridUniformCell).toBe(0);
+    expect(lastToast()).toBe('Kachel 1 ist Standard für alle Kacheln');
+    await flushPromises();
+    expect(w.find('[data-cellfield="1:borderWidth"]').attributes('disabled')).toBeDefined();
+    expect(w.find('[data-cellfield="0:borderWidth"]').attributes('disabled')).toBeUndefined();
+    await w.find('[data-cellmaster="0"] button').trigger('click');
+    expect(g().heroGridUniform).toBe(false);
+    await w.find('[data-cellresetall="1"]').trigger('click');
+    await confirmDialog();
+    expect(g().heroGridStyles![1]!.borderWidth).toBe(svc.cellDefault().borderWidth);
+    expect(lastToast()).toBe('Kachel 2 zurückgesetzt');
+    w.unmount();
+  });
+
+  it('Kachel-Text, Diashow je Kachel, Design in die andere Sprache', async () => {
+    const svc = gridSvc('/uploads/de/s.webp');
+    const w = mountTab(svc);
+    await w.find('[data-cellfield="0:text"]').setValue('Hallo');
+    expect(g().heroGridStyles![0]!.text).toBe('Hallo');
+    await flushPromises();
+    expect(w.find('[data-prevtext="0"]').text()).toBe('Hallo');
+    expect(w.find('[data-gridslideshowblock] input').attributes('disabled')).toBeDefined();
+    await w.find('[data-cellslideadd="0"]').trigger('click');
+    await w.find('[data-cellslideadd="0"]').trigger('click');
+    expect(svc.pick).toHaveBeenCalledWith(
+      { cellSlide: 0 },
+      expect.any(String),
+      expect.any(Function),
+    );
+    g().heroGridSlides![0]![1] = '/uploads/de/t.webp';
+    lyRev.value++;
+    await flushPromises();
+    expect(w.findAll('[data-cellsliderow^="0:"]').length).toBe(2);
+    expect(w.find('[data-gridslideshowblock] input').attributes('disabled')).toBeUndefined();
+    await w.find('[data-cellslideup="0:1"]').trigger('click');
+    expect(g().heroGridSlides![0]).toEqual(['/uploads/de/t.webp', '/uploads/de/s.webp']);
+    await w.find('[data-cellslideremove="0:0"]').trigger('click');
+    expect(g().heroGridSlides![0]).toEqual(['/uploads/de/s.webp']);
+    await w.find('[data-cellslidepaste="0"]').trigger('click');
+    expect(svc.paste).toHaveBeenCalledWith('cellslide:0');
+    g().heroGridStyles![0]!.bgColor = '#abcdef';
+    await w.find('[data-gridcopylang]').trigger('click');
+    await confirmDialog();
+    const en = state.media.en as unknown as GridHost;
+    expect(en.heroGridStyles![0]!.bgColor).toBe('#abcdef');
+    expect(en.heroGridStyles![0]!.text).not.toBe('Hallo');
+    w.unmount();
+  });
+
+  it('Einfügen aus der Zwischenablage markiert die Kachel über den Service-Hook', async () => {
+    const svc = gridSvc();
+    const w = mountTab(svc);
+    const hooks = (svc.bindCells as ReturnType<typeof vi.fn>).mock.calls[0]![0] as {
+      mark: (i: number) => void;
+      active: () => number | null;
+    };
+    expect(hooks.active()).toBeNull();
+    hooks.mark(2);
+    await flushPromises();
+    expect(hooks.active()).toBe(2);
+    expect(w.find('[data-prevcell="2"]').classes()).toContain('ly-active');
+    await w.find('[data-cellpaste="1"]').trigger('click');
+    expect(svc.paste).toHaveBeenCalledWith(1);
+    expect(hooks.active()).toBe(1);
+    w.unmount();
   });
 });

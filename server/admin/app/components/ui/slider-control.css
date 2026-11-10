@@ -1,53 +1,70 @@
-/* Einheitliche Slider-Zeile (Referenz: Bild-Filter „Helligkeit …“):
-   Label (ds-eyebrow) · SliderField (Regler + Spinner + Reset) · Wert (ds-kbd, mono).
-   Einzige Quelle für diese Optik – scoped eingebunden in den Bild-Filter-
-   Sektionen und in ui/SliderControl.vue (Slideshow, Position & Größe …).
-   Anatomie des Design-Systems v2 (Collage Maker, style.css): Spur 6 px auf
-   ds-border-strong, Daumen 14 px ds-accent mit 2 px ds-surface-1-Rand,
-   Fokus = ds-focus-ring. Die Farben wechseln mit den Tokens, ein Light-
-   Override ist nicht nötig. */
+/* Kompakte, moderne Regler-Zeile (einzige Quelle dieser Optik, scoped in
+   ui/SliderControl.vue): Zeile 1 Label · Wert, Zeile 2 schlanke Spur (4 px)
+   mit Akzent-Füllung bis zum Daumen (--sf-fill aus SliderField) und ↺.
+   Farben über die ds-Tokens, damit Hell und Dunkel ohne Override passen.
+   Die globale Admin-Regel `input { padding; border }` wird für den Regler
+   ausdrücklich aufgehoben, sonst wird die Spur ~20 px dick. */
 
 .control-group {
   display: flex;
   flex-direction: column;
   gap: var(--ds-space-1);
-  margin-bottom: var(--ds-space-2);
+  margin-bottom: var(--ds-space-1);
 }
 .control-group.slider {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: var(--ds-space-1);
+  column-gap: var(--ds-space-2);
+  row-gap: 2px;
 }
 .control-group.slider label {
-  grid-column: 1 / 3;
-  font-size: var(--ds-text-xs);
-  font-weight: var(--ds-weight-semibold);
-  letter-spacing: 0.025em;
-  text-transform: uppercase;
+  margin: 0;
+  font-size: var(--ds-text-sm);
+  font-weight: 500;
   color: var(--ds-text-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.control-group.slider input {
-  width: 100%;
-}
-.control-group.slider span {
+.control-group.slider .slider-control__value {
   font-family: var(--ds-font-mono);
   font-size: var(--ds-text-xs);
   font-variant-numeric: tabular-nums;
-  color: var(--ds-text-2);
-  min-width: 35px;
+  color: var(--ds-text);
   text-align: right;
+  white-space: nowrap;
+}
+.control-group.slider > :deep(.slider-field) {
+  grid-column: 1 / 3;
+  gap: var(--ds-space-1);
+}
+/* ↺ klein und nur sichtbar, wenn der Wert vom Standard abweicht (Platz bleibt reserviert). */
+.control-group.slider :deep(.slider-field__reset) {
+  width: 22px;
+  height: 22px;
+}
+.control-group.slider :deep(.slider-field__reset:disabled) {
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* Range Slider */
 input[type='range'] {
   -webkit-appearance: none;
   appearance: none;
+  box-sizing: border-box;
   width: 100%;
-  height: 6px;
-  margin: 0;
+  height: 4px;
+  margin: 9px 0;
+  padding: 0;
+  border: 0;
   border-radius: var(--ds-radius-full);
-  background: var(--ds-border-strong);
+  background: linear-gradient(
+    to right,
+    var(--ds-accent) var(--sf-fill, 0%),
+    var(--ds-border-strong) var(--sf-fill, 0%)
+  );
   outline: none;
   cursor: pointer;
   touch-action: pan-y;
@@ -58,22 +75,30 @@ input[type='range']::-webkit-slider-thumb {
   width: 14px;
   height: 14px;
   border-radius: var(--ds-radius-full);
-  background: var(--ds-accent);
-  border: 2px solid var(--ds-surface-1);
+  background: var(--ds-surface-1);
+  border: 2px solid var(--ds-accent);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
   cursor: pointer;
+  transition: transform var(--ds-duration) var(--ds-ease);
 }
 input[type='range']::-moz-range-thumb {
+  box-sizing: border-box;
   width: 14px;
   height: 14px;
   border-radius: var(--ds-radius-full);
-  background: var(--ds-accent);
-  border: 2px solid var(--ds-surface-1);
+  background: var(--ds-surface-1);
+  border: 2px solid var(--ds-accent);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
   cursor: pointer;
 }
 input[type='range']::-moz-range-track {
-  height: 6px;
+  height: 4px;
   border-radius: var(--ds-radius-full);
-  background: var(--ds-border-strong);
+  background: transparent;
+}
+input[type='range']:hover:not(:disabled)::-webkit-slider-thumb,
+input[type='range']:active:not(:disabled)::-webkit-slider-thumb {
+  transform: scale(1.15);
 }
 input[type='range']:focus-visible {
   box-shadow: var(--ds-focus-ring);

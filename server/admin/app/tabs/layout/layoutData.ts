@@ -1,5 +1,13 @@
 import type { Lang, ThemeMode } from '../../../types';
 import { rgbaFromHex } from '../../../public/model-core.js';
+import type {
+  CellField,
+  CellImgFields,
+  CellStyle,
+  GridHost,
+  GridSlideshow,
+  HeroLayouts,
+} from './gridData';
 
 /**
  * Datenmodell und reine Regeln des Tabs „Layout“ (Vue-Fassung von
@@ -573,24 +581,38 @@ export interface FullPageHost {
   refreshBanner: (el: HTMLElement) => void;
 }
 
+/** Ziel der Medien-Auswahl: Banner, Banner-Diashow, Kachel i, Diashow von Kachel i. */
+export type PickTarget = 'banner' | 'slide' | { cell: number } | { cellSlide: number };
+/** Ziel beim Einfügen aus der Zwischenablage (wie `assignImageBlob` in layout-paste.js). */
+export type PasteTarget = 'banner' | 'slide' | number | `cellslide:${number}`;
+
+/** Kachel-Markierung, die `public/layout-paste.js` (Strg/Cmd+V) mitbenutzt. */
+export interface CellHooks {
+  mark: (i: number) => void;
+  active: () => number | null;
+}
+
 /** Brücke zu `public/layout.js` (`layoutService(lang)`). */
 export interface LayoutService {
   lang: Lang;
   /** `state.media[lang]` (Roh-Objekt). */
-  media: () => BannerHost;
-  mediaOf: (lang: Lang) => BannerHost;
-  /** Sichert `heroBannerStyle`, `heroBannerSlides`, `heroBannerSlideshow` (wie die getX-Funktionen). */
-  ensureBanner: (lang: Lang) => void;
+  media: () => BannerHost & GridHost;
+  mediaOf: (lang: Lang) => BannerHost & GridHost;
+  /**
+   * Sichert die Banner- und Raster-Strukturen einer Sprache (wie getBannerStyle,
+   * getCellStyle, getGridSlides & Co.); bei normalisierten Daten ändert sich nichts.
+   */
+  ensure: (lang: Lang) => void;
   page: () => PageSettings;
   setPage: <K extends PageKey>(key: K, v: PageSettings[K]) => void;
-  /** Hero-Modus setzen; 'grid' zeichnet den Tab neu (Raster bleibt bis PR 12b Vanilla). */
-  setHeroMode: (mode: 'banner' | 'grid') => void;
   /** Slot-Wert (`/uploads/…`, URL oder `staged:<id>`) auflösen; null = leer/nicht gefunden. */
   resolve: (val: string) => ResolvedMedia | null;
   /** Medien-Auswahl öffnen; false = keine Medien vorhanden (öffnet nichts). */
-  pick: (kind: 'banner' | 'slide', title: string, onPick: (url: string) => void) => boolean;
-  /** Bild aus der Zwischenablage als Banner bzw. weiteres Diashow-Bild (zeichnet neu). */
-  paste: (target: 'banner' | 'slide') => void;
+  pick: (target: PickTarget, title: string, onPick: (url: string) => void) => boolean;
+  /** Bild aus der Zwischenablage einsetzen (zeichnet den Tab neu). */
+  paste: (target: PasteTarget) => void;
+  /** Kachel-Markierung für Strg/Cmd+V anmelden; Rückgabe meldet wieder ab. */
+  bindCells: (hooks: CellHooks) => () => void;
   fonts: () => readonly FontEntry[];
   ensureFontFace: (file: string) => string;
   fmtBytes: (n: number) => string;
@@ -599,5 +621,13 @@ export interface LayoutService {
   slideshowDefault: () => Slideshow;
   slidesMax: number;
   transitions: readonly string[];
+  // ---- Raster (Konstanten aus public/model-grid.js) ----
+  layouts: HeroLayouts;
+  layoutCols: Record<string, number>;
+  gridDims: Record<string, string>;
+  imgFields: CellImgFields;
+  syncProps: readonly CellField[];
+  cellDefault: () => CellStyle;
+  gridSlideshowDefault: () => GridSlideshow;
   fullPage: FullPageHost;
 }

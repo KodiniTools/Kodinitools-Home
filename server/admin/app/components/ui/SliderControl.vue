@@ -1,7 +1,8 @@
 <template>
   <div class="control-group slider">
-    <!-- Einheitliche Slider-Zeile wie bei den Bild-Filtern (Helligkeit …) -->
+    <!-- Kompakt: Zeile 1 Label · Wert, Zeile 2 schlanke Spur + ↺ -->
     <label>{{ label }}</label>
+    <span class="slider-control__value">{{ valueText }}</span>
     <SliderField
       :class="inputClass"
       :model-value="modelValue"
@@ -11,18 +12,20 @@
       :default-value="defaultValue"
       :disabled="disabled"
       :aria-label="label"
+      :show-number="false"
       @start="(v) => emit('start', v)"
       @update:model-value="(v) => emit('update:modelValue', v)"
       @change="(v) => emit('change', v)"
     />
-    <span class="slider-control__value">{{ valueText }}</span>
   </div>
 </template>
 
 <script setup lang="ts">
 /**
- * SliderControl – eine Regler-Zeile in der Standard-Optik der App:
- * Label (klein, versal) · SliderField (Regler + Zahlen-Spinner + ↺) · Einheit.
+ * SliderControl – kompakte Regler-Zeile in der Standard-Optik der App:
+ * oben Label links und Wert (mit Einheit) rechts, darunter eine schlanke Spur
+ * mit Akzent-Füllung und ↺ (nur sichtbar, wenn vom Standard abweichend).
+ * Ohne Zahlenfeld; Feinsteuerung per Pfeiltasten (Bild auf/ab = größere Schritte).
  * Optik aus ./slider-control.css, damit alle Regler in Hell- und Dunkelmodus
  * identisch aussehen.
  *
