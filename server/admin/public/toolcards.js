@@ -45,6 +45,7 @@ import { ensureFontFace, fontOptionsHtml } from './fonts.js';
 import { slider, bindSliders } from './slider.js';
 import { captureView, restoreView } from './viewstate.js';
 import { colorPicker, bindColorPickers } from './color.js';
+import { mountVueTab } from './islands.js';
 
 // UI-Zustand (nicht gespeichert): bearbeiteter Modus + gewählte Karte
 // ('' = Standard für alle Karten, sonst "section.key").
@@ -1115,9 +1116,57 @@ function refreshPreview(pane, lang) {
   if (note) note.textContent = noteText(lang);
 }
 
+// Zustandsgebundene Teile für die Vue-Fassung (app/tabs/toolcards): Karten-Liste,
+// Text-Overrides, Karten anlegen/löschen/ausblenden über model.js.
+export function tcService(lang) {
+  const other = lang === 'de' ? 'en' : 'de';
+  return {
+    lang,
+    toolCards: () => getToolCards(lang),
+    cards: () => cardList(lang),
+    hiddenIds: hiddenCardIds,
+    setHidden: setCardHidden,
+    isCustom: isCustomCard,
+    duplicate: duplicateCard,
+    create: createCard,
+    remove: deleteCustomCard,
+    effText: (path) => effText(lang, path),
+    defText: (path) => defText(lang, path),
+    hasOverride: (path) => getPath(state.overrides[lang], path) !== undefined,
+    setOverride: (path, v) => setPath(state.overrides[lang], path, v),
+    delOverride: (path) => delPath(state.overrides[lang], path),
+    copyToOtherLang: () => {
+      state.media[other].toolCards = JSON.parse(JSON.stringify(getToolCards(lang)));
+      if (!state.media[other].toolCards) state.media[other].toolCards = defaultToolCards();
+    },
+    pageBg,
+    globalFont: getGlobalFont,
+    fonts: () => state.fonts,
+    ensureFontFace,
+    resolveUrl: cardImageUrl,
+    pick: (title, onPick) => {
+      const srv = [lang, 'shared'].reduce((n, l) => n + (state.serverFiles[l] || []).length, 0);
+      if (!state.stagedItems.length && !srv) return false;
+      openMediaPicker(lang, 'tcimg', { imagesOnly: true, title, onPick });
+      return true;
+    },
+    sideDefault,
+    textDefault: defaultToolCardText,
+    showDefault: defaultToolCardShow,
+    borderStyles: TOOL_CARD_BORDER_STYLES,
+    weights: TOOL_CARD_WEIGHTS,
+    transforms: TOOL_CARD_TRANSFORMS,
+    aligns: TOOL_CARD_ALIGNS,
+    showKeys: TOOL_CARD_SHOW_KEYS,
+    sections: SECTIONS,
+  };
+}
+
 export function renderToolCards() {
   const lang = state.nav.section === 'en' ? 'en' : 'de';
   const pane = $('#content');
+  // Vue-Fassung (app/tabs/toolcards), sonst unten die Vanilla-Fassung.
+  if (mountVueTab(pane, 'toolcards', { service: tcService(lang) })) return;
   // Gewählte Karte muss in dieser Sprache existieren (sonst Standard).
   if (selected && !cardById(lang, selected)) selected = '';
   // Sichtzustand (Scroll der Seite/Seitenleisten, auf-/zugeklappte Bereiche) über
