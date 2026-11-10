@@ -1366,5 +1366,9 @@
     <div class="toast" id="toast"></div>
 
     <script type="module" src="./admin.js"></script>
+    <!-- Vue-Teile (npm run build:admin → server/admin/dist, ausgeliefert unter ./app/).
+         Fehlen sie, läuft der Admin ohne sie weiter. -->
+    <link rel="stylesheet" href="./app/main.css" />
+    <script type="module" src="./app/main.js"></script>
   </body>
 </html>

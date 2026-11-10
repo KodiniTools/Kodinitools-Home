@@ -4,6 +4,8 @@ node_modules/
 # Build output
 dist/
 dist-preview/
+# Admin: gebaute Vue-Teile (npm run build:admin)
+server/admin/dist/
 
 # Admin-Dienst: persistierter Vorgangs-Status (Vorschau/Veröffentlichung)
 .kodini-admin/
