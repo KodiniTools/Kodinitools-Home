@@ -39,6 +39,7 @@ import {
 } from './model.js';
 import { objUrl, openMediaPicker } from './media.js';
 import { withView } from './viewstate.js';
+import { mountVueTab } from './islands.js';
 
 // --- Effekte (Aurora / Rauschen / Spotlight): Beschreibung + Vorschau-Werte ---
 // Die Vorschau bildet background.css + index.astro nach (gleiche Verläufe,
@@ -650,8 +651,45 @@ function bindEffects(pane) {
   });
 }
 
+// Zustandsgebundene Teile für die Vue-Fassung (app/tabs/background): Lesen und
+// Schreiben über die normalisierenden Funktionen aus model-site.js.
+function bgService() {
+  const pick = (title, onPick) => {
+    const srv = ['de', 'en', 'shared'].reduce((n, l) => n + (state.serverFiles[l] || []).length, 0);
+    if (!state.stagedItems.length && !srv) return false;
+    openMediaPicker('de', 'bgImage', { allLangs: true, imagesOnly: true, title, onPick });
+    return true;
+  };
+  return {
+    bg: getSiteBg,
+    setBg: setSiteBg,
+    layers: (mode) => {
+      const { ground, overlay } = siteBgSplit(mode);
+      return { full: layerCss(mode), ground, overlay, image: siteBgImageLayer(mode, previewUrl) };
+    },
+    fx: getSiteFx,
+    setFx: setSiteFx,
+    sectionStyle: getSectionStyle,
+    setSectionStyle,
+    sectionGap: getSectionGap,
+    setSectionGap,
+    section: getSiteSection,
+    setSection: setSiteSection,
+    resolveUrl: previewUrl,
+    pick,
+    fxList: SITE_FX,
+    patterns: SITE_PATTERNS,
+    gradientTypes: SITE_GRADIENT_TYPES,
+    gapMax: SECTION_GAP_MAX,
+    pageBgDefault: PAGE_BG_DEFAULT,
+    defaultSectionSide,
+  };
+}
+
 export function renderBackground() {
   const pane = $('#content');
+  // Vue-Fassung (app/tabs/background), sonst unten die Vanilla-Fassung.
+  if (mountVueTab(pane, 'background', { service: bgService() })) return;
   // Sichtzustand (Scroll der Seite/Seitenleisten, auf-/zugeklappte Bereiche) bleibt.
   withView(pane, () => {
     pane.innerHTML = backgroundPanel();
