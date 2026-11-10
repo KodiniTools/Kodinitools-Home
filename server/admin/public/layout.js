@@ -42,6 +42,17 @@ import {
   BANNER_STYLE_LIMITS,
   BANNER_SLIDES_MAX,
   BANNER_TRANSITIONS,
+  HERO_LAYOUTS,
+  HERO_LAYOUT_COLS,
+  HERO_GRID_MAX,
+  GRID_DIMS,
+  CELL_IMG_FIELDS,
+  CELL_SYNC_PROPS,
+  defaultCellStyle,
+  defaultGridSlideshow,
+  getCellStyle,
+  getGridSlides,
+  getGridSlideshow,
 } from './model.js';
 import { stopPreviewSlideshow } from './layout-shared.js';
 import { bannerLayoutHtml, bindBanner } from './layout-banner.js';
@@ -217,30 +228,46 @@ export function layoutService(lang) {
     lang,
     media: () => state.media[lang],
     mediaOf: (l) => state.media[l],
-    ensureBanner: (l) => {
+    ensure: (l) => {
       getBannerStyle(l, 'light');
       getBannerSlides(l);
       getBannerSlideshow(l);
+      for (let i = 0; i < HERO_GRID_MAX; i++) {
+        getCellStyle(l, i);
+        getGridSlides(l, i);
+      }
+      getGridSlideshow(l);
+      const m = state.media[l];
+      if (!Array.isArray(m.heroGridHidden))
+        m.heroGridHidden = [false, false, false, false, false, false];
     },
     page: () => Object.fromEntries(Object.entries(PAGE_GET).map(([k, get]) => [k, get()])),
     setPage: (key, v) => PAGE_SET[key]?.(v),
-    // Raster-Modus bleibt (bis PR 12b) Vanilla: Tab nach dem Klick neu zeichnen.
-    setHeroMode: (mode) => {
-      state.media[lang].heroMode = mode === 'grid' ? 'grid' : 'banner';
-      setTimeout(renderLayout, 0);
-    },
     resolve: resolveMedia,
-    pick: (kind, title, onPick) => {
+    // target: 'banner' | 'slide' | { cell: i } | { cellSlide: i }
+    pick: (target, title, onPick) => {
       const srv = [lang, 'shared'].reduce((n, l) => n + (state.serverFiles[l] || []).length, 0);
       if (!state.stagedItems.length && !srv) return false;
-      openMediaPicker(lang, kind === 'slide' ? 'heroBannerSlide' : 'heroBanner', {
-        title,
-        imagesOnly: kind === 'slide',
-        onPick,
-      });
+      const slide = target === 'slide' || (typeof target === 'object' && 'cellSlide' in target);
+      const key =
+        target === 'banner'
+          ? 'heroBanner'
+          : target === 'slide'
+            ? 'heroBannerSlide'
+            : 'cell' in target
+              ? 'grid' + target.cell
+              : 'heroGridSlide';
+      openMediaPicker(lang, key, { title, imagesOnly: slide, onPick });
       return true;
     },
-    paste: (target) => pasteFromClipboardApi(lang, target === 'slide' ? 'slide' : 'banner'),
+    // target: 'banner' | 'slide' | Kachel-Index | 'cellslide:<i>'
+    paste: (target) => pasteFromClipboardApi(lang, target),
+    bindCells: (hooks) => {
+      vueCells = hooks;
+      return () => {
+        if (vueCells === hooks) vueCells = null;
+      };
+    },
     fonts: () => state.fonts,
     ensureFontFace,
     fmtBytes,
@@ -249,6 +276,13 @@ export function layoutService(lang) {
     slideshowDefault: defaultBannerSlideshow,
     slidesMax: BANNER_SLIDES_MAX,
     transitions: BANNER_TRANSITIONS,
+    layouts: HERO_LAYOUTS,
+    layoutCols: HERO_LAYOUT_COLS,
+    gridDims: GRID_DIMS,
+    imgFields: CELL_IMG_FIELDS,
+    syncProps: CELL_SYNC_PROPS,
+    cellDefault: defaultCellStyle,
+    gridSlideshowDefault: defaultGridSlideshow,
     fullPage: {
       draw: (el) => drawFullPage(el, lang),
       refreshBanner: (el) => refreshFullPageBanner(el, lang),
@@ -260,12 +294,9 @@ export function renderLayout() {
   const lang = state.nav.section;
   const pane = $('#content');
   stopPreviewSlideshow();
-  // Einzel-Banner: Vue-Fassung (app/tabs/layout); Raster und Notbremse: Vanilla.
+  // Vue-Fassung (app/tabs/layout); ohne Vue-Teile bzw. mit Notbremse: Vanilla.
   const scrollY = window.scrollY;
-  if (
-    state.media[lang].heroMode !== 'grid' &&
-    mountVueTab(pane, 'layout', { service: layoutService(lang === 'en' ? 'en' : 'de') })
-  ) {
+  if (mountVueTab(pane, 'layout', { service: layoutService(lang === 'en' ? 'en' : 'de') })) {
     window.scrollTo(0, scrollY);
     return;
   }
@@ -355,4 +386,10 @@ export function renderLayout() {
 }
 
 // Zwischenablage-Modul mit dem Tab verbinden (Neu-Rendern, Kachel-Markierung).
-initPaste({ rerender: renderLayout, markCell, activeCell: getActiveCell });
+// Bei der Vue-Fassung markiert deren Kachel-Auswahl (bindCells), sonst die Vanilla-Fassung.
+let vueCells = null;
+initPaste({
+  rerender: renderLayout,
+  markCell: (pane, i) => (vueCells ? vueCells.mark(i) : markCell(pane, i)),
+  activeCell: () => (vueCells ? vueCells.active() : getActiveCell()),
+});

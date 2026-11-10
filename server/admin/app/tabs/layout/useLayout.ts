@@ -14,12 +14,19 @@ import {
   type PageSettings,
   type Slideshow,
 } from './layoutData';
-import { lyRev } from './layoutUi';
+import {
+  effectiveCell,
+  isInherited,
+  type CellStyle,
+  type GridHost,
+  type GridSlideshow,
+} from './gridData';
+import { lyRev, lyUi } from './layoutUi';
 
 /** Abgeleiteter Lese-Zustand (bei jeder Änderung neu, damit alles nachzieht). */
 export interface LayoutView {
   /** `media.<lang>` als reaktiver Proxy (Schreiben wirkt auf den Rohzustand). */
-  m: BannerHost;
+  m: BannerHost & GridHost;
   page: PageSettings;
 }
 
@@ -40,6 +47,16 @@ export interface LayoutApi {
   /** font-family-Deklaration (lädt @font-face) oder '' – wie `fontFF`. */
   fontDecl: FontDecl;
   fontOptions: (cur: string) => FontOption[];
+  // ---- Raster ----
+  /** Eigener (gespeicherter) Stil von Kachel i – zum Schreiben. */
+  cell: (i: number) => CellStyle;
+  /** Angezeigter Stil (bei „Standard für alle“ mit den Werten der Master-Kachel). */
+  effCell: (i: number) => CellStyle;
+  inherited: (i: number) => boolean;
+  cellSlides: (i: number) => string[];
+  gridSlideshow: () => GridSlideshow;
+  /** Kachel markieren (Vorschau + Editoren); `scroll` = Seitenleisten zur Kachel scrollen. */
+  markCell: (i: number, scroll?: boolean) => void;
 }
 
 const KEY: InjectionKey<LayoutApi> = Symbol('layout');
@@ -54,8 +71,8 @@ export function provideLayout(service: LayoutService): LayoutApi {
   const view = computed<LayoutView>(() => {
     void lyRev.value;
     // Strukturen sichern, bevor der Proxy entsteht (wie getBannerStyle & Co.).
-    service.ensureBanner(service.lang);
-    return { m: reactive(service.media()) as BannerHost, page: service.page() };
+    service.ensure(service.lang);
+    return { m: reactive(service.media()) as BannerHost & GridHost, page: service.page() };
   });
   const text = computed(() => readBannerText(view.value.m));
 
@@ -74,6 +91,16 @@ export function provideLayout(service: LayoutService): LayoutApi {
     file ? `font-family:'${service.ensureFontFace(file)}', var(--site-font, sans-serif);` : '';
   const fontOptions = (cur: string) => fontOptionsOf(service.fonts(), service.ensureFontFace, cur);
 
+  const cell = (i: number) => view.value.m.heroGridStyles![i]!;
+  const effCell = (i: number) => effectiveCell(view.value.m, i, service.syncProps);
+  const inherited = (i: number) => isInherited(view.value.m, i);
+  const cellSlides = (i: number) => view.value.m.heroGridSlides![i]!;
+  const gridSlideshow = () => view.value.m.heroGridSlideshow!;
+  function markCell(i: number, scroll = false) {
+    lyUi.activeCell = i;
+    if (scroll) lyUi.selSeq++;
+  }
+
   const api: LayoutApi = {
     service,
     view,
@@ -87,6 +114,12 @@ export function provideLayout(service: LayoutService): LayoutApi {
     setPage,
     fontDecl,
     fontOptions,
+    cell,
+    effCell,
+    inherited,
+    cellSlides,
+    gridSlideshow,
+    markCell,
   };
   provide(KEY, api);
   return api;

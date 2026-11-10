@@ -11,7 +11,7 @@
     </p>
     <div class="ly-row" data-heromode>
       <UiSegmentedControl
-        model-value="banner"
+        :model-value="mode"
         label="Hero-Layout"
         size="sm"
         :options="MODE_OPTIONS"
@@ -22,21 +22,19 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { UiSegmentedControl } from '../../components/ui';
 import { useLayout } from './useLayout';
 
-/**
- * Panel „Hero-Layout“ (je Sprache, wie `modePanelHtml` in `public/layout.js`).
- * Diese Fassung zeigt nur den Banner-Modus; „Bild-Raster“ übergibt an die
- * Vanilla-Fassung (bis PR 12b).
- */
-const { service } = useLayout();
+/** Panel „Hero-Layout“ (je Sprache, wie `modePanelHtml` in `public/layout.js`). */
+const { service, view } = useLayout();
 const MODE_OPTIONS = [
   { value: 'banner', label: 'Einzel-Banner' },
   { value: 'grid', label: 'Bild-Raster (Kacheln)' },
 ];
+const mode = computed(() => (view.value.m.heroMode === 'grid' ? 'grid' : 'banner'));
 function setMode(v: string) {
-  if (v === 'grid') service.setHeroMode('grid');
+  view.value.m.heroMode = v === 'grid' ? 'grid' : 'banner';
 }
 </script>
 
