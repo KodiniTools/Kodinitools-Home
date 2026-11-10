@@ -1,12 +1,21 @@
+// @ts-check
 // Datenmodell – Sektions-Medien (Audio/Bild/Diverse): Design je Modus,
 // Diashow und Text-Overlay (Tab „Medien"), plus die Bild-Plätze der Diashows.
+
+/** @import { Lang, AnyObj, SectionVideoKey, ImageSlot, ImageSlotBase } from '../types.ts' */
 
 import { normFontFile, getPath, setPath, MEDIA_LANGS } from './model-core.js';
 import { state } from './model-state.js';
 import { defaultBannerSlideshow, normBannerSlides, normBannerSlideshow } from './model-grid.js';
 
+/** @typedef {ReturnType<typeof defaultSectionMediaSide>} SectionMediaSide */
+/** @typedef {ReturnType<typeof defaultSectionMediaText>} SectionMediaText */
+/** @typedef {ReturnType<typeof defaultSectionMedia>} SectionMedia */
+
 // --- Sektions-Medien (Audio/Bild/Diverse): Design je Modus, Diashow, Text-Overlay ---
+/** @type {SectionVideoKey[]} */
 export const SECTION_MEDIA_KEYS = ['audio', 'image', 'diverse'];
+/** @type {Record<SectionVideoKey, string>} */
 export const SECTION_MEDIA_LABELS = {
   audio: 'Audio-Tools',
   image: 'Bild-Tools',
@@ -46,7 +55,7 @@ export function defaultSectionMediaText() {
 export function defaultSectionMedia() {
   return {
     style: { light: defaultSectionMediaSide(), dark: defaultSectionMediaSide() },
-    slides: [],
+    slides: /** @type {string[]} */ ([]),
     slideshow: defaultBannerSlideshow(),
     text: defaultSectionMediaText(),
     // Verschiebung des Medium-Blocks auf der Seite (px, relative Position; Ganzseiten-Vorschau).
@@ -57,20 +66,32 @@ export function defaultSectionMedia() {
 // Größte Verschiebung eines Mediums/einer Tool-Karte (px) – großzügig, damit
 // z. B. eine Karte aus der letzten Reihe/Spalte überall auf der Seite landen kann.
 export const MEDIA_OFFSET_MAX = { x: 1200, y: 1200 };
+/**
+ * @param {unknown} v
+ * @param {'x' | 'y'} axis
+ * @returns {number}
+ */
 export function normMediaOffset(v, axis) {
   const m = axis === 'y' ? MEDIA_OFFSET_MAX.y : MEDIA_OFFSET_MAX.x;
   const n = Number(v);
   return Number.isFinite(n) ? Math.max(-m, Math.min(m, Math.round(n))) : 0;
 }
+/** @returns {Record<SectionVideoKey, SectionMedia>} */
 export function defaultSectionMediaAll() {
-  const out = {};
+  const out = /** @type {Record<SectionVideoKey, SectionMedia>} */ ({});
   for (const k of SECTION_MEDIA_KEYS) out[k] = defaultSectionMedia();
   return out;
 }
+/**
+ * @param {any} o
+ * @returns {SectionMediaSide}
+ */
 function normSectionMediaSide(o) {
   const d = defaultSectionMediaSide();
   if (!o || typeof o !== 'object') return d;
-  const hex = (v, def) => (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? v : def);
+  /** @type {(v: unknown, def: string) => string} */
+  const hex = (v, def) => (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? String(v) : def);
+  /** @type {(v: unknown, min: number, max: number, def: number) => number} */
   const num = (v, min, max, def) => {
     const n = Number(v);
     return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : def;
@@ -84,10 +105,16 @@ function normSectionMediaSide(o) {
     darken: num(o.darken, 0, 100, d.darken),
   };
 }
+/**
+ * @param {any} o
+ * @returns {SectionMediaText}
+ */
 function normSectionMediaText(o) {
   const d = defaultSectionMediaText();
   if (!o || typeof o !== 'object') return d;
-  const hex = (v, def) => (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? v : def);
+  /** @type {(v: unknown, def: string) => string} */
+  const hex = (v, def) => (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? String(v) : def);
+  /** @type {(v: unknown, min: number, max: number, def: number) => number} */
   const num = (v, min, max, def) => {
     const n = Number(v);
     return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : def;
@@ -111,6 +138,10 @@ function normSectionMediaText(o) {
       : d.strokeWidth,
   };
 }
+/**
+ * @param {any} o
+ * @returns {SectionMedia}
+ */
 export function normSectionMedia(o) {
   if (!o || typeof o !== 'object') return defaultSectionMedia();
   const st = o.style && typeof o.style === 'object' ? o.style : {};
@@ -123,13 +154,22 @@ export function normSectionMedia(o) {
     offsetY: normMediaOffset(o.offsetY, 'y'),
   };
 }
+/**
+ * @param {any} o
+ * @returns {Record<SectionVideoKey, SectionMedia>}
+ */
 export function normSectionMediaAll(o) {
-  const out = {};
+  const out = /** @type {Record<SectionVideoKey, SectionMedia>} */ ({});
   for (const k of SECTION_MEDIA_KEYS)
     out[k] = normSectionMedia(o && typeof o === 'object' ? o[k] : null);
   return out;
 }
 // Sichert die Struktur und gibt das Sektions-Medium-Objekt (audio|image|diverse).
+/**
+ * @param {Lang} lang
+ * @param {SectionVideoKey} key
+ * @returns {SectionMedia}
+ */
 export function getSectionMedia(lang, key) {
   const m = state.media[lang];
   if (!m.sectionMedia || typeof m.sectionMedia !== 'object')
@@ -139,7 +179,9 @@ export function getSectionMedia(lang, key) {
   return m.sectionMedia[key];
 }
 // Bild-Plätze der Sektions-Diashows (je Sprache, Sektion, Index).
+/** @returns {ImageSlot[]} */
 export function sectionMediaImageSlots() {
+  /** @type {ImageSlotBase[]} */
   const slots = [];
   for (const lang of MEDIA_LANGS) {
     const sm = state.media[lang] && state.media[lang].sectionMedia;
@@ -162,7 +204,8 @@ export function sectionMediaImageSlots() {
       const v = getPath(state.media[slot.root], slot.path);
       return typeof v === 'string' ? v : '';
     };
-    slot.set = (v) => setPath(state.media[slot.root], slot.path, String(v ?? '').trim());
+    slot.set = (/** @type {unknown} */ v) =>
+      setPath(state.media[slot.root], slot.path, String(v ?? '').trim());
   }
-  return slots;
+  return /** @type {ImageSlot[]} */ (slots);
 }

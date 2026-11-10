@@ -1,3 +1,4 @@
+// @ts-check
 // Datenmodell – globale Seiten-Einstellungen (media.site): Seiten-Hintergrund
 // (Farbe/Verlauf/Muster/Bild je Modus), abgesetzte Sektionen, Effekte,
 // ausgeblendete Tool-Karten, globale Schrift; dazu die Bild-Plätze der Seite.
@@ -13,6 +14,35 @@ import {
 import { state } from './model-state.js';
 import { TOOL_CARD_KEY } from './model-toolcards.js';
 
+/** @import { ThemeMode, ImageSlot, ImageSlotBase } from '../types.ts' */
+/** @typedef {'audio' | 'image' | 'diverse'} SiteSectionKey */
+/** @typedef {ReturnType<typeof defaultSectionSide>} SectionSide */
+/** @typedef {{ style: string; gap: number } & Record<SiteSectionKey, Record<ThemeMode, SectionSide>>} SiteSections */
+/** @typedef {ReturnType<typeof defaultSite>} Site */
+/**
+ * Hintergrund eines Modus als einheitliches Objekt (siehe getSiteBg).
+ * @typedef {{ color: string; opacity: number; gradient: boolean; color2: string; type: string;
+ *   angle: number; pattern: string; patternColor: string; patternSpacing: number;
+ *   patternThickness: number; patternOpacity: number; image: string; imageDarken: number;
+ *   imageBlur: number; imageOpacity: number; imageFixed: boolean }} SiteBg
+ */
+
+/**
+ * Wert aus einer festen Liste, sonst Standard.
+ * @template {string} T
+ * @param {readonly T[]} list
+ * @param {unknown} v
+ * @param {T} def
+ * @returns {T}
+ */
+const oneOf = (list, v, def) =>
+  typeof v === 'string' && list.includes(/** @type {T} */ (v)) ? /** @type {T} */ (v) : def;
+/** @type {(v: unknown, min: number, max: number, d: number) => number} */
+const clampInt = (v, min, max, d) => {
+  const n = Number(v);
+  return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : d;
+};
+
 // Globale (sprachübergreifende) Seiten-Einstellungen. globalFont = Basis-
 // Schriftart der ganzen Seite (Dateiname im /fonts-Ordner; leer = Standard).
 // bgColor/bgColorDark = Seiten-Hintergrundfarbe für Hell-/Dunkelmodus
@@ -21,7 +51,7 @@ import { TOOL_CARD_KEY } from './model-toolcards.js';
 // bgGradientType*/bgAngle*: optionaler Farbverlauf je Modus (Suffix Dark = Dunkel).
 export function defaultSite() {
   return {
-    hiddenCards: [], // auf der Seite ausgeblendete Tool-Karten ("sektion.key"), gilt für DE + EN
+    hiddenCards: /** @type {string[]} */ ([]), // auf der Seite ausgeblendete Tool-Karten ("sektion.key"), gilt für DE + EN
     globalFont: '',
     bgColor: '',
     bgColorDark: '',
@@ -85,10 +115,12 @@ export function defaultSite() {
     mediaPosMobile: 'bottom',
   };
 }
+/** @type {SiteSectionKey[]} */
 export const SITE_SECTION_KEYS = ['audio', 'image', 'diverse'];
 export const CARD_WIDTHS = ['narrow', 'medium', 'wide'];
 export const MEDIA_POS_DESKTOP = ['top', 'side', 'bottom', 'off'];
 export const MEDIA_POS_MOBILE = ['top', 'bottom', 'off'];
+/** @type {Record<SiteSectionKey, string>} */
 export const SECTION_LABELS = {
   audio: 'Audio-Tools',
   image: 'Bild-Tools',
@@ -99,23 +131,26 @@ export function defaultSectionSide() {
   return { color: '', opacity: 8, image: '', imageDarken: 0, imageBlur: 0, imageOpacity: 100 };
 }
 export const SECTION_GAP_MAX = 160;
+/** @returns {SiteSections} */
 export function defaultSections() {
-  const o = { style: 'band', gap: 0 };
+  const o = /** @type {SiteSections} */ ({ style: 'band', gap: 0 });
   for (const k of SITE_SECTION_KEYS)
     o[k] = { light: defaultSectionSide(), dark: defaultSectionSide() };
   return o;
 }
+/** @param {unknown} v */
 function normGap(v) {
   const n = Number(v);
   return Number.isFinite(n) ? Math.max(0, Math.min(SECTION_GAP_MAX, Math.round(n))) : 0;
 }
+/**
+ * @param {any} v
+ * @returns {SectionSide}
+ */
 function normSectionSide(v) {
   const d = defaultSectionSide();
   if (!v || typeof v !== 'object') return d;
-  const num = (x, min, max, def) => {
-    const n = Number(x);
-    return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : def;
-  };
+  const num = clampInt;
   return {
     color: normHexOrEmpty(v.color),
     opacity: num(v.opacity, 0, 100, 8),
@@ -125,10 +160,14 @@ function normSectionSide(v) {
     imageOpacity: num(v.imageOpacity, 0, 100, 100),
   };
 }
+/**
+ * @param {any} v
+ * @returns {SiteSections}
+ */
 export function normSections(v) {
   const o = defaultSections();
   if (!v || typeof v !== 'object') return o;
-  o.style = SECTION_STYLES.includes(v.style) ? v.style : 'band';
+  o.style = oneOf(SECTION_STYLES, v.style, 'band');
   o.gap = normGap(v.gap);
   for (const k of SITE_SECTION_KEYS) {
     const c = v[k] && typeof v[k] === 'object' ? v[k] : {};
@@ -150,6 +189,7 @@ export const SITE_PATTERNS = [
 ];
 // Bild-Felder in media.site (Hintergrundbild Hell/Dunkel) – können wie die
 // Sprach-Slots eine gestagte Datei ('staged:<id>') referenzieren.
+/** @type {('bgImage' | 'bgImageDark')[]} */
 export const SITE_MEDIA_KEYS = ['bgImage', 'bgImageDark'];
 // --- Ausgeblendete Tool-Karten (global, DE + EN) ---
 function hiddenList() {
@@ -157,9 +197,14 @@ function hiddenList() {
   if (!Array.isArray(site.hiddenCards)) site.hiddenCards = [];
   return site.hiddenCards;
 }
+/** @param {string} id */
 export function isCardHidden(id) {
   return hiddenList().includes(id);
 }
+/**
+ * @param {string} id
+ * @param {boolean} hidden
+ */
 export function setCardHidden(id, hidden) {
   const list = hiddenList();
   const i = list.indexOf(id);
@@ -175,17 +220,26 @@ export const SITE_FX = [
   { key: 'fxNoise', label: 'Feines Rauschen' },
   { key: 'fxSpotlight', label: 'Maus-Spotlight' },
 ];
+/**
+ * @param {any} s
+ * @returns {Site}
+ */
 export function normSite(s) {
   if (!s || typeof s !== 'object') return defaultSite();
-  const num = (v, min, max, d) => {
-    const n = Number(v);
-    return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : d;
-  };
-  const gtype = (v) => (SITE_GRADIENT_TYPES.includes(v) ? v : 'linear');
-  const pat = (v) => (SITE_PATTERNS.includes(v) ? v : 'none');
+  const num = clampInt;
+  /** @type {(v: unknown) => string} */
+  const gtype = (v) => oneOf(SITE_GRADIENT_TYPES, v, 'linear');
+  /** @type {(v: unknown) => string} */
+  const pat = (v) => oneOf(SITE_PATTERNS, v, 'none');
   return {
     hiddenCards: Array.isArray(s.hiddenCards)
-      ? [...new Set(s.hiddenCards.filter((k) => typeof k === 'string' && TOOL_CARD_KEY.test(k)))]
+      ? [
+          ...new Set(
+            /** @type {unknown[]} */ (s.hiddenCards).filter(
+              (k) => typeof k === 'string' && TOOL_CARD_KEY.test(k),
+            ),
+          ),
+        ].map(String)
       : [],
     globalFont: normFontFile(s.globalFont),
     bgColor: normHexOrEmpty(s.bgColor),
@@ -230,17 +284,18 @@ export function normSite(s) {
     homeLayout: s.homeLayout === 'compact' ? 'compact' : 'classic',
     heroMediaMobile: s.heroMediaMobile !== false,
     cardForm: s.cardForm === 'tile' ? 'tile' : 'list',
-    cardWidth: CARD_WIDTHS.includes(s.cardWidth) ? s.cardWidth : 'medium',
+    cardWidth: oneOf(CARD_WIDTHS, s.cardWidth, 'medium'),
     catBar: s.catBar !== false,
     catSearch: s.catSearch !== false,
-    mediaPosDesktop: MEDIA_POS_DESKTOP.includes(s.mediaPosDesktop) ? s.mediaPosDesktop : 'side',
-    mediaPosMobile: MEDIA_POS_MOBILE.includes(s.mediaPosMobile) ? s.mediaPosMobile : 'bottom',
+    mediaPosDesktop: oneOf(MEDIA_POS_DESKTOP, s.mediaPosDesktop, 'side'),
+    mediaPosMobile: oneOf(MEDIA_POS_MOBILE, s.mediaPosMobile, 'bottom'),
   };
 }
 // Seiten-Hintergrund eines Modus als CSS-background-Wert – identisch zur
 // Berechnung auf der Seite (content.ts getSiteBackgroundStyle): eigene Farbe
 // bzw. Verlauf mit Deckkraft ÜBER der Standardfarbe. Für alle Admin-Vorschauen
 // (Hintergrund-Tab, Tool-Karten), damit sie das gleiche Ergebnis zeigen.
+/** @param {ThemeMode} mode */
 export function siteBgLayerCss(mode) {
   const { ground, overlay } = siteBgSplit(mode);
   return overlay ? `${overlay}, ${ground}` : ground;
@@ -250,6 +305,10 @@ export function siteBgLayerCss(mode) {
 // scheinende Farbe/Verlauf als background-Liste ('' = nichts). Mit Hintergrund-
 // bild liegt das Overlay auf der Seite ÜBER dem Bild (content.ts: body::after),
 // der Grund darunter – die Vorschau baut die Ebenen genauso.
+/**
+ * @param {ThemeMode} mode
+ * @returns {{ ground: string; overlay: string }}
+ */
 export function siteBgSplit(mode) {
   const s = getSiteBg(mode);
   const base = PAGE_BG_DEFAULT[mode];
@@ -272,21 +331,25 @@ export function siteBgSplit(mode) {
 // Muster-Ebenen als background-Einträge – identisch zu content.ts
 // sitePatternLayers (Test prüft Gleichheit). Leer bei 'none'. Alles reine
 // CSS-Verläufe in festen Kacheln (Abstand = Kachelmaß), keine Bilder.
+/**
+ * @param {Pick<SiteBg, 'pattern' | 'patternColor' | 'patternOpacity' | 'patternSpacing' | 'patternThickness'>} s
+ * @returns {string[]}
+ */
 export function sitePatternLayers(s) {
   if (!SITE_PATTERNS.includes(s.pattern) || s.pattern === 'none' || !s.patternColor) return [];
   const c = rgbaFromHex(s.patternColor, s.patternOpacity);
   const sp = s.patternSpacing;
   const t = s.patternThickness;
-  const px = (n) => `${Math.round(n * 100) / 100}px`;
+  const px = (/** @type {number} */ n) => `${Math.round(n * 100) / 100}px`;
   const h = t / 2;
-  const tile = (w, ht = w) => `0 0 / ${px(w)} ${px(ht)} repeat`;
-  const grid = (col, th, w) => [
+  const tile = (/** @type {number} */ w, ht = w) => `0 0 / ${px(w)} ${px(ht)} repeat`;
+  const grid = (/** @type {string} */ col, /** @type {number} */ th, /** @type {number} */ w) => [
     `linear-gradient(${col} ${th}px, transparent ${th}px) ${tile(w)}`,
     `linear-gradient(90deg, ${col} ${th}px, transparent ${th}px) ${tile(w)}`,
   ];
   // Diagonale Linie durch zwei Kachelecken (50 %) samt Parallelen durch die
   // übrigen Ecken (0 %/100 %) – mit 0,5 px Kantenglättung.
-  const diag = (dir) =>
+  const diag = (/** @type {string} */ dir) =>
     `linear-gradient(${dir}, ${c} ${px(h)}, transparent ${px(h + 0.5)} calc(50% - ${px(h + 0.5)}), ` +
     `${c} calc(50% - ${px(h)}) calc(50% + ${px(h)}), transparent calc(50% + ${px(h + 0.5)}) calc(100% - ${px(h + 0.5)}), ` +
     `${c} calc(100% - ${px(h)}))`;
@@ -298,7 +361,7 @@ export function sitePatternLayers(s) {
     case 'cross': {
       // Plus-Zeichen an jedem Rasterpunkt: zwei Balken als conic-Rechtecke.
       const len = Math.min(sp, Math.max(t * 3, Math.round(sp * 0.3)));
-      const bar = (w, ht) =>
+      const bar = (/** @type {number} */ w, /** @type {number} */ ht) =>
         `conic-gradient(from 270deg at ${px(w)} ${px(ht)}, ${c} 0 90deg, transparent 0)`;
       return [
         `${bar(len, t)} ${px(-len / 2)} ${px(-h)} / ${px(sp)} ${px(sp)} repeat`,
@@ -324,7 +387,7 @@ export function sitePatternLayers(s) {
       // Kachel, unten offener Bogen oben – die Kachelkante schneidet je halb ab.
       const r = sp / 4;
       const inner = Math.max(0, r - h);
-      const ring = (x, y) =>
+      const ring = (/** @type {number} */ x, /** @type {number} */ y) =>
         `radial-gradient(circle at ${px(x)} ${px(y)}, transparent ${px(Math.max(0, inner - 0.5))}, ` +
         `${c} ${px(inner)} ${px(r + h)}, transparent ${px(r + h + 0.5)}) ${tile(sp, sp / 2)}`;
       return [ring(sp / 4, sp / 2), ring((sp * 3) / 4, 0)];
@@ -341,6 +404,10 @@ export function sitePatternLayers(s) {
 }
 // Bild-Ebene eines Modus für die Admin-Vorschau: null ohne Bild, sonst
 // { url, filter, opacity, fixed } (url = auflösbare Vorschau-URL, staged via objUrl).
+/**
+ * @param {ThemeMode} mode
+ * @param {(url: string) => string} [resolveUrl]
+ */
 export function siteBgImageLayer(mode, resolveUrl) {
   const s = getSiteBg(mode);
   if (!s.image) return null;
@@ -352,13 +419,18 @@ export function siteBgImageLayer(mode, resolveUrl) {
   return { url, filter: f.join(' ') || 'none', opacity: s.imageOpacity / 100, fixed: s.imageFixed };
 }
 // Effekt lesen: { on, intensity } für key aus SITE_FX.
+/** @param {string} key */
 export function getSiteFx(key) {
-  const s = siteObj();
+  const s = siteDyn();
   return { on: s[key] === true, intensity: s[`${key}Intensity`] };
 }
 // Effekt setzen (Teilobjekt { on?, intensity? }).
+/**
+ * @param {string} key
+ * @param {{ on?: unknown; intensity?: unknown }} patch
+ */
 export function setSiteFx(key, patch) {
-  const s = siteObj();
+  const s = siteDyn();
   if ('on' in patch) s[key] = patch.on === true;
   if ('intensity' in patch) {
     const n = Number(patch.intensity);
@@ -366,18 +438,25 @@ export function setSiteFx(key, patch) {
   }
 }
 // Sichert, dass media.site vollständig (mit allen Feldern) vorliegt.
+/** @returns {Site} */
 function siteObj() {
   if (!state.media.site || typeof state.media.site !== 'object') state.media.site = defaultSite();
-  const s = state.media.site;
-  const d = defaultSite();
+  const s = /** @type {Record<string, unknown>} */ (state.media.site);
+  const d = /** @type {Record<string, unknown>} */ (defaultSite());
   for (const k of Object.keys(d)) if (!(k in s)) s[k] = d[k];
-  return s;
+  return state.media.site;
 }
+// media.site mit Feldzugriff über berechnete Schlüssel (z. B. `bgColor` + 'Dark').
+const siteDyn = () => /** @type {Record<string, any>} */ (siteObj());
 // Hintergrund-Einstellungen eines Modus als einheitliches Objekt
 // { color, opacity, gradient, color2, type, angle } (color '' = Standard).
+/**
+ * @param {ThemeMode | string} mode
+ * @returns {SiteBg}
+ */
 export function getSiteBg(mode) {
-  const s = siteObj();
-  const k = (key) => (mode === 'dark' ? key + 'Dark' : key);
+  const s = siteDyn();
+  const k = (/** @type {string} */ key) => (mode === 'dark' ? key + 'Dark' : key);
   return {
     color: s[k('bgColor')] || '',
     opacity: s[k('bgOpacity')],
@@ -398,22 +477,21 @@ export function getSiteBg(mode) {
   };
 }
 // Teilweise setzen (nur übergebene Felder), Werte werden normalisiert.
+/**
+ * @param {ThemeMode | string} mode
+ * @param {Partial<Record<keyof SiteBg, unknown>>} patch
+ */
 export function setSiteBg(mode, patch) {
-  const s = siteObj();
-  const k = (key) => (mode === 'dark' ? key + 'Dark' : key);
-  const num = (v, min, max, d) => {
-    const n = Number(v);
-    return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : d;
-  };
+  const s = siteDyn();
+  const k = (/** @type {string} */ key) => (mode === 'dark' ? key + 'Dark' : key);
+  const num = clampInt;
   if ('color' in patch) s[k('bgColor')] = normHexOrEmpty(patch.color);
   if ('opacity' in patch) s[k('bgOpacity')] = num(patch.opacity, 0, 100, 100);
   if ('gradient' in patch) s[k('bgGradient')] = patch.gradient === true;
   if ('color2' in patch) s[k('bgColor2')] = normHexOrEmpty(patch.color2);
-  if ('type' in patch)
-    s[k('bgGradientType')] = SITE_GRADIENT_TYPES.includes(patch.type) ? patch.type : 'linear';
+  if ('type' in patch) s[k('bgGradientType')] = oneOf(SITE_GRADIENT_TYPES, patch.type, 'linear');
   if ('angle' in patch) s[k('bgAngle')] = num(patch.angle, 0, 360, 180);
-  if ('pattern' in patch)
-    s[k('bgPattern')] = SITE_PATTERNS.includes(patch.pattern) ? patch.pattern : 'none';
+  if ('pattern' in patch) s[k('bgPattern')] = oneOf(SITE_PATTERNS, patch.pattern, 'none');
   if ('patternColor' in patch) {
     const d = mode === 'dark' ? '#e8a945' : '#014f99';
     s[k('bgPatternColor')] = normHexOrEmpty(patch.patternColor) || d;
@@ -429,17 +507,25 @@ export function setSiteBg(mode, patch) {
   if ('imageFixed' in patch) s[k('bgImageFixed')] = patch.imageFixed !== false;
 }
 // Bild-Feld in media.site lesen/setzen (key aus SITE_MEDIA_KEYS).
+/** @param {string} key */
 export function getSiteMediaVal(key) {
-  return SITE_MEDIA_KEYS.includes(key) ? siteObj()[key] || '' : '';
+  return isSiteMediaKey(key) ? siteObj()[key] || '' : '';
 }
+/**
+ * @param {string} key
+ * @param {unknown} val
+ */
 export function setSiteMediaVal(key, val) {
-  if (SITE_MEDIA_KEYS.includes(key)) siteObj()[key] = normSiteMediaUrl(val);
+  if (isSiteMediaKey(key)) siteObj()[key] = normSiteMediaUrl(val);
 }
 // Sichert die vollständige Sektions-Struktur in media.site.sections.
+/** @type {(key: string) => key is 'bgImage' | 'bgImageDark'} */
+const isSiteMediaKey = (key) => SITE_MEDIA_KEYS.includes(/** @type {any} */ (key));
+/** @returns {SiteSections} */
 function sectionsObj() {
   const s = siteObj();
   if (!s.sections || typeof s.sections !== 'object') s.sections = defaultSections();
-  const o = s.sections;
+  const o = /** @type {any} */ (s.sections);
   if (!SECTION_STYLES.includes(o.style)) o.style = 'band';
   o.gap = normGap(o.gap);
   for (const k of SITE_SECTION_KEYS) {
@@ -447,7 +533,8 @@ function sectionsObj() {
     for (const mode of ['light', 'dark']) {
       if (!o[k][mode] || typeof o[k][mode] !== 'object') o[k][mode] = defaultSectionSide();
       const d = defaultSectionSide();
-      for (const f of Object.keys(d)) if (!(f in o[k][mode])) o[k][mode][f] = d[f];
+      for (const f of Object.keys(d))
+        if (!(f in o[k][mode])) o[k][mode][f] = d[/** @type {keyof SectionSide} */ (f)];
     }
   }
   return o;
@@ -455,28 +542,37 @@ function sectionsObj() {
 export function getSectionStyle() {
   return sectionsObj().style;
 }
+/** @param {unknown} v */
 export function setSectionStyle(v) {
-  sectionsObj().style = SECTION_STYLES.includes(v) ? v : 'band';
+  sectionsObj().style = oneOf(SECTION_STYLES, v, 'band');
 }
 // Abstand zwischen abgesetzten Sektionen (px, 0–SECTION_GAP_MAX).
 export function getSectionGap() {
   return sectionsObj().gap;
 }
+/** @param {unknown} v */
 export function setSectionGap(v) {
   sectionsObj().gap = normGap(v);
 }
 // Einstellungen einer Sektion (key aus SITE_SECTION_KEYS) für einen Modus.
+/**
+ * @param {SiteSectionKey} key
+ * @param {ThemeMode} mode
+ * @returns {SectionSide}
+ */
 export function getSiteSection(key, mode) {
   return { ...sectionsObj()[key][mode] };
 }
 // Teilweise setzen (nur übergebene Felder), Werte werden normalisiert.
+/**
+ * @param {SiteSectionKey | string} key
+ * @param {ThemeMode} mode
+ * @param {Partial<Record<keyof SectionSide, unknown>>} patch
+ */
 export function setSiteSection(key, mode, patch) {
-  if (!SITE_SECTION_KEYS.includes(key)) return;
-  const side = sectionsObj()[key][mode];
-  const num = (v, min, max, d) => {
-    const n = Number(v);
-    return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : d;
-  };
+  if (!SITE_SECTION_KEYS.includes(/** @type {SiteSectionKey} */ (key))) return;
+  const side = sectionsObj()[/** @type {SiteSectionKey} */ (key)][mode];
+  const num = clampInt;
   if ('color' in patch) side.color = normHexOrEmpty(patch.color);
   if ('opacity' in patch) side.opacity = num(patch.opacity, 0, 100, 8);
   if ('image' in patch) side.image = normSiteMediaUrl(patch.image);
@@ -487,19 +583,21 @@ export function setSiteSection(key, mode, patch) {
 // Alle Bild-Plätze in media.site (Seiten-Hintergrund + Sektionen) als
 // { path, label, get(), set(v) } – für Upload beim Veröffentlichen, Auflösen
 // von staged:-Referenzen und „wird verwendet in" der Mediathek.
+/** @returns {ImageSlot[]} */
 export function siteImageSlots() {
-  const modeLabel = (m) => (m === 'dark' ? 'Dunkel' : 'Hell');
+  const modeLabel = (/** @type {ThemeMode} */ m) => (m === 'dark' ? 'Dunkel' : 'Hell');
   // mode: Modus, in dem der Platz gilt ('light' | 'dark'; Plätze ohne mode gelten
   // in beiden Modi) – für die Modus-Übersicht im Tab „Dateien".
+  /** @type {ImageSlotBase[]} */
   const slots = SITE_MEDIA_KEYS.map((key) => ({
-    root: 'site',
-    xLang: 'shared',
+    root: /** @type {const} */ ('site'),
+    xLang: /** @type {const} */ ('shared'),
     path: [key],
-    mode: key.endsWith('Dark') ? 'dark' : 'light',
+    mode: /** @type {ThemeMode} */ (key.endsWith('Dark') ? 'dark' : 'light'),
     label: `Global · Seiten-Hintergrund (${modeLabel(key.endsWith('Dark') ? 'dark' : 'light')})`,
   }));
   for (const k of SITE_SECTION_KEYS)
-    for (const mode of ['light', 'dark'])
+    for (const mode of /** @type {ThemeMode[]} */ (['light', 'dark']))
       slots.push({
         root: 'site',
         xLang: 'shared',
@@ -513,21 +611,27 @@ export function siteImageSlots() {
       const v = getPath(siteObj(), slot.path);
       return typeof v === 'string' ? v : '';
     };
-    slot.set = (v) => {
+    slot.set = (/** @type {unknown} */ v) => {
       sectionsObj();
       setPath(siteObj(), slot.path, normSiteMediaUrl(v));
     };
   }
-  return slots;
+  return /** @type {ImageSlot[]} */ (slots);
 }
 // Standard-Hintergrundfarben je Modus (identisch zu global.css --bg-color).
+/** @type {Record<ThemeMode, string>} */
 export const PAGE_BG_DEFAULT = { light: '#fafafa', dark: '#091428' };
 // Seiten-Hintergrundfarbe (global) lesen. mode: 'light' | 'dark'. '' = Standard.
+/** @param {ThemeMode | string} mode */
 export function getPageBg(mode) {
   if (!state.media.site || typeof state.media.site !== 'object') state.media.site = defaultSite();
   return (mode === 'dark' ? state.media.site.bgColorDark : state.media.site.bgColor) || '';
 }
 // Seiten-Hintergrundfarbe (global) setzen ('' = Standard des Modus).
+/**
+ * @param {ThemeMode | string} mode
+ * @param {unknown} val
+ */
 export function setPageBg(mode, val) {
   if (!state.media.site || typeof state.media.site !== 'object') state.media.site = defaultSite();
   const hex = normHexOrEmpty(val);
@@ -540,6 +644,7 @@ export function getGlobalFont() {
   return state.media.site.globalFont || '';
 }
 // Globale Basis-Schrift setzen ('' = Standard).
+/** @param {unknown} file */
 export function setGlobalFont(file) {
   if (!state.media.site || typeof state.media.site !== 'object') state.media.site = defaultSite();
   state.media.site.globalFont = normFontFile(file);
@@ -548,6 +653,7 @@ export function setGlobalFont(file) {
 export function getHomeLayout() {
   return siteObj().homeLayout === 'compact' ? 'compact' : 'classic';
 }
+/** @param {unknown} v */
 export function setHomeLayout(v) {
   siteObj().homeLayout = v === 'compact' ? 'compact' : 'classic';
 }
@@ -555,6 +661,7 @@ export function setHomeLayout(v) {
 export function getHeroMediaMobile() {
   return siteObj().heroMediaMobile !== false;
 }
+/** @param {unknown} on */
 export function setHeroMediaMobile(on) {
   siteObj().heroMediaMobile = on === true;
 }
@@ -562,41 +669,47 @@ export function setHeroMediaMobile(on) {
 export function getCardForm() {
   return siteObj().cardForm === 'tile' ? 'tile' : 'list';
 }
+/** @param {unknown} v */
 export function setCardForm(v) {
   siteObj().cardForm = v === 'tile' ? 'tile' : 'list';
 }
 export function getCardWidth() {
   const v = siteObj().cardWidth;
-  return CARD_WIDTHS.includes(v) ? v : 'medium';
+  return oneOf(CARD_WIDTHS, v, 'medium');
 }
+/** @param {unknown} v */
 export function setCardWidth(v) {
-  siteObj().cardWidth = CARD_WIDTHS.includes(v) ? v : 'medium';
+  siteObj().cardWidth = oneOf(CARD_WIDTHS, v, 'medium');
 }
 // Kompakt-Layout: Kategorie-Leiste und Suchfeld darin.
 export function getCatBar() {
   return siteObj().catBar !== false;
 }
+/** @param {unknown} on */
 export function setCatBar(on) {
   siteObj().catBar = on === true;
 }
 export function getCatSearch() {
   return siteObj().catSearch !== false;
 }
+/** @param {unknown} on */
 export function setCatSearch(on) {
   siteObj().catSearch = on === true;
 }
 // Kompakt-Layout: Lage der Sektionsmedien je Gerät.
 export function getMediaPosDesktop() {
   const v = siteObj().mediaPosDesktop;
-  return MEDIA_POS_DESKTOP.includes(v) ? v : 'side';
+  return oneOf(MEDIA_POS_DESKTOP, v, 'side');
 }
+/** @param {unknown} v */
 export function setMediaPosDesktop(v) {
-  siteObj().mediaPosDesktop = MEDIA_POS_DESKTOP.includes(v) ? v : 'side';
+  siteObj().mediaPosDesktop = oneOf(MEDIA_POS_DESKTOP, v, 'side');
 }
 export function getMediaPosMobile() {
   const v = siteObj().mediaPosMobile;
-  return MEDIA_POS_MOBILE.includes(v) ? v : 'bottom';
+  return oneOf(MEDIA_POS_MOBILE, v, 'bottom');
 }
+/** @param {unknown} v */
 export function setMediaPosMobile(v) {
-  siteObj().mediaPosMobile = MEDIA_POS_MOBILE.includes(v) ? v : 'bottom';
+  siteObj().mediaPosMobile = oneOf(MEDIA_POS_MOBILE, v, 'bottom');
 }

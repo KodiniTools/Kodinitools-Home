@@ -21,6 +21,13 @@ import {
   clampSpacing,
   MEDIA_KEYS,
   SUBTABS,
+  normHeroLayout,
+  normTextPos,
+  normPosPct,
+  normSite,
+  normToolCardText,
+  normHeroDesign,
+  allImageSlots,
 } from '../../server/admin/public/model.js';
 import type {
   AdminState,
@@ -106,5 +113,51 @@ describe('Admin-Modell: Verhalten unverändert', () => {
     expect(rgbaFromHex('nope', 50)).toBe('nope');
     expect(clampSpacing('3.3', 0)).toBe(3.5);
     expect(clampSpacing('x', 1)).toBe(1);
+  });
+});
+
+describe('@ts-check der übrigen Datenmodelle (Verhalten unverändert)', () => {
+  it('Listenwerte: Ungültiges (auch Nicht-Strings) fällt auf den Standard zurück', () => {
+    expect(normHeroLayout(0)).toBe('grid3');
+    expect(normHeroLayout('mosaic')).toBe('mosaic');
+    expect(normTextPos('top')).toBe('top');
+    expect(normTextPos(1)).toBe('center');
+    expect(normPosPct(undefined, 'bottom', 50)).toBe(90);
+    expect(normPosPct(undefined, undefined, 40)).toBe(40);
+    const site = normSite({ cardWidth: 3, mediaPosDesktop: 'top', bgPattern: ['dots'] });
+    expect(site.cardWidth).toBe('medium');
+    expect(site.mediaPosDesktop).toBe('top');
+    expect(site.bgPattern).toBe('none');
+    expect(normToolCardText({ titleTransform: 7, align: 'center' })).toMatchObject({
+      titleTransform: '',
+      align: 'center',
+    });
+  });
+
+  it('Hero-Seiten haben alle Bildfelder (Standardwerte aus HERO_IMG_FIELDS)', () => {
+    const hd = normHeroDesign(null);
+    expect(hd.light).toMatchObject({
+      bgImage: '',
+      bgImageOpacity: 100,
+      bgImageDarken: 0,
+      bgImageBlur: 0,
+      bgImageSaturate: 100,
+      bgSlides: [],
+    });
+    expectTypeOf(hd.dark.bgImageSaturate).toEqualTypeOf<number>();
+  });
+
+  it('Bild-Plätze haben get/set und gültige Wurzeln', () => {
+    state.media = normalizeMedia({ de: { heroBannerSlides: ['/uploads/de/a.webp'] } });
+    const slots = allImageSlots();
+    expect(slots.length).toBeGreaterThan(0);
+    for (const s of slots) {
+      expect(['site', 'de', 'en']).toContain(s.root);
+      expect(typeof s.get()).toBe('string');
+    }
+    const slide = slots.find((s) => s.path.join('.') === 'heroBannerSlides.0')!;
+    expect(slide.get()).toBe('/uploads/de/a.webp');
+    slide.set('  /uploads/de/b.webp ');
+    expect(state.media.de.heroBannerSlides[0]).toBe('/uploads/de/b.webp');
   });
 });

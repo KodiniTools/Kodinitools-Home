@@ -1,3 +1,4 @@
+// @ts-check
 // Datenmodell – Hero-Design (Farben je Hell/Dunkel) und Text-Stile der
 // Hero-/Abschnitts-Texte (Tabs „Hero-Design" und „Texte").
 
@@ -19,11 +20,21 @@ import {
   normBannerSlideshow,
 } from './model-grid.js';
 
+/** @import { Lang, ThemeMode, TextAnim, TextAnimSpeed, TextStyle, TextStyleEntry, ImageSlot, ImageSlotBase } from '../types.ts' */
+/** @import { Slideshow } from './model-grid.js' */
+/** @typedef {ReturnType<typeof heroSideLight>} HeroSide */
+/** @typedef {ReturnType<typeof defaultHeroDesign>} HeroDesign */
+/** @typedef {Record<string, { x: number; y: number }>} ChipOffsets */
+
 // Diashow-Einstellungen des Hero-Hintergrunds (je Modus): wie die Banner-Diashow,
 // aber ohne Punkte (Hintergrund) als Standard.
 export function defaultHeroBgSlideshow() {
   return { ...defaultBannerSlideshow(), dots: false };
 }
+/**
+ * @param {any} o
+ * @returns {Slideshow}
+ */
 function normHeroBgSlideshow(o) {
   const ss = normBannerSlideshow(o);
   ss.dots = !!(o && typeof o === 'object' && o.dots === true);
@@ -40,12 +51,21 @@ export const HERO_IMG_FIELDS = {
   bgImageBlur: { min: 0, max: 20, def: 0, label: 'Weichzeichner', unit: 'px' },
   bgImageSaturate: { min: 0, max: 200, def: 100, label: 'Sättigung', unit: '%' },
 };
+/** @typedef {keyof typeof HERO_IMG_FIELDS} HeroImgField */
+/**
+ * @returns {{ bgImage: string; bgSlides: string[]; bgSlideshow: Slideshow } & Record<HeroImgField, number>}
+ */
 function heroImageDefaults() {
-  const o = { bgImage: '' };
-  for (const [k, c] of Object.entries(HERO_IMG_FIELDS)) o[k] = c.def;
-  o.bgSlides = []; // weitere Bilder: das Hintergrundbild läuft als Diashow
-  o.bgSlideshow = defaultHeroBgSlideshow();
-  return o;
+  /** @type {Record<HeroImgField, number>} */
+  const img = /** @type {any} */ ({});
+  for (const [k, c] of Object.entries(HERO_IMG_FIELDS))
+    img[/** @type {HeroImgField} */ (k)] = c.def;
+  return {
+    bgImage: '',
+    ...img,
+    bgSlides: [], // weitere Bilder: das Hintergrundbild läuft als Diashow
+    bgSlideshow: defaultHeroBgSlideshow(),
+  };
 }
 // Standard-Design des Hero-Bereichs, getrennt für Hell- und Dunkelmodus
 // (entspricht dem jeweiligen Aussehen in global.css).
@@ -99,9 +119,15 @@ export function heroSideDark() {
 }
 // Einzeln ausgeblendete Feature-Buttons: eindeutige Schlüssel (max. 20).
 // Verschiebung je Feature-Button: { key: { x, y } }, nur Einträge ≠ 0/0, max. 20.
+/**
+ * @param {any} v
+ * @returns {ChipOffsets}
+ */
 export function normChipOffsets(v) {
+  /** @type {ChipOffsets} */
   const out = {};
   if (!v || typeof v !== 'object' || Array.isArray(v)) return out;
+  /** @type {(n: unknown, m: number) => number} */
   const num = (n, m) => {
     const x = Number(n);
     return Number.isFinite(x) ? Math.max(-m, Math.min(m, Math.round(x))) : 0;
@@ -115,8 +141,13 @@ export function normChipOffsets(v) {
   }
   return out;
 }
+/**
+ * @param {unknown} v
+ * @returns {string[]}
+ */
 export function normHiddenChips(v) {
   if (!Array.isArray(v)) return [];
+  /** @type {string[]} */
   const out = [];
   for (const k of v) {
     if (typeof k === 'string' && /^[a-zA-Z0-9_-]{1,40}$/.test(k) && !out.includes(k)) out.push(k);
@@ -143,21 +174,28 @@ export function defaultHeroDesign() {
     showTitle: true, // Titel
     showSubtitle: true, // Untertitel
     showChips: true, // Feature-Buttons (Chips) insgesamt
-    hiddenChips: [], // einzeln ausgeblendete Feature-Buttons (Schlüssel aus hero.features)
-    chipOffsets: {}, // Verschiebung je Feature-Button { key: { x, y } } (px, nur ≠ 0)
+    hiddenChips: /** @type {string[]} */ ([]), // einzeln ausgeblendete Feature-Buttons (Schlüssel aus hero.features)
+    chipOffsets: /** @type {ChipOffsets} */ ({}), // Verschiebung je Feature-Button { key: { x, y } } (px, nur ≠ 0)
     showCta: true, // CTA-Button („Jetzt starten")
     light: heroSideLight(),
     dark: heroSideDark(),
   };
 }
 // Einen Farb-Satz (Hell/Dunkel) normalisieren.
+/**
+ * @param {any} s
+ * @param {HeroSide} def
+ * @returns {HeroSide}
+ */
 function normHeroSide(s, def) {
   if (!s || typeof s !== 'object') return def;
+  /** @type {(v: unknown, min: number, max: number, d: number) => number} */
   const num = (v, min, max, d) => {
     const n = Number(v);
     return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : d;
   };
-  const hex = (v, d) => (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? v : d);
+  /** @type {(v: unknown, d: string) => string} */
+  const hex = (v, d) => (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? String(v) : d);
   return {
     borderColor: hex(s.borderColor, def.borderColor),
     borderWidth: num(s.borderWidth, 0, 8, def.borderWidth),
@@ -189,16 +227,23 @@ function normHeroSide(s, def) {
 }
 // Geladenes Hero-Design normalisieren (getrennt Hell/Dunkel). Migriert die alte
 // flache Struktur (Farben auf oberster Ebene) auf beide Modi.
+/**
+ * @param {any} hd
+ * @returns {HeroDesign}
+ */
 export function normHeroDesign(hd) {
   if (!hd || typeof hd !== 'object') return defaultHeroDesign();
   const hasSides =
     (hd.light && typeof hd.light === 'object') || (hd.dark && typeof hd.dark === 'object');
   const flat = !hasSides && typeof hd.borderColor === 'string' ? hd : null;
-  const hex = (v, d) => (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? v : d);
+  /** @type {(v: unknown, d: string) => string} */
+  const hex = (v, d) => (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? String(v) : d);
+  /** @type {(v: unknown) => number} */
   const stroke = (v) => {
     const n = Number(v);
     return Number.isFinite(n) ? Math.max(0, Math.min(5, Math.round(n * 2) / 2)) : 0;
   };
+  /** @type {(v: unknown) => number} */
   const fontSize = (v) => {
     const n = Number(v);
     return Number.isFinite(n) && n > 0 ? Math.max(8, Math.min(96, Math.round(n))) : 0;
@@ -229,11 +274,15 @@ export function normHeroDesign(hd) {
 }
 // Bild-Plätze des Hero-Hintergrundbilds (je Sprache und Modus) – für Upload beim
 // Veröffentlichen, Auflösen von staged:-Referenzen und „wird verwendet in".
+/** @returns {ImageSlot[]} */
 export function heroImageSlots() {
-  const modeLabel = (m) => (m === 'dark' ? 'Dunkel' : 'Hell');
+  const modeLabel = (/** @type {ThemeMode} */ m) => (m === 'dark' ? 'Dunkel' : 'Hell');
+  /** @type {ThemeMode[]} */
+  const modes = ['light', 'dark'];
+  /** @type {ImageSlotBase[]} */
   const slots = [];
   for (const lang of MEDIA_LANGS)
-    for (const mode of ['light', 'dark'])
+    for (const mode of modes)
       slots.push({
         root: lang,
         xLang: lang,
@@ -243,7 +292,7 @@ export function heroImageSlots() {
       });
   // Weitere Bilder der Hintergrund-Diashow (nur vorhandene Einträge).
   for (const lang of MEDIA_LANGS)
-    for (const mode of ['light', 'dark']) {
+    for (const mode of modes) {
       const hd = state.media[lang] && state.media[lang].heroDesign;
       const side = hd && hd[mode];
       const n =
@@ -264,9 +313,10 @@ export function heroImageSlots() {
       const v = getPath(state.media[slot.root], slot.path);
       return typeof v === 'string' ? v : '';
     };
-    slot.set = (v) => setPath(state.media[slot.root], slot.path, normSiteMediaUrl(v));
+    slot.set = (/** @type {unknown} */ v) =>
+      setPath(state.media[slot.root], slot.path, normSiteMediaUrl(v));
   }
-  return slots;
+  return /** @type {ImageSlot[]} */ (slots);
 }
 
 // Hero-Text-Slots (Tab „Hero-Design"): Text-Override-Pfad + Stil-Schlüssel.
@@ -284,11 +334,14 @@ export const UNIFORM_TEXT_KEYS = [
 ];
 // Alle Text-Slots mit einstellbarem Stil (Hero-Design-Tab + Texte-Tab).
 export const TEXT_STYLE_KEYS = [...HERO_TEXT_SLOTS.map((s) => s.key), ...UNIFORM_TEXT_KEYS];
-const textHex = (v) => (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? v : '');
+/** @type {(v: unknown) => string} */
+const textHex = (v) => (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? String(v) : '');
+/** @type {(v: unknown, min: number, max: number, def: number) => number} */
 const textNum = (v, min, max, def) => {
   const n = Number(v);
   return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : def;
 };
+/** @type {(v: unknown, min: number, max: number, def: number) => number} */
 const textHalf = (v, min, max, def) => {
   const n = Number(v);
   return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n * 2) / 2)) : def;
@@ -297,13 +350,14 @@ const textHalf = (v, min, max, def) => {
 export const TEXT_OFFSET_MAX = { x: 1200, y: 1200 };
 /**
  * @param {unknown} o
- * @returns {Record<string, import('../types.ts').TextStyleEntry>}
+ * @returns {Record<string, TextStyleEntry>}
  */
 export function normTextStyles(o) {
+  /** @type {Record<string, TextStyleEntry>} */
   const out = {};
   if (!o || typeof o !== 'object') return out;
   for (const k of TEXT_STYLE_KEYS) {
-    const s = o[k];
+    const s = /** @type {any} */ (o)[k];
     if (!s || typeof s !== 'object') continue;
     const px = textNum(s.size, 0, 120, 0);
     const font = normFontFile(s.font);
@@ -322,6 +376,7 @@ export function normTextStyles(o) {
     const offsetY = textNum(s.offsetY, -TEXT_OFFSET_MAX.y, TEXT_OFFSET_MAX.y, 0);
     const hasOff = offsetX !== 0 || offsetY !== 0;
     if (px > 0 || colorLight || colorDark || font || hasFx || hasOff) {
+      /** @type {TextStyleEntry} */
       const entry = { size: px, colorLight, colorDark, font };
       if (hasOff) {
         entry.offsetX = offsetX;
@@ -347,10 +402,16 @@ export function normTextStyles(o) {
 }
 // Style-Objekt eines Text-Slots (legt es bei Bedarf an). Farben getrennt nach
 // Hell/Dunkel; ein evtl. noch flaches color wird auf beide Modi migriert.
+/**
+ * @param {Lang} lang
+ * @param {string} key
+ * @returns {TextStyle}
+ */
 export function getTextStyle(lang, key) {
   const m = state.media[lang];
   if (!m.textStyles || typeof m.textStyles !== 'object') m.textStyles = {};
   if (!m.textStyles[key]) m.textStyles[key] = { size: 0, colorLight: '', colorDark: '', font: '' };
+  /** @type {TextStyleEntry & { color?: unknown }} */
   const s = m.textStyles[key];
   if (typeof s.font !== 'string') s.font = '';
   if (typeof s.color === 'string' && s.color) {
@@ -370,16 +431,22 @@ export function getTextStyle(lang, key) {
   if (typeof s.strokeColor !== 'string') s.strokeColor = '#000000';
   if (!Number.isFinite(s.strokeWidth)) s.strokeWidth = 0;
   if (!Number.isFinite(s.opacity)) s.opacity = 100;
-  if (!BANNER_ANIM_TYPES.includes(s.anim)) s.anim = 'none';
+  if (!BANNER_ANIM_TYPES.includes(/** @type {TextAnim} */ (s.anim))) s.anim = 'none';
   if (!Number.isFinite(s.animIntensity)) s.animIntensity = 5;
-  if (!BANNER_ANIM_SPEEDS.includes(s.animSpeed)) s.animSpeed = 'normal';
+  if (!BANNER_ANIM_SPEEDS.includes(/** @type {TextAnimSpeed} */ (s.animSpeed)))
+    s.animSpeed = 'normal';
   if (!Number.isFinite(s.offsetX)) s.offsetX = 0;
   if (!Number.isFinite(s.offsetY)) s.offsetY = 0;
-  return s;
+  return /** @type {TextStyle} */ (s);
 }
 // Effektiver Stil eines Text-Slots: bei aktivem „Standard für alle Slots"
 // gelten die Werte des gewählten Slots für alle Slots des Texte-Tabs (Größe,
 // Farbe, Schriftart, Effekte). Hero-Slots nutzen immer ihren eigenen Stil.
+/**
+ * @param {Lang} lang
+ * @param {string} key
+ * @returns {TextStyle}
+ */
 export function getEffectiveTextStyle(lang, key) {
   const m = state.media[lang];
   const own = getTextStyle(lang, key);
