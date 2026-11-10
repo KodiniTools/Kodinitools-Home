@@ -4,10 +4,15 @@
  * Skript nicht und der Vanilla-Admin läuft unverändert weiter.
  */
 import { createPinia } from 'pinia';
-import { mountIsland, type KodiniAdminVue } from './bridge';
+import type { Component } from 'vue';
+import { mountIsland, type KodiniAdminVue, type VueTabName } from './bridge';
 import { useToastStore } from './stores/toast';
 import ToastHost from './components/ToastHost.vue';
+import TickerTab from './tabs/ticker/TickerTab.vue';
 import './design-system/tokens-v2.css';
+
+/** Migrierte Tabs (Name → Komponente). */
+const TABS: Record<VueTabName, Component> = { ticker: TickerTab };
 
 export function startAdminVue(doc: Document = document): KodiniAdminVue {
   const pinia = createPinia();
@@ -21,6 +26,8 @@ export function startAdminVue(doc: Document = document): KodiniAdminVue {
     version: 1,
     toast: (message, options) => toasts.addToast(message, options),
     mountIsland: (el, component, props) => mountIsland(pinia, el, component, props),
+    tabs: Object.keys(TABS) as VueTabName[],
+    mountTab: (el, name, props) => mountIsland(pinia, el, TABS[name], props),
   };
   window.kodiniAdminVue = api;
   window.dispatchEvent(new CustomEvent('kodini-admin-vue-ready'));

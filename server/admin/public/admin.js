@@ -15,6 +15,7 @@ import { renderLayout } from './layout.js';
 import { renderMedia, renderFiles, loadServerFiles } from './media.js';
 import { renderIcons } from './icons.js';
 import { renderPublish, refreshPublishStatus, initSaveTracking } from './publish.js';
+import { unmountVueTab } from './islands.js';
 
 // --- Login ---
 $('#loginForm').addEventListener('submit', async (e) => {
@@ -56,6 +57,8 @@ function renderNav() {
 // Rendert den aktuellen Bereich in #content (Sprache = state.nav.section).
 export function renderMain() {
   const { section, sub } = state.nav;
+  // Eine gemountete Vue-Insel abhängen, bevor ein Tab #content neu befüllt.
+  unmountVueTab();
   // Tabs mit dreispaltigem Layout (Seitenleisten Hell/Dunkel) brauchen einen breiteren Rahmen.
   const wide =
     LANG_SECTIONS.includes(section) &&
@@ -141,6 +144,13 @@ async function boot() {
   // Änderungs-Schutz + Autosave starten (Basis-Snapshot = frisch geladener Stand).
   initSaveTracking();
 }
+
+// Vue-Teile laden parallel (./app/main.js). Kommen sie nach dem ersten
+// Rendern an, den aktiven Tab einmal neu rendern, damit migrierte Tabs ihre
+// Vue-Fassung zeigen.
+window.addEventListener('kodini-admin-vue-ready', () => {
+  if (!$('#appView').classList.contains('hidden')) renderMain();
+});
 
 // --- Start ---
 boot();

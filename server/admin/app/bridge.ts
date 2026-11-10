@@ -30,7 +30,14 @@ export interface KodiniAdminVue {
   version: 1;
   toast: (message: string, options?: import('./stores/toast').ToastOptions) => number;
   mountIsland: (el: Element, component: Component, props?: Record<string, unknown>) => IslandHandle;
+  /** Namen der Tabs, die bereits als Vue-Insel vorliegen. */
+  tabs: readonly VueTabName[];
+  /** Mountet einen migrierten Tab (z. B. `ticker`) in `el`. */
+  mountTab: (el: Element, name: VueTabName, props: Record<string, unknown>) => IslandHandle;
 }
+
+/** Tabs, die als Vue-Insel vorliegen (wächst mit jeder Migration). */
+export type VueTabName = 'ticker';
 
 declare global {
   interface Window {
