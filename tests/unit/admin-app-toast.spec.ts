@@ -74,7 +74,7 @@ describe('Brücke + ToastHost', () => {
 
     expect(document.querySelector('#toast')!.textContent).toBe('');
     const items = [...document.querySelectorAll('#kv-toast-root .kv-toast')];
-    expect(items.map((e) => e.textContent?.replace('×', '').trim())).toEqual([
+    expect(items.map((e) => e.querySelector('.ui-toast__message')?.textContent)).toEqual([
       'Hochgeladen',
       'Fehler beim Speichern',
     ]);
@@ -85,7 +85,7 @@ describe('Brücke + ToastHost', () => {
     await nextTick();
     // Der geschlossene Toast läuft noch aus (Leave-Transition), gezählt werden die übrigen.
     expect(
-      document.querySelectorAll('#kv-toast-root .kv-toast:not(.kv-toast-leave-active)'),
+      document.querySelectorAll('#kv-toast-root .kv-toast:not(.toast-leave-active)'),
     ).toHaveLength(1);
   });
 
