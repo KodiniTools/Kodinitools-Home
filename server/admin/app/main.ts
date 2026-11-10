@@ -11,10 +11,16 @@ import ToastHost from './components/ToastHost.vue';
 import TickerTab from './tabs/ticker/TickerTab.vue';
 import TextsTab from './tabs/texts/TextsTab.vue';
 import IconsTab from './tabs/icons/IconsTab.vue';
+import FilesTab from './tabs/files/FilesTab.vue';
 import './design-system/tokens-v2.css';
 
 /** Migrierte Tabs (Name → Komponente). */
-const TABS: Record<VueTabName, Component> = { ticker: TickerTab, texts: TextsTab, icons: IconsTab };
+const TABS: Record<VueTabName, Component> = {
+  ticker: TickerTab,
+  texts: TextsTab,
+  icons: IconsTab,
+  files: FilesTab,
+};
 
 export function startAdminVue(doc: Document = document): KodiniAdminVue {
   const pinia = createPinia();

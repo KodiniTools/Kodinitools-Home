@@ -7,6 +7,7 @@ import { bindSliders } from './slider.js';
 import { bindColorPickers } from './color.js';
 import { captureView, restoreView } from './viewstate.js';
 import { centerHtml, leftHtml, rightHtml, bindSectionMedia } from './sectionmedia.js';
+import { mountVueTab } from './islands.js';
 import {
   state,
   getMediaVal,
@@ -441,11 +442,96 @@ export function renderMedia() {
   restoreView(pane, view);
 }
 
+// ---- Datei-Aktionen (gemeinsam für Vanilla- und Vue-Fassung des Tabs) ----
+// Liefern { ok, error? } und aktualisieren state.serverFiles bzw.
+// state.stagedItems, rendern aber nichts neu.
+async function deleteServerFile(path) {
+  const r = await api('/uploads/delete', { method: 'POST', body: { path } });
+  if (!r.ok) return { ok: false, error: String(r.data?.error || r.status) };
+  await loadServerFiles();
+  return { ok: true };
+}
+async function moveServerFile(path, lang) {
+  const r = await api('/uploads/move', { method: 'POST', body: { path, lang } });
+  if (!r.ok) return { ok: false, error: String(r.data?.error || r.status) };
+  // Verweise in den Slots mitziehen (alte URL -> neue URL).
+  updateMediaUrlEverywhere('/uploads/' + path, r.data.url);
+  await loadServerFiles();
+  return { ok: true };
+}
+async function deleteStagedItem(id) {
+  await mediaDel(id);
+  state.stagedItems = await mediaAll();
+  return { ok: true };
+}
+// Dateien in den Zwischenspeicher legen; zu große werden übersprungen.
+async function stageFiles(fileList) {
+  const files = Array.from(fileList || []);
+  const tooBig = [];
+  let added = 0;
+  for (const f of files) {
+    if (f.size > 2048 * 1024 * 1024) {
+      tooBig.push(f.name);
+      continue;
+    }
+    await stageFile(f);
+    added++;
+  }
+  state.stagedItems = await mediaAll();
+  return { ok: true, added, tooBig };
+}
+
+// Ansichtsdaten des Tabs für die Vue-Fassung: Dateien mit ihren Plätzen
+// („wird verwendet in"), berechnet mit denselben Helfern wie die Vanilla-Fassung.
+function filesSnapshot(lang) {
+  const srv = (f) => ({
+    kind: 'server',
+    key: 'srv:' + f.path,
+    name: f.name,
+    src: f.url,
+    path: f.path,
+    bytes: f.bytes,
+    ext: fileExt(f.name),
+    isVid: /\.(mp4|webm|mov|ogg)$/i.test(f.name),
+    usage: usageDetailed(f.url, '/uploads/' + f.path),
+  });
+  return {
+    server: (state.serverFiles[lang] || []).map(srv),
+    shared: (state.serverFiles.shared || []).map(srv),
+    staged: state.stagedItems.map((item) => ({
+      kind: 'staged',
+      key: 'stg:' + item.id,
+      id: item.id,
+      name: item.name,
+      src: objUrl(item.id),
+      bytes: item.blob ? item.blob.size : null,
+      ext: fileExt(item.name),
+      isVid: /^video\//.test(item.type),
+      published: !!item.publishedUrl,
+      usage: usageDetailed('staged:' + item.id, item.publishedUrl),
+    })),
+  };
+}
+
 // Bereich „Dateien" EINER Sprache: Server-Dateien + Browser-Zwischenspeicher.
 export function renderFiles() {
   const lang = state.nav.section;
   const langLabel = lang === 'de' ? 'Deutsch' : 'English';
   const pane = $('#content');
+  // Vue-Fassung (app/tabs/files), sonst unten die Vanilla-Fassung.
+  if (
+    mountVueTab(pane, 'files', {
+      lang,
+      service: {
+        snapshot: () => filesSnapshot(lang),
+        deleteServer: deleteServerFile,
+        moveServer: moveServerFile,
+        deleteStaged: deleteStagedItem,
+        addFiles: stageFiles,
+      },
+    })
+  )
+    return;
   const view = captureView(pane); // Scroll über das Neu-Rendern (z. B. Modus-Wechsel) erhalten
   const tiles = state.stagedItems.length
     ? state.stagedItems.map(mediaTile).join('')
@@ -504,12 +590,11 @@ export function renderFiles() {
           `Trotzdem löschen? Die betroffenen Plätze zeigen dann kein Medium mehr.`
         : `Datei „${path}" vom Server löschen?`;
       if (!confirm(msg)) return;
-      const r = await api('/uploads/delete', { method: 'POST', body: { path } });
+      const r = await deleteServerFile(path);
       if (!r.ok) {
-        toast('Löschen fehlgeschlagen: ' + (r.data?.error || r.status));
+        toast('Löschen fehlgeschlagen: ' + r.error);
         return;
       }
-      await loadServerFiles();
       renderFiles();
       toast('Gelöscht – dauerhaft beim nächsten Veröffentlichen');
     }),
@@ -518,14 +603,11 @@ export function renderFiles() {
     el.addEventListener('click', async () => {
       const path = el.dataset.srvmove;
       const lang = el.dataset.tolang; // '' | 'de' | 'en'
-      const r = await api('/uploads/move', { method: 'POST', body: { path, lang } });
+      const r = await moveServerFile(path, lang);
       if (!r.ok) {
-        toast('Verschieben fehlgeschlagen: ' + (r.data?.error || r.status));
+        toast('Verschieben fehlgeschlagen: ' + r.error);
         return;
       }
-      // Verweise in den Slots mitziehen (alte URL -> neue URL).
-      updateMediaUrlEverywhere('/uploads/' + path, r.data.url);
-      await loadServerFiles();
       renderFiles();
       toast(`Verschoben nach „${LOC_LABEL[lang]}" – zum Übernehmen veröffentlichen`);
     }),
@@ -540,8 +622,7 @@ export function renderFiles() {
         )
       )
         return;
-      await mediaDel(el.dataset.mediadel);
-      state.stagedItems = await mediaAll();
+      await deleteStagedItem(el.dataset.mediadel);
       renderFiles();
     }),
   );
@@ -608,18 +689,11 @@ export async function stageFile(file, name) {
 }
 
 async function addFiles(fileList) {
-  const files = Array.from(fileList || []);
-  for (const f of files) {
-    const maxBytes = 2048 * 1024 * 1024;
-    if (f.size > maxBytes) {
-      toast(`${f.name} zu groß`);
-      continue;
-    }
-    await stageFile(f);
-  }
-  state.stagedItems = await mediaAll();
+  const n = (fileList || []).length;
+  const r = await stageFiles(fileList);
+  for (const name of r.tooBig) toast(`${name} zu groß`);
   renderFiles();
-  if (files.length) toast(`${files.length} Datei(en) im Zwischenspeicher`);
+  if (n) toast(`${n} Datei(en) im Zwischenspeicher`);
 }
 
 function pickFromLibrary(lang, key) {
