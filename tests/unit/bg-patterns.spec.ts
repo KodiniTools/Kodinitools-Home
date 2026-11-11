@@ -4,7 +4,7 @@
  * kennen dieselben Arten, und alles bleibt reines CSS (keine Bilder/url()).
  */
 import { describe, expect, it } from 'vitest';
-import { validateMedia } from '../../server/admin/content.mjs';
+import { validateMedia } from '../../server/admin/src/content.js';
 import {
   SITE_PATTERNS as ADMIN_PATTERNS,
   normSite,

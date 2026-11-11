@@ -104,6 +104,12 @@ npm run build   # -> dist/
 log "npm run build:admin ..."
 npm run build:admin || { err "Admin-UI-Build fehlgeschlagen – Deploy abgebrochen."; exit 1; }
 
+# Admin-Server (server/admin/src/*.ts -> server/admin/build). Der Dienst startet
+# neu, sobald sich sein Code geändert hat; ein Fehler bricht den Deploy ab, damit
+# kein Neustart in einen kaputten Stand läuft (der alte Build bleibt liegen).
+log "npm run build:server ..."
+npm run build:server || { err "Admin-Server-Build fehlgeschlagen – Deploy abgebrochen."; exit 1; }
+
 
 # --- 3. Spiegeln nach Webroot ---
 #

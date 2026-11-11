@@ -16,7 +16,7 @@ import {
   deleteCustomCard,
   isCardHidden,
 } from '../../server/admin/public/model.js';
-import { validateMedia } from '../../server/admin/content.mjs';
+import { validateMedia } from '../../server/admin/src/content.js';
 
 // Der Admin-Zustand ist untypisiertes JS (Typen aus den Startwerten {} / null);
 // für den Test als offene Struktur ansprechen.

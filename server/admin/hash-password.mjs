@@ -1,39 +1,9 @@
 #!/usr/bin/env node
-// @ts-check
 // Erzeugt einen scrypt-Passwort-Hash für ADMIN_PASSWORD_HASH.
-//
 //   node server/admin/hash-password.mjs 'MEIN-PASSWORT'
 //   node server/admin/hash-password.mjs        # fragt interaktiv (versteckt)
-//
-// Ausgabe in /opt/kodini/.env eintragen:
-//   ADMIN_PASSWORD_HASH=scrypt$....$....
+// Der Code liegt in src/hash-password.ts (siehe index.mjs zum Build).
+import { ensureServerBuild } from './build-server.mjs';
 
-import { hashPassword } from './auth.mjs';
-import { createInterface } from 'node:readline';
-
-async function fromStdin() {
-  // `_writeToOutput` ist eine interne readline-Methode (nicht in den Typen).
-  const rl =
-    /** @type {import('node:readline').Interface & { _writeToOutput?: (s: string) => void }} */ (
-      createInterface({ input: process.stdin, output: process.stdout, terminal: true })
-    );
-  // Eingabe verbergen
-  const orig = rl._writeToOutput?.bind(rl);
-  rl._writeToOutput = () => {};
-  return new Promise((res) => {
-    process.stdout.write('Passwort: ');
-    rl.question('', (answer) => {
-      rl._writeToOutput = orig;
-      process.stdout.write('\n');
-      rl.close();
-      res(answer);
-    });
-  });
-}
-
-const pw = process.argv[2] || (await fromStdin());
-if (!pw || pw.length < 8) {
-  console.error('Passwort muss mindestens 8 Zeichen haben.');
-  process.exit(1);
-}
-console.log(await hashPassword(pw));
+await ensureServerBuild();
+await import('./build/hash-password.js');

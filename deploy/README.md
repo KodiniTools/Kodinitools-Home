@@ -9,13 +9,13 @@ Voller Kontext: [`../docs/ADMIN_DEPLOY_PLAN.md`](../docs/ADMIN_DEPLOY_PLAN.md).
 
 ## Überblick
 
-| Komponente | Ort |
-|---|---|
-| Repo-Clone (Build-Quelle) | `/opt/kodini/repo` |
-| Webroot (nginx) | `/var/www/kodinitools.com` |
-| Upload-Medien | `/var/www/kodinitools.com/uploads/` |
-| Admin-Node-Dienst | `127.0.0.1:9020` (systemd `kodini-admin`) |
-| Secrets | `/opt/kodini/.env` (chmod 600, nicht im Git) |
+| Komponente                | Ort                                          |
+| ------------------------- | -------------------------------------------- |
+| Repo-Clone (Build-Quelle) | `/opt/kodini/repo`                           |
+| Webroot (nginx)           | `/var/www/kodinitools.com`                   |
+| Upload-Medien             | `/var/www/kodinitools.com/uploads/`          |
+| Admin-Node-Dienst         | `127.0.0.1:9020` (systemd `kodini-admin`)    |
+| Secrets                   | `/opt/kodini/.env` (chmod 600, nicht im Git) |
 
 ---
 
@@ -32,13 +32,14 @@ sudo bash /tmp/kodini-src/deploy/setup-server.sh
 ```
 
 Das Skript:
+
 1. erkennt den **Service-User** (Owner des Webroots),
 2. prüft **Voraussetzungen** (git, node ≥ 18, rsync, nginx, openssl),
 3. legt `/opt/kodini` + `uploads/` an,
 4. erzeugt den **SSH-Deploy-Key** und zeigt den Public-Key → du hinterlegst ihn
-   bei GitHub (Deploy key, *write*), dann bestätigst du im Skript,
+   bei GitHub (Deploy key, _write_), dann bestätigst du im Skript,
 5. **klont** das Repo nach `/opt/kodini/repo` und verankert den Key repo-lokal
-   (`core.sshCommand` → Dienst *und* manuelle Läufe nutzen ihn automatisch),
+   (`core.sshCommand` → Dienst _und_ manuelle Läufe nutzen ihn automatisch),
 6. schreibt `/opt/kodini/.env` (Session-Secret generiert; **Passwort** kannst du
    direkt setzen),
 7. installiert + startet den **systemd-Dienst** `kodini-admin`,
@@ -66,12 +67,14 @@ git clone https://github.com/KodiniTools/Kodinitools-Home.git /opt/kodini/repo
 ssh-keygen -t ed25519 -C "kodini-deploy" -f /opt/kodini/deploy_key -N ""
 cat /opt/kodini/deploy_key.pub
 ```
+
 Den ausgegebenen **Public Key** in GitHub hinterlegen:
 **Repo → Settings → Deploy keys → Add deploy key → „Allow write access" aktivieren.**
 
 Git so konfigurieren, dass dieser Key **repo-lokal** genutzt wird — dann greifen
 sowohl der Dienst (als Service-User) als auch manuelle Läufe automatisch darauf zu,
 ohne SSH-Config im Home-Verzeichnis:
+
 ```bash
 cd /opt/kodini/repo
 git remote set-url origin git@github.com:KodiniTools/Kodinitools-Home.git
@@ -96,12 +99,14 @@ sudo chown www-data:www-data /var/www/kodinitools.com/uploads
 cd /opt/kodini/repo
 ./deploy.sh --dry-run      # nur anzeigen
 ```
+
 Prüfen, dass in der Ausgabe **kein** Tool-Ordner (audiokonverter, visualizer,
 videokonverter, bildergalerie, kontaktformular, …) und **nicht** `uploads/`
 zum Löschen (`deleting`) markiert ist. Das Skript bricht zusätzlich automatisch
 ab, falls ein geschützter Pfad gelöscht würde.
 
 Wenn alles gut aussieht:
+
 ```bash
 ./deploy.sh                # echter Deploy
 ```
@@ -109,12 +114,14 @@ Wenn alles gut aussieht:
 ## 5. Admin-Dienst (Phase 3) — Secrets + systemd
 
 `.env` anlegen (Vorlage: [`.env.example`](.env.example)):
+
 ```bash
 sudo install -m 600 -o www-data -g www-data /dev/null /opt/kodini/.env
 sudo -e /opt/kodini/.env    # Werte eintragen (Passwort-Hash, Session-Secret …)
 ```
 
 systemd-Unit installieren:
+
 ```bash
 sudo cp /opt/kodini/repo/deploy/kodini-admin.service /etc/systemd/system/
 sudo systemctl daemon-reload
@@ -165,7 +172,7 @@ sudo chown -R www-data:www-data /var/www/kodinitools.com
 `deploy.sh` baut die Website neu und spiegelt `dist/` — es startet aber
 **nicht** den laufenden Admin-Node-Dienst neu. Das Frontend (`server/admin/public/`)
 wird bei jeder Anfrage frisch von der Platte geladen und ist sofort aktuell;
-der **Server-Code** (`server/admin/*.mjs`, z. B. neue API-Routen wie
+der **Server-Code** (`server/admin/src/*.ts`, übersetzt nach `server/admin/build/`; z. B. neue API-Routen wie
 `/api/preview`) wird jedoch nur beim Prozessstart geladen. Nach Änderungen am
 Backend daher einmalig:
 
@@ -173,9 +180,9 @@ Backend daher einmalig:
 sudo systemctl restart kodini-admin
 ```
 
-**Automatisch:** Seit `codeupdate.mjs` holt die **Vorschau** vor dem Build den
+**Automatisch:** Seit `codeupdate` (`server/admin/src/codeupdate.ts`) holt die **Vorschau** vor dem Build den
 aktuellen `main`-Stand (`git merge --ff-only origin/main`, bei geänderten
-Abhängigkeiten `npm ci`). Wurde dabei – oder durch `deploy.sh` beim
+Abhängigkeiten `npm ci`, bei geändertem Server-Code `npm run build:server`). Wurde dabei – oder durch `deploy.sh` beim
 Veröffentlichen – Server-Code geändert, beendet sich der Dienst nach Abschluss
 selbst; systemd (`Restart=on-failure`) startet ihn neu, der Adminbereich lädt
 sich danach automatisch neu. Voraussetzung: der Dienst läuft unter systemd

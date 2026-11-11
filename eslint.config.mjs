@@ -64,7 +64,12 @@ export default tseslint.config(
 
   // Node-Server (Admin-Dienst) + Build-Config — Node-Built-in-Globals bereitstellen
   {
-    files: ['server/**/*.mjs', 'astro.config.mjs', 'single-sitemap.mjs'],
+    files: [
+      'server/**/*.mjs',
+      'server/admin/src/**/*.ts',
+      'astro.config.mjs',
+      'single-sitemap.mjs',
+    ],
     languageOptions: {
       globals: { ...globals.node },
     },
@@ -82,6 +87,7 @@ export default tseslint.config(
     ignores: [
       'dist/**',
       'server/admin/dist/**',
+      'server/admin/build/**',
       '.astro/**',
       'node_modules/**',
       'public/fontawesome/**',

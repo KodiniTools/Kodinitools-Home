@@ -1,19 +1,14 @@
-// @ts-check
 // Lesen/Schreiben der admin-editierbaren Content-Dateien
 // (src/content/overrides.*.json + ticker.*.json). Mit Validierung.
 
 import { readFile, writeFile } from 'node:fs/promises';
-import { contentPaths } from './config.mjs';
+import { contentPaths } from './config.js';
 
 /** Eingabe aus JSON (unvalidiert) bzw. frei aufgebautes Ergebnis-Objekt. */
-/** @typedef {Record<string, any>} AnyObj */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- ungeprüftes JSON, wird hier validiert
+export type AnyObj = Record<string, any>;
 
-/**
- * @param {string} path
- * @param {any} fallback
- * @returns {Promise<any>}
- */
-async function readJsonFile(path, fallback) {
+async function readJsonFile(path: string, fallback: AnyObj): Promise<AnyObj> {
   try {
     return JSON.parse(await readFile(path, 'utf8'));
   } catch {
@@ -43,8 +38,8 @@ export async function loadContent() {
 }
 
 // Standard-Farben des Laufbands je Modus (entsprechen dem eingebauten Aussehen).
-/** @param {string} mode */
-function defaultTickerColors(mode) {
+
+function defaultTickerColors(mode: string) {
   return mode === 'dark'
     ? { textColor: '#e2e8f0', bgColor: '#111827', bgOpacity: 100 }
     : { textColor: '#ffffff', bgColor: '#014f99', bgOpacity: 100 };
@@ -64,10 +59,8 @@ function defaultTickerStyle() {
 
 /**
  * Buchstabenabstand: auf [-5, 20] px begrenzen, auf 0,5 gerundet.
- * @param {unknown} v
- * @param {number} def
  */
-function clampSpacing(v, def) {
+function clampSpacing(v: unknown, def: number) {
   const n = Number(v);
   if (!Number.isFinite(n)) return def;
   return Math.max(-5, Math.min(20, Math.round(n * 2) / 2));
@@ -75,9 +68,8 @@ function clampSpacing(v, def) {
 
 /**
  * Erlaubt einen einfachen Schrift-Dateinamen (kein Pfad) oder '' (Standard).
- * @param {unknown} v
  */
-function normFontFile(v) {
+function normFontFile(v: unknown) {
   if (typeof v !== 'string' || v === '') return '';
   return /^[a-zA-Z0-9][a-zA-Z0-9._ -]*\.(woff2|woff|ttf|otf)$/i.test(v.trim()) ? v.trim() : '';
 }
@@ -86,12 +78,7 @@ function defaultTicker() {
   return { enabled: false, speed: 'normal', items: [], style: defaultTickerStyle() };
 }
 
-/**
- * @param {unknown} v
- * @param {string} def
- * @returns {string}
- */
-function normHexColor(v, def) {
+function normHexColor(v: unknown, def: string): string {
   if (typeof v !== 'string') return def;
   const m = /^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.exec(v.trim());
   if (!m) return def;
@@ -104,26 +91,14 @@ function normHexColor(v, def) {
   return '#' + h.toLowerCase();
 }
 
-/**
- * @param {unknown} v
- * @param {number} min
- * @param {number} max
- * @param {number} def
- */
-function clampNum(v, min, max, def) {
+function clampNum(v: unknown, min: number, max: number, def: number) {
   const n = Number(v);
   if (!Number.isFinite(n)) return def;
   return Math.max(min, Math.min(max, Math.round(n)));
 }
 
 // Wie clampNum, aber auf 0,5er-Schritte gerundet (z. B. Umriss-/Konturdicke).
-/**
- * @param {unknown} v
- * @param {number} min
- * @param {number} max
- * @param {number} def
- */
-function clampHalf(v, min, max, def) {
+function clampHalf(v: unknown, min: number, max: number, def: number) {
   const n = Number(v);
   if (!Number.isFinite(n)) return def;
   return Math.max(min, Math.min(max, Math.round(n * 2) / 2));
@@ -133,14 +108,13 @@ function clampHalf(v, min, max, def) {
  * Validiert/normalisiert das Laufband-Design (fehlerhafte Werte -> Standard).
  * Migriert die alte flache Struktur (Farben oben, für beide Modi gleich) auf
  * getrennte Farb-Sätze light/dark — verhaltensneutral.
- * @param {unknown} s
  */
-export function validateTickerStyle(s) {
+export function validateTickerStyle(s: unknown) {
   const d = defaultTickerStyle();
   if (!isPlainObject(s)) return d;
   const hasSides = isPlainObject(s.light) || isPlainObject(s.dark);
   const flat = !hasSides && typeof s.textColor === 'string' ? s : null;
-  const colors = (/** @type {unknown} */ side, /** @type {AnyObj} */ def) => {
+  const colors = (side: unknown, def: AnyObj) => {
     const o = isPlainObject(side) ? side : flat || {};
     return {
       textColor: normHexColor(o.textColor, def.textColor),
@@ -222,17 +196,13 @@ function heroImageDefaults() {
   };
 }
 // Buchstaben-Konturbreite: [0, 5] px, auf 0,5 gerundet.
-/**
- * @param {unknown} v
- * @param {number} def
- */
-function clampStroke(v, def) {
+function clampStroke(v: unknown, def: number) {
   const n = Number(v);
   return Number.isFinite(n) ? Math.max(0, Math.min(5, Math.round(n * 2) / 2)) : def;
 }
 // Schriftgröße: 0 = Standard (CSS), sonst [8, 96] px (ganzzahlig).
-/** @param {unknown} v */
-function clampFont(v) {
+
+function clampFont(v: unknown) {
   const n = Number(v);
   if (!Number.isFinite(n) || n <= 0) return 0;
   return Math.max(8, Math.min(96, Math.round(n)));
@@ -272,10 +242,8 @@ function defaultHeroDesign() {
 
 /**
  * Validiert einen Farb-Satz (Hell oder Dunkel) gegen dessen Standard.
- * @param {unknown} s
- * @param {AnyObj} def
  */
-function validateHeroSide(s, def) {
+function validateHeroSide(s: unknown, def: AnyObj) {
   if (!isPlainObject(s)) return def;
   return {
     borderColor: normHexColor(s.borderColor, def.borderColor),
@@ -314,9 +282,8 @@ function validateHeroSide(s, def) {
 /**
  * Validiert/normalisiert das Hero-Design (getrennt Hell/Dunkel).
  * Migriert die alte flache Struktur (Farben auf oberster Ebene) -> beide Modi.
- * @param {unknown} hd
  */
-function validateHeroDesign(hd) {
+function validateHeroDesign(hd: unknown) {
   if (!isPlainObject(hd)) return defaultHeroDesign();
   const hasSides = isPlainObject(hd.light) || isPlainObject(hd.dark);
   const flat = !hasSides && typeof hd.borderColor === 'string' ? hd : null;
@@ -338,8 +305,7 @@ function validateHeroDesign(hd) {
     showSubtitle: hd.showSubtitle !== false,
     showChips: hd.showChips !== false,
     hiddenChips: (() => {
-      /** @type {string[]} */
-      const out = [];
+      const out: string[] = [];
       if (!Array.isArray(hd.hiddenChips)) return out;
       for (const k of hd.hiddenChips) {
         if (typeof k === 'string' && /^[a-zA-Z0-9_-]{1,40}$/.test(k) && !out.includes(k))
@@ -349,8 +315,7 @@ function validateHeroDesign(hd) {
       return out;
     })(),
     chipOffsets: (() => {
-      /** @type {AnyObj} */
-      const out = {};
+      const out: AnyObj = {};
       const v = hd.chipOffsets;
       if (!isPlainObject(v)) return out;
       for (const k of Object.keys(v)) {
@@ -434,10 +399,8 @@ const TOOL_CARD_BORDER_STYLES = ['solid', 'dashed', 'dotted', 'double'];
 const TOOL_CARDS_MAX = 200; // Sicherheitsgrenze für Einzel-Designs
 /**
  * Validiert einen Farb-Satz (Hell oder Dunkel) einer Tool-Karte.
- * @param {unknown} s
- * @param {AnyObj} def
  */
-function validateToolCardSide(s, def) {
+function validateToolCardSide(s: unknown, def: AnyObj) {
   if (!isPlainObject(s)) return def;
   return {
     borderColor: normHexColor(s.borderColor, def.borderColor),
@@ -488,12 +451,13 @@ function defaultToolCardText() {
     align: '',
   };
 }
-/** @param {unknown} t */
-function validateToolCardText(t) {
+
+function validateToolCardText(t: unknown) {
   if (!isPlainObject(t)) return defaultToolCardText();
-  const weight = (/** @type {unknown} */ v) =>
+  const weight = (v: unknown) =>
     TOOL_CARD_WEIGHTS.includes(String(v ?? '')) ? String(v ?? '') : '';
-  const transform = (/** @type {any} */ v) => (TOOL_CARD_TRANSFORMS.includes(v) ? v : '');
+  const transform = (v: unknown) =>
+    typeof v === 'string' && TOOL_CARD_TRANSFORMS.includes(v) ? v : '';
   return {
     titleFont: normFontFile(t.titleFont),
     titleSize: clampNum(t.titleSize, 0, 40, 0),
@@ -512,16 +476,15 @@ function validateToolCardText(t) {
 }
 // Sichtbarkeit der Karten-Elemente (false = ausgeblendet, Platz bleibt erhalten).
 const TOOL_CARD_SHOW_KEYS = ['icon', 'badge', 'title', 'fav', 'open', 'popup'];
-/** @param {unknown} s */
-function validateToolCardShow(s) {
+
+function validateToolCardShow(s: unknown) {
   const o = isPlainObject(s) ? s : {};
-  /** @type {AnyObj} */
-  const out = {};
+  const out: AnyObj = {};
   for (const k of TOOL_CARD_SHOW_KEYS) out[k] = o[k] !== false;
   return out;
 }
-/** @param {unknown} st */
-function validateToolCardStyle(st) {
+
+function validateToolCardStyle(st: unknown) {
   const o = isPlainObject(st) ? st : {};
   return {
     light: validateToolCardSide(o.light, toolCardSideLight()),
@@ -533,12 +496,10 @@ function validateToolCardStyle(st) {
 /**
  * Validiert das Tool-Karten-Design: Standard (alle Karten) + Einzel-Designs
  * (nur bekannte Schlüssel-Form "section.key", begrenzte Anzahl).
- * @param {unknown} tc
  */
-function validateToolCards(tc) {
+function validateToolCards(tc: unknown) {
   if (!isPlainObject(tc)) return defaultToolCards();
-  /** @type {AnyObj} */
-  const cards = {};
+  const cards: AnyObj = {};
   if (isPlainObject(tc.cards)) {
     let n = 0;
     for (const [key, val] of Object.entries(tc.cards)) {
@@ -590,16 +551,13 @@ function defaultMediaLocale() {
 const ICON_TINT_FIELDS = ['light', 'dark', 'bg', 'bgDark'];
 /**
  * Icon-Färbung je Tool-Karte: nur gültige Karten-Schlüssel und Hex-Farben; leere Einträge entfallen.
- * @param {unknown} v
  */
-function validateIconTint(v) {
-  /** @type {AnyObj} */
-  const out = {};
+function validateIconTint(v: unknown) {
+  const out: AnyObj = {};
   if (!isPlainObject(v)) return out;
   for (const [key, t] of Object.entries(v)) {
     if (!TOOL_CARD_KEY.test(key) || !isPlainObject(t)) continue;
-    /** @type {AnyObj} */
-    const e = {};
+    const e: AnyObj = {};
     let any = false;
     for (const f of ICON_TINT_FIELDS) {
       e[f] = normHexColor(t[f], '');
@@ -622,11 +580,9 @@ const TEXT_STYLE_KEYS = [...HERO_TEXT_KEYS, ...UNIFORM_TEXT_KEYS];
 /**
  * Validiert die Text-Stile: nur bekannte Schlüssel, Größe 0–120, Hex-Farben.
  * Farbe getrennt nach Hell/Dunkel; ein altes einzelnes color wird migriert.
- * @param {unknown} o
  */
-function validateTextStyles(o) {
-  /** @type {AnyObj} */
-  const out = {};
+function validateTextStyles(o: unknown) {
+  const out: AnyObj = {};
   if (!isPlainObject(o)) return out;
   for (const k of TEXT_STYLE_KEYS) {
     const s = o[k];
@@ -647,8 +603,7 @@ function validateTextStyles(o) {
     const offsetY = clampNum(s.offsetY, -1200, 1200, 0);
     const hasOff = offsetX !== 0 || offsetY !== 0;
     if (size > 0 || colorLight || colorDark || font || hasFx || hasOff) {
-      /** @type {AnyObj} */
-      const entry = { size, colorLight, colorDark, font };
+      const entry: AnyObj = { size, colorLight, colorDark, font };
       if (hasOff) {
         entry.offsetX = offsetX;
         entry.offsetY = offsetY;
@@ -700,21 +655,16 @@ function defaultCellStyle() {
   };
 }
 const TEXT_POS = ['top', 'center', 'bottom'];
-/** @param {any} v */
-function normTextPos(v) {
-  return TEXT_POS.includes(v) ? v : 'center';
+
+function normTextPos(v: unknown) {
+  return typeof v === 'string' && TEXT_POS.includes(v) ? v : 'center';
 }
 // Freie Position (0–100 %). Fehlt sie, aus altem top/center/bottom ableiten.
-/**
- * @param {unknown} v
- * @param {any} legacyPos
- * @param {number} axisDefault
- */
-function normPosPct(v, legacyPos, axisDefault) {
+function normPosPct(v: unknown, legacyPos: unknown, axisDefault: number) {
   const n = Number(v);
   if (Number.isFinite(n)) return Math.max(0, Math.min(100, Math.round(n)));
   return (
-    /** @type {Record<string, number>} */ ({ top: 10, center: 50, bottom: 90 })[legacyPos] ??
+    ({ top: 10, center: 50, bottom: 90 } as Record<string, number>)[String(legacyPos)] ??
     axisDefault
   );
 }
@@ -743,8 +693,8 @@ function defaultBannerStyle() {
 function defaultBannerStyles() {
   return { light: defaultBannerStyle(), dark: defaultBannerStyle() };
 }
-/** @param {unknown} s */
-function validateBannerSide(s) {
+
+function validateBannerSide(s: unknown) {
   const d = defaultBannerStyle();
   if (!isPlainObject(s)) return d;
   return {
@@ -773,15 +723,10 @@ function defaultBannerSlideshow() {
 function defaultGridSlideshow() {
   return { ...defaultBannerSlideshow(), stagger: true };
 }
-/**
- * @param {unknown} o
- * @param {boolean} [withStagger]
- */
-function validateBannerSlideshow(o, withStagger = false) {
+function validateBannerSlideshow(o: unknown, withStagger: boolean = false) {
   const d = withStagger ? defaultGridSlideshow() : defaultBannerSlideshow();
   if (!isPlainObject(o)) return d;
-  /** @type {AnyObj} */
-  const out = {
+  const out: AnyObj = {
     interval: clampNum(o.interval, 1, 30, d.interval),
     duration: clampNum(o.duration, 0, 5000, d.duration),
     transition: BANNER_TRANSITIONS.includes(o.transition) ? o.transition : d.transition,
@@ -830,13 +775,12 @@ function defaultSectionMedia() {
   };
 }
 function defaultSectionMediaAll() {
-  /** @type {AnyObj} */
-  const out = {};
+  const out: AnyObj = {};
   for (const k of SECTION_MEDIA_KEYS) out[k] = defaultSectionMedia();
   return out;
 }
-/** @param {unknown} o */
-function validateSectionMediaSide(o) {
+
+function validateSectionMediaSide(o: unknown) {
   const d = defaultSectionMediaSide();
   if (!isPlainObject(o)) return d;
   return {
@@ -848,8 +792,8 @@ function validateSectionMediaSide(o) {
     darken: clampNum(o.darken, 0, 100, d.darken),
   };
 }
-/** @param {unknown} o */
-function validateSectionMediaText(o) {
+
+function validateSectionMediaText(o: unknown) {
   const d = defaultSectionMediaText();
   if (!isPlainObject(o)) return d;
   return {
@@ -869,13 +813,8 @@ function validateSectionMediaText(o) {
     strokeWidth: clampHalf(o.strokeWidth, 0, 10, d.strokeWidth),
   };
 }
-/**
- * @param {unknown} o
- * @param {string} langLabel
- */
-function validateSectionMediaAll(o, langLabel) {
-  /** @type {AnyObj} */
-  const out = {};
+function validateSectionMediaAll(o: unknown, langLabel: string) {
+  const out: AnyObj = {};
   for (const k of SECTION_MEDIA_KEYS) {
     const v = isPlainObject(o) && isPlainObject(o[k]) ? o[k] : {};
     const st = isPlainObject(v.style) ? v.style : {};
@@ -892,13 +831,8 @@ function validateSectionMediaAll(o, langLabel) {
   return out;
 }
 // Weitere Bilder einer Diashow: '' übersprungen, sonst gültige URL; begrenzt.
-/**
- * @param {unknown} arr
- * @param {string} label
- */
-function validateSlideList(arr, label) {
-  /** @type {string[]} */
-  const out = [];
+function validateSlideList(arr: unknown, label: string) {
+  const out: string[] = [];
   if (!Array.isArray(arr)) return out;
   for (const v of arr) {
     if (v == null || v === '') continue;
@@ -908,15 +842,15 @@ function validateSlideList(arr, label) {
   }
   return out;
 }
-/** @param {unknown} s */
-function validateBannerStyle(s) {
+
+function validateBannerStyle(s: unknown) {
   if (!isPlainObject(s)) return defaultBannerStyles();
   const flat = !isPlainObject(s.light) && !isPlainObject(s.dark);
   if (flat) return { light: validateBannerSide(s), dark: validateBannerSide(s) };
   return { light: validateBannerSide(s.light), dark: validateBannerSide(s.dark) };
 }
-/** @param {unknown} s */
-function validateCellStyle(s) {
+
+function validateCellStyle(s: unknown) {
   const d = defaultCellStyle();
   if (!isPlainObject(s)) return d;
   return {
@@ -941,11 +875,10 @@ function validateCellStyle(s) {
 /** Globale (sprachübergreifende) Seiten-Einstellungen (Standard). */
 // Ausgeblendete Tool-Karten: nur gültige Schlüssel, ohne Doppelte, begrenzt.
 const HIDDEN_CARDS_MAX = 200;
-/** @param {unknown} v */
-function validateHiddenCards(v) {
+
+function validateHiddenCards(v: unknown) {
   if (!Array.isArray(v)) return [];
-  /** @type {string[]} */
-  const out = [];
+  const out: string[] = [];
   for (const k of v) {
     if (typeof k === 'string' && TOOL_CARD_KEY.test(k) && !out.includes(k)) out.push(k);
     if (out.length >= HIDDEN_CARDS_MAX) break;
@@ -1025,16 +958,14 @@ function defaultSectionSide() {
   return { color: '', opacity: 8, image: '', imageDarken: 0, imageBlur: 0, imageOpacity: 100 };
 }
 function defaultSections() {
-  /** @type {AnyObj} */
-  const o = { style: 'band', gap: 0 };
+  const o: AnyObj = { style: 'band', gap: 0 };
   for (const k of SECTION_KEYS) o[k] = { light: defaultSectionSide(), dark: defaultSectionSide() };
   return o;
 }
 /**
  * Validiert die Sektions-Einstellungen (Tönung/Bild je Sektion und Modus).
- * @param {unknown} v
  */
-function validateSections(v) {
+function validateSections(v: unknown) {
   const out = defaultSections();
   if (!isPlainObject(v)) return out;
   out.style = v.style === 'card' ? 'card' : 'band';
@@ -1072,11 +1003,11 @@ const MEDIA_POS_MOBILE = ['top', 'bottom', 'off'];
 const SITE_IMAGE_URL = /^(\/[^\s"'()\\]*|https?:\/\/[^\s"'()\\]+)$/;
 /**
  * Validiert die globalen Seiten-Einstellungen.
- * @param {unknown} s
  */
-function validateSite(s) {
+function validateSite(s: unknown) {
   if (!isPlainObject(s)) return defaultSite();
-  const gtype = (/** @type {any} */ v) => (SITE_GRADIENT_TYPES.includes(v) ? v : 'linear');
+  const gtype = (v: unknown) =>
+    typeof v === 'string' && SITE_GRADIENT_TYPES.includes(v) ? v : 'linear';
   return {
     hiddenCards: validateHiddenCards(s.hiddenCards),
     globalFont: normFontFile(s.globalFont),
@@ -1137,19 +1068,14 @@ function defaultMedia() {
   return { site: defaultSite(), de: defaultMediaLocale(), en: defaultMediaLocale() };
 }
 
-/**
- * @param {unknown} v
- * @returns {v is AnyObj}
- */
-function isPlainObject(v) {
+function isPlainObject(v: unknown): v is AnyObj {
   return typeof v === 'object' && v !== null && !Array.isArray(v);
 }
 
 /**
  * Validiert eine Ticker-Konfiguration und normalisiert sie.
- * @param {unknown} t
  */
-export function validateTicker(t) {
+export function validateTicker(t: unknown) {
   if (!isPlainObject(t)) throw new Error('ticker muss ein Objekt sein');
   const speed = ['slow', 'normal', 'fast'].includes(t.speed) ? t.speed : 'normal';
   if (!Array.isArray(t.items)) throw new Error('ticker.items muss ein Array sein');
@@ -1160,8 +1086,10 @@ export function validateTicker(t) {
     // Keine Wort-/Längenbegrenzung mehr für den Laufband-Text – nur eine großzügige
     // Sicherheitsgrenze gegen versehentlich riesige Eingaben (mehrzeilig erlaubt).
     if (it.text.length > 10000) throw new Error(`ticker.items[${i}].text zu lang`);
-    /** @type {{ id: string; text: string; link?: string }} */
-    const out = { id: String(it.id ?? i + 1), text: it.text };
+    const out: { id: string; text: string; link?: string } = {
+      id: String(it.id ?? i + 1),
+      text: it.text,
+    };
     if (it.link != null) {
       if (typeof it.link !== 'string') throw new Error(`ticker.items[${i}].link ungültig`);
       // Nur interne Pfade oder http(s)-URLs erlauben
@@ -1176,9 +1104,8 @@ export function validateTicker(t) {
 
 /**
  * Validiert Overrides (nur Plain-Object, begrenzte Tiefe/Größe).
- * @param {unknown} o
  */
-export function validateOverrides(o) {
+export function validateOverrides(o: unknown) {
   if (!isPlainObject(o)) throw new Error('overrides muss ein Objekt sein');
   const json = JSON.stringify(o);
   if (json.length > 2 * 1024 * 1024) throw new Error('overrides zu groß');
@@ -1187,26 +1114,20 @@ export function validateOverrides(o) {
 
 /**
  * Erlaubt interne Pfade oder http(s)-URLs.
- * @param {unknown} v
- * @returns {v is string}
  */
-function isValidMediaUrl(v) {
+function isValidMediaUrl(v: unknown): v is string {
   return typeof v === 'string' && /^(\/[^\s]*|https?:\/\/[^\s]+)$/.test(v);
 }
 
 /**
  * Validiert die Medien EINER Sprache; fehlende Werte fallen auf Standard zurück.
- * @param {unknown} m
- * @param {string} langLabel
- * @returns {AnyObj}
  */
-function validateMediaLocale(m, langLabel) {
+function validateMediaLocale(m: unknown, langLabel: string): AnyObj {
   const def = defaultMediaLocale();
   if (!isPlainObject(m)) return def;
   const sv = isPlainObject(m.sectionVideos) ? m.sectionVideos : {};
-  /** @type {AnyObj} */
-  const out = { sectionVideos: {} };
-  for (const key of /** @type {const} */ (['audio', 'image', 'diverse'])) {
+  const out: AnyObj = { sectionVideos: {} };
+  for (const key of ['audio', 'image', 'diverse'] as const) {
     const val = sv[key];
     if (val == null || val === '') {
       out.sectionVideos[key] = def.sectionVideos[key];
@@ -1230,8 +1151,7 @@ function validateMediaLocale(m, langLabel) {
   out.heroMediaOffsetY = clampNum(m.heroMediaOffsetY, -1200, 1200, 0);
   // Verschiebung je Tool-Karte ('sektion.key' -> { x, y }), nur ≠ 0/0, max. 60.
   out.toolCardOffsets = (() => {
-    /** @type {AnyObj} */
-    const res = {};
+    const res: AnyObj = {};
     const v = m.toolCardOffsets;
     if (!isPlainObject(v)) return res;
     for (const k of Object.keys(v)) {
@@ -1365,9 +1285,8 @@ function validateMediaLocale(m, langLabel) {
  * Validiert die Medien-Konfiguration und normalisiert auf { de, en }.
  * Akzeptiert die alte, sprachunabhängige Struktur ({ sectionVideos, heroBanner })
  * und wendet sie auf beide Sprachen an.
- * @param {unknown} m
  */
-export function validateMedia(m) {
+export function validateMedia(m: unknown) {
   if (!isPlainObject(m)) throw new Error('media muss ein Objekt sein');
   // Alte, flache Struktur -> auf beide Sprachen anwenden.
   if (isPlainObject(m.sectionVideos)) {
@@ -1381,15 +1300,14 @@ export function validateMedia(m) {
   };
 }
 
-const pretty = (/** @type {unknown} */ obj) => JSON.stringify(obj, null, 2) + '\n';
+const pretty = (obj: unknown) => JSON.stringify(obj, null, 2) + '\n';
 
 /**
  * Speichert einen kompletten Content-Stand (Draft im Arbeitsverzeichnis;
  * noch NICHT committet — das macht publish()).
  * payload: { overrides:{de,en}, ticker:{de,en}, media }
- * @param {unknown} payload
  */
-export async function saveContent(payload) {
+export async function saveContent(payload: unknown) {
   if (!isPlainObject(payload)) throw new Error('ungültiger Payload');
   const overrides = payload.overrides || {};
   const ticker = payload.ticker || {};

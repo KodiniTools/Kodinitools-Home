@@ -16,6 +16,7 @@
     "test:smoke": "astro build && vitest run tests/smoke",
     "typecheck": "astro check && vue-tsc --noEmit -p tsconfig.vue.json && vue-tsc --noEmit -p tsconfig.admin.json && tsc --noEmit -p tsconfig.server.json",
     "tokens": "node scripts/build-tokens.mjs",
+    "build:server": "node server/admin/build-server.mjs",
     "build:admin": "vite build --config vite.admin.config.ts"
   },
   "dependencies": {
@@ -33,6 +34,7 @@
     "@typescript-eslint/parser": "^8.61.0",
     "@vitejs/plugin-vue": "5.2.4",
     "@vue/test-utils": "2.4.6",
+    "esbuild": "0.25.12",
     "eslint": "^10.4.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-astro": "^1.7.0",

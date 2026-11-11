@@ -1,0 +1,3 @@
+# GitHub-Sprachstatistik (linguist): Fremdcode nicht mitzählen.
+# Font Awesome wird unverändert ausgeliefert (auch von den Tool-Apps genutzt).
+public/fontawesome/** linguist-vendored

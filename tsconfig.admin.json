@@ -15,5 +15,5 @@
     "tests/unit/admin-ui/**/*.vue",
     "vite.admin.config.ts"
   ],
-  "exclude": ["server/admin/dist"]
+  "exclude": ["server/admin/dist", "server/admin/src"]
 }

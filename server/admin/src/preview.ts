@@ -1,4 +1,3 @@
-// @ts-check
 // Vorschau-Build: baut den AKTUELLEN Arbeitsstand (die per saveContent
 // geschriebenen Entwürfe) in ein separates Verzeichnis dist-preview/ mit
 // base '/admin/preview/'. Es wird NICHTS committet, gepusht oder deployt.
@@ -8,24 +7,23 @@
 import { execFile } from 'node:child_process';
 import { mkdir } from 'node:fs/promises';
 import { resolve, dirname } from 'node:path';
-import { config } from './config.mjs';
-import { runStreaming } from './util.mjs';
+import { config } from './config.js';
+import { runStreaming, asErr } from './util.js';
 import {
   updateCodeFromRemote,
   restartIfServerCodeChanged,
   persistState,
   restoreState,
-} from './codeupdate.mjs';
+} from './codeupdate.js';
 
-/** @import { JobState, CodeUpdateResult } from './codeupdate.mjs' */
-/** @typedef {JobState & { codeUpdate: CodeUpdateResult | null }} PreviewState */
+import type { RunFn, JobState, CodeUpdateResult } from './codeupdate.js';
+export type PreviewState = JobState & { codeUpdate: CodeUpdateResult | null };
 
 // Öffentlicher Pfad der Vorschau (hinter nginx) und lokales Ausgabeverzeichnis.
 export const PREVIEW_BASE = '/admin/preview/';
 export const PREVIEW_DIR = resolve(config.repoDir, 'dist-preview');
 
-/** @returns {PreviewState} */
-function initialState() {
+function initialState(): PreviewState {
   return {
     status: 'idle', // idle | running | success | error
     step: '',
@@ -45,8 +43,7 @@ export function getPreviewState() {
   return state;
 }
 
-/** @type {import('./codeupdate.mjs').RunFn} */
-function run(cmd, args, opts = {}) {
+const run: RunFn = (cmd, args, opts = {}) => {
   return new Promise((resolvePromise, reject) => {
     execFile(
       cmd,
@@ -59,10 +56,9 @@ function run(cmd, args, opts = {}) {
       },
     );
   });
-}
+};
 
-/** @param {string} line */
-function log(line) {
+function log(line: string) {
   state.log.push(`[${new Date().toISOString()}] ${line}`);
   if (state.log.length > 500) state.log.shift();
 }
@@ -74,7 +70,8 @@ export function startPreview() {
   }
   state = { ...initialState(), status: 'running', step: 'start', startedAt: Date.now() };
   doPreview()
-    .catch((/** @type {any} */ err) => {
+    .catch((errRaw) => {
+      const err = asErr(errRaw);
       state.status = 'error';
       state.error = err?.message || String(err);
       if (err?.output) log(err.output);

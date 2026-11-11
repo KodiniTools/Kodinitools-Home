@@ -1,4 +1,3 @@
-// @ts-check
 // Datei-Uploads. Der Admin-Client sendet die Datei als Raw-Body mit dem
 // Header X-Filename (kein Multipart-Parsing nötig). Ziel: uploadsDir auf dem
 // Server (außerhalb Git). Rückgabe: öffentlicher Pfad /uploads/<datei>.
@@ -15,12 +14,11 @@ import {
 } from 'node:fs/promises';
 import { resolve, extname, basename, dirname } from 'node:path';
 import { randomBytes } from 'node:crypto';
-import { config } from './config.mjs';
+import { config } from './config.js';
+import { asErr } from './util.js';
 
-/**
- * Eintrag der Server-Dateiliste (entspricht `ServerFile` im Admin-Frontend).
- * @typedef {{ name: string; path: string; url: string; bytes: number; mtime: number }} UploadEntry
- */
+/** Eintrag der Server-Dateiliste (entspricht `ServerFile` im Admin-Frontend). */
+export type UploadEntry = { name: string; path: string; url: string; bytes: number; mtime: number };
 
 // Uploads bis zu dieser Größe werden zusätzlich ins Repo (public/uploads)
 // kopiert und per Git dauerhaft gesichert. Größere Dateien (Videos) bleiben nur
@@ -45,21 +43,15 @@ const ALLOWED = new Set([
 
 /**
  * Macht einen Dateinamen sicher (keine Pfade, nur erlaubte Zeichen).
- * @param {unknown} name
  */
-function safeName(name) {
+function safeName(name: unknown) {
   const base = basename(String(name || '')).replace(/[^a-zA-Z0-9._-]/g, '-');
   const ext = extname(base).toLowerCase();
   const stem = base.slice(0, base.length - ext.length).slice(0, 60) || 'datei';
   return { stem, ext };
 }
 
-/**
- * @param {string} dir
- * @param {string} stem
- * @param {string} ext
- */
-async function uniquePath(dir, stem, ext) {
+async function uniquePath(dir: string, stem: string, ext: string) {
   // Kurzes Zufalls-Suffix gegen Kollisionen/Überschreiben.
   for (let i = 0; i < 5; i++) {
     const suffix = randomBytes(4).toString('hex');
@@ -77,22 +69,23 @@ async function uniquePath(dir, stem, ext) {
 
 /**
  * Sprach-Unterordner: 'de'/'en' -> getrennte Galerie; sonst '' (gemeinsam).
- * @param {unknown} lang
- * @returns {'de' | 'en' | ''}
  */
-function langSub(lang) {
+function langSub(lang: unknown): 'de' | 'en' | '' {
   return lang === 'de' || lang === 'en' ? lang : '';
 }
 
 /**
  * Speichert einen Upload — pro Sprache in einen eigenen Unterordner
  * (/uploads/de, /uploads/en), damit DE- und EN-Medien getrennt bleiben.
- * @param {Buffer} buf  Dateiinhalt
- * @param {unknown} filename  gewünschter Name (aus X-Filename)
- * @param {unknown} lang  'de' | 'en' | '' (gemeinsam)
- * @returns {Promise<{ url: string, filename: string, bytes: number, lang: string }>}
+ * @param buf  Dateiinhalt
+ * @param filename  gewünschter Name (aus X-Filename)
+ * @param lang  'de' | 'en' | '' (gemeinsam)
  */
-export async function saveUpload(buf, filename, lang) {
+export async function saveUpload(
+  buf: Buffer,
+  filename: unknown,
+  lang: unknown,
+): Promise<{ url: string; filename: string; bytes: number; lang: string }> {
   const { stem, ext } = safeName(filename);
   if (!ALLOWED.has(ext)) {
     throw Object.assign(new Error(`Dateityp ${ext || '(keiner)'} nicht erlaubt`), {
@@ -133,10 +126,8 @@ export async function saveUpload(buf, filename, lang) {
 
 /**
  * Prüft, dass ein Name ein einfacher Dateiname ist (kein Pfad/Traversal).
- * @param {unknown} name
- * @returns {name is string}
  */
-function isPlainName(name) {
+function isPlainName(name: unknown): name is string {
   return (
     typeof name === 'string' &&
     name.length > 0 &&
@@ -149,10 +140,8 @@ function isPlainName(name) {
 
 /**
  * Dateien EINES Unterordners auflisten (sub='' = Wurzel = gemeinsam).
- * @param {'de' | 'en' | ''} sub
- * @returns {Promise<UploadEntry[]>}
  */
-async function listDir(sub) {
+async function listDir(sub: 'de' | 'en' | ''): Promise<UploadEntry[]> {
   const rel = sub ? `${sub}/` : '';
   let names;
   try {
@@ -160,8 +149,7 @@ async function listDir(sub) {
   } catch {
     return [];
   }
-  /** @type {UploadEntry[]} */
-  const out = [];
+  const out: UploadEntry[] = [];
   for (const name of names) {
     if (!isPlainName(name)) continue; // .gitkeep, Unterordner & Verstecktes überspringen
     let s;
@@ -195,10 +183,8 @@ export async function listUploads() {
 
 /**
  * Erlaubt "de/datei", "en/datei" oder "datei" (kein Traversal).
- * @param {unknown} p
- * @returns {p is string}
  */
-function isValidUploadPath(p) {
+function isValidUploadPath(p: unknown): p is string {
   return typeof p === 'string' && /^((de|en)\/)?[a-zA-Z0-9][a-zA-Z0-9._-]*$/.test(p);
 }
 
@@ -207,9 +193,8 @@ function isValidUploadPath(p) {
  * UND aus public/uploads (Repo). Die Repo-Löschung wird beim nächsten
  * Veröffentlichen mit committet (git add -A public/uploads), sodass die Datei
  * nicht beim nächsten Deploy zurückkehrt.
- * @param {unknown} relPath
  */
-export async function deleteUpload(relPath) {
+export async function deleteUpload(relPath: unknown) {
   if (!isValidUploadPath(relPath)) {
     throw Object.assign(new Error('Ungültiger Pfad'), { statusCode: 400 });
   }
@@ -217,8 +202,7 @@ export async function deleteUpload(relPath) {
     resolve(config.uploadsDir, relPath),
     resolve(config.repoDir, 'public/uploads', relPath),
   ];
-  /** @type {string[]} */
-  const removed = [];
+  const removed: string[] = [];
   for (const t of targets) {
     try {
       await unlink(t);
@@ -236,10 +220,10 @@ export async function deleteUpload(relPath) {
 /**
  * Verschiebt eine Upload-Datei in einen anderen Sprachordner (bzw. in den
  * gemeinsamen Ordner). Benennt sie im Webroot UND in public/uploads um.
- * @param {unknown} fromPath  relativer Pfad, z.B. "banner.jpg" oder "de/x.jpg"
- * @param {unknown} toLang    'de' | 'en' | '' (gemeinsam)
+ * @param fromPath  relativer Pfad, z.B. "banner.jpg" oder "de/x.jpg"
+ * @param toLang    'de' | 'en' | '' (gemeinsam)
  */
-export async function moveUpload(fromPath, toLang) {
+export async function moveUpload(fromPath: unknown, toLang: unknown) {
   if (!isValidUploadPath(fromPath)) {
     throw Object.assign(new Error('Ungültiger Quellpfad'), { statusCode: 400 });
   }
@@ -260,7 +244,8 @@ export async function moveUpload(fromPath, toLang) {
   try {
     await stat(dstWeb);
     throw Object.assign(new Error('Zielname existiert bereits'), { statusCode: 409 });
-  } catch (/** @type {any} */ e) {
+  } catch (eRaw) {
+    const e = asErr(eRaw);
     if (e?.statusCode === 409) throw e; // Ziel existiert -> abbrechen
     /* sonst: Ziel frei -> weiter */
   }

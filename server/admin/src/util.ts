@@ -1,33 +1,35 @@
-// @ts-check
 // Kleine HTTP-/Prozess-Helfer (ohne externe Deps).
 
 import { spawn } from 'node:child_process';
 
-/** @import { IncomingMessage, ServerResponse, OutgoingHttpHeaders } from 'node:http' */
-/**
- * Optionen für {@link runStreaming}.
- * @typedef {{
- *   cwd?: string;
- *   env?: NodeJS.ProcessEnv;
- *   timeoutMs?: number;
- *   onLine?: (line: string) => void;
- * }} RunOptions
- */
+import type { IncomingMessage, ServerResponse, OutgoingHttpHeaders } from 'node:http';
+/** Optionen für {@link runStreaming}. */
+export type RunOptions = {
+  cwd?: string;
+  env?: NodeJS.ProcessEnv;
+  timeoutMs?: number;
+  onLine?: (line: string) => void;
+};
 /** Fehler mit HTTP-Status (z. B. 413 bei zu großem Body). */
-/** @typedef {Error & { statusCode?: number }} HttpError */
+export type HttpError = Error & { statusCode?: number };
+/** Felder, die geworfene Werte hier tragen können (Error, execFile-Fehler, HttpError). */
+export type ErrLike = { message?: string; statusCode?: number; output?: string; cause?: unknown };
+/**
+ * Geworfenen Wert als {@link ErrLike} lesen – reine Typ-Sicht, der Wert selbst
+ * bleibt unverändert (fehlende Felder sind `undefined`).
+ */
+export function asErr(err: unknown): ErrLike {
+  return err as ErrLike;
+}
 
 /**
  * Liest den kompletten Request-Body als Buffer, mit Größenlimit.
- * @param {IncomingMessage} req
- * @param {number} maxBytes
- * @returns {Promise<Buffer>}
  */
-export function readBody(req, maxBytes) {
+export function readBody(req: IncomingMessage, maxBytes: number): Promise<Buffer> {
   return new Promise((resolve, reject) => {
-    /** @type {Buffer[]} */
-    const chunks = [];
+    const chunks: Buffer[] = [];
     let size = 0;
-    req.on('data', (/** @type {Buffer} */ c) => {
+    req.on('data', (c: Buffer) => {
       size += c.length;
       if (size > maxBytes) {
         reject(Object.assign(new Error('Payload too large'), { statusCode: 413 }));
@@ -43,23 +45,23 @@ export function readBody(req, maxBytes) {
 
 /**
  * Liest den Body und parst ihn als JSON.
- * @param {IncomingMessage} req
- * @param {number} [maxBytes]
- * @returns {Promise<any>}
  */
-export async function readJson(req, maxBytes = 5 * 1024 * 1024) {
+export async function readJson(
+  req: IncomingMessage,
+  maxBytes: number = 5 * 1024 * 1024,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- beliebiges JSON, Aufrufer validieren
+): Promise<any> {
   const buf = await readBody(req, maxBytes);
   if (buf.length === 0) return {};
   return JSON.parse(buf.toString('utf8'));
 }
 
-/**
- * @param {ServerResponse} res
- * @param {number} status
- * @param {unknown} obj
- * @param {OutgoingHttpHeaders} [extraHeaders]
- */
-export function sendJson(res, status, obj, extraHeaders = {}) {
+export function sendJson(
+  res: ServerResponse,
+  status: number,
+  obj: unknown,
+  extraHeaders: OutgoingHttpHeaders = {},
+) {
   const body = JSON.stringify(obj);
   res.writeHead(status, {
     'Content-Type': 'application/json; charset=utf-8',
@@ -70,23 +72,20 @@ export function sendJson(res, status, obj, extraHeaders = {}) {
   res.end(body);
 }
 
-/**
- * @param {ServerResponse} res
- * @param {number} status
- * @param {string} text
- * @param {OutgoingHttpHeaders} [headers]
- */
-export function sendText(res, status, text, headers = {}) {
+export function sendText(
+  res: ServerResponse,
+  status: number,
+  text: string,
+  headers: OutgoingHttpHeaders = {},
+) {
   res.writeHead(status, { 'Content-Type': 'text/plain; charset=utf-8', ...headers });
   res.end(text);
 }
 
 /**
  * Ermittelt die Client-IP (respektiert X-Forwarded-For von nginx).
- * @param {IncomingMessage} req
- * @returns {string}
  */
-export function clientIp(req) {
+export function clientIp(req: IncomingMessage): string {
   const xff = req.headers['x-forwarded-for'];
   if (xff) return String(xff).split(',')[0].trim();
   return req.socket?.remoteAddress || 'unknown';
@@ -96,9 +95,8 @@ export function clientIp(req) {
  * CSRF-Schutz: Mutationen müssen den Custom-Header X-Kodini-Admin tragen.
  * Cross-Site-Formulare können keine Custom-Header setzen; zusammen mit
  * SameSite=Strict-Cookies genügt das für dieses Ein-Konto-Setup.
- * @param {IncomingMessage} req
  */
-export function csrfOk(req) {
+export function csrfOk(req: IncomingMessage) {
   return req.headers['x-kodini-admin'] === '1';
 }
 
@@ -108,12 +106,12 @@ export function csrfOk(req) {
  * Ende am Stück zurückzugeben. ANSI-Farbcodes werden entfernt. Nach `timeoutMs`
  * wird der Prozess beendet (SIGTERM, dann SIGKILL) und die Promise verworfen.
  * Löst mit der gesamten (gekürzten) Ausgabe auf; Exit-Code != 0 -> Fehler.
- * @param {string} cmd
- * @param {string[]} args
- * @param {RunOptions} [opts]
- * @returns {Promise<string>}
  */
-export function runStreaming(cmd, args, { cwd, env, timeoutMs = 20 * 60 * 1000, onLine } = {}) {
+export function runStreaming(
+  cmd: string,
+  args: string[],
+  { cwd, env, timeoutMs = 20 * 60 * 1000, onLine }: RunOptions = {},
+): Promise<string> {
   return new Promise((resolvePromise, reject) => {
     const child = spawn(cmd, args, { cwd, env, stdio: ['ignore', 'pipe', 'pipe'] });
     const MAX_KEEP = 2 * 1024 * 1024;
@@ -121,8 +119,8 @@ export function runStreaming(cmd, args, { cwd, env, timeoutMs = 20 * 60 * 1000, 
     let buf = '';
     let timedOut = false;
     // eslint-disable-next-line no-control-regex -- ANSI-Escape (ESC) gezielt entfernen
-    const strip = (/** @type {string} */ t) => t.replace(/\x1b\[[0-9;]*m/g, '');
-    const feed = (/** @type {Buffer} */ chunk) => {
+    const strip = (t: string) => t.replace(/\x1b\[[0-9;]*m/g, '');
+    const feed = (chunk: Buffer) => {
       const text = strip(chunk.toString());
       all += text;
       if (all.length > MAX_KEEP) all = all.slice(-MAX_KEEP);
@@ -142,13 +140,8 @@ export function runStreaming(cmd, args, { cwd, env, timeoutMs = 20 * 60 * 1000, 
       setTimeout(() => child.kill('SIGKILL'), 5000).unref();
     }, timeoutMs);
     let done = false;
-    /** @type {NodeJS.Timeout | undefined} */
-    let graceTimer;
-    /**
-     * @param {number | null} code
-     * @param {NodeJS.Signals | null} signal
-     */
-    const finish = (code, signal) => {
+    let graceTimer: NodeJS.Timeout | undefined;
+    const finish = (code: number | null, signal: NodeJS.Signals | null) => {
       if (done) return;
       done = true;
       clearTimeout(timer);

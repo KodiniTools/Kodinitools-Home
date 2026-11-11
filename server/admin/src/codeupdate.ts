@@ -1,21 +1,19 @@
-// @ts-check
 // Code-Aktualisierung des Server-Klons + Neustart-Erkennung des Admin-Dienstes.
 //
 // Hintergrund: Der Admin-Dienst baut die Vorschau aus dem Arbeitsverzeichnis
 // (/opt/kodini/repo). Neuer Code landet dort bisher nur beim Deploy
 // (deploy.sh → git reset --hard origin/main). Damit die Vorschau immer den
 // aktuellen main-Stand zeigt (z. B. neue Admin-Tabs), holt sie den Code vorher
-// per fast-forward. Ändert sich dabei der Server-Code (server/admin/*.mjs),
+// per fast-forward. Ändert sich dabei der Server-Code (server/admin/src/*.ts),
 // läuft noch der alte Prozess – unter systemd (Restart=on-failure) beendet er
 // sich nach Abschluss selbst und wird automatisch neu gestartet.
 
 import { readdir, stat, writeFile, mkdir } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { config } from './config.mjs';
+import { resolve } from 'node:path';
+import { config, ADMIN_DIR } from './config.js';
+import { asErr } from './util.js';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
 // Startzeit des Prozesses: Server-Dateien, die danach geändert wurden, sind
 // noch nicht geladen (ES-Module werden nur beim Start eingelesen).
 const STARTED_AT = Date.now();
@@ -25,49 +23,68 @@ export function underSystemd() {
   return !!process.env.INVOCATION_ID && process.env.ADMIN_AUTO_RESTART !== '0';
 }
 
+// Server-Code: Quellen (src/*.ts), übersetzter Stand (build/*.js) und die
+// Starter (*.mjs) in server/admin.
+const SERVER_CODE: Array<[dir: string, ext: string]> = [
+  ['src', '.ts'],
+  ['build', '.js'],
+  ['', '.mjs'],
+];
+
 /**
- * true, wenn eine server/admin/*.mjs-Datei nach dem Prozessstart geändert
- * wurde – der laufende Prozess hat dann veralteten Code.
+ * true, wenn Server-Code (Quellen, Build oder Starter) nach dem Prozessstart
+ * geändert wurde – der laufende Prozess hat dann veralteten Code.
  */
 export async function serverCodeChanged() {
-  try {
-    const names = await readdir(__dirname);
-    for (const n of names) {
-      if (!n.endsWith('.mjs')) continue;
-      const s = await stat(resolve(__dirname, n));
-      // Strikt „nach dem Start": keine Toleranz, sonst könnte eine kurz vor dem
-      // Start geänderte Datei jede Vorschau in einen erneuten Neustart treiben.
-      if (s.mtimeMs > STARTED_AT) return true;
+  for (const [sub, ext] of SERVER_CODE) {
+    const dir = resolve(ADMIN_DIR, sub);
+    try {
+      for (const n of await readdir(dir)) {
+        if (!n.endsWith(ext)) continue;
+        const s = await stat(resolve(dir, n));
+        // Strikt „nach dem Start": keine Toleranz, sonst könnte eine kurz vor dem
+        // Start geänderte Datei jede Vorschau in einen erneuten Neustart treiben.
+        if (s.mtimeMs > STARTED_AT) return true;
+      }
+    } catch {
+      /* Fehler beim Lesen -> kein Neustart erzwingen */
     }
-  } catch {
-    /* Fehler beim Lesen -> kein Neustart erzwingen */
   }
   return false;
 }
 
-/**
- * Prozess-Runner (execFile im Repo-Verzeichnis); liefert stdout+stderr.
- * @typedef {(cmd: string, args: string[], opts?: import('node:child_process').ExecFileOptions) => Promise<string>} RunFn
- */
-/** @typedef {'idle' | 'running' | 'success' | 'error'} JobStatus */
-/**
- * Gemeinsamer Teil des Vorgangs-Status (Vorschau/Veröffentlichung).
- * @typedef {{
- *   status: JobStatus;
- *   step: string;
- *   log: string[];
- *   startedAt: number | null;
- *   finishedAt: number | null;
- *   error: string | null;
- *   restarting: boolean;
- *   restarted: boolean;
- * }} JobState
- */
-/** @typedef {(line: string) => void} LogFn */
-/**
- * Ergebnis des Code-Updates vor einer Vorschau.
- * @typedef {{ updated: boolean; from: string; to: string; files: string[]; error?: string }} CodeUpdateResult
- */
+/** Ändert die Datei den Server-Code des Admins (muss neu übersetzt werden)? */
+export function needsServerBuild(file: string) {
+  return file.startsWith('server/admin/src/') || file === 'server/admin/build-server.mjs';
+}
+
+/** Prozess-Runner (execFile im Repo-Verzeichnis); liefert stdout+stderr. */
+export type RunFn = (
+  cmd: string,
+  args: string[],
+  opts?: import('node:child_process').ExecFileOptions,
+) => Promise<string>;
+export type JobStatus = 'idle' | 'running' | 'success' | 'error';
+/** Gemeinsamer Teil des Vorgangs-Status (Vorschau/Veröffentlichung). */
+export type JobState = {
+  status: JobStatus;
+  step: string;
+  log: string[];
+  startedAt: number | null;
+  finishedAt: number | null;
+  error: string | null;
+  restarting: boolean;
+  restarted: boolean;
+};
+export type LogFn = (line: string) => void;
+/** Ergebnis des Code-Updates vor einer Vorschau. */
+export type CodeUpdateResult = {
+  updated: boolean;
+  from: string;
+  to: string;
+  files: string[];
+  error?: string;
+};
 
 /**
  * Holt den aktuellen Stand von origin/<branch> per fast-forward in das
@@ -75,15 +92,16 @@ export async function serverCodeChanged() {
  * ungespeicherten Dateien verweigert git den Merge, dann bleibt alles wie es
  * ist). Führt `npm ci` aus, wenn sich package.json/package-lock.json änderten.
  *
- * @param {RunFn} run
- * @param {LogFn} log
- * @param {NodeJS.ProcessEnv} env Umgebung für npm (HOME etc.)
- * @returns {Promise<CodeUpdateResult>}
+ * @param env Umgebung für npm (HOME etc.)
  */
-export async function updateCodeFromRemote(run, log, env) {
+export async function updateCodeFromRemote(
+  run: RunFn,
+  log: LogFn,
+  env: NodeJS.ProcessEnv,
+): Promise<CodeUpdateResult> {
   const branch = config.gitBranch;
   const remote = config.gitRemote;
-  const short = (/** @type {unknown} */ h) =>
+  const short = (h: unknown) =>
     String(h || '')
       .trim()
       .slice(0, 7);
@@ -108,8 +126,10 @@ export async function updateCodeFromRemote(run, log, env) {
       log(await run('npm', ['ci', '--include=dev'], { env }));
     }
     if (files.some(needsAdminBuild)) await buildAdminUi(run, log, env);
+    if (files.some(needsServerBuild)) await buildServer(run, log, env);
     return { updated: true, from: short(from), to: short(to), files };
-  } catch (/** @type {any} */ err) {
+  } catch (errRaw) {
+    const err = asErr(errRaw);
     const msg = `${err?.message || err}${err?.output ? `\n${err.output}` : ''}`.trim();
     log(`Code-Update übersprungen (Vorschau baut den lokalen Stand): ${msg}`);
     return { updated: false, from: short(from), to: '', files: [], error: msg };
@@ -118,9 +138,8 @@ export async function updateCodeFromRemote(run, log, env) {
 
 /**
  * Ändert die Datei die gebauten Vue-Teile des Admins (server/admin/dist)?
- * @param {string} file
  */
-export function needsAdminBuild(file) {
+export function needsAdminBuild(file: string) {
   return (
     file.startsWith('server/admin/app/') ||
     // vom Vue-Bundle importiert
@@ -134,16 +153,28 @@ export function needsAdminBuild(file) {
  * Baut die Vue-Teile des Admins neu (`npm run build:admin`). Ein Fehler wird
  * protokolliert; der zuletzt erfolgreiche Build bleibt dann liegen (Vite leert
  * dist erst beim Schreiben); deploy.sh bricht bei einem Fehler dagegen ab.
- * @param {RunFn} run
- * @param {LogFn} log
- * @param {NodeJS.ProcessEnv} env
  */
-export async function buildAdminUi(run, log, env) {
+export async function buildAdminUi(run: RunFn, log: LogFn, env: NodeJS.ProcessEnv) {
   try {
     log('Admin-UI geändert → npm run build:admin');
     log(await run('npm', ['run', 'build:admin'], { env }));
-  } catch (/** @type {any} */ err) {
+  } catch (errRaw) {
+    const err = asErr(errRaw);
     log(`Admin-UI-Build fehlgeschlagen (Admin nutzt den letzten Build): ${err?.message || err}`);
+  }
+}
+
+/**
+ * Übersetzt den Server-Code neu (`npm run build:server`). Schlägt das fehl,
+ * bleibt der letzte Build liegen; der Starter versucht es beim Neustart erneut.
+ */
+export async function buildServer(run: RunFn, log: LogFn, env: NodeJS.ProcessEnv) {
+  try {
+    log('Server-Code geändert → npm run build:server');
+    log(await run('npm', ['run', 'build:server'], { env }));
+  } catch (errRaw) {
+    const err = asErr(errRaw);
+    log(`Server-Build fehlgeschlagen (Dienst nutzt den letzten Build): ${err?.message || err}`);
   }
 }
 
@@ -151,13 +182,12 @@ export async function buildAdminUi(run, log, env) {
  * Beendet den Prozess nach kurzer Verzögerung, wenn Server-Code geändert wurde
  * und systemd ihn neu starten kann. Gibt true zurück, wenn ein Neustart
  * eingeplant wurde (der Aufrufer sollte seinen Status vorher persistieren).
- * @param {LogFn} log
  */
-export async function restartIfServerCodeChanged(log) {
+export async function restartIfServerCodeChanged(log: LogFn) {
   if (!(await serverCodeChanged())) return false;
   if (!underSystemd()) {
     log(
-      'Hinweis: Server-Code (server/admin/*.mjs) wurde aktualisiert – Admin-Dienst neu starten: sudo systemctl restart kodini-admin',
+      'Hinweis: Server-Code (server/admin/src) wurde aktualisiert – Admin-Dienst neu starten: sudo systemctl restart kodini-admin',
     );
     return false;
   }
@@ -172,10 +202,8 @@ const STATE_DIR = resolve(config.repoDir, '.kodini-admin');
 
 /**
  * Status-Objekt unter `name` speichern (best effort, nicht blockierend).
- * @param {string} name
- * @param {unknown} state
  */
-export async function persistState(name, state) {
+export async function persistState(name: string, state: unknown) {
   try {
     await mkdir(STATE_DIR, { recursive: true });
     await writeFile(resolve(STATE_DIR, `${name}.json`), JSON.stringify(state), 'utf8');
@@ -187,12 +215,8 @@ export async function persistState(name, state) {
 /**
  * Gespeicherten Status laden (synchron beim Modulstart). Ein beim Neustart
  * noch „laufender" Vorgang wird als Fehler markiert, damit kein Polling hängt.
- * @template {object} T
- * @param {string} name
- * @param {T} fallback
- * @returns {T}
  */
-export function restoreState(name, fallback) {
+export function restoreState<T>(name: string, fallback: T): T {
   try {
     const s = JSON.parse(readFileSync(resolve(STATE_DIR, `${name}.json`), 'utf8'));
     if (!s || typeof s !== 'object') return fallback;
