@@ -11,7 +11,7 @@ import {
 
 /**
  * Datenmodell und reine Regeln des Tabs „Hero-Design“ (Vue-Fassung von
- * `public/design.js`). Gelesen/geschrieben werden `media.<lang>.heroDesign`,
+ * `public/design.ts`). Gelesen/geschrieben werden `media.<lang>.heroDesign`,
  * `media.<lang>.textStyles["hero.*"]` und die Text-Overrides; was das
  * Admin-Modell braucht (Defaults, Medien, Schriften), reicht die Vanilla-Seite
  * als Service herein – das Bundle importiert `public/model.ts` nicht.
@@ -128,7 +128,7 @@ export interface HeroPreviewMedia {
 /** `media.<lang>` mit den Teilen, die der Tab braucht. */
 export type HeroMediaHost = TextStyleHost & { heroDesign?: HeroDesign };
 
-/** Brücke zum Vanilla-Admin (`heroService` in `public/design.js`). */
+/** Brücke zum Vanilla-Admin (`heroService` in `public/design.ts`). */
 export interface HeroService {
   lang: Lang;
   /** `media.<lang>.heroDesign` (legt Standardwerte an, falls es fehlt). */
@@ -234,7 +234,7 @@ export function slotTuned(st: TextStyle): boolean {
   return !!(st.font || st.size > 0 || fxActive(st) || st.offsetX || st.offsetY);
 }
 
-// ---- Stile der Vorschau (1:1 wie design.js) ---------------------------------------
+// ---- Stile der Vorschau (1:1 wie design.ts) ---------------------------------------
 /** font-family-Wert für eine Schriftdatei oder ''. */
 export type FontFamilyOf = (file: string) => string;
 

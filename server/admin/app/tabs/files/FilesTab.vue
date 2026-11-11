@@ -231,7 +231,7 @@ import { filesUi } from './filesUi';
 
 /**
  * Tab „Dateien“ einer Sprache (Vue-Fassung von `renderFiles` in
- * `public/media.js`). Daten und Aktionen kommen als `service` von der
+ * `public/media.ts`). Daten und Aktionen kommen als `service` von der
  * Vanilla-Seite (Server-Liste, IndexedDB-Zwischenspeicher, Plätze); nach jeder
  * Aktion wird der Schnappschuss neu geholt.
  */

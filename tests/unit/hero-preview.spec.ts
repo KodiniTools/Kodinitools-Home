@@ -9,7 +9,7 @@ import {
   heroPreviewMediaStyle,
   HERO_PREVIEW_LAYOUT_CSS,
   heroCompactCss,
-} from '../../server/admin/public/hero-preview.js';
+} from '../../server/admin/public/hero-preview';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const state = adminState as unknown as { media: any };

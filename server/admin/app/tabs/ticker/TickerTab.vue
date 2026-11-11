@@ -261,7 +261,7 @@ import {
 import { tickerUi } from './tickerUi';
 
 /**
- * Laufband-Tab einer Sprache (Vue-Fassung von `public/ticker.js`). Bearbeitet
+ * Laufband-Tab einer Sprache (Vue-Fassung von `public/ticker.ts`). Bearbeitet
  * das übergebene Objekt `state.ticker[lang]` direkt: Speichern, Autosave und
  * Undo/Redo des Vanilla-Admins erkennen Änderungen weiterhin per Snapshot; nach
  * Undo/Redo wird der Tab mit dem wiederhergestellten Objekt neu gemountet.

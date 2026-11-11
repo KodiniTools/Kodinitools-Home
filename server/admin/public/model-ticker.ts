@@ -3,7 +3,14 @@
 
 import { clampSpacing, normFontFile } from './model-core';
 
-import type { ThemeMode, TickerConfig, TickerSpeed, TickerItem, RawJson } from '../types';
+import type {
+  ThemeMode,
+  TickerConfig,
+  TickerSpeed,
+  TickerItem,
+  RawJson,
+  TickerColors,
+} from '../types';
 
 const TICKER_SPEEDS: TickerSpeed[] = ['slow', 'normal', 'fast'];
 
@@ -14,7 +21,7 @@ export function emptyTicker(): TickerConfig {
 }
 // Standard-Farben des Laufbands je Modus (entsprechen dem eingebauten Aussehen in
 // TickerBar.astro: Hell = Blau/Weiß, Dunkel = Navy/Hellgrau).
-export function defaultTickerColors(mode: ThemeMode): import('../types.ts').TickerColors {
+export function defaultTickerColors(mode: ThemeMode): TickerColors {
   return mode === 'dark'
     ? { textColor: '#e2e8f0', bgColor: '#111827', bgOpacity: 100 }
     : { textColor: '#ffffff', bgColor: '#014f99', bgOpacity: 100 };
@@ -40,25 +47,17 @@ export function defaultTickerStyle() {
 export function normTickerStyle(s: RawJson) {
   const d = defaultTickerStyle();
   if (!s || typeof s !== 'object') return d;
-  const clamp: (v: unknown, min: number, max: number, def: number) => number = (
-    v,
-    min,
-    max,
-    def,
-  ): number => {
+  const clamp = (v: unknown, min: number, max: number, def: number): number => {
     const n = Number(v);
     return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : def;
   };
-  const hex: (v: unknown, def: string) => string = (v, def): string =>
+  const hex = (v: unknown, def: string): string =>
     /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? (v as string) : def;
   const hasSides =
     (s.light && typeof s.light === 'object') || (s.dark && typeof s.dark === 'object');
   const flat =
     !hasSides && (typeof s.textColor === 'string' || typeof s.bgColor === 'string') ? s : null;
-  const colors: (
-    side: RawJson,
-    def: import('../types.ts').TickerColors,
-  ) => import('../types.ts').TickerColors = (side, def): import('../types.ts').TickerColors => {
+  const colors = (side: RawJson, def: TickerColors): TickerColors => {
     const o = side && typeof side === 'object' ? side : flat || {};
     return {
       textColor: hex(o.textColor, def.textColor),

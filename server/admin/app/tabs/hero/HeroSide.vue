@@ -314,7 +314,7 @@ import { useHero } from './useHero';
 
 /**
  * Seitenleiste eines Modus im Tab „Hero-Design“ (wie `sidePanel` in
- * `public/design.js`): alle Farben des Modus – Überschriften, Rahmen und
+ * `public/design.ts`): alle Farben des Modus – Überschriften, Rahmen und
  * Hintergrund, Hintergrundbild samt Diashow, Chips, CTA und die Textfarbe je
  * Hero-Text mit Vorschau.
  */

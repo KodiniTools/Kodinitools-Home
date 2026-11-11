@@ -1,35 +1,33 @@
-// @ts-check
 // Kern-Hilfen des Adminbereichs: API-Aufrufe, IndexedDB-Zwischenspeicher und
 // kleine DOM-Helfer. Keine Abhängigkeiten zu anderen Admin-Modulen.
 
-/** @import { StagedItem } from '../types.ts' */
-/** @import { ToastType } from '../app/stores/toast' */
+import type { StagedItem, RawJson } from '../types';
+import type { ToastType } from '../app/stores/toast';
 
-/**
- * Antwort von `api()`: `data` ist das geparste JSON (oder `null`).
- * @typedef {{ ok: boolean; status: number; data: any }} ApiResult
- */
-/**
- * @typedef {object} ApiOptions
- * @property {string} [method]
- * @property {unknown} [body] wird als JSON gesendet
- * @property {BodyInit} [raw] wird unverändert gesendet (z. B. Datei)
- * @property {Record<string, string>} [headers]
- */
+/** Antwort von `api()`: `data` ist das geparste JSON (oder `null`). */
+export type ApiResult = { ok: boolean; status: number; data: RawJson };
+export type ApiOptions = {
+  method?: string;
+  /** wird als JSON gesendet */
+  body?: unknown;
+  /** wird unverändert gesendet (z. B. Datei) */
+  raw?: BodyInit;
+  headers?: Record<string, string>;
+};
 
 // --- API-Basis relativ zum Auslieferungsort (funktioniert unter /admin/ und lokal /) ---
-export const apiUrl = (/** @type {string} */ p) => new URL('api' + p, document.baseURI).toString();
+export const apiUrl = (p: string) => new URL('api' + p, document.baseURI).toString();
 
-/**
- * @param {string} path
- * @param {ApiOptions} [options]
- * @returns {Promise<ApiResult>}
- */
-export async function api(path, { method = 'GET', body, raw, headers = {} } = {}) {
-  /** @type {Record<string, string>} */
-  const hdrs = { 'X-Kodini-Admin': '1', ...headers };
-  /** @type {RequestInit & { headers: Record<string, string> }} */
-  const opts = { method, credentials: 'same-origin', headers: hdrs };
+export async function api(
+  path: string,
+  { method = 'GET', body, raw, headers = {} }: ApiOptions = {},
+): Promise<ApiResult> {
+  const hdrs: Record<string, string> = { 'X-Kodini-Admin': '1', ...headers };
+  const opts: RequestInit & { headers: Record<string, string> } = {
+    method,
+    credentials: 'same-origin',
+    headers: hdrs,
+  };
   if (raw !== undefined) {
     opts.body = raw;
   } else if (body !== undefined) {
@@ -47,8 +45,8 @@ export async function api(path, { method = 'GET', body, raw, headers = {} } = {}
 }
 
 // --- IndexedDB: lokaler Medien-Zwischenspeicher (Staging) ---
-/** @returns {Promise<IDBDatabase>} */
-function openDb() {
+
+function openDb(): Promise<IDBDatabase> {
   return new Promise((res, rej) => {
     const r = indexedDB.open('kodini-admin', 1);
     r.onupgradeneeded = () => {
@@ -59,8 +57,8 @@ function openDb() {
     r.onerror = () => rej(r.error);
   });
 }
-/** @returns {Promise<StagedItem[]>} */
-export async function mediaAll() {
+
+export async function mediaAll(): Promise<StagedItem[]> {
   const db = await openDb();
   return new Promise((res, rej) => {
     const rq = db.transaction('media').objectStore('media').getAll();
@@ -68,11 +66,7 @@ export async function mediaAll() {
     rq.onerror = () => rej(rq.error);
   });
 }
-/**
- * @param {string} id
- * @returns {Promise<StagedItem | null>}
- */
-export async function mediaGet(id) {
+export async function mediaGet(id: string): Promise<StagedItem | null> {
   const db = await openDb();
   return new Promise((res, rej) => {
     const rq = db.transaction('media').objectStore('media').get(id);
@@ -80,11 +74,7 @@ export async function mediaGet(id) {
     rq.onerror = () => rej(rq.error);
   });
 }
-/**
- * @param {StagedItem} item
- * @returns {Promise<void>}
- */
-export async function mediaPut(item) {
+export async function mediaPut(item: StagedItem): Promise<void> {
   const db = await openDb();
   return new Promise((res, rej) => {
     const tx = db.transaction('media', 'readwrite');
@@ -93,11 +83,7 @@ export async function mediaPut(item) {
     tx.onerror = () => rej(tx.error);
   });
 }
-/**
- * @param {string} id
- * @returns {Promise<void>}
- */
-export async function mediaDel(id) {
+export async function mediaDel(id: string): Promise<void> {
   const db = await openDb();
   return new Promise((res, rej) => {
     const tx = db.transaction('media', 'readwrite');
@@ -111,27 +97,24 @@ export async function mediaDel(id) {
 /**
  * Element der festen Admin-Oberfläche (index.html); fehlt es, ist das ein
  * Programmierfehler – daher ohne `null` typisiert.
- * @template {HTMLElement} [T=HTMLElement]
- * @param {string} sel
- * @returns {T}
  */
-export const $ = (sel) => /** @type {T} */ (document.querySelector(sel));
-/** @type {Record<string, string>} */
-const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-/** @param {unknown} s */
-export function esc(s) {
+export const $ = <T = HTMLElement>(sel: string): T => document.querySelector(sel) as T;
+const ESC: Record<string, string> = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+};
+
+export function esc(s: unknown) {
   return String(s).replace(/[&<>"']/g, (c) => ESC[c] ?? c);
 }
-/** @type {ReturnType<typeof setTimeout> | undefined} */
-let toastTimer;
+let toastTimer: ReturnType<typeof setTimeout> | undefined;
 // Kurzmeldung. Sind die Vue-Teile geladen (window.kodiniAdminVue), übernimmt
 // deren Toast-Store (mehrere Meldungen, Schließen-Knopf, Fehler länger sichtbar);
 // sonst die bisherige Einzelmeldung in #toast.
-/**
- * @param {unknown} msg
- * @param {ToastType} [type]
- */
-export function toast(msg, type = 'info') {
+export function toast(msg: unknown, type: ToastType = 'info') {
   const vue = typeof window !== 'undefined' ? window.kodiniAdminVue : undefined;
   if (vue && typeof vue.toast === 'function') {
     try {
@@ -148,8 +131,7 @@ export function toast(msg, type = 'info') {
   toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
 }
 
-/** @param {number | null | undefined} n */
-export function fmtBytes(n) {
+export function fmtBytes(n: number | null | undefined) {
   if (!n && n !== 0) return '';
   if (n < 1024) return n + ' B';
   if (n < 1024 * 1024) return (n / 1024).toFixed(0) + ' KB';

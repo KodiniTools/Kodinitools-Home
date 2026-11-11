@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 /**
  * Tab „Tool-Karten“ als Vue-Insel (server/admin/app/tabs/toolcards): Lesen und
- * Schreiben über den Service aus public/toolcards.js (echte Modell-Funktionen),
+ * Schreiben über den Service aus public/toolcards.ts (echte Modell-Funktionen),
  * Regeln wie die Vanilla-Fassung.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -17,7 +17,7 @@ import {
   type TcSide,
 } from '../../server/admin/app/tabs/toolcards/tcData';
 import { useToastStore } from '../../server/admin/app/stores/toast';
-import { tcService } from '../../server/admin/public/toolcards.js';
+import { tcService } from '../../server/admin/public/toolcards';
 import {
   state,
   defaultMedia,
@@ -83,7 +83,7 @@ async function selectCard(w: VueWrapper, id: string) {
   await w.find('select[data-tcsel]').setValue(id);
 }
 
-describe('tcData (Regeln wie public/toolcards.js)', () => {
+describe('tcData (Regeln wie public/toolcards.ts)', () => {
   it('Karten-Stil inkl. Hover-Variablen und Text-Stile', () => {
     const s: TcSide = { ...toolCardSideLight(), borderWidth: 2, hoverBgOpacity: 50 };
     const st = cardStyle(s, 'light') as Record<string, string>;

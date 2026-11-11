@@ -181,7 +181,7 @@ watch(
     });
   },
 );
-// Strg/Cmd+V (public/layout-paste.js) markiert über die Vue-Auswahl.
+// Strg/Cmd+V (public/layout-paste.ts) markiert über die Vue-Auswahl.
 let unbind: (() => void) | null = null;
 onMounted(() => {
   unbind = service.bindCells({ mark: (i) => markCell(i), active: () => lyUi.activeCell });

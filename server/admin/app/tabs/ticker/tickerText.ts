@@ -1,5 +1,5 @@
 /**
- * Reine Helfer des Laufband-Tabs (ohne DOM/State), 1:1 aus `public/ticker.js`
+ * Reine Helfer des Laufband-Tabs (ohne DOM/State), 1:1 aus `public/ticker.ts`
  * übernommen: Inline-Links `[Wort](url)`, einzeilige Darstellung, Vorschau-Stil.
  */
 import type { ThemeMode, TickerItem, TickerStyle } from '../../../types';

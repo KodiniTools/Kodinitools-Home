@@ -1,9 +1,8 @@
-// @ts-check
 // Speichern (Entwurf), Veröffentlichen (Upload + Commit + Deploy) und die
 // Browser-Vorschau (Build ohne Deploy). Enthält den Status-Tab, das Polling und
 // die Verdrahtung der Kopf-Buttons (Speichern/Vorschau/Veröffentlichen).
 
-import { $, esc, api, toast, mediaGet } from './core.js';
+import { $, esc, api, toast, mediaGet } from './core';
 import {
   state,
   MEDIA_LANGS,
@@ -19,31 +18,30 @@ import {
   defaultMediaLocale,
   normTickerStyle,
 } from './model';
-import { loadServerFiles, renderFiles, renderMedia } from './media.js';
-import { goto, renderMain } from './admin.js';
+import { loadServerFiles, renderFiles, renderMedia } from './media';
+import { goto, renderMain } from './admin';
 
-/** @import { AnyObj, MediaState, SectionVideoKey, TickerConfig } from '../types.ts' */
-/** @typedef {{ updated?: boolean; from?: string; to?: string; error?: string }} CodeUpdateInfo */
-/**
- * Antwort von `/publish/status` bzw. `/preview/status`.
- * @typedef {{
- *   status: string;
- *   step?: string;
- *   log?: string[];
- *   error?: string;
- *   restarting?: boolean;
- *   restarted?: boolean;
- *   finishedAt?: string | number;
- *   codeUpdate?: CodeUpdateInfo;
- * }} JobStatus
- */
-/** @typedef {{ key: string; from: unknown; to: unknown }} FlatChange */
-/** @typedef {{ title: string; items: string[] }} DiffGroup */
-/** @typedef {{ total: number; groups: DiffGroup[] }} PublishDiff */
-/** @typedef {'saving' | 'saved' | 'dirty' | 'clean'} SaveIndicator */
+import type { AnyObj, MediaState, SectionVideoKey, TickerConfig } from '../types';
+import type { ApiResult } from './core';
+export type CodeUpdateInfo = { updated?: boolean; from?: string; to?: string; error?: string };
+/** Antwort von `/publish/status` bzw. `/preview/status`. */
+export type JobStatus = {
+  status: string;
+  step?: string;
+  log?: string[];
+  error?: string;
+  restarting?: boolean;
+  restarted?: boolean;
+  finishedAt?: string | number;
+  codeUpdate?: CodeUpdateInfo;
+};
+export type FlatChange = { key: string; from: unknown; to: unknown };
+export type DiffGroup = { title: string; items: string[] };
+export type PublishDiff = { total: number; groups: DiffGroup[] };
+export type SaveIndicator = 'saving' | 'saved' | 'dirty' | 'clean';
 
 /** Button der festen Kopfzeile bzw. Status-Seite (`disabled` nutzbar). */
-const btnEl = (/** @type {string} */ sel) => /** @type {HTMLButtonElement} */ ($(sel));
+const btnEl = (sel: string) => $(sel) as HTMLButtonElement;
 
 // ============ Veröffentlichen (Status + Aktion) ============
 export function renderPublish() {
@@ -69,12 +67,11 @@ export function renderPublish() {
 function resolveMediaForSave() {
   // Ersetzt staged:-Referenzen (pro Sprache) durch bereits veröffentlichte URLs
   // oder (falls noch nicht hochgeladen) durch den zuletzt geladenen/Default-Wert.
-  /** @type {MediaState} */
-  const m = JSON.parse(JSON.stringify(state.media));
+  const m: MediaState = JSON.parse(JSON.stringify(state.media));
   for (const lang of MEDIA_LANGS) {
     const lm = m[lang];
     const loaded = state.loadedMedia[lang] || defaultMediaLocale();
-    for (const key of /** @type {SectionVideoKey[]} */ (['audio', 'image', 'diverse'])) {
+    for (const key of ['audio', 'image', 'diverse'] as SectionVideoKey[]) {
       const v = lm.sectionVideos[key];
       if (typeof v === 'string' && v.startsWith('staged:')) {
         const item = state.stagedItems.find((x) => x.id === v.slice(7));
@@ -118,8 +115,7 @@ function resolveMediaForSave() {
   return m;
 }
 
-/** @param {MediaState} [media] */
-function buildPayload(media) {
+function buildPayload(media?: MediaState) {
   return {
     overrides: state.overrides,
     ticker: {
@@ -129,16 +125,18 @@ function buildPayload(media) {
     media: media || resolveMediaForSave(),
   };
 }
-/** @param {TickerConfig} t */
-function cleanTicker(t) {
+
+function cleanTicker(t: TickerConfig) {
   return {
     enabled: t.enabled === true,
     speed: t.speed,
     items: t.items
       .filter((i) => i.text && i.text.trim())
       .map((i, idx) => {
-        /** @type {{ id: string; text: string; link?: string }} */
-        const o = { id: String(i.id || idx + 1), text: i.text.trim() };
+        const o: { id: string; text: string; link?: string } = {
+          id: String(i.id || idx + 1),
+          text: i.text.trim(),
+        };
         if (i.link && i.link.trim()) o.link = i.link.trim();
         return o;
       }),
@@ -163,8 +161,8 @@ async function saveDraft() {
 // neue Felder (z. B. toolCards) nicht und verwirft sie beim Speichern – dann
 // zeigt auch die Vorschau nichts davon. Erkennbar am Vergleich mit der Antwort.
 let droppedWarned = false;
-/** @param {AnyObj | null | undefined} savedMedia */
-function warnIfServerDroppedFields(savedMedia) {
+
+function warnIfServerDroppedFields(savedMedia: AnyObj | null | undefined) {
   const dropped = MEDIA_LANGS.some(
     (l) =>
       state.media[l] &&
@@ -255,8 +253,7 @@ async function uploadStagedReferenced() {
   await loadServerFiles();
 }
 
-/** @type {ReturnType<typeof setInterval> | undefined} */
-let pollTimer;
+let pollTimer: ReturnType<typeof setInterval> | undefined;
 // Einstieg (Kopf-Button, Status-Seite, Tastenkürzel): zeigt zuerst die
 // Diff-Vorschau „Was ändert sich?" und startet erst nach Bestätigung.
 function runPublish() {
@@ -280,7 +277,7 @@ async function doPublish() {
     state.loadedMedia = JSON.parse(JSON.stringify(media));
     markSaved();
     // Publish starten
-    const msgEl = /** @type {HTMLInputElement | null} */ ($('#pubMsg'));
+    const msgEl = $('#pubMsg') as HTMLInputElement | null;
     const msg = (msgEl?.value || '').slice(0, 100);
     const pub = await api('/publish', { method: 'POST', body: { message: msg } });
     if (!pub.ok) throw new Error(pub.data?.error || 'Publish fehlgeschlagen');
@@ -298,8 +295,7 @@ async function doPublish() {
 btnEl('#publishBtn').addEventListener('click', runPublish);
 
 // --- Vorschau (Build ohne Deploy, öffnet die gerenderte Seite in neuem Tab) ---
-/** @type {ReturnType<typeof setInterval> | undefined} */
-let previewPollTimer;
+let previewPollTimer: ReturnType<typeof setInterval> | undefined;
 btnEl('#previewBtn').addEventListener('click', async () => {
   // Neuen Tab SOFORT (synchron zum Klick) öffnen, sonst blockt der Popup-Blocker
   // das spätere Navigieren nach dem asynchronen Build.
@@ -339,8 +335,7 @@ btnEl('#previewBtn').addEventListener('click', async () => {
 });
 
 // Schritt-Beschriftung im Status-Pill (Code-Update + Build).
-/** @type {Record<string, string>} */
-const PREVIEW_STEP_LABEL = { 'code-update': 'holt Code…', build: 'baut…' };
+const PREVIEW_STEP_LABEL: Record<string, string> = { 'code-update': 'holt Code…', build: 'baut…' };
 // --- Erreichbarkeits-Überwachung beim Polling ---
 // nginx antwortet mit 502/503, solange der Dienst neu startet (oder tot ist);
 // ein reiner Netzwerkfehler lässt fetch() scheitern. Beides wurde bisher still
@@ -354,8 +349,8 @@ const UNREACHABLE_DIAG =
   '  journalctl -u kodini-admin -n 80 --no-pager\n' +
   'Neu starten: sudo systemctl restart kodini-admin';
 // Letzte Zeile des Status-Logs pflegen (eine „Warte"-Zeile statt vieler).
-/** @param {string} line */
-function appendLogLine(line) {
+
+function appendLogLine(line: string) {
   const log = $('#pubLog');
   if (!log) return;
   const lines = (log.textContent || '—').split('\n');
@@ -364,11 +359,7 @@ function appendLogLine(line) {
   log.textContent = lines.join('\n');
 }
 // true = weiter warten; false = aufgegeben (Fehler ist angezeigt).
-/**
- * @param {import('./core.js').ApiResult | null} r
- * @param {string} where
- */
-function noteUnreachable(r, where) {
+function noteUnreachable(r: ApiResult | null, where: string) {
   const now = Date.now();
   if (!unreachableSince) unreachableSince = now;
   const secs = Math.round((now - unreachableSince) / 1000);
@@ -386,8 +377,7 @@ function noteUnreachable(r, where) {
   return false;
 }
 
-/** @param {Window | null} win */
-function pollPreview(win) {
+function pollPreview(win: Window | null) {
   clearInterval(previewPollTimer);
   unreachableSince = 0;
   previewPollTimer = setInterval(async () => {
@@ -407,8 +397,7 @@ function pollPreview(win) {
       return;
     }
     unreachableSince = 0;
-    /** @type {JobStatus} */
-    const s = r.data;
+    const s: JobStatus = r.data;
     setPill(
       s.status,
       s.status === 'running'
@@ -438,8 +427,8 @@ function pollPreview(win) {
 // Nach einem Vorgang, der neuen Code geholt hat: Admin-Oberfläche neu laden,
 // damit neue Frontend-Module (z. B. neue Tabs) aktiv werden. Startet der
 // Dienst neu (neuer Server-Code), etwas länger warten, bis er wieder da ist.
-/** @param {JobStatus} s */
-function handleCodeUpdate(s) {
+
+function handleCodeUpdate(s: JobStatus) {
   if (s.restarting) {
     markReloaded(s);
     toast('Neuer Server-Code – Admin-Dienst startet neu, Seite lädt gleich neu…');
@@ -456,16 +445,16 @@ function handleCodeUpdate(s) {
   }
 }
 // Reload-Guard: pro abgeschlossenem Vorgang (finishedAt) nur einmal neu laden.
-/** @param {JobStatus} s */
-function reloadedFor(s) {
+
+function reloadedFor(s: JobStatus) {
   try {
     return sessionStorage.getItem('kodini-admin-reloaded') === String(s.finishedAt);
   } catch {
     return true;
   }
 }
-/** @param {JobStatus} s */
-function markReloaded(s) {
+
+function markReloaded(s: JobStatus) {
   try {
     sessionStorage.setItem('kodini-admin-reloaded', String(s.finishedAt));
   } catch {
@@ -473,8 +462,8 @@ function markReloaded(s) {
   }
 }
 // Hinweistext zum Code-Stand für das Vorschau-Fenster.
-/** @param {JobStatus} s */
-function codeUpdateNote(s) {
+
+function codeUpdateNote(s: JobStatus) {
   const cu = s && s.codeUpdate;
   if (s && s.restarting)
     return '<p style="color:#fde68a;font-size:.85rem;margin-top:1rem">🔄 Neuer Server-Code geholt – der Admin-Dienst startet automatisch neu; der Adminbereich lädt sich gleich neu.</p>';
@@ -487,11 +476,7 @@ function codeUpdateNote(s) {
 
 // Nach erfolgreichem Vorschau-Build: Auswahl beider Sprachen anbieten
 // (die DE- und die EN-Startseite haben getrennte Medien/Inhalte).
-/**
- * @param {Window | null} win
- * @param {JobStatus} s
- */
-function showPreviewChooser(win, s) {
+function showPreviewChooser(win: Window | null, s: JobStatus) {
   const base = '/admin/preview/';
   if (!win) {
     // Popup wurde blockiert -> beide Seiten direkt öffnen.
@@ -518,11 +503,7 @@ function showPreviewChooser(win, s) {
   win.document.close();
 }
 
-/**
- * @param {string} cls
- * @param {string} text
- */
-function setPill(cls, text) {
+function setPill(cls: string, text: string) {
   for (const id of ['#pubPill', '#pubPill2']) {
     const el = $(id);
     if (el) {
@@ -556,8 +537,7 @@ export async function refreshPublishStatus() {
     return;
   }
   unreachableSince = 0;
-  /** @type {JobStatus} */
-  const s = r.data;
+  const s: JobStatus = r.data;
   setPill(s.status, statusLabel(s));
   const log = $('#pubLog');
   if (log) log.textContent = (s.log || []).join('\n') || '—';
@@ -581,8 +561,8 @@ export async function refreshPublishStatus() {
     }
   }
 }
-/** @param {JobStatus} s */
-function statusLabel(s) {
+
+function statusLabel(s: JobStatus) {
   if (s.status === 'running') return 'läuft… (' + (s.step || '') + ')';
   if (s.status === 'success') return 'veröffentlicht';
   if (s.status === 'error') return 'Fehler';
@@ -593,30 +573,23 @@ function statusLabel(s) {
 // Ein einziger JSON-Snapshot des bearbeitbaren Zustands (overrides + ticker +
 // media) erkennt JEDE Änderung in ALLEN Bereichen – ohne die einzelnen
 // Handler anzufassen.
-/** @type {string | null} */
-let lastSavedSnapshot = null; // Stand beim letzten erfolgreichen Speichern
-/** @type {string | null} */
-let prevSnapshot = null; // Stand beim letzten Poll (Änderungs-Erkennung)
+let lastSavedSnapshot: string | null = null; // Stand beim letzten erfolgreichen Speichern
+let prevSnapshot: string | null = null; // Stand beim letzten Poll (Änderungs-Erkennung)
 let lastEditAt = 0; // Zeit der zuletzt erkannten Änderung (für Debounce)
 let dirtySince = 0; // Zeit, seit der ununterbrochen ungespeichert
 let autosaveInFlight = false;
-/** @type {ReturnType<typeof setInterval> | undefined} */
-let saveTimer;
+let saveTimer: ReturnType<typeof setInterval> | undefined;
 
 // --- Verlauf (Undo/Redo) ---
-/** @type {string | null} */
-let historyBase = null; // aktueller „Kopf" des Verlaufs (= sichtbarer Stand)
-/** @type {string[]} */
-const undoStack = []; // frühere Stände (Snapshots)
-/** @type {string[]} */
-const redoStack = []; // rückgängig gemachte Stände (Snapshots)
+let historyBase: string | null = null; // aktueller „Kopf" des Verlaufs (= sichtbarer Stand)
+const undoStack: string[] = []; // frühere Stände (Snapshots)
+const redoStack: string[] = []; // rückgängig gemachte Stände (Snapshots)
 const HISTORY_MAX = 100;
 
 // --- Veröffentlichen-Vergleich ---
 // Referenz-Stand für die Diff-Vorschau: der zuletzt geladene bzw. zuletzt
 // veröffentlichte Inhalt (overrides + ticker + media als geparster Snapshot).
-/** @type {AnyObj | null} */
-let publishBaseline = null;
+let publishBaseline: AnyObj | null = null;
 
 function editSnapshot() {
   return JSON.stringify({
@@ -635,12 +608,12 @@ function markSaved() {
   dirtySince = 0;
   updateSaveIndicator('saved');
 }
-/** @param {number} n */
-function pad2(n) {
+
+function pad2(n: number) {
   return String(n).padStart(2, '0');
 }
-/** @param {SaveIndicator} kind */
-function updateSaveIndicator(kind) {
+
+function updateSaveIndicator(kind: SaveIndicator) {
   const btn = btnEl('#saveBtn');
   const st = $('#saveState');
   if (btn) btn.classList.toggle('dirty', kind === 'dirty');
@@ -730,8 +703,8 @@ function appVisible() {
   const a = $('#appView');
   return a && !a.classList.contains('hidden');
 }
-/** @param {Element | null} el */
-function isTypingTarget(el) {
+
+function isTypingTarget(el: Element | null) {
   return (
     el &&
     (el.tagName === 'INPUT' ||
@@ -795,8 +768,8 @@ document.addEventListener('keydown', (e) => {
 });
 
 // Text-Eingabe? Dort soll die native Browser-Undo-Funktion Vorrang haben.
-/** @param {Element | null} el */
-function isTextEntry(el) {
+
+function isTextEntry(el: Element | null) {
   if (!el) return false;
   if ((el instanceof HTMLElement && el.isContentEditable) || el.tagName === 'TEXTAREA') return true;
   if (el.tagName === 'INPUT') {
@@ -808,8 +781,8 @@ function isTextEntry(el) {
 
 // Setzt den aktuellen Bearbeitungsstand aus einem Snapshot wieder her und
 // rendert die aktive Ansicht neu.
-/** @param {string} json */
-function applySnapshot(json) {
+
+function applySnapshot(json: string) {
   const s = JSON.parse(json);
   state.overrides = s.overrides;
   state.ticker = s.ticker;
@@ -820,8 +793,8 @@ function applySnapshot(json) {
 }
 
 // Schwebende Änderung als Verlaufsschritt festhalten (Bursts zusammengefasst).
-/** @param {string} [snap] */
-function commitHistory(snap) {
+
+function commitHistory(snap?: string) {
   snap = snap || editSnapshot();
   if (snap === historyBase) return;
   if (historyBase !== null) undoStack.push(historyBase);
@@ -838,7 +811,7 @@ function undo() {
     return;
   }
   if (historyBase !== null) redoStack.push(historyBase);
-  const prev = /** @type {string} */ (undoStack.pop());
+  const prev = undoStack.pop() as string;
   historyBase = prev;
   applySnapshot(prev);
   refreshUndoUi(prev);
@@ -851,7 +824,7 @@ function redo() {
     return;
   }
   if (historyBase !== null) undoStack.push(historyBase);
-  const next = /** @type {string} */ (redoStack.pop());
+  const next = redoStack.pop() as string;
   historyBase = next;
   applySnapshot(next);
   refreshUndoUi(next);
@@ -861,8 +834,8 @@ function redo() {
 // Aktiviert/deaktiviert die ↶/↷-Buttons je nach Verfügbarkeit. Neben den
 // Kopf-Buttons werden auch bereichsinterne Kopien ([data-undoproxy] /
 // [data-redoproxy]) mitgeführt, damit sie überall den gleichen Zustand zeigen.
-/** @param {string} [snap] */
-function refreshUndoUi(snap) {
+
+function refreshUndoUi(snap?: string) {
   const cur = snap || editSnapshot();
   const canUndo = !(undoStack.length === 0 && cur === historyBase);
   const canRedo = redoStack.length > 0;
@@ -871,10 +844,10 @@ function refreshUndoUi(snap) {
   if (u) u.disabled = !canUndo;
   if (r) r.disabled = !canRedo;
   document
-    .querySelectorAll(/** @type {'button'} */ ('[data-undoproxy]'))
+    .querySelectorAll('[data-undoproxy]' as 'button')
     .forEach((el) => (el.disabled = !canUndo));
   document
-    .querySelectorAll(/** @type {'button'} */ ('[data-redoproxy]'))
+    .querySelectorAll('[data-redoproxy]' as 'button')
     .forEach((el) => (el.disabled = !canRedo));
 }
 
@@ -899,13 +872,11 @@ if (redoBtn) redoBtn.addEventListener('click', redo);
 
 // ============ Diff-Vorschau vor dem Veröffentlichen ============
 // Objekt rekursiv zu Punkt-Pfaden „abflachen" (Primitive/leere Container).
-/**
- * @param {unknown} obj
- * @param {string} prefix
- * @param {Record<string, unknown>} [out]
- * @returns {Record<string, unknown>}
- */
-function flatten(obj, prefix, out) {
+function flatten(
+  obj: unknown,
+  prefix: string,
+  out?: Record<string, unknown>,
+): Record<string, unknown> {
   out = out || {};
   if (obj === null || typeof obj !== 'object') {
     out[prefix] = obj;
@@ -918,51 +889,42 @@ function flatten(obj, prefix, out) {
   }
   const keys = Object.keys(obj);
   if (keys.length === 0) out[prefix] = '{}';
-  else
-    for (const k of keys)
-      flatten(/** @type {AnyObj} */ (obj)[k], prefix ? `${prefix}.${k}` : k, out);
+  else for (const k of keys) flatten((obj as AnyObj)[k], prefix ? `${prefix}.${k}` : k, out);
   return out;
 }
 // Zwei Objekte vergleichen -> Liste geänderter Pfade { key, from, to }.
-/**
- * @param {unknown} a
- * @param {unknown} b
- * @returns {FlatChange[]}
- */
-function diffFlat(a, b) {
+function diffFlat(a: unknown, b: unknown): FlatChange[] {
   const fa = flatten(a, '');
   const fb = flatten(b, '');
   const keys = new Set([...Object.keys(fa), ...Object.keys(fb)]);
-  /** @type {FlatChange[]} */
-  const out = [];
+  const out: FlatChange[] = [];
   for (const k of keys) {
     if (fa[k] !== fb[k]) out.push({ key: k, from: fa[k], to: fb[k] });
   }
   return out.sort((x, y) => x.key.localeCompare(y.key));
 }
-/** @param {unknown} v */
-function shortVal(v) {
+
+function shortVal(v: unknown) {
   if (v === undefined) return '—';
   let s = typeof v === 'string' ? v : String(JSON.stringify(v));
   if (typeof v === 'string' && v.startsWith('staged:')) return '(neues Medium)';
   s = s.replace(/\s+/g, ' ').trim();
   return s.length > 42 ? s.slice(0, 42) + '…' : s;
 }
-/** @param {FlatChange} c */
-function fmtChange(c) {
+
+function fmtChange(c: FlatChange) {
   if (c.from === undefined) return `＋ ${c.key} = „${shortVal(c.to)}"`;
   if (c.to === undefined) return `－ ${c.key} entfernt`;
   return `${c.key}: „${shortVal(c.from)}" → „${shortVal(c.to)}"`;
 }
 // Änderungen gegenüber der Diff-Basis, gruppiert nach Bereich.
-/** @returns {PublishDiff} */
-function computePublishDiff() {
-  /** @type {DiffGroup[]} */
-  const groups = [];
+
+function computePublishDiff(): PublishDiff {
+  const groups: DiffGroup[] = [];
   const base = publishBaseline;
   if (!base) return { total: 0, groups };
   const cur = JSON.parse(editSnapshot());
-  const add = (/** @type {string} */ title, /** @type {FlatChange[]} */ changes) => {
+  const add = (title: string, changes: FlatChange[]) => {
     if (changes.length) groups.push({ title, items: changes.map(fmtChange) });
   };
   for (const lang of MEDIA_LANGS) {
@@ -991,11 +953,7 @@ function computePublishDiff() {
 // Bestätigungs-Dialog mit der Änderungsübersicht. Bei „Veröffentlichen" wird
 // onConfirm() aufgerufen. Wiederverwendet die Picker-Overlay-Optik.
 const MAX_ITEMS_PER_GROUP = 20;
-/**
- * @param {PublishDiff} diff
- * @param {() => void} onConfirm
- */
-function showPublishConfirm(diff, onConfirm) {
+function showPublishConfirm(diff: PublishDiff, onConfirm: () => void) {
   document.getElementById('publishConfirm')?.remove();
   const body = diff.total
     ? diff.groups
@@ -1030,7 +988,7 @@ function showPublishConfirm(diff, onConfirm) {
       </div>
     </div>`;
 
-  const onKey = (/** @type {KeyboardEvent} */ e) => {
+  const onKey = (e: KeyboardEvent) => {
     if (e.key === 'Escape') close();
   };
   function close() {
@@ -1040,11 +998,8 @@ function showPublishConfirm(diff, onConfirm) {
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) close();
   });
-  const go = /** @type {HTMLButtonElement} */ (overlay.querySelector('[data-pubgo]'));
-  /** @type {HTMLButtonElement} */ (overlay.querySelector('[data-pubcancel]')).addEventListener(
-    'click',
-    close,
-  );
+  const go = overlay.querySelector('[data-pubgo]') as HTMLButtonElement;
+  (overlay.querySelector('[data-pubcancel]') as HTMLButtonElement).addEventListener('click', close);
   go.addEventListener('click', () => {
     close();
     onConfirm();

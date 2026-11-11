@@ -6,7 +6,7 @@ import { normIconLists, type IconCat, type IconLists, type IconRef } from './ico
 /**
  * UI-Zustand des Tabs „Icons“ (nicht gespeichert), modulweit, damit Suche,
  * Auswahl und geladene Icon-Liste ein Neu-Mounten überstehen (wie die
- * Modul-Variablen in `public/icons.js`).
+ * Modul-Variablen in `public/icons.ts`).
  */
 export const iconsUi = reactive<{
   q: string;

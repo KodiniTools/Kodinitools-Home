@@ -3,7 +3,7 @@ import { rgbaFromHex } from '../../../public/model-core';
 
 /**
  * Datenmodell und reine Regeln des Tabs „Medien“ (Vue-Fassung von
- * `renderMedia` in `public/media.js` und `public/sectionmedia.js`). Arbeiten nur
+ * `renderMedia` in `public/media.ts` und `public/sectionmedia.ts`). Arbeiten nur
  * auf übergebenen Objekten (`state.media[lang]` bzw. dessen
  * `sectionMedia[key]`); Standardwerte, Zwischenspeicher und Medien-Auswahl
  * reicht die Vanilla-Seite als Service herein – keine zweite `state`-Instanz im
@@ -97,7 +97,7 @@ export interface ResolvedMedia {
   localName: string | null;
 }
 
-/** Was `public/media.js` dem Tab übergibt (zustandsgebundene Teile). */
+/** Was `public/media.ts` dem Tab übergibt (zustandsgebundene Teile). */
 export interface MediaService {
   /** Sichert die Struktur und liefert `media[lang].sectionMedia[key]` (Roh-Objekt). */
   sectionMedia: (lang: Lang, key: SectionKey) => SectionMediaCfg;
@@ -167,7 +167,7 @@ export function setHeroLink(media: MediaHost, key: SlotKey, val: string): void {
 export const MEDIA_BASE =
   'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block';
 
-/** Design eines Modus als Inline-CSS (wie `designCss` in `public/sectionmedia.js`). */
+/** Design eines Modus als Inline-CSS (wie `designCss` in `public/sectionmedia.ts`). */
 export function designCss(s: SectionSide): { wrap: string; media: string } {
   const border = s.customBorder
     ? s.borderWidth > 0
@@ -180,7 +180,7 @@ export function designCss(s: SectionSide): { wrap: string; media: string } {
   };
 }
 
-/** font-family-CSS (wie `fontFF` in `public/layout-shared.js`), family = @font-face-Name. */
+/** font-family-CSS (wie `fontFF` in `public/layout-shared.ts`), family = @font-face-Name. */
 export const fontFF = (family: string) =>
   family ? `font-family:'${family}', var(--site-font, sans-serif);` : '';
 

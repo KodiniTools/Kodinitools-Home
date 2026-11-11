@@ -70,7 +70,7 @@ describe('codeupdate.ts / appbundle.ts', () => {
   it('needsAdminBuild erkennt gebündelte Frontend-Dateien', () => {
     expect(needsAdminBuild('server/admin/app/main.ts')).toBe(true);
     expect(needsAdminBuild('server/admin/public/model-core.ts')).toBe(true);
-    expect(needsAdminBuild('server/admin/public/publish.js')).toBe(true);
+    expect(needsAdminBuild('server/admin/public/publish')).toBe(true);
     expect(needsAdminBuild('server/admin/types.ts')).toBe(true);
     expect(needsAdminBuild('server/admin/src/content.ts')).toBe(false);
   });
@@ -79,7 +79,7 @@ describe('codeupdate.ts / appbundle.ts', () => {
     expect(needsServerBuild('server/admin/src/content.ts')).toBe(true);
     expect(needsServerBuild('server/admin/build-server.mjs')).toBe(true);
     expect(needsServerBuild('server/admin/index.mjs')).toBe(false);
-    expect(needsServerBuild('server/admin/public/core.js')).toBe(false);
+    expect(needsServerBuild('server/admin/public/core')).toBe(false);
   });
 
   it('isAppPath', () => {

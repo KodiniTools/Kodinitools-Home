@@ -63,7 +63,7 @@ import {
 
 /**
  * Vorschaukarte im Look der echten Tool-Karte (Icon, Badge, Titel, Fußzeile
- * mit Favoriten-Symbol und „Öffnen“) – wie `cardHtml` in `public/toolcards.js`.
+ * mit Favoriten-Symbol und „Öffnen“) – wie `cardHtml` in `public/toolcards.ts`.
  * Hover echt per :hover (Werte als CSS-Variablen aus `cardStyle`).
  */
 const props = defineProps<{

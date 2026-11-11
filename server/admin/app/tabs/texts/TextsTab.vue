@@ -304,7 +304,7 @@ import { textsUi } from './textsUi';
 
 /**
  * Tab „Texte“ einer Sprache (Vue-Fassung von `renderTexts` in
- * `public/content.js`). Bearbeitet die übergebenen Objekte
+ * `public/content.ts`). Bearbeitet die übergebenen Objekte
  * `state.overrides[lang]` und `state.media[lang]` direkt: Speichern, Autosave
  * und Undo/Redo des Vanilla-Admins erkennen Änderungen weiterhin per Snapshot;
  * nach Undo/Redo wird der Tab mit den wiederhergestellten Objekten neu gemountet.

@@ -9,7 +9,7 @@ import type {
 import { BANNER_ANIM_SPEEDS, BANNER_ANIM_TYPES } from '../../../public/model-core';
 
 /**
- * Reine Helfer des Tabs „Texte“ (Vue-Fassung von `public/content.js` +
+ * Reine Helfer des Tabs „Texte“ (Vue-Fassung von `public/content.ts` +
  * `public/textstyle.js`). Arbeiten nur auf den übergebenen Objekten und
  * importieren bewusst NICHT `public/model.ts` (sonst entstünde im Bundle eine
  * zweite `state`-Instanz). Regeln 1:1 wie `getTextStyle`/`getEffectiveTextStyle`

@@ -149,9 +149,9 @@ export type CellStyle = ReturnType<typeof defaultCellStyle>;
 function normBannerSide(s: RawJson): BannerSide {
   const d = defaultBannerStyle();
   if (!s || typeof s !== 'object') return d;
-  const hex: (v: unknown, def: string) => string = (v, def): string =>
+  const hex = (v: unknown, def: string): string =>
     /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? String(v) : def;
-  const num: (v: unknown, key: keyof typeof BANNER_STYLE_LIMITS) => number = (v, key): number => {
+  const num = (v: unknown, key: keyof typeof BANNER_STYLE_LIMITS): number => {
     const n = Number(v);
     const { min, max } = BANNER_STYLE_LIMITS[key];
     return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : d[key];
@@ -189,14 +189,9 @@ export function getBannerStyle(lang: Lang, mode: string = 'light'): BannerSide {
 function normCellStyle(s: RawJson): CellStyle {
   const d = defaultCellStyle();
   if (!s || typeof s !== 'object') return d;
-  const hex: (v: unknown, def: string) => string = (v, def): string =>
+  const hex = (v: unknown, def: string): string =>
     /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? String(v) : def;
-  const num: (v: unknown, min: number, max: number, def: number) => number = (
-    v,
-    min,
-    max,
-    def,
-  ): number => {
+  const num = (v: unknown, min: number, max: number, def: number): number => {
     const n = Number(v);
     return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : def;
   };

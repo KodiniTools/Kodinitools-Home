@@ -140,7 +140,7 @@ import { hdUi } from './heroUi';
 import { useHero } from './useHero';
 
 /**
- * Hintergrund-Diashow eines Modus (wie `heroSlidesBody` in `public/design.js`):
+ * Hintergrund-Diashow eines Modus (wie `heroSlidesBody` in `public/design.ts`):
  * weitere Bilder anhängen, ordnen, entfernen, plus Takt/Übergang. Das
  * Hintergrundbild selbst ist Bild 1.
  */

@@ -189,7 +189,7 @@ import { provideHero } from './useHero';
 
 /**
  * Tab „Hero-Design“ (je Sprache, Vue-Fassung von `renderHeroDesign` in
- * `public/design.js`): Rahmen, Hintergrund(-bild/-diashow), Chips und CTA je
+ * `public/design.ts`): Rahmen, Hintergrund(-bild/-diashow), Chips und CTA je
  * Hell/Dunkel in den Seitenleisten; Texte, Schriften, Typografie,
  * Sichtbarkeit und Beschriftungen in der Mitte; Sticky-Vorschau in
  * Originalgröße mit Ziehen/Anspringen. Geschrieben wird direkt in

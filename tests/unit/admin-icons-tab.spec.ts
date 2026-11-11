@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 /**
  * Tab „Icons“ als Vue-Insel (server/admin/app/tabs/icons): gleiche Regeln wie
- * die Vanilla-Fassung (public/icons.js, getIconTint/setIconTint) und Änderungen
+ * die Vanilla-Fassung (public/icons.ts, getIconTint/setIconTint) und Änderungen
  * landen direkt in den übergebenen state-Objekten (Autosave/Undo per Snapshot).
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -39,7 +39,7 @@ const LISTS: IconLists = {
   admin: ['logo kodini.svg'],
 };
 
-describe('iconsData (Regeln wie public/icons.js)', () => {
+describe('iconsData (Regeln wie public/icons.ts)', () => {
   it('URLs, Beschriftung, Antwort-Normalisierung', () => {
     expect(iconUrl('solid', 'star.svg')).toBe('/fontawesome/svgs/solid/star.svg');
     expect(iconUrl('admin', 'logo kodini.svg')).toBe('/fontawesome/admin-svgs/logo%20kodini.svg');

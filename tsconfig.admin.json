@@ -9,7 +9,6 @@
   "include": [
     "server/admin/**/*.ts",
     "server/admin/app/**/*.vue",
-    "server/admin/public/**/*.js",
     "tests/unit/admin-*.spec.ts",
     "tests/unit/admin-ui/**/*.ts",
     "tests/unit/admin-ui/**/*.vue",

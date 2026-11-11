@@ -124,7 +124,7 @@ import { useLayout } from './useLayout';
 
 /**
  * Panel „Seiten-Layout“ (global für DE + EN, wie `pageLayoutPanelHtml` in
- * `public/layout.js`): Klassisch/Kompakt und die Kompakt-Optionen.
+ * `public/layout.ts`): Klassisch/Kompakt und die Kompakt-Optionen.
  */
 const { view, setPage, toast } = useLayout();
 const p = computed(() => view.value.page);

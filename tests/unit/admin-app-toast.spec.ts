@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 /**
  * Erste Vue-Insel des Admins: Toast-Store + ToastHost, Brücke
- * `window.kodiniAdminVue` und die Delegation aus `public/core.js` – inklusive
+ * `window.kodiniAdminVue` und die Delegation aus `public/core.ts` – inklusive
  * Rückfall auf den Vanilla-Toast, wenn die Vue-Teile nicht geladen sind.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -9,7 +9,7 @@ import { nextTick } from 'vue';
 import { createPinia, setActivePinia } from 'pinia';
 import { MAX_TOASTS, TOAST_DURATION, useToastStore } from '../../server/admin/app/stores/toast';
 import { startAdminVue } from '../../server/admin/app/main';
-import { toast as legacyToast } from '../../server/admin/public/core.js';
+import { toast as legacyToast } from '../../server/admin/public/core';
 
 describe('Toast-Store', () => {
   beforeEach(() => {
@@ -54,7 +54,7 @@ describe('Brücke + ToastHost', () => {
     delete window.kodiniAdminVue;
   });
 
-  it('ohne Vue-Teile zeigt core.js den Vanilla-Toast', () => {
+  it('ohne Vue-Teile zeigt core.ts den Vanilla-Toast', () => {
     legacyToast('Gespeichert');
     const el = document.querySelector('#toast')!;
     expect(el.textContent).toBe('Gespeichert');
@@ -89,7 +89,7 @@ describe('Brücke + ToastHost', () => {
     ).toHaveLength(1);
   });
 
-  it('wirft die Vue-Seite, fällt core.js auf den Vanilla-Toast zurück', () => {
+  it('wirft die Vue-Seite, fällt core.ts auf den Vanilla-Toast zurück', () => {
     window.kodiniAdminVue = {
       version: 1,
       toast: () => {

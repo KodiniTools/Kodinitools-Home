@@ -324,7 +324,7 @@ import { bgRev } from './bgUi';
 /**
  * Seitenleiste eines Modus im Tab „Hintergrund“: Farbe/Deckkraft/Verlauf,
  * Muster, Hintergrundbild und die abgesetzten Sektionen (wie `sideHtml` in
- * `public/background.js`).
+ * `public/background.ts`).
  */
 const props = defineProps<{ mode: ThemeMode; service: BgService }>();
 const toasts = useToastStore();

@@ -1,10 +1,9 @@
-// @ts-check
 // Medien: der „Medien"-Tab (Hero-Bereich + Sektions-Slots), der „Dateien"-Tab
 // (Server-Dateien + Browser-Zwischenspeicher), das Auswahl-Popup sowie das Laden
 // der Server-Dateiliste.
 
-import { $, esc, api, mediaAll, mediaPut, mediaDel } from './core.js';
-import { mountVueTab } from './islands.js';
+import { $, esc, api, mediaAll, mediaPut, mediaDel } from './core';
+import { mountVueTab } from './islands';
 import {
   state,
   getMediaVal,
@@ -25,19 +24,21 @@ import {
   PAGE_BG_DEFAULT,
   navLang,
 } from './model';
-import { ensureFontFace } from './fonts.js';
+import { ensureFontFace } from './fonts';
 
-/** @import { Lang, MediaKey, ServerFile, SectionVideoKey, StagedItem } from '../types.ts' */
-/** @import { MediaService } from '../app/tabs/media/mediaData' */
-/** @import { FilesService } from '../app/tabs/files/filesData' */
-/**
- * Optionen des Auswahlfensters.
- * @typedef {{ onPick?: (url: string) => void; allLangs?: boolean; imagesOnly?: boolean; title?: string }} PickerOpts
- */
+import type { Lang, MediaKey, ServerFile, SectionVideoKey, StagedItem } from '../types';
+import type { MediaService } from '../app/tabs/media/mediaData';
+import type { FilesService } from '../app/tabs/files/filesData';
+/** Optionen des Auswahlfensters. */
+export type PickerOpts = {
+  onPick?: (url: string) => void;
+  allLangs?: boolean;
+  imagesOnly?: boolean;
+  title?: string;
+};
 
 // Anzeige-Namen der Medien-Plätze (für „wird verwendet in").
-/** @type {Record<string, string>} */
-const SLOT_LABELS = {
+const SLOT_LABELS: Record<string, string> = {
   audio: 'Audio-Sektion',
   image: 'Bild-Sektion',
   diverse: 'Diverse-Sektion',
@@ -52,14 +53,11 @@ const SLOT_LABELS = {
 // Alle Plätze (Sprache · Slot), die auf eine der übergebenen Referenzen zeigen –
 // als { label, mode } mit mode 'light' | 'dark' (Platz gilt nur in diesem Modus)
 // oder 'both' (Hero-Medien, Sektions-Medien, Diashows: in beiden Modi).
-/**
- * @param {...(string | null | undefined)} refs
- * @returns {{ label: string; mode: 'light' | 'dark' | 'both' }[]}
- */
-function usageDetailed(...refs) {
+function usageDetailed(
+  ...refs: (string | null | undefined)[]
+): { label: string; mode: 'light' | 'dark' | 'both' }[] {
   const set = refs.filter(Boolean);
-  /** @type {{ label: string; mode: 'light' | 'dark' | 'both' }[]} */
-  const out = [];
+  const out: { label: string; mode: 'light' | 'dark' | 'both' }[] = [];
   if (!set.length) return out;
   for (const lang of MEDIA_LANGS) {
     for (const key of MEDIA_KEYS) {
@@ -78,8 +76,8 @@ function usageDetailed(...refs) {
   return out;
 }
 // Datei-Endung als Format-Badge (z.B. „WEBP").
-/** @param {string} name */
-function fileExt(name) {
+
+function fileExt(name: string) {
   const m = /\.([a-z0-9]+)$/i.exec(name || '');
   return m ? m[1].toUpperCase() : '';
 }
@@ -101,10 +99,8 @@ export async function loadServerFiles() {
 
 /**
  * Objekt-URL eines gestagten Mediums (für die Vorschau; '' wenn unbekannt).
- * @param {string} id
- * @returns {string}
  */
-export function objUrl(id) {
+export function objUrl(id: string): string {
   const cached = state.objectUrls.get(id);
   if (cached !== undefined) return cached;
   const item = state.stagedItems.find((x) => x.id === id);
@@ -130,23 +126,16 @@ export function renderMedia() {
     fonts: state.fonts,
     ensureFontFace,
     gotoLayout: () =>
-      /** @type {HTMLElement | null} */ (
-        document.querySelector('#subnav button[data-sub="layout"]')
-      )?.click(),
+      (document.querySelector('#subnav button[data-sub="layout"]') as HTMLElement | null)?.click(),
   });
 }
 
 // Zustandsgebundene Teile des Medien-Tabs für die Vue-Fassung (app/tabs/media):
 // Struktur sichern, Zwischenspeicher auflösen, Auswahlfenster, Standardwerte.
-/**
- * @param {Lang} lang
- * @returns {MediaService}
- */
-function mediaService(lang) {
+function mediaService(lang: Lang): MediaService {
   return {
-    sectionMedia: (/** @type {Lang} */ l, /** @type {SectionVideoKey} */ key) =>
-      getSectionMedia(l, key),
-    resolve: (/** @type {string} */ val) => {
+    sectionMedia: (l: Lang, key: SectionVideoKey) => getSectionMedia(l, key),
+    resolve: (val: string) => {
       if (!val) return null;
       if (val.startsWith('staged:')) {
         const id = val.slice(7);
@@ -156,8 +145,8 @@ function mediaService(lang) {
       }
       return { src: val, isVid: /\.(mp4|webm|mov|m4v|ogv|ogg)$/i.test(val), localName: null };
     },
-    pick: (/** @type {PickerOpts} */ opts, /** @type {(url: string) => void} */ onPick) => {
-      const srv = [lang, /** @type {const} */ ('shared')].reduce(
+    pick: (opts: PickerOpts, onPick: (url: string) => void) => {
+      const srv = [lang, 'shared' as const].reduce(
         (n, l) => n + (state.serverFiles[l] || []).length,
         0,
       );
@@ -165,11 +154,11 @@ function mediaService(lang) {
       openMediaPicker(lang, 'vue', { ...opts, onPick });
       return true;
     },
-    defaultVal: (/** @type {MediaKey} */ key) => defMediaVal(key),
+    defaultVal: (key: MediaKey) => defMediaVal(key),
     defaultSide: defaultSectionMediaSide,
     defaultText: defaultSectionMediaText,
     defaultSlideshow: defaultBannerSlideshow,
-    heroCells: (/** @type {string} */ layout) => heroLayoutCells(layout),
+    heroCells: (layout: string) => heroLayoutCells(layout),
     slidesMax: BANNER_SLIDES_MAX,
     transitions: BANNER_TRANSITIONS,
   };
@@ -178,18 +167,14 @@ function mediaService(lang) {
 // ---- Datei-Aktionen (Service des Tabs „Dateien“) ----
 // Liefern { ok, error? } und aktualisieren state.serverFiles bzw.
 // state.stagedItems, rendern aber nichts neu.
-/** @param {string} path */
-async function deleteServerFile(path) {
+
+async function deleteServerFile(path: string) {
   const r = await api('/uploads/delete', { method: 'POST', body: { path } });
   if (!r.ok) return { ok: false, error: String(r.data?.error || r.status) };
   await loadServerFiles();
   return { ok: true };
 }
-/**
- * @param {string} path
- * @param {Lang | 'shared'} lang
- */
-async function moveServerFile(path, lang) {
+async function moveServerFile(path: string, lang: Lang | 'shared') {
   const r = await api('/uploads/move', { method: 'POST', body: { path, lang } });
   if (!r.ok) return { ok: false, error: String(r.data?.error || r.status) };
   // Verweise in den Slots mitziehen (alte URL -> neue URL).
@@ -197,18 +182,17 @@ async function moveServerFile(path, lang) {
   await loadServerFiles();
   return { ok: true };
 }
-/** @param {string} id */
-async function deleteStagedItem(id) {
+
+async function deleteStagedItem(id: string) {
   await mediaDel(id);
   state.stagedItems = await mediaAll();
   return { ok: true };
 }
 // Dateien in den Zwischenspeicher legen; zu große werden übersprungen.
-/** @param {FileList | File[] | null} fileList */
-async function stageFiles(fileList) {
+
+async function stageFiles(fileList: FileList | File[] | null) {
   const files = Array.from(fileList || []);
-  /** @type {string[]} */
-  const tooBig = [];
+  const tooBig: string[] = [];
   let added = 0;
   for (const f of files) {
     if (f.size > 2048 * 1024 * 1024) {
@@ -224,10 +208,10 @@ async function stageFiles(fileList) {
 
 // Ansichtsdaten des Tabs für die Vue-Fassung: Dateien mit ihren Plätzen
 // („wird verwendet in"), berechnet mit den Helfern aus model.ts.
-/** @param {Lang} lang */
-function filesSnapshot(lang) {
-  const srv = (/** @type {ServerFile} */ f) => ({
-    kind: /** @type {const} */ ('server'),
+
+function filesSnapshot(lang: Lang) {
+  const srv = (f: ServerFile) => ({
+    kind: 'server' as const,
     key: 'srv:' + f.path,
     name: f.name,
     src: f.url,
@@ -241,7 +225,7 @@ function filesSnapshot(lang) {
     server: (state.serverFiles[lang] || []).map(srv),
     shared: (state.serverFiles.shared || []).map(srv),
     staged: state.stagedItems.map((item) => ({
-      kind: /** @type {const} */ ('staged'),
+      kind: 'staged' as const,
       key: 'stg:' + item.id,
       id: item.id,
       name: item.name,
@@ -262,13 +246,13 @@ export function renderFiles() {
   // Vue-Insel (app/tabs/files).
   mountVueTab(pane, 'files', {
     lang,
-    service: /** @type {FilesService} */ ({
+    service: {
       snapshot: () => filesSnapshot(lang),
       deleteServer: deleteServerFile,
       moveServer: moveServerFile,
       deleteStaged: deleteStagedItem,
       addFiles: stageFiles,
-    }),
+    } as FilesService,
   });
 }
 
@@ -276,14 +260,8 @@ export function renderFiles() {
 // liefert die neue Kennung – Slot-Wert dann 'staged:<id>'. Wird auch von anderen
 // Tabs genutzt (z. B. Layout: Bild aus der Zwischenablage in eine Kachel).
 // Aktualisiert state.stagedItems, rendert aber KEINE Ansicht neu.
-/**
- * @param {File | Blob} file
- * @param {string} [name]
- * @returns {Promise<string>}
- */
-export async function stageFile(file, name) {
-  /** @type {StagedItem} */
-  const item = {
+export async function stageFile(file: File | Blob, name?: string): Promise<string> {
+  const item: StagedItem = {
     id: 'm' + Date.now() + Math.random().toString(36).slice(2, 7),
     name: name || ('name' in file ? file.name : '') || 'datei',
     type: file.type || 'application/octet-stream',
@@ -304,19 +282,16 @@ export async function stageFile(file, name) {
 //   imagesOnly   nur Bilder anbieten (keine Videos)
 //   title        Fenstertitel
 /**
- * @param {Lang} lang
- * @param {string} key Slot (ohne `onPick`) bzw. Kennung des Aufrufers
- * @param {PickerOpts} [opts]
+ * @param key Slot (ohne `onPick`) bzw. Kennung des Aufrufers
  */
-export function openMediaPicker(lang, key, opts = {}) {
+export function openMediaPicker(lang: Lang, key: string, opts: PickerOpts = {}) {
   document.getElementById('mediaPicker')?.remove();
-  const isVideoName = (/** @type {string} */ name) => /\.(mp4|webm|mov|ogg)$/i.test(name);
+  const isVideoName = (name: string) => /\.(mp4|webm|mov|ogg)$/i.test(name);
   const items = opts.imagesOnly
     ? state.stagedItems.filter((i) => !/^video\//.test(i.type) && !isVideoName(i.name))
     : state.stagedItems;
 
-  /** @type {(Lang | 'shared')[]} */
-  const langs = opts.allLangs ? ['de', 'en', 'shared'] : [lang, 'shared'];
+  const langs: (Lang | 'shared')[] = opts.allLangs ? ['de', 'en', 'shared'] : [lang, 'shared'];
   let serverList = langs.flatMap((l) => state.serverFiles[l] || []);
   if (opts.imagesOnly) serverList = serverList.filter((f) => !isVideoName(f.name));
   const serverTiles = serverList
@@ -345,11 +320,7 @@ export function openMediaPicker(lang, key, opts = {}) {
     })
     .join('');
 
-  const section = (
-    /** @type {string} */ title,
-    /** @type {string} */ tiles,
-    /** @type {string} */ empty,
-  ) =>
+  const section = (title: string, tiles: string, empty: string) =>
     `<h4 style="margin:.75rem 0 .35rem">${title}</h4>` +
     (tiles ? `<div class="media-grid">${tiles}</div>` : `<p class="hint">${empty}</p>`);
 
@@ -367,7 +338,7 @@ export function openMediaPicker(lang, key, opts = {}) {
       </div>
     </div>`;
 
-  const onKey = (/** @type {KeyboardEvent} */ e) => {
+  const onKey = (e: KeyboardEvent) => {
     if (e.key === 'Escape') close();
   };
   function close() {
@@ -379,21 +350,21 @@ export function openMediaPicker(lang, key, opts = {}) {
     if (e.target === overlay) close(); // Klick auf den abgedunkelten Hintergrund
   });
   overlay.querySelector('[data-pickcancel]')?.addEventListener('click', close);
-  const assign = (/** @type {string} */ url) => {
+  const assign = (url: string) => {
     if (opts.onPick) opts.onPick(url);
     else {
-      setMediaVal(lang, /** @type {MediaKey} */ (key), url);
+      setMediaVal(lang, key as MediaKey, url);
       renderMedia();
     }
   };
-  overlay.querySelectorAll(/** @type {'div'} */ ('[data-pick]')).forEach((el) =>
+  overlay.querySelectorAll('[data-pick]' as 'div').forEach((el) =>
     el.addEventListener('click', () => {
       const item = items.find((x) => x.id === el.dataset.pick);
       if (item) assign(item.publishedUrl || 'staged:' + item.id);
       close();
     }),
   );
-  overlay.querySelectorAll(/** @type {'div'} */ ('[data-picksrv]')).forEach((el) =>
+  overlay.querySelectorAll('[data-picksrv]' as 'div').forEach((el) =>
     el.addEventListener('click', () => {
       assign(el.dataset.picksrv || ''); // direkt die Server-URL zuweisen
       close();

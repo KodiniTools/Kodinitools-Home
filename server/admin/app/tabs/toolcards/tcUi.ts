@@ -4,7 +4,7 @@ import type { ThemeMode } from '../../../types';
 /**
  * UI-Zustand des Tabs „Tool-Karten“ (nicht gespeichert), modulweit, damit er
  * ein Neu-Mounten (Sprachwechsel, Rückgängig) übersteht – wie die
- * Modul-Variablen in `public/toolcards.js`.
+ * Modul-Variablen in `public/toolcards.ts`.
  */
 export const tcUi = reactive<{
   /** In Vorschau und offener Seitenleiste bearbeiteter Modus. */

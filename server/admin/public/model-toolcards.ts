@@ -112,27 +112,17 @@ export function defaultToolCardText() {
 export function normToolCardText(t: RawJson): ToolCardText {
   const d = defaultToolCardText();
   if (!t || typeof t !== 'object') return d;
-  const num: (v: unknown, min: number, max: number, def: number) => number = (
-    v,
-    min,
-    max,
-    def,
-  ): number => {
+  const num = (v: unknown, min: number, max: number, def: number): number => {
     const n = Number(v);
     return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : def;
   };
-  const half: (v: unknown, min: number, max: number, def: number) => number = (
-    v,
-    min,
-    max,
-    def,
-  ): number => {
+  const half = (v: unknown, min: number, max: number, def: number): number => {
     const n = Number(v);
     return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n * 2) / 2)) : def;
   };
-  const weight: (v: unknown) => string = (v): string =>
+  const weight = (v: unknown): string =>
     TOOL_CARD_WEIGHTS.includes(String(v ?? '')) ? String(v ?? '') : '';
-  const transform: (v: unknown) => string = (v): string =>
+  const transform = (v: unknown): string =>
     typeof v === 'string' && TOOL_CARD_TRANSFORMS.includes(v) ? v : '';
   return {
     titleFont: normFontFile(t.titleFont),
@@ -231,14 +221,9 @@ export function setIconTint(
 export const TOOL_CARD_BORDER_STYLES = ['solid', 'dashed', 'dotted', 'double'];
 function normToolCardSide(s: RawJson, def: ToolCardSide): ToolCardSide {
   if (!s || typeof s !== 'object') return def;
-  const hex: (v: unknown, d: string) => string = (v, d): string =>
+  const hex = (v: unknown, d: string): string =>
     /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? String(v) : d;
-  const num: (v: unknown, min: number, max: number, d: number) => number = (
-    v,
-    min,
-    max,
-    d,
-  ): number => {
+  const num = (v: unknown, min: number, max: number, d: number): number => {
     const n = Number(v);
     return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : d;
   };

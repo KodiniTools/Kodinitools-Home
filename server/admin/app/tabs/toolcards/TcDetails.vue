@@ -7,7 +7,7 @@
 
 <script setup lang="ts">
 /**
- * Aufklappbarer Bereich (wie `section()` in `public/toolcards.js`). `open` gilt
+ * Aufklappbarer Bereich (wie `section()` in `public/toolcards.ts`). `open` gilt
  * nur beim Anlegen; danach behält das native <details> seinen Zustand.
  */
 withDefaults(defineProps<{ open?: boolean }>(), { open: true });

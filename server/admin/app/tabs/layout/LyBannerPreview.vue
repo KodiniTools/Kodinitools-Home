@@ -171,7 +171,7 @@ function onUp(e: PointerEvent) {
   if (el?.hasPointerCapture?.(e.pointerId)) el.releasePointerCapture(e.pointerId);
 }
 
-// ↶/↷ übernehmen den Zustand der Kopfleiste (danach hält publish.js sie synchron).
+// ↶/↷ übernehmen den Zustand der Kopfleiste (danach hält publish.ts sie synchron).
 const rootEl = ref<HTMLElement | null>(null);
 onMounted(() => {
   const doc = rootEl.value?.ownerDocument;

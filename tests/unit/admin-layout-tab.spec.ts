@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 /**
  * Tab „Layout“ (Einzel-Banner) als Vue-Insel (server/admin/app/tabs/layout):
- * Lesen und Schreiben über den Service aus public/layout.js (echte
+ * Lesen und Schreiben über den Service aus public/layout.ts (echte
  * Modell-Funktionen), Regeln wie die Vanilla-Fassung in public/layout-banner.js.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -39,8 +39,8 @@ import {
   type GridHost,
 } from '../../server/admin/app/tabs/layout/gridData';
 import { useToastStore } from '../../server/admin/app/stores/toast';
-import { layoutService } from '../../server/admin/public/layout.js';
-import { overlayStyle } from '../../server/admin/public/layout-shared.js';
+import { layoutService } from '../../server/admin/public/layout';
+import { overlayStyle } from '../../server/admin/public/layout-shared';
 import { state, defaultMedia, rgbaFromHex } from '../../server/admin/public/model';
 
 function makeService(picked: string | null = '/uploads/de/banner.webp') {
@@ -306,7 +306,7 @@ describe('LayoutTab (Vue-Insel, Einzel-Banner)', () => {
   });
 });
 
-describe('layoutService (public/layout.js)', () => {
+describe('layoutService (public/layout.ts)', () => {
   it('Medien auflösen, Seiten-Einstellungen, Strukturen sichern', () => {
     const svc = layoutService('de') as unknown as LayoutService;
     expect(svc.resolve('')).toBeNull();
@@ -486,7 +486,7 @@ describe('LayoutTab (Vue-Insel, Bild-Raster)', () => {
   });
 });
 
-describe('fullPageData (Regeln wie public/layout-fullpage.js)', () => {
+describe('fullPageData (Regeln wie public/layout-fullpage.ts)', () => {
   it('Versatz-Style, Einrasten, Pfeiltasten mit Raster, Skalieren an Punkten', () => {
     expect(moveStyle({ x: 0, y: 0 }, false)).toContain('z-index:1');
     expect(moveStyle({ x: 5, y: -3, w: 120, h: 100 }, true)).toMatch(

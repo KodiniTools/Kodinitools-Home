@@ -34,7 +34,7 @@ import { ColorField, UiSwitch } from '../../components/ui';
 
 /**
  * Farbfeld einer Seitenleiste mit „↺“; mit `toggle` zusätzlich ein An-Schalter
- * (aus = Standardfarbe der Seite, wie `optColor` in `public/toolcards.js`).
+ * (aus = Standardfarbe der Seite, wie `optColor` in `public/toolcards.ts`).
  */
 withDefaults(
   defineProps<{

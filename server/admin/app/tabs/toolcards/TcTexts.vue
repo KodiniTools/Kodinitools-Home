@@ -93,7 +93,7 @@ import { useTc } from './useTc';
 /**
  * Texte der gewählten Karte (Overrides der Sprachdatei: Titel, Badge,
  * Beschreibung, Link) bzw. beim Standard die „Öffnen“-Beschriftung – wie
- * `textsBlock` in `public/toolcards.js`.
+ * `textsBlock` in `public/toolcards.ts`.
  */
 const { service, view, change, toast } = useTc();
 const uid = `tc-tx-${useId()}`;

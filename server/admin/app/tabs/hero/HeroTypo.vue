@@ -126,7 +126,7 @@ import { useHero } from './useHero';
 
 /**
  * Sektion „Überschriften-Typografie & globale Schrift“ (wie `typoBody` in
- * `public/design.js`): Überschriften-Schrift, Kachel-Galerie der globalen
+ * `public/design.ts`): Überschriften-Schrift, Kachel-Galerie der globalen
  * Basis-Schrift (DE + EN), Buchstabenabstand, Kontur und Schriftgrößen.
  */
 const { service, view, change, ff, fontOptions, toast } = useHero();

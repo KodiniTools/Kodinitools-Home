@@ -4,7 +4,7 @@ import { ref } from 'vue';
 /**
  * Toast-Benachrichtigungen des Admins (Muster: `stores/toast.ts` im Modernen
  * Musikplayer). Angezeigt von `ToastHost.vue`; die Vanilla-Module erreichen den
- * Store über `toast()` in `public/core.js` → `window.kodiniAdminVue.toast`.
+ * Store über `toast()` in `public/core.ts` → `window.kodiniAdminVue.toast`.
  * Fehler bleiben länger stehen; `duration: 0` = bis zum Schließen.
  */
 export type ToastType = 'success' | 'error' | 'warning' | 'info';

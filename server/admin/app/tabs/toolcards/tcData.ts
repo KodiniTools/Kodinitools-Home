@@ -4,7 +4,7 @@ import { rgbaFromHex } from '../../../public/model-core';
 
 /**
  * Datenmodell und reine Regeln des Tabs „Tool-Karten“ (Vue-Fassung von
- * `public/toolcards.js`). Gelesen/geschrieben wird das rohe
+ * `public/toolcards.ts`). Gelesen/geschrieben wird das rohe
  * `media.<lang>.toolCards` (über `getToolCards`) und die Text-Overrides; die
  * Vanilla-Seite reicht dafür einen Service herein (keine zweite `state`-Instanz
  * im Bundle).
@@ -71,7 +71,7 @@ export interface ToolCards {
   default: TcStyle;
   cards: Record<string, TcStyle>;
 }
-/** Eine Tool-Karte der Sprache (wie `cardList` in toolcards.js). */
+/** Eine Tool-Karte der Sprache (wie `cardList` in toolcards.ts). */
 export interface CardInfo {
   id: string;
   section: TcSectionKey | '';
@@ -87,7 +87,7 @@ export interface CardInfo {
 /** Locale-Pfad, z. B. `['tools', 'mp3', 'title']`. */
 export type TextPath = string[];
 
-/** Was `public/toolcards.js` dem Tab übergibt. */
+/** Was `public/toolcards.ts` dem Tab übergibt. */
 export interface TcService {
   lang: Lang;
   /** `getToolCards(lang)` – rohes, beschreibbares Objekt. */
@@ -308,7 +308,7 @@ export function openLabel(svc: Pick<TcService, 'effText' | 'lang'>): string {
   return svc.effText(['tool', 'open']) || (svc.lang === 'de' ? 'Öffnen' : 'Open');
 }
 /**
- * Karten-Text setzen (wie `setCardText` in toolcards.js): leer = Override
+ * Karten-Text setzen (wie `setCardText` in toolcards.ts): leer = Override
  * entfernen (Standard), Badge darf leer sein (= kein Badge), Link nur
  * https://…, /pfad oder # (sonst false, nichts übernommen). Angelegte Karten
  * haben keinen Standardtext – leer bleibt dort ''.

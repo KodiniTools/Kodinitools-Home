@@ -1,23 +1,22 @@
-// @ts-check
 // KodiniTools Adminbereich — Einstiegsmodul. Bindet Login, die zweistufige
 // Navigation und den Startvorgang zusammen. Die Tabs sind Vue-Inseln
 // (app/tabs/…, gebaut mit `npm run build:admin`); die Module hier halten den
 // Zustand (model*.ts) und reichen ihn als Props/Services an die Inseln.
 
-import { $, api, mediaAll } from './core.js';
-/** @import { NavSection, SubtabKey } from '../types.ts' */
+import { $, api, mediaAll } from './core';
+import type { NavSection, SubtabKey } from '../types';
 import { state, normTicker, normalizeMedia, SUBTABS, isLangSection } from './model';
-import { renderTicker } from './ticker.js';
-import { loadFonts } from './fonts.js';
-import { renderTexts, renderAdvanced } from './content.js';
-import { renderHeroDesign } from './design.js';
-import { renderBackground } from './background.js';
-import { renderToolCards } from './toolcards.js';
-import { renderLayout } from './layout.js';
-import { renderMedia, renderFiles, loadServerFiles } from './media.js';
-import { renderIcons } from './icons.js';
-import { renderPublish, refreshPublishStatus, initSaveTracking } from './publish.js';
-import { unmountVueTab, markVueMissing } from './islands.js';
+import { renderTicker } from './ticker';
+import { loadFonts } from './fonts';
+import { renderTexts, renderAdvanced } from './content';
+import { renderHeroDesign } from './design';
+import { renderBackground } from './background';
+import { renderToolCards } from './toolcards';
+import { renderLayout } from './layout';
+import { renderMedia, renderFiles, loadServerFiles } from './media';
+import { renderIcons } from './icons';
+import { renderPublish, refreshPublishStatus, initSaveTracking } from './publish';
+import { unmountVueTab, markVueMissing } from './islands';
 
 // --- Login ---
 $('#loginForm').addEventListener('submit', async (e) => {
@@ -25,10 +24,10 @@ $('#loginForm').addEventListener('submit', async (e) => {
   $('#loginErr').textContent = '';
   const r = await api('/login', {
     method: 'POST',
-    body: { password: /** @type {HTMLInputElement} */ ($('#pw')).value },
+    body: { password: ($('#pw') as HTMLInputElement).value },
   });
   if (r.ok) {
-    /** @type {HTMLInputElement} */ ($('#pw')).value = '';
+    ($('#pw') as HTMLInputElement).value = '';
     await boot();
   } else {
     $('#loginErr').textContent = r.data?.error || 'Anmeldung fehlgeschlagen';
@@ -44,7 +43,7 @@ $('#logoutBtn').addEventListener('click', async () => {
 function renderNav() {
   const { section, sub } = state.nav;
   document.querySelectorAll('#topnav button').forEach((b) => {
-    b.classList.toggle('active', /** @type {HTMLElement} */ (b).dataset.sec === section);
+    b.classList.toggle('active', (b as HTMLElement).dataset.sec === section);
   });
   const subnav = $('#subnav');
   if (isLangSection(section)) {
@@ -91,11 +90,7 @@ export function renderMain() {
   }
 }
 
-/**
- * @param {NavSection} section
- * @param {SubtabKey} [sub]
- */
-export function goto(section, sub) {
+export function goto(section: NavSection, sub?: SubtabKey) {
   state.nav.section = section;
   if (sub) state.nav.sub = sub;
   renderNav();
@@ -103,16 +98,12 @@ export function goto(section, sub) {
 }
 
 $('#topnav').addEventListener('click', (e) => {
-  const btn = /** @type {HTMLElement | null} */ (
-    /** @type {Element} */ (e.target).closest('button[data-sec]')
-  );
-  if (btn) goto(/** @type {NavSection} */ (btn.dataset.sec));
+  const btn = (e.target as Element).closest('button[data-sec]') as HTMLElement | null;
+  if (btn) goto(btn.dataset.sec as NavSection);
 });
 $('#subnav').addEventListener('click', (e) => {
-  const btn = /** @type {HTMLElement | null} */ (
-    /** @type {Element} */ (e.target).closest('button[data-sub]')
-  );
-  if (btn) goto(state.nav.section, /** @type {SubtabKey} */ (btn.dataset.sub));
+  const btn = (e.target as Element).closest('button[data-sub]') as HTMLElement | null;
+  if (btn) goto(state.nav.section, btn.dataset.sub as SubtabKey);
 });
 
 // --- Laden & Anzeigen ---

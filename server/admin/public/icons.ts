@@ -1,13 +1,12 @@
-// @ts-check
 // „Icons"-Tab: durchsucht die Font-Awesome-Icons aus dem Serverordner
 // /fontawesome/svgs (Solid, Regular, Brands), zeigt ALLE Treffer in einer
 // scrollbaren Bibliothek und erlaubt, ein Icon zur Seite hinzuzufügen –
 // als Einzel-Banner, als Raster-Kachel oder als Tool-Karten-Icon (je Sprache)
 // oder seine URL zu kopieren. Die Icon-Liste wird beim ersten Öffnen geladen.
 
-import { $ } from './core.js';
+import { $ } from './core';
 import { state, getPath, toolCardKeys, TOOL_CARD_SECTIONS, navLang } from './model';
-import { mountVueTab } from './islands.js';
+import { mountVueTab } from './islands';
 
 // Kachel 1..6 (größtmögliche Kachelzahl über alle Layouts)
 

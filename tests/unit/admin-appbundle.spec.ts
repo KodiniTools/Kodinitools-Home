@@ -41,7 +41,7 @@ describe('needsAdminBuild', () => {
     expect(needsAdminBuild('vite.admin.config.ts')).toBe(true);
     expect(needsAdminBuild('package-lock.json')).toBe(true);
     expect(needsAdminBuild('server/admin/public/model-core.ts')).toBe(true);
-    expect(needsAdminBuild('server/admin/public/design.js')).toBe(true);
+    expect(needsAdminBuild('server/admin/public/design')).toBe(true);
     expect(needsAdminBuild('server/admin/public/index.html')).toBe(true);
     expect(needsAdminBuild('server/admin/index.mjs')).toBe(false);
     expect(needsAdminBuild('src/pages/index.astro')).toBe(false);

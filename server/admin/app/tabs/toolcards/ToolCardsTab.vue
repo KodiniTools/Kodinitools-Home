@@ -325,7 +325,7 @@ import { provideTc } from './useTc';
 
 /**
  * Tab „Tool-Karten“ (je Sprache, Vue-Fassung von `renderToolCards` in
- * `public/toolcards.js`): Standard-Design aller Karten plus Einzel-Designs,
+ * `public/toolcards.ts`): Standard-Design aller Karten plus Einzel-Designs,
  * getrennt für Hell und Dunkel, mit Sticky-Vorschau, Karten-Texten,
  * Ausblenden/Duplizieren/Anlegen und Übersicht. Geschrieben wird direkt in
  * `media.<lang>.toolCards` bzw. die Overrides (über den Service), damit

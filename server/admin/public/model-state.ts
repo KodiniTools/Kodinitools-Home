@@ -6,7 +6,7 @@
 // ticker/media/loadedMedia sind bis dahin `null`; sie sind trotzdem als gefüllt
 // typisiert, weil jeder Zugriff über model.ts läuft (das sie beim Laden setzt).
 
-import type { AdminState } from '../types';
+import type { AdminState, Lang } from '../types';
 
 export const state: AdminState = {
   overrides: { de: {}, en: {} },
@@ -26,6 +26,6 @@ export const state: AdminState = {
  * Sprache des offenen Sprach-Bereichs (DE/EN). Die Sprach-Tabs werden nur
  * dort gerendert; im Bereich „Status“ (publish) liefert das 'de'.
  */
-export function navLang(): import('../types.ts').Lang {
+export function navLang(): Lang {
   return state.nav.section === 'en' ? 'en' : 'de';
 }

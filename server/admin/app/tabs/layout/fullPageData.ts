@@ -2,7 +2,7 @@ import type { ThemeMode } from '../../../types';
 
 /**
  * Ganzseiten-Vorschau im Tab „Layout“ (Vue-Fassung von
- * `public/layout-fullpage.js`): Typen der Daten aus dem Service und reine
+ * `public/layout-fullpage.ts`): Typen der Daten aus dem Service und reine
  * Regeln für Verschieben, Einrasten, Skalieren und den eigenen Verlauf.
  * Element-Schlüssel: 'hero' | 'audio' | 'image' | 'diverse' |
  * 'card:<sektion.key>' | 'text:<slot>'.
@@ -86,7 +86,7 @@ export interface FpCardOffset extends FpOffset {
   title: string;
 }
 
-/** Brücke zu `public/layout-fullpage.js` (über `layoutService(lang).fullPage`). */
+/** Brücke zu `public/layout-fullpage.ts` (über `layoutService(lang).fullPage`). */
 export interface FullPageService {
   /** Liest nur – Öffnen des Tabs ändert nichts am Zustand. */
   model: (mode: ThemeMode) => FpModel;

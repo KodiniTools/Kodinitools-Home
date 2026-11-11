@@ -12,7 +12,7 @@ import type {
 
 /**
  * Datenmodell und reine Regeln des Tabs „Layout“ (Vue-Fassung von
- * `public/layout.js` und `public/layout-banner.js`): Seiten-Layout (global),
+ * `public/layout.ts` und `public/layout-banner.js`): Seiten-Layout (global),
  * Hero-Modus und Einzel-Banner (Design je Hell/Dunkel, Text-Overlay mit
  * Effekten, Medium, Diashow). Arbeitet nur auf übergebenen Objekten
  * (`state.media[lang]`); Standardwerte, Zwischenspeicher, Medien-Auswahl und
@@ -61,7 +61,7 @@ export const MEDIA_POS_MOBILE_LABEL: Record<MediaPosMobile, string> = {
   off: 'Aus',
 };
 
-/** Toast nach einer Änderung im Panel „Seiten-Layout“ (Texte wie in `public/layout.js`). */
+/** Toast nach einer Änderung im Panel „Seiten-Layout“ (Texte wie in `public/layout.ts`). */
 export function pageToast<K extends PageKey>(key: K, v: PageSettings[K]): string {
   switch (key) {
     case 'homeLayout':
@@ -461,7 +461,7 @@ export const bannerAnimClass = (t: BannerText) =>
 export type FontDecl = (file: string) => string;
 
 /**
- * Gemeinsamer Overlay-Style (wie `overlayStyle` in `public/layout-shared.js`):
+ * Gemeinsamer Overlay-Style (wie `overlayStyle` in `public/layout-shared.ts`):
  * Text an (x,y) in % verankert, in der Vorschau verschiebbar.
  */
 export function overlayStyle(
@@ -576,16 +576,16 @@ export function fontOptionsOf(
 
 /** Ziel der Medien-Auswahl: Banner, Banner-Diashow, Kachel i, Diashow von Kachel i. */
 export type PickTarget = 'banner' | 'slide' | { cell: number } | { cellSlide: number };
-/** Ziel beim Einfügen aus der Zwischenablage (wie `assignImageBlob` in layout-paste.js). */
+/** Ziel beim Einfügen aus der Zwischenablage (wie `assignImageBlob` in layout-paste.ts). */
 export type PasteTarget = 'banner' | 'slide' | number | `cellslide:${number}`;
 
-/** Kachel-Markierung, die `public/layout-paste.js` (Strg/Cmd+V) mitbenutzt. */
+/** Kachel-Markierung, die `public/layout-paste.ts` (Strg/Cmd+V) mitbenutzt. */
 export interface CellHooks {
   mark: (i: number) => void;
   active: () => number | null;
 }
 
-/** Brücke zu `public/layout.js` (`layoutService(lang)`). */
+/** Brücke zu `public/layout.ts` (`layoutService(lang)`). */
 export interface LayoutService {
   lang: Lang;
   /** `state.media[lang]` (Roh-Objekt). */
@@ -622,6 +622,6 @@ export interface LayoutService {
   syncProps: readonly CellField[];
   cellDefault: () => CellStyle;
   gridSlideshowDefault: () => GridSlideshow;
-  /** Ganzseiten-Vorschau (Daten + Versatz, `public/layout-fullpage.js`). */
+  /** Ganzseiten-Vorschau (Daten + Versatz, `public/layout-fullpage.ts`). */
   fullPage: FullPageService;
 }

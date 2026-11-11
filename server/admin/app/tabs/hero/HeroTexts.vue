@@ -159,7 +159,7 @@ import { hdUi } from './heroUi';
 import { useHero } from './useHero';
 
 /**
- * Sektion „Hero-Texte“ (wie `heroTextsBody` in `public/design.js`): je Slot
+ * Sektion „Hero-Texte“ (wie `heroTextsBody` in `public/design.ts`): je Slot
  * (Titel, Untertitel, Button-Text) der Text als Override und die
  * Feinabstimmung für beide Modi – Schriftart, Größe, Verschiebung, Effekte.
  * Die Textfarbe je Modus steht in den Seitenleisten.
