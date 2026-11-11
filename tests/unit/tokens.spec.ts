@@ -10,7 +10,7 @@ import {
   TOKENS_JSON,
   validateTokens,
   valueIn,
-} from '../../scripts/build-tokens.mjs';
+} from '../../scripts/build-tokens';
 
 interface Token {
   name: string;

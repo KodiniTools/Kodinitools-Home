@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { uploadSrcset } from '../../src/content/responsiveImage';
-import { collectRszJobs } from '../../rsz-integration.mjs';
+import { collectRszJobs } from '../../rsz-integration';
 
 const pub = mkdtempSync(join(tmpdir(), 'rsz-'));
 mkdirSync(join(pub, 'uploads/de'), { recursive: true });

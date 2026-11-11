@@ -1,4 +1,3 @@
-// @ts-check
 import js from '@eslint/js';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
@@ -56,7 +55,7 @@ export default tseslint.config(
 
   // Build-/Hilfsskripte laufen in Node.
   {
-    files: ['scripts/**/*.mjs'],
+    files: ['scripts/**/*.ts'],
     languageOptions: {
       globals: { ...globals.node },
     },
@@ -67,8 +66,10 @@ export default tseslint.config(
     files: [
       'server/**/*.mjs',
       'server/admin/src/**/*.ts',
-      'astro.config.mjs',
-      'single-sitemap.mjs',
+      'astro.config.ts',
+      'single-sitemap.ts',
+      'rsz-integration.ts',
+      'eslint.config.ts',
     ],
     languageOptions: {
       globals: { ...globals.node },

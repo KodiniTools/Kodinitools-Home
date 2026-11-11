@@ -10,11 +10,11 @@
   "include": [
     "server/admin/src/*.ts",
     "server/admin/*.mjs",
-    "scripts/*.mjs",
-    "astro.config.mjs",
-    "eslint.config.mjs",
-    "rsz-integration.mjs",
-    "single-sitemap.mjs"
+    "scripts/*.ts",
+    "astro.config.ts",
+    "eslint.config.ts",
+    "rsz-integration.ts",
+    "single-sitemap.ts"
   ],
   "exclude": []
 }

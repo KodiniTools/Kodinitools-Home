@@ -1,5 +1,4 @@
-// @ts-check
-// single-sitemap.mjs — Eigene Astro-Integration, die EINE flache sitemap.xml
+// single-sitemap.ts — Eigene Astro-Integration, die EINE flache sitemap.xml
 // erzeugt (statt des von @astrojs/sitemap erzwungenen Paars
 // sitemap-index.xml + sitemap-0.xml).
 //
@@ -24,15 +23,15 @@
 import { fileURLToPath } from 'node:url';
 import { writeFile, rm, readFile } from 'node:fs/promises';
 import path from 'node:path';
+import type { AstroIntegration } from 'astro';
 
 const DEFAULT_LOCALE = 'de';
 const LOCALE_ORDER = ['de', 'en'];
 
-/** @typedef {{ hreflang: string; href: string }} Alternate */
-/** @typedef {{ loc: string; alternates: Alternate[]; lastmod?: string }} SitemapEntry */
+export type Alternate = { hreflang: string; href: string };
+export type SitemapEntry = { loc: string; alternates: Alternate[]; lastmod?: string };
 
-/** @param {unknown} value */
-function xmlEscape(value) {
+function xmlEscape(value: unknown) {
   return String(value)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -46,19 +45,16 @@ function xmlEscape(value) {
 // Blog-Artikel mit sprachabhängigen Slugs und Seitenpaare wie /spenden/ <->
 // /en/donate/ korrekte Alternates, ohne dass die Integration die Zuordnung
 // kennen muss – die Seite selbst ist die Quelle der Wahrheit.
-/**
- * @param {string} htmlPath
- * @returns {Promise<{ alternates: Alternate[]; lastmod: string | undefined }>}
- */
-async function readPageMeta(htmlPath) {
+async function readPageMeta(
+  htmlPath: string,
+): Promise<{ alternates: Alternate[]; lastmod: string | undefined }> {
   let html;
   try {
     html = await readFile(htmlPath, 'utf-8');
   } catch {
     return { alternates: [], lastmod: undefined };
   }
-  /** @type {Alternate[]} */
-  const alternates = [];
+  const alternates: Alternate[] = [];
   const linkRe = /<link\s+[^>]*rel="alternate"[^>]*>/g;
   for (const tag of html.match(linkRe) ?? []) {
     const hreflang = tag.match(/hreflang="([^"]+)"/)?.[1];
@@ -73,11 +69,7 @@ async function readPageMeta(htmlPath) {
 // Parameter, x-default = Deutsch). Für jede URL entstehen zwei Einträge, die
 // sich gegenseitig als Alternate nennen – wie es die Seiten selbst per
 // <link rel="alternate" hreflang> tun.
-/**
- * @param {string[]} urls
- * @returns {SitemapEntry[]}
- */
-export function langAlternatePages(urls) {
+export function langAlternatePages(urls: string[]): SitemapEntry[] {
   return urls.flatMap((url) => {
     const de = url;
     const en = `${url}?lang=en`;
@@ -95,24 +87,17 @@ export function langAlternatePages(urls) {
 
 // Pfad -> { locale, key }. Der "key" ist der sprachneutrale Pfad, über den
 // de/en-Gegenstücke einander zugeordnet werden.
-/**
- * @param {string} pathname
- * @returns {{ locale: string; key: string }}
- */
-function classify(pathname) {
+function classify(pathname: string): { locale: string; key: string } {
   if (pathname === 'en/' || pathname.startsWith('en/')) {
     return { locale: 'en', key: pathname.slice('en/'.length) };
   }
   return { locale: DEFAULT_LOCALE, key: pathname };
 }
 
-/**
- * @param {{ extraPages?: Array<string | SitemapEntry> }} [opts]
- * @returns {import('astro').AstroIntegration}
- */
-export default function singleSitemap({ extraPages = [] } = {}) {
-  /** @type {string | undefined} */
-  let site;
+export default function singleSitemap({
+  extraPages = [],
+}: { extraPages?: Array<string | SitemapEntry> } = {}): AstroIntegration {
+  let site: string | undefined;
 
   return {
     name: 'single-sitemap',
@@ -127,13 +112,12 @@ export default function singleSitemap({ extraPages = [] } = {}) {
           return;
         }
         const origin = site.replace(/\/$/, '');
-        const toUrl = (/** @type {string} */ pathname) => `${origin}/${pathname}`;
+        const toUrl = (pathname: string) => `${origin}/${pathname}`;
 
         // 1) Von Astro gebaute Seiten (404 raus), nach key/locale gruppieren.
         const built = pages.map((p) => p.pathname).filter((pathname) => pathname !== '404/');
 
-        /** @type {Map<string, Map<string, string>>} */
-        const groups = new Map(); // key -> Map<locale, url>
+        const groups: Map<string, Map<string, string>> = new Map(); // key -> Map<locale, url>
         for (const pathname of built) {
           const { locale, key } = classify(pathname);
           if (!groups.has(key)) groups.set(key, new Map());
@@ -144,14 +128,13 @@ export default function singleSitemap({ extraPages = [] } = {}) {
         //    Bevorzugt werden die hreflang-Tags aus dem gebauten HTML; nur wenn eine
         //    Seite keine deklariert, greift die Zuordnung über identische Pfade.
         const outDirPath = fileURLToPath(dir);
-        /** @type {SitemapEntry[]} */
-        const entries = [];
+        const entries: SitemapEntry[] = [];
         for (const localeMap of groups.values()) {
           const pathAlternates =
             localeMap.size > 1
               ? LOCALE_ORDER.filter((l) => localeMap.has(l)).map((l) => ({
                   hreflang: l,
-                  href: /** @type {string} */ (localeMap.get(l)),
+                  href: localeMap.get(l) as string,
                 }))
               : [];
           for (const loc of localeMap.values()) {
