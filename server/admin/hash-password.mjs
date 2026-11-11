@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @ts-check
 // Erzeugt einen scrypt-Passwort-Hash für ADMIN_PASSWORD_HASH.
 //
 //   node server/admin/hash-password.mjs 'MEIN-PASSWORT'
@@ -11,7 +12,11 @@ import { hashPassword } from './auth.mjs';
 import { createInterface } from 'node:readline';
 
 async function fromStdin() {
-  const rl = createInterface({ input: process.stdin, output: process.stdout, terminal: true });
+  // `_writeToOutput` ist eine interne readline-Methode (nicht in den Typen).
+  const rl =
+    /** @type {import('node:readline').Interface & { _writeToOutput?: (s: string) => void }} */ (
+      createInterface({ input: process.stdin, output: process.stdout, terminal: true })
+    );
   // Eingabe verbergen
   const orig = rl._writeToOutput?.bind(rl);
   rl._writeToOutput = () => {};

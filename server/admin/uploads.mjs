@@ -1,3 +1,4 @@
+// @ts-check
 // Datei-Uploads. Der Admin-Client sendet die Datei als Raw-Body mit dem
 // Header X-Filename (kein Multipart-Parsing nötig). Ziel: uploadsDir auf dem
 // Server (außerhalb Git). Rückgabe: öffentlicher Pfad /uploads/<datei>.
@@ -15,6 +16,11 @@ import {
 import { resolve, extname, basename, dirname } from 'node:path';
 import { randomBytes } from 'node:crypto';
 import { config } from './config.mjs';
+
+/**
+ * Eintrag der Server-Dateiliste (entspricht `ServerFile` im Admin-Frontend).
+ * @typedef {{ name: string; path: string; url: string; bytes: number; mtime: number }} UploadEntry
+ */
 
 // Uploads bis zu dieser Größe werden zusätzlich ins Repo (public/uploads)
 // kopiert und per Git dauerhaft gesichert. Größere Dateien (Videos) bleiben nur
@@ -37,7 +43,10 @@ const ALLOWED = new Set([
   '.wav',
 ]);
 
-/** Macht einen Dateinamen sicher (keine Pfade, nur erlaubte Zeichen). */
+/**
+ * Macht einen Dateinamen sicher (keine Pfade, nur erlaubte Zeichen).
+ * @param {unknown} name
+ */
 function safeName(name) {
   const base = basename(String(name || '')).replace(/[^a-zA-Z0-9._-]/g, '-');
   const ext = extname(base).toLowerCase();
@@ -45,6 +54,11 @@ function safeName(name) {
   return { stem, ext };
 }
 
+/**
+ * @param {string} dir
+ * @param {string} stem
+ * @param {string} ext
+ */
 async function uniquePath(dir, stem, ext) {
   // Kurzes Zufalls-Suffix gegen Kollisionen/Überschreiben.
   for (let i = 0; i < 5; i++) {
@@ -61,7 +75,11 @@ async function uniquePath(dir, stem, ext) {
   return { full: resolve(dir, fname), fname };
 }
 
-/** Sprach-Unterordner: 'de'/'en' -> getrennte Galerie; sonst '' (gemeinsam). */
+/**
+ * Sprach-Unterordner: 'de'/'en' -> getrennte Galerie; sonst '' (gemeinsam).
+ * @param {unknown} lang
+ * @returns {'de' | 'en' | ''}
+ */
 function langSub(lang) {
   return lang === 'de' || lang === 'en' ? lang : '';
 }
@@ -70,9 +88,9 @@ function langSub(lang) {
  * Speichert einen Upload — pro Sprache in einen eigenen Unterordner
  * (/uploads/de, /uploads/en), damit DE- und EN-Medien getrennt bleiben.
  * @param {Buffer} buf  Dateiinhalt
- * @param {string} filename  gewünschter Name (aus X-Filename)
- * @param {string} lang  'de' | 'en' | '' (gemeinsam)
- * @returns {{ url: string, filename: string, bytes: number, lang: string }}
+ * @param {unknown} filename  gewünschter Name (aus X-Filename)
+ * @param {unknown} lang  'de' | 'en' | '' (gemeinsam)
+ * @returns {Promise<{ url: string, filename: string, bytes: number, lang: string }>}
  */
 export async function saveUpload(buf, filename, lang) {
   const { stem, ext } = safeName(filename);
@@ -103,14 +121,21 @@ export async function saveUpload(buf, filename, lang) {
       const repoTarget = resolve(repoDir, fname);
       if (repoTarget !== full) await copyFile(full, repoTarget);
     } catch (e) {
-      console.warn('[kodini-admin] Upload-Kopie nach public/uploads fehlgeschlagen:', e.message);
+      console.warn(
+        '[kodini-admin] Upload-Kopie nach public/uploads fehlgeschlagen:',
+        e instanceof Error ? e.message : e,
+      );
     }
   }
 
   return { url: `/uploads/${rel}${fname}`, filename: fname, bytes: buf.length, lang: sub };
 }
 
-/** Prüft, dass ein Name ein einfacher Dateiname ist (kein Pfad/Traversal). */
+/**
+ * Prüft, dass ein Name ein einfacher Dateiname ist (kein Pfad/Traversal).
+ * @param {unknown} name
+ * @returns {name is string}
+ */
 function isPlainName(name) {
   return (
     typeof name === 'string' &&
@@ -122,7 +147,11 @@ function isPlainName(name) {
   );
 }
 
-/** Dateien EINES Unterordners auflisten (sub='' = Wurzel = gemeinsam). */
+/**
+ * Dateien EINES Unterordners auflisten (sub='' = Wurzel = gemeinsam).
+ * @param {'de' | 'en' | ''} sub
+ * @returns {Promise<UploadEntry[]>}
+ */
 async function listDir(sub) {
   const rel = sub ? `${sub}/` : '';
   let names;
@@ -131,6 +160,7 @@ async function listDir(sub) {
   } catch {
     return [];
   }
+  /** @type {UploadEntry[]} */
   const out = [];
   for (const name of names) {
     if (!isPlainName(name)) continue; // .gitkeep, Unterordner & Verstecktes überspringen
@@ -163,7 +193,11 @@ export async function listUploads() {
   return { de, en, shared };
 }
 
-/** Erlaubt "de/datei", "en/datei" oder "datei" (kein Traversal). */
+/**
+ * Erlaubt "de/datei", "en/datei" oder "datei" (kein Traversal).
+ * @param {unknown} p
+ * @returns {p is string}
+ */
 function isValidUploadPath(p) {
   return typeof p === 'string' && /^((de|en)\/)?[a-zA-Z0-9][a-zA-Z0-9._-]*$/.test(p);
 }
@@ -173,6 +207,7 @@ function isValidUploadPath(p) {
  * UND aus public/uploads (Repo). Die Repo-Löschung wird beim nächsten
  * Veröffentlichen mit committet (git add -A public/uploads), sodass die Datei
  * nicht beim nächsten Deploy zurückkehrt.
+ * @param {unknown} relPath
  */
 export async function deleteUpload(relPath) {
   if (!isValidUploadPath(relPath)) {
@@ -182,6 +217,7 @@ export async function deleteUpload(relPath) {
     resolve(config.uploadsDir, relPath),
     resolve(config.repoDir, 'public/uploads', relPath),
   ];
+  /** @type {string[]} */
   const removed = [];
   for (const t of targets) {
     try {
@@ -200,8 +236,8 @@ export async function deleteUpload(relPath) {
 /**
  * Verschiebt eine Upload-Datei in einen anderen Sprachordner (bzw. in den
  * gemeinsamen Ordner). Benennt sie im Webroot UND in public/uploads um.
- * @param {string} fromPath  relativer Pfad, z.B. "banner.jpg" oder "de/x.jpg"
- * @param {string} toLang    'de' | 'en' | '' (gemeinsam)
+ * @param {unknown} fromPath  relativer Pfad, z.B. "banner.jpg" oder "de/x.jpg"
+ * @param {unknown} toLang    'de' | 'en' | '' (gemeinsam)
  */
 export async function moveUpload(fromPath, toLang) {
   if (!isValidUploadPath(fromPath)) {
@@ -224,8 +260,8 @@ export async function moveUpload(fromPath, toLang) {
   try {
     await stat(dstWeb);
     throw Object.assign(new Error('Zielname existiert bereits'), { statusCode: 409 });
-  } catch (e) {
-    if (e.statusCode === 409) throw e; // Ziel existiert -> abbrechen
+  } catch (/** @type {any} */ e) {
+    if (e?.statusCode === 409) throw e; // Ziel existiert -> abbrechen
     /* sonst: Ziel frei -> weiter */
   }
   await mkdir(dirname(dstWeb), { recursive: true });

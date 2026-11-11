@@ -1,3 +1,4 @@
+// @ts-check
 // Kodini Admin-Dienst — HTTP-Server (nur Node-Built-ins).
 // Läuft lokal auf 127.0.0.1:PORT, hinter nginx unter /admin bzw. /admin/api.
 // nginx entfernt das /admin-Präfix, hier kommen also / und /api/... an.
@@ -27,9 +28,12 @@ import { startPreview, getPreviewState, PREVIEW_DIR } from './preview.mjs';
 import { serverCodeChanged } from './codeupdate.mjs';
 import { isAppPath, resolveAppFile } from './appbundle.mjs';
 
+/** @import { IncomingMessage, ServerResponse } from 'node:http' */
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = resolve(__dirname, 'public');
 
+/** @type {Record<string, string>} */
 const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
@@ -52,11 +56,17 @@ const MIME = {
   '.ttf': 'font/ttf',
 };
 
+/** @param {ServerResponse} res */
 function noindex(res) {
   res.setHeader('X-Robots-Tag', 'noindex, nofollow');
 }
 
 // --- Statische Auslieferung des Admin-Frontends (Phase 4) ---
+/**
+ * @param {IncomingMessage} req
+ * @param {ServerResponse} res
+ * @param {string} urlPath
+ */
 async function serveStatic(req, res, urlPath) {
   // Pfad sicher innerhalb PUBLIC_DIR auflösen
   const rel = normalize(decodeURIComponent(urlPath)).replace(/^(\.\.[/\\])+/, '');
@@ -88,6 +98,11 @@ async function serveStatic(req, res, urlPath) {
 }
 
 // --- Vue-Teile des Admins (server/admin/dist/) unter /admin/app/ ---
+/**
+ * @param {IncomingMessage} req
+ * @param {ServerResponse} res
+ * @param {string} urlPath
+ */
 async function serveApp(req, res, urlPath) {
   const filePath = resolveAppFile(urlPath);
   try {
@@ -111,6 +126,11 @@ async function serveApp(req, res, urlPath) {
 // Nur für angemeldete Admins. Die Vorschau-HTML referenziert eigene Assets
 // unter /admin/preview/_astro/… (base), Medien/Bilder/Videos hingegen unter
 // dem Live-Root (/uploads, /videos, /images) — die existieren dort bereits.
+/**
+ * @param {IncomingMessage} req
+ * @param {ServerResponse} res
+ * @param {string} urlPath
+ */
 async function servePreview(req, res, urlPath) {
   if (!isAuthenticated(req)) {
     noindex(res);
@@ -145,6 +165,10 @@ async function servePreview(req, res, urlPath) {
 }
 
 // --- API ---
+/**
+ * @param {IncomingMessage} req
+ * @param {ServerResponse} res
+ */
 function requireAuth(req, res) {
   if (!isAuthenticated(req)) {
     sendJson(res, 401, { error: 'Nicht angemeldet' });
@@ -152,6 +176,10 @@ function requireAuth(req, res) {
   }
   return true;
 }
+/**
+ * @param {IncomingMessage} req
+ * @param {ServerResponse} res
+ */
 function requireCsrf(req, res) {
   if (!csrfOk(req)) {
     sendJson(res, 403, { error: 'CSRF-Header fehlt' });
@@ -160,6 +188,11 @@ function requireCsrf(req, res) {
   return true;
 }
 
+/**
+ * @param {IncomingMessage} req
+ * @param {ServerResponse} res
+ * @param {string} path
+ */
 async function handleApi(req, res, path) {
   const method = req.method;
 
@@ -217,7 +250,7 @@ async function handleApi(req, res, path) {
     try {
       const saved = await saveContent(body);
       return sendJson(res, 200, { ok: true, saved });
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       return sendJson(res, 400, { error: e.message });
     }
   }
@@ -231,7 +264,7 @@ async function handleApi(req, res, path) {
       const buf = await readBody(req, config.maxUploadMb * 1024 * 1024);
       const result = await saveUpload(buf, filename, req.headers['x-lang']);
       return sendJson(res, 200, { ok: true, ...result });
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       return sendJson(res, e.statusCode || 500, { error: e.message });
     }
   }
@@ -268,7 +301,7 @@ async function handleApi(req, res, path) {
     try {
       const result = await deleteUpload(String(body.path || body.name || ''));
       return sendJson(res, 200, result);
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       return sendJson(res, e.statusCode || 500, { error: e.message });
     }
   }
@@ -286,7 +319,7 @@ async function handleApi(req, res, path) {
     try {
       const result = await moveUpload(String(body.path || ''), String(body.lang || ''));
       return sendJson(res, 200, result);
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       return sendJson(res, e.statusCode || 500, { error: e.message });
     }
   }
@@ -299,6 +332,7 @@ async function handleApi(req, res, path) {
         error: 'Es läuft gerade ein Vorschau-Build. Bitte kurz warten.',
       });
     }
+    /** @type {any} */
     let body = {};
     try {
       body = await readJson(req);
@@ -339,7 +373,7 @@ async function handleApi(req, res, path) {
 
 const server = http.createServer(async (req, res) => {
   try {
-    const url = new URL(req.url, 'http://localhost');
+    const url = new URL(req.url || '/', 'http://localhost');
     const path = url.pathname;
     if (path === '/api' || path.startsWith('/api/')) {
       await handleApi(req, res, path);
@@ -350,7 +384,7 @@ const server = http.createServer(async (req, res) => {
     } else {
       await serveStatic(req, res, path);
     }
-  } catch (err) {
+  } catch (/** @type {any} */ err) {
     if (!res.headersSent)
       sendJson(res, err.statusCode || 500, { error: err.message || 'Serverfehler' });
     else res.end();

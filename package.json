@@ -14,7 +14,7 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:smoke": "astro build && vitest run tests/smoke",
-    "typecheck": "astro check && vue-tsc --noEmit -p tsconfig.vue.json && vue-tsc --noEmit -p tsconfig.admin.json",
+    "typecheck": "astro check && vue-tsc --noEmit -p tsconfig.vue.json && vue-tsc --noEmit -p tsconfig.admin.json && tsc --noEmit -p tsconfig.server.json",
     "tokens": "node scripts/build-tokens.mjs",
     "build:admin": "vite build --config vite.admin.config.ts"
   },
