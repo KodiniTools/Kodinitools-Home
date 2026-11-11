@@ -15,6 +15,8 @@ import { state } from './model-state.js';
 import { TOOL_CARD_KEY } from './model-toolcards.js';
 import { setCardHidden } from './model-site.js';
 
+/** @typedef {'tools' | 'imageTools' | 'diverseTools'} ToolCardSection */
+/** @type {ToolCardSection[]} */
 export const TOOL_CARD_SECTIONS = ['tools', 'imageTools', 'diverseTools'];
 // Textfelder einer Karte (Override-Felder der Sprachdatei).
 export const CARD_TEXT_KEYS = ['title', 'badge', 'description', 'link', 'svg'];
@@ -147,7 +149,7 @@ export function duplicateCard(srcId) {
  * @returns {string | null}
  */
 export function createCard(section) {
-  if (!TOOL_CARD_SECTIONS.includes(section)) return null;
+  if (!TOOL_CARD_SECTIONS.includes(/** @type {ToolCardSection} */ (section))) return null;
   const key = uniqueCardKey(section, 'neue-karte');
   for (const lang of MEDIA_LANGS) {
     const o = ovr(lang);

@@ -36,6 +36,7 @@ import {
   normBannerStyle,
   defaultBannerSlideshow,
   defaultGridSlideshow,
+  normGridSlideshow,
   normGridSlides,
   normBannerSlides,
   normBannerSlideshow,
@@ -246,7 +247,7 @@ export function normalizeMedia(m) {
       heroBannerSlides: normBannerSlides(o?.heroBannerSlides),
       heroBannerSlideshow: normBannerSlideshow(o?.heroBannerSlideshow),
       heroGridSlides: normGridSlides(o?.heroGridSlides),
-      heroGridSlideshow: normBannerSlideshow(o?.heroGridSlideshow, true),
+      heroGridSlideshow: normGridSlideshow(o?.heroGridSlideshow),
       sectionMedia: normSectionMediaAll(o?.sectionMedia),
       heroGrid: [0, 1, 2, 3, 4, 5].map((i) => (typeof grid[i] === 'string' ? grid[i] : '')),
       heroGridLinks: [0, 1, 2, 3, 4, 5].map((i) =>

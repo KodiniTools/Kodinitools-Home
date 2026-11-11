@@ -164,3 +164,9 @@ export const SUBTABS = [
 ];
 /** @type {Lang[]} */
 export const LANG_SECTIONS = ['de', 'en'];
+/**
+ * Ist der Navigationsbereich eine Sprache (DE/EN) statt „Status“?
+ * @param {unknown} s
+ * @returns {s is Lang}
+ */
+export const isLangSection = (s) => LANG_SECTIONS.includes(/** @type {Lang} */ (s));

@@ -1,3 +1,4 @@
+// @ts-check
 // Speichern (Entwurf), Veröffentlichen (Upload + Commit + Deploy) und die
 // Browser-Vorschau (Build ohne Deploy). Enthält den Status-Tab, das Polling und
 // die Verdrahtung der Kopf-Buttons (Speichern/Vorschau/Veröffentlichen).
@@ -10,7 +11,7 @@ import {
   allImageSlots,
   getPath,
   setPath,
-  LANG_SECTIONS,
+  isLangSection,
   SUBTABS,
   getMediaVal,
   setMediaVal,
@@ -20,6 +21,29 @@ import {
 } from './model.js';
 import { loadServerFiles, renderFiles, renderMedia } from './media.js';
 import { goto, renderMain } from './admin.js';
+
+/** @import { AnyObj, MediaState, SectionVideoKey, TickerConfig } from '../types.ts' */
+/** @typedef {{ updated?: boolean; from?: string; to?: string; error?: string }} CodeUpdateInfo */
+/**
+ * Antwort von `/publish/status` bzw. `/preview/status`.
+ * @typedef {{
+ *   status: string;
+ *   step?: string;
+ *   log?: string[];
+ *   error?: string;
+ *   restarting?: boolean;
+ *   restarted?: boolean;
+ *   finishedAt?: string | number;
+ *   codeUpdate?: CodeUpdateInfo;
+ * }} JobStatus
+ */
+/** @typedef {{ key: string; from: unknown; to: unknown }} FlatChange */
+/** @typedef {{ title: string; items: string[] }} DiffGroup */
+/** @typedef {{ total: number; groups: DiffGroup[] }} PublishDiff */
+/** @typedef {'saving' | 'saved' | 'dirty' | 'clean'} SaveIndicator */
+
+/** Button der festen Kopfzeile bzw. Status-Seite (`disabled` nutzbar). */
+const btnEl = (/** @type {string} */ sel) => /** @type {HTMLButtonElement} */ ($(sel));
 
 // ============ Veröffentlichen (Status + Aktion) ============
 export function renderPublish() {
@@ -38,18 +62,19 @@ export function renderPublish() {
       <p class="hint" style="margin-top:.5rem">Tipp: Dieselbe Aktion löst auch der grüne Button oben rechts aus. Diese Seite zeigt nur den Fortschritt.</p>
       <div class="status" id="pubLog">—</div>
     </div>`;
-  $('#pubNow').addEventListener('click', runPublish);
+  btnEl('#pubNow').addEventListener('click', runPublish);
 }
 
 // --- Speichern (Draft) ---
 function resolveMediaForSave() {
   // Ersetzt staged:-Referenzen (pro Sprache) durch bereits veröffentlichte URLs
   // oder (falls noch nicht hochgeladen) durch den zuletzt geladenen/Default-Wert.
+  /** @type {MediaState} */
   const m = JSON.parse(JSON.stringify(state.media));
   for (const lang of MEDIA_LANGS) {
     const lm = m[lang];
     const loaded = state.loadedMedia[lang] || defaultMediaLocale();
-    for (const key of ['audio', 'image', 'diverse']) {
+    for (const key of /** @type {SectionVideoKey[]} */ (['audio', 'image', 'diverse'])) {
       const v = lm.sectionVideos[key];
       if (typeof v === 'string' && v.startsWith('staged:')) {
         const item = state.stagedItems.find((x) => x.id === v.slice(7));
@@ -58,7 +83,8 @@ function resolveMediaForSave() {
       }
     }
     if (typeof lm.heroBanner === 'string' && lm.heroBanner.startsWith('staged:')) {
-      const item = state.stagedItems.find((x) => x.id === lm.heroBanner.slice(7));
+      const ref = lm.heroBanner;
+      const item = state.stagedItems.find((x) => x.id === ref.slice(7));
       lm.heroBanner = (item && item.publishedUrl) || loaded.heroBanner || '';
     }
     if (Array.isArray(lm.heroGrid)) {
@@ -92,6 +118,7 @@ function resolveMediaForSave() {
   return m;
 }
 
+/** @param {MediaState} [media] */
 function buildPayload(media) {
   return {
     overrides: state.overrides,
@@ -102,6 +129,7 @@ function buildPayload(media) {
     media: media || resolveMediaForSave(),
   };
 }
+/** @param {TickerConfig} t */
 function cleanTicker(t) {
   return {
     enabled: t.enabled === true,
@@ -109,6 +137,7 @@ function cleanTicker(t) {
     items: t.items
       .filter((i) => i.text && i.text.trim())
       .map((i, idx) => {
+        /** @type {{ id: string; text: string; link?: string }} */
         const o = { id: String(i.id || idx + 1), text: i.text.trim() };
         if (i.link && i.link.trim()) o.link = i.link.trim();
         return o;
@@ -134,6 +163,7 @@ async function saveDraft() {
 // neue Felder (z. B. toolCards) nicht und verwirft sie beim Speichern – dann
 // zeigt auch die Vorschau nichts davon. Erkennbar am Vergleich mit der Antwort.
 let droppedWarned = false;
+/** @param {AnyObj | null | undefined} savedMedia */
 function warnIfServerDroppedFields(savedMedia) {
   const dropped = MEDIA_LANGS.some(
     (l) =>
@@ -156,10 +186,10 @@ function warnIfServerDroppedFields(savedMedia) {
   }
 }
 
-$('#saveBtn').addEventListener('click', async () => {
-  $('#saveBtn').disabled = true;
+btnEl('#saveBtn').addEventListener('click', async () => {
+  btnEl('#saveBtn').disabled = true;
   if (await saveDraft()) toast('Als Entwurf gespeichert ✓');
-  $('#saveBtn').disabled = false;
+  btnEl('#saveBtn').disabled = false;
 });
 
 // --- Veröffentlichen ---
@@ -225,6 +255,7 @@ async function uploadStagedReferenced() {
   await loadServerFiles();
 }
 
+/** @type {ReturnType<typeof setInterval> | undefined} */
 let pollTimer;
 // Einstieg (Kopf-Button, Status-Seite, Tastenkürzel): zeigt zuerst die
 // Diff-Vorschau „Was ändert sich?" und startet erst nach Bestätigung.
@@ -236,8 +267,8 @@ function runPublish() {
 async function doPublish() {
   if (state.publishing) return;
   state.publishing = true;
-  $('#publishBtn').disabled = true;
-  const pn = $('#pubNow');
+  btnEl('#publishBtn').disabled = true;
+  const pn = btnEl('#pubNow');
   if (pn) pn.disabled = true;
   setPill('running', 'lädt Medien…');
   try {
@@ -249,7 +280,8 @@ async function doPublish() {
     state.loadedMedia = JSON.parse(JSON.stringify(media));
     markSaved();
     // Publish starten
-    const msg = ($('#pubMsg')?.value || '').slice(0, 100);
+    const msgEl = /** @type {HTMLInputElement | null} */ ($('#pubMsg'));
+    const msg = (msgEl?.value || '').slice(0, 100);
     const pub = await api('/publish', { method: 'POST', body: { message: msg } });
     if (!pub.ok) throw new Error(pub.data?.error || 'Publish fehlgeschlagen');
     // In den Status-Bereich wechseln und pollen
@@ -259,15 +291,16 @@ async function doPublish() {
     state.publishing = false;
     setPill('error', 'Fehler');
     const log = $('#pubLog');
-    if (log) log.textContent = String(e.message || e);
-    $('#publishBtn').disabled = false;
+    if (log) log.textContent = e instanceof Error ? e.message : String(e);
+    btnEl('#publishBtn').disabled = false;
   }
 }
-$('#publishBtn').addEventListener('click', runPublish);
+btnEl('#publishBtn').addEventListener('click', runPublish);
 
 // --- Vorschau (Build ohne Deploy, öffnet die gerenderte Seite in neuem Tab) ---
+/** @type {ReturnType<typeof setInterval> | undefined} */
 let previewPollTimer;
-$('#previewBtn').addEventListener('click', async () => {
+btnEl('#previewBtn').addEventListener('click', async () => {
   // Neuen Tab SOFORT (synchron zum Klick) öffnen, sonst blockt der Popup-Blocker
   // das spätere Navigieren nach dem asynchronen Build.
   const win = window.open('', '_blank');
@@ -280,8 +313,8 @@ $('#previewBtn').addEventListener('click', async () => {
         'Vorschau automatisch, sobald sie fertig ist.</p></body>',
     );
   }
-  $('#previewBtn').disabled = true;
-  $('#publishBtn').disabled = true;
+  btnEl('#previewBtn').disabled = true;
+  btnEl('#publishBtn').disabled = true;
   setPill('running', 'Vorschau…');
   try {
     await uploadStagedReferenced();
@@ -294,19 +327,19 @@ $('#previewBtn').addEventListener('click', async () => {
     if (!pv.ok) throw new Error(pv.data?.error || 'Vorschau-Build fehlgeschlagen');
     pollPreview(win);
   } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
     setPill('error', 'Fehler');
     if (win)
       win.document.body.innerHTML =
-        '<p style="font-family:system-ui;color:#fecaca;padding:2rem">Fehler: ' +
-        esc(String(e.message || e)) +
-        '</p>';
-    toast('Vorschau: ' + (e.message || e));
-    $('#previewBtn').disabled = false;
-    $('#publishBtn').disabled = false;
+        '<p style="font-family:system-ui;color:#fecaca;padding:2rem">Fehler: ' + esc(msg) + '</p>';
+    toast('Vorschau: ' + msg);
+    btnEl('#previewBtn').disabled = false;
+    btnEl('#publishBtn').disabled = false;
   }
 });
 
 // Schritt-Beschriftung im Status-Pill (Code-Update + Build).
+/** @type {Record<string, string>} */
 const PREVIEW_STEP_LABEL = { 'code-update': 'holt Code…', build: 'baut…' };
 // --- Erreichbarkeits-Überwachung beim Polling ---
 // nginx antwortet mit 502/503, solange der Dienst neu startet (oder tot ist);
@@ -321,6 +354,7 @@ const UNREACHABLE_DIAG =
   '  journalctl -u kodini-admin -n 80 --no-pager\n' +
   'Neu starten: sudo systemctl restart kodini-admin';
 // Letzte Zeile des Status-Logs pflegen (eine „Warte"-Zeile statt vieler).
+/** @param {string} line */
 function appendLogLine(line) {
   const log = $('#pubLog');
   if (!log) return;
@@ -330,6 +364,10 @@ function appendLogLine(line) {
   log.textContent = lines.join('\n');
 }
 // true = weiter warten; false = aufgegeben (Fehler ist angezeigt).
+/**
+ * @param {import('./core.js').ApiResult | null} r
+ * @param {string} where
+ */
 function noteUnreachable(r, where) {
   const now = Date.now();
   if (!unreachableSince) unreachableSince = now;
@@ -348,6 +386,7 @@ function noteUnreachable(r, where) {
   return false;
 }
 
+/** @param {Window | null} win */
 function pollPreview(win) {
   clearInterval(previewPollTimer);
   unreachableSince = 0;
@@ -358,8 +397,8 @@ function pollPreview(win) {
     if (!r || !r.ok) {
       if (noteUnreachable(r, 'Vorschau')) return;
       clearInterval(previewPollTimer);
-      $('#previewBtn').disabled = false;
-      $('#publishBtn').disabled = false;
+      btnEl('#previewBtn').disabled = false;
+      btnEl('#publishBtn').disabled = false;
       if (win)
         win.document.body.innerHTML =
           '<pre style="font-family:ui-monospace;color:#fecaca;padding:1rem;white-space:pre-wrap">' +
@@ -368,17 +407,18 @@ function pollPreview(win) {
       return;
     }
     unreachableSince = 0;
+    /** @type {JobStatus} */
     const s = r.data;
     setPill(
       s.status,
       s.status === 'running'
-        ? 'Vorschau… (' + (PREVIEW_STEP_LABEL[s.step] || s.step || '') + ')'
+        ? 'Vorschau… (' + ((s.step && PREVIEW_STEP_LABEL[s.step]) || s.step || '') + ')'
         : s.status,
     );
     if (s.status !== 'success' && s.status !== 'error') return;
     clearInterval(previewPollTimer);
-    $('#previewBtn').disabled = false;
-    $('#publishBtn').disabled = false;
+    btnEl('#previewBtn').disabled = false;
+    btnEl('#publishBtn').disabled = false;
     if (s.status === 'success') {
       setPill('idle', 'bereit');
       showPreviewChooser(win, s);
@@ -398,6 +438,7 @@ function pollPreview(win) {
 // Nach einem Vorgang, der neuen Code geholt hat: Admin-Oberfläche neu laden,
 // damit neue Frontend-Module (z. B. neue Tabs) aktiv werden. Startet der
 // Dienst neu (neuer Server-Code), etwas länger warten, bis er wieder da ist.
+/** @param {JobStatus} s */
 function handleCodeUpdate(s) {
   if (s.restarting) {
     markReloaded(s);
@@ -415,6 +456,7 @@ function handleCodeUpdate(s) {
   }
 }
 // Reload-Guard: pro abgeschlossenem Vorgang (finishedAt) nur einmal neu laden.
+/** @param {JobStatus} s */
 function reloadedFor(s) {
   try {
     return sessionStorage.getItem('kodini-admin-reloaded') === String(s.finishedAt);
@@ -422,6 +464,7 @@ function reloadedFor(s) {
     return true;
   }
 }
+/** @param {JobStatus} s */
 function markReloaded(s) {
   try {
     sessionStorage.setItem('kodini-admin-reloaded', String(s.finishedAt));
@@ -430,6 +473,7 @@ function markReloaded(s) {
   }
 }
 // Hinweistext zum Code-Stand für das Vorschau-Fenster.
+/** @param {JobStatus} s */
 function codeUpdateNote(s) {
   const cu = s && s.codeUpdate;
   if (s && s.restarting)
@@ -443,6 +487,10 @@ function codeUpdateNote(s) {
 
 // Nach erfolgreichem Vorschau-Build: Auswahl beider Sprachen anbieten
 // (die DE- und die EN-Startseite haben getrennte Medien/Inhalte).
+/**
+ * @param {Window | null} win
+ * @param {JobStatus} s
+ */
 function showPreviewChooser(win, s) {
   const base = '/admin/preview/';
   if (!win) {
@@ -470,6 +518,10 @@ function showPreviewChooser(win, s) {
   win.document.close();
 }
 
+/**
+ * @param {string} cls
+ * @param {string} text
+ */
 function setPill(cls, text) {
   for (const id of ['#pubPill', '#pubPill2']) {
     const el = $(id);
@@ -498,12 +550,13 @@ export async function refreshPublishStatus() {
     if (noteUnreachable(r, 'Deploy')) return;
     clearInterval(pollTimer);
     state.publishing = false;
-    $('#publishBtn').disabled = false;
-    const pn = $('#pubNow');
+    btnEl('#publishBtn').disabled = false;
+    const pn = btnEl('#pubNow');
     if (pn) pn.disabled = false;
     return;
   }
   unreachableSince = 0;
+  /** @type {JobStatus} */
   const s = r.data;
   setPill(s.status, statusLabel(s));
   const log = $('#pubLog');
@@ -511,8 +564,8 @@ export async function refreshPublishStatus() {
   if (s.status === 'success' || s.status === 'error') {
     clearInterval(pollTimer);
     state.publishing = false;
-    $('#publishBtn').disabled = false;
-    const pn = $('#pubNow');
+    btnEl('#publishBtn').disabled = false;
+    const pn = btnEl('#pubNow');
     if (pn) pn.disabled = false;
     if (s.status === 'success') {
       toast('Veröffentlicht ✓');
@@ -521,13 +574,14 @@ export async function refreshPublishStatus() {
       publishBaseline = JSON.parse(editSnapshot());
       // Server-Dateiliste aktualisieren (neue Uploads sind jetzt live).
       loadServerFiles().then(() => {
-        if (!LANG_SECTIONS.includes(state.nav.section)) return;
+        if (!isLangSection(state.nav.section)) return;
         if (state.nav.sub === 'files') renderFiles();
         else if (state.nav.sub === 'media') renderMedia();
       });
     }
   }
 }
+/** @param {JobStatus} s */
 function statusLabel(s) {
   if (s.status === 'running') return 'läuft… (' + (s.step || '') + ')';
   if (s.status === 'success') return 'veröffentlicht';
@@ -539,22 +593,29 @@ function statusLabel(s) {
 // Ein einziger JSON-Snapshot des bearbeitbaren Zustands (overrides + ticker +
 // media) erkennt JEDE Änderung in ALLEN Bereichen – ohne die einzelnen
 // Handler anzufassen.
+/** @type {string | null} */
 let lastSavedSnapshot = null; // Stand beim letzten erfolgreichen Speichern
+/** @type {string | null} */
 let prevSnapshot = null; // Stand beim letzten Poll (Änderungs-Erkennung)
 let lastEditAt = 0; // Zeit der zuletzt erkannten Änderung (für Debounce)
 let dirtySince = 0; // Zeit, seit der ununterbrochen ungespeichert
 let autosaveInFlight = false;
-let saveTimer = null;
+/** @type {ReturnType<typeof setInterval> | undefined} */
+let saveTimer;
 
 // --- Verlauf (Undo/Redo) ---
+/** @type {string | null} */
 let historyBase = null; // aktueller „Kopf" des Verlaufs (= sichtbarer Stand)
+/** @type {string[]} */
 const undoStack = []; // frühere Stände (Snapshots)
+/** @type {string[]} */
 const redoStack = []; // rückgängig gemachte Stände (Snapshots)
 const HISTORY_MAX = 100;
 
 // --- Veröffentlichen-Vergleich ---
 // Referenz-Stand für die Diff-Vorschau: der zuletzt geladene bzw. zuletzt
 // veröffentlichte Inhalt (overrides + ticker + media als geparster Snapshot).
+/** @type {AnyObj | null} */
 let publishBaseline = null;
 
 function editSnapshot() {
@@ -574,11 +635,13 @@ function markSaved() {
   dirtySince = 0;
   updateSaveIndicator('saved');
 }
+/** @param {number} n */
 function pad2(n) {
   return String(n).padStart(2, '0');
 }
+/** @param {SaveIndicator} kind */
 function updateSaveIndicator(kind) {
-  const btn = $('#saveBtn');
+  const btn = btnEl('#saveBtn');
   const st = $('#saveState');
   if (btn) btn.classList.toggle('dirty', kind === 'dirty');
   if (!st) return;
@@ -629,7 +692,7 @@ function tick() {
   if (!dirtySince) dirtySince = now;
   // „busy" = ein anderer Speicher-/Publish-/Vorschau-Vorgang läuft bereits
   // (Vorschau-Build erkennbar am deaktivierten Vorschau-Button).
-  const previewBtn = $('#previewBtn');
+  const previewBtn = btnEl('#previewBtn');
   const busy = autosaveInFlight || state.publishing || (previewBtn && previewBtn.disabled);
   if (!busy) updateSaveIndicator('dirty');
   const idle = now - lastEditAt >= 3000;
@@ -667,13 +730,14 @@ function appVisible() {
   const a = $('#appView');
   return a && !a.classList.contains('hidden');
 }
+/** @param {Element | null} el */
 function isTypingTarget(el) {
   return (
     el &&
     (el.tagName === 'INPUT' ||
       el.tagName === 'TEXTAREA' ||
       el.tagName === 'SELECT' ||
-      el.isContentEditable)
+      (el instanceof HTMLElement && el.isContentEditable))
   );
 }
 document.addEventListener('keydown', (e) => {
@@ -682,7 +746,7 @@ document.addEventListener('keydown', (e) => {
   // Strg/Cmd+S = Speichern (auch beim Tippen in einem Feld).
   if (mod && !e.shiftKey && key === 's') {
     e.preventDefault();
-    if (appVisible() && !$('#saveBtn').disabled) $('#saveBtn').click();
+    if (appVisible() && !btnEl('#saveBtn').disabled) btnEl('#saveBtn').click();
     return;
   }
   // Strg/Cmd+Shift+P = Veröffentlichen.
@@ -694,7 +758,7 @@ document.addEventListener('keydown', (e) => {
   // Strg/Cmd+Shift+V = Vorschau.
   if (mod && e.shiftKey && key === 'v') {
     e.preventDefault();
-    if (appVisible() && !$('#previewBtn').disabled) $('#previewBtn').click();
+    if (appVisible() && !btnEl('#previewBtn').disabled) btnEl('#previewBtn').click();
     return;
   }
   // Strg/Cmd+Z = Rückgängig, Strg/Cmd+Y bzw. +Shift+Z = Wiederherstellen.
@@ -714,13 +778,14 @@ document.addEventListener('keydown', (e) => {
   // Esc = fokussiertes Feld verlassen (offene Dialoge schließen sich selbst).
   if (e.key === 'Escape') {
     if (document.querySelector('.picker-overlay')) return;
-    if (isTypingTarget(document.activeElement)) document.activeElement.blur();
+    const active = document.activeElement;
+    if (active instanceof HTMLElement && isTypingTarget(active)) active.blur();
     return;
   }
   // 1–6 = Unterbereich wechseln (nur außerhalb von Eingabefeldern, ohne Modifier).
   if (!mod && !e.altKey && !e.shiftKey && /^[1-6]$/.test(e.key)) {
     if (isTypingTarget(document.activeElement)) return;
-    if (!appVisible() || !LANG_SECTIONS.includes(state.nav.section)) return;
+    if (!appVisible() || !isLangSection(state.nav.section)) return;
     const t = SUBTABS[parseInt(e.key, 10) - 1];
     if (t) {
       e.preventDefault();
@@ -730,9 +795,10 @@ document.addEventListener('keydown', (e) => {
 });
 
 // Text-Eingabe? Dort soll die native Browser-Undo-Funktion Vorrang haben.
+/** @param {Element | null} el */
 function isTextEntry(el) {
   if (!el) return false;
-  if (el.isContentEditable || el.tagName === 'TEXTAREA') return true;
+  if ((el instanceof HTMLElement && el.isContentEditable) || el.tagName === 'TEXTAREA') return true;
   if (el.tagName === 'INPUT') {
     const t = (el.getAttribute('type') || 'text').toLowerCase();
     return ['text', 'search', 'url', 'email', 'tel', 'password', 'number'].includes(t);
@@ -742,6 +808,7 @@ function isTextEntry(el) {
 
 // Setzt den aktuellen Bearbeitungsstand aus einem Snapshot wieder her und
 // rendert die aktive Ansicht neu.
+/** @param {string} json */
 function applySnapshot(json) {
   const s = JSON.parse(json);
   state.overrides = s.overrides;
@@ -753,10 +820,11 @@ function applySnapshot(json) {
 }
 
 // Schwebende Änderung als Verlaufsschritt festhalten (Bursts zusammengefasst).
+/** @param {string} [snap] */
 function commitHistory(snap) {
   snap = snap || editSnapshot();
   if (snap === historyBase) return;
-  undoStack.push(historyBase);
+  if (historyBase !== null) undoStack.push(historyBase);
   if (undoStack.length > HISTORY_MAX) undoStack.shift();
   historyBase = snap;
   redoStack.length = 0; // neue Bearbeitung verwirft den Redo-Zweig
@@ -769,10 +837,11 @@ function undo() {
     toast('Nichts zum Rückgängigmachen');
     return;
   }
-  redoStack.push(historyBase);
-  historyBase = undoStack.pop();
-  applySnapshot(historyBase);
-  refreshUndoUi(historyBase);
+  if (historyBase !== null) redoStack.push(historyBase);
+  const prev = /** @type {string} */ (undoStack.pop());
+  historyBase = prev;
+  applySnapshot(prev);
+  refreshUndoUi(prev);
   toast('Rückgängig gemacht ↶');
 }
 
@@ -781,47 +850,61 @@ function redo() {
     toast('Nichts zum Wiederherstellen');
     return;
   }
-  undoStack.push(historyBase);
-  historyBase = redoStack.pop();
-  applySnapshot(historyBase);
-  refreshUndoUi(historyBase);
+  if (historyBase !== null) undoStack.push(historyBase);
+  const next = /** @type {string} */ (redoStack.pop());
+  historyBase = next;
+  applySnapshot(next);
+  refreshUndoUi(next);
   toast('Wiederhergestellt ↷');
 }
 
 // Aktiviert/deaktiviert die ↶/↷-Buttons je nach Verfügbarkeit. Neben den
 // Kopf-Buttons werden auch bereichsinterne Kopien ([data-undoproxy] /
 // [data-redoproxy]) mitgeführt, damit sie überall den gleichen Zustand zeigen.
+/** @param {string} [snap] */
 function refreshUndoUi(snap) {
   const cur = snap || editSnapshot();
   const canUndo = !(undoStack.length === 0 && cur === historyBase);
   const canRedo = redoStack.length > 0;
-  const u = $('#undoBtn');
-  const r = $('#redoBtn');
+  const u = btnEl('#undoBtn');
+  const r = btnEl('#redoBtn');
   if (u) u.disabled = !canUndo;
   if (r) r.disabled = !canRedo;
-  document.querySelectorAll('[data-undoproxy]').forEach((el) => (el.disabled = !canUndo));
-  document.querySelectorAll('[data-redoproxy]').forEach((el) => (el.disabled = !canRedo));
+  document
+    .querySelectorAll(/** @type {'button'} */ ('[data-undoproxy]'))
+    .forEach((el) => (el.disabled = !canUndo));
+  document
+    .querySelectorAll(/** @type {'button'} */ ('[data-redoproxy]'))
+    .forEach((el) => (el.disabled = !canRedo));
 }
 
 // Bereichsinterne ↶/↷-Buttons (z.B. im Layout-Tab) lösen denselben Verlauf aus.
 // Delegiert, damit auch neu gerenderte Buttons ohne Neu-Verdrahtung wirken.
 document.addEventListener('click', (e) => {
-  if (e.target.closest('[data-undoproxy]')) {
+  const t = e.target;
+  if (!(t instanceof Element)) return;
+  if (t.closest('[data-undoproxy]')) {
     e.preventDefault();
     undo();
-  } else if (e.target.closest('[data-redoproxy]')) {
+  } else if (t.closest('[data-redoproxy]')) {
     e.preventDefault();
     redo();
   }
 });
 
-const undoBtn = $('#undoBtn');
-const redoBtn = $('#redoBtn');
+const undoBtn = btnEl('#undoBtn');
+const redoBtn = btnEl('#redoBtn');
 if (undoBtn) undoBtn.addEventListener('click', undo);
 if (redoBtn) redoBtn.addEventListener('click', redo);
 
 // ============ Diff-Vorschau vor dem Veröffentlichen ============
 // Objekt rekursiv zu Punkt-Pfaden „abflachen" (Primitive/leere Container).
+/**
+ * @param {unknown} obj
+ * @param {string} prefix
+ * @param {Record<string, unknown>} [out]
+ * @returns {Record<string, unknown>}
+ */
 function flatten(obj, prefix, out) {
   out = out || {};
   if (obj === null || typeof obj !== 'object') {
@@ -835,60 +918,70 @@ function flatten(obj, prefix, out) {
   }
   const keys = Object.keys(obj);
   if (keys.length === 0) out[prefix] = '{}';
-  else for (const k of keys) flatten(obj[k], prefix ? `${prefix}.${k}` : k, out);
+  else
+    for (const k of keys)
+      flatten(/** @type {AnyObj} */ (obj)[k], prefix ? `${prefix}.${k}` : k, out);
   return out;
 }
 // Zwei Objekte vergleichen -> Liste geänderter Pfade { key, from, to }.
+/**
+ * @param {unknown} a
+ * @param {unknown} b
+ * @returns {FlatChange[]}
+ */
 function diffFlat(a, b) {
   const fa = flatten(a, '');
   const fb = flatten(b, '');
   const keys = new Set([...Object.keys(fa), ...Object.keys(fb)]);
+  /** @type {FlatChange[]} */
   const out = [];
   for (const k of keys) {
     if (fa[k] !== fb[k]) out.push({ key: k, from: fa[k], to: fb[k] });
   }
   return out.sort((x, y) => x.key.localeCompare(y.key));
 }
+/** @param {unknown} v */
 function shortVal(v) {
   if (v === undefined) return '—';
-  let s = typeof v === 'string' ? v : JSON.stringify(v);
+  let s = typeof v === 'string' ? v : String(JSON.stringify(v));
   if (typeof v === 'string' && v.startsWith('staged:')) return '(neues Medium)';
   s = s.replace(/\s+/g, ' ').trim();
   return s.length > 42 ? s.slice(0, 42) + '…' : s;
 }
+/** @param {FlatChange} c */
 function fmtChange(c) {
   if (c.from === undefined) return `＋ ${c.key} = „${shortVal(c.to)}"`;
   if (c.to === undefined) return `－ ${c.key} entfernt`;
   return `${c.key}: „${shortVal(c.from)}" → „${shortVal(c.to)}"`;
 }
 // Änderungen gegenüber der Diff-Basis, gruppiert nach Bereich.
+/** @returns {PublishDiff} */
 function computePublishDiff() {
+  /** @type {DiffGroup[]} */
   const groups = [];
-  if (!publishBaseline) return { total: 0, groups };
+  const base = publishBaseline;
+  if (!base) return { total: 0, groups };
   const cur = JSON.parse(editSnapshot());
-  const add = (title, changes) => {
+  const add = (/** @type {string} */ title, /** @type {FlatChange[]} */ changes) => {
     if (changes.length) groups.push({ title, items: changes.map(fmtChange) });
   };
   for (const lang of MEDIA_LANGS) {
     add(
       `Texte ${lang.toUpperCase()}`,
-      diffFlat(publishBaseline.overrides?.[lang] || {}, cur.overrides?.[lang] || {}),
+      diffFlat(base.overrides?.[lang] || {}, cur.overrides?.[lang] || {}),
     );
   }
   for (const lang of MEDIA_LANGS) {
     add(
       `Laufband ${lang.toUpperCase()}`,
-      diffFlat(publishBaseline.ticker?.[lang] || {}, cur.ticker?.[lang] || {}),
+      diffFlat(base.ticker?.[lang] || {}, cur.ticker?.[lang] || {}),
     );
   }
-  add(
-    'Globale Einstellungen',
-    diffFlat({ site: publishBaseline.media?.site }, { site: cur.media?.site }),
-  );
+  add('Globale Einstellungen', diffFlat({ site: base.media?.site }, { site: cur.media?.site }));
   for (const lang of MEDIA_LANGS) {
     add(
       `Medien & Design ${lang.toUpperCase()}`,
-      diffFlat(publishBaseline.media?.[lang] || {}, cur.media?.[lang] || {}),
+      diffFlat(base.media?.[lang] || {}, cur.media?.[lang] || {}),
     );
   }
   const total = groups.reduce((n, g) => n + g.items.length, 0);
@@ -898,6 +991,10 @@ function computePublishDiff() {
 // Bestätigungs-Dialog mit der Änderungsübersicht. Bei „Veröffentlichen" wird
 // onConfirm() aufgerufen. Wiederverwendet die Picker-Overlay-Optik.
 const MAX_ITEMS_PER_GROUP = 20;
+/**
+ * @param {PublishDiff} diff
+ * @param {() => void} onConfirm
+ */
 function showPublishConfirm(diff, onConfirm) {
   document.getElementById('publishConfirm')?.remove();
   const body = diff.total
@@ -933,7 +1030,7 @@ function showPublishConfirm(diff, onConfirm) {
       </div>
     </div>`;
 
-  const onKey = (e) => {
+  const onKey = (/** @type {KeyboardEvent} */ e) => {
     if (e.key === 'Escape') close();
   };
   function close() {
@@ -943,12 +1040,16 @@ function showPublishConfirm(diff, onConfirm) {
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) close();
   });
-  overlay.querySelector('[data-pubcancel]').addEventListener('click', close);
-  overlay.querySelector('[data-pubgo]').addEventListener('click', () => {
+  const go = /** @type {HTMLButtonElement} */ (overlay.querySelector('[data-pubgo]'));
+  /** @type {HTMLButtonElement} */ (overlay.querySelector('[data-pubcancel]')).addEventListener(
+    'click',
+    close,
+  );
+  go.addEventListener('click', () => {
     close();
     onConfirm();
   });
   document.addEventListener('keydown', onKey);
   document.body.appendChild(overlay);
-  overlay.querySelector('[data-pubgo]').focus();
+  go.focus();
 }

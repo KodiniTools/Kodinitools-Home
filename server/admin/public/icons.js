@@ -1,3 +1,4 @@
+// @ts-check
 // „Icons"-Tab: durchsucht die Font-Awesome-Icons aus dem Serverordner
 // /fontawesome/svgs (Solid, Regular, Brands), zeigt ALLE Treffer in einer
 // scrollbaren Bibliothek und erlaubt, ein Icon zur Seite hinzuzufügen –
@@ -5,7 +6,7 @@
 // oder seine URL zu kopieren. Die Icon-Liste wird beim ersten Öffnen geladen.
 
 import { $ } from './core.js';
-import { state, getPath, toolCardKeys, TOOL_CARD_SECTIONS } from './model.js';
+import { state, getPath, toolCardKeys, TOOL_CARD_SECTIONS, navLang } from './model.js';
 import { mountVueTab } from './islands.js';
 
 // Kachel 1..6 (größtmögliche Kachelzahl über alle Layouts)
@@ -31,7 +32,7 @@ export function renderIcons() {
   const pane = $('#content');
   // Vue-Insel (app/tabs/icons).
   mountVueTab(pane, 'icons', {
-    lang: state.nav.section === 'en' ? 'en' : 'de',
+    lang: navLang(),
     overrides: state.overrides,
     defaults: state.defaults,
     media: state.media,

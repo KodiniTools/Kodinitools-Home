@@ -23,3 +23,12 @@ export const state = {
   nav: { section: 'de', sub: 'ticker' }, // Ebene 1 (de|en|publish) + Ebene 2
   publishing: false, // läuft gerade eine Veröffentlichung?
 };
+
+/**
+ * Sprache des offenen Sprach-Bereichs (DE/EN). Die Sprach-Tabs werden nur
+ * dort gerendert; im Bereich „Status“ (publish) liefert das 'de'.
+ * @returns {import('../types.ts').Lang}
+ */
+export function navLang() {
+  return state.nav.section === 'en' ? 'en' : 'de';
+}

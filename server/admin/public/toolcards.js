@@ -1,3 +1,4 @@
+// @ts-check
 // Tool-Karten-Tab (eine Sprache): Rahmen und Hintergrund der Tool-Karten der
 // Startseite detailliert gestalten – ein Standard-Design für alle Karten plus
 // optionale Einzel-Designs je Karte, getrennt für Hell- und Dunkelmodus.
@@ -36,18 +37,28 @@ import {
   createCard,
   deleteCustomCard,
   TOOL_CARD_SECTIONS,
+  navLang,
 } from './model.js';
 import { objUrl, openMediaPicker } from './media.js';
 import { ensureFontFace } from './fonts.js';
 import { mountVueTab } from './islands.js';
 
-const SECTIONS = TOOL_CARD_SECTIONS;
+/** @import { Lang, ThemeMode, ObjPath, AnyObj } from '../types.ts' */
 
+const SECTIONS = TOOL_CARD_SECTIONS;
+/** Overrides einer Sprache als beschreibbares Objekt. */
+const ovr = (/** @type {Lang} */ lang) => /** @type {AnyObj} */ (state.overrides[lang]);
+
+/** @param {ThemeMode} theme */
 function sideDefault(theme) {
   return theme === 'dark' ? toolCardSideDark() : toolCardSideLight();
 }
 // Effektiver Wert eines Locale-Pfads (Override, sonst Standard). '' zählt bei
 // svg als „bewusst entfernt" (wie im Icons-Tab).
+/**
+ * @param {Lang} lang
+ * @param {ObjPath} path
+ */
 function effText(lang, path) {
   const o = getPath(state.overrides[lang], path);
   if (o !== undefined) return typeof o === 'string' ? o : '';
@@ -55,11 +66,16 @@ function effText(lang, path) {
   return typeof d === 'string' ? d : '';
 }
 // Standardtext (Sprachdatei) eines Karten-Felds, ohne Override.
+/**
+ * @param {Lang} lang
+ * @param {ObjPath} path
+ */
 function defText(lang, path) {
   const d = getPath(state.defaults[lang], path);
   return typeof d === 'string' ? d : '';
 }
 // Alle Tool-Karten der Sprache (Reihenfolge wie auf der Startseite).
+/** @param {Lang} lang */
 function cardList(lang) {
   const out = [];
   for (const section of SECTIONS) {
@@ -85,12 +101,14 @@ function cardList(lang) {
 // Seiten-Hintergrund der Vorschau = dieselbe Ebene wie auf der Seite (Farbe mit
 // Deckkraft bzw. Verlauf über der Standardfarbe aus dem Tab „Hintergrund"), damit
 // der Kontrast der Karten dem echten Ergebnis entspricht.
+/** @param {ThemeMode} theme */
 function pageBg(theme) {
   return siteBgLayerCss(theme);
 }
 
 // --- Hintergrundbild der Karte (je Modus) ---
 // Vorschau-URL (staged:<id> -> Objekt-URL des Browsers), '' ohne Bild.
+/** @param {string} val */
 function cardImageUrl(val) {
   if (!val) return '';
   return val.startsWith('staged:') ? objUrl(val.slice(7)) : val;
@@ -98,7 +116,12 @@ function cardImageUrl(val) {
 
 // Zustandsgebundene Teile für die Vue-Fassung (app/tabs/toolcards): Karten-Liste,
 // Text-Overrides, Karten anlegen/löschen/ausblenden über model.js.
+/**
+ * @param {Lang} lang
+ * @returns {import('../app/tabs/toolcards/tcData').TcService}
+ */
 export function tcService(lang) {
+  /** @type {Lang} */
   const other = lang === 'de' ? 'en' : 'de';
   return {
     lang,
@@ -110,11 +133,13 @@ export function tcService(lang) {
     duplicate: duplicateCard,
     create: createCard,
     remove: deleteCustomCard,
-    effText: (path) => effText(lang, path),
-    defText: (path) => defText(lang, path),
-    hasOverride: (path) => getPath(state.overrides[lang], path) !== undefined,
-    setOverride: (path, v) => setPath(state.overrides[lang], path, v),
-    delOverride: (path) => delPath(state.overrides[lang], path),
+    effText: (/** @type {ObjPath} */ path) => effText(lang, path),
+    defText: (/** @type {ObjPath} */ path) => defText(lang, path),
+    hasOverride: (/** @type {ObjPath} */ path) =>
+      getPath(state.overrides[lang], path) !== undefined,
+    setOverride: (/** @type {ObjPath} */ path, /** @type {unknown} */ v) =>
+      setPath(ovr(lang), path, v),
+    delOverride: (/** @type {ObjPath} */ path) => delPath(ovr(lang), path),
     copyToOtherLang: () => {
       state.media[other].toolCards = JSON.parse(JSON.stringify(getToolCards(lang)));
       if (!state.media[other].toolCards) state.media[other].toolCards = defaultToolCards();
@@ -124,8 +149,11 @@ export function tcService(lang) {
     fonts: () => state.fonts,
     ensureFontFace,
     resolveUrl: cardImageUrl,
-    pick: (title, onPick) => {
-      const srv = [lang, 'shared'].reduce((n, l) => n + (state.serverFiles[l] || []).length, 0);
+    pick: (/** @type {string} */ title, /** @type {(url: string) => void} */ onPick) => {
+      const srv = [lang, /** @type {const} */ ('shared')].reduce(
+        (n, l) => n + (state.serverFiles[l] || []).length,
+        0,
+      );
       if (!state.stagedItems.length && !srv) return false;
       openMediaPicker(lang, 'tcimg', { imagesOnly: true, title, onPick });
       return true;
@@ -143,7 +171,7 @@ export function tcService(lang) {
 }
 
 export function renderToolCards() {
-  const lang = state.nav.section === 'en' ? 'en' : 'de';
+  const lang = navLang();
   const pane = $('#content');
   // Vue-Insel (app/tabs/toolcards).
   mountVueTab(pane, 'toolcards', { service: tcService(lang) });
