@@ -1,3 +1,4 @@
+// @ts-check
 import { defineConfig } from 'astro/config';
 import { readFileSync } from 'node:fs';
 import vue from '@astrojs/vue';

@@ -1,3 +1,4 @@
+// @ts-check
 // Astro-Integration: erzeugt nach dem Build die verkleinerten Bildfassungen,
 // auf die die Seiten per srcset verweisen (src/content/responsiveImage.ts).
 // Gesucht wird in den gebauten HTML-Dateien nach _astro/rsz/<Breite>/<Pfad>.webp;
@@ -8,8 +9,15 @@ import { fileURLToPath } from 'node:url';
 
 const RSZ_URL = /_astro\/rsz\/(\d{2,4})\/(uploads\/[A-Za-z0-9._\-/]+?\.(?:webp|jpe?g|png))\.webp/gi;
 
-/** Alle angeforderten Fassungen eines HTML-Texts als { width, rel }. */
+/** @typedef {{ width: number; rel: string }} RszJob */
+
+/**
+ * Alle angeforderten Fassungen eines HTML-Texts als { width, rel }.
+ * @param {string} html
+ * @returns {RszJob[]}
+ */
 export function collectRszJobs(html) {
+  /** @type {Map<string, RszJob>} */
   const jobs = new Map();
   for (const m of html.matchAll(RSZ_URL)) {
     const width = Number(m[1]);
@@ -20,7 +28,12 @@ export function collectRszJobs(html) {
   return [...jobs.values()];
 }
 
+/**
+ * @param {string} dir
+ * @returns {string[]}
+ */
 function htmlFiles(dir) {
+  /** @type {string[]} */
   const out = [];
   for (const e of readdirSync(dir, { withFileTypes: true })) {
     const p = join(dir, e.name);
@@ -30,12 +43,17 @@ function htmlFiles(dir) {
   return out;
 }
 
+/**
+ * @param {{ publicDir?: string }} [opts]
+ * @returns {import('astro').AstroIntegration}
+ */
 export default function rszIntegration({ publicDir = resolve('public') } = {}) {
   return {
     name: 'kodini-rsz',
     hooks: {
       'astro:build:done': async ({ dir, logger }) => {
         const outDir = fileURLToPath(dir);
+        /** @type {Map<string, RszJob>} */
         const jobs = new Map();
         for (const f of htmlFiles(outDir)) {
           for (const j of collectRszJobs(readFileSync(f, 'utf-8')))

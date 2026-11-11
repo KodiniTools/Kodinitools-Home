@@ -1,3 +1,4 @@
+// @ts-check
 // single-sitemap.mjs — Eigene Astro-Integration, die EINE flache sitemap.xml
 // erzeugt (statt des von @astrojs/sitemap erzwungenen Paars
 // sitemap-index.xml + sitemap-0.xml).
@@ -27,6 +28,10 @@ import path from 'node:path';
 const DEFAULT_LOCALE = 'de';
 const LOCALE_ORDER = ['de', 'en'];
 
+/** @typedef {{ hreflang: string; href: string }} Alternate */
+/** @typedef {{ loc: string; alternates: Alternate[]; lastmod?: string }} SitemapEntry */
+
+/** @param {unknown} value */
 function xmlEscape(value) {
   return String(value)
     .replace(/&/g, '&amp;')
@@ -41,6 +46,10 @@ function xmlEscape(value) {
 // Blog-Artikel mit sprachabhängigen Slugs und Seitenpaare wie /spenden/ <->
 // /en/donate/ korrekte Alternates, ohne dass die Integration die Zuordnung
 // kennen muss – die Seite selbst ist die Quelle der Wahrheit.
+/**
+ * @param {string} htmlPath
+ * @returns {Promise<{ alternates: Alternate[]; lastmod: string | undefined }>}
+ */
 async function readPageMeta(htmlPath) {
   let html;
   try {
@@ -48,6 +57,7 @@ async function readPageMeta(htmlPath) {
   } catch {
     return { alternates: [], lastmod: undefined };
   }
+  /** @type {Alternate[]} */
   const alternates = [];
   const linkRe = /<link\s+[^>]*rel="alternate"[^>]*>/g;
   for (const tag of html.match(linkRe) ?? []) {
@@ -63,6 +73,10 @@ async function readPageMeta(htmlPath) {
 // Parameter, x-default = Deutsch). Für jede URL entstehen zwei Einträge, die
 // sich gegenseitig als Alternate nennen – wie es die Seiten selbst per
 // <link rel="alternate" hreflang> tun.
+/**
+ * @param {string[]} urls
+ * @returns {SitemapEntry[]}
+ */
 export function langAlternatePages(urls) {
   return urls.flatMap((url) => {
     const de = url;
@@ -81,6 +95,10 @@ export function langAlternatePages(urls) {
 
 // Pfad -> { locale, key }. Der "key" ist der sprachneutrale Pfad, über den
 // de/en-Gegenstücke einander zugeordnet werden.
+/**
+ * @param {string} pathname
+ * @returns {{ locale: string; key: string }}
+ */
 function classify(pathname) {
   if (pathname === 'en/' || pathname.startsWith('en/')) {
     return { locale: 'en', key: pathname.slice('en/'.length) };
@@ -88,7 +106,12 @@ function classify(pathname) {
   return { locale: DEFAULT_LOCALE, key: pathname };
 }
 
+/**
+ * @param {{ extraPages?: Array<string | SitemapEntry> }} [opts]
+ * @returns {import('astro').AstroIntegration}
+ */
 export default function singleSitemap({ extraPages = [] } = {}) {
+  /** @type {string | undefined} */
   let site;
 
   return {
@@ -104,29 +127,31 @@ export default function singleSitemap({ extraPages = [] } = {}) {
           return;
         }
         const origin = site.replace(/\/$/, '');
-        const toUrl = (pathname) => `${origin}/${pathname}`;
+        const toUrl = (/** @type {string} */ pathname) => `${origin}/${pathname}`;
 
         // 1) Von Astro gebaute Seiten (404 raus), nach key/locale gruppieren.
         const built = pages.map((p) => p.pathname).filter((pathname) => pathname !== '404/');
 
+        /** @type {Map<string, Map<string, string>>} */
         const groups = new Map(); // key -> Map<locale, url>
         for (const pathname of built) {
           const { locale, key } = classify(pathname);
           if (!groups.has(key)) groups.set(key, new Map());
-          groups.get(key).set(locale, toUrl(pathname));
+          groups.get(key)?.set(locale, toUrl(pathname));
         }
 
         // 2) Alle URL-Einträge sammeln: { loc, alternates: [{hreflang, href}], lastmod }.
         //    Bevorzugt werden die hreflang-Tags aus dem gebauten HTML; nur wenn eine
         //    Seite keine deklariert, greift die Zuordnung über identische Pfade.
         const outDirPath = fileURLToPath(dir);
+        /** @type {SitemapEntry[]} */
         const entries = [];
         for (const localeMap of groups.values()) {
           const pathAlternates =
             localeMap.size > 1
               ? LOCALE_ORDER.filter((l) => localeMap.has(l)).map((l) => ({
                   hreflang: l,
-                  href: localeMap.get(l),
+                  href: /** @type {string} */ (localeMap.get(l)),
                 }))
               : [];
           for (const loc of localeMap.values()) {
