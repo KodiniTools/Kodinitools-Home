@@ -1,3 +1,4 @@
+// @ts-check
 // Auslieferung der gebauten Vue-Teile des Admins (`npm run build:admin` →
 // server/admin/dist/) unter /admin/app/…. Fehlt der Build, antwortet der Dienst
 // mit 404 – der Admin zeigt dann in jedem Tab einen Fehlerhinweis
@@ -10,7 +11,10 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 export const APP_DIST_DIR = resolve(__dirname, 'dist');
 export const APP_PREFIX = '/app';
 
-/** true, wenn der Pfad zum Vue-Bundle gehört (`/app` oder `/app/...`). */
+/**
+ * true, wenn der Pfad zum Vue-Bundle gehört (`/app` oder `/app/...`).
+ * @param {string} urlPath
+ */
 export function isAppPath(urlPath) {
   return urlPath === APP_PREFIX || urlPath.startsWith(APP_PREFIX + '/');
 }

@@ -1,3 +1,4 @@
+// @ts-check
 // Veröffentlichen: Content-Dateien nach 'main' committen + pushen und
 // anschließend deploy.sh ausführen. Läuft asynchron; der Status wird im
 // Speicher gehalten und per Polling abgefragt.
@@ -23,7 +24,7 @@ async function backfillReferencedUploads() {
     return;
   }
   const urls = new Set();
-  const collect = (m) => {
+  const collect = (/** @type {any} */ m) => {
     if (!m || typeof m !== 'object') return;
     if (typeof m.heroBanner === 'string') urls.add(m.heroBanner);
     if (Array.isArray(m.heroGrid))
@@ -62,6 +63,8 @@ async function backfillReferencedUploads() {
   }
 }
 
+/** @typedef {import('./codeupdate.mjs').JobState & { commit: string | null }} PublishState */
+/** @returns {PublishState} */
 function initialState() {
   return {
     status: 'idle', // idle | running | success | error
@@ -82,6 +85,7 @@ export function getPublishState() {
   return state;
 }
 
+/** @type {import('./codeupdate.mjs').RunFn} */
 function run(cmd, args, opts = {}) {
   return new Promise((resolvePromise, reject) => {
     execFile(
@@ -100,6 +104,7 @@ function run(cmd, args, opts = {}) {
   });
 }
 
+/** @param {string} line */
 function log(line) {
   state.log.push(`[${new Date().toISOString()}] ${line}`);
   if (state.log.length > 500) state.log.shift();
@@ -116,7 +121,7 @@ export function startPublish(message) {
   state = { ...initialState(), status: 'running', step: 'start', startedAt: Date.now() };
   // Nicht awaiten — im Hintergrund laufen lassen.
   doPublish(message)
-    .catch((err) => {
+    .catch((/** @type {any} */ err) => {
       state.status = 'error';
       state.error = err?.message || String(err);
       if (err?.output) log(err.output);
@@ -133,6 +138,7 @@ async function finishPublish() {
   await persistState('publish', state);
 }
 
+/** @param {string} [message] */
 async function doPublish(message) {
   const branch = config.gitBranch;
   const remote = config.gitRemote;
@@ -188,7 +194,7 @@ async function doPublish(message) {
     log(`git rebase ${remote}/${branch}`);
     try {
       await run('git', [...ident, 'rebase', `${remote}/${branch}`]);
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       // Rebase-Zustand sauber verlassen, damit der nächste Versuch nicht hängt.
       await run('git', ['rebase', '--abort']).catch(() => {});
       throw new Error(

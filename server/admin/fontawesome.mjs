@@ -1,3 +1,4 @@
+// @ts-check
 // Auflistung der auf dem Server verfügbaren Icon-SVGs für den „Icons"-Tab.
 // Gelesen wird aus dem Webroot (/var/www/kodinitools.com/public/fontawesome/… —
 // die tatsächlich ausgelieferten Dateien) und zusätzlich aus public/fontawesome
@@ -20,7 +21,11 @@ export const ICON_SETS = [
   { key: 'admin', dir: 'admin-svgs' },
 ];
 
-/** Nur einfache SVG-Dateinamen (kein Pfad/Traversal, keine versteckten Dateien). */
+/**
+ * Nur einfache SVG-Dateinamen (kein Pfad/Traversal, keine versteckten Dateien).
+ * @param {unknown} name
+ * @returns {name is string}
+ */
 export function isValidIconFile(name) {
   return (
     typeof name === 'string' &&
@@ -31,6 +36,10 @@ export function isValidIconFile(name) {
   );
 }
 
+/**
+ * @param {string} dir
+ * @returns {Promise<string[]>}
+ */
 async function readIconDir(dir) {
   let names;
   try {
@@ -55,6 +64,7 @@ export async function listFontAwesome() {
     resolve(config.webroot, 'public/fontawesome'),
     resolve(config.repoDir, 'public/fontawesome'),
   ];
+  /** @type {Record<string, string[]>} */
   const out = {};
   for (const set of ICON_SETS) {
     const seen = new Set();

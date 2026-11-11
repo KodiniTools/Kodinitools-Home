@@ -1,3 +1,4 @@
+// @ts-check
 // Vorschau-Build: baut den AKTUELLEN Arbeitsstand (die per saveContent
 // geschriebenen Entwürfe) in ein separates Verzeichnis dist-preview/ mit
 // base '/admin/preview/'. Es wird NICHTS committet, gepusht oder deployt.
@@ -16,10 +17,14 @@ import {
   restoreState,
 } from './codeupdate.mjs';
 
+/** @import { JobState, CodeUpdateResult } from './codeupdate.mjs' */
+/** @typedef {JobState & { codeUpdate: CodeUpdateResult | null }} PreviewState */
+
 // Öffentlicher Pfad der Vorschau (hinter nginx) und lokales Ausgabeverzeichnis.
 export const PREVIEW_BASE = '/admin/preview/';
 export const PREVIEW_DIR = resolve(config.repoDir, 'dist-preview');
 
+/** @returns {PreviewState} */
 function initialState() {
   return {
     status: 'idle', // idle | running | success | error
@@ -40,6 +45,7 @@ export function getPreviewState() {
   return state;
 }
 
+/** @type {import('./codeupdate.mjs').RunFn} */
 function run(cmd, args, opts = {}) {
   return new Promise((resolvePromise, reject) => {
     execFile(
@@ -55,6 +61,7 @@ function run(cmd, args, opts = {}) {
   });
 }
 
+/** @param {string} line */
 function log(line) {
   state.log.push(`[${new Date().toISOString()}] ${line}`);
   if (state.log.length > 500) state.log.shift();
@@ -67,7 +74,7 @@ export function startPreview() {
   }
   state = { ...initialState(), status: 'running', step: 'start', startedAt: Date.now() };
   doPreview()
-    .catch((err) => {
+    .catch((/** @type {any} */ err) => {
       state.status = 'error';
       state.error = err?.message || String(err);
       if (err?.output) log(err.output);

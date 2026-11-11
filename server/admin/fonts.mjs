@@ -1,3 +1,4 @@
+// @ts-check
 // Auflistung der auf dem Server verfügbaren Schriftarten. Der Admin kann für das
 // Laufband (DE/EN) eine eigene Schrift aus dem Fonts-Ordner wählen. Gelesen wird
 // aus dem Webroot (/var/www/kodinitools.com/fonts — dort liegen die tatsächlich
@@ -10,7 +11,11 @@ import { config } from './config.mjs';
 
 const FONT_EXT = new Set(['.woff2', '.woff', '.ttf', '.otf']);
 
-/** Nur einfache Dateinamen mit erlaubter Schrift-Endung (kein Pfad/Traversal). */
+/**
+ * Nur einfache Dateinamen mit erlaubter Schrift-Endung (kein Pfad/Traversal).
+ * @param {unknown} name
+ * @returns {name is string}
+ */
 export function isValidFontFile(name) {
   return (
     typeof name === 'string' &&
@@ -21,12 +26,16 @@ export function isValidFontFile(name) {
   );
 }
 
-/** Dateiname -> Anzeige-Label (ohne Endung). */
+/**
+ * Dateiname -> Anzeige-Label (ohne Endung).
+ * @param {string} name
+ */
 export function fontLabel(name) {
   const ext = extname(name);
   return name.slice(0, name.length - ext.length);
 }
 
+/** @param {string} dir */
 async function readFontDir(dir) {
   let names;
   try {
