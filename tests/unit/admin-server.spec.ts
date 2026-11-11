@@ -1,15 +1,19 @@
 /**
- * Server-Module des Admins (server/admin/*.mjs, per @ts-check typisiert):
+ * Server-Module des Admins (server/admin/src/*.ts):
  * Die Typisierung darf das Laufzeitverhalten der Validierung und der
  * Authentifizierung nicht ändern.
  */
 import { describe, expect, it } from 'vitest';
-import { hashPassword, verifyPassword, verifySessionToken } from '../../server/admin/auth.mjs';
-import { validateTicker, validateMedia, validateOverrides } from '../../server/admin/content.mjs';
-import { needsAdminBuild } from '../../server/admin/codeupdate.mjs';
-import { isAppPath } from '../../server/admin/appbundle.mjs';
+import { hashPassword, verifyPassword, verifySessionToken } from '../../server/admin/src/auth.js';
+import {
+  validateTicker,
+  validateMedia,
+  validateOverrides,
+} from '../../server/admin/src/content.js';
+import { needsAdminBuild, needsServerBuild } from '../../server/admin/src/codeupdate.js';
+import { isAppPath } from '../../server/admin/src/appbundle.js';
 
-describe('auth.mjs', () => {
+describe('auth.ts', () => {
   it('hashPassword/verifyPassword: richtig vs. falsch', async () => {
     const h = await hashPassword('geheim123');
     expect(h).toMatch(/^scrypt\$[0-9a-f]{32}\$[0-9a-f]{128}$/);
@@ -25,7 +29,7 @@ describe('auth.mjs', () => {
   });
 });
 
-describe('content.mjs', () => {
+describe('content.ts', () => {
   it('validateTicker normalisiert Einträge und verwirft unsichere Links', () => {
     const t = validateTicker({
       enabled: true,
@@ -62,11 +66,18 @@ describe('content.mjs', () => {
   });
 });
 
-describe('codeupdate.mjs / appbundle.mjs', () => {
+describe('codeupdate.ts / appbundle.ts', () => {
   it('needsAdminBuild erkennt Vue-relevante Dateien', () => {
     expect(needsAdminBuild('server/admin/app/main.ts')).toBe(true);
     expect(needsAdminBuild('server/admin/public/model-core.js')).toBe(true);
     expect(needsAdminBuild('server/admin/public/publish.js')).toBe(false);
+  });
+
+  it('needsServerBuild erkennt Server-Quellen und das Build-Skript', () => {
+    expect(needsServerBuild('server/admin/src/content.ts')).toBe(true);
+    expect(needsServerBuild('server/admin/build-server.mjs')).toBe(true);
+    expect(needsServerBuild('server/admin/index.mjs')).toBe(false);
+    expect(needsServerBuild('server/admin/public/core.js')).toBe(false);
   });
 
   it('isAppPath', () => {

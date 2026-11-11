@@ -1,4 +1,3 @@
-// @ts-check
 // Auslieferung der gebauten Vue-Teile des Admins (`npm run build:admin` →
 // server/admin/dist/) unter /admin/app/…. Fehlt der Build, antwortet der Dienst
 // mit 404 – der Admin zeigt dann in jedem Tab einen Fehlerhinweis
@@ -8,24 +7,23 @@ import { resolve, normalize, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-export const APP_DIST_DIR = resolve(__dirname, 'dist');
+// Eine Ebene höher: der Code läuft aus server/admin/src (Tests) bzw. build (Dienst).
+export const APP_DIST_DIR = resolve(__dirname, '../dist');
 export const APP_PREFIX = '/app';
 
 /**
  * true, wenn der Pfad zum Vue-Bundle gehört (`/app` oder `/app/...`).
- * @param {string} urlPath
  */
-export function isAppPath(urlPath) {
+export function isAppPath(urlPath: string) {
   return urlPath === APP_PREFIX || urlPath.startsWith(APP_PREFIX + '/');
 }
 
 /**
  * Löst `/app/<datei>` sicher innerhalb von `dist` auf.
- * @param {string} urlPath bereits ohne Query, z. B. `/app/main.js`
- * @param {string} [distDir]
- * @returns {string | null} absoluter Pfad oder null (Verzeichnis/außerhalb)
+ * @param urlPath bereits ohne Query, z. B. `/app/main.js`
+ * @returns absoluter Pfad oder null (Verzeichnis/außerhalb)
  */
-export function resolveAppFile(urlPath, distDir = APP_DIST_DIR) {
+export function resolveAppFile(urlPath: string, distDir: string = APP_DIST_DIR): string | null {
   let sub;
   try {
     sub = decodeURIComponent(urlPath.slice(APP_PREFIX.length));

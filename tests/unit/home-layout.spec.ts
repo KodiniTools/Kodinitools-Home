@@ -6,7 +6,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { validateMedia } from '../../server/admin/content.mjs';
+import { validateMedia } from '../../server/admin/src/content.js';
 import { normSite } from '../../server/admin/public/model-site.js';
 
 const SCOPE = "#app[data-home-layout='compact']";

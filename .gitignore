@@ -6,6 +6,9 @@ dist/
 dist-preview/
 # Admin: gebaute Vue-Teile (npm run build:admin)
 server/admin/dist/
+# Admin: übersetzter Server-Code (npm run build:server, auch beim Start)
+server/admin/build/
+server/admin/build.tmp/
 
 # Admin-Dienst: persistierter Vorgangs-Status (Vorschau/Veröffentlichung)
 .kodini-admin/

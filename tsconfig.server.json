@@ -8,6 +8,7 @@
     "types": ["node"]
   },
   "include": [
+    "server/admin/src/*.ts",
     "server/admin/*.mjs",
     "scripts/*.mjs",
     "astro.config.mjs",

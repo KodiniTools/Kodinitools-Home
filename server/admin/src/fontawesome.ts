@@ -1,4 +1,3 @@
-// @ts-check
 // Auflistung der auf dem Server verfügbaren Icon-SVGs für den „Icons"-Tab.
 // Gelesen wird aus dem Webroot (/var/www/kodinitools.com/public/fontawesome/… —
 // die tatsächlich ausgelieferten Dateien) und zusätzlich aus public/fontawesome
@@ -11,7 +10,7 @@
 
 import { readdir } from 'node:fs/promises';
 import { resolve, basename } from 'node:path';
-import { config } from './config.mjs';
+import { config } from './config.js';
 
 // Icon-Sets mit ihrem Ordner unterhalb von fontawesome/. `key` = Set-Schlüssel.
 export const ICON_SETS = [
@@ -23,10 +22,8 @@ export const ICON_SETS = [
 
 /**
  * Nur einfache SVG-Dateinamen (kein Pfad/Traversal, keine versteckten Dateien).
- * @param {unknown} name
- * @returns {name is string}
  */
-export function isValidIconFile(name) {
+export function isValidIconFile(name: unknown): name is string {
   return (
     typeof name === 'string' &&
     name.length > 0 &&
@@ -36,11 +33,7 @@ export function isValidIconFile(name) {
   );
 }
 
-/**
- * @param {string} dir
- * @returns {Promise<string[]>}
- */
-async function readIconDir(dir) {
+async function readIconDir(dir: string): Promise<string[]> {
   let names;
   try {
     names = await readdir(dir);
@@ -64,10 +57,9 @@ export async function listFontAwesome() {
     resolve(config.webroot, 'public/fontawesome'),
     resolve(config.repoDir, 'public/fontawesome'),
   ];
-  /** @type {Record<string, string[]>} */
-  const out = {};
+  const out: Record<string, string[]> = {};
   for (const set of ICON_SETS) {
-    const seen = new Set();
+    const seen = new Set<string>();
     for (const base of bases) {
       for (const name of await readIconDir(resolve(base, set.dir))) seen.add(name);
     }

@@ -1,4 +1,3 @@
-// @ts-check
 // Veröffentlichen: Content-Dateien nach 'main' committen + pushen und
 // anschließend deploy.sh ausführen. Läuft asynchron; der Status wird im
 // Speicher gehalten und per Polling abgefragt.
@@ -6,10 +5,12 @@
 import { execFile } from 'node:child_process';
 import { readFile, copyFile, mkdir, stat } from 'node:fs/promises';
 import { resolve, dirname } from 'node:path';
-import { config } from './config.mjs';
-import { UPLOADS_GIT_MAX_BYTES } from './uploads.mjs';
-import { restartIfServerCodeChanged, persistState, restoreState } from './codeupdate.mjs';
-import { runStreaming } from './util.mjs';
+import { config } from './config.js';
+import { UPLOADS_GIT_MAX_BYTES } from './uploads.js';
+import type { RunFn, JobState } from './codeupdate.js';
+import type { AnyObj } from './content.js';
+import { restartIfServerCodeChanged, persistState, restoreState } from './codeupdate.js';
+import { runStreaming, asErr } from './util.js';
 
 /**
  * Nachsicherung: In media.json referenzierte /uploads-Dateien, die nur im
@@ -23,8 +24,8 @@ async function backfillReferencedUploads() {
   } catch {
     return;
   }
-  const urls = new Set();
-  const collect = (/** @type {any} */ m) => {
+  const urls = new Set<string>();
+  const collect = (m: AnyObj | undefined) => {
     if (!m || typeof m !== 'object') return;
     if (typeof m.heroBanner === 'string') urls.add(m.heroBanner);
     if (Array.isArray(m.heroGrid))
@@ -63,9 +64,9 @@ async function backfillReferencedUploads() {
   }
 }
 
-/** @typedef {import('./codeupdate.mjs').JobState & { commit: string | null }} PublishState */
-/** @returns {PublishState} */
-function initialState() {
+export type PublishState = JobState & { commit: string | null };
+
+function initialState(): PublishState {
   return {
     status: 'idle', // idle | running | success | error
     step: '',
@@ -85,8 +86,7 @@ export function getPublishState() {
   return state;
 }
 
-/** @type {import('./codeupdate.mjs').RunFn} */
-function run(cmd, args, opts = {}) {
+const run: RunFn = (cmd, args, opts = {}) => {
   return new Promise((resolvePromise, reject) => {
     execFile(
       cmd,
@@ -102,26 +102,26 @@ function run(cmd, args, opts = {}) {
       },
     );
   });
-}
+};
 
-/** @param {string} line */
-function log(line) {
+function log(line: string) {
   state.log.push(`[${new Date().toISOString()}] ${line}`);
   if (state.log.length > 500) state.log.shift();
 }
 
 /**
  * Startet die Veröffentlichung (idempotent: verweigert, wenn bereits läuft).
- * @param {string} message Commit-Nachricht (optional)
+ * @param message Commit-Nachricht (optional)
  */
-export function startPublish(message) {
+export function startPublish(message: string) {
   if (state.status === 'running') {
     return { ok: false, reason: 'Es läuft bereits eine Veröffentlichung.' };
   }
   state = { ...initialState(), status: 'running', step: 'start', startedAt: Date.now() };
   // Nicht awaiten — im Hintergrund laufen lassen.
   doPublish(message)
-    .catch((/** @type {any} */ err) => {
+    .catch((errRaw) => {
+      const err = asErr(errRaw);
       state.status = 'error';
       state.error = err?.message || String(err);
       if (err?.output) log(err.output);
@@ -138,8 +138,7 @@ async function finishPublish() {
   await persistState('publish', state);
 }
 
-/** @param {string} [message] */
-async function doPublish(message) {
+async function doPublish(message: string) {
   const branch = config.gitBranch;
   const remote = config.gitRemote;
   const commitMsg = `content: update via admin${message ? ` – ${message}` : ''}`;
@@ -194,13 +193,14 @@ async function doPublish(message) {
     log(`git rebase ${remote}/${branch}`);
     try {
       await run('git', [...ident, 'rebase', `${remote}/${branch}`]);
-    } catch (/** @type {any} */ e) {
+    } catch (eRaw) {
+      const e = asErr(eRaw);
       // Rebase-Zustand sauber verlassen, damit der nächste Versuch nicht hängt.
       await run('git', ['rebase', '--abort']).catch(() => {});
       throw new Error(
         `Rebase auf ${remote}/${branch} fehlgeschlagen (vermutlich ein Konflikt in den ` +
           `Content-Dateien). Bitte einmalig auf dem Server auflösen. ${e.output || e.message || ''}`,
-        { cause: e },
+        { cause: eRaw },
       );
     }
     state.commit = (await run('git', ['rev-parse', '--short', 'HEAD'])).trim();

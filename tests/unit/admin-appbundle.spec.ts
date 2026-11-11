@@ -3,8 +3,8 @@
  * Erkennung, wann die Vorschau sie nach einem Code-Update neu bauen muss.
  */
 import { describe, expect, it } from 'vitest';
-import { isAppPath, resolveAppFile } from '../../server/admin/appbundle.mjs';
-import { needsAdminBuild } from '../../server/admin/codeupdate.mjs';
+import { isAppPath, resolveAppFile } from '../../server/admin/src/appbundle.js';
+import { needsAdminBuild } from '../../server/admin/src/codeupdate.js';
 
 const DIST = '/srv/repo/server/admin/dist';
 

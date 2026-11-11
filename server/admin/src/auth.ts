@@ -1,22 +1,15 @@
-// @ts-check
 // Authentifizierung: Passwort-Hash (scrypt) + zustandslose, signierte
 // Session-Cookies (HMAC-SHA256). Ein Inhaber-Konto, keine externen Deps.
 
 import { scrypt, randomBytes, timingSafeEqual, createHmac } from 'node:crypto';
-import { config } from './config.mjs';
+import { config } from './config.js';
 
 const SCRYPT_KEYLEN = 64;
 const COOKIE_NAME = 'kodini_admin_session';
 
-/** @import { IncomingMessage } from 'node:http' */
+import type { IncomingMessage } from 'node:http';
 
-/**
- * @param {string} password
- * @param {Buffer} salt
- * @param {number} keylen
- * @returns {Promise<Buffer>}
- */
-function scryptAsync(password, salt, keylen) {
+function scryptAsync(password: string, salt: Buffer, keylen: number): Promise<Buffer> {
   return new Promise((res, rej) => {
     scrypt(password, salt, keylen, (err, dk) => (err ? rej(err) : res(dk)));
   });
@@ -25,9 +18,8 @@ function scryptAsync(password, salt, keylen) {
 /**
  * Erzeugt einen Passwort-Hash im Format  scrypt$<saltHex>$<hashHex>.
  * Wird vom Hilfsskript hash-password.mjs genutzt.
- * @param {string} password
  */
-export async function hashPassword(password) {
+export async function hashPassword(password: string) {
   const salt = randomBytes(16);
   const dk = await scryptAsync(password, salt, SCRYPT_KEYLEN);
   return `scrypt$${salt.toString('hex')}$${dk.toString('hex')}`;
@@ -35,11 +27,8 @@ export async function hashPassword(password) {
 
 /**
  * Prüft ein Passwort gegen den gespeicherten Hash (timing-safe).
- * @param {string} password
- * @param {string} stored
- * @returns {Promise<boolean>}
  */
-export async function verifyPassword(password, stored) {
+export async function verifyPassword(password: string, stored: string): Promise<boolean> {
   try {
     const [scheme, saltHex, hashHex] = String(stored).split('$');
     if (scheme !== 'scrypt' || !saltHex || !hashHex) return false;
@@ -54,12 +43,11 @@ export async function verifyPassword(password, stored) {
 
 // --- Session-Cookies (stateless, signiert) ---
 
-/** @param {string | Buffer} buf */
-function b64url(buf) {
+function b64url(buf: string | Buffer) {
   return Buffer.from(buf).toString('base64url');
 }
-/** @param {string} payloadB64 */
-function sign(payloadB64) {
+
+function sign(payloadB64: string) {
   return createHmac('sha256', config.sessionSecret).update(payloadB64).digest('base64url');
 }
 
@@ -72,10 +60,8 @@ export function createSessionToken() {
 
 /**
  * Validiert einen Session-Token; liefert true bei gültig & nicht abgelaufen.
- * @param {unknown} token
- * @returns {boolean}
  */
-export function verifySessionToken(token) {
+export function verifySessionToken(token: unknown): boolean {
   if (!token || typeof token !== 'string') return false;
   const [payload, sig] = token.split('.');
   if (!payload || !sig) return false;
@@ -93,9 +79,8 @@ export function verifySessionToken(token) {
 
 /**
  * Setzt-Cookie-Header-Wert für Login.
- * @param {string} token
  */
-export function sessionCookie(token) {
+export function sessionCookie(token: string) {
   const maxAge = config.sessionTtlHours * 3600;
   const parts = [
     `${COOKIE_NAME}=${token}`,
@@ -123,9 +108,8 @@ export function clearCookie() {
 
 /**
  * Liest den Session-Token aus dem Cookie-Header.
- * @param {IncomingMessage} req
  */
-export function readSessionCookie(req) {
+export function readSessionCookie(req: IncomingMessage) {
   const raw = req.headers.cookie || '';
   for (const pair of raw.split(';')) {
     const i = pair.indexOf('=');
@@ -138,19 +122,16 @@ export function readSessionCookie(req) {
 
 /**
  * True, wenn der Request eine gültige Session besitzt.
- * @param {IncomingMessage} req
  */
-export function isAuthenticated(req) {
+export function isAuthenticated(req: IncomingMessage) {
   return verifySessionToken(readSessionCookie(req));
 }
 
 // --- Login-Bruteforce-Schutz (in-memory pro IP) ---
 
-/** @type {Map<string, { count: number; first: number }>} */
-const attempts = new Map(); // ip -> { count, first }
+const attempts: Map<string, { count: number; first: number }> = new Map(); // ip -> { count, first }
 
-/** @param {string} ip */
-export function loginBlocked(ip) {
+export function loginBlocked(ip: string) {
   const rec = attempts.get(ip);
   if (!rec) return false;
   if (Date.now() - rec.first > config.loginWindowMs) {
@@ -160,8 +141,7 @@ export function loginBlocked(ip) {
   return rec.count >= config.loginMaxAttempts;
 }
 
-/** @param {string} ip */
-export function recordLoginFailure(ip) {
+export function recordLoginFailure(ip: string) {
   const now = Date.now();
   const rec = attempts.get(ip);
   if (!rec || now - rec.first > config.loginWindowMs) {
@@ -171,7 +151,6 @@ export function recordLoginFailure(ip) {
   }
 }
 
-/** @param {string} ip */
-export function recordLoginSuccess(ip) {
+export function recordLoginSuccess(ip: string) {
   attempts.delete(ip);
 }

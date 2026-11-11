@@ -1,4 +1,3 @@
-// @ts-check
 // Konfiguration des Admin-Dienstes. Werte kommen aus der Umgebung
 // (systemd EnvironmentFile=/opt/kodini/.env). Für lokale Entwicklung gibt es
 // sinnvolle Defaults, die auf die Repo-Struktur zeigen.
@@ -7,15 +6,18 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+/**
+ * Verzeichnis server/admin – gleich, ob der Code aus src/ (Tests) oder aus
+ * dem übersetzten build/ (Dienst) läuft.
+ */
+export const ADMIN_DIR = resolve(__dirname, '..');
 // server/admin -> Repo-Wurzel
-const REPO_ROOT_DEFAULT = resolve(__dirname, '../..');
+const REPO_ROOT_DEFAULT = resolve(ADMIN_DIR, '../..');
 
 /**
  * Ganzzahl aus der Umgebung, sonst `def`.
- * @param {string} name
- * @param {number} def
  */
-function int(name, def) {
+function int(name: string, def: number) {
   const v = process.env[name];
   const n = v ? parseInt(v, 10) : NaN;
   return Number.isFinite(n) ? n : def;
