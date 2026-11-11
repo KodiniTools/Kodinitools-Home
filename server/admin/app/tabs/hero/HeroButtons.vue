@@ -154,7 +154,7 @@
 
 <script setup lang="ts">
 import { computed, useId } from 'vue';
-import { delPath, getPath, setPath } from '../../../public/model-core.js';
+import { delPath, getPath, setPath } from '../../../public/model-core';
 import { SliderControl, UiSelect } from '../../components/ui';
 import ResetBtn from '../media/ResetBtn.vue';
 import TcColor from '../toolcards/TcColor.vue';

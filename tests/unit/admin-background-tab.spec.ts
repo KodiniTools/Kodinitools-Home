@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 /**
  * Tab „Hintergrund“ als Vue-Insel (server/admin/app/tabs/background): Lesen und
- * Schreiben über die normalisierenden Funktionen aus public/model-site.js,
+ * Schreiben über die normalisierenden Funktionen aus public/model-site.ts,
  * Anzeige-Regeln wie public/background.js.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -47,7 +47,7 @@ import {
   getSiteSection,
   setSiteSection,
   defaultSectionSide,
-} from '../../server/admin/public/model.js';
+} from '../../server/admin/public/model';
 
 const resolveUrl = (v: string) => (v.startsWith('staged:') ? 'blob:' + v.slice(7) : v);
 

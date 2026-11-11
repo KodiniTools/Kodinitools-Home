@@ -24,7 +24,7 @@ import {
   getToolCards,
   toolCardSideLight,
   isCardHidden,
-} from '../../server/admin/public/model.js';
+} from '../../server/admin/public/model';
 
 const card = (title: string, link = '/x/') => ({
   title,

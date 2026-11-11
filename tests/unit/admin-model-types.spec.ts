@@ -31,7 +31,7 @@ import {
   navLang,
   isLangSection,
   normGridSlideshow,
-} from '../../server/admin/public/model.js';
+} from '../../server/admin/public/model';
 import type {
   AdminState,
   Lang,
@@ -42,7 +42,7 @@ import type {
 } from '../../server/admin/types.ts';
 
 describe('Admin-Modell: Typen', () => {
-  it('state ist als AdminState typisiert und nach dem Laden von model.js gefüllt', () => {
+  it('state ist als AdminState typisiert und nach dem Laden von model.ts gefüllt', () => {
     expectTypeOf(state).toEqualTypeOf<AdminState>();
     expect(state.ticker.de).toEqual(emptyTicker());
     expect(state.media.de.heroMode).toBe('banner');

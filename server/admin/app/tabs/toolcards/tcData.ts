@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'vue';
 import type { FontEntry, IconTint, Lang, ThemeMode } from '../../../types';
-import { rgbaFromHex } from '../../../public/model-core.js';
+import { rgbaFromHex } from '../../../public/model-core';
 
 /**
  * Datenmodell und reine Regeln des Tabs „Tool-Karten“ (Vue-Fassung von
@@ -14,7 +14,7 @@ export type TcSectionKey = 'tools' | 'imageTools' | 'diverseTools';
 export type TcShowKey = 'icon' | 'badge' | 'title' | 'fav' | 'open' | 'popup';
 export type CardTextKey = 'title' | 'badge' | 'description' | 'link';
 
-/** Farb-Satz eines Modus (`toolCardSideLight/Dark` in model-toolcards.js). */
+/** Farb-Satz eines Modus (`toolCardSideLight/Dark` in model-toolcards.ts). */
 export interface TcSide {
   borderColor: string;
   borderOpacity: number;

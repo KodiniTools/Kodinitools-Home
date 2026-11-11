@@ -6,14 +6,14 @@ import type {
   TextStyleEntry,
   ThemeMode,
 } from '../../../types';
-import { BANNER_ANIM_SPEEDS, BANNER_ANIM_TYPES } from '../../../public/model-core.js';
+import { BANNER_ANIM_SPEEDS, BANNER_ANIM_TYPES } from '../../../public/model-core';
 
 /**
  * Reine Helfer des Tabs „Texte“ (Vue-Fassung von `public/content.js` +
  * `public/textstyle.js`). Arbeiten nur auf den übergebenen Objekten und
- * importieren bewusst NICHT `public/model.js` (sonst entstünde im Bundle eine
+ * importieren bewusst NICHT `public/model.ts` (sonst entstünde im Bundle eine
  * zweite `state`-Instanz). Regeln 1:1 wie `getTextStyle`/`getEffectiveTextStyle`
- * in `public/model-hero.js` und `applyFxField`/`slotPreviewStyle` in
+ * in `public/model-hero.ts` und `applyFxField`/`slotPreviewStyle` in
  * `public/textstyle.js`.
  */
 
@@ -33,7 +33,7 @@ export interface TextField {
   label: string;
 }
 
-/** Slots des Tabs (= `UNIFORM_TEXT_KEYS` in `public/model-hero.js`). */
+/** Slots des Tabs (= `UNIFORM_TEXT_KEYS` in `public/model-hero.ts`). */
 export const TEXT_FIELDS: readonly TextField[] = [
   {
     path: ['tools', 'sectionTitle'],
@@ -126,7 +126,7 @@ function fillDefaults(s: TextStyleEntry & { color?: string }): TextStyle {
 
 /**
  * Stil-Objekt eines Slots zum SCHREIBEN (legt es bei Bedarf an) – wie
- * `getTextStyle` in `public/model-hero.js`.
+ * `getTextStyle` in `public/model-hero.ts`.
  */
 export function ensureTextStyle(media: TextStyleHost, key: string): TextStyle {
   if (!media.textStyles || typeof media.textStyles !== 'object') media.textStyles = {};

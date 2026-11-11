@@ -36,12 +36,14 @@ describe('appbundle', () => {
 });
 
 describe('needsAdminBuild', () => {
-  it('baut bei App-Quellen, Vite-Config und Abhängigkeiten neu', () => {
+  it('baut bei Frontend-Quellen, Vite-Config und Abhängigkeiten neu', () => {
     expect(needsAdminBuild('server/admin/app/main.ts')).toBe(true);
     expect(needsAdminBuild('vite.admin.config.ts')).toBe(true);
     expect(needsAdminBuild('package-lock.json')).toBe(true);
-    expect(needsAdminBuild('server/admin/public/model-core.js')).toBe(true);
-    expect(needsAdminBuild('server/admin/public/design.js')).toBe(false);
+    expect(needsAdminBuild('server/admin/public/model-core.ts')).toBe(true);
+    expect(needsAdminBuild('server/admin/public/design.js')).toBe(true);
+    expect(needsAdminBuild('server/admin/public/index.html')).toBe(true);
+    expect(needsAdminBuild('server/admin/index.mjs')).toBe(false);
     expect(needsAdminBuild('src/pages/index.astro')).toBe(false);
   });
 });

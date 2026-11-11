@@ -75,9 +75,9 @@ export default tseslint.config(
     },
   },
 
-  // Browser-JavaScript (Admin-Frontend, public/) — Browser-Globals bereitstellen
+  // Browser-Code (Admin-Frontend, public/) — Browser-Globals bereitstellen
   {
-    files: ['server/admin/public/**/*.js', 'public/**/*.js'],
+    files: ['server/admin/public/**/*.js', 'server/admin/public/**/*.ts', 'public/**/*.js'],
     languageOptions: {
       globals: { ...globals.browser },
     },

@@ -137,13 +137,15 @@ export async function updateCodeFromRemote(
 }
 
 /**
- * Ändert die Datei die gebauten Vue-Teile des Admins (server/admin/dist)?
+ * Ändert die Datei das gebaute Admin-Frontend (server/admin/dist)? Gebündelt
+ * werden `public/admin.js` mit allen importierten Modulen unter `public/` und
+ * die Vue-Teile unter `app/`.
  */
 export function needsAdminBuild(file: string) {
   return (
     file.startsWith('server/admin/app/') ||
-    // vom Vue-Bundle importiert
-    file === 'server/admin/public/model-core.js' ||
+    file.startsWith('server/admin/public/') ||
+    file === 'server/admin/types.ts' ||
     file === 'vite.admin.config.ts' ||
     /^package(-lock)?\.json$/.test(file)
   );

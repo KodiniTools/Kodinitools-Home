@@ -29,7 +29,7 @@ import {
   getIconTint,
   setIconTint,
   setPath,
-} from '../../server/admin/public/model.js';
+} from '../../server/admin/public/model';
 import type { Overrides } from '../../server/admin/types';
 
 const LISTS: IconLists = {

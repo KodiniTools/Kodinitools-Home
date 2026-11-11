@@ -8,12 +8,12 @@
 //        Schatten, Umriss) – in der Vorschau per Maus verschiebbar.
 // Gespeichert in media.<lang>.sectionMedia[audio|image|diverse].
 
-import { state, getMediaVal, getSectionMedia, rgbaFromHex } from './model.js';
+import { state, getMediaVal, getSectionMedia, rgbaFromHex } from './model';
 import { objUrl } from './media.js';
 import { overlayStyle } from './layout-shared.js';
 
 /** @import { Lang, MediaKey, SectionVideoKey, ThemeMode, StagedItem } from '../types.ts' */
-/** @import { SectionMediaText } from './model-sectionmedia.js' */
+/** @import { SectionMediaText } from './model-sectionmedia' */
 
 const BASE_BORDER = '1.5px solid rgba(1,79,153,.2)';
 

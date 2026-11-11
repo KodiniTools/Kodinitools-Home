@@ -1,10 +1,10 @@
 import type { ThemeMode } from '../../../types';
-import { rgbaFromHex } from '../../../public/model-core.js';
+import { rgbaFromHex } from '../../../public/model-core';
 
 /**
  * Datenmodell und reine Regeln des Tabs „Hintergrund“ (Vue-Fassung von
  * `public/background.js`). Lesen/Schreiben von `media.site` bleibt bei den
- * normalisierenden Funktionen aus `public/model-site.js`; die Vanilla-Seite
+ * normalisierenden Funktionen aus `public/model-site.ts`; die Vanilla-Seite
  * reicht sie als Service herein (keine zweite `state`-Instanz im Bundle).
  */
 
@@ -50,7 +50,7 @@ export interface ImageLayer {
   opacity: number;
   fixed: boolean;
 }
-/** Vorschau-Ebenen eines Modus, berechnet wie auf der Seite (model-site.js). */
+/** Vorschau-Ebenen eines Modus, berechnet wie auf der Seite (model-site.ts). */
 export interface BgLayers {
   /** Alles zusammen (`siteBgLayerCss`). */
   full: string;

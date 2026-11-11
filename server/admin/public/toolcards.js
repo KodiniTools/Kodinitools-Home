@@ -38,7 +38,7 @@ import {
   deleteCustomCard,
   TOOL_CARD_SECTIONS,
   navLang,
-} from './model.js';
+} from './model';
 import { objUrl, openMediaPicker } from './media.js';
 import { ensureFontFace } from './fonts.js';
 import { mountVueTab } from './islands.js';
@@ -115,7 +115,7 @@ function cardImageUrl(val) {
 }
 
 // Zustandsgebundene Teile für die Vue-Fassung (app/tabs/toolcards): Karten-Liste,
-// Text-Overrides, Karten anlegen/löschen/ausblenden über model.js.
+// Text-Overrides, Karten anlegen/löschen/ausblenden über model.ts.
 /**
  * @param {Lang} lang
  * @returns {import('../app/tabs/toolcards/tcData').TcService}

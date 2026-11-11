@@ -67,10 +67,12 @@ describe('content.ts', () => {
 });
 
 describe('codeupdate.ts / appbundle.ts', () => {
-  it('needsAdminBuild erkennt Vue-relevante Dateien', () => {
+  it('needsAdminBuild erkennt gebündelte Frontend-Dateien', () => {
     expect(needsAdminBuild('server/admin/app/main.ts')).toBe(true);
-    expect(needsAdminBuild('server/admin/public/model-core.js')).toBe(true);
-    expect(needsAdminBuild('server/admin/public/publish.js')).toBe(false);
+    expect(needsAdminBuild('server/admin/public/model-core.ts')).toBe(true);
+    expect(needsAdminBuild('server/admin/public/publish.js')).toBe(true);
+    expect(needsAdminBuild('server/admin/types.ts')).toBe(true);
+    expect(needsAdminBuild('server/admin/src/content.ts')).toBe(false);
   });
 
   it('needsServerBuild erkennt Server-Quellen und das Build-Skript', () => {

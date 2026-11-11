@@ -1,26 +1,20 @@
-// @ts-check
 // Datenmodell – Laufband: Standardwerte und Normalisierung (Einträge, Design
 // mit Farben je Hell/Dunkel und geteilter Typografie).
 
-import { clampSpacing, normFontFile } from './model-core.js';
+import { clampSpacing, normFontFile } from './model-core';
 
-/** @import { ThemeMode, TickerConfig, TickerSpeed, TickerItem } from '../types.ts' */
+import type { ThemeMode, TickerConfig, TickerSpeed, TickerItem, RawJson } from '../types';
 
-/** @type {TickerSpeed[]} */
-const TICKER_SPEEDS = ['slow', 'normal', 'fast'];
+const TICKER_SPEEDS: TickerSpeed[] = ['slow', 'normal', 'fast'];
 
 // --- Ticker-Standard & -Normalisierung ---
-/** @returns {TickerConfig} */
-export function emptyTicker() {
+
+export function emptyTicker(): TickerConfig {
   return { enabled: false, speed: 'normal', items: [], style: defaultTickerStyle() };
 }
 // Standard-Farben des Laufbands je Modus (entsprechen dem eingebauten Aussehen in
 // TickerBar.astro: Hell = Blau/Weiß, Dunkel = Navy/Hellgrau).
-/**
- * @param {ThemeMode} mode
- * @returns {import('../types.ts').TickerColors}
- */
-export function defaultTickerColors(mode) {
+export function defaultTickerColors(mode: ThemeMode): import('../types.ts').TickerColors {
   return mode === 'dark'
     ? { textColor: '#e2e8f0', bgColor: '#111827', bgOpacity: 100 }
     : { textColor: '#ffffff', bgColor: '#014f99', bgOpacity: 100 };
@@ -41,25 +35,30 @@ export function defaultTickerStyle() {
 // Struktur (Farben auf oberster Ebene, für beide Modi gleich) auf getrennte
 // Farb-Sätze light/dark — verhaltensneutral (die alten Farben galten global).
 /**
- * @param {any} s Roh-Wert aus der geladenen Config (beliebige Form)
+ * @param s Roh-Wert aus der geladenen Config (beliebige Form)
  */
-export function normTickerStyle(s) {
+export function normTickerStyle(s: RawJson) {
   const d = defaultTickerStyle();
   if (!s || typeof s !== 'object') return d;
-  /** @type {(v: unknown, min: number, max: number, def: number) => number} */
-  const clamp = (v, min, max, def) => {
+  const clamp: (v: unknown, min: number, max: number, def: number) => number = (
+    v,
+    min,
+    max,
+    def,
+  ): number => {
     const n = Number(v);
     return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : def;
   };
-  /** @type {(v: unknown, def: string) => string} */
-  const hex = (v, def) =>
-    /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? /** @type {string} */ (v) : def;
+  const hex: (v: unknown, def: string) => string = (v, def): string =>
+    /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? (v as string) : def;
   const hasSides =
     (s.light && typeof s.light === 'object') || (s.dark && typeof s.dark === 'object');
   const flat =
     !hasSides && (typeof s.textColor === 'string' || typeof s.bgColor === 'string') ? s : null;
-  /** @type {(side: any, def: import('../types.ts').TickerColors) => import('../types.ts').TickerColors} */
-  const colors = (side, def) => {
+  const colors: (
+    side: RawJson,
+    def: import('../types.ts').TickerColors,
+  ) => import('../types.ts').TickerColors = (side, def): import('../types.ts').TickerColors => {
     const o = side && typeof side === 'object' ? side : flat || {};
     return {
       textColor: hex(o.textColor, def.textColor),
@@ -78,18 +77,16 @@ export function normTickerStyle(s) {
 }
 // Vollständige Ticker-Konfiguration einer Sprache normalisieren.
 /**
- * @param {any} t Roh-Wert aus der geladenen Config (beliebige Form)
- * @returns {TickerConfig}
+ * @param t Roh-Wert aus der geladenen Config (beliebige Form)
  */
-export function normTicker(t) {
+export function normTicker(t: RawJson): TickerConfig {
   if (!t || typeof t !== 'object') return emptyTicker();
   return {
     enabled: t.enabled === true,
     speed: TICKER_SPEEDS.includes(t.speed) ? t.speed : 'normal',
     items: Array.isArray(t.items)
       ? t.items.map(
-          /** @returns {TickerItem} */
-          (/** @type {any} */ i) => ({
+          (i: RawJson): TickerItem => ({
             id: String(i.id ?? ''),
             text: i.text || '',
             link: i.link || '',

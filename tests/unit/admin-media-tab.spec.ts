@@ -41,7 +41,7 @@ import {
   heroLayoutCells,
   BANNER_SLIDES_MAX,
   BANNER_TRANSITIONS,
-} from '../../server/admin/public/model.js';
+} from '../../server/admin/public/model';
 import {
   designCss as vanillaDesignCss,
   textStyle as vanillaTextStyle,

@@ -2,11 +2,11 @@
 // KodiniTools Adminbereich — Einstiegsmodul. Bindet Login, die zweistufige
 // Navigation und den Startvorgang zusammen. Die Tabs sind Vue-Inseln
 // (app/tabs/…, gebaut mit `npm run build:admin`); die Module hier halten den
-// Zustand (model*.js) und reichen ihn als Props/Services an die Inseln.
+// Zustand (model*.ts) und reichen ihn als Props/Services an die Inseln.
 
 import { $, api, mediaAll } from './core.js';
 /** @import { NavSection, SubtabKey } from '../types.ts' */
-import { state, normTicker, normalizeMedia, SUBTABS, isLangSection } from './model.js';
+import { state, normTicker, normalizeMedia, SUBTABS, isLangSection } from './model';
 import { renderTicker } from './ticker.js';
 import { loadFonts } from './fonts.js';
 import { renderTexts, renderAdvanced } from './content.js';
@@ -158,16 +158,14 @@ async function boot() {
   initSaveTracking();
 }
 
-// Vue-Teile (./app/main.js) parallel laden. Kommen sie nach dem ersten
-// Rendern an, den aktiven Tab neu rendern (er zeigt bis dahin einen
-// Ladehinweis); fehlen sie, zeigt der Tab einen Fehlerhinweis.
+// Vue-Teile (app/main.ts, eigener Chunk im Bundle) parallel laden. Kommen sie
+// nach dem ersten Rendern an, den aktiven Tab neu rendern (er zeigt bis dahin
+// einen Ladehinweis); schlägt das Laden fehl, zeigt der Tab einen Fehlerhinweis.
 const rerenderIfOpen = () => {
   if (!$('#appView').classList.contains('hidden')) renderMain();
 };
 window.addEventListener('kodini-admin-vue-ready', rerenderIfOpen);
-// Pfad als Variable: das Bundle entsteht erst mit `npm run build:admin`.
-const APP_ENTRY = './app/main.js';
-import(APP_ENTRY).catch((e) => {
+import('../app/main').catch((e) => {
   markVueMissing(e);
   rerenderIfOpen();
 });

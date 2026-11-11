@@ -145,7 +145,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { normFontFile } from '../../../public/model-core.js';
+import { normFontFile } from '../../../public/model-core';
 import { SliderControl, UiSelect } from '../../components/ui';
 import ResetBtn from '../media/ResetBtn.vue';
 import { ALIGN_LABEL, TRANSFORM_LABEL, WEIGHT_LABEL, normTextField, type TcText } from './tcData';

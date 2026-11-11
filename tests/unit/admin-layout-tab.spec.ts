@@ -41,7 +41,7 @@ import {
 import { useToastStore } from '../../server/admin/app/stores/toast';
 import { layoutService } from '../../server/admin/public/layout.js';
 import { overlayStyle } from '../../server/admin/public/layout-shared.js';
-import { state, defaultMedia, rgbaFromHex } from '../../server/admin/public/model.js';
+import { state, defaultMedia, rgbaFromHex } from '../../server/admin/public/model';
 
 function makeService(picked: string | null = '/uploads/de/banner.webp') {
   const svc = layoutService('de') as unknown as LayoutService;
@@ -330,7 +330,7 @@ const gridSvc = (picked: string | null = '/uploads/de/k.webp') => {
 
 describe('gridData (Regeln wie public/layout-grid.js)', () => {
   it('Neuaufteilung wie heroGridReflowCols; Vorschau ohne ausgeblendete Kacheln', async () => {
-    const { heroGridReflowCols } = await import('../../server/admin/public/model-grid.js');
+    const { heroGridReflowCols } = await import('../../server/admin/public/model-grid');
     const svc = gridSvc();
     for (const layout of Object.keys(svc.layouts))
       for (let n = 0; n <= 6; n++)

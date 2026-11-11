@@ -9,8 +9,8 @@
  *
  * Grundlage für die schrittweise Migration des Admins nach Vue 3 + Pinia.
  */
-import type { normTickerStyle } from './public/model-ticker.js';
-import type { defaultMediaLocale, normalizeMedia } from './public/model-media.js';
+import type { normTickerStyle } from './public/model-ticker.ts';
+import type { defaultMediaLocale, normalizeMedia } from './public/model-media.ts';
 
 /** Inhalts-Sprachen der Seite. */
 export type Lang = 'de' | 'en';
@@ -140,6 +140,9 @@ export type ObjPath = Array<string | number>;
 /** Offenes Objekt für die Pfad-Helfer (`setPath`/`delPath`). */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AnyObj = Record<string | number, any>;
+/** Unvalidierter JSON-Eingang der Normalisierer (`norm*`): Form erst nach Prüfung bekannt. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type RawJson = any;
 
 /** Text-Overrides einer Sprache (beliebig verschachtelt, Struktur der Locale-Dateien). */
 export type Overrides = Record<string, unknown>;
@@ -199,7 +202,7 @@ export interface NavState {
   sub: SubtabKey;
 }
 
-/** Zentraler App-Zustand des Admins (`model-state.js`). */
+/** Zentraler App-Zustand des Admins (`model-state.ts`). */
 export interface AdminState {
   overrides: ByLang<Overrides>;
   ticker: ByLang<TickerConfig>;

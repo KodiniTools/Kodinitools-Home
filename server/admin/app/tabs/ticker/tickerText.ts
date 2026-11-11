@@ -3,7 +3,7 @@
  * übernommen: Inline-Links `[Wort](url)`, einzeilige Darstellung, Vorschau-Stil.
  */
 import type { ThemeMode, TickerItem, TickerStyle } from '../../../types';
-import { rgbaFromHex } from '../../../public/model-core.js';
+import { rgbaFromHex } from '../../../public/model-core';
 
 /** Erlaubte Link-Ziele: intern (`/…`) oder extern (`http(s)://…`), wie TickerBar.astro. */
 export const VALID_LINK = /^(\/[^\s]*|https?:\/\/[^\s]+)$/;

@@ -57,7 +57,7 @@ import {
   CARD_SCALE_MAX,
   MEDIA_OFFSET_MAX,
   navLang,
-} from './model.js';
+} from './model';
 import { initPaste, pasteFromClipboardApi } from './layout-paste.js';
 import {
   fullPageModel,
@@ -119,7 +119,7 @@ function resolveMedia(val) {
 /**
  * Service für die Vue-Fassung des Tabs (app/tabs/layout): Zugriff auf den
  * Zustand, die Setter des Seiten-Layouts, Medien-Auswahl, Zwischenablage und
- * das Datenmodell der Ganzseiten-Vorschau – ohne model.js ins Bundle zu ziehen.
+ * das Datenmodell der Ganzseiten-Vorschau – ohne model.ts ins Bundle zu ziehen.
  * @param {Lang} lang
  * @returns {LayoutService}
  */

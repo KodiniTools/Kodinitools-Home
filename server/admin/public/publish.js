@@ -18,7 +18,7 @@ import {
   defMediaVal,
   defaultMediaLocale,
   normTickerStyle,
-} from './model.js';
+} from './model';
 import { loadServerFiles, renderFiles, renderMedia } from './media.js';
 import { goto, renderMain } from './admin.js';
 

@@ -1,6 +1,6 @@
 /**
  * Hintergrund-Muster (Admin > Hintergrund > Muster): Seite (content.ts) und
- * Admin-Vorschau (model-site.js) erzeugen identisches CSS, Server und Admin
+ * Admin-Vorschau (model-site.ts) erzeugen identisches CSS, Server und Admin
  * kennen dieselben Arten, und alles bleibt reines CSS (keine Bilder/url()).
  */
 import { describe, expect, it } from 'vitest';
@@ -9,7 +9,7 @@ import {
   SITE_PATTERNS as ADMIN_PATTERNS,
   normSite,
   sitePatternLayers as adminLayers,
-} from '../../server/admin/public/model-site.js';
+} from '../../server/admin/public/model-site';
 import { SITE_PATTERNS, sitePatternLayers } from '../../src/content/content';
 
 const NEW = ['cross', 'diagonal', 'diamond', 'triangles', 'waves', 'blueprint'];

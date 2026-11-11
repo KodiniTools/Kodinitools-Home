@@ -1365,9 +1365,18 @@
 
     <div class="toast" id="toast"></div>
 
-    <script type="module" src="./admin.js"></script>
-    <!-- Vue-Teile (npm run build:admin → server/admin/dist, ausgeliefert unter ./app/);
-         das Skript ./app/main.js lädt admin.js. -->
+    <!-- Admin-Frontend als Bundle (npm run build:admin → server/admin/dist,
+         ausgeliefert unter ./app/). Fehlt der Build, erscheint ein Hinweis. -->
+    <script
+      type="module"
+      src="./app/admin.js"
+      onerror="
+        document.body.insertAdjacentHTML(
+          'afterbegin',
+          '<p role=&quot;alert&quot; style=&quot;margin:16px;padding:12px;border:1px solid #c33;color:#c33&quot;>Admin-Oberfläche nicht gebaut: bitte <code>npm run build:admin</code> ausführen (Deploy erledigt das).</p>',
+        )
+      "
+    ></script>
     <link rel="stylesheet" href="./app/main.css" />
   </body>
 </html>

@@ -1,4 +1,3 @@
-// @ts-check
 // Datenmodell – Liste der Tool-Karten: Standard-Karten aus den Sprachdateien plus
 // im Admin angelegte Karten (Duplikat oder neu, Tab „Tool-Karten").
 //
@@ -8,44 +7,37 @@
 // Eintrag mit title + link als Karte. Angelegt wird immer in DE und EN, damit die
 // Karte in beiden Sprachen existiert.
 
-/** @import { Lang, AnyObj } from '../types.ts' */
+import type { Lang, AnyObj } from '../types';
 
-import { getPath, delPath, MEDIA_LANGS } from './model-core.js';
-import { state } from './model-state.js';
-import { TOOL_CARD_KEY } from './model-toolcards.js';
-import { setCardHidden } from './model-site.js';
+import { getPath, delPath, MEDIA_LANGS } from './model-core';
+import { state } from './model-state';
+import { TOOL_CARD_KEY } from './model-toolcards';
+import { setCardHidden } from './model-site';
 
-/** @typedef {'tools' | 'imageTools' | 'diverseTools'} ToolCardSection */
-/** @type {ToolCardSection[]} */
-export const TOOL_CARD_SECTIONS = ['tools', 'imageTools', 'diverseTools'];
+export type ToolCardSection = 'tools' | 'imageTools' | 'diverseTools';
+export const TOOL_CARD_SECTIONS: ToolCardSection[] = ['tools', 'imageTools', 'diverseTools'];
 // Textfelder einer Karte (Override-Felder der Sprachdatei).
 export const CARD_TEXT_KEYS = ['title', 'badge', 'description', 'link', 'svg'];
 const COPY_SUFFIX = { de: ' (Kopie)', en: ' (Copy)' };
 const KEY_MAX = 60;
 
-/** @type {(v: unknown) => v is AnyObj} */
-const isObj = (v) => !!v && typeof v === 'object' && !Array.isArray(v);
-/** @type {<T>(v: T) => T} */
-const clone = (v) => JSON.parse(JSON.stringify(v));
+const isObj = (v: unknown): v is AnyObj => !!v && typeof v === 'object' && !Array.isArray(v);
+const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v));
 /** Overrides einer Sprache als beschreibbares Objekt. */
-const ovr = (/** @type {Lang} */ lang) => /** @type {AnyObj} */ (state.overrides[lang]);
+const ovr = (lang: Lang) => state.overrides[lang] as AnyObj;
 
 /**
  * Ist ein Locale-Eintrag eine Tool-Karte (wie isTool auf der Startseite)?
- * @param {unknown} e
  */
-export function isToolCardEntry(e) {
+export function isToolCardEntry(e: unknown) {
   return isObj(e) && 'title' in e && 'link' in e;
 }
 
 /**
  * Schlüssel der Karten einer Sektion in Seiten-Reihenfolge: zuerst die Karten
  * der Sprachdatei, dann die im Admin angelegten (nur im Override vorhanden).
- * @param {Lang} lang
- * @param {string} section
- * @returns {string[]}
  */
-export function toolCardKeys(lang, section) {
+export function toolCardKeys(lang: Lang, section: string): string[] {
   const defs = getPath(state.defaults[lang], [section]);
   const ovs = getPath(state.overrides[lang], [section]);
   const out = [];
@@ -58,17 +50,16 @@ export function toolCardKeys(lang, section) {
 
 /**
  * Im Admin angelegte Karte (in keiner Sprachdatei vorhanden)?
- * @param {string} id
  */
-export function isCustomCard(id) {
+export function isCustomCard(id: string) {
   if (!TOOL_CARD_KEY.test(id)) return false;
   const path = id.split('.');
   return MEDIA_LANGS.every((l) => getPath(state.defaults[l], path) === undefined);
 }
 
 // Effektiver Text eines Karten-Felds (Override, sonst Sprachdatei; '' bleibt '').
-/** @param {Lang} lang @param {string[]} path */
-function effField(lang, path) {
+/** @param lang @param path */
+function effField(lang: Lang, path: string[]) {
   const o = getPath(state.overrides[lang], path);
   if (o !== undefined) return typeof o === 'string' ? o : '';
   const d = getPath(state.defaults[lang], path);
@@ -76,8 +67,8 @@ function effField(lang, path) {
 }
 
 // Ist "<sektion>.<key>" in irgendeiner Sprache (Datei oder Override) belegt?
-/** @param {string} section @param {string} key */
-function keyTaken(section, key) {
+/** @param section @param key */
+function keyTaken(section: string, key: string) {
   return MEDIA_LANGS.some(
     (l) =>
       getPath(state.defaults[l], [section, key]) !== undefined ||
@@ -87,11 +78,8 @@ function keyTaken(section, key) {
 
 /**
  * Freier Karten-Schlüssel "<base>", "<base>-2", … (nur a-z, 0-9, _ und -).
- * @param {string} section
- * @param {unknown} base
- * @returns {string}
  */
-export function uniqueCardKey(section, base) {
+export function uniqueCardKey(section: string, base: unknown): string {
   const b =
     String(base || '')
       .replace(/[^a-zA-Z0-9_-]+/g, '-')
@@ -105,8 +93,8 @@ export function uniqueCardKey(section, base) {
 }
 
 // Titel der Kopie: Suffix an die letzte Zeile (Titel haben max. 2 Zeilen).
-/** @param {unknown} title @param {Lang} lang */
-function copyTitle(title, lang) {
+/** @param title @param lang */
+function copyTitle(title: unknown, lang: Lang) {
   const t = String(title || '').trim();
   return t ? `${t}${COPY_SUFFIX[lang]}` : COPY_SUFFIX[lang].trim();
 }
@@ -116,17 +104,14 @@ function copyTitle(title, lang) {
  * Beschreibung, Link, Icon), Einzel-Design (Hell + Dunkel, Typografie,
  * Sichtbarkeit) und Icon-Färbung je Sprache. Position/Größe (Layout-Tab) und
  * „ausgeblendet" werden nicht übernommen. Gibt die neue Karten-ID zurück.
- * @param {string} srcId
- * @returns {string | null}
  */
-export function duplicateCard(srcId) {
+export function duplicateCard(srcId: string): string | null {
   if (!TOOL_CARD_KEY.test(srcId)) return null;
   const [section, srcKey] = srcId.split('.');
   const key = uniqueCardKey(section, `${srcKey}-kopie`);
   const id = `${section}.${key}`;
   for (const lang of MEDIA_LANGS) {
-    /** @type {Record<string, string>} */
-    const entry = {};
+    const entry: Record<string, string> = {};
     for (const f of CARD_TEXT_KEYS) entry[f] = effField(lang, [section, srcKey, f]);
     entry.title = copyTitle(entry.title, lang);
     const o = ovr(lang);
@@ -145,17 +130,14 @@ export function duplicateCard(srcId) {
  * Legt eine leere Karte in DE + EN an (Standard-Design). Sie startet auf der
  * Seite ausgeblendet, damit keine leere Karte live geht; „Wieder einblenden"
  * zeigt sie an. Gibt die neue Karten-ID zurück.
- * @param {string} section
- * @returns {string | null}
  */
-export function createCard(section) {
-  if (!TOOL_CARD_SECTIONS.includes(/** @type {ToolCardSection} */ (section))) return null;
+export function createCard(section: string): string | null {
+  if (!TOOL_CARD_SECTIONS.includes(section as ToolCardSection)) return null;
   const key = uniqueCardKey(section, 'neue-karte');
   for (const lang of MEDIA_LANGS) {
     const o = ovr(lang);
     if (!isObj(o[section])) o[section] = {};
-    /** @type {Record<string, string>} */
-    const entry = {};
+    const entry: Record<string, string> = {};
     for (const f of CARD_TEXT_KEYS) entry[f] = '';
     o[section][key] = entry;
   }
@@ -167,9 +149,8 @@ export function createCard(section) {
 /**
  * Löscht eine im Admin angelegte Karte vollständig (Texte DE + EN, Einzel-Design,
  * Icon-Färbung, Position, Ausblenden). Karten aus der Sprachdatei: false.
- * @param {string} id
  */
-export function deleteCustomCard(id) {
+export function deleteCustomCard(id: string) {
   if (!isCustomCard(id)) return false;
   const path = id.split('.');
   for (const lang of MEDIA_LANGS) {

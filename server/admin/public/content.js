@@ -9,7 +9,7 @@
 // Hell links und Dunkel rechts = Vorschau + Textfarbe je Slot für den Modus.
 
 import { $, esc, toast } from './core.js';
-import { state, navLang } from './model.js';
+import { state, navLang } from './model';
 import { ensureFontFace } from './fonts.js';
 import { goto } from './admin.js';
 import { mountVueTab } from './islands.js';

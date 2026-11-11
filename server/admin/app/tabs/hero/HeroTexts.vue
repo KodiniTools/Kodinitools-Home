@@ -141,7 +141,7 @@
 
 <script setup lang="ts">
 import { computed, reactive, useId } from 'vue';
-import { delPath, getPath, setPath } from '../../../public/model-core.js';
+import { delPath, getPath, setPath } from '../../../public/model-core';
 import { UiSelect } from '../../components/ui';
 import TextFxFields from '../texts/TextFxFields.vue';
 import {
