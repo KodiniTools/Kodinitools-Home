@@ -1,9 +1,8 @@
-// @ts-check
 import { defineConfig } from 'astro/config';
 import { readFileSync } from 'node:fs';
 import vue from '@astrojs/vue';
-import singleSitemap, { langAlternatePages } from './single-sitemap.mjs';
-import rszIntegration from './rsz-integration.mjs';
+import singleSitemap, { langAlternatePages } from './single-sitemap';
+import rszIntegration from './rsz-integration';
 
 // Tool pages live as standalone apps in sub-directories (e.g. /audiokonverter/),
 // so Astro does not build them and they are missing from the generated sitemap.
@@ -12,7 +11,9 @@ import rszIntegration from './rsz-integration.mjs';
 const de = JSON.parse(readFileSync('./src/locales/de.json', 'utf-8'));
 const toolPages = ['tools', 'imageTools', 'diverseTools'].flatMap((group) =>
   Object.values(de[group] ?? {})
-    .filter((entry) => entry && typeof entry === 'object' && 'link' in entry)
+    .filter(
+      (entry): entry is { link: string } => !!entry && typeof entry === 'object' && 'link' in entry,
+    )
     .map((entry) => entry.link),
 );
 // Unterseiten von Tool-Apps und verlinkte Seiten, die nicht als eigener
@@ -84,7 +85,7 @@ export default defineConfig({
     // Eigene Integration: erzeugt EINE flache sitemap.xml statt des von
     // @astrojs/sitemap erzwungenen Paars sitemap-index.xml + sitemap-0.xml.
     // Die Tool-Apps (toolPages) stehen je mit deutscher URL und englischer
-    // Fassung (?lang=en) samt hreflang de/en/x-default drin. Siehe single-sitemap.mjs.
+    // Fassung (?lang=en) samt hreflang de/en/x-default drin. Siehe single-sitemap.ts.
     singleSitemap({ extraPages: langAlternatePages(toolPages) }),
     // Vue 3 für interaktive Islands (src/islands/), nur dort im Browser geladen.
     vue(),

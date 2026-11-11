@@ -1,4 +1,3 @@
-// @ts-check
 // Erzeugt src/styles/parts/tokens.css aus src/styles/tokens.json.
 //
 //   npm run tokens          Datei neu schreiben
@@ -14,20 +13,20 @@ const ROOT = new URL('../', import.meta.url);
 export const TOKENS_JSON = fileURLToPath(new URL('src/styles/tokens.json', ROOT));
 export const TOKENS_CSS = fileURLToPath(new URL('src/styles/parts/tokens.css', ROOT));
 
-/** @typedef {string | { light?: string; dark?: string }} TokenValue */
-/** @typedef {{ name: string; value: TokenValue; usage?: string }} Token */
-/** @typedef {{ name: string; tokens: Token[] }} TokenGroup */
-/** @typedef {{ themes: Record<string, string>; groups: TokenGroup[] }} TokenFile */
+export type TokenValue = string | { light?: string; dark?: string };
+export type Token = { name: string; value: TokenValue; usage?: string };
+export type TokenGroup = { name: string; tokens: Token[] };
+export type TokenFile = { themes: Record<string, string>; groups: TokenGroup[] };
 
 const NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const UNSAFE = /[;{}<>]|\/\*/;
 
 /**
  * Prüft die Token-Datei und liefert eine verständliche Fehlermeldung.
- * @param {any} data  geparstes tokens.json (ungeprüft)
- * @returns {TokenFile}
+ * @param data  geparstes tokens.json (ungeprüft)
  */
-export function validateTokens(data) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- ungeprüftes JSON, Form wird hier erst geprüft
+export function validateTokens(data: any): TokenFile {
   const themes = Object.keys(data.themes ?? {});
   if (themes[0] !== 'light' || !themes.includes('dark')) {
     throw new Error('tokens.json: themes muss mit "light" beginnen und "dark" enthalten');
@@ -58,23 +57,19 @@ export function validateTokens(data) {
 
 /**
  * Wert eines Tokens in einem Theme (oder undefined, wenn dort nicht gesetzt).
- * @param {Token} token
- * @param {string} theme
- * @returns {string | undefined}
  */
-export function valueIn(token, theme) {
+export function valueIn(token: Token, theme: string): string | undefined {
   return typeof token.value === 'string'
     ? theme === 'light'
       ? token.value
       : undefined
-    : token.value[/** @type {'light' | 'dark'} */ (theme)];
+    : token.value[theme as 'light' | 'dark'];
 }
 
 /**
  * Rendert die CSS-Datei (deterministisch, Reihenfolge wie in tokens.json).
- * @param {TokenFile} data
  */
-export function renderTokensCss(data) {
+export function renderTokensCss(data: TokenFile) {
   validateTokens(data);
   const out = [
     '/*',
@@ -86,7 +81,7 @@ export function renderTokensCss(data) {
     const lines = [];
     for (const group of data.groups) {
       const decls = group.tokens
-        .map((token) => /** @type {const} */ ([token.name, valueIn(token, theme)]))
+        .map((token) => [token.name, valueIn(token, theme)] as const)
         .filter(([, value]) => value !== undefined)
         .map(([name, value]) => `  --${name}: ${value};`);
       if (decls.length) lines.push(`  /* ${group.name} */`, ...decls);
