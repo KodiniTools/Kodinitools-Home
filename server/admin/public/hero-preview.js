@@ -3,7 +3,7 @@
 // wie auf der Startseite (HomePage.astro, hero.css, home-compact.css), damit die
 // Vorschau dasselbe Bild zeigt wie die Seite. Reine Funktionen ohne DOM, damit
 // sie testbar sind; design.js löst gestagte Medien selbst auf (objUrl).
-import { rgbaFromHex, getBannerStyle } from './model.js';
+import { rgbaFromHex, getBannerStyle } from './model';
 
 const VIDEO_RE = /\.(mp4|webm|mov|m4v|ogv|ogg)$/i;
 

@@ -19,7 +19,7 @@ import {
   tickerPreviewStyle,
 } from '../../server/admin/app/tabs/ticker/tickerText';
 import { useToastStore } from '../../server/admin/app/stores/toast';
-import { emptyTicker, normTicker } from '../../server/admin/public/model-ticker.js';
+import { emptyTicker, normTicker } from '../../server/admin/public/model-ticker';
 import type { TickerConfig, TickerItem } from '../../server/admin/types';
 
 describe('tickerText (Regeln wie public/ticker.js)', () => {

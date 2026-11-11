@@ -31,7 +31,7 @@ import {
   defaultHeroBgSlideshow,
   getHomeLayout,
   navLang,
-} from './model.js';
+} from './model';
 import {
   heroPreviewMedia,
   heroPreviewMediaStyle,
@@ -95,7 +95,7 @@ function previewMedia(lang) {
 }
 
 // Service für die Vue-Fassung des Tabs (app/tabs/hero): kapselt die Zugriffe auf
-// den Admin-Zustand, damit das Vue-Bundle model.js nicht selbst importiert.
+// den Admin-Zustand, damit das Vue-Bundle model.ts nicht selbst importiert.
 /**
  * @param {Lang} lang
  * @returns {import('../app/tabs/hero/heroData').HeroService}

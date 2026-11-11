@@ -1,5 +1,5 @@
 import type { Lang, SectionVideoKey, ThemeMode } from '../../../types';
-import { rgbaFromHex } from '../../../public/model-core.js';
+import { rgbaFromHex } from '../../../public/model-core';
 
 /**
  * Datenmodell und reine Regeln des Tabs „Medien“ (Vue-Fassung von
@@ -12,7 +12,7 @@ import { rgbaFromHex } from '../../../public/model-core.js';
 
 export type SectionKey = SectionVideoKey;
 export const SECTION_KEYS: readonly SectionKey[] = ['audio', 'image', 'diverse'];
-/** Wie `SECTION_MEDIA_LABELS` in `public/model-sectionmedia.js`. */
+/** Wie `SECTION_MEDIA_LABELS` in `public/model-sectionmedia.ts`. */
 export const SECTION_LABEL: Record<SectionKey, string> = {
   audio: 'Audio-Tools',
   image: 'Bild-Tools',

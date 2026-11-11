@@ -291,7 +291,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, useId, watch } from 'vue';
 import type { ThemeMode } from '../../../types';
-import { normSiteMediaUrl } from '../../../public/model-core.js';
+import { normSiteMediaUrl } from '../../../public/model-core';
 import { SliderControl, UiButton } from '../../components/ui';
 import { colorField, slotAnimClass, slotPreviewStyle } from '../texts/textStyle';
 import TcColor from '../toolcards/TcColor.vue';

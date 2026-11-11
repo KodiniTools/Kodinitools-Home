@@ -270,7 +270,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref, useTemplateRef } from 'vue';
 import type { ByLang, Lang, Overrides, ThemeMode } from '../../../types';
-import { delPath, setPath } from '../../../public/model-core.js';
+import { delPath, setPath } from '../../../public/model-core';
 import {
   ColorField,
   UiButton,

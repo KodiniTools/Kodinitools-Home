@@ -6,7 +6,7 @@
 // oder seine URL zu kopieren. Die Icon-Liste wird beim ersten Öffnen geladen.
 
 import { $ } from './core.js';
-import { state, getPath, toolCardKeys, TOOL_CARD_SECTIONS, navLang } from './model.js';
+import { state, getPath, toolCardKeys, TOOL_CARD_SECTIONS, navLang } from './model';
 import { mountVueTab } from './islands.js';
 
 // Kachel 1..6 (größtmögliche Kachelzahl über alle Layouts)

@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 /**
  * Tab „Texte“ als Vue-Insel (server/admin/app/tabs/texts): gleiche Regeln wie
- * die frühere Vanilla-Fassung (model-hero.js) und Änderungen
+ * die frühere Vanilla-Fassung (model-hero.ts) und Änderungen
  * landen direkt in den übergebenen state-Objekten (Autosave/Undo per Snapshot).
  */
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -31,12 +31,12 @@ import {
   getTextStyle,
   getEffectiveTextStyle,
   UNIFORM_TEXT_KEYS as VANILLA_KEYS,
-} from '../../server/admin/public/model.js';
+} from '../../server/admin/public/model';
 import type { Overrides } from '../../server/admin/types';
 
 const clone = <T>(o: T): T => JSON.parse(JSON.stringify(o)) as T;
 
-describe('textStyle (Regeln wie model-hero.js / textstyle.js)', () => {
+describe('textStyle (Regeln wie model-hero.ts / textstyle.js)', () => {
   it('Slots entsprechen UNIFORM_TEXT_KEYS der Vanilla-Fassung', () => {
     expect([...UNIFORM_TEXT_KEYS]).toEqual(VANILLA_KEYS);
     expect(TEXT_FIELDS.map((f) => f.path.join('.'))).toEqual(VANILLA_KEYS);

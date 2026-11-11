@@ -7,13 +7,13 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { validateMedia } from '../../server/admin/src/content.js';
-import { normSite } from '../../server/admin/public/model-site.js';
+import { normSite } from '../../server/admin/public/model-site';
 
 const SCOPE = "#app[data-home-layout='compact']";
 
 describe.each([
   ['Server (content.mjs)', (site: unknown) => validateMedia({ site, de: {}, en: {} }).site],
-  ['Admin (model-site.js)', (site: unknown) => normSite(site)],
+  ['Admin (model-site.ts)', (site: unknown) => normSite(site)],
 ])('Seiten-Layout %s', (_name, norm) => {
   it('Standard ist Klassisch mit Medien auf dem Handy', () => {
     expect(norm({})).toMatchObject({ homeLayout: 'classic', heroMediaMobile: true });

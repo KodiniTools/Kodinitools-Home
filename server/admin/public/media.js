@@ -24,7 +24,7 @@ import {
   getPageBg,
   PAGE_BG_DEFAULT,
   navLang,
-} from './model.js';
+} from './model';
 import { ensureFontFace } from './fonts.js';
 
 /** @import { Lang, MediaKey, ServerFile, SectionVideoKey, StagedItem } from '../types.ts' */
@@ -223,7 +223,7 @@ async function stageFiles(fileList) {
 }
 
 // Ansichtsdaten des Tabs für die Vue-Fassung: Dateien mit ihren Plätzen
-// („wird verwendet in"), berechnet mit den Helfern aus model.js.
+// („wird verwendet in"), berechnet mit den Helfern aus model.ts.
 /** @param {Lang} lang */
 function filesSnapshot(lang) {
   const srv = (/** @type {ServerFile} */ f) => ({

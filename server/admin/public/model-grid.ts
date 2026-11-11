@@ -1,12 +1,11 @@
-// @ts-check
 // Datenmodell – Hero-Layout: Raster-Layouts, Kachel-Design/-Bildbearbeitung,
 // Banner-Design je Hell/Dunkel sowie die Diashows (Banner und Kacheln) mit ihren
 // Bild-Plätzen.
 
-/** @import { Lang, ThemeMode, ImageSlot, ImageSlotBase } from '../types.ts' */
+import type { Lang, ThemeMode, ImageSlot, ImageSlotBase, RawJson } from '../types';
 
-import { normFontFile, getPath, setPath, MEDIA_LANGS } from './model-core.js';
-import { state } from './model-state.js';
+import { normFontFile, getPath, setPath, MEDIA_LANGS } from './model-core';
+import { state } from './model-state';
 
 // Empfohlene Bildabmessungen je Seitenverhältnis (crisp bei ~3-spaltiger Anzeige).
 export const GRID_DIMS = { '1:1': '800 × 800 px', '16:9': '800 × 450 px', '2:3': '800 × 1200 px' };
@@ -22,12 +21,11 @@ export const HERO_LAYOUTS = {
   vrow: { label: 'Vertikale Reihe', cells: 3 },
   mosaic: { label: 'Mosaik (1 groß + 2 klein)', cells: 3 },
 };
-/** @typedef {keyof typeof HERO_LAYOUTS} HeroLayout */
-/** @typedef {'top' | 'center' | 'bottom'} TextPos */
+export type HeroLayout = keyof typeof HERO_LAYOUTS;
+export type TextPos = 'top' | 'center' | 'bottom';
 export const HERO_GRID_MAX = 6; // größtmögliche Kachelzahl über alle Layouts
 // Kacheln je Reihe des Layouts (Basis für die Neuaufteilung bei ausgeblendeten Kacheln).
-/** @type {Record<HeroLayout, number>} */
-export const HERO_LAYOUT_COLS = {
+export const HERO_LAYOUT_COLS: Record<HeroLayout, number> = {
   grid2: 2,
   grid3: 3,
   row4: 4,
@@ -40,39 +38,27 @@ export const HERO_LAYOUT_COLS = {
 // Kacheln je Reihe, wenn nur n Kacheln sichtbar sind: Reihenzahl wie nötig, die
 // Kacheln gleichmäßig auf die Reihen verteilt (z. B. 3×2 mit 4 sichtbaren -> 2×2,
 // mit 5 -> 3 + 2 zentriert). Gleiche Formel wie auf der Seite (content.ts).
-/**
- * @param {string} layout
- * @param {number} n
- */
-export function heroGridReflowCols(layout, n) {
-  const c = HERO_LAYOUT_COLS[/** @type {HeroLayout} */ (layout)] || 3;
+export function heroGridReflowCols(layout: string, n: number) {
+  const c = HERO_LAYOUT_COLS[layout as HeroLayout] || 3;
   if (n <= 0) return 1;
   const rows = Math.ceil(n / c);
   return Math.max(1, Math.ceil(n / rows));
 }
 // Sichtbare Kachel-Indizes eines Layouts (ausgeblendete entfallen).
-/**
- * @param {Lang} lang
- * @param {string} layout
- */
-export function visibleGridCells(lang, layout) {
+export function visibleGridCells(lang: Lang, layout: string) {
   const hidden = state.media[lang].heroGridHidden;
   const n = heroLayoutCells(layout);
   const out = [];
   for (let i = 0; i < n; i++) if (!(Array.isArray(hidden) && hidden[i] === true)) out.push(i);
   return out;
 }
-/** @param {string} layout */
-export function heroLayoutCells(layout) {
-  return (HERO_LAYOUTS[/** @type {HeroLayout} */ (layout)] || HERO_LAYOUTS.grid3).cells;
+
+export function heroLayoutCells(layout: string) {
+  return (HERO_LAYOUTS[layout as HeroLayout] || HERO_LAYOUTS.grid3).cells;
 }
-/**
- * @param {unknown} v
- * @returns {HeroLayout}
- */
-export function normHeroLayout(v) {
+export function normHeroLayout(v: unknown): HeroLayout {
   return typeof v === 'string' && Object.prototype.hasOwnProperty.call(HERO_LAYOUTS, v)
-    ? /** @type {HeroLayout} */ (v)
+    ? (v as HeroLayout)
     : 'grid3';
 }
 
@@ -88,7 +74,7 @@ export function defaultCellStyle() {
     font: '', // Schriftart des Textes (Dateiname im /fonts-Ordner; leer = Standard)
     textColor: '#ffffff', // Farbe des Textes
     textSize: 0, // Schriftgröße in px (0 = automatisch)
-    textPos: /** @type {TextPos} */ ('center'), // Alt: 'top'|'center'|'bottom' (nur noch Migration)
+    textPos: 'center' as TextPos, // Alt: 'top'|'center'|'bottom' (nur noch Migration)
     textX: 50, // Freie Position in % (0=links, 100=rechts) – per Maus ziehbar
     textY: 50, // Freie Position in % (0=oben, 100=unten)
     // Bildbearbeitung des Kachel-Mediums (Layout-Tab): Deckkraft (%), Abdunkelung (%),
@@ -107,26 +93,15 @@ export const CELL_IMG_FIELDS = {
   imgSaturate: { min: 0, max: 200, label: 'Sättigung', unit: '%' },
 };
 // Erlaubte Text-Positionen im Overlay (Alt-Format, nur noch für Migration).
-/**
- * @param {unknown} v
- * @returns {TextPos}
- */
-export function normTextPos(v) {
+export function normTextPos(v: unknown): TextPos {
   return v === 'top' || v === 'bottom' ? v : 'center';
 }
 // Freie Position (0–100 %). Fehlt sie, wird sie aus der alten top/center/bottom-
 // Angabe abgeleitet, damit bestehende Layouts erhalten bleiben.
-/**
- * @param {unknown} v
- * @param {string | undefined} legacyPos
- * @param {number} axisDefault
- * @returns {number}
- */
-export function normPosPct(v, legacyPos, axisDefault) {
+export function normPosPct(v: unknown, legacyPos: string | undefined, axisDefault: number): number {
   const n = Number(v);
   if (Number.isFinite(n)) return Math.max(0, Math.min(100, Math.round(n)));
-  /** @type {Record<string, number>} */
-  const legacy = { top: 10, center: 50, bottom: 90 };
+  const legacy: Record<string, number> = { top: 10, center: 50, bottom: 90 };
   return (legacyPos !== undefined ? legacy[legacyPos] : undefined) ?? axisDefault;
 }
 export function defaultCellStyles() {
@@ -169,19 +144,14 @@ export const BANNER_STYLE_LIMITS = {
   darken: { min: 0, max: 100 },
   bgOpacity: { min: 0, max: 100 },
 };
-/** @typedef {ReturnType<typeof defaultBannerStyle>} BannerSide */
-/** @typedef {ReturnType<typeof defaultCellStyle>} CellStyle */
-/**
- * @param {any} s
- * @returns {BannerSide}
- */
-function normBannerSide(s) {
+export type BannerSide = ReturnType<typeof defaultBannerStyle>;
+export type CellStyle = ReturnType<typeof defaultCellStyle>;
+function normBannerSide(s: RawJson): BannerSide {
   const d = defaultBannerStyle();
   if (!s || typeof s !== 'object') return d;
-  /** @type {(v: unknown, def: string) => string} */
-  const hex = (v, def) => (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? String(v) : def);
-  /** @type {(v: unknown, key: keyof typeof BANNER_STYLE_LIMITS) => number} */
-  const num = (v, key) => {
+  const hex: (v: unknown, def: string) => string = (v, def): string =>
+    /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? String(v) : def;
+  const num: (v: unknown, key: keyof typeof BANNER_STYLE_LIMITS) => number = (v, key): number => {
     const n = Number(v);
     const { min, max } = BANNER_STYLE_LIMITS[key];
     return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : d[key];
@@ -203,39 +173,30 @@ function normBannerSide(s) {
   };
 }
 // { light, dark }; Alt-Format (flaches Objekt) wird auf beide Modi übernommen.
-/**
- * @param {any} s
- * @returns {Record<ThemeMode, BannerSide>}
- */
-export function normBannerStyle(s) {
+export function normBannerStyle(s: RawJson): Record<ThemeMode, BannerSide> {
   if (!s || typeof s !== 'object') return defaultBannerStyles();
   const flat = !(s.light && typeof s.light === 'object') && !(s.dark && typeof s.dark === 'object');
   if (flat) return { light: normBannerSide(s), dark: normBannerSide(s) };
   return { light: normBannerSide(s.light), dark: normBannerSide(s.dark) };
 }
 // Sichert, dass heroBannerStyle existiert, und gibt das Objekt des Modus der Sprache.
-/**
- * @param {Lang} lang
- * @param {string} [mode]
- * @returns {BannerSide}
- */
-export function getBannerStyle(lang, mode = 'light') {
+export function getBannerStyle(lang: Lang, mode: string = 'light'): BannerSide {
   const m = state.media[lang];
   if (!m.heroBannerStyle || typeof m.heroBannerStyle !== 'object' || !m.heroBannerStyle.light)
     m.heroBannerStyle = normBannerStyle(m.heroBannerStyle);
   return m.heroBannerStyle[mode === 'dark' ? 'dark' : 'light'];
 }
-/**
- * @param {any} s
- * @returns {CellStyle}
- */
-function normCellStyle(s) {
+function normCellStyle(s: RawJson): CellStyle {
   const d = defaultCellStyle();
   if (!s || typeof s !== 'object') return d;
-  /** @type {(v: unknown, def: string) => string} */
-  const hex = (v, def) => (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? String(v) : def);
-  /** @type {(v: unknown, min: number, max: number, def: number) => number} */
-  const num = (v, min, max, def) => {
+  const hex: (v: unknown, def: string) => string = (v, def): string =>
+    /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? String(v) : def;
+  const num: (v: unknown, min: number, max: number, def: number) => number = (
+    v,
+    min,
+    max,
+    def,
+  ): number => {
     const n = Number(v);
     return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : def;
   };
@@ -257,30 +218,20 @@ function normCellStyle(s) {
     imgSaturate: num(s.imgSaturate, 0, 200, d.imgSaturate),
   };
 }
-/**
- * @param {unknown} arr
- * @returns {CellStyle[]}
- */
-export function normCellStyles(arr) {
+export function normCellStyles(arr: unknown): CellStyle[] {
   return Array.from({ length: HERO_GRID_MAX }, (_, i) =>
     normCellStyle(Array.isArray(arr) ? arr[i] : null),
   );
 }
 // Sichert, dass heroGridStyles existiert und gibt das Style-Objekt der Kachel i.
-/**
- * @param {Lang} lang
- * @param {number} i
- * @returns {CellStyle}
- */
-export function getCellStyle(lang, i) {
+export function getCellStyle(lang: Lang, i: number): CellStyle {
   const m = state.media[lang];
   if (!Array.isArray(m.heroGridStyles)) m.heroGridStyles = defaultCellStyles();
   if (!m.heroGridStyles[i]) m.heroGridStyles[i] = defaultCellStyle();
   return m.heroGridStyles[i];
 }
 // Eigenschaften, die „Standard für alle Kacheln" von der Master-Kachel übernimmt.
-/** @type {(keyof CellStyle)[]} */
-export const CELL_SYNC_PROPS = [
+export const CELL_SYNC_PROPS: (keyof CellStyle)[] = [
   'borderColor',
   'borderWidth',
   'bgColor',
@@ -298,30 +249,24 @@ export const CELL_SYNC_PROPS = [
 // Effektiver Style der Kachel i: bei aktivem „Standard für alle Kacheln" werden
 // die synchronisierten Eigenschaften von der Master-Kachel übernommen; der
 // eigene Text (und das Bild) bleiben je Kachel erhalten.
-/**
- * @param {Lang} lang
- * @param {number} i
- * @returns {CellStyle}
- */
-export function getEffectiveCellStyle(lang, i) {
+export function getEffectiveCellStyle(lang: Lang, i: number): CellStyle {
   const m = state.media[lang];
   const base = getCellStyle(lang, i);
   if (!m.heroGridUniform) return base;
   const master = getCellStyle(lang, m.heroGridUniformCell || 0);
   const out = { ...base };
-  for (const p of CELL_SYNC_PROPS) /** @type {Record<string, unknown>} */ (out)[p] = master[p];
+  for (const p of CELL_SYNC_PROPS) (out as Record<string, unknown>)[p] = master[p];
   return out;
 }
 // --- Diashow des Einzelbanners (weitere Bilder zusätzlich zum Banner) ---
 export const BANNER_SLIDES_MAX = 12;
-/** @typedef {'fade' | 'slide' | 'zoom' | 'none'} BannerTransition */
-/** @type {BannerTransition[]} */
-export const BANNER_TRANSITIONS = ['fade', 'slide', 'zoom', 'none'];
+export type BannerTransition = 'fade' | 'slide' | 'zoom' | 'none';
+export const BANNER_TRANSITIONS: BannerTransition[] = ['fade', 'slide', 'zoom', 'none'];
 export function defaultBannerSlideshow() {
   return {
     interval: 5, // Sekunden je Bild (1–30)
     duration: 800, // ms – Dauer des Übergangs (0–5000)
-    transition: /** @type {BannerTransition} */ ('fade'), // fade | slide | zoom | none
+    transition: 'fade' as BannerTransition, // fade | slide | zoom | none
     pauseOnHover: true, // bei Mauszeiger über dem Banner anhalten
     dots: true, // Punkte zum Umschalten anzeigen
   };
@@ -331,39 +276,25 @@ export function defaultBannerSlideshow() {
 export function defaultGridSlideshow() {
   return { ...defaultBannerSlideshow(), stagger: true };
 }
-/**
- * @param {unknown} arr
- * @returns {string[][]}
- */
-export function normGridSlides(arr) {
+export function normGridSlides(arr: unknown): string[][] {
   return Array.from({ length: HERO_GRID_MAX }, (_, i) =>
     normBannerSlides(Array.isArray(arr) ? arr[i] : null),
   );
 }
-/**
- * @param {unknown} arr
- * @returns {string[]}
- */
-export function normBannerSlides(arr) {
+export function normBannerSlides(arr: unknown): string[] {
   if (!Array.isArray(arr)) return [];
   return arr
     .filter((v) => typeof v === 'string' && v.trim())
     .map((v) => v.trim())
     .slice(0, BANNER_SLIDES_MAX);
 }
-/** @typedef {ReturnType<typeof defaultBannerSlideshow> & { stagger?: boolean }} Slideshow */
-/**
- * @param {any} o
- * @param {boolean} [withStagger]
- * @returns {Slideshow}
- */
-export function normBannerSlideshow(o, withStagger = false) {
+export type Slideshow = ReturnType<typeof defaultBannerSlideshow> & { stagger?: boolean };
+export function normBannerSlideshow(o: RawJson, withStagger: boolean = false): Slideshow {
   const d = withStagger ? defaultGridSlideshow() : defaultBannerSlideshow();
   if (!o || typeof o !== 'object') return d;
   const n = Number(o.interval);
   const dur = Number(o.duration);
-  /** @type {Slideshow} */
-  const out = {
+  const out: Slideshow = {
     interval: Number.isFinite(n) ? Math.max(1, Math.min(30, Math.round(n))) : d.interval,
     duration: Number.isFinite(dur) ? Math.max(0, Math.min(5000, Math.round(dur))) : d.duration,
     transition: BANNER_TRANSITIONS.includes(o.transition) ? o.transition : d.transition,
@@ -373,53 +304,45 @@ export function normBannerSlideshow(o, withStagger = false) {
   if (withStagger) out.stagger = o.stagger !== false;
   return out;
 }
-/** @typedef {Slideshow & { stagger: boolean }} GridSlideshow */
+export type GridSlideshow = Slideshow & { stagger: boolean };
 /**
  * Diashow der Raster-Kacheln (mit „versetzt wechseln“).
- * @param {any} o
- * @returns {GridSlideshow}
  */
-export function normGridSlideshow(o) {
-  return /** @type {GridSlideshow} */ (normBannerSlideshow(o, true));
+export function normGridSlideshow(o: RawJson): GridSlideshow {
+  return normBannerSlideshow(o, true) as GridSlideshow;
 }
-/**
- * @param {Lang} lang
- * @param {number} i
- * @returns {string[]}
- */
-export function getGridSlides(lang, i) {
+export function getGridSlides(lang: Lang, i: number): string[] {
   const m = state.media[lang];
   if (!Array.isArray(m.heroGridSlides) || m.heroGridSlides.length !== HERO_GRID_MAX)
     m.heroGridSlides = normGridSlides(m.heroGridSlides);
   if (!Array.isArray(m.heroGridSlides[i])) m.heroGridSlides[i] = [];
   return m.heroGridSlides[i];
 }
-/** @param {Lang} lang */
-export function getGridSlideshow(lang) {
+
+export function getGridSlideshow(lang: Lang) {
   const m = state.media[lang];
   if (!m.heroGridSlideshow || typeof m.heroGridSlideshow !== 'object')
     m.heroGridSlideshow = normGridSlideshow(m.heroGridSlideshow);
   return m.heroGridSlideshow;
 }
 // Sichert die Diashow-Strukturen der Sprache und gibt sie zurück.
-/** @param {Lang} lang */
-export function getBannerSlides(lang) {
+
+export function getBannerSlides(lang: Lang) {
   const m = state.media[lang];
   if (!Array.isArray(m.heroBannerSlides)) m.heroBannerSlides = normBannerSlides(m.heroBannerSlides);
   return m.heroBannerSlides;
 }
-/** @param {Lang} lang */
-export function getBannerSlideshow(lang) {
+
+export function getBannerSlideshow(lang: Lang) {
   const m = state.media[lang];
   if (!m.heroBannerSlideshow || typeof m.heroBannerSlideshow !== 'object')
     m.heroBannerSlideshow = normBannerSlideshow(m.heroBannerSlideshow);
   return m.heroBannerSlideshow;
 }
 // Bild-Plätze der Diashow (je Sprache und Index) – Upload in den Ordner der Sprache.
-/** @returns {ImageSlot[]} */
-export function heroSlideImageSlots() {
-  /** @type {ImageSlotBase[]} */
-  const slots = [];
+
+export function heroSlideImageSlots(): ImageSlot[] {
+  const slots: ImageSlotBase[] = [];
   for (const lang of MEDIA_LANGS) {
     const arr = state.media[lang] && state.media[lang].heroBannerSlides;
     if (!Array.isArray(arr)) continue;
@@ -452,8 +375,7 @@ export function heroSlideImageSlots() {
       const v = getPath(state.media[slot.root], slot.path);
       return typeof v === 'string' ? v : '';
     };
-    slot.set = (/** @type {unknown} */ v) =>
-      setPath(state.media[slot.root], slot.path, String(v ?? '').trim());
+    slot.set = (v: unknown) => setPath(state.media[slot.root], slot.path, String(v ?? '').trim());
   }
-  return /** @type {ImageSlot[]} */ (slots);
+  return slots as ImageSlot[];
 }

@@ -1,11 +1,11 @@
-import { rgbaFromHex } from '../../../public/model-core.js';
+import { rgbaFromHex } from '../../../public/model-core';
 import { clamp, overlayStyle, type FontDecl, type Slideshow } from './layoutData';
 
 /**
  * Datenmodell und reine Regeln des Raster-Modus im Tab „Layout“ (Vue-Fassung
  * von `public/layout-grid.js`). Arbeitet nur auf übergebenen Objekten
  * (`state.media[lang]`); Konstanten wie die Layouts kommen über den Service
- * aus `public/model-grid.js`, damit es nur eine Quelle gibt.
+ * aus `public/model-grid.ts`, damit es nur eine Quelle gibt.
  */
 
 /** Design einer Kachel (`defaultCellStyle`). */

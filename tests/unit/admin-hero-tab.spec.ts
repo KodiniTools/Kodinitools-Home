@@ -23,7 +23,7 @@ import {
 import { readTextStyle } from '../../server/admin/app/tabs/texts/textStyle';
 import { useToastStore } from '../../server/admin/app/stores/toast';
 import { heroService } from '../../server/admin/public/design.js';
-import { state, defaultMedia } from '../../server/admin/public/model.js';
+import { state, defaultMedia } from '../../server/admin/public/model';
 
 function makeService(picked: string | null = '/uploads/de/hero.webp'): HeroService {
   const svc = heroService('de') as unknown as HeroService;

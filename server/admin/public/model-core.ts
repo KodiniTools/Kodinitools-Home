@@ -1,39 +1,35 @@
-// @ts-check
 // Datenmodell des Adminbereichs – Kern: reine Helfer ohne Abhängigkeiten
 // (Farben, Schrift-Dateinamen, Medien-URLs, Pfad-Helfer), Sprach-/Slot-Konstanten
-// und Navigations-Daten. Alle anderen model-*.js bauen darauf auf; nach außen
-// wird alles über model.js gebündelt.
+// und Navigations-Daten. Alle anderen model-*.ts bauen darauf auf; nach außen
+// wird alles über model.ts gebündelt.
 
-/** @import { Lang, Subtab, MediaKey, ObjPath, AnyObj, TextAnim, TextAnimSpeed } from '../types.ts' */
+import type {
+  Lang,
+  Subtab,
+  MediaKey,
+  ObjPath,
+  AnyObj,
+  TextAnim,
+  TextAnimSpeed,
+  RawJson,
+} from '../types';
 
 // Buchstabenabstand auf [-5, 20] px begrenzen, auf 0,5 gerundet.
 /**
- * @param {unknown} v
- * @param {number} def Rückgabe bei ungültigem Wert
- * @returns {number}
+ * @param def Rückgabe bei ungültigem Wert
  */
-export function clampSpacing(v, def) {
+export function clampSpacing(v: unknown, def: number): number {
   const n = Number(v);
   return Number.isFinite(n) ? Math.max(-5, Math.min(20, Math.round(n * 2) / 2)) : def;
 }
 // Erlaubt einen einfachen Schrift-Dateinamen oder '' (Standardschrift).
-/**
- * @param {unknown} v
- * @returns {string}
- */
-export function normFontFile(v) {
+export function normFontFile(v: unknown): string {
   return typeof v === 'string' && /^[a-zA-Z0-9][a-zA-Z0-9._ -]*\.(woff2|woff|ttf|otf)$/i.test(v)
     ? v
     : '';
 }
 // Hex + Deckkraft(%) -> rgba() (für Vorschau). Ungültiges Hex kommt unverändert zurück.
-/**
- * @template T
- * @param {T} hex
- * @param {unknown} opacityPct
- * @returns {string | T}
- */
-export function rgbaFromHex(hex, opacityPct) {
+export function rgbaFromHex<T>(hex: T, opacityPct: unknown): string | T {
   const m = /^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.exec(String(hex || '').trim());
   if (!m) return hex;
   let h = m[1];
@@ -49,37 +45,25 @@ export function rgbaFromHex(hex, opacityPct) {
   return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
 // Hex-Farbe (#rgb oder #rrggbb) oder '' (= Standard/keine eigene Farbe).
-/**
- * @param {unknown} v
- * @returns {string}
- */
-export function normHexOrEmpty(v) {
-  return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? /** @type {string} */ (v) : '';
+export function normHexOrEmpty(v: unknown): string {
+  return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? (v as string) : '';
 }
 // Verfügbare Text-Animationen des Banner-Textes (zuschaltbar) und Tempo-Stufen.
-/** @type {TextAnim[]} */
-export const BANNER_ANIM_TYPES = ['none', 'pulse', 'float', 'shake', 'wobble', 'glow'];
-/** @type {TextAnimSpeed[]} */
-export const BANNER_ANIM_SPEEDS = ['slow', 'normal', 'fast'];
+export const BANNER_ANIM_TYPES: TextAnim[] = ['none', 'pulse', 'float', 'shake', 'wobble', 'glow'];
+export const BANNER_ANIM_SPEEDS: TextAnimSpeed[] = ['slow', 'normal', 'fast'];
 // Erlaubte Medien-URLs der Bild-Plätze: interner Pfad, http(s)-URL oder eine
 // gestagte Datei ('staged:<id>') bis zum Veröffentlichen.
 const SITE_MEDIA_URL = /^(\/[^\s"'()\\]*|https?:\/\/[^\s"'()\\]+|staged:[\w-]+)$/;
-/**
- * @param {unknown} v
- * @returns {string}
- */
-export function normSiteMediaUrl(v) {
+export function normSiteMediaUrl(v: unknown): string {
   const t = String(v ?? '').trim();
   return SITE_MEDIA_URL.test(t) ? t : '';
 }
 
 // Sprachen + Slots. 'heroBanner' liegt auf oberster Ebene der Sprache, die
 // anderen unter sectionVideos.
-/** @type {Lang[]} */
-export const MEDIA_LANGS = ['de', 'en'];
+export const MEDIA_LANGS: Lang[] = ['de', 'en'];
 // Slot-Schlüssel: Sektions-Videos, Einzel-Banner und die sechs Rasterbilder.
-/** @type {MediaKey[]} */
-export const MEDIA_KEYS = [
+export const MEDIA_KEYS: MediaKey[] = [
   'audio',
   'image',
   'diverse',
@@ -95,14 +79,8 @@ export const MEDIA_KEYS = [
 // --- Pfad-Helfer für verschachtelte Overrides ---
 // Pfade sind Schlüssel-Listen, z. B. ['hero', 'title'] bzw. ['items', 0].
 
-/**
- * @param {unknown} obj
- * @param {ObjPath} path
- * @returns {unknown}
- */
-export function getPath(obj, path) {
-  /** @type {any} */
-  let cur = obj;
+export function getPath(obj: unknown, path: ObjPath): unknown {
+  let cur: RawJson = obj;
   for (const k of path) {
     if (cur == null || typeof cur !== 'object') return undefined;
     cur = cur[k];
@@ -111,12 +89,8 @@ export function getPath(obj, path) {
 }
 /**
  * Legt fehlende Zwischen-Objekte an.
- * @param {AnyObj} obj
- * @param {ObjPath} path
- * @param {unknown} value
- * @returns {void}
  */
-export function setPath(obj, path, value) {
+export function setPath(obj: AnyObj, path: ObjPath, value: unknown): void {
   let cur = obj;
   for (let i = 0; i < path.length - 1; i++) {
     if (typeof cur[path[i]] !== 'object' || cur[path[i]] == null) cur[path[i]] = {};
@@ -126,11 +100,8 @@ export function setPath(obj, path, value) {
 }
 /**
  * Löscht den Schlüssel und räumt dabei leer gewordene Eltern-Objekte auf.
- * @param {AnyObj} obj
- * @param {ObjPath} path
- * @returns {void}
  */
-export function delPath(obj, path) {
+export function delPath(obj: AnyObj, path: ObjPath): void {
   const stack = [obj];
   let cur = obj;
   for (let i = 0; i < path.length - 1; i++) {
@@ -149,8 +120,7 @@ export function delPath(obj, path) {
 }
 
 // --- Navigation: Ebenen-Konstanten (reine Daten) ---
-/** @type {Subtab[]} */
-export const SUBTABS = [
+export const SUBTABS: Subtab[] = [
   { key: 'ticker', label: 'Laufband' },
   { key: 'texts', label: 'Texte' },
   { key: 'media', label: 'Medien' },
@@ -162,11 +132,8 @@ export const SUBTABS = [
   { key: 'icons', label: 'Icons' },
   { key: 'advanced', label: 'Erweitert' },
 ];
-/** @type {Lang[]} */
-export const LANG_SECTIONS = ['de', 'en'];
+export const LANG_SECTIONS: Lang[] = ['de', 'en'];
 /**
  * Ist der Navigationsbereich eine Sprache (DE/EN) statt „Status“?
- * @param {unknown} s
- * @returns {s is Lang}
  */
-export const isLangSection = (s) => LANG_SECTIONS.includes(/** @type {Lang} */ (s));
+export const isLangSection = (s: unknown): s is Lang => LANG_SECTIONS.includes(s as Lang);

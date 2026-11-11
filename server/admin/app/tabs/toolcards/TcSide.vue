@@ -274,7 +274,7 @@
 <script setup lang="ts">
 import { computed, useId } from 'vue';
 import type { ThemeMode } from '../../../types';
-import { normSiteMediaUrl } from '../../../public/model-core.js';
+import { normSiteMediaUrl } from '../../../public/model-core';
 import { SliderControl, UiButton, UiSelect, UiSwitch } from '../../components/ui';
 import TcColor from './TcColor.vue';
 import TcDetails from './TcDetails.vue';

@@ -237,7 +237,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue';
 import type { FontEntry, Lang, ThemeMode, TickerConfig, TickerItem } from '../../../types';
-import { clampSpacing } from '../../../public/model-core.js';
+import { clampSpacing } from '../../../public/model-core';
 import {
   UiButton,
   UiIconButton,

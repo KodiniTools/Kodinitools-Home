@@ -28,7 +28,7 @@ import {
   UNIFORM_TEXT_KEYS,
   TEXT_OFFSET_MAX,
   getHomeLayout,
-} from './model.js';
+} from './model';
 import { heroPreviewMediaStyle, heroCompactCss } from './hero-preview.js';
 import { fontFF } from './layout-shared.js';
 import { mediaInfo, designCss, textStyle, MEDIA_BASE } from './sectionmedia.js';

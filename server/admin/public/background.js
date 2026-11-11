@@ -32,7 +32,7 @@ import {
   getSiteSection,
   setSiteSection,
   defaultSectionSide,
-} from './model.js';
+} from './model';
 import { objUrl, openMediaPicker } from './media.js';
 import { mountVueTab } from './islands.js';
 
@@ -44,11 +44,11 @@ function previewUrl(val) {
   return val;
 }
 
-// Hintergrund-Ebene eines Modus (gemeinsam mit der Tool-Karten-Vorschau, model.js).
+// Hintergrund-Ebene eines Modus (gemeinsam mit der Tool-Karten-Vorschau, model.ts).
 const layerCss = siteBgLayerCss;
 
 // Zustandsgebundene Teile für die Vue-Fassung (app/tabs/background): Lesen und
-// Schreiben über die normalisierenden Funktionen aus model-site.js.
+// Schreiben über die normalisierenden Funktionen aus model-site.ts.
 /** @returns {import('../app/tabs/background/bgData').BgService} */
 function bgService() {
   /** @type {(title: string, onPick: (url: string) => void) => boolean} */

@@ -2,7 +2,7 @@
 // Gemeinsame Vorschau-Helfer (Ganzseiten-Vorschau, Hero-Design, Abschnitts-
 // Medien): fontFF, slideInfo, overlayStyle.
 
-import { state } from './model.js';
+import { state } from './model';
 import { objUrl } from './media.js';
 import { ensureFontFace } from './fonts.js';
 

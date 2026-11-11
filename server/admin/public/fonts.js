@@ -7,7 +7,7 @@
 /** @import { FontEntry } from '../types.ts' */
 
 import { api } from './core.js';
-import { state } from './model.js';
+import { state } from './model';
 
 // Verfügbare Schriftarten laden (für die Schriftauswahl).
 export async function loadFonts() {

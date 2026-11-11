@@ -266,7 +266,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue';
 import type { FontEntry, Lang, Overrides, ThemeMode } from '../../../types';
-import { delPath, getPath, setPath } from '../../../public/model-core.js';
+import { delPath, getPath, setPath } from '../../../public/model-core';
 import {
   ColorField,
   UiButton,

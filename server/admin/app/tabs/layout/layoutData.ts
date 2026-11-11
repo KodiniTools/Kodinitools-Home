@@ -1,6 +1,6 @@
 import type { FullPageService } from './fullPageData';
 import type { Lang, ThemeMode } from '../../../types';
-import { rgbaFromHex } from '../../../public/model-core.js';
+import { rgbaFromHex } from '../../../public/model-core';
 import type {
   CellField,
   CellImgFields,
@@ -614,7 +614,7 @@ export interface LayoutService {
   slideshowDefault: () => Slideshow;
   slidesMax: number;
   transitions: readonly string[];
-  // ---- Raster (Konstanten aus public/model-grid.js) ----
+  // ---- Raster (Konstanten aus public/model-grid.ts) ----
   layouts: HeroLayouts;
   layoutCols: Record<string, number>;
   gridDims: Record<string, string>;

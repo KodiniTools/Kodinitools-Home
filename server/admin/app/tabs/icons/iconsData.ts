@@ -1,9 +1,9 @@
 import type { IconTint, IconTintField, Lang, Overrides } from '../../../types';
-import { getPath, normHexOrEmpty } from '../../../public/model-core.js';
+import { getPath, normHexOrEmpty } from '../../../public/model-core';
 
 /**
  * Reine Regeln des Tabs „Icons“ (Vue-Fassung von `public/icons.js`). Arbeiten
- * nur auf übergebenen Objekten; `public/model.js` bzw. `model-toolcards.js`
+ * nur auf übergebenen Objekten; `public/model.ts` bzw. `model-toolcards.ts`
  * werden bewusst nicht importiert (sonst zweite `state`-Instanz im Bundle).
  */
 

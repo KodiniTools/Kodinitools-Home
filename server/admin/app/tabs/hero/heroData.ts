@@ -1,5 +1,5 @@
 import type { FontEntry, Lang, ObjPath, Overrides, ThemeMode } from '../../../types';
-import { getPath, rgbaFromHex } from '../../../public/model-core.js';
+import { getPath, rgbaFromHex } from '../../../public/model-core';
 import {
   colorField,
   ensureTextStyle,
@@ -14,7 +14,7 @@ import {
  * `public/design.js`). Gelesen/geschrieben werden `media.<lang>.heroDesign`,
  * `media.<lang>.textStyles["hero.*"]` und die Text-Overrides; was das
  * Admin-Modell braucht (Defaults, Medien, Schriften), reicht die Vanilla-Seite
- * als Service herein – das Bundle importiert `public/model.js` nicht.
+ * als Service herein – das Bundle importiert `public/model.ts` nicht.
  */
 
 export type HeroImgKey = 'bgImageOpacity' | 'bgImageDarken' | 'bgImageBlur' | 'bgImageSaturate';
@@ -30,7 +30,7 @@ export interface HeroSlideshow {
   pauseOnHover: boolean;
   dots: boolean;
 }
-/** Farb-Satz eines Modus (`heroSideLight/Dark` in model-hero.js). */
+/** Farb-Satz eines Modus (`heroSideLight/Dark` in model-hero.ts). */
 export interface HeroSide {
   borderColor: string;
   borderWidth: number;

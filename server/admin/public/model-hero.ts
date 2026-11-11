@@ -1,4 +1,3 @@
-// @ts-check
 // Datenmodell – Hero-Design (Farben je Hell/Dunkel) und Text-Stile der
 // Hero-/Abschnitts-Texte (Tabs „Hero-Design" und „Texte").
 
@@ -11,31 +10,37 @@ import {
   MEDIA_LANGS,
   BANNER_ANIM_TYPES,
   BANNER_ANIM_SPEEDS,
-} from './model-core.js';
-import { state } from './model-state.js';
+} from './model-core';
+import { state } from './model-state';
 import {
   BANNER_SLIDES_MAX,
   defaultBannerSlideshow,
   normBannerSlides,
   normBannerSlideshow,
-} from './model-grid.js';
+} from './model-grid';
 
-/** @import { Lang, ThemeMode, TextAnim, TextAnimSpeed, TextStyle, TextStyleEntry, ImageSlot, ImageSlotBase } from '../types.ts' */
-/** @import { Slideshow } from './model-grid.js' */
-/** @typedef {ReturnType<typeof heroSideLight>} HeroSide */
-/** @typedef {ReturnType<typeof defaultHeroDesign>} HeroDesign */
-/** @typedef {Record<string, { x: number; y: number }>} ChipOffsets */
+import type {
+  Lang,
+  ThemeMode,
+  TextAnim,
+  TextAnimSpeed,
+  TextStyle,
+  TextStyleEntry,
+  ImageSlot,
+  ImageSlotBase,
+  RawJson,
+} from '../types';
+import type { Slideshow } from './model-grid';
+export type HeroSide = ReturnType<typeof heroSideLight>;
+export type HeroDesign = ReturnType<typeof defaultHeroDesign>;
+export type ChipOffsets = Record<string, { x: number; y: number }>;
 
 // Diashow-Einstellungen des Hero-Hintergrunds (je Modus): wie die Banner-Diashow,
 // aber ohne Punkte (Hintergrund) als Standard.
 export function defaultHeroBgSlideshow() {
   return { ...defaultBannerSlideshow(), dots: false };
 }
-/**
- * @param {any} o
- * @returns {Slideshow}
- */
-function normHeroBgSlideshow(o) {
+function normHeroBgSlideshow(o: RawJson): Slideshow {
   const ss = normBannerSlideshow(o);
   ss.dots = !!(o && typeof o === 'object' && o.dots === true);
   return ss;
@@ -51,15 +56,14 @@ export const HERO_IMG_FIELDS = {
   bgImageBlur: { min: 0, max: 20, def: 0, label: 'Weichzeichner', unit: 'px' },
   bgImageSaturate: { min: 0, max: 200, def: 100, label: 'Sättigung', unit: '%' },
 };
-/** @typedef {keyof typeof HERO_IMG_FIELDS} HeroImgField */
-/**
- * @returns {{ bgImage: string; bgSlides: string[]; bgSlideshow: Slideshow } & Record<HeroImgField, number>}
- */
-function heroImageDefaults() {
-  /** @type {Record<HeroImgField, number>} */
-  const img = /** @type {any} */ ({});
-  for (const [k, c] of Object.entries(HERO_IMG_FIELDS))
-    img[/** @type {HeroImgField} */ (k)] = c.def;
+export type HeroImgField = keyof typeof HERO_IMG_FIELDS;
+function heroImageDefaults(): {
+  bgImage: string;
+  bgSlides: string[];
+  bgSlideshow: Slideshow;
+} & Record<HeroImgField, number> {
+  const img: Record<HeroImgField, number> = {} as Record<HeroImgField, number>;
+  for (const [k, c] of Object.entries(HERO_IMG_FIELDS)) img[k as HeroImgField] = c.def;
   return {
     bgImage: '',
     ...img,
@@ -119,16 +123,10 @@ export function heroSideDark() {
 }
 // Einzeln ausgeblendete Feature-Buttons: eindeutige Schlüssel (max. 20).
 // Verschiebung je Feature-Button: { key: { x, y } }, nur Einträge ≠ 0/0, max. 20.
-/**
- * @param {any} v
- * @returns {ChipOffsets}
- */
-export function normChipOffsets(v) {
-  /** @type {ChipOffsets} */
-  const out = {};
+export function normChipOffsets(v: RawJson): ChipOffsets {
+  const out: ChipOffsets = {};
   if (!v || typeof v !== 'object' || Array.isArray(v)) return out;
-  /** @type {(n: unknown, m: number) => number} */
-  const num = (n, m) => {
+  const num = (n: unknown, m: number): number => {
     const x = Number(n);
     return Number.isFinite(x) ? Math.max(-m, Math.min(m, Math.round(x))) : 0;
   };
@@ -141,14 +139,9 @@ export function normChipOffsets(v) {
   }
   return out;
 }
-/**
- * @param {unknown} v
- * @returns {string[]}
- */
-export function normHiddenChips(v) {
+export function normHiddenChips(v: unknown): string[] {
   if (!Array.isArray(v)) return [];
-  /** @type {string[]} */
-  const out = [];
+  const out: string[] = [];
   for (const k of v) {
     if (typeof k === 'string' && /^[a-zA-Z0-9_-]{1,40}$/.test(k) && !out.includes(k)) out.push(k);
     if (out.length >= 20) break;
@@ -174,28 +167,22 @@ export function defaultHeroDesign() {
     showTitle: true, // Titel
     showSubtitle: true, // Untertitel
     showChips: true, // Feature-Buttons (Chips) insgesamt
-    hiddenChips: /** @type {string[]} */ ([]), // einzeln ausgeblendete Feature-Buttons (Schlüssel aus hero.features)
-    chipOffsets: /** @type {ChipOffsets} */ ({}), // Verschiebung je Feature-Button { key: { x, y } } (px, nur ≠ 0)
+    hiddenChips: [] as string[], // einzeln ausgeblendete Feature-Buttons (Schlüssel aus hero.features)
+    chipOffsets: {} as ChipOffsets, // Verschiebung je Feature-Button { key: { x, y } } (px, nur ≠ 0)
     showCta: true, // CTA-Button („Jetzt starten")
     light: heroSideLight(),
     dark: heroSideDark(),
   };
 }
 // Einen Farb-Satz (Hell/Dunkel) normalisieren.
-/**
- * @param {any} s
- * @param {HeroSide} def
- * @returns {HeroSide}
- */
-function normHeroSide(s, def) {
+function normHeroSide(s: RawJson, def: HeroSide): HeroSide {
   if (!s || typeof s !== 'object') return def;
-  /** @type {(v: unknown, min: number, max: number, d: number) => number} */
-  const num = (v, min, max, d) => {
+  const num = (v: unknown, min: number, max: number, d: number): number => {
     const n = Number(v);
     return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : d;
   };
-  /** @type {(v: unknown, d: string) => string} */
-  const hex = (v, d) => (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? String(v) : d);
+  const hex = (v: unknown, d: string): string =>
+    /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? String(v) : d;
   return {
     borderColor: hex(s.borderColor, def.borderColor),
     borderWidth: num(s.borderWidth, 0, 8, def.borderWidth),
@@ -227,24 +214,18 @@ function normHeroSide(s, def) {
 }
 // Geladenes Hero-Design normalisieren (getrennt Hell/Dunkel). Migriert die alte
 // flache Struktur (Farben auf oberster Ebene) auf beide Modi.
-/**
- * @param {any} hd
- * @returns {HeroDesign}
- */
-export function normHeroDesign(hd) {
+export function normHeroDesign(hd: RawJson): HeroDesign {
   if (!hd || typeof hd !== 'object') return defaultHeroDesign();
   const hasSides =
     (hd.light && typeof hd.light === 'object') || (hd.dark && typeof hd.dark === 'object');
   const flat = !hasSides && typeof hd.borderColor === 'string' ? hd : null;
-  /** @type {(v: unknown, d: string) => string} */
-  const hex = (v, d) => (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? String(v) : d);
-  /** @type {(v: unknown) => number} */
-  const stroke = (v) => {
+  const hex = (v: unknown, d: string): string =>
+    /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? String(v) : d;
+  const stroke = (v: unknown): number => {
     const n = Number(v);
     return Number.isFinite(n) ? Math.max(0, Math.min(5, Math.round(n * 2) / 2)) : 0;
   };
-  /** @type {(v: unknown) => number} */
-  const fontSize = (v) => {
+  const fontSize = (v: unknown): number => {
     const n = Number(v);
     return Number.isFinite(n) && n > 0 ? Math.max(8, Math.min(96, Math.round(n))) : 0;
   };
@@ -274,13 +255,11 @@ export function normHeroDesign(hd) {
 }
 // Bild-Plätze des Hero-Hintergrundbilds (je Sprache und Modus) – für Upload beim
 // Veröffentlichen, Auflösen von staged:-Referenzen und „wird verwendet in".
-/** @returns {ImageSlot[]} */
-export function heroImageSlots() {
-  const modeLabel = (/** @type {ThemeMode} */ m) => (m === 'dark' ? 'Dunkel' : 'Hell');
-  /** @type {ThemeMode[]} */
-  const modes = ['light', 'dark'];
-  /** @type {ImageSlotBase[]} */
-  const slots = [];
+
+export function heroImageSlots(): ImageSlot[] {
+  const modeLabel = (m: ThemeMode) => (m === 'dark' ? 'Dunkel' : 'Hell');
+  const modes: ThemeMode[] = ['light', 'dark'];
+  const slots: ImageSlotBase[] = [];
   for (const lang of MEDIA_LANGS)
     for (const mode of modes)
       slots.push({
@@ -313,15 +292,17 @@ export function heroImageSlots() {
       const v = getPath(state.media[slot.root], slot.path);
       return typeof v === 'string' ? v : '';
     };
-    slot.set = (/** @type {unknown} */ v) =>
-      setPath(state.media[slot.root], slot.path, normSiteMediaUrl(v));
+    slot.set = (v: unknown) => setPath(state.media[slot.root], slot.path, normSiteMediaUrl(v));
   }
-  return /** @type {ImageSlot[]} */ (slots);
+  return slots as ImageSlot[];
 }
 
 // Hero-Text-Slots (Tab „Hero-Design"): Text-Override-Pfad + Stil-Schlüssel.
-/** @type {{ key: 'hero.title' | 'hero.subtitle' | 'hero.cta'; path: string[]; label: string }[]} */
-export const HERO_TEXT_SLOTS = [
+export const HERO_TEXT_SLOTS: {
+  key: 'hero.title' | 'hero.subtitle' | 'hero.cta';
+  path: string[];
+  label: string;
+}[] = [
   { key: 'hero.title', path: ['hero', 'title'], label: 'Titel' },
   { key: 'hero.subtitle', path: ['hero', 'subtitle'], label: 'Untertitel' },
   { key: 'hero.cta', path: ['hero', 'cta'], label: 'Button-Text („Jetzt starten")' },
@@ -335,30 +316,23 @@ export const UNIFORM_TEXT_KEYS = [
 ];
 // Alle Text-Slots mit einstellbarem Stil (Hero-Design-Tab + Texte-Tab).
 export const TEXT_STYLE_KEYS = [...HERO_TEXT_SLOTS.map((s) => s.key), ...UNIFORM_TEXT_KEYS];
-/** @type {(v: unknown) => string} */
-const textHex = (v) => (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? String(v) : '');
-/** @type {(v: unknown, min: number, max: number, def: number) => number} */
-const textNum = (v, min, max, def) => {
+const textHex = (v: unknown): string =>
+  /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? String(v) : '';
+const textNum = (v: unknown, min: number, max: number, def: number): number => {
   const n = Number(v);
   return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : def;
 };
-/** @type {(v: unknown, min: number, max: number, def: number) => number} */
-const textHalf = (v, min, max, def) => {
+const textHalf = (v: unknown, min: number, max: number, def: number): number => {
   const n = Number(v);
   return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n * 2) / 2)) : def;
 };
 // Größte Verschiebung eines Hero-Textes (px) waagerecht/senkrecht.
 export const TEXT_OFFSET_MAX = { x: 1200, y: 1200 };
-/**
- * @param {unknown} o
- * @returns {Record<string, TextStyleEntry>}
- */
-export function normTextStyles(o) {
-  /** @type {Record<string, TextStyleEntry>} */
-  const out = {};
+export function normTextStyles(o: unknown): Record<string, TextStyleEntry> {
+  const out: Record<string, TextStyleEntry> = {};
   if (!o || typeof o !== 'object') return out;
   for (const k of TEXT_STYLE_KEYS) {
-    const s = /** @type {any} */ (o)[k];
+    const s = (o as RawJson)[k];
     if (!s || typeof s !== 'object') continue;
     const px = textNum(s.size, 0, 120, 0);
     const font = normFontFile(s.font);
@@ -377,8 +351,7 @@ export function normTextStyles(o) {
     const offsetY = textNum(s.offsetY, -TEXT_OFFSET_MAX.y, TEXT_OFFSET_MAX.y, 0);
     const hasOff = offsetX !== 0 || offsetY !== 0;
     if (px > 0 || colorLight || colorDark || font || hasFx || hasOff) {
-      /** @type {TextStyleEntry} */
-      const entry = { size: px, colorLight, colorDark, font };
+      const entry: TextStyleEntry = { size: px, colorLight, colorDark, font };
       if (hasOff) {
         entry.offsetX = offsetX;
         entry.offsetY = offsetY;
@@ -403,17 +376,11 @@ export function normTextStyles(o) {
 }
 // Style-Objekt eines Text-Slots (legt es bei Bedarf an). Farben getrennt nach
 // Hell/Dunkel; ein evtl. noch flaches color wird auf beide Modi migriert.
-/**
- * @param {Lang} lang
- * @param {string} key
- * @returns {TextStyle}
- */
-export function getTextStyle(lang, key) {
+export function getTextStyle(lang: Lang, key: string): TextStyle {
   const m = state.media[lang];
   if (!m.textStyles || typeof m.textStyles !== 'object') m.textStyles = {};
   if (!m.textStyles[key]) m.textStyles[key] = { size: 0, colorLight: '', colorDark: '', font: '' };
-  /** @type {TextStyleEntry & { color?: unknown }} */
-  const s = m.textStyles[key];
+  const s: TextStyleEntry & { color?: unknown } = m.textStyles[key];
   if (typeof s.font !== 'string') s.font = '';
   if (typeof s.color === 'string' && s.color) {
     if (!s.colorLight) s.colorLight = s.color;
@@ -432,23 +399,17 @@ export function getTextStyle(lang, key) {
   if (typeof s.strokeColor !== 'string') s.strokeColor = '#000000';
   if (!Number.isFinite(s.strokeWidth)) s.strokeWidth = 0;
   if (!Number.isFinite(s.opacity)) s.opacity = 100;
-  if (!BANNER_ANIM_TYPES.includes(/** @type {TextAnim} */ (s.anim))) s.anim = 'none';
+  if (!BANNER_ANIM_TYPES.includes(s.anim as TextAnim)) s.anim = 'none';
   if (!Number.isFinite(s.animIntensity)) s.animIntensity = 5;
-  if (!BANNER_ANIM_SPEEDS.includes(/** @type {TextAnimSpeed} */ (s.animSpeed)))
-    s.animSpeed = 'normal';
+  if (!BANNER_ANIM_SPEEDS.includes(s.animSpeed as TextAnimSpeed)) s.animSpeed = 'normal';
   if (!Number.isFinite(s.offsetX)) s.offsetX = 0;
   if (!Number.isFinite(s.offsetY)) s.offsetY = 0;
-  return /** @type {TextStyle} */ (s);
+  return s as TextStyle;
 }
 // Effektiver Stil eines Text-Slots: bei aktivem „Standard für alle Slots"
 // gelten die Werte des gewählten Slots für alle Slots des Texte-Tabs (Größe,
 // Farbe, Schriftart, Effekte). Hero-Slots nutzen immer ihren eigenen Stil.
-/**
- * @param {Lang} lang
- * @param {string} key
- * @returns {TextStyle}
- */
-export function getEffectiveTextStyle(lang, key) {
+export function getEffectiveTextStyle(lang: Lang, key: string): TextStyle {
   const m = state.media[lang];
   const own = getTextStyle(lang, key);
   if (!m.textStyleUniform || !UNIFORM_TEXT_KEYS.includes(key)) return own;

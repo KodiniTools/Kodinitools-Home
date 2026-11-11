@@ -3,7 +3,7 @@
 // Design (Farben/Größe/Abstand/Schrift) und Live-Vorschau.
 
 import { $ } from './core.js';
-import { state, getPageBg, PAGE_BG_DEFAULT, navLang } from './model.js';
+import { state, getPageBg, PAGE_BG_DEFAULT, navLang } from './model';
 import { ensureFontFace } from './fonts.js';
 import { mountVueTab } from './islands.js';
 

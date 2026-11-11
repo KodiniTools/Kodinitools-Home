@@ -3,7 +3,7 @@
  * Seiten-Layout (Klassisch / Kompakt), damit Vorschau und Seite übereinstimmen.
  */
 import { beforeEach, describe, expect, it } from 'vitest';
-import { state as adminState } from '../../server/admin/public/model.js';
+import { state as adminState } from '../../server/admin/public/model';
 import {
   heroPreviewMedia,
   heroPreviewMediaStyle,

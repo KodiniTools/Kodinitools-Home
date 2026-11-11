@@ -11,7 +11,7 @@ import {
   getBannerSlides,
   getGridSlides,
   BANNER_SLIDES_MAX,
-} from './model.js';
+} from './model';
 import { stageFile } from './media.js';
 
 /** @import { Lang } from '../types.ts' */

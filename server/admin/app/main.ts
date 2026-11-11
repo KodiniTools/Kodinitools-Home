@@ -1,7 +1,6 @@
 /**
- * Einstieg der Vue-Teile des Admins (gebaut nach `server/admin/dist/`, geladen
- * von `public/index.html` als `./app/main.js`). Fehlt der Build, lädt das
- * Skript nicht und der Vanilla-Admin läuft unverändert weiter.
+ * Einstieg der Vue-Teile des Admins. `public/admin.js` lädt das Modul dynamisch
+ * (eigener Chunk im Bundle `server/admin/dist/`, siehe `vite.admin.config.ts`).
  */
 import { createPinia } from 'pinia';
 import type { Component } from 'vue';
