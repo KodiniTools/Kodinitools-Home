@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 /**
  * Tab „Hero-Design“ als Vue-Insel (server/admin/app/tabs/hero): Lesen und
- * Schreiben über den Service aus public/design.js (echte Modell-Funktionen),
+ * Schreiben über den Service aus public/design.ts (echte Modell-Funktionen),
  * Regeln wie die Vanilla-Fassung.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -22,7 +22,7 @@ import {
 } from '../../server/admin/app/tabs/hero/heroData';
 import { readTextStyle } from '../../server/admin/app/tabs/texts/textStyle';
 import { useToastStore } from '../../server/admin/app/stores/toast';
-import { heroService } from '../../server/admin/public/design.js';
+import { heroService } from '../../server/admin/public/design';
 import { state, defaultMedia } from '../../server/admin/public/model';
 
 function makeService(picked: string | null = '/uploads/de/hero.webp'): HeroService {
@@ -70,7 +70,7 @@ const confirmDialog = async () => {
   await flushPromises();
 };
 
-describe('heroData (Regeln wie public/design.js)', () => {
+describe('heroData (Regeln wie public/design.ts)', () => {
   it('Begrenzungen', () => {
     expect(clampTypo('titleFontSize', '5')).toBe(8);
     expect(clampTypo('titleFontSize', '')).toBe(0);

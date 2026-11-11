@@ -88,7 +88,7 @@ import { useLayout } from './useLayout';
  * `public/layout-banner.js`): Zuweisung aus Zwischenablage, Mediathek oder per
  * Pfad/URL, Entfernen, Verlinkung; HEAD-Prüfung der /uploads-Datei. Das
  * Attribut `data-bannermediablock` nutzt der globale Einfügen-Handler
- * (`public/layout-paste.js`).
+ * (`public/layout-paste.ts`).
  */
 const { view, service, toast } = useLayout();
 const uid = `ly-bm-${useId()}`;

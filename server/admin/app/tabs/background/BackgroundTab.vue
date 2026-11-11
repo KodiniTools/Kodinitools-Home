@@ -265,7 +265,7 @@ import { bgRev, bgUi } from './bgUi';
 
 /**
  * Tab „Hintergrund“ (global, Vue-Fassung von `renderBackground` in
- * `public/background.js`): Seiten-Hintergrund je Modus, abgesetzte Sektionen
+ * `public/background.ts`): Seiten-Hintergrund je Modus, abgesetzte Sektionen
  * und Effekte mit Sticky-Vorschau. Gelesen/geschrieben wird über die
  * normalisierenden Funktionen aus `public/model-site.ts` (als `service`), damit
  * Speichern, Autosave und Undo per Snapshot unverändert greifen.

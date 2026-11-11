@@ -11,7 +11,7 @@ export interface HeroSel {
 /**
  * UI-Zustand des Tabs „Hero-Design“ (nicht gespeichert), modulweit, damit er
  * ein Neu-Mounten (Sprachwechsel, Rückgängig) übersteht – wie die
- * Modul-Variablen `hdPrevMode`, `hdSelected`, `hdPrevHeight` in `public/design.js`.
+ * Modul-Variablen `hdPrevMode`, `hdSelected`, `hdPrevHeight` in `public/design.ts`.
  */
 export const hdUi = reactive<{
   /** In Vorschau und offener Seitenleiste bearbeiteter Modus. */

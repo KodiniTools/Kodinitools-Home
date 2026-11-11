@@ -1,4 +1,3 @@
-// @ts-check
 // Layout-Tab: Anordnung des Hero-Bereichs (Banner vs. Raster-Layouts) samt
 // Form (Seitenverhältnis) und Per-Kachel-Design (Rahmen + Hintergrund) mit
 // Live-Vorschau. Das Kachel-Bild kann hier direkt aus der Zwischenablage
@@ -6,14 +5,14 @@
 // werden (Deckkraft, Abdunkelung, Weichzeichner, Sättigung); die klassische
 // Medien-Zuweisung im Medien-Tab bleibt bestehen.
 //
-// Aufgeteilt in Module: layout-shared.js (gemeinsame Helfer, auch für andere Tabs),
-// layout-banner.js (Einzelbanner), layout-grid.js (Bild-Raster), layout-paste.js
+// Aufgeteilt in Module: layout-shared.ts (gemeinsame Helfer, auch für andere Tabs),
+// layout-banner.js (Einzelbanner), layout-grid.js (Bild-Raster), layout-paste.ts
 // (Zwischenablage). Diese Datei rendert den Tab und verdrahtet den Modus-Wechsel.
 
-import { $, fmtBytes } from './core.js';
-import { mountVueTab } from './islands.js';
-import { objUrl, openMediaPicker } from './media.js';
-import { ensureFontFace } from './fonts.js';
+import { $, fmtBytes } from './core';
+import { mountVueTab } from './islands';
+import { objUrl, openMediaPicker } from './media';
+import { ensureFontFace } from './fonts';
 import {
   state,
   getHomeLayout,
@@ -58,7 +57,7 @@ import {
   MEDIA_OFFSET_MAX,
   navLang,
 } from './model';
-import { initPaste, pasteFromClipboardApi } from './layout-paste.js';
+import { initPaste, pasteFromClipboardApi } from './layout-paste';
 import {
   fullPageModel,
   fullPageKeys,
@@ -70,10 +69,16 @@ import {
   fullLinkedTextKeys,
   FULL_LABELS,
   FULL_TEXT_LABELS,
-} from './layout-fullpage.js';
+} from './layout-fullpage';
 
-/** @import { Lang, ThemeMode } from '../types.ts' */
-/** @import { LayoutService, CellHooks, PickTarget, PasteTarget, PageSettings } from '../app/tabs/layout/layoutData' */
+import type { Lang, ThemeMode } from '../types';
+import type {
+  LayoutService,
+  CellHooks,
+  PickTarget,
+  PasteTarget,
+  PageSettings,
+} from '../app/tabs/layout/layoutData';
 
 // Getter/Setter des Panels „Seiten-Layout" (global) für die Vue-Fassung.
 const PAGE_GET = {
@@ -86,8 +91,7 @@ const PAGE_GET = {
   mediaPosDesktop: getMediaPosDesktop,
   mediaPosMobile: getMediaPosMobile,
 };
-/** @type {Record<keyof typeof PAGE_GET, (v: unknown) => void>} */
-const PAGE_SET = {
+const PAGE_SET: Record<keyof typeof PAGE_GET, (v: unknown) => void> = {
   homeLayout: setHomeLayout,
   heroMediaMobile: setHeroMediaMobile,
   cardForm: setCardForm,
@@ -99,8 +103,8 @@ const PAGE_SET = {
 };
 
 // Medium (Server-URL oder 'staged:<id>') für die Vue-Fassung auflösen.
-/** @param {string} val */
-function resolveMedia(val) {
+
+function resolveMedia(val: string) {
   if (!val) return null;
   if (val.startsWith('staged:')) {
     const id = val.slice(7);
@@ -120,15 +124,13 @@ function resolveMedia(val) {
  * Service für die Vue-Fassung des Tabs (app/tabs/layout): Zugriff auf den
  * Zustand, die Setter des Seiten-Layouts, Medien-Auswahl, Zwischenablage und
  * das Datenmodell der Ganzseiten-Vorschau – ohne model.ts ins Bundle zu ziehen.
- * @param {Lang} lang
- * @returns {LayoutService}
  */
-export function layoutService(lang) {
+export function layoutService(lang: Lang): LayoutService {
   return {
     lang,
     media: () => state.media[lang],
-    mediaOf: (/** @type {Lang} */ l) => state.media[l],
-    ensure: (/** @type {Lang} */ l) => {
+    mediaOf: (l: Lang) => state.media[l],
+    ensure: (l: Lang) => {
       getBannerStyle(l, 'light');
       getBannerSlides(l);
       getBannerSlideshow(l);
@@ -143,17 +145,13 @@ export function layoutService(lang) {
     },
     page: () => {
       const page = Object.fromEntries(Object.entries(PAGE_GET).map(([k, get]) => [k, get()]));
-      return /** @type {PageSettings} */ (/** @type {unknown} */ (page));
+      return page as unknown as PageSettings;
     },
     setPage: (key, v) => PAGE_SET[key]?.(v),
     resolve: resolveMedia,
     // target: 'banner' | 'slide' | { cell: i } | { cellSlide: i }
-    pick: (
-      /** @type {PickTarget} */ target,
-      /** @type {string} */ title,
-      /** @type {(url: string) => void} */ onPick,
-    ) => {
-      const srv = [lang, /** @type {const} */ ('shared')].reduce(
+    pick: (target: PickTarget, title: string, onPick: (url: string) => void) => {
+      const srv = [lang, 'shared' as const].reduce(
         (n, l) => n + (state.serverFiles[l] || []).length,
         0,
       );
@@ -171,10 +169,10 @@ export function layoutService(lang) {
       return true;
     },
     // target: 'banner' | 'slide' | Kachel-Index | 'cellslide:<i>'
-    paste: (/** @type {PasteTarget} */ target) => {
+    paste: (target: PasteTarget) => {
       pasteFromClipboardApi(lang, target);
     },
-    bindCells: (/** @type {CellHooks} */ hooks) => {
+    bindCells: (hooks: CellHooks) => {
       vueCells = hooks;
       return () => {
         if (vueCells === hooks) vueCells = null;
@@ -196,15 +194,15 @@ export function layoutService(lang) {
     cellDefault: defaultCellStyle,
     gridSlideshowDefault: defaultGridSlideshow,
     fullPage: {
-      model: (/** @type {ThemeMode} */ mode) => fullPageModel(lang, mode),
+      model: (mode: ThemeMode) => fullPageModel(lang, mode),
       keys: () => fullPageKeys(lang),
-      offset: (/** @type {string} */ key) => fullOffset(lang, key),
+      offset: (key: string) => fullOffset(lang, key),
       setOffset: (
-        /** @type {string} */ key,
-        /** @type {number} */ x,
-        /** @type {number} */ y,
-        /** @type {number | undefined} */ w,
-        /** @type {number | undefined} */ h,
+        key: string,
+        x: number,
+        y: number,
+        w: number | undefined,
+        h: number | undefined,
       ) => {
         setFullOffset(lang, key, x, y, w, h);
         return fullOffset(lang, key);
@@ -212,7 +210,7 @@ export function layoutService(lang) {
       movedKeys: () => fullMovedKeys(lang),
       cardOffsets: () => fullCardOffsets(lang),
       cardOffsetIds: () => fullCardOffsetIds(lang),
-      linkedKeys: (/** @type {string} */ key) => fullLinkedTextKeys(lang, key),
+      linkedKeys: (key: string) => fullLinkedTextKeys(lang, key),
       labels: { ...FULL_LABELS, ...FULL_TEXT_LABELS },
       normOffset: normMediaOffset,
       normScale: normCardScale,
@@ -235,8 +233,7 @@ export function renderLayout() {
 
 // Zwischenablage-Modul mit dem Tab verbinden (Neu-Rendern, Kachel-Markierung).
 // Die Kachel-Auswahl der Vue-Fassung (bindCells) markiert die Zielkachel.
-/** @type {CellHooks | null} */
-let vueCells = null;
+let vueCells: CellHooks | null = null;
 initPaste({
   rerender: renderLayout,
   markCell: (_pane, i) => vueCells?.mark(i),

@@ -1,25 +1,22 @@
-// @ts-check
 // Gemeinsame Vorschau-Helfer (Ganzseiten-Vorschau, Hero-Design, Abschnitts-
 // Medien): fontFF, slideInfo, overlayStyle.
 
 import { state } from './model';
-import { objUrl } from './media.js';
-import { ensureFontFace } from './fonts.js';
+import { objUrl } from './media';
+import { ensureFontFace } from './fonts';
+import type { StagedItem } from '../types';
 
-/** @type {(v: number, min: number, max: number) => number} */
-const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+const clamp = (v: number, min: number, max: number): number => Math.max(min, Math.min(max, v));
 // font-family-CSS für eine Kachel-Textschrift (lädt @font-face für die Vorschau) oder ''.
-/** @param {string | null | undefined} file */
-export function fontFF(file) {
+
+export function fontFF(file: string | null | undefined) {
   return file ? `font-family:'${ensureFontFace(file)}', var(--site-font, sans-serif);` : '';
 }
 
 // Ein Diashow-Bild (Server-URL oder 'staged:<id>') auflösen: { src, item } oder null.
-/**
- * @param {string | null | undefined} val
- * @returns {{ src: string; item: import('../types.ts').StagedItem | null } | null}
- */
-export function slideInfo(val) {
+export function slideInfo(
+  val: string | null | undefined,
+): { src: string; item: StagedItem | null } | null {
   if (!val) return null;
   if (val.startsWith('staged:')) {
     const id = val.slice(7);
@@ -33,16 +30,22 @@ export function slideInfo(val) {
 // Gemeinsamer Overlay-Style: der Text wird an (x,y) in % verankert (Mittelpunkt)
 // und lässt sich in der Vorschau mit der Maus frei verschieben (cursor:move).
 /**
- * @param {string} color
- * @param {number} size px, 0 = `fsDefault`
- * @param {unknown} x Position in %
- * @param {unknown} y Position in %
- * @param {string} font
- * @param {string} fsDefault
- * @param {string} shadow text-shadow
- * @param {string} [extra] weiteres CSS
+ * @param size px, 0 = `fsDefault`
+ * @param x Position in %
+ * @param y Position in %
+ * @param shadow text-shadow
+ * @param extra weiteres CSS
  */
-export function overlayStyle(color, size, x, y, font, fsDefault, shadow, extra) {
+export function overlayStyle(
+  color: string,
+  size: number,
+  x: unknown,
+  y: unknown,
+  font: string,
+  fsDefault: string,
+  shadow: string,
+  extra?: string,
+) {
   const fs = size > 0 ? `${size}px` : fsDefault;
   const cx = clamp(Number(x) || 0, 0, 100);
   const cy = clamp(Number(y) || 0, 0, 100);

@@ -1,4 +1,3 @@
-// @ts-check
 // Medien-Tab: Sektions-Medien (Audio-/Bild-/Diverse-Tools) dreispaltig.
 // Links: Design je Hell/Dunkel (Rahmen, Eckenradius, Deckkraft, Verdunkelung)
 //        und Diashow (weitere Bilder – nur wenn das Medium ein Bild ist).
@@ -9,21 +8,19 @@
 // Gespeichert in media.<lang>.sectionMedia[audio|image|diverse].
 
 import { state, getMediaVal, getSectionMedia, rgbaFromHex } from './model';
-import { objUrl } from './media.js';
-import { overlayStyle } from './layout-shared.js';
+import { objUrl } from './media';
+import { overlayStyle } from './layout-shared';
 
-/** @import { Lang, MediaKey, SectionVideoKey, ThemeMode, StagedItem } from '../types.ts' */
-/** @import { SectionMediaText } from './model-sectionmedia' */
+import type { Lang, MediaKey, SectionVideoKey, ThemeMode, StagedItem } from '../types';
+import type { SectionMediaText } from './model-sectionmedia';
 
 const BASE_BORDER = '1.5px solid rgba(1,79,153,.2)';
 
 // Aufgelöstes Medium der Sektion: { val, src, isVid, item } oder null.
-/**
- * @param {Lang} lang
- * @param {MediaKey} key
- * @returns {{ val: string; src: string; isVid: boolean; item: StagedItem | null } | null}
- */
-export function mediaInfo(lang, key) {
+export function mediaInfo(
+  lang: Lang,
+  key: MediaKey,
+): { val: string; src: string; isVid: boolean; item: StagedItem | null } | null {
   const val = getMediaVal(lang, key);
   if (!val) return null;
   if (val.startsWith('staged:')) {
@@ -36,12 +33,7 @@ export function mediaInfo(lang, key) {
 }
 
 // Design eines Modus als Inline-CSS: Wrapper (Rahmen, Radius) + Medium (Deckkraft, Filter).
-/**
- * @param {Lang} lang
- * @param {SectionVideoKey} key
- * @param {ThemeMode} mode
- */
-export function designCss(lang, key, mode) {
+export function designCss(lang: Lang, key: SectionVideoKey, mode: ThemeMode) {
   const s = getSectionMedia(lang, key).style[mode];
   const border = s.customBorder
     ? s.borderWidth > 0
@@ -54,8 +46,8 @@ export function designCss(lang, key, mode) {
   };
 }
 // Text-Overlay-Style (Vorschau) aus den Text-Feldern.
-/** @param {SectionMediaText} t */
-export function textStyle(t) {
+
+export function textStyle(t: SectionMediaText) {
   const shadow = t.shadow
     ? `${t.shadowX}px ${t.shadowY}px ${t.shadowBlur}px ${rgbaFromHex(t.shadowColor || '#000000', 60)}`
     : 'none';

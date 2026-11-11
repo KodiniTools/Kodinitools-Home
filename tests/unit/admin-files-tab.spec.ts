@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 /**
  * Tab „Dateien“ als Vue-Insel (server/admin/app/tabs/files): Anzeige-Regeln
- * wie public/media.js; Daten und Aktionen kommen als Service von der
+ * wie public/media.ts; Daten und Aktionen kommen als Service von der
  * Vanilla-Seite, nach jeder Aktion wird der Schnappschuss neu geholt.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -20,7 +20,7 @@ import {
   type ServerFileView,
   type StagedFileView,
 } from '../../server/admin/app/tabs/files/filesData';
-import { fmtBytes as vanillaFmtBytes } from '../../server/admin/public/core.js';
+import { fmtBytes as vanillaFmtBytes } from '../../server/admin/public/core';
 import { useToastStore } from '../../server/admin/app/stores/toast';
 
 const srv = (path: string, usage: ServerFileView['usage'] = []): ServerFileView => ({
@@ -47,8 +47,8 @@ const stg = (id: string, usage: StagedFileView['usage'] = []): StagedFileView =>
   usage,
 });
 
-describe('filesData (Regeln wie public/media.js)', () => {
-  it('fmtBytes identisch zu core.js', () => {
+describe('filesData (Regeln wie public/media.ts)', () => {
+  it('fmtBytes identisch zu core.ts', () => {
     for (const n of [0, 5, 1023, 1024, 50_000, 5 * 1024 * 1024, null, undefined])
       expect(fmtBytes(n)).toBe(vanillaFmtBytes(n as number));
   });

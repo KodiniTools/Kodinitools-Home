@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 /**
  * Laufband-Tab als Vue-Insel (server/admin/app/tabs/ticker): gleiche Regeln wie
- * die Vanilla-Fassung (public/ticker.js) und Änderungen landen direkt im
+ * die Vanilla-Fassung (public/ticker.ts) und Änderungen landen direkt im
  * übergebenen state.ticker-Objekt (Autosave/Undo erkennen sie per Snapshot).
  */
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -22,7 +22,7 @@ import { useToastStore } from '../../server/admin/app/stores/toast';
 import { emptyTicker, normTicker } from '../../server/admin/public/model-ticker';
 import type { TickerConfig, TickerItem } from '../../server/admin/types';
 
-describe('tickerText (Regeln wie public/ticker.js)', () => {
+describe('tickerText (Regeln wie public/ticker.ts)', () => {
   it('oneLine macht aus Zeilenumbrüchen Leerzeichen', () => {
     expect(oneLine('a\n b\r\n\nc')).toBe('a b c');
     expect(oneLine(undefined)).toBe('');

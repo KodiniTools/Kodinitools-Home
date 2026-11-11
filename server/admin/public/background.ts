@@ -1,4 +1,3 @@
-// @ts-check
 // Hintergrund-Tab (global, sprachübergreifend): Hintergrund der GESAMTEN
 // Website – getrennt für Hell- und Dunkelmodus – mit Live-Vorschau. Je Modus:
 // eigene Farbe, Deckkraft (Mischung mit der Standardfarbe des Modus) und
@@ -10,7 +9,7 @@
 // bgColor2*, bgGradientType*, bgAngle*, bgPattern*, bgImage*; Suffix Dark =
 // Dunkelmodus); leer = Standardfarbe des jeweiligen Modus (wie bisher).
 
-import { $ } from './core.js';
+import { $ } from './core';
 import {
   state,
   getSiteBg,
@@ -33,12 +32,14 @@ import {
   setSiteSection,
   defaultSectionSide,
 } from './model';
-import { objUrl, openMediaPicker } from './media.js';
-import { mountVueTab } from './islands.js';
+import { objUrl, openMediaPicker } from './media';
+import { mountVueTab } from './islands';
+import type { BgService } from '../app/tabs/background/bgData';
+import type { ThemeMode } from '../types';
 
 // Bild-URL für die Vorschau auflösen (staged:<id> -> Objekt-URL des Browsers).
-/** @param {string} val */
-function previewUrl(val) {
+
+function previewUrl(val: string) {
   if (!val) return '';
   if (val.startsWith('staged:')) return objUrl(val.slice(7));
   return val;
@@ -49,11 +50,10 @@ const layerCss = siteBgLayerCss;
 
 // Zustandsgebundene Teile für die Vue-Fassung (app/tabs/background): Lesen und
 // Schreiben über die normalisierenden Funktionen aus model-site.ts.
-/** @returns {import('../app/tabs/background/bgData').BgService} */
-function bgService() {
-  /** @type {(title: string, onPick: (url: string) => void) => boolean} */
-  const pick = (title, onPick) => {
-    const srv = /** @type {const} */ (['de', 'en', 'shared']).reduce(
+
+function bgService(): BgService {
+  const pick = (title: string, onPick: (url: string) => void): boolean => {
+    const srv = (['de', 'en', 'shared'] as const).reduce(
       (n, l) => n + (state.serverFiles[l] || []).length,
       0,
     );
@@ -64,7 +64,7 @@ function bgService() {
   return {
     bg: getSiteBg,
     setBg: setSiteBg,
-    layers: (/** @type {import('../types.ts').ThemeMode} */ mode) => {
+    layers: (mode: ThemeMode) => {
       const { ground, overlay } = siteBgSplit(mode);
       return { full: layerCss(mode), ground, overlay, image: siteBgImageLayer(mode, previewUrl) };
     },

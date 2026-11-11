@@ -2,7 +2,7 @@ import { ref, watch, type Ref } from 'vue';
 
 /**
  * Prüft per HEAD, ob eine referenzierte `/uploads/…`-Datei auf dem Server liegt
- * (wie `verifyPublishedSlots` in `public/media.js`). `missing` = true nur, wenn
+ * (wie `verifyPublishedSlots` in `public/media.ts`). `missing` = true nur, wenn
  * die Prüfung lief und fehlschlug; andere URLs werden nicht geprüft.
  */
 export function useUploadCheck(url: Ref<string>) {

@@ -656,8 +656,8 @@ import {
 import { mediaUi } from './mediaUi';
 
 /**
- * Tab „Medien“ einer Sprache (Vue-Fassung von `renderMedia` in `public/media.js`
- * und `public/sectionmedia.js`): Sektions-Medien (Design je Modus, Diashow,
+ * Tab „Medien“ einer Sprache (Vue-Fassung von `renderMedia` in `public/media.ts`
+ * und `public/sectionmedia.ts`): Sektions-Medien (Design je Modus, Diashow,
  * Text-Overlay) und die Plätze des Hero-Bereichs. Bearbeitet `state.media[lang]`
  * und dessen `sectionMedia[key]` direkt (Snapshot-Autosave/Undo bleiben
  * zuständig); Zwischenspeicher, Medien-Auswahl und Standardwerte kommen als
@@ -752,7 +752,7 @@ watch(
 );
 onBeforeUnmount(stopTimer);
 
-// Text in der Vorschau ziehen (wie `dragHandle` in `public/layout-shared.js`).
+// Text in der Vorschau ziehen (wie `dragHandle` in `public/layout-shared.ts`).
 const wrapEl = ref<HTMLElement | null>(null);
 let dragging = false;
 function dragStart(e: PointerEvent) {

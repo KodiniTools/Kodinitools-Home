@@ -1,4 +1,3 @@
-// @ts-check
 // Layout-Tab: Ganzseiten-Vorschau – schematische Startseite, in der das
 // Hero-Medium (Banner/Raster), die drei Sektions-Medien und die Tool-Karten per
 // Maus verschoben werden. Der Versatz (px) wirkt auf der Seite als relative
@@ -29,19 +28,26 @@ import {
   TEXT_OFFSET_MAX,
   getHomeLayout,
 } from './model';
-import { heroPreviewMediaStyle, heroCompactCss } from './hero-preview.js';
-import { fontFF } from './layout-shared.js';
-import { mediaInfo, designCss, textStyle, MEDIA_BASE } from './sectionmedia.js';
+import { heroPreviewMediaStyle, heroCompactCss } from './hero-preview';
+import { fontFF } from './layout-shared';
+import { mediaInfo, designCss, textStyle, MEDIA_BASE } from './sectionmedia';
 
-/** @import { Lang, ThemeMode, ObjPath, SectionVideoKey, MediaKey, ToolCardOffset } from '../types.ts' */
-/** @import { FpModel, FpHero, FpKey, FpOffset, FpCardOffset, FpMedia, FpCard } from '../app/tabs/layout/fullPageData' */
+import type { Lang, ThemeMode, ObjPath, SectionVideoKey, MediaKey, ToolCardOffset } from '../types';
+import type {
+  FpModel,
+  FpHero,
+  FpKey,
+  FpOffset,
+  FpCardOffset,
+  FpMedia,
+  FpCard,
+} from '../app/tabs/layout/fullPageData';
 
 const PAGE_W = 1200;
 // Seitenschrift „Supreme“ (base.css) mit denselben Schnitten, damit Zeilenumbrüche
 // und Höhen der Vorschau der Seite entsprechen (Dateien wie die Seite aus /fonts).
 const PREV_FONT = 'kodini-prev-supreme';
-/** @type {[string, number][]} */
-const PREV_FONT_FACES_LIST = [
+const PREV_FONT_FACES_LIST: [string, number][] = [
   ['Supreme-Regular.woff2', 400],
   ['Supreme-Medium.woff2', 500],
   ['Supreme-Bold.woff2', 700],
@@ -52,10 +58,8 @@ const PREV_FONT_FACES = PREV_FONT_FACES_LIST.map(
     `@font-face{font-family:"${PREV_FONT}";src:url("/fonts/${f}") format("woff2");font-weight:${w};font-style:normal;font-display:swap;}`,
 ).join('');
 const PREV_FONT_STACK = `font-family:'${PREV_FONT}',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;`;
-/** @type {('hero' | SectionVideoKey)[]} */
-const FULL_KEYS = ['hero', ...SECTION_MEDIA_KEYS];
-/** @type {Record<'hero' | SectionVideoKey, string>} */
-const FULL_LABELS = {
+const FULL_KEYS: ('hero' | SectionVideoKey)[] = ['hero', ...SECTION_MEDIA_KEYS];
+const FULL_LABELS: Record<'hero' | SectionVideoKey, string> = {
   hero: 'Hero-Medium (Banner/Raster)',
   audio: 'Medium Audio-Tools',
   image: 'Medium Bild-Tools',
@@ -64,8 +68,7 @@ const FULL_LABELS = {
 // Verschiebbare Texte ('text:<slot>'): Versatz liegt in media.<lang>.textStyles[slot]
 // .offsetX/offsetY – derselbe Speicherort wie im Tab „Hero-Design“ (Hero-Texte)
 // bzw. wie die Seite die Abschnitts-Überschriften versetzt (getTextStylesCss).
-/** @type {Record<string, string>} */
-const TEXT_LABELS = {
+const TEXT_LABELS: Record<string, string> = {
   'hero.title': 'Hero-Titel',
   'hero.subtitle': 'Hero-Untertitel',
   'hero.cta': 'Hero-Button „Jetzt starten“',
@@ -76,11 +79,7 @@ const TEXT_LABELS = {
 const TEXT_KEYS = Object.keys(TEXT_LABELS);
 // Bei „Standard für alle Slots“ (Texte-Tab) gilt für alle Abschnitts-Überschriften
 // der Stil (und Versatz) des Master-Slots – wie auf der Seite.
-/**
- * @param {Lang} lang
- * @param {string} slot
- */
-function textSlotOf(lang, slot) {
+function textSlotOf(lang: Lang, slot: string) {
   const m = state.media[lang];
   if (m.textStyleUniform && UNIFORM_TEXT_KEYS.includes(slot))
     return UNIFORM_TEXT_KEYS.includes(m.textStyleUniformKey)
@@ -88,39 +87,33 @@ function textSlotOf(lang, slot) {
       : UNIFORM_TEXT_KEYS[0];
   return slot;
 }
-/** @type {(v: unknown, axis: 'x' | 'y') => number} */
-const clampText = (v, axis) => {
+const clampText = (v: unknown, axis: 'x' | 'y'): number => {
   const m = axis === 'y' ? TEXT_OFFSET_MAX.y : TEXT_OFFSET_MAX.x;
   return Math.max(-m, Math.min(m, Math.round(Number(v) || 0)));
 };
 // Tool-Sektionen der Seite: Sektions-Medium-Schlüssel -> Locale-Abschnitt der Karten.
-/** @type {Record<SectionVideoKey, 'tools' | 'imageTools' | 'diverseTools'>} */
-const CARD_SECTION = { audio: 'tools', image: 'imageTools', diverse: 'diverseTools' };
+const CARD_SECTION: Record<SectionVideoKey, 'tools' | 'imageTools' | 'diverseTools'> = {
+  audio: 'tools',
+  image: 'imageTools',
+  diverse: 'diverseTools',
+};
 const FULL_TEXT = {
   light: { title: '#003971', text: '#1e293b', muted: '#64748b', card: 'rgba(1,79,153,.08)' },
   dark: { title: '#f9f2d5', text: '#e2e8f0', muted: '#94a3b8', card: 'rgba(255,255,255,.06)' },
 };
-/** @param {ThemeMode} mode */
-function prevBg(mode) {
+
+function prevBg(mode: ThemeMode) {
   return getPageBg(mode) || PAGE_BG_DEFAULT[mode];
 }
 // Effektiver Text eines Locale-Pfads (Override, sonst Standard).
-/**
- * @param {Lang} lang
- * @param {ObjPath} path
- */
-function effText(lang, path) {
+function effText(lang: Lang, path: ObjPath) {
   const o = getPath(state.overrides[lang], path);
   if (typeof o === 'string' && o !== '') return o;
   const d = getPath(state.defaults[lang], path);
   return typeof d === 'string' ? d : '';
 }
 // Sichtbare Tool-Karten einer Sektion (Reihenfolge wie auf der Seite).
-/**
- * @param {Lang} lang
- * @param {SectionVideoKey} sectionKey
- */
-function sectionCards(lang, sectionKey) {
+function sectionCards(lang: Lang, sectionKey: SectionVideoKey) {
   const sec = CARD_SECTION[sectionKey];
   const out = [];
   // Karten der Sprachdatei plus im Tab „Tool-Karten" angelegte Karten.
@@ -141,31 +134,18 @@ function sectionCards(lang, sectionKey) {
   return out;
 }
 // Versatz lesen/schreiben – Schlüssel: 'hero' | Sektion | 'card:<sektion.key>'.
-/**
- * @param {Lang} lang
- * @returns {Record<string, ToolCardOffset>}
- */
-function cardOffsets(lang) {
+function cardOffsets(lang: Lang): Record<string, ToolCardOffset> {
   const m = state.media[lang];
   if (!m.toolCardOffsets || typeof m.toolCardOffsets !== 'object') m.toolCardOffsets = {};
   return m.toolCardOffsets;
 }
 // Nur lesen (legt nichts an): Lesen darf den Zustand nicht ändern, sonst gilt der
 // Tab beim Öffnen als geändert (Undo-Eintrag, „Ungespeicherte Änderungen“).
-/**
- * @param {Lang} lang
- * @returns {Record<string, ToolCardOffset>}
- */
-function readCardOffsets(lang) {
+function readCardOffsets(lang: Lang): Record<string, ToolCardOffset> {
   const o = state.media[lang].toolCardOffsets;
   return o && typeof o === 'object' ? o : {};
 }
-/**
- * @param {Lang} lang
- * @param {string} key
- * @returns {FpOffset}
- */
-export function fullOffset(lang, key) {
+export function fullOffset(lang: Lang, key: string): FpOffset {
   if (key === 'hero') {
     const m = state.media[lang];
     return { x: m.heroMediaOffsetX || 0, y: m.heroMediaOffsetY || 0 };
@@ -185,21 +165,19 @@ export function fullOffset(lang, key) {
     const st = ts && typeof ts === 'object' ? ts[textSlotOf(lang, key.slice(5))] : null;
     return { x: (st && st.offsetX) || 0, y: (st && st.offsetY) || 0 };
   }
-  const c = getSectionMedia(lang, /** @type {SectionVideoKey} */ (key));
+  const c = getSectionMedia(lang, key as SectionVideoKey);
   return { x: c.offsetX || 0, y: c.offsetY || 0 };
 }
 // Versatz (und bei Tool-Karten optional Skalierung w/h in %) setzen; w/h undefined =
 // bisherige Skalierung behalten. Eintrag entfällt bei 0/0 und 100 %/100 %.
-/**
- * @param {Lang} lang
- * @param {string} key
- * @param {number} x
- * @param {number} y
- * @param {number} [w]
- * @param {number} [h]
- * @returns {FpOffset}
- */
-export function setFullOffset(lang, key, x, y, w, h) {
+export function setFullOffset(
+  lang: Lang,
+  key: string,
+  x: number,
+  y: number,
+  w?: number,
+  h?: number,
+): FpOffset {
   if (key.startsWith('text:')) {
     const st = getTextStyle(lang, textSlotOf(lang, key.slice(5)));
     st.offsetX = clampText(x, 'x');
@@ -221,20 +199,16 @@ export function setFullOffset(lang, key, x, y, w, h) {
       all[id] = { x: nx, y: ny, ...(nw !== 100 || nh !== 100 ? { w: nw, h: nh } : {}) };
     else delete all[id];
   } else {
-    const c = getSectionMedia(lang, /** @type {SectionVideoKey} */ (key));
+    const c = getSectionMedia(lang, key as SectionVideoKey);
     c.offsetX = nx;
     c.offsetY = ny;
   }
   return { x: nx, y: ny };
 }
-/** @type {(o: FpOffset) => boolean} */
-const scaled = (o) => (o.w != null && o.w !== 100) || (o.h != null && o.h !== 100);
+const scaled = (o: FpOffset): boolean =>
+  (o.w != null && o.w !== 100) || (o.h != null && o.h !== 100);
 // Alle Schlüssel mit Versatz ≠ 0 (Hero, Sektions-Medien, Tool-Karten).
-/**
- * @param {Lang} lang
- * @returns {string[]}
- */
-function movedKeys(lang) {
+function movedKeys(lang: Lang): string[] {
   const out = [];
   for (const k of FULL_KEYS) {
     const o = fullOffset(lang, k);
@@ -252,12 +226,7 @@ function movedKeys(lang) {
 // (2 Zeilen reserviert), Fußzeile mit Favoriten-Knopf (28 px) – so stimmt der
 // Versatz aus der Vorschau 1:1 mit der Seite überein. Design (Rahmen, Hintergrund,
 // Typografie) aus dem Tab „Tool-Karten“ (Standard oder Einzel-Design), sonst Seitenstandard.
-/**
- * @param {Lang} lang
- * @param {string} id
- * @param {ThemeMode} mode
- */
-function cardDesign(lang, id, mode) {
+function cardDesign(lang: Lang, id: string, mode: ThemeMode) {
   const tc = getToolCards(lang);
   const st = tc.enabled ? tc.cards[id] || tc.default : null;
   const side = st ? st[mode] : null;
@@ -282,9 +251,9 @@ function cardDesign(lang, id, mode) {
   const alignSelf = align === 'center' ? 'center' : align === 'right' ? 'flex-end' : 'flex-start';
   const titleFont = text && text.titleFont ? fontFF(text.titleFont) : '';
   // Ausgeblendete Elemente (Tab „Tool-Karten“): unsichtbar, Platz bleibt.
-  /** @type {Partial<Record<string, boolean>>} */
-  const show = st && st.show && typeof st.show === 'object' ? st.show : {};
-  const hid = (/** @type {string} */ k) => (show[k] === false ? 'visibility:hidden;' : '');
+  const show: Partial<Record<string, boolean>> =
+    st && st.show && typeof st.show === 'object' ? st.show : {};
+  const hid = (k: string) => (show[k] === false ? 'visibility:hidden;' : '');
   return {
     bg,
     border,
@@ -300,13 +269,8 @@ function cardDesign(lang, id, mode) {
 }
 // Auswahl-Panel: gewähltes Element (Klick in der Vorschau oder Dropdown) mit
 // X/Y-Spinnern zum exakten Positionieren (Versatz in px der Seite) und ↺.
-/**
- * @param {Lang} lang
- * @returns {FpKey[]}
- */
-function allKeys(lang) {
-  /** @type {FpKey[]} */
-  const out = FULL_KEYS.map((key) => ({ key, label: FULL_LABELS[key], group: '' }));
+function allKeys(lang: Lang): FpKey[] {
+  const out: FpKey[] = FULL_KEYS.map((key) => ({ key, label: FULL_LABELS[key], group: '' }));
   for (const slot of TEXT_KEYS)
     out.push({ key: `text:${slot}`, label: TEXT_LABELS[slot], group: 'Texte' });
   for (const sec of SECTION_MEDIA_KEYS)
@@ -316,25 +280,21 @@ function allKeys(lang) {
 }
 // ---- Daten für die Vue-Fassung (app/tabs/layout/LyFullPage.vue) ----------------
 // Gleiche Quellen wie fullPageHtml, aber als reine Daten; liest nur.
-/** @type {(info: { src: string; isVid: boolean } | null, style?: string) => FpMedia | null} */
-const mediaOf = (info, style = '') => (info ? { src: info.src, isVid: info.isVid, style } : null);
+const mediaOf = (
+  info: { src: string; isVid: boolean } | null,
+  style: string = '',
+): FpMedia | null => (info ? { src: info.src, isVid: info.isVid, style } : null);
 /**
  * Schematische Startseite als Daten (Modus 'light' | 'dark').
- * @param {Lang} lang
- * @param {ThemeMode | string} mode
- * @returns {FpModel}
  */
-export function fullPageModel(lang, mode) {
-  /** @type {ThemeMode} */
-  const md = mode === 'dark' ? 'dark' : 'light';
+export function fullPageModel(lang: Lang, mode: ThemeMode | string): FpModel {
+  const md: ThemeMode = mode === 'dark' ? 'dark' : 'light';
   const c = FULL_TEXT[md];
   const m = state.media[lang];
   const compact = getHomeLayout() === 'compact';
-  /** @type {Partial<typeof m.heroDesign>} */
-  const hd = m.heroDesign || {};
+  const hd: Partial<typeof m.heroDesign> = m.heroDesign || {};
   const hiddenChips = new Set(Array.isArray(hd.hiddenChips) ? hd.hiddenChips : []);
-  /** @type {FpHero} */
-  let hero;
+  let hero: FpHero;
   if (m.heroMode === 'grid') {
     const layout = m.heroLayout;
     const cells = visibleGridCells(lang, layout);
@@ -344,7 +304,7 @@ export function fullPageModel(lang, mode) {
       maxW: layout === 'row4' ? 860 : layout === 'big2' ? 900 : layout === 'vrow' ? 420 : 720,
       tiles: cells.map((i) => ({
         i,
-        media: mediaOf(mediaInfo(lang, /** @type {MediaKey} */ (`grid${i}`)), MEDIA_BASE),
+        media: mediaOf(mediaInfo(lang, `grid${i}` as MediaKey), MEDIA_BASE),
       })),
     };
   } else if (m.heroBannerShow === false) hero = { kind: 'msg', text: 'Banner ausgeblendet' };
@@ -353,7 +313,7 @@ export function fullPageModel(lang, mode) {
     hero = info
       ? {
           kind: 'media',
-          media: /** @type {FpMedia} */ (mediaOf(info, heroPreviewMediaStyle(lang, md, compact))),
+          media: mediaOf(info, heroPreviewMediaStyle(lang, md, compact)) as FpMedia,
         }
       : { kind: 'msg', text: 'Kein Hero-Medium' };
   }
@@ -378,10 +338,14 @@ export function fullPageModel(lang, mode) {
       centered: key !== 'audio',
       cards: sectionCards(lang, key).map((card) => {
         const { hid, ...d } = cardDesign(lang, card.id, md);
-        /** @type {FpCard['d']['hidden']} */
-        const hidden = { icon: false, badge: false, title: false, fav: false, open: false };
-        for (const k of /** @type {(keyof typeof hidden)[]} */ (Object.keys(hidden)))
-          hidden[k] = hid(k) !== '';
+        const hidden: FpCard['d']['hidden'] = {
+          icon: false,
+          badge: false,
+          title: false,
+          fav: false,
+          open: false,
+        };
+        for (const k of Object.keys(hidden) as (keyof typeof hidden)[]) hidden[k] = hid(k) !== '';
         return { ...card, d: { ...d, hidden } };
       }),
     };
@@ -413,22 +377,14 @@ export function fullPageModel(lang, mode) {
   };
 }
 /** Wählbare Elemente (Medien, Texte, Tool-Karten je Sektion) für die Auswahl. */
-/**
- * @param {Lang} lang
- * @returns {FpKey[]}
- */
-export function fullPageKeys(lang) {
+export function fullPageKeys(lang: Lang): FpKey[] {
   return allKeys(lang).map((k) => ({
     ...k,
     group: k.group && k.group !== 'Texte' ? `Tool-Karten ${k.group}` : k.group,
   }));
 }
 /** Verschobene/skalierte Tool-Karten (nur lesen). */
-/**
- * @param {Lang} lang
- * @returns {FpCardOffset[]}
- */
-export function fullCardOffsets(lang) {
+export function fullCardOffsets(lang: Lang): FpCardOffset[] {
   const all = readCardOffsets(lang);
   return Object.keys(all)
     .filter((id) => TOOL_CARD_KEY.test(id) && (all[id].x || all[id].y || scaled(all[id])))
@@ -442,14 +398,9 @@ export function fullCardOffsets(lang) {
     });
 }
 /** Alle Tool-Karten mit gespeichertem Versatz (für „alle Karten zurücksetzen“). */
-export const fullCardOffsetIds = (/** @type {Lang} */ lang) => Object.keys(readCardOffsets(lang));
+export const fullCardOffsetIds = (lang: Lang) => Object.keys(readCardOffsets(lang));
 /** Text-Schlüssel, die sich bei „Standard für alle Slots“ gemeinsam bewegen. */
-/**
- * @param {Lang} lang
- * @param {string} key
- * @returns {string[]}
- */
-export function fullLinkedTextKeys(lang, key) {
+export function fullLinkedTextKeys(lang: Lang, key: string): string[] {
   const uniform =
     key.startsWith('text:') &&
     state.media[lang].textStyleUniform &&

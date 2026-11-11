@@ -4,7 +4,7 @@ import type { ThemeMode } from '../../../types';
 /**
  * UI-Zustand des Tabs „Hintergrund“ (nicht gespeichert), modulweit, damit der
  * bearbeitete Modus ein Neu-Mounten übersteht – wie `bgPrevMode` in
- * `public/background.js`.
+ * `public/background.ts`.
  */
 export const bgUi = reactive<{ prevMode: ThemeMode }>({ prevMode: 'light' });
 

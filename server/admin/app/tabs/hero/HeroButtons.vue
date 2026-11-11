@@ -166,7 +166,7 @@ import { useHero } from './useHero';
 
 /**
  * Sektion „Buttons & CTA“ (wie `buttonsBody`/`featureLabelsBody` in
- * `public/design.js`): Schrift, Größen, Abstand und Kontur der Buttons (beide
+ * `public/design.ts`): Schrift, Größen, Abstand und Kontur der Buttons (beide
  * Modi) sowie Beschriftung (Override) und Verschiebung je Feature-Button.
  */
 const { service, view, offsetOf, setOffset, fontOptions, toast } = useHero();

@@ -2,7 +2,7 @@ import type { IconTint, IconTintField, Lang, Overrides } from '../../../types';
 import { getPath, normHexOrEmpty } from '../../../public/model-core';
 
 /**
- * Reine Regeln des Tabs „Icons“ (Vue-Fassung von `public/icons.js`). Arbeiten
+ * Reine Regeln des Tabs „Icons“ (Vue-Fassung von `public/icons.ts`). Arbeiten
  * nur auf übergebenen Objekten; `public/model.ts` bzw. `model-toolcards.ts`
  * werden bewusst nicht importiert (sonst zweite `state`-Instanz im Bundle).
  */
@@ -104,7 +104,7 @@ export interface HeroMediaHost {
 }
 export type IconTarget = 'banner' | `grid${number}` | `tool:${string}`;
 
-/** Ziel anwenden (wie `addIcon` in `public/icons.js`); Rückgabe = Toast-Text. */
+/** Ziel anwenden (wie `addIcon` in `public/icons.ts`); Rückgabe = Toast-Text. */
 export function applyIconTarget(
   media: HeroMediaHost,
   overrides: Overrides,

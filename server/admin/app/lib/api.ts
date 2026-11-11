@@ -1,5 +1,5 @@
 /**
- * GET gegen die Admin-API (wie `api()` in `public/core.js`, aber ohne dessen
+ * GET gegen die Admin-API (wie `api()` in `public/core.ts`, aber ohne dessen
  * Modul zu importieren): URL relativ zum Auslieferungsort, Session-Cookie,
  * Kennungs-Header. Wirft nie; Fehler kommen als `ok: false`.
  */

@@ -388,7 +388,7 @@ export function sitePatternLayers(
 }
 // Bild-Ebene eines Modus für die Admin-Vorschau: null ohne Bild, sonst
 // { url, filter, opacity, fixed } (url = auflösbare Vorschau-URL, staged via objUrl).
-export function siteBgImageLayer(mode: ThemeMode, resolveUrl: (url: string) => string) {
+export function siteBgImageLayer(mode: ThemeMode, resolveUrl?: (url: string) => string) {
   const s = getSiteBg(mode);
   if (!s.image) return null;
   const url = resolveUrl ? resolveUrl(s.image) : s.image;

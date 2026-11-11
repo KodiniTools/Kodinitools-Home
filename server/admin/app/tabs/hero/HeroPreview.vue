@@ -124,7 +124,7 @@ import { useHero } from './useHero';
 
 /**
  * Sticky-Vorschau des Hero in Originalgröße (wie `stickyPreview`/`previewHtml`
- * in `public/design.js`): Titel, Untertitel, Feature-Buttons und CTA sind
+ * in `public/design.ts`): Titel, Untertitel, Feature-Buttons und CTA sind
  * anklickbar (springt zu den Einstellungen) und ziehbar (Versatz in px, 1:1);
  * Pfeiltasten bewegen um 1 px (Shift: 10 px). Das Hintergrundbild wechselt im
  * Takt der Diashow.

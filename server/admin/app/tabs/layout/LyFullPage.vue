@@ -473,7 +473,7 @@ import { useLayout } from './useLayout';
 
 /**
  * Ganzseiten-Vorschau (wie `fullPageHtml`/`bindFullPage` in
- * `public/layout-fullpage.js`): schematische Startseite in Originalbreite
+ * `public/layout-fullpage.ts`): schematische Startseite in Originalbreite
  * (1200 px, per `zoom` eingepasst). Hero-Medium, Sektions-Medien, Tool-Karten
  * und Texte werden per Maus, Pfeiltasten oder Feldern verschoben; Tool-Karten
  * zusätzlich skaliert. Eigener Verlauf (↶) je Sprache; Lesen ändert nichts.

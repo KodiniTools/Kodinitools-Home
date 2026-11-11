@@ -24,7 +24,7 @@ export function mountIsland(
   return { app, unmount: () => app.unmount() };
 }
 
-/** API, die `public/core.js` & Co. über `window.kodiniAdminVue` nutzen. */
+/** API, die `public/core.ts` & Co. über `window.kodiniAdminVue` nutzen. */
 export interface KodiniAdminVue {
   /** Version der Brücken-API (steigt bei inkompatiblen Änderungen). */
   version: 1;

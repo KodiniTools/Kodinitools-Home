@@ -1,18 +1,17 @@
-// @ts-check
 // Reine Content-Bearbeitung pro Sprache: der „Texte"-Tab (formularbasierte
 // Overrides der Sektions-Überschriften) und der „Erweitert"-Tab (rohe
 // Overrides als JSON). Die Hero-Texte (Titel, Untertitel, Button-Text) werden
-// samt ihren Stil-Einstellungen im Tab „Hero-Design" bearbeitet (design.js).
+// samt ihren Stil-Einstellungen im Tab „Hero-Design" bearbeitet (design.ts).
 //
 // Layout des Texte-Tabs (wie Tool-Karten): Mitte = Texte, Schriftart, Größe,
 // Effekte und „Standard für alle Slots" (gelten für beide Modi); Seitenleiste
 // Hell links und Dunkel rechts = Vorschau + Textfarbe je Slot für den Modus.
 
-import { $, esc, toast } from './core.js';
+import { $, esc, toast } from './core';
 import { state, navLang } from './model';
-import { ensureFontFace } from './fonts.js';
-import { goto } from './admin.js';
-import { mountVueTab } from './islands.js';
+import { ensureFontFace } from './fonts';
+import { goto } from './admin';
+import { mountVueTab } from './islands';
 
 export function renderTexts() {
   const pane = $('#content');
@@ -47,7 +46,7 @@ export function renderAdvanced() {
   $('#advApply').addEventListener('click', () => {
     $('#advErr').textContent = '';
     try {
-      const ta = /** @type {HTMLTextAreaElement} */ (pane.querySelector(`[data-adv="${l}"]`));
+      const ta = pane.querySelector(`[data-adv="${l}"]`) as HTMLTextAreaElement;
       const txt = ta.value.trim();
       const obj = txt ? JSON.parse(txt) : {};
       if (typeof obj !== 'object' || obj === null || Array.isArray(obj))

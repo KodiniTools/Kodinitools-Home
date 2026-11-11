@@ -1,5 +1,5 @@
 /**
- * Einstieg der Vue-Teile des Admins. `public/admin.js` lädt das Modul dynamisch
+ * Einstieg der Vue-Teile des Admins. `public/admin.ts` lädt das Modul dynamisch
  * (eigener Chunk im Bundle `server/admin/dist/`, siehe `vite.admin.config.ts`).
  */
 import { createPinia } from 'pinia';

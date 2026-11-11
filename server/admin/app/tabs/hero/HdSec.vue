@@ -12,7 +12,7 @@
 <script setup lang="ts">
 /**
  * Aufklappbarer Bereich des Tabs „Hero-Design“ (wie `section()` in
- * `public/design.js`). `sec` = Kennung für das Anspringen aus der Vorschau
+ * `public/design.ts`). `sec` = Kennung für das Anspringen aus der Vorschau
  * (`data-hdsection`), `hl` = hervorgehoben. `open` gilt nur beim Anlegen.
  */
 withDefaults(defineProps<{ open?: boolean; sec?: string; hl?: boolean }>(), {

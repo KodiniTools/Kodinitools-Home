@@ -2,7 +2,7 @@ import type { Lang, ThemeMode } from '../../../types';
 
 /**
  * Datenmodell und reine Regeln des Tabs „Dateien“ (Vue-Fassung von
- * `renderFiles` in `public/media.js`). Welche Plätze eine Datei nutzen
+ * `renderFiles` in `public/media.ts`). Welche Plätze eine Datei nutzen
  * („wird verwendet in“), berechnet weiterhin die Vanilla-Seite
  * (`usageDetailed` über alle Bild-Plätze) und reicht es per `snapshot()` herein –
  * eine Quelle der Wahrheit, kein zweiter `state` im Bundle.
@@ -49,7 +49,7 @@ export interface ActionResult {
   error?: string;
 }
 
-/** Aktionen + Daten, die `public/media.js` dem Tab übergibt. */
+/** Aktionen + Daten, die `public/media.ts` dem Tab übergibt. */
 export interface FilesService {
   snapshot: () => FilesSnapshot;
   deleteServer: (path: string) => Promise<ActionResult>;
@@ -74,7 +74,7 @@ export function moveTargets(loc: FileLoc): FileLoc[] {
   return loc === 'de' ? ['en', ''] : loc === 'en' ? ['de', ''] : ['de', 'en'];
 }
 
-/** Bytes lesbar (wie `fmtBytes` in `public/core.js`). */
+/** Bytes lesbar (wie `fmtBytes` in `public/core.ts`). */
 export function fmtBytes(n: number | null | undefined): string {
   if (!n && n !== 0) return '';
   if (n < 1024) return n + ' B';

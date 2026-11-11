@@ -1,9 +1,9 @@
-// @ts-check
 // Hero-Design-Vorschau (Admin > Hero-Design): Banner-Medium und Seiten-Layout
 // wie auf der Startseite (HomePage.astro, hero.css, home-compact.css), damit die
 // Vorschau dasselbe Bild zeigt wie die Seite. Reine Funktionen ohne DOM, damit
-// sie testbar sind; design.js löst gestagte Medien selbst auf (objUrl).
+// sie testbar sind; design.ts löst gestagte Medien selbst auf (objUrl).
 import { rgbaFromHex, getBannerStyle } from './model';
+import type { RawJson, Lang } from '../types';
 
 const VIDEO_RE = /\.(mp4|webm|mov|m4v|ogv|ogg)$/i;
 
@@ -12,11 +12,11 @@ const VIDEO_RE = /\.(mp4|webm|mov|m4v|ogv|ogg)$/i;
  * „Banner" (nicht Raster), wenn das Banner eingeblendet und ein Bild/Video
  * zugewiesen ist. `resolveStaged(id)` liefert für einen noch nicht
  * veröffentlichten Upload ('staged:<id>') { src, isVid } oder null.
- * @param {any} media
- * @param {(id: string) => ({ src: string, isVid?: boolean } | null)} [resolveStaged]
- * @returns {{ src: string, isVid: boolean } | null}
  */
-export function heroPreviewMedia(media, resolveStaged = () => null) {
+export function heroPreviewMedia(
+  media: RawJson,
+  resolveStaged: (id: string) => { src: string; isVid?: boolean } | null = () => null,
+): { src: string; isVid: boolean } | null {
   if (!media || media.heroMode === 'grid' || media.heroBannerShow === false) return null;
   const val = typeof media.heroBanner === 'string' ? media.heroBanner.trim() : '';
   if (!val) return null;
@@ -31,11 +31,8 @@ export function heroPreviewMedia(media, resolveStaged = () => null) {
  * Inline-Style des Banner-Mediums in der Vorschau: Größe wie auf der Seite
  * (klassisch max. 240 px hoch, kompakt max. 340 px hoch und 500 px breit) plus
  * Banner-Design des Modus (Rahmen, Ecken, Schatten, Deckkraft, Verdunkelung).
- * @param {import('../types.ts').Lang} lang
- * @param {string} mode
- * @param {boolean} compact
  */
-export function heroPreviewMediaStyle(lang, mode, compact) {
+export function heroPreviewMediaStyle(lang: Lang, mode: string, compact: boolean) {
   const s = getBannerStyle(lang, mode);
   const p = compact
     ? ['max-width:500px', 'max-height:340px']
@@ -65,11 +62,10 @@ export function heroPreviewMediaStyle(lang, mode, compact) {
  * Untertitel, Buttons und Kasten ihre Maße als Inline-Style tragen (klassische
  * Werte). `p` ist das Präfix der data-Attribute: hd = Tab „Hero-Design“
  * ([data-hdbox], [data-hdtitle] …), fp = Ganzseiten-Vorschau im Tab „Layout“.
- * @param {string} [p]
  */
-export function heroCompactCss(p = 'hd') {
+export function heroCompactCss(p: string = 'hd') {
   const box = `[data-${p}box][data-${p}layout="compact"]`;
-  const a = (/** @type {string} */ n) => `[data-${p}${n}]`;
+  const a = (n: string) => `[data-${p}${n}]`;
   return [
     `${box}{display:grid;column-gap:56px;align-items:start;text-align:left !important;padding:48px !important;` +
       "grid-template-columns:minmax(0,38rem) auto;justify-content:center;grid-template-areas:'. media' 'title media' 'sub media' 'chips media' 'cta media' '. media';grid-template-rows:1fr auto auto auto auto 1fr}",

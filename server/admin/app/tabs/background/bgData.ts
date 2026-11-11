@@ -3,7 +3,7 @@ import { rgbaFromHex } from '../../../public/model-core';
 
 /**
  * Datenmodell und reine Regeln des Tabs „Hintergrund“ (Vue-Fassung von
- * `public/background.js`). Lesen/Schreiben von `media.site` bleibt bei den
+ * `public/background.ts`). Lesen/Schreiben von `media.site` bleibt bei den
  * normalisierenden Funktionen aus `public/model-site.ts`; die Vanilla-Seite
  * reicht sie als Service herein (keine zweite `state`-Instanz im Bundle).
  */
@@ -61,7 +61,7 @@ export interface BgLayers {
   image: ImageLayer | null;
 }
 
-/** Was `public/background.js` dem Tab übergibt. */
+/** Was `public/background.ts` dem Tab übergibt. */
 export interface BgService {
   bg: (mode: ThemeMode) => SiteBg;
   setBg: (mode: ThemeMode, patch: Partial<SiteBg>) => void;
@@ -214,7 +214,7 @@ export function sectionNote(
     : 'Keine Sektion abgesetzt – die Sektionen liegen wie bisher direkt auf dem Seitenhintergrund.';
 }
 
-// ---- Vorschau-Styles (wie background.js) -----------------------------------------
+// ---- Vorschau-Styles (wie background.ts) -----------------------------------------
 const cssUrl = (u: string) => `url('${u.replace(/['"]/g, '')}')`;
 /** Grund der Vorschau-Box: mit Bild nur die Grundfarbe, sonst alle Ebenen. */
 export function previewStyle(l: BgLayers, mode: ThemeMode): string {

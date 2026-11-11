@@ -77,14 +77,9 @@ export function defaultSectionMediaAll(): Record<SectionVideoKey, SectionMedia> 
 function normSectionMediaSide(o: RawJson): SectionMediaSide {
   const d = defaultSectionMediaSide();
   if (!o || typeof o !== 'object') return d;
-  const hex: (v: unknown, def: string) => string = (v, def): string =>
+  const hex = (v: unknown, def: string): string =>
     /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? String(v) : def;
-  const num: (v: unknown, min: number, max: number, def: number) => number = (
-    v,
-    min,
-    max,
-    def,
-  ): number => {
+  const num = (v: unknown, min: number, max: number, def: number): number => {
     const n = Number(v);
     return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : def;
   };
@@ -100,14 +95,9 @@ function normSectionMediaSide(o: RawJson): SectionMediaSide {
 function normSectionMediaText(o: RawJson): SectionMediaText {
   const d = defaultSectionMediaText();
   if (!o || typeof o !== 'object') return d;
-  const hex: (v: unknown, def: string) => string = (v, def): string =>
+  const hex = (v: unknown, def: string): string =>
     /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(v)) ? String(v) : def;
-  const num: (v: unknown, min: number, max: number, def: number) => number = (
-    v,
-    min,
-    max,
-    def,
-  ): number => {
+  const num = (v: unknown, min: number, max: number, def: number): number => {
     const n = Number(v);
     return Number.isFinite(n) ? Math.max(min, Math.min(max, Math.round(n))) : def;
   };

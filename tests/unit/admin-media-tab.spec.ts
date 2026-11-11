@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 /**
  * Tab „Medien“ als Vue-Insel (server/admin/app/tabs/media): gleiche Regeln wie
- * die Vanilla-Fassung (public/media.js + public/sectionmedia.js); Änderungen
+ * die Vanilla-Fassung (public/media.ts + public/sectionmedia.ts); Änderungen
  * landen direkt in `state.media[lang]` bzw. `sectionMedia[key]`
  * (Autosave/Undo per Snapshot).
  */
@@ -45,7 +45,7 @@ import {
 import {
   designCss as vanillaDesignCss,
   textStyle as vanillaTextStyle,
-} from '../../server/admin/public/sectionmedia.js';
+} from '../../server/admin/public/sectionmedia';
 
 const resolve = (val: string): ResolvedMedia | null => {
   if (!val) return null;
@@ -89,7 +89,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe('mediaData (Regeln wie public/sectionmedia.js)', () => {
+describe('mediaData (Regeln wie public/sectionmedia.ts)', () => {
   it('designCss und Text-Overlay identisch zur Vanilla-Fassung', () => {
     const cfg = getSectionMedia('de', 'image');
     cfg.style.dark = {

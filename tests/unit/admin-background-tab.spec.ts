@@ -2,7 +2,7 @@
 /**
  * Tab „Hintergrund“ als Vue-Insel (server/admin/app/tabs/background): Lesen und
  * Schreiben über die normalisierenden Funktionen aus public/model-site.ts,
- * Anzeige-Regeln wie public/background.js.
+ * Anzeige-Regeln wie public/background.ts.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { flushPromises, mount } from '@vue/test-utils';
@@ -90,7 +90,7 @@ beforeEach(() => {
   document.body.innerHTML = '';
 });
 
-describe('bgData (Regeln wie public/background.js)', () => {
+describe('bgData (Regeln wie public/background.ts)', () => {
   it('Hinweise zu Farbe, Muster/Bild und Sektionen', () => {
     expect(noteFor(getSiteBg('light'), '#fafafa')).toContain('Standardfarbe (#fafafa)');
     setSiteBg('dark', { color: '#112233', gradient: true, color2: '#445566', opacity: 60 });

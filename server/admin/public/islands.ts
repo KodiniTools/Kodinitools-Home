@@ -1,19 +1,19 @@
-// @ts-check
 // Vue-Inseln der Tabs (app/tabs/…). Die Vue-Teile (`npm run build:admin` →
-// server/admin/dist, ausgeliefert unter ./app/) lädt admin.js parallel zum
+// server/admin/dist, ausgeliefert unter ./app/) lädt admin.ts parallel zum
 // Start. Bis sie da sind, zeigt der Tab einen Ladehinweis; fehlen sie (nicht
 // gebaut), einen Fehlerhinweis statt einer leeren Seite.
 
-/** @typedef {{ unmount: () => void }} Handle */
+import type { VueTabName } from '../app/bridge';
 
-/** @type {Handle | null} */
-let current = null;
+export type Handle = { unmount: () => void };
+
+let current: Handle | null = null;
 /** Grund, falls die Vue-Teile nicht geladen werden konnten. */
 let loadError = '';
 
-/** Vue-Teile konnten nicht geladen werden (admin.js, dynamischer Import). */
-export function markVueMissing(/** @type {unknown} */ err) {
-  loadError = String((err && /** @type {any} */ (err).message) || err || 'unbekannt');
+/** Vue-Teile konnten nicht geladen werden (admin.ts, dynamischer Import). */
+export function markVueMissing(err: unknown) {
+  loadError = String((err as { message?: unknown } | null)?.message || err || 'unbekannt');
   console.error('[admin] Vue-Teile nicht geladen', err);
 }
 
@@ -29,7 +29,7 @@ export function unmountVueTab() {
 }
 
 /** Lade- bzw. Fehlerhinweis anstelle des Tabs. */
-function notice(/** @type {Element} */ el, /** @type {string} */ text, error = false) {
+function notice(el: Element, text: string, error = false) {
   const p = document.createElement('p');
   p.className = error ? 'err' : 'hint';
   p.setAttribute('role', error ? 'alert' : 'status');
@@ -40,12 +40,9 @@ function notice(/** @type {Element} */ el, /** @type {string} */ text, error = f
 /**
  * Mountet den Tab als Vue-Insel in `el` (ersetzt dessen Inhalt). Rückgabe:
  * true bei Erfolg; false → Lade- oder Fehlerhinweis wird angezeigt (sind die
- * Vue-Teile später da, rendert admin.js den Tab neu).
- * @param {Element} el
- * @param {string} name
- * @param {Record<string, unknown>} props
+ * Vue-Teile später da, rendert admin.ts den Tab neu).
  */
-export function mountVueTab(el, name, props) {
+export function mountVueTab(el: Element, name: string, props: Record<string, unknown>) {
   unmountVueTab();
   const vue = window.kodiniAdminVue;
   if (!vue) {
@@ -58,13 +55,13 @@ export function mountVueTab(el, name, props) {
     else notice(el, 'Admin-Oberfläche wird geladen …');
     return false;
   }
-  if (!vue.tabs.includes(/** @type {any} */ (name))) {
+  if (!vue.tabs.includes(name as VueTabName)) {
     notice(el, `Unbekannter Tab „${name}“.`, true);
     return false;
   }
   try {
     el.replaceChildren();
-    current = vue.mountTab(el, /** @type {any} */ (name), props);
+    current = vue.mountTab(el, name as VueTabName, props);
     return true;
   } catch (e) {
     console.error('[admin] Vue-Tab fehlgeschlagen', e);

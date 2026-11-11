@@ -292,7 +292,7 @@ import { useTc } from './useTc';
 /**
  * Seitenleiste eines Modus im Tab „Tool-Karten“: Rahmen, Hintergrund,
  * Hintergrundbild, Hover und Text-Farben (wie `sideBlock` in
- * `public/toolcards.js`).
+ * `public/toolcards.ts`).
  */
 const props = defineProps<{ mode: ThemeMode }>();
 const { service, view, setSide, resetSide, resetSource, ensureEnabled, toast } = useTc();

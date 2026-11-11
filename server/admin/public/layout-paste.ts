@@ -1,9 +1,8 @@
-// @ts-check
 // Layout-Tab – Bild aus der Zwischenablage (Strg/Cmd+V oder Button) in eine
 // Kachel, das Banner oder eine Diashow einsetzen. Das Modul kennt den Tab nicht
-// direkt: Neu-Rendern und Kachel-Markierung kommen über initPaste() aus layout.js.
+// direkt: Neu-Rendern und Kachel-Markierung kommen über initPaste() aus layout.ts.
 
-import { $, toast, fmtBytes } from './core.js';
+import { $, toast, fmtBytes } from './core';
 import {
   state,
   isLangSection,
@@ -12,30 +11,30 @@ import {
   getGridSlides,
   BANNER_SLIDES_MAX,
 } from './model';
-import { stageFile } from './media.js';
+import { stageFile } from './media';
 
-/** @import { Lang } from '../types.ts' */
-/** @import { PasteTarget } from '../app/tabs/layout/layoutData' */
-/**
- * Rückrufe des Layout-Tabs.
- * @typedef {{ rerender: () => void; markCell: (pane: HTMLElement, i: number) => void; activeCell: () => number | null }} PasteHooks
- */
+import type { Lang, MediaKey } from '../types';
+import type { PasteTarget } from '../app/tabs/layout/layoutData';
+/** Rückrufe des Layout-Tabs. */
+export type PasteHooks = {
+  rerender: () => void;
+  markCell: (pane: HTMLElement, i: number) => void;
+  activeCell: () => number | null;
+};
 
-// Rückrufe des Layout-Tabs (werden von layout.js beim Laden gesetzt).
-/** @type {PasteHooks} */
-const hooks = {
+// Rückrufe des Layout-Tabs (werden von layout.ts beim Laden gesetzt).
+const hooks: PasteHooks = {
   rerender: () => {},
   markCell: () => {},
   activeCell: () => null,
 };
-/** @param {Partial<PasteHooks>} h */
-export function initPaste(h) {
+
+export function initPaste(h: Partial<PasteHooks>) {
   Object.assign(hooks, h);
 }
 
 // Dateiendung je MIME-Typ für Bilder aus der Zwischenablage (Screenshots = PNG).
-/** @type {Record<string, string>} */
-const IMG_EXT = {
+const IMG_EXT: Record<string, string> = {
   'image/png': 'png',
   'image/jpeg': 'jpg',
   'image/webp': 'webp',
@@ -46,13 +45,7 @@ const MAX_PASTE_BYTES = 25 * 1024 * 1024;
 // Legt ein Bild (Blob) im Zwischenspeicher ab, weist es Kachel i (oder dem
 // Banner bei i === 'banner') zu und rendert den Tab neu (Scrollposition bleibt,
 // Kachel bleibt markiert).
-/**
- * @param {Lang} lang
- * @param {PasteTarget} i
- * @param {Blob} blob
- * @returns {Promise<boolean>}
- */
-async function assignImageBlob(lang, i, blob) {
+async function assignImageBlob(lang: Lang, i: PasteTarget, blob: Blob): Promise<boolean> {
   const type = blob.type || 'image/png';
   const ext = IMG_EXT[type];
   if (!ext) {
@@ -86,12 +79,7 @@ async function assignImageBlob(lang, i, blob) {
   const id = await stageFile(new File([blob], name, { type }), name);
   if (isSlide) getBannerSlides(lang).push('staged:' + id);
   else if (cellSlide !== null) getGridSlides(lang, cellSlide).push('staged:' + id);
-  else
-    setMediaVal(
-      lang,
-      isBanner ? 'heroBanner' : /** @type {import('../types.ts').MediaKey} */ (`grid${i}`),
-      'staged:' + id,
-    );
+  else setMediaVal(lang, isBanner ? 'heroBanner' : (`grid${i}` as MediaKey), 'staged:' + id);
   const y = window.scrollY;
   hooks.rerender();
   if (cellSlide !== null) hooks.markCell($('#content'), cellSlide);
@@ -104,11 +92,7 @@ async function assignImageBlob(lang, i, blob) {
 }
 
 // Erstes Bild aus einer DataTransfer-Liste (Zwischenablage/Drop) oder null.
-/**
- * @param {DataTransfer | null} dt
- * @returns {File | null}
- */
-function imageFromDataTransfer(dt) {
+function imageFromDataTransfer(dt: DataTransfer | null): File | null {
   if (!dt) return null;
   for (const it of Array.from(dt.items || [])) {
     if (it.kind === 'file' && /^image\//.test(it.type)) return it.getAsFile();
@@ -120,11 +104,7 @@ function imageFromDataTransfer(dt) {
 // Button „Aus Zwischenablage einfügen": liest die Zwischenablage über die
 // Clipboard-API (nur HTTPS/localhost, fragt ggf. um Erlaubnis). Ohne Zugriff
 // bleibt Strg/Cmd+V auf der markierten Kachel als Weg.
-/**
- * @param {Lang} lang
- * @param {PasteTarget} i
- */
-export async function pasteFromClipboardApi(lang, i) {
+export async function pasteFromClipboardApi(lang: Lang, i: PasteTarget) {
   if (!navigator.clipboard || typeof navigator.clipboard.read !== 'function') {
     toast(
       i === 'banner' || i === 'slide' || String(i).startsWith('cellslide:')
@@ -159,8 +139,8 @@ export async function pasteFromClipboardApi(lang, i) {
 // Strg/Cmd+V im Layout-Tab: Bild aus der Zwischenablage in die Kachel einfügen,
 // deren Editor den Fokus hat, sonst in die zuletzt markierte Kachel. Text-Einfügen
 // in Eingabefelder bleibt unberührt (nur Bild-Daten werden abgefangen).
-/** @param {ClipboardEvent} e */
-function onDocumentPaste(e) {
+
+function onDocumentPaste(e: ClipboardEvent) {
   if (state.nav.sub !== 'layout' || !isLangSection(state.nav.section)) return;
   const lang = state.nav.section;
   const pane = $('#content');
@@ -182,7 +162,7 @@ function onDocumentPaste(e) {
   if (!blob) return;
   const editor =
     e.target instanceof Element
-      ? /** @type {HTMLElement | null} */ (e.target.closest('[data-celleditor]'))
+      ? (e.target.closest('[data-celleditor]') as HTMLElement | null)
       : null;
   const i = editor ? Number(editor.dataset.celleditor) : hooks.activeCell();
   if (i === null || i === undefined || !pane.querySelector(`[data-celleditor="${i}"]`)) {

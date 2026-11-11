@@ -200,7 +200,7 @@ function onUp(e: PointerEvent, i: number) {
   if (!moved) markCell(i, true);
 }
 
-// ↶/↷ übernehmen den Zustand der Kopfleiste (danach hält publish.js sie synchron).
+// ↶/↷ übernehmen den Zustand der Kopfleiste (danach hält publish.ts sie synchron).
 const rootEl = ref<HTMLElement | null>(null);
 onMounted(() => {
   const doc = rootEl.value?.ownerDocument;

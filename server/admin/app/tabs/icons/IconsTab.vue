@@ -308,7 +308,7 @@ import {
 import { ensureIconsLoaded, iconLists, iconsLoading, iconsUi } from './iconsUi';
 
 /**
- * Tab „Icons“ (Vue-Fassung von `public/icons.js`). Bearbeitet die übergebenen
+ * Tab „Icons“ (Vue-Fassung von `public/icons.ts`). Bearbeitet die übergebenen
  * Objekte `state.overrides` und `state.media` direkt (Autosave/Undo per
  * Snapshot); nach Undo/Redo wird der Tab neu gemountet.
  */

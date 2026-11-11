@@ -26,7 +26,7 @@ import { computed } from 'vue';
 import { UiSegmentedControl } from '../../components/ui';
 import { useLayout } from './useLayout';
 
-/** Panel „Hero-Layout“ (je Sprache, wie `modePanelHtml` in `public/layout.js`). */
+/** Panel „Hero-Layout“ (je Sprache, wie `modePanelHtml` in `public/layout.ts`). */
 const { service, view } = useLayout();
 const MODE_OPTIONS = [
   { value: 'banner', label: 'Einzel-Banner' },
