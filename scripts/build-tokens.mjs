@@ -1,3 +1,4 @@
+// @ts-check
 // Erzeugt src/styles/parts/tokens.css aus src/styles/tokens.json.
 //
 //   npm run tokens          Datei neu schreiben
@@ -13,10 +14,19 @@ const ROOT = new URL('../', import.meta.url);
 export const TOKENS_JSON = fileURLToPath(new URL('src/styles/tokens.json', ROOT));
 export const TOKENS_CSS = fileURLToPath(new URL('src/styles/parts/tokens.css', ROOT));
 
+/** @typedef {string | { light?: string; dark?: string }} TokenValue */
+/** @typedef {{ name: string; value: TokenValue; usage?: string }} Token */
+/** @typedef {{ name: string; tokens: Token[] }} TokenGroup */
+/** @typedef {{ themes: Record<string, string>; groups: TokenGroup[] }} TokenFile */
+
 const NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const UNSAFE = /[;{}<>]|\/\*/;
 
-/** Prüft die Token-Datei und liefert eine verständliche Fehlermeldung. */
+/**
+ * Prüft die Token-Datei und liefert eine verständliche Fehlermeldung.
+ * @param {any} data  geparstes tokens.json (ungeprüft)
+ * @returns {TokenFile}
+ */
 export function validateTokens(data) {
   const themes = Object.keys(data.themes ?? {});
   if (themes[0] !== 'light' || !themes.includes('dark')) {
@@ -46,16 +56,24 @@ export function validateTokens(data) {
   return data;
 }
 
-/** Wert eines Tokens in einem Theme (oder undefined, wenn dort nicht gesetzt). */
+/**
+ * Wert eines Tokens in einem Theme (oder undefined, wenn dort nicht gesetzt).
+ * @param {Token} token
+ * @param {string} theme
+ * @returns {string | undefined}
+ */
 export function valueIn(token, theme) {
   return typeof token.value === 'string'
     ? theme === 'light'
       ? token.value
       : undefined
-    : token.value[theme];
+    : token.value[/** @type {'light' | 'dark'} */ (theme)];
 }
 
-/** Rendert die CSS-Datei (deterministisch, Reihenfolge wie in tokens.json). */
+/**
+ * Rendert die CSS-Datei (deterministisch, Reihenfolge wie in tokens.json).
+ * @param {TokenFile} data
+ */
 export function renderTokensCss(data) {
   validateTokens(data);
   const out = [
@@ -68,7 +86,7 @@ export function renderTokensCss(data) {
     const lines = [];
     for (const group of data.groups) {
       const decls = group.tokens
-        .map((token) => [token.name, valueIn(token, theme)])
+        .map((token) => /** @type {const} */ ([token.name, valueIn(token, theme)]))
         .filter(([, value]) => value !== undefined)
         .map(([name, value]) => `  --${name}: ${value};`);
       if (decls.length) lines.push(`  /* ${group.name} */`, ...decls);
