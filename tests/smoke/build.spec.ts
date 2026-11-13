@@ -156,6 +156,7 @@ describe('sitemap.xml', () => {
       `${SITE}/collagemaker/editor`,
       `${SITE}/texteditor/blog`,
       `${SITE}/videokonverter/converter.html`,
+      `${SITE}/visualizer/app`,
       `${SITE}/bildkonverter/konvertieren/heic-zu-jpg`,
     ]) {
       expect(locs).toContain(url);
