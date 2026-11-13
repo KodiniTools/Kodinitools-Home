@@ -138,7 +138,7 @@
       "title": "Audio Normalizer",
       "description": "Audio Lautstärke normalisieren online kostenlos – automatisch LUFS-konform angleichen. Perfekt für Podcasts, Hörbücher und Audiodateien für Podcasts vorbereiten.",
       "badge": "Normalizer",
-      "processing": "server",
+      "processing": "browser",
       "link": "https://kodinitools.com/audionormalisierer/",
       "svg": "/image/audio-normalizer.svg"
     },
@@ -522,7 +522,7 @@
       },
       "q2": {
         "question": "Werden meine Dateien gespeichert oder weitergegeben?",
-        "answer": "Nein. Bei Browser-basierten Tools verlassen Ihre Dateien niemals Ihren Computer – die Verarbeitung erfolgt komplett lokal. Bei Server-basierten Tools werden Ihre Dateien verschlüsselt übertragen und sofort nach der Verarbeitung automatisch gelöscht. Wir speichern keine Kopien Ihrer Dateien."
+        "answer": "Nein. Bei Browser-basierten Tools verlassen Ihre Dateien niemals Ihren Computer – die Verarbeitung erfolgt komplett lokal. Bei Server-basierten Tools werden Ihre Dateien verschlüsselt übertragen, nur für die Verarbeitung zwischengespeichert und spätestens nach 12 Stunden automatisch gelöscht. Dauerhafte Kopien Ihrer Dateien speichern wir nicht."
       },
       "q3": {
         "question": "Welche Dateiformate werden unterstützt?",
@@ -562,7 +562,7 @@
       },
       "q12": {
         "question": "Wie kann ich mehrere Bilder gleichzeitig verkleinern?",
-        "answer": "Mit dem Batch Bildbearbeiter können Sie über 100 Bilder auf einmal verkleinern: Bilder per Drag-and-Drop hochladen, Zielgrösse in Pixeln oder Prozent festlegen und als ZIP-Archiv herunterladen. Alles läuft direkt im Browser – Ihre Bilder verlassen niemals Ihren Computer."
+        "answer": "Mit dem Batch Bildbearbeiter können Sie über 100 Bilder auf einmal verkleinern: Bilder per Drag-and-Drop hochladen, Zielgrösse in Pixeln oder Prozent festlegen und als ZIP-Archiv herunterladen. Die Bearbeitung läuft direkt im Browser, Ihre Bilder bleiben dabei auf Ihrem Computer. Einzige Ausnahme: Für den Export als SVG werden die Bilder zur Umwandlung an unseren Server übertragen."
       },
       "q13": {
         "question": "Was ist der Unterschied zwischen MP3 und WAV?",
@@ -578,7 +578,7 @@
       },
       "q16": {
         "question": "Wie normalisiere ich die Lautstärke meiner Audiodateien?",
-        "answer": "Mit dem Audio Normalizer von KodiniTools: Audiodatei hochladen und das Tool gleicht die Lautstärke automatisch auf einen einheitlichen Pegel an. Besonders nützlich für Podcasts, Hörbücher oder Musiksammlungen, bei denen unterschiedliche Tracks unterschiedlich laut sind. Die Verarbeitung erfolgt auf unseren sicheren Servern."
+        "answer": "Mit dem Audio Normalizer von KodiniTools: Audiodatei auswählen und das Tool gleicht die Lautstärke automatisch auf einen einheitlichen Pegel an. Besonders nützlich für Podcasts, Hörbücher oder Musiksammlungen, bei denen unterschiedliche Tracks unterschiedlich laut sind. Die Verarbeitung erfolgt lokal in Ihrem Browser, ohne Upload."
       },
       "q17": {
         "question": "Wie erstelle ich eine Fotocollage kostenlos online?",
