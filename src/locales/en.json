@@ -138,7 +138,7 @@
       "title": "Audio Normalizer",
       "description": "Normalize audio volume online free – automatic LUFS-compliant leveling. Perfect for podcasts, audiobooks and preparing audio files for streaming.",
       "badge": "Normalizer",
-      "processing": "server",
+      "processing": "browser",
       "link": "https://kodinitools.com/audionormalisierer/",
       "svg": "/image/audio-normalizer-en.svg"
     },
@@ -522,7 +522,7 @@
       },
       "q2": {
         "question": "Are my files stored or shared?",
-        "answer": "No. With browser-based tools, your files never leave your computer – processing happens completely locally. With server-based tools, your files are transmitted encrypted and automatically deleted immediately after processing. We do not store copies of your files."
+        "answer": "No. With browser-based tools, your files never leave your computer – processing happens completely locally. With server-based tools, your files are transmitted encrypted, stored temporarily for processing only and automatically deleted after 12 hours at the latest. We do not keep permanent copies of your files."
       },
       "q3": {
         "question": "Which file formats are supported?",
@@ -562,7 +562,7 @@
       },
       "q12": {
         "question": "How can I resize multiple images at once?",
-        "answer": "With the Batch Image Editor you can resize 100+ images at once: drag and drop your images, set the target size in pixels or percentage, and download everything as a ZIP archive. Everything runs directly in your browser – your images never leave your computer."
+        "answer": "With the Batch Image Editor you can resize 100+ images at once: drag and drop your images, set the target size in pixels or percentage, and download everything as a ZIP archive. Editing runs directly in your browser and your images stay on your computer. The only exception: for SVG export, the images are sent to our server for conversion."
       },
       "q13": {
         "question": "What is the difference between MP3 and WAV?",
@@ -578,7 +578,7 @@
       },
       "q16": {
         "question": "How do I normalize the volume of my audio files?",
-        "answer": "With the KodiniTools Audio Normalizer: upload your audio file and the tool automatically adjusts the volume to a consistent level. Especially useful for podcasts, audiobooks or music collections where different tracks have different volumes. Processing takes place on our secure servers."
+        "answer": "With the KodiniTools Audio Normalizer: select your audio file and the tool automatically adjusts the volume to a consistent level. Especially useful for podcasts, audiobooks or music collections where different tracks have different volumes. Processing happens locally in your browser, with no upload."
       },
       "q17": {
         "question": "How do I create a photo collage for free online?",
