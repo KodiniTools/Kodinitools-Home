@@ -39,3 +39,6 @@ npm-debug.log*
 # OS files
 .DS_Store
 Thumbs.db
+
+# deploy.sh: Status der _astro-Aufbewahrung (scripts/prune-astro-assets.sh)
+.kodini-deploy/
