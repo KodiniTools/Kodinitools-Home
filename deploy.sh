@@ -16,6 +16,8 @@
 #     REPO_DIR   (Default: Verzeichnis dieses Skripts)
 #     WEBROOT    (Default: /var/www/kodinitools.com)
 #     BRANCH     (Default: main)
+#     ASTRO_RETENTION_DAYS (Default: 7) — so lange bleiben alte _astro-Bundles
+#                nach einem Deploy noch abrufbar (siehe Schritt (b))
 #
 set -euo pipefail
 
@@ -25,6 +27,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${REPO_DIR:-$SCRIPT_DIR}"
 WEBROOT="${WEBROOT:-/var/www/kodinitools.com}"
 BRANCH="${BRANCH:-main}"
+ASTRO_RETENTION_DAYS="${ASTRO_RETENTION_DAYS:-7}"
+# Merkt sich, seit wann ein _astro-Bundle nicht mehr im Build ist (außerhalb
+# des Webroots, von git reset --hard unberührt, siehe .gitignore).
+ASTRO_PRUNE_STATE="${ASTRO_PRUNE_STATE:-$REPO_DIR/.kodini-deploy/astro-obsolete.tsv}"
 
 # --- Build-Umgebung robust machen ---
 # Astro-Telemetrie deaktivieren (sonst Schreibversuch nach ~/.config/astro,
@@ -122,15 +128,18 @@ npm run build:server || { err "Admin-Server-Build fehlgeschlagen – Deploy abge
 # Strategie:
 #   (a) dist/ additiv nach Webroot spiegeln (kopieren/aktualisieren, nie löschen)
 #   (b) NUR innerhalb von _astro/ veraltete, gehashte Bundles bereinigen
-#       (dieses Verzeichnis gehört zu 100 % dem Astro-Build)
+#       (dieses Verzeichnis gehört zu 100 % dem Astro-Build) — aber erst nach
+#       ASTRO_RETENTION_DAYS Tagen. Sofortiges Löschen erzeugt 404 für alle,
+#       die noch HTML vom vorherigen Stand haben (Tabs, Caches, Crawler).
 
 if [ -n "$DRY_RUN" ]; then
   log "DRY-RUN — es wird nichts verändert."
   log "(a) additive Spiegelung dist/ -> Webroot:"
   rsync $RSYNC_OPTS --itemize-changes --dry-run dist/ "$WEBROOT/"
   if [ -d "$WEBROOT/_astro" ]; then
-    log "(b) _astro/ Bereinigung veralteter Bundles:"
-    rsync $RSYNC_OPTS --delete --itemize-changes --dry-run dist/_astro/ "$WEBROOT/_astro/"
+    log "(b) _astro/ Bereinigung veralteter Bundles (Frist $ASTRO_RETENTION_DAYS Tage):"
+    "$REPO_DIR/scripts/prune-astro-assets.sh" "$WEBROOT/_astro" dist/_astro \
+      "$ASTRO_PRUNE_STATE" "$ASTRO_RETENTION_DAYS" --dry-run
   fi
   log "(c) Entfernen alter Sitemap-Index-/Chunk-Dateien (ersetzt durch sitemap.xml):"
   for f in sitemap-index.xml sitemap-0.xml; do
@@ -156,8 +165,9 @@ fi
 log "(a) Spiegele dist/ additiv nach $WEBROOT (löscht nichts) ..."
 rsync $RSYNC_OPTS dist/ "$WEBROOT/"
 
-log "(b) Bereinige veraltete Bundles in _astro/ ..."
-rsync $RSYNC_OPTS --delete dist/_astro/ "$WEBROOT/_astro/"
+log "(b) Bereinige veraltete Bundles in _astro/ (älter als $ASTRO_RETENTION_DAYS Tage) ..."
+"$REPO_DIR/scripts/prune-astro-assets.sh" "$WEBROOT/_astro" dist/_astro \
+  "$ASTRO_PRUNE_STATE" "$ASTRO_RETENTION_DAYS"
 
 # (c) Alte Sitemap-Dateien entfernen: Der Build erzeugt jetzt eine einzelne
 # sitemap.xml statt sitemap-index.xml + sitemap-0.xml. Da die Spiegelung in (a)
