@@ -67,6 +67,7 @@ const EXTRA_SITEMAP_PAGES = [
   'https://kodinitools.com/texteditor/blog',
   'https://kodinitools.com/texteditor/funktionen',
   'https://kodinitools.com/videokonverter/converter.html',
+  'https://kodinitools.com/visualizer/app',
   'https://kodinitools.com/visualizer/blog',
 ];
 toolPages.push(...EXTRA_SITEMAP_PAGES);
