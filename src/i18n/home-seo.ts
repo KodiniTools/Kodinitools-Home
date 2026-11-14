@@ -20,21 +20,18 @@ export interface HomeSeo {
 
 export const HOME_SEO: Record<Lang, HomeSeo> = {
   de: {
-    title:
-      'KodiniTools – MP3 in WAV umwandeln, JPG zu WebP, Audio normalisieren | Kostenlos ohne Registrierung',
-    metaTitle:
-      'KodiniTools – MP3 in WAV umwandeln, JPG zu WebP, Audio normalisieren | Kostenlos ohne Registrierung',
+    title: 'KodiniTools – Kostenlose Online-Tools ohne Registrierung',
+    metaTitle: 'KodiniTools – Kostenlose Online-Tools ohne Registrierung',
     description:
-      'MP3 in WAV umwandeln kostenlos online · JPG zu WebP konvertieren · Audio Lautstärke normalisieren · Bilder Batch konvertieren · Musik-Video für TikTok erstellen · Fotocollage erstellen ohne App · Equalizer für Browser. DSGVO-konform, keine Registrierung.',
+      'Kostenlose Online-Tools ohne Registrierung: Audio konvertieren, schneiden und normalisieren, Bilder umwandeln, Videos konvertieren. DSGVO-konform.',
     keywords:
-      'mp3 konverter kostenlos, audio konverter online, bilder konvertieren, equalizer browser, audio normalizer, foto collage, batch bildbearbeitung, mp3 zu wav, jpg zu webp, audio visualizer tiktok, DSGVO online tools schweiz',
-    ogTitle: 'KodiniTools – MP3 in WAV umwandeln, JPG zu WebP, Audio normalisieren | Kostenlos',
+      'kostenlose online tools, online tools ohne registrierung, audio tools online, bild tools online, mp3 konverter kostenlos, audio konverter online, bilder konvertieren, equalizer browser, audio normalizer, foto collage, batch bildbearbeitung, mp3 zu wav, jpg zu webp, audio visualizer tiktok, DSGVO online tools schweiz',
+    ogTitle: 'KodiniTools – Kostenlose Online-Tools ohne Registrierung',
     ogDescription:
-      'MP3 in WAV umwandeln · JPG zu WebP · Audio normalisieren · Bilder Batch konvertieren · Musik-Video für TikTok · Fotocollage ohne App · Browser-Equalizer. Kostenlos, DSGVO-konform, keine Registrierung.',
-    twitterTitle:
-      'KodiniTools – MP3 in WAV umwandeln, JPG zu WebP, Audio normalisieren | Kostenlos',
+      'Kostenlose Online-Tools ohne Registrierung: Audio konvertieren, schneiden und normalisieren, Bilder umwandeln, Videos konvertieren. DSGVO-konform.',
+    twitterTitle: 'KodiniTools – Kostenlose Online-Tools ohne Registrierung',
     twitterDescription:
-      'MP3 in WAV umwandeln · JPG zu WebP · Audio normalisieren · Bilder Batch konvertieren · Musik-Video für TikTok · Fotocollage ohne App · Browser-Equalizer. Kostenlos, keine Registrierung.',
+      'Kostenlose Online-Tools ohne Registrierung: Audio konvertieren, schneiden und normalisieren, Bilder umwandeln, Videos konvertieren. DSGVO-konform.',
     schemaUrl: 'https://kodinitools.com',
     schemaDescription:
       'MP3 in WAV umwandeln kostenlos, JPG zu WebP konvertieren, Audio Lautstärke normalisieren, Bilder Batch konvertieren, Audiodatei Format ändern DSGVO-konform. Direkt im Browser, keine Registrierung.',
@@ -52,21 +49,18 @@ export const HOME_SEO: Record<Lang, HomeSeo> = {
     ],
   },
   en: {
-    title: 'KodiniTools – Convert MP3 to WAV Free, JPG to WebP, Normalize Audio | No Registration',
-    metaTitle:
-      'KodiniTools – Convert MP3 to WAV Free, JPG to WebP, Normalize Audio | No Registration',
+    title: 'KodiniTools – Free Online Tools, No Sign-Up Required',
+    metaTitle: 'KodiniTools – Free Online Tools, No Sign-Up Required',
     description:
-      'Convert MP3 to WAV free online · JPG to WebP converter · Normalize audio volume online · Batch resize images at once · Create music video for TikTok free · Photo collage without app · Browser equalizer free. GDPR compliant, no registration required.',
+      'Free online tools with no sign-up: convert, cut and normalize audio, convert and batch edit images, convert videos. Works in your browser, GDPR compliant.',
     keywords:
-      'mp3 converter free, audio converter online, image converter, browser equalizer, audio normalizer, photo collage, batch image editing, mp3 to wav, jpg to webp, audio visualizer tiktok, GDPR online tools',
-    ogTitle:
-      'KodiniTools – Convert MP3 to WAV Free, JPG to WebP, Normalize Audio | No Registration',
+      'free online tools, online tools no sign up, free audio tools online, free image tools online, mp3 converter free, audio converter online, image converter, browser equalizer, audio normalizer, photo collage, batch image editing, mp3 to wav, jpg to webp, audio visualizer tiktok, GDPR online tools',
+    ogTitle: 'KodiniTools – Free Online Tools, No Sign-Up Required',
     ogDescription:
-      'Convert MP3 to WAV free · JPG to WebP · Normalize audio online · Batch resize images · Music video for TikTok free · Photo collage without app · Browser equalizer. GDPR compliant, no registration.',
-    twitterTitle:
-      'KodiniTools – Convert MP3 to WAV Free, JPG to WebP, Normalize Audio | No Registration',
+      'Free online tools with no sign-up: convert, cut and normalize audio, convert and batch edit images, convert videos. Works in your browser, GDPR compliant.',
+    twitterTitle: 'KodiniTools – Free Online Tools, No Sign-Up Required',
     twitterDescription:
-      'Convert MP3 to WAV free · JPG to WebP · Normalize audio online · Batch resize images · Music video for TikTok free · Photo collage without app · Browser equalizer. No registration.',
+      'Free online tools with no sign-up: convert, cut and normalize audio, convert and batch edit images, convert videos. Works in your browser, GDPR compliant.',
     schemaUrl: 'https://kodinitools.com/en/',
     schemaDescription:
       'Convert MP3 to WAV free online, JPG to WebP converter, normalize audio volume online, batch resize images, change audio file format GDPR compliant. Directly in your browser, no registration.',
