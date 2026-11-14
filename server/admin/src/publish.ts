@@ -8,9 +8,24 @@ import { resolve, dirname } from 'node:path';
 import { config } from './config.js';
 import { UPLOADS_GIT_MAX_BYTES } from './uploads.js';
 import type { RunFn, JobState } from './codeupdate.js';
-import type { AnyObj } from './content.js';
 import { restartIfServerCodeChanged, persistState, restoreState } from './codeupdate.js';
 import { runStreaming, asErr } from './util.js';
+
+/**
+ * Sammelt alle /uploads/-Pfade, die irgendwo in media.json stehen (Hero-Banner,
+ * Raster, Sektions-Videos, aber auch Seiten-/Sektions-/Hero-Hintergrundbilder
+ * und Diashows). Rein und rekursiv, damit neue Felder automatisch erfasst werden.
+ */
+export function collectUploadRefs(value: unknown, out: Set<string> = new Set()): Set<string> {
+  if (typeof value === 'string') {
+    if (value.startsWith('/uploads/')) out.add(value);
+  } else if (Array.isArray(value)) {
+    for (const v of value) collectUploadRefs(v, out);
+  } else if (value && typeof value === 'object') {
+    for (const v of Object.values(value)) collectUploadRefs(v, out);
+  }
+  return out;
+}
 
 /**
  * Nachsicherung: In media.json referenzierte /uploads-Dateien, die nur im
@@ -18,25 +33,13 @@ import { runStreaming, asErr } from './util.js';
  * Repo (public/uploads) kopieren, damit sie beim Commit mit gesichert werden.
  */
 async function backfillReferencedUploads() {
-  let media;
+  let media: unknown;
   try {
     media = JSON.parse(await readFile(resolve(config.repoDir, 'src/content/media.json'), 'utf8'));
   } catch {
     return;
   }
-  const urls = new Set<string>();
-  const collect = (m: AnyObj | undefined) => {
-    if (!m || typeof m !== 'object') return;
-    if (typeof m.heroBanner === 'string') urls.add(m.heroBanner);
-    if (Array.isArray(m.heroGrid))
-      for (const v of m.heroGrid) if (typeof v === 'string') urls.add(v);
-    if (m.sectionVideos && typeof m.sectionVideos === 'object') {
-      for (const v of Object.values(m.sectionVideos)) if (typeof v === 'string') urls.add(v);
-    }
-  };
-  collect(media.de);
-  collect(media.en);
-  collect(media); // alte, sprachunabhängige Struktur
+  const urls = collectUploadRefs(media);
   const repoUploads = resolve(config.repoDir, 'public/uploads');
   for (const url of urls) {
     if (!url.startsWith('/uploads/')) continue;
