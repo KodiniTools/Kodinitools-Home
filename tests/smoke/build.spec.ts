@@ -206,7 +206,29 @@ describe.each(['blog/search-index.json', 'en/blog/search-index.json'])('%s', (fi
   });
 });
 
+describe.each([...pages, '404.html'])('Zeichensatz in %s', (file) => {
+  // Lighthouse „Best Practices": <meta charset> muss in den ersten 1024 Byte stehen.
+  it('deklariert UTF-8 in den ersten 1024 Byte', () => {
+    const first = readFileSync(join(DIST, file)).subarray(0, 1024).toString('utf8');
+    expect(first).toMatch(/<meta charset="utf-8"\s*\/?>/i);
+  });
+});
+
 describe.each(pages)('Bild-URLs in %s', (file) => {
+  it('verweist nur auf vorhandene /uploads-Bilder (kein 404 in der Konsole)', () => {
+    const html = read(file);
+    const refs = new Set(
+      // Nur direkte Verweise (nach Anführungszeichen, Leerraum, Komma oder „(“),
+      // nicht die verkleinerten Fassungen unter /_astro/rsz/…/uploads/….
+      [
+        ...html.matchAll(
+          /(?<=["'(\s,])\/uploads\/[\w./-]+?\.(?:png|jpe?g|webp|avif|gif|svg)(?=["')\s,])/g,
+        ),
+      ].map((m) => m[0]),
+    );
+    for (const ref of refs) expect(allFiles, ref).toContain(ref.slice(1));
+  });
+
   it('og:image, twitter:image und JSON-LD-Bilder zeigen auf gebaute Dateien', () => {
     const html = read(file);
     const urls = [
@@ -286,7 +308,10 @@ describe('Navigation (Tablet-Breite)', () => {
     '%s schaltet erst ab 1180px auf die volle Leiste um',
     (file) => {
       const html = read(file);
-      const rule = /@media\s*\(max-width:\s*(\d+)px\)\s*\{[^@]*?\.global-nav-hamburger\[[^\]]*\]\{display:flex\}/.exec(html);
+      const rule =
+        /@media\s*\(max-width:\s*(\d+)px\)\s*\{[^@]*?\.global-nav-hamburger\[[^\]]*\]\{display:flex\}/.exec(
+          html,
+        );
       expect(rule, 'Media-Query des Hamburger-Menüs').not.toBeNull();
       expect(Number(rule?.[1])).toBeGreaterThanOrEqual(1180);
     },
@@ -315,7 +340,9 @@ describe('Navigation (Favicon Konverter)', () => {
     ['en/index.html', 'Favicon Converter'],
   ])('%s führt den Favicon Konverter im Tools-Menü', (file, label) => {
     const html = read(file);
-    const at = html.indexOf('<a href="https://kodinitools.com/favicon-tool/" class="global-nav-dropdown-item"');
+    const at = html.indexOf(
+      '<a href="https://kodinitools.com/favicon-tool/" class="global-nav-dropdown-item"',
+    );
     expect(at, 'Favicon-Link').toBeGreaterThan(-1);
     expect(html.indexOf(`>${label}</a>`, at)).toBeGreaterThan(at);
     // Steht hinter dem Texteditor, also im selben Dropdown „Tools“.

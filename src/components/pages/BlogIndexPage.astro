@@ -60,6 +60,8 @@ const isGridScrollable = cards.length >= SCROLL_FROM_POSTS
 <!DOCTYPE html>
 <html lang={lang} class="kt-a11y">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script is:inline>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);} // eslint-disable-line prefer-rest-params -- offizielles Google-Snippet, arguments bewusst
@@ -78,8 +80,6 @@ const isGridScrollable = cards.length >= SCROLL_FROM_POSTS
   </script>
   <script is:inline>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});const f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-T7NS656K');</script>
 
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{t.title}</title>
   <meta name="description" content={t.description} />
   <meta name="robots" content="index, follow" />
@@ -373,7 +373,6 @@ const isGridScrollable = cards.length >= SCROLL_FROM_POSTS
       .blog-featured-card { grid-template-columns: 1fr; }
       .blog-featured-media { min-height: 160px; }
     }
-
 
     /* Regular post with image preview (same layout as featured card, sits inside the grid) */
     .blog-featured-card.blog-card-image {
