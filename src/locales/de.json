@@ -104,7 +104,7 @@
     },
     "interactiveEqualizer": {
       "title": "Interaktiver Audio Equalizer",
-      "description": "Bearbeiten Sie Ihre Audiodateien mit einem intuitiven grafischen Equalizer. Echtzeit-Vorschau und Export.",
+      "description": "Passen Sie den Klang Ihrer Musik mit einem grafischen 15-Band-Equalizer an. Echtzeit-Wiedergabe, Presets und Visualisierung.",
       "badge": "Interaktiv",
       "processing": "browser",
       "link": "https://kodinitools.com/audioequalizer/",
@@ -128,7 +128,7 @@
     },
     "alarmTool": {
       "title": "Alarmtool",
-      "description": "Zuverlässiges Alarm-Tool für Erinnerungen und Wecker. Mit individuellen Audio-Dateien.",
+      "description": "Eigene Alarmtöne im Browser gestalten: Oszillatoren, Filter und Hüllkurve. Aufnahme als MP3 oder WAV.",
       "badge": "Alarm",
       "processing": "browser",
       "link": "https://kodinitools.com/alarmtool/",
@@ -368,7 +368,7 @@
           "description": "Der Interaktive Audio Equalizer macht Klangbearbeitung spielend einfach. Mit seiner intuitiven grafischen Oberfläche sehen Sie Ihre Änderungen und hören sie in Echtzeit. Ideal für alle, die einen einfachen Einstieg in die Welt der Audiobearbeitung suchen.",
           "feature1": "Intuitive grafische Benutzeroberfläche",
           "feature2": "Echtzeit-Vorschau aller Änderungen",
-          "feature3": "Einfacher Export der bearbeiteten Dateien",
+          "feature3": "Presets, Visualisierung und Playlist",
           "usecase": "Ideal für Einsteiger, die ihre ersten Schritte in der Audiobearbeitung machen, ohne von komplexen Interfaces überwältigt zu werden."
         },
         "modernPlayer": {
@@ -389,11 +389,11 @@
         },
         "alarmTool": {
           "title": "Alarmtool",
-          "description": "Vergessen Sie langweilige Standard-Wecker! Mit dem Alarmtool erstellen Sie individuelle Erinnerungen mit Ihren eigenen Audiodateien. Ob als Wecker mit Ihrem Lieblingssong oder als Erinnerung für wichtige Termine – dieses Tool macht den Unterschied.",
-          "feature1": "Benutzerdefinierte Alarmtöne mit eigenen Audio-Dateien",
-          "feature2": "Flexible Timer-Einstellungen",
-          "feature3": "Mehrere Alarme gleichzeitig verwalten",
-          "usecase": "Perfekt für alle, die personalisierte Erinnerungen mit ihren Lieblingssongs oder eigenen Aufnahmen erstellen möchten."
+          "description": "Vergessen Sie langweilige Standard-Töne! Mit dem Alarmtool gestalten Sie eigene Alarm- und Signaltöne direkt im Browser. Mehrere Oszillatoren, Filter und eine ADSR-Hüllkurve formen den Klang, die Aufnahmefunktion speichert das Ergebnis als Audiodatei.",
+          "feature1": "Mehrere Oszillatoren mit wählbarer Wellenform",
+          "feature2": "Filter und ADSR-Hüllkurve",
+          "feature3": "Aufnahme und Download als MP3 oder WAV",
+          "usecase": "Perfekt für alle, die einen unverwechselbaren Alarm-, Signal- oder Benachrichtigungston erstellen möchten."
         },
         "audioNormalizer": {
           "title": "Audio Normalizer",

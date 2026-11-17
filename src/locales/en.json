@@ -104,7 +104,7 @@
     },
     "interactiveEqualizer": {
       "title": "Interactive Audio Equalizer",
-      "description": "Edit your audio files with an intuitive graphical equalizer. Real-time preview and export.",
+      "description": "Shape the sound of your music with a graphical 15-band equalizer. Real-time playback, presets and visualization.",
       "badge": "Interactive",
       "processing": "browser",
       "link": "https://kodinitools.com/audioequalizer/",
@@ -128,7 +128,7 @@
     },
     "alarmTool": {
       "title": "Alarm Tool",
-      "description": "Reliable alarm tool for reminders and alarms. With custom audio files.",
+      "description": "Design your own alarm sounds in the browser: oscillators, filters and envelope. Record as MP3 or WAV.",
       "badge": "Alarm",
       "processing": "browser",
       "link": "https://kodinitools.com/alarmtool/",
@@ -368,7 +368,7 @@
           "description": "The Interactive Audio Equalizer makes sound editing a breeze. With its intuitive graphical interface, you can see your changes and hear them in real-time. Ideal for anyone looking for an easy introduction to the world of audio editing.",
           "feature1": "Intuitive graphical user interface",
           "feature2": "Real-time preview of all changes",
-          "feature3": "Easy export of edited files",
+          "feature3": "Presets, visualization and playlist",
           "usecase": "Ideal for beginners taking their first steps in audio editing without being overwhelmed by complex interfaces."
         },
         "modernPlayer": {
@@ -389,11 +389,11 @@
         },
         "alarmTool": {
           "title": "Alarm Tool",
-          "description": "Forget boring standard alarms! With the Alarm Tool, you create individual reminders with your own audio files. Whether as an alarm clock with your favorite song or as a reminder for important appointments – this tool makes the difference.",
-          "feature1": "Custom alarm sounds with your own audio files",
-          "feature2": "Flexible timer settings",
-          "feature3": "Manage multiple alarms simultaneously",
-          "usecase": "Perfect for anyone who wants to create personalized reminders with their favorite songs or own recordings."
+          "description": "Forget boring standard tones! With the Alarm Tool, you design your own alarm and signal sounds right in your browser. Multiple oscillators, filters and an ADSR envelope shape the sound, and the recording function saves the result as an audio file.",
+          "feature1": "Multiple oscillators with selectable waveform",
+          "feature2": "Filters and ADSR envelope",
+          "feature3": "Recording and download as MP3 or WAV",
+          "usecase": "Perfect for anyone who wants to create a distinctive alarm, signal or notification sound."
         },
         "audioNormalizer": {
           "title": "Audio Normalizer",

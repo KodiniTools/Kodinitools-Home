@@ -153,8 +153,8 @@ export const HOME_SCHEMA_TOOLS: {
     url: 'https://kodinitools.com/alarmtool/',
     name: { de: 'Alarmtool', en: 'Alarm Tool' },
     description: {
-      de: 'Online Wecker mit eigener Musik. Interaktiver Online Timer mit Audio-Benachrichtigung.',
-      en: 'Online alarm clock with custom music. Interactive online timer with audio notification.',
+      de: 'Alarmton-Generator online: eigene Alarm- und Signaltöne mit Oszillatoren, Filter und Hüllkurve erstellen und aufnehmen.',
+      en: 'Online alarm sound generator: create and record custom alarm and signal tones with oscillators, filters and envelope.',
     },
   },
   {
