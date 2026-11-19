@@ -1,3 +1,4 @@
+import type { PageMetaMap } from '../../../public/model-media';
 import type {
   ObjPath,
   TextAnim,
@@ -24,6 +25,8 @@ export interface TextStyleHost {
   textStyles?: Record<string, TextStyleEntry & { color?: string }>;
   textStyleUniform?: boolean;
   textStyleUniformKey?: string;
+  /** Seiten-Meta derselben Sprache (`media.<lang>.pageMeta`). */
+  pageMeta?: PageMetaMap;
 }
 
 /** Text-Slot des Tabs: Override-Pfad, Stil-Schlüssel, Beschriftung. */

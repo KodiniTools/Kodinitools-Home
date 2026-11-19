@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css'
-import { getSiteFontStyle, getSiteBackgroundStyle } from '../content/content'
+import { getSiteFontStyle, getSiteBackgroundStyle, pageMetaFor } from '../content/content'
 import { alternates, HOME_PATH, OG_LOCALE, SITE, type Lang } from '../i18n/lang'
 import { HOME_SCHEMA_TOOLS, HOME_SEO } from '../i18n/home-seo'
 
@@ -12,7 +12,15 @@ interface Props {
 }
 
 const { lang, preloadFonts = [] } = Astro.props
-const seo = HOME_SEO[lang]
+const pm = pageMetaFor(lang, 'home')
+// Admin > Texte > Seiten-Meta überschreibt Titel/Beschreibung (auch Open Graph/Twitter); leer = Standard.
+const seo = {
+  ...HOME_SEO[lang],
+  ...(pm.title ? { title: pm.title, metaTitle: pm.title, ogTitle: pm.title, twitterTitle: pm.title } : {}),
+  ...(pm.description
+    ? { description: pm.description, ogDescription: pm.description, twitterDescription: pm.description }
+    : {}),
+}
 const pageUrl = `${SITE}${HOME_PATH[lang]}`
 const alt = alternates(HOME_PATH)
 // Kostenlos; Währung einheitlich CHF (Sitz in der Schweiz), unabhängig von der Seitensprache.

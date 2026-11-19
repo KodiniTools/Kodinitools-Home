@@ -107,6 +107,18 @@
           <p v-if="!r.ok" class="ai-err">{{ r.customId ? r.customId + ': ' : '' }}{{ r.error }}</p>
           <template v-else>
             <pre class="ai-pre">{{ resultToText(resultTask, r.data) }}</pre>
+            <div v-if="resultTask === 'seo' && onApplySeo" class="ai-row" data-ai-seo-apply>
+              <UiSelect
+                v-model="seoTarget"
+                :label="`Übernehmen für Seite (${resultLang.toUpperCase()})`"
+                size="sm"
+                :options="SEO_PAGE_OPTIONS"
+                data-ai-seo-target
+              />
+              <UiButton size="sm" variant="primary" data-ai-seo-use @click="applySeo(r)"
+                >In Seiten-Meta übernehmen</UiButton
+              >
+            </div>
             <UiButton size="sm" data-ai-copy @click="copy(r)">Kopieren</UiButton>
             <span class="hint ai-m0">{{ formatUsd(r.costUsd) }}</span>
           </template>
@@ -127,6 +139,8 @@ import {
   UiTextField,
 } from '../../components/ui';
 import { useToastStore } from '../../stores/toast';
+import { PAGE_META_KEYS, type PageMetaKey } from '../../../public/model-media';
+import { PAGE_META_LABEL } from './pageMeta';
 import {
   cancelAiBatch,
   createAiBatch,
@@ -151,7 +165,27 @@ import {
  * Lädt erst nach dem Öffnen; ändert keine Inhalte der Seite, Ergebnisse sind
  * Vorschläge zum Kopieren.
  */
+const props = defineProps<{
+  /** SEO-Vorschlag in die Seiten-Meta der Sprache schreiben (nur Entwurf). */
+  onApplySeo?: (
+    lang: 'de' | 'en',
+    page: PageMetaKey,
+    values: { title: string; description: string; h1: string },
+  ) => void;
+}>();
 const toasts = useToastStore();
+const SEO_PAGE_OPTIONS = PAGE_META_KEYS.map((k) => ({ value: k, label: PAGE_META_LABEL[k] }));
+const seoTarget = ref<PageMetaKey>('home');
+/** Sprache, in der die angezeigten Ergebnisse erzeugt wurden. */
+const resultLang = ref<'de' | 'en'>('de');
+function applySeo(r: AiResult) {
+  const s = (k: string) => String(r.data?.[k] ?? '');
+  props.onApplySeo?.(resultLang.value, seoTarget.value, {
+    title: s('title'),
+    description: s('description'),
+    h1: s('h1'),
+  });
+}
 
 const EFFORT_OPTIONS = [
   { value: 'low', label: 'Niedrig (schneller, günstiger)' },
@@ -208,6 +242,8 @@ type Job = {
   id: string;
   model: string;
   task: AiTask;
+  /** Sprache der Einträge (ältere gespeicherte Jobs: unbekannt). */
+  lang?: 'de' | 'en';
   status: string;
   counts?: Record<string, number>;
 };
@@ -291,6 +327,7 @@ async function submit() {
       const r = await runAi(sel, currentInput());
       if (!r.ok) return void (formError.value = r.error);
       resultTask.value = sel.task;
+      resultLang.value = lang.value;
       results.value = [r.data];
       totalCost.value = r.data.costUsd ?? 0;
       return;
@@ -307,7 +344,13 @@ async function submit() {
     }
     const r = await createAiBatch(sel, items);
     if (!r.ok) return void (formError.value = r.error);
-    job.value = { id: r.data.id, model: sel.model, task: sel.task, status: r.data.status };
+    job.value = {
+      id: r.data.id,
+      model: sel.model,
+      task: sel.task,
+      lang: lang.value,
+      status: r.data.status,
+    };
     results.value = [];
     saveJob();
     startPolling();
@@ -336,6 +379,7 @@ async function checkJob() {
       return;
     }
     resultTask.value = j.task;
+    resultLang.value = j.lang ?? lang.value;
     results.value = res.data.results;
     totalCost.value = res.data.totalCostUsd;
   }

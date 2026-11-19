@@ -74,6 +74,7 @@ export function defaultMediaLocale() {
     heroBannerShow: true, // Einzelbanner ein-/ausgeblendet (Tab „Layout“)
     heroMediaOffsetX: 0, // Verschiebung des Hero-Mediums (Banner/Raster) in px
     heroMediaOffsetY: 0,
+    pageMeta: {} as PageMetaMap, // Seiten-Meta je Seite (Titel, Beschreibung, H1)
     imageAlt: {} as Record<string, string>, // Alt-Texte hochgeladener Bilder (Schlüssel = URL)
     toolCardOffsets: {} as Record<string, ToolCardOffset>, // Verschiebung je Tool-Karte { 'sektion.key': { x, y } } (px, nur ≠ 0)
     heroBannerText: '', // Text über dem Einzelbanner
@@ -144,6 +145,52 @@ export function normCardScale(v: unknown): number {
     ? Math.max(CARD_SCALE_MIN, Math.min(CARD_SCALE_MAX, Math.round(n)))
     : 100;
 }
+/** Seiten mit einstellbaren Meta-Daten (wie `PAGE_META_KEYS` auf Seite und Server). */
+export const PAGE_META_KEYS = ['home', 'faq', 'donate', 'imprint', 'blog'] as const;
+export type PageMetaKey = (typeof PAGE_META_KEYS)[number];
+export type PageMetaField = 'title' | 'description' | 'h1';
+export type PageMetaMap = Partial<Record<PageMetaKey, Partial<Record<PageMetaField, string>>>>;
+export const PAGE_META_MAX: Record<PageMetaField, number> = {
+  title: 70,
+  description: 200,
+  h1: 120,
+};
+/** Hat die Seite dieses Feld? (Start-H1 = Hero-Titel im Tab „Hero-Design“.) */
+export const pageMetaHas = (page: PageMetaKey, f: PageMetaField) =>
+  !(page === 'home' && f === 'h1');
+/** Seiten-Meta normalisieren: nur bekannte Seiten/Felder, einzeilig, gekürzt, leere entfallen. */
+export function normPageMeta(v: RawJson): PageMetaMap {
+  const out: PageMetaMap = {};
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return out;
+  for (const page of PAGE_META_KEYS) {
+    const e = v[page];
+    if (!e || typeof e !== 'object' || Array.isArray(e)) continue;
+    const res: Partial<Record<PageMetaField, string>> = {};
+    for (const f of ['title', 'description', 'h1'] as const) {
+      if (!pageMetaHas(page, f)) continue;
+      const t =
+        typeof e[f] === 'string' ? e[f].replace(/\s+/g, ' ').trim().slice(0, PAGE_META_MAX[f]) : '';
+      if (t) res[f] = t;
+    }
+    if (Object.keys(res).length) out[page] = res;
+  }
+  return out;
+}
+/** Ein Feld der Seiten-Meta setzen ('' = entfernen → Standard der Seite). Nur Entwurf. */
+export function setPageMeta(
+  host: { pageMeta?: PageMetaMap },
+  page: PageMetaKey,
+  f: PageMetaField,
+  text: string,
+): void {
+  if (!pageMetaHas(page, f)) return;
+  const t = String(text).replace(/\s+/g, ' ').trim().slice(0, PAGE_META_MAX[f]);
+  if (!host.pageMeta || typeof host.pageMeta !== 'object') host.pageMeta = {};
+  const e = (host.pageMeta[page] ??= {});
+  if (t) e[f] = t;
+  else delete e[f];
+  if (!Object.keys(e).length) delete host.pageMeta[page];
+}
 /** Alt-Texte je Bild-URL: nur Text-Werte, getrimmt, leere entfallen, max. 300. */
 export function normImageAlt(v: RawJson): Record<string, string> {
   const out: Record<string, string> = {};
@@ -198,6 +245,7 @@ export function normalizeMedia(m: RawJson) {
       heroMediaOffsetY: normMediaOffset(o?.heroMediaOffsetY, 'y'),
       toolCardOffsets: normToolCardOffsets(o?.toolCardOffsets),
       imageAlt: normImageAlt(o?.imageAlt),
+      pageMeta: normPageMeta(o?.pageMeta),
       heroBannerText: typeof o?.heroBannerText === 'string' ? o.heroBannerText : '',
       heroBannerFont: normFontFile(o?.heroBannerFont),
       heroBannerTextColor: /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(o?.heroBannerTextColor))

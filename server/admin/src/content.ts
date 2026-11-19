@@ -526,6 +526,7 @@ function defaultMediaLocale() {
     heroMediaOffsetY: 0,
     toolCardOffsets: {},
     imageAlt: {},
+    pageMeta: {},
     heroBannerLink: '',
     heroBannerStyle: defaultBannerStyles(),
     heroBannerSlides: [],
@@ -840,6 +841,32 @@ function validateSlideList(arr: unknown, label: string) {
     if (!isValidMediaUrl(v)) throw new Error(`${label} ungültig`);
     out.push(v);
     if (out.length >= BANNER_SLIDES_MAX) break;
+  }
+  return out;
+}
+
+/** Seiten-Meta (Admin > Texte): je Seite Titel, Beschreibung, H1; leere Werte entfallen. */
+export const PAGE_META_KEYS = ['home', 'faq', 'donate', 'imprint', 'blog'] as const;
+export const PAGE_META_MAX = { title: 70, description: 200, h1: 120 } as const;
+function validatePageMeta(v: unknown, langLabel: string) {
+  const out: Record<string, Record<string, string>> = {};
+  if (v == null) return out;
+  if (!isPlainObject(v)) throw new Error(`media.${langLabel}.pageMeta muss ein Objekt sein`);
+  for (const page of PAGE_META_KEYS) {
+    const e = v[page];
+    if (e == null) continue;
+    if (!isPlainObject(e)) throw new Error(`media.${langLabel}.pageMeta.${page} ungültig`);
+    const res: Record<string, string> = {};
+    for (const f of ['title', 'description', 'h1'] as const) {
+      if (page === 'home' && f === 'h1') continue;
+      const t = typeof e[f] === 'string' ? e[f].replace(/\s+/g, ' ').trim() : '';
+      if (t.length > PAGE_META_MAX[f])
+        throw new Error(
+          `media.${langLabel}.pageMeta.${page}.${f} zu lang (max. ${PAGE_META_MAX[f]})`,
+        );
+      if (t) res[f] = t;
+    }
+    if (Object.keys(res).length) out[page] = res;
   }
   return out;
 }
@@ -1197,6 +1224,7 @@ function validateMediaLocale(m: unknown, langLabel: string): AnyObj {
     return res;
   })();
   out.imageAlt = validateImageAlt(m.imageAlt, langLabel);
+  out.pageMeta = validatePageMeta(m.pageMeta, langLabel);
   out.heroBanner = '';
   if (m.heroBanner != null && m.heroBanner !== '') {
     if (!isValidMediaUrl(m.heroBanner)) throw new Error(`media.${langLabel}.heroBanner ungültig`);
