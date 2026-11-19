@@ -13,8 +13,10 @@ import {
  * (Whitelist, auf dem Server im Prompt gespiegelt). Geschrieben wird über
  * `setBannerText`, das Werte begrenzt; Auswahlwerte und Farben werden vorher geprüft.
  */
-type Kind = 'anim' | 'speed' | 'int' | 'color';
+type Kind = 'anim' | 'speed' | 'int' | 'color' | 'text' | 'link';
 const FIELDS: Record<string, { kind: Kind; label: string; min?: number; max?: number }> = {
+  text: { kind: 'text', label: 'Banner-Text (echter Text auf dem Banner)' },
+  bannerLink: { kind: 'link', label: 'Banner-Verlinkung' },
   textAnim: { kind: 'anim', label: 'Banner-Text: Animation' },
   textAnimSpeed: { kind: 'speed', label: 'Banner-Text: Animationsgeschwindigkeit' },
   textAnimIntensity: {
@@ -33,9 +35,11 @@ const FIELDS: Record<string, { kind: Kind; label: string; min?: number; max?: nu
   textColor: { kind: 'color', label: 'Banner-Text: Farbe' },
 };
 const HEX = /^#[0-9a-fA-F]{6}$/;
+const MAX_TEXT = 120;
+const MAX_LINK = 300;
 
 export interface ResolvedLayoutChange {
-  field: BannerTextField;
+  field: BannerTextField | 'bannerLink';
   label: string;
   value: string;
 }
@@ -54,6 +58,16 @@ export function resolveLayoutChange(c: AiChange): ResolvedLayoutChange | null {
       if (!(raw in ANIM_SPEED_LABEL)) return null;
       value = raw;
       break;
+    case 'text':
+      if (!raw || raw.length > MAX_TEXT || /[<>]/.test(raw)) return null;
+      value = raw;
+      break;
+    case 'link':
+      // Intern („/pfad“, nicht „//host“) oder https; wie die Verlinkung im Tab.
+      if (raw.length > MAX_LINK || /\s/.test(raw)) return null;
+      if (!(/^\/(?!\/)/.test(raw) || /^https:\/\/[^\s/]+/i.test(raw))) return null;
+      value = raw;
+      break;
     case 'color':
       if (!HEX.test(raw)) return null;
       value = raw.toLowerCase();
@@ -63,14 +77,23 @@ export function resolveLayoutChange(c: AiChange): ResolvedLayoutChange | null {
       value = String(Math.max(def.min ?? 0, Math.min(def.max ?? 100, Math.round(Number(raw)))));
     }
   }
-  return { field: c.field as BannerTextField, label: def.label, value };
+  return { field: c.field as ResolvedLayoutChange['field'], label: def.label, value };
 }
 
-export function describeLayoutCurrent(t: BannerText, r: ResolvedLayoutChange): string {
+export function describeLayoutCurrent(
+  t: BannerText,
+  r: ResolvedLayoutChange,
+  m?: BannerHost,
+): string {
+  if (r.field === 'bannerLink') return m?.heroBannerLink || '(leer)';
   const v = (t as unknown as Record<string, unknown>)[r.field];
   return v === undefined || v === '' ? '–' : String(v);
 }
 
 export function applyLayoutChange(m: BannerHost, r: ResolvedLayoutChange): void {
+  if (r.field === 'bannerLink') {
+    m.heroBannerLink = r.value;
+    return;
+  }
   setBannerText(m, r.field, r.value);
 }

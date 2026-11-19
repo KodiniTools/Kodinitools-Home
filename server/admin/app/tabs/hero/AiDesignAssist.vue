@@ -131,6 +131,8 @@ const props = defineProps<{
   getCurrent: () => string;
   /** Prüft einen Änderungsvorschlag der KI; nur Bereiche mit sicherem Anwenden setzen das. */
   resolve?: (c: AiChange) => Applicable | null;
+  /** Sprache des Tabs (für Texte der KI). */
+  lang?: 'de' | 'en';
   /** Hinweis über der Anwenden-Liste (z. B. „Funktion ist aus“). */
   applyNote?: string;
 }>();
@@ -202,7 +204,12 @@ async function run() {
   }
   if (current.length > MAX_CURRENT) current = current.slice(0, MAX_CURRENT);
   applied.value = new Set();
-  await ai.run({ area: props.area, goal: goal.value, current });
+  await ai.run({
+    area: props.area,
+    goal: goal.value,
+    current,
+    ...(props.lang ? { lang: props.lang } : {}),
+  });
 }
 
 async function copy(text: string) {

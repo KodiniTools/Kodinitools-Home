@@ -16,6 +16,7 @@
           </p>
           <AiDesignAssist
             area="hero"
+            :lang="service.lang"
             :get-current="aiCurrent"
             :resolve="aiResolve"
             :apply-note="
@@ -197,7 +198,13 @@ import {
 import { hdUi } from './heroUi';
 import { provideHero } from './useHero';
 import AiDesignAssist, { type Applicable } from './AiDesignAssist.vue';
-import { applyResolved, describeCurrent, resolveChange, type AiChange } from './aiHero';
+import {
+  applyResolved,
+  describeCurrent,
+  describeNext,
+  resolveChange,
+  type AiChange,
+} from './aiHero';
 
 /**
  * Tab „Hero-Design“ (je Sprache, Vue-Fassung von `renderHeroDesign` in
@@ -212,15 +219,15 @@ const props = defineProps<{ service: HeroService }>();
 const { view, change, toast } = provideHero(props.service);
 const aiCurrent = () => JSON.stringify(view.value.hd);
 function aiResolve(c: AiChange): Applicable | null {
-  const r = resolveChange(c);
+  const r = resolveChange(
+    c,
+    view.value.feats.map((f) => f.key),
+  );
   if (!r) return null;
   return {
     label: r.label,
     current: describeCurrent(view.value.hd, r),
-    next:
-      r.kind === 'typo'
-        ? String(r.value)
-        : `${r.modes.map((m) => (m === 'light' ? 'Hell' : 'Dunkel')).join('/')} ${r.value}`,
+    next: describeNext(r),
     apply: () => applyResolved(view.value.hd, r),
   };
 }

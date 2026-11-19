@@ -146,3 +146,57 @@ describe('aiLayout', () => {
     expect(m.heroBannerTextAnimIntensity).toBe(2);
   });
 });
+
+describe('erweitertes Anwenden (Chips, Anzeigen, Link, Text)', () => {
+  const c = (field: string, value: string) => ({ field, value, mode: 'both', why: '' });
+  const chipDesign = () =>
+    ({
+      titleFontSize: 14,
+      showChips: true,
+      hiddenChips: ['free', 'privacy'],
+      light: {},
+      dark: {},
+    }) as unknown as HeroDesign;
+
+  it('blendet einzelne Chips ein/aus, nur für vorhandene Schlüssel', () => {
+    const keys = ['free', 'privacy', 'noInstall'];
+    expect(resolveChange(c('chip:unbekannt', 'true'), keys)).toBeNull();
+    expect(resolveChange(c('chip:free', 'vielleicht'), keys)).toBeNull();
+    const d = chipDesign();
+    const show = resolveChange(c('chip:free', 'true'), keys)!;
+    expect(describeCurrent(d, show)).toBe('ausgeblendet');
+    applyResolved(d, show);
+    expect(d.hiddenChips).toEqual(['privacy']);
+    applyResolved(d, resolveChange(c('chip:noInstall', 'false'), keys)!);
+    expect(d.hiddenChips).toEqual(['privacy', 'noInstall']);
+  });
+
+  it('Anzeigen-Schalter und Schriftgröße „0“ = Standard', () => {
+    const d = chipDesign();
+    applyResolved(d, resolveChange(c('showChips', 'false'))!);
+    expect(d.showChips).toBe(false);
+    const std = resolveChange(c('titleFontSize', '0'))!;
+    expect(std.value).toBe(0);
+    applyResolved(d, std);
+    expect(d.titleFontSize).toBe(0);
+    expect(describeCurrent(d, std)).toBe('Standard');
+    expect(resolveChange(c('showChips', 'x'))).toBeNull();
+  });
+
+  it('Layout: Link nur intern oder https, Text ohne HTML', () => {
+    expect(resolveLayoutChange(c('bannerLink', '/de/audiokonverter/'))?.value).toBe(
+      '/de/audiokonverter/',
+    );
+    expect(resolveLayoutChange(c('bannerLink', 'https://kodinitools.com/'))).not.toBeNull();
+    expect(resolveLayoutChange(c('bannerLink', '//evil.example'))).toBeNull();
+    expect(resolveLayoutChange(c('bannerLink', 'javascript:alert(1)'))).toBeNull();
+    expect(resolveLayoutChange(c('bannerLink', 'http://x.de'))).toBeNull();
+    expect(resolveLayoutChange(c('text', '<b>Hi</b>'))).toBeNull();
+    expect(resolveLayoutChange(c('text', 'x'.repeat(200)))).toBeNull();
+    const m: Record<string, unknown> = {};
+    applyLayoutChange(m, resolveLayoutChange(c('bannerLink', '/en/tools/'))!);
+    expect(m.heroBannerLink).toBe('/en/tools/');
+    applyLayoutChange(m, resolveLayoutChange(c('text', 'Kostenlose Browser-Tools'))!);
+    expect(m.heroBannerText).toBe('Kostenlose Browser-Tools');
+  });
+});
