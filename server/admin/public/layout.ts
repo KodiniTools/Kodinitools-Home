@@ -11,7 +11,7 @@
 
 import { $, fmtBytes } from './core';
 import { mountVueTab } from './islands';
-import { objUrl, openMediaPicker } from './media';
+import { objUrl, openMediaPicker, stageFile } from './media';
 import { ensureFontFace } from './fonts';
 import {
   state,
@@ -165,6 +165,7 @@ export function layoutService(lang: Lang): LayoutService {
     },
     setPage: (key, v) => PAGE_SET[key]?.(v),
     resolve: resolveMedia,
+    stageImage: async (file: File) => 'staged:' + (await stageFile(file, file.name)),
     // target: 'banner' | 'slide' | { cell: i } | { cellSlide: i }
     pick: (target: PickTarget, title: string, onPick: (url: string) => void) => {
       const srv = [lang, 'shared' as const].reduce(

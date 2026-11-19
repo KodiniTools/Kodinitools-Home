@@ -156,6 +156,49 @@ describe('AiImagePanel', () => {
   });
 });
 
+describe('AiImagePanel: direkt verwenden', () => {
+  it('ruft onUse mit Datei und Ziel auf, ohne add', async () => {
+    const png = btoa(String.fromCharCode(137, 80, 78, 71, 13, 10, 26, 10, 1, 2));
+    api.apiGet.mockResolvedValue({
+      ok: true,
+      data: {
+        configured: true,
+        defaultModel: 'm1',
+        aspectRatios: ['16:9', '21:9'],
+        models: [{ id: 'm1', label: 'M1', hint: 'h', sizes: ['1K'], usd: { '1K': 0.067 } }],
+      },
+    });
+    api.apiPost.mockResolvedValue({
+      ok: true,
+      data: { ok: true, model: 'm1', mime: 'image/png', data: png, bytes: 10 },
+    });
+    const onUse = vi.fn();
+    const w = mount(AiImagePanel, {
+      props: {
+        onUse,
+        useLabel: 'Als Banner verwenden',
+        defaultAspect: '21:9',
+        targets: [
+          { value: 'both', label: 'Beide' },
+          { value: 'dark', label: 'Dunkel' },
+        ],
+      },
+    });
+    await w.get('[data-aiimg-toggle]').trigger('click');
+    await flushPromises();
+    await w.get('textarea[data-aiimg-prompt]').setValue('Test');
+    await w.get('[data-aiimg-run]').trigger('click');
+    await flushPromises();
+    expect(api.apiPost.mock.calls[0]?.[1]).toMatchObject({ aspectRatio: '21:9' });
+    expect(w.get('[data-aiimg-use]').text()).toBe('Als Banner verwenden');
+    await w.get('[data-aiimg-use]').trigger('click');
+    await flushPromises();
+    expect(onUse).toHaveBeenCalledTimes(1);
+    expect(onUse.mock.calls[0]?.[0]).toBeInstanceOf(File);
+    expect(onUse.mock.calls[0]?.[1]).toBe('both');
+  });
+});
+
 describe('AiImagePanel: Prompt-Hilfe', () => {
   it('ersetzt den Prompt per Claude und stellt ihn auf Wunsch wieder her', async () => {
     api.apiGet.mockImplementation(async (path: string) =>

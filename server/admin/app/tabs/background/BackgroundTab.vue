@@ -114,6 +114,14 @@
             :resolve="aiResolve"
             apply-note="Änderungen gelten für die Seite (Hell/Dunkel wie vorgeschlagen). Bilder wählt die KI nie aus. Bild-Einstellungen wirken nur, wenn ein Hintergrundbild gesetzt ist."
           />
+          <AiImagePanel
+            v-if="service.stageImage"
+            :on-use="useAiImage"
+            :targets="IMG_TARGETS"
+            use-label="Als Hintergrundbild verwenden"
+            default-purpose="Seiten-Hintergrund"
+            default-aspect="16:9"
+          />
         </div>
 
         <!-- Abgesetzte Sektionen (allgemein) -->
@@ -246,6 +254,7 @@ import {
 } from '../../components/ui';
 import { useToastStore } from '../../stores/toast';
 import BgSide from './BgSide.vue';
+import AiImagePanel from '../files/AiImagePanel.vue';
 import AiDesignAssist, { type Applicable } from '../hero/AiDesignAssist.vue';
 import type { AiChange } from '../hero/aiHero';
 import { resolveBgChange } from './aiBackground';
@@ -289,6 +298,26 @@ const aiCurrent = () =>
     sectionGap: props.service.sectionGap(),
     fx: Object.fromEntries(props.service.fxList.map((f) => [f.key, props.service.fx(f.key)])),
   });
+const IMG_TARGETS = [
+  { value: 'both', label: 'Hell + Dunkel' },
+  { value: 'light', label: 'Nur Hell' },
+  { value: 'dark', label: 'Nur Dunkel' },
+];
+/** KI-Bild als Hintergrundbild (Entwurf, Strg+Z, Vorschau; Upload erst beim Veröffentlichen). */
+async function useAiImage(file: File, target: string) {
+  const url = await props.service.stageImage?.(file);
+  if (!url) return;
+  const modes: ThemeMode[] = target === 'light' || target === 'dark' ? [target] : ['light', 'dark'];
+  change(() => {
+    for (const m of modes) props.service.setBg(m, { image: url });
+  });
+  toasts.addToast(
+    'Als Hintergrundbild gesetzt (Entwurf) – mit Strg+Z rückgängig, in der Vorschau prüfen',
+    {
+      type: 'success',
+    },
+  );
+}
 function aiResolve(c: AiChange): Applicable | null {
   const r = resolveBgChange(c, props.service);
   if (!r) return null;

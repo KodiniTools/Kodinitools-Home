@@ -98,7 +98,17 @@
             data-aiimg-download
             >⬇ Original herunterladen</a
           >
-          <UiButton size="sm" data-aiimg-use @click="use">Zum Entwurf hinzufügen</UiButton>
+          <UiSelect
+            v-if="targets && targets.length > 1"
+            v-model="target"
+            label="Ziel"
+            size="sm"
+            :options="targets"
+            data-aiimg-target
+          />
+          <UiButton size="sm" data-aiimg-use @click="use">{{
+            useLabel ?? 'Zum Entwurf hinzufügen'
+          }}</UiButton>
         </div>
         <span class="hint ai-m0"
           >{{ image.mime }}, {{ Math.round(image.bytes / 1024) }} KB – ein neuer Klick auf „Bild
@@ -128,7 +138,17 @@ import {
  * KI-Bilder (Gemini) im Tab „Dateien“. Erzeugt nie automatisch: ein Klick = ein Bild.
  * „Zum Entwurf hinzufügen“ gibt die Originaldatei an den Zwischenspeicher (`add`).
  */
-const props = defineProps<{ add: (files: File[]) => void | Promise<void> }>();
+const props = defineProps<{
+  /** Tab Dateien: Datei in den Zwischenspeicher legen. */
+  add?: (files: File[]) => void | Promise<void>;
+  /** Andere Tabs: Bild direkt verwenden (Hintergrund, Banner); `target` = gewähltes Ziel. */
+  onUse?: (file: File, target: string) => void | Promise<void>;
+  useLabel?: string;
+  targets?: { value: string; label: string }[];
+  /** Voreinstellungen (Verwendung/Seitenverhältnis), z. B. fürs Banner. */
+  defaultPurpose?: string;
+  defaultAspect?: string;
+}>();
 
 const open = ref(false);
 const config = ref<GeminiConfig | null>(null);
@@ -137,7 +157,7 @@ const error = ref('');
 const busy = ref(false);
 const prompt = ref('');
 const model = ref('');
-const aspect = ref('16:9');
+const aspect = ref(props.defaultAspect ?? '16:9');
 const size = ref('1K');
 const image = ref<GeminiImage | null>(null);
 const fileName = ref('ki-bild.png');
@@ -170,7 +190,8 @@ const PURPOSES = [
   { value: 'Seiten-Hintergrund', label: 'Hintergrund' },
   { value: 'Bild für eine Tool-Karte', label: 'Tool-Karte' },
 ];
-const purpose = ref('');
+const purpose = ref(props.defaultPurpose ?? '');
+const target = ref(props.targets?.[0]?.value ?? '');
 const previous = ref<string | null>(null);
 const notes = ref('');
 
@@ -235,7 +256,10 @@ async function run() {
 }
 
 async function use() {
-  if (image.value) await props.add([imageToFile(image.value)]);
+  if (!image.value) return;
+  const file = imageToFile(image.value);
+  if (props.onUse) await props.onUse(file, target.value);
+  else await props.add?.([file]);
 }
 </script>
 
