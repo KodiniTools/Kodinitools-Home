@@ -9,7 +9,7 @@ export interface AiConfig {
   tasks: { id: AiTask; label: string; effort: string }[];
 }
 
-export type AiTask = 'seo' | 'compare' | 'blog';
+export type AiTask = 'seo' | 'compare' | 'blog' | 'alt';
 export type AiEffort = 'low' | 'medium' | 'high';
 
 /** Ein Ergebnis (Sofort-Aufruf oder Eintrag eines Batches). */
@@ -54,6 +54,7 @@ export function parseBatchBlocks(task: AiTask, lang: 'de' | 'en', raw: string): 
       }
       return { de: parts[0], en: parts[1] };
     }
+    if (task === 'alt') return { path: block };
     return { lang, topic: block };
   });
 }
@@ -82,6 +83,9 @@ export function resultToText(task: AiTask, data: Record<string, unknown> | undef
       )
       .join('\n');
     return `${s('verdict')}\n${list}`.trim();
+  }
+  if (task === 'alt') {
+    return `Alt DE: ${s('altDe')}\nAlt EN: ${s('altEn')}\nDateiname: ${s('filename')}${data.decorative ? '\n(dekorativ)' : ''}`;
   }
   return `# ${s('title')}\n\n${s('summary')}\n\n${s('markdown')}`;
 }

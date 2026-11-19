@@ -7,6 +7,7 @@ import { createPinia, setActivePinia } from 'pinia';
 const api = vi.hoisted(() => ({ apiGet: vi.fn(), apiPost: vi.fn() }));
 vi.mock('../../server/admin/app/lib/api', () => api);
 
+import AiAltPanel from '../../server/admin/app/tabs/files/AiAltPanel.vue';
 import AiPanel from '../../server/admin/app/tabs/texts/AiPanel.vue';
 import {
   formatUsd,
@@ -26,6 +27,7 @@ const CONFIG = {
     { id: 'seo', label: 'SEO-Vorschlag', effort: 'medium' },
     { id: 'compare', label: 'Vergleich', effort: 'medium' },
     { id: 'blog', label: 'Blog', effort: 'medium' },
+    { id: 'alt', label: 'Alt-Text', effort: 'low' },
   ],
 };
 
@@ -192,6 +194,105 @@ describe('AiPanel', () => {
     );
     expect(w.get('[data-ai-job-status]').text()).toContain('Fertig');
     expect(w.get('[data-ai-result]').text()).toContain('Titel: X');
+    w.unmount();
+  });
+});
+
+describe('AiAltPanel', () => {
+  const FILES = [
+    { path: 'de/a.png', ext: 'PNG' },
+    { path: 'de/v.mp4', ext: 'MP4' },
+    { path: 'b.webp', ext: 'WEBP' },
+  ];
+  beforeEach(() => {
+    setActivePinia(createPinia());
+    api.apiGet.mockReset();
+    api.apiPost.mockReset();
+    try {
+      localStorage.clear();
+    } catch {
+      /* egal */
+    }
+  });
+
+  it('bietet nur Bilder an und sendet den Pfad (Sofort)', async () => {
+    api.apiGet.mockResolvedValue({ ok: true, status: 200, data: CONFIG });
+    api.apiPost.mockResolvedValue({
+      ok: true,
+      status: 200,
+      data: {
+        ok: true,
+        costUsd: 0.004,
+        data: { decorative: false, altDe: 'Ein Logo', altEn: 'A logo', filename: 'logo' },
+      },
+    });
+    const w = mount(AiAltPanel, { props: { files: FILES } });
+    await w.get('[data-aialt-toggle]').trigger('click');
+    await flushPromises();
+    expect(
+      w
+        .get('[data-aialt-file]')
+        .findAll('option')
+        .map((o) => o.text()),
+    ).toEqual(['de/a.png', 'b.webp']);
+    await w.get('[data-aialt-run]').trigger('click');
+    await flushPromises();
+    expect(api.apiPost).toHaveBeenCalledWith('/ai/run', {
+      task: 'alt',
+      model: 'claude-opus-5-5',
+      effort: 'low',
+      input: { path: 'de/a.png' },
+    });
+    expect(w.get('[data-aialt-result]').text()).toContain('Alt DE: Ein Logo');
+  });
+
+  it('Batch: schickt alle Bilder und ordnet Ergebnisse den Pfaden zu', async () => {
+    api.apiGet.mockImplementation(async (path: string) => {
+      if (path === '/ai/config') return { ok: true, status: 200, data: CONFIG };
+      if (path.startsWith('/ai/batch/results')) {
+        return {
+          ok: true,
+          status: 200,
+          data: {
+            id: 'msgbatch_1',
+            totalCostUsd: 0.01,
+            results: [
+              {
+                ok: true,
+                customId: 'alt-1',
+                data: { decorative: true, altDe: '', altEn: '', filename: 'b' },
+              },
+              { ok: false, customId: 'alt-0', error: 'Datei nicht gefunden' },
+            ],
+          },
+        };
+      }
+      return { ok: true, status: 200, data: { id: 'msgbatch_1', status: 'ended', counts: {} } };
+    });
+    api.apiPost.mockResolvedValue({
+      ok: true,
+      status: 202,
+      data: { id: 'msgbatch_1', count: 2, status: 'in_progress' },
+    });
+    const w = mount(AiAltPanel, { props: { files: FILES } });
+    await w.get('[data-aialt-toggle]').trigger('click');
+    await flushPromises();
+    await w.get('[data-aialt-mode]').setValue('batch');
+    await w.get('[data-aialt-run]').trigger('click');
+    await flushPromises();
+    expect(api.apiPost).toHaveBeenCalledWith('/ai/batch', {
+      task: 'alt',
+      model: 'claude-opus-5-5',
+      effort: 'low',
+      items: [{ path: 'de/a.png' }, { path: 'b.webp' }],
+    });
+    await w.get('[data-aialt-check]').trigger('click');
+    await flushPromises();
+    const texts = w.findAll('[data-aialt-result]').map((r) => r.text());
+    expect(texts[0]).toContain('de/a.png');
+    expect(texts[0]).toContain('Datei nicht gefunden');
+    expect(texts[1]).toContain('b.webp');
+    expect(texts[1]).toContain('(dekorativ)');
     w.unmount();
   });
 });

@@ -81,7 +81,7 @@ export function estimateCostUsd(model: ModelId, usage: Usage, batch = false): nu
   return Math.round(usd * (batch ? 0.5 : 1) * 1e6) / 1e6;
 }
 
-export type TaskId = 'seo' | 'compare' | 'blog';
+export type TaskId = 'seo' | 'compare' | 'blog' | 'alt';
 
 export type TaskDef = {
   id: TaskId;
@@ -165,6 +165,29 @@ export const TASKS: Record<TaskId, TaskDef> = {
       additionalProperties: false,
     },
   },
+  alt: {
+    id: 'alt',
+    label: 'Alt-Text für ein Bild',
+    effort: 'low',
+    maxTokens: 2000,
+    system:
+      SITE_CONTEXT +
+      ' Aufgabe: Schreibe Alt-Texte für das Bild, auf Deutsch und Englisch. Je maximal 125 Zeichen, ' +
+      'beschreibe, was zu sehen ist und welche Funktion das Bild hat, ohne „Bild von“ oder „Foto von“. ' +
+      'Ist das Bild rein dekorativ, setze decorative auf true. Schlage zusätzlich einen sprechenden ' +
+      'Dateinamen vor (Kleinbuchstaben, Bindestriche, ohne Endung, max. 50 Zeichen).',
+    schema: {
+      type: 'object',
+      properties: {
+        decorative: { type: 'boolean' },
+        altDe: STR,
+        altEn: STR,
+        filename: STR,
+      },
+      required: ['decorative', 'altDe', 'altEn', 'filename'],
+      additionalProperties: false,
+    },
+  },
 };
 
 export function isTaskId(v: unknown): v is TaskId {
@@ -210,6 +233,10 @@ export function buildUserPrompt(task: TaskId, input: unknown): string {
     }
     case 'compare':
       return `Deutscher Text:\n${text(i.de, 'de')}\n\nEnglischer Text:\n${text(i.en, 'en')}`;
+    case 'alt':
+      return i.context
+        ? `Verwendung des Bildes: ${text(i.context, 'context')}`
+        : 'Beschreibe das Bild für einen Alt-Text.';
     case 'blog': {
       const parts = [
         `Sprache: ${lang(i.lang)}`,
@@ -221,9 +248,22 @@ export function buildUserPrompt(task: TaskId, input: unknown): string {
   }
 }
 
+/** Bild für Vision-Aufgaben (Base64). */
+export type ImageData = {
+  mediaType: 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif';
+  data: string;
+};
+
 /** Parameter einer Messages-Anfrage für eine Aufgabe (gleich für Sofort und Batch). */
-export function buildRequestParams(task: TaskId, model: ModelId, input: unknown, effort?: Effort) {
+export function buildRequestParams(
+  task: TaskId,
+  model: ModelId,
+  input: unknown,
+  effort?: Effort,
+  image?: ImageData,
+) {
   const def = TASKS[task];
+  const prompt = buildUserPrompt(task, input);
   return {
     model,
     max_tokens: def.maxTokens,
@@ -231,7 +271,20 @@ export function buildRequestParams(task: TaskId, model: ModelId, input: unknown,
     system: [
       { type: 'text' as const, text: def.system, cache_control: { type: 'ephemeral' as const } },
     ],
-    messages: [{ role: 'user' as const, content: buildUserPrompt(task, input) }],
+    messages: [
+      {
+        role: 'user' as const,
+        content: image
+          ? [
+              {
+                type: 'image' as const,
+                source: { type: 'base64' as const, media_type: image.mediaType, data: image.data },
+              },
+              { type: 'text' as const, text: prompt },
+            ]
+          : prompt,
+      },
+    ],
     output_config: {
       effort: effort ?? def.effort,
       format: { type: 'json_schema' as const, schema: def.schema },

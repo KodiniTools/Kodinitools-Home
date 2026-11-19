@@ -1,5 +1,9 @@
 /** KI-Modul des Admins: Auswahl, Prompts, Kosten, Schutz – ohne Netzwerk. */
 import { describe, expect, it, beforeEach } from 'vitest';
+import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { config } from '../../server/admin/src/config.js';
 import {
   MODELS,
   buildRequestParams,
@@ -14,6 +18,8 @@ import {
   parseSelection,
   resetThrottle,
   batchStatus,
+  loadUploadImage,
+  MAX_IMAGE_BYTES,
 } from '../../server/admin/src/ai.js';
 
 describe('aiTasks', () => {
@@ -107,7 +113,49 @@ describe('ai.ts', () => {
   it('aiConfig listet Modelle und Aufgaben; Batch-ID wird geprüft', async () => {
     const c = aiConfig();
     expect(c.models).toHaveLength(3);
-    expect(c.tasks.map((t) => t.id)).toEqual(['seo', 'compare', 'blog']);
+    expect(c.tasks.map((t) => t.id)).toEqual(['seo', 'compare', 'blog', 'alt']);
     await expect(batchStatus('../etc')).rejects.toThrow(/Batch-ID/);
+  });
+});
+
+describe('Alt-Text (Vision)', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'kdt-uploads-'));
+  mkdirSync(join(dir, 'de'));
+  writeFileSync(join(dir, 'de', 'a.png'), Buffer.from([1, 2, 3]));
+  writeFileSync(join(dir, 'de', 'v.svg'), '<svg/>');
+  writeFileSync(join(dir, 'de', 'big.jpg'), Buffer.alloc(MAX_IMAGE_BYTES + 1));
+  const old = config.uploadsDir;
+  beforeEach(() => {
+    config.uploadsDir = dir;
+  });
+
+  it('lädt Bilder nur aus dem Uploads-Ordner, nur Bildformate, mit Größenlimit', async () => {
+    const img = await loadUploadImage('de/a.png');
+    expect(img).toEqual({
+      mediaType: 'image/png',
+      data: Buffer.from([1, 2, 3]).toString('base64'),
+    });
+    await expect(loadUploadImage('../etc/passwd')).rejects.toThrow(/Ungültiger/);
+    await expect(loadUploadImage('de/../a.png')).rejects.toThrow(/Ungültiger/);
+    await expect(loadUploadImage('de/v.svg')).rejects.toThrow(/JPG, PNG/);
+    await expect(loadUploadImage('de/big.jpg')).rejects.toThrow(/4,5 MB/);
+    await expect(loadUploadImage('de/fehlt.png')).rejects.toThrow(/nicht gefunden/);
+    await expect(loadUploadImage(undefined)).rejects.toThrow(/Ungültiger/);
+    config.uploadsDir = old;
+  });
+
+  it('baut die Anfrage mit Bild-Block vor dem Text', () => {
+    const p = buildRequestParams(
+      'alt',
+      'claude-haiku-5-5',
+      { path: 'de/a.png', context: 'Hero-Banner' },
+      undefined,
+      { mediaType: 'image/png', data: 'AAAA' },
+    );
+    const content = p.messages[0]!.content as Array<{ type: string; text?: string }>;
+    expect(content.map((c) => c.type)).toEqual(['image', 'text']);
+    expect(content[1]!.text).toContain('Hero-Banner');
+    expect(p.output_config.effort).toBe('low');
+    expect(aiConfig().tasks.map((t) => t.id)).toContain('alt');
   });
 });
