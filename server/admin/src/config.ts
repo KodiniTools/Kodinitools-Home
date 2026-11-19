@@ -53,6 +53,10 @@ export const config = {
   loginMaxAttempts: int('LOGIN_MAX_ATTEMPTS', 8),
   loginWindowMs: int('LOGIN_WINDOW_MS', 15 * 60 * 1000),
 
+  // KI (Anthropic). Schlüssel nur per Umgebung; Aufrufe/Minute als Schutz vor Schleifen (0 = aus).
+  anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
+  aiMaxPerMinute: int('AI_MAX_PER_MINUTE', 20),
+
   isProd: process.env.NODE_ENV === 'production',
 };
 

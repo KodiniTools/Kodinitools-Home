@@ -204,3 +204,16 @@ der alte Prozess kennt sie nicht → **„Unbekannter Endpunkt"**.
 
 Eine Zeile in [`../deploy-protect.txt`](../deploy-protect.txt) hinzufügen
 (z. B. `neues-tool/`), damit der Deploy ihn nicht löscht.
+
+## KI im Admin (Anthropic)
+
+In `/opt/kodini/.env` setzen und den Dienst neu starten:
+
+```
+ANTHROPIC_API_KEY=sk-ant-...      # nur hier, nie im Repo
+AI_MAX_PER_MINUTE=20              # Schutz vor Schleifen, 0 = aus (kein Budgetlimit)
+```
+
+Ohne Schlüssel antworten die Endpunkte `/api/ai/*` mit 503. Es gehen nur Admin-Inhalte an die API
+(USA), keine Besucherdaten. Modellwahl (Opus/Sonnet/Haiku) und Batch (50 % günstiger) wählt der Aufrufer
+je Anfrage; echte Kosten stehen in der Anthropic Console.

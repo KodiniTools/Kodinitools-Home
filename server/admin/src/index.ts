@@ -24,6 +24,7 @@ import { listFontAwesome } from './fontawesome.js';
 import { startPublish, getPublishState } from './publish.js';
 import { startPreview, getPreviewState, PREVIEW_DIR } from './preview.js';
 import { serverCodeChanged } from './codeupdate.js';
+import { aiConfig, runNow, createBatch, batchStatus, batchResults, cancelBatch } from './ai.js';
 import { isAppPath, resolveAppFile } from './appbundle.js';
 
 import type { IncomingMessage, ServerResponse } from 'node:http';
@@ -336,6 +337,42 @@ async function handleApi(req: IncomingMessage, res: ServerResponse, path: string
   if (path === '/api/preview/status' && method === 'GET') {
     if (!requireAuth(req, res)) return;
     return sendJson(res, 200, getPreviewState());
+  }
+
+  // --- KI (Anthropic): Sofort-Aufruf und Batch-Betrieb ---
+  if (path === '/api/ai/config' && method === 'GET') {
+    if (!requireAuth(req, res)) return;
+    return sendJson(res, 200, aiConfig());
+  }
+
+  if (path.startsWith('/api/ai/')) {
+    if (!requireAuth(req, res)) return;
+    const aiUrl = new URL(req.url || '/', 'http://localhost');
+    try {
+      if (method === 'POST') {
+        if (!requireCsrf(req, res)) return;
+        let body: Record<string, unknown>;
+        try {
+          body = await readJson(req, 1024 * 1024);
+        } catch {
+          return sendJson(res, 400, { error: 'Ungültiger Body' });
+        }
+        if (path === '/api/ai/run') return sendJson(res, 200, await runNow(body));
+        if (path === '/api/ai/batch') return sendJson(res, 202, await createBatch(body));
+        if (path === '/api/ai/batch/cancel') {
+          return sendJson(res, 200, await cancelBatch(body.id));
+        }
+      } else if (method === 'GET') {
+        const id = aiUrl.searchParams.get('id');
+        if (path === '/api/ai/batch') return sendJson(res, 200, await batchStatus(id));
+        if (path === '/api/ai/batch/results') {
+          return sendJson(res, 200, await batchResults(id, aiUrl.searchParams.get('model')));
+        }
+      }
+    } catch (eRaw) {
+      const e = asErr(eRaw);
+      return sendJson(res, e.statusCode || 502, { error: e.message || 'KI-Fehler' });
+    }
   }
 
   return sendJson(res, 404, { error: 'Unbekannter Endpunkt' });
