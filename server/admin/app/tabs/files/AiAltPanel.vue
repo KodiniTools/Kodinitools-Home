@@ -38,6 +38,17 @@
               : ''
           }}.
         </p>
+        <UiSwitch
+          v-model="autoApply"
+          label="Ergebnis direkt in den Entwurf übernehmen"
+          data-aialt-auto
+        />
+        <UiSwitch
+          v-if="autoApply"
+          v-model="keepExisting"
+          label="Vorhandene Alt-Texte nicht überschreiben"
+          data-aialt-keep
+        />
         <div class="ai-row">
           <UiButton
             variant="primary"
@@ -45,7 +56,15 @@
             data-aialt-run
             @click="submit"
           >
-            {{ busy ? 'Läuft …' : mode === 'now' ? 'Alt-Text erzeugen' : 'Batch starten' }}
+            {{
+              busy
+                ? 'Läuft …'
+                : mode === 'now'
+                  ? autoApply
+                    ? 'Erzeugen und übernehmen'
+                    : 'Alt-Text erzeugen'
+                  : 'Batch starten'
+            }}
           </UiButton>
         </div>
         <p v-if="formError" class="ai-err" data-aialt-formerror>{{ formError }}</p>
@@ -127,7 +146,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref } from 'vue';
-import { UiButton, UiCallout, UiSelect, UiTextField } from '../../components/ui';
+import { UiButton, UiCallout, UiSelect, UiSwitch, UiTextField } from '../../components/ui';
 import { useToastStore } from '../../stores/toast';
 import { IMAGE_ALT_DECORATIVE } from './filesData';
 import {
@@ -181,6 +200,9 @@ const selected = ref('');
 const context = ref('');
 const results = ref<Record<string, AiResult>>({});
 const totalCost = ref(0);
+/** Opt-in: Ergebnisse sofort in den Entwurf schreiben (weiter per Strg+Z rücknehmbar). */
+const autoApply = ref(false);
+const keepExisting = ref(true);
 
 type Job = {
   id: string;
@@ -265,6 +287,7 @@ async function submit() {
       if (!r.ok) return void (formError.value = r.error);
       results.value = { ...results.value, [selected.value]: r.data };
       totalCost.value += r.data.costUsd ?? 0;
+      if (autoApply.value) autoApplyRows([selected.value]);
       return;
     }
     const paths = batchFiles.value.map((f) => f.path);
@@ -290,10 +313,12 @@ async function checkJob() {
     formError.value = r.error;
     return;
   }
+  const wasEnded = j.status === 'ended';
   j.status = r.data.status;
   j.counts = r.data.counts;
   saveJob();
   if (j.status !== 'ended') return;
+  const justEnded = !wasEnded;
   stopPolling();
   const res = await getAiBatchResults(j.id, j.model);
   if (!res.ok) {
@@ -308,6 +333,8 @@ async function checkJob() {
   }
   results.value = next;
   totalCost.value = res.data.totalCostUsd;
+  // Nur beim ersten Abholen, nicht bei erneutem Laden (sonst würden spätere Änderungen überschrieben).
+  if (autoApply.value && justEnded) autoApplyRows(Object.keys(next));
 }
 
 // ---- Übernehmen (nur Entwurf) ---------------------------------------------------
@@ -329,6 +356,22 @@ function apply(path: string, res: AiResult, quiet = false) {
     toasts.addToast('Übernommen (Entwurf) – mit Strg+Z rückgängig, in der Vorschau prüfen', {
       type: 'success',
     });
+}
+function autoApplyRows(paths: string[]) {
+  let n = 0;
+  for (const path of paths) {
+    const res = results.value[path];
+    if (!res?.ok || res.data?.decorative) continue;
+    if (keepExisting.value && hasAlt(path)) continue;
+    apply(path, res, true);
+    n++;
+  }
+  toasts.addToast(
+    n
+      ? `${n} Alt-Text${n === 1 ? '' : 'e'} übernommen (Entwurf) – Strg+Z macht es rückgängig`
+      : 'Nichts übernommen (vorhanden, dekorativ oder Fehler) – Ergebnisse unten',
+    { type: n ? 'success' : 'info' },
+  );
 }
 function markDecorative(path: string) {
   props.setAlt(path, { de: IMAGE_ALT_DECORATIVE, en: IMAGE_ALT_DECORATIVE });

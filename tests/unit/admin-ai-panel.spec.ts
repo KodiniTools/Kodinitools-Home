@@ -259,6 +259,45 @@ describe('AiAltPanel', () => {
     expect(w.get('[data-aialt-result]').text()).toContain('Alt DE: Ein Logo');
   });
 
+  it('Direkt übernehmen: schreibt das Ergebnis ohne weiteren Klick in den Entwurf', async () => {
+    api.apiGet.mockResolvedValue({ ok: true, status: 200, data: CONFIG });
+    api.apiPost.mockResolvedValue({
+      ok: true,
+      status: 200,
+      data: {
+        ok: true,
+        costUsd: 0.004,
+        data: { decorative: false, altDe: 'Ein Logo', altEn: 'A logo', filename: 'logo' },
+      },
+    });
+    const alt = altApi();
+    const w = mount(AiAltPanel, { props: { files: FILES, ...alt } });
+    await w.get('[data-aialt-toggle]').trigger('click');
+    await flushPromises();
+    await w.get('[data-aialt-auto] button').trigger('click');
+    await w.get('[data-aialt-run]').trigger('click');
+    await flushPromises();
+    expect(alt.setAlt).toHaveBeenCalledWith('de/a.png', { de: 'Ein Logo', en: 'A logo' });
+  });
+
+  it('Direkt übernehmen lässt vorhandene Alt-Texte standardmäßig unangetastet', async () => {
+    api.apiGet.mockResolvedValue({ ok: true, status: 200, data: CONFIG });
+    api.apiPost.mockResolvedValue({
+      ok: true,
+      status: 200,
+      data: { ok: true, data: { decorative: false, altDe: 'Neu', altEn: 'New', filename: 'x' } },
+    });
+    const alt = altApi();
+    alt.store['de/a.png'] = { de: 'Alt', en: 'Old' };
+    const w = mount(AiAltPanel, { props: { files: FILES, ...alt } });
+    await w.get('[data-aialt-toggle]').trigger('click');
+    await flushPromises();
+    await w.get('[data-aialt-auto] button').trigger('click');
+    await w.get('[data-aialt-run]').trigger('click');
+    await flushPromises();
+    expect(alt.setAlt).not.toHaveBeenCalled();
+  });
+
   it('Batch: schickt alle Bilder und ordnet Ergebnisse den Pfaden zu', async () => {
     api.apiGet.mockImplementation(async (path: string) => {
       if (path === '/ai/config') return { ok: true, status: 200, data: CONFIG };
