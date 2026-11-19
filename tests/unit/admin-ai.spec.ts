@@ -83,6 +83,13 @@ describe('aiTasks', () => {
     const p = buildUserPrompt('design', { area: 'layout', current: '{"a":1}' });
     expect(p).toContain('Bereich: layout');
     expect(p).toContain('Allgemein verbessern');
+    const params = buildRequestParams('design', 'claude-haiku-5-5', {
+      area: 'hero',
+      current: '{}',
+    });
+    const schema = JSON.stringify(params.output_config.format.schema);
+    expect(schema).toContain('"changes"');
+    expect(JSON.stringify(params.system)).toContain('titleFontSize');
   });
 
   it('prüft Eingaben des Bild-Prompts', () => {

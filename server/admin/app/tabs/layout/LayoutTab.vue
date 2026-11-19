@@ -38,7 +38,9 @@
     <div class="tc-main">
       <LyPagePanel />
       <LyModePanel />
-      <div class="panel"><AiDesignAssist area="layout" :get-current="aiCurrent" /></div>
+      <div class="panel">
+        <AiDesignAssist area="layout" :get-current="aiCurrent" :resolve="aiResolve" />
+      </div>
       <template v-if="grid">
         <LyGridPreview />
         <LyGridSettings />
@@ -139,7 +141,9 @@ import {
 import { copyGridDesign, layoutCells, normLayout } from './gridData';
 import { lyUi } from './layoutUi';
 import { provideLayout } from './useLayout';
-import AiDesignAssist from '../hero/AiDesignAssist.vue';
+import AiDesignAssist, { type Applicable } from '../hero/AiDesignAssist.vue';
+import type { AiChange } from '../hero/aiHero';
+import { applyLayoutChange, describeLayoutCurrent, resolveLayoutChange } from './aiLayout';
 
 /**
  * Tab „Layout“ (Vue-Fassung von `renderLayout`, `public/layout-banner.js` und
@@ -151,11 +155,21 @@ import AiDesignAssist from '../hero/AiDesignAssist.vue';
  * und Undo per Snapshot unverändert greifen.
  */
 const props = defineProps<{ service: LayoutService }>();
-const { view, change, toast, styles, slideshow, slides, cell, markCell } = provideLayout(
+const { view, change, toast, text, styles, slideshow, slides, cell, markCell } = provideLayout(
   props.service,
 );
 const service = props.service;
 const aiCurrent = () => JSON.stringify(view.value.m);
+function aiResolve(c: AiChange): Applicable | null {
+  const r = resolveLayoutChange(c);
+  if (!r) return null;
+  return {
+    label: r.label,
+    current: describeLayoutCurrent(text.value, r),
+    next: r.value,
+    apply: () => applyLayoutChange(view.value.m, r),
+  };
+}
 const OTHER = otherLang(service.lang);
 const OTHER_NAME = LANG_LABEL[OTHER];
 
