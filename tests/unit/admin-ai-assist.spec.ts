@@ -9,6 +9,7 @@ vi.mock('../../server/admin/app/lib/api', () => api);
 
 import AiCardAssist from '../../server/admin/app/tabs/toolcards/AiCardAssist.vue';
 import AiTickerAssist from '../../server/admin/app/tabs/ticker/AiTickerAssist.vue';
+import AiImagePanel from '../../server/admin/app/tabs/files/AiImagePanel.vue';
 import AiDesignAssist from '../../server/admin/app/tabs/hero/AiDesignAssist.vue';
 import AiIconAssist from '../../server/admin/app/tabs/icons/AiIconAssist.vue';
 
@@ -113,5 +114,44 @@ describe('AiDesignAssist', () => {
     expect(w.findAll('[data-aids-suggestion]')).toHaveLength(1);
     expect(w.findAll('[data-aids-color]')).toHaveLength(1);
     expect(w.get('[data-aids-prompt]').text()).toContain('soft gradient');
+  });
+});
+
+describe('AiImagePanel', () => {
+  it('erzeugt erst auf Klick, zeigt Download und reicht die Originaldatei weiter', async () => {
+    const png = btoa(String.fromCharCode(137, 80, 78, 71, 13, 10, 26, 10, 1, 2));
+    api.apiGet.mockResolvedValue({
+      ok: true,
+      data: {
+        configured: true,
+        defaultModel: 'm1',
+        aspectRatios: ['1:1', '16:9'],
+        models: [{ id: 'm1', label: 'M1', hint: 'h', sizes: ['1K', '2K'], usd: { '1K': 0.067 } }],
+      },
+    });
+    api.apiPost.mockResolvedValue({
+      ok: true,
+      data: { ok: true, model: 'm1', mime: 'image/png', data: png, bytes: 10 },
+    });
+    const add = vi.fn();
+    const w = mount(AiImagePanel, { props: { add } });
+    await w.get('[data-aiimg-toggle]').trigger('click');
+    await flushPromises();
+    expect(w.get('[data-aiimg-price]').text()).toContain('$');
+    expect(w.get('[data-aiimg-run]').attributes('disabled')).toBeDefined();
+    await w.get('[data-aiimg-prompt] textarea, textarea[data-aiimg-prompt]').setValue('Test');
+    await w.get('[data-aiimg-run]').trigger('click');
+    await flushPromises();
+    expect(api.apiPost).toHaveBeenCalledTimes(1);
+    expect(api.apiPost.mock.calls[0]?.[1]).toMatchObject({
+      prompt: 'Test',
+      model: 'm1',
+      size: '1K',
+    });
+    expect(w.get('[data-aiimg-download]').attributes('download')).toMatch(/\.png$/);
+    await w.get('[data-aiimg-use]').trigger('click');
+    const file = add.mock.calls[0]?.[0]?.[0] as File;
+    expect(file.type).toBe('image/png');
+    expect(file.size).toBe(10);
   });
 });

@@ -140,6 +140,8 @@ MAX_UPLOAD_MB=2048
 # Optional: KI im Admin (Anthropic). Ohne Schlüssel bleibt die KI aus.
 # ANTHROPIC_API_KEY=
 # AI_MAX_PER_MINUTE=20
+# Optional: KI-Bilder (Google Gemini).
+# GEMINI_API_KEY=
 EOF
   c_ok ".env angelegt (SESSION_SECRET generiert)"
 else

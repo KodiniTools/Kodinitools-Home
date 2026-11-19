@@ -144,6 +144,8 @@
       </div>
     </div>
 
+    <AiImagePanel :add="add" />
+
     <AiAltPanel :files="altFiles" :get-alt="service.getAlt" :set-alt="service.setAlt" />
 
     <!-- Browser-Zwischenspeicher -->
@@ -216,6 +218,7 @@ import type { Lang, ThemeMode } from '../../../types';
 import { UiButton, UiDialog, UiSegmentedControl } from '../../components/ui';
 import { useToastStore } from '../../stores/toast';
 import AiAltPanel from './AiAltPanel.vue';
+import AiImagePanel from './AiImagePanel.vue';
 import FileTile from './FileTile.vue';
 import {
   LOC_LABEL,
