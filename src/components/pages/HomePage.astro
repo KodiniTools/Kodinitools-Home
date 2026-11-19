@@ -378,6 +378,8 @@ const pageI18n = {
     <GlobalNav lang={lang} />
     <TickerBar lang={lang} />
 
+    {/* Hauptinhalt als main-Landmarke (Screenreader, Lighthouse „Dokument hat keine Hauptmarkierung“) */}
+    <main id="main-content">
     <!-- Hero Section with Animated Mesh Gradient -->
     {heroCss && <style is:global set:html={heroCss} />}
     {heroCellFontCss && <style is:global set:html={heroCellFontCss} />}
@@ -680,6 +682,8 @@ const pageI18n = {
         <p class="wf-hint">{ui.workflows.hint}</p>
       </section>
     )}
+
+    </main>
 
     <SiteFooter lang={lang} />
     </div>

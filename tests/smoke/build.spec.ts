@@ -90,6 +90,10 @@ describe.each(pages)('Seite %s', (file) => {
     expect(meta.canonicals).toEqual([urlOf(file)]);
   });
 
+  it('hat genau eine <main>-Landmarke (Barrierefreiheit, Lighthouse)', () => {
+    expect(read(file).match(/<main[\s>]/g) ?? []).toHaveLength(1);
+  });
+
   it('hat Titel und Meta-Description', () => {
     expect(meta.title.length).toBeGreaterThan(0);
     expect(meta.description.length).toBeGreaterThan(0);
