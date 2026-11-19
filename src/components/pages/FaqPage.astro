@@ -3,8 +3,7 @@ import GlobalNav from '../GlobalNav.astro'
 import TickerBar from '../TickerBar.astro'
 import SiteFooter from '../SiteFooter.astro'
 import SiteFont from '../SiteFont.astro'
-import { readFileSync } from 'fs'
-import { resolve } from 'path'
+import { loadCookieBanner } from '../../i18n/cookieBanner'
 import { getContent, pageMetaFor } from '../../content/content'
 import { alternates, HOME_LABEL, HOME_PATH, OG_LOCALE, SITE, type Lang } from '../../i18n/lang'
 import { FAQ_LINKS, FAQ_PAGE, FAQ_PATH, faqSegmentsToHtml, linkFaqAnswer } from '../../i18n/faq'
@@ -22,7 +21,8 @@ const content = lang === 'de' ? getContent('de') : getContent('en')
 const pageUrl = `${SITE}${FAQ_PATH[lang]}`
 const alt = alternates(FAQ_PATH)
 
-const cookieBannerHtml = readFileSync(resolve('public/partials/cookie-banner.html'), 'utf-8')
+// Cookie-Banner in der Seitensprache vorgerendert (src/i18n/cookieBanner.ts).
+const cookieBannerHtml = loadCookieBanner(lang)
 
 // Tool-Namen in den Antworten auf die Live-URLs verlinken (Liste in src/i18n/faq.ts).
 const questions = Object.values(content.faq.questions).map((q) => ({

@@ -42,7 +42,7 @@ export const HOME_SEO: Record<Lang, HomeSeo> = {
       'JPG zu WebP konvertieren online',
       'Audio Lautstärke normalisieren online',
       'Bilder Batch konvertieren kostenlos',
-      'Bildgrösse ändern mehrere Bilder gleichzeitig',
+      'Bildgröße ändern mehrere Bilder gleichzeitig',
       'Musik-Video für TikTok erstellen kostenlos',
       'Foto Collage erstellen ohne App',
       'Audiodatei Format ändern DSGVO-konform',
@@ -87,7 +87,7 @@ export const HOME_SCHEMA_TOOLS: {
 }[] = [
   {
     url: 'https://kodinitools.com/audiokonverter/',
-    name: { de: 'Audio Konverter', en: 'Audio Converter' },
+    name: { de: 'Audio-Konverter', en: 'Audio Converter' },
     description: {
       de: 'Audio konvertieren online zwischen MP3, WAV, OGG, FLAC, AAC. Verlustfreie Audiokonvertierung im Browser.',
       en: 'Convert audio online between MP3, WAV, OGG, FLAC, AAC. Lossless audio conversion in browser.',
@@ -111,7 +111,7 @@ export const HOME_SCHEMA_TOOLS: {
   },
   {
     url: 'https://kodinitools.com/visualizer/',
-    name: { de: 'Audio Visualizer', en: 'Audio Visualizer' },
+    name: { de: 'Audio-Visualizer', en: 'Audio Visualizer' },
     description: {
       de: 'Audio Visualizer online: Musik visualisieren für YouTube, TikTok und Instagram. Echtzeit Audio-Wellenform generieren.',
       en: 'Audio visualizer online: Create music visualizations for YouTube, TikTok and Instagram. Real-time audio waveform generator.',
@@ -119,7 +119,7 @@ export const HOME_SCHEMA_TOOLS: {
   },
   {
     url: 'https://kodinitools.com/mp3konverter/',
-    name: { de: 'MP3 Konverter', en: 'MP3 Converter' },
+    name: { de: 'MP3-Konverter', en: 'MP3 Converter' },
     description: {
       de: 'MP3 Konverter kostenlos: Video zu MP3 umwandeln, MP3 Bitrate online ändern. Schnellster In-Browser MP3 Konverter.',
       en: 'Free MP3 converter: Convert video to MP3, change MP3 bitrate online. Fastest in-browser MP3 converter.',
@@ -127,7 +127,7 @@ export const HOME_SCHEMA_TOOLS: {
   },
   {
     url: 'https://kodinitools.com/audioequalizer/',
-    name: { de: 'Audio Equalizer', en: 'Audio Equalizer' },
+    name: { de: 'Audio-Equalizer', en: 'Audio Equalizer' },
     description: {
       de: 'Sound Equalizer Browser: Audio lauter machen online, Bass Booster online kostenlos mit Web Audio API Presets.',
       en: 'Browser sound equalizer: Make audio louder online, free bass booster with Web Audio API presets.',
@@ -159,7 +159,7 @@ export const HOME_SCHEMA_TOOLS: {
   },
   {
     url: 'https://kodinitools.com/audionormalisierer/',
-    name: { de: 'Audio Normalizer', en: 'Audio Normalizer' },
+    name: { de: 'Audio-Normalizer', en: 'Audio Normalizer' },
     description: {
       de: 'Audio normalisieren online: MP3 Lautstärke angleichen, LUFS Normalisierung online kostenlos.',
       en: 'Normalize audio online: Match MP3 volume levels, free LUFS normalization online.',

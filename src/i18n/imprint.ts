@@ -183,7 +183,7 @@ export const IMPRINT_PAGE: Record<Lang, ImprintPage> = {
       heading: 'Images in the image gallery',
       paragraphs: [
         'Most images in the KodiniTools image gallery were created with AI (Leonardo.ai) and are marked “AI” there.',
-        'All gallery images may be downloaded free of charge and used for private, non-commercial purposes, including modified and without attribution. Commercial use is not permitted.',
+        'All gallery images may be downloaded free of charge and used for private, non-commercial purposes, including in modified form and without attribution. Commercial use is not permitted.',
         'Use is at your own risk and without warranty that no third-party rights are affected. The images must not be used to hide their AI origin or to misrepresent people.',
       ],
       linkIntro: 'Allowed and prohibited uses in detail:',

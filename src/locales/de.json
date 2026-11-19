@@ -19,15 +19,15 @@
       "videoConverter": "Videokonverter"
     },
     "audioToolsMenu": {
-      "audioConverter": "Audio Konverter",
-      "mp3Converter": "MP3 Konverter",
+      "audioConverter": "Audio-Konverter",
+      "mp3Converter": "MP3-Konverter",
       "equalizer19": "19-Band Equalizer",
-      "audioEqualizer": "Interaktiver Audio Equalizer",
-      "audioNormalizer": "Audio Normalizer",
+      "audioEqualizer": "Interaktiver Audio-Equalizer",
+      "audioNormalizer": "Audio-Normalizer",
       "modernPlayer": "Moderner Musikplayer",
       "ultimatePlayer": "Ultimativer Musikplayer",
-      "playlistGenerator": "Wiedergabeliste Generator",
-      "playlistConverter": "Wiedergabeliste Konverter",
+      "playlistGenerator": "Wiedergabelisten-Generator",
+      "playlistConverter": "Wiedergabelisten-Konverter",
       "visualizer": "Visualizer",
       "alarmTool": "Alarmtool"
     },
@@ -63,7 +63,7 @@
       "server": "Server"
     },
     "audioConverter": {
-      "title": "Audio Konverter",
+      "title": "Audio-Konverter",
       "description": "MP3 in WAV umwandeln kostenlos online – und umgekehrt. Audiodatei Format ändern zwischen MP3, WAV, OGG, FLAC, AAC und M4A. DSGVO-konform, keine Registrierung.",
       "badge": "Batch",
       "processing": "server",
@@ -87,7 +87,7 @@
       "svg": "/image/musikplayer.svg"
     },
     "audioVisualizer": {
-      "title": "Audio Visualizer",
+      "title": "Audio-Visualizer",
       "description": "Musik-Video für TikTok erstellen kostenlos – beeindruckende MP4-Videos mit Audio-Visualisierungen für TikTok, Instagram Reels und YouTube.",
       "badge": "Video",
       "processing": "browser",
@@ -95,15 +95,15 @@
       "svg": "/image/audio-visualizer.svg"
     },
     "mp3Converter": {
-      "title": "MP3 Konverter",
-      "description": "MP3 Konverter ohne Registrierung – schnell und kostenlos Audiodateien in MP3 umwandeln. Optimiert für Podcasts, Musik und Hörbücher.",
+      "title": "MP3-Konverter",
+      "description": "MP3-Konverter ohne Registrierung – schnell und kostenlos Audiodateien in MP3 umwandeln. Optimiert für Podcasts, Musik und Hörbücher.",
       "badge": "MP3",
       "processing": "server",
       "link": "https://kodinitools.com/mp3konverter/",
       "svg": "/image/mp3-konverter.svg"
     },
     "interactiveEqualizer": {
-      "title": "Interaktiver Audio Equalizer",
+      "title": "Interaktiver Audio-Equalizer",
       "description": "Passen Sie den Klang Ihrer Musik mit einem grafischen 15-Band-Equalizer an. Echtzeit-Wiedergabe, Presets und Visualisierung.",
       "badge": "Interaktiv",
       "processing": "browser",
@@ -119,7 +119,7 @@
       "svg": "/image/moderner-musikplayer.svg"
     },
     "playlistGenerator": {
-      "title": "Wiedergabeliste Generator",
+      "title": "Wiedergabelisten-Generator",
       "description": "Erstellen Sie automatisch Playlists aus Ihren Audiodateien. Mit Sortier- und Filterfunktionen.",
       "badge": "Playlist",
       "processing": "browser",
@@ -135,7 +135,7 @@
       "svg": "/image/alarmtool.svg"
     },
     "audioNormalizer": {
-      "title": "Audio Normalizer",
+      "title": "Audio-Normalizer",
       "description": "Audio Lautstärke normalisieren online kostenlos – automatisch LUFS-konform angleichen. Perfekt für Podcasts, Hörbücher und Audiodateien für Podcasts vorbereiten.",
       "badge": "Normalizer",
       "processing": "browser",
@@ -143,7 +143,7 @@
       "svg": "/image/audio-normalizer.svg"
     },
     "playlistToWebm": {
-      "title": "Wiedergabeliste Konverter",
+      "title": "Wiedergabelisten-Konverter",
       "description": "Bis zu 50 Audio-Tracks in eine WebM-Datei konvertieren",
       "badge": "WebM",
       "processing": "server",
@@ -200,7 +200,7 @@
     },
     "batchImageEditor": {
       "title": "Batch Bildbearbeitung",
-      "description": "Bildgrösse ändern mehrere Bilder gleichzeitig – 100+ Bilder auf einmal skalieren, umbenennen, als ZIP oder PDF exportieren. Bilder batch konvertieren kostenlos.",
+      "description": "Bildgröße ändern mehrere Bilder gleichzeitig – 100+ Bilder auf einmal skalieren, umbenennen, als ZIP oder PDF exportieren. Bilder batch konvertieren kostenlos.",
       "badge": "Batch",
       "processing": "browser",
       "link": "https://kodinitools.com/bilderseriebearbeiten/",
@@ -319,8 +319,8 @@
         "title": "Audio Tools: Die komplette Sammlung",
         "intro": "Mit 11 spezialisierten Audio-Tools deckt KodiniTools nahezu jeden Bedarf ab – von der einfachen Formatkonvertierung bis hin zur professionellen Klangoptimierung mit 19-Band-Equalizern.",
         "audioConverter": {
-          "title": "Audio Konverter",
-          "description": "Der Audio Konverter ist Ihr Schweizer Taschenmesser für Audioformate. Ob Sie Ihre Musiksammlung vereinheitlichen, Dateien für verschiedene Geräte optimieren oder einfach Speicherplatz sparen möchten – dieses Tool macht es möglich. Mit der Stapelverarbeitung können Sie mehrere Dateien gleichzeitig konvertieren und dabei die gewünschte Qualitätsstufe wählen.",
+          "title": "Audio-Konverter",
+          "description": "Der Audio-Konverter ist Ihr Schweizer Taschenmesser für Audioformate. Ob Sie Ihre Musiksammlung vereinheitlichen, Dateien für verschiedene Geräte optimieren oder einfach Speicherplatz sparen möchten – dieses Tool macht es möglich. Mit der Stapelverarbeitung können Sie mehrere Dateien gleichzeitig konvertieren und dabei die gewünschte Qualitätsstufe wählen.",
           "feature1": "Unterstützt MP3, WAV, OGG, FLAC, AAC und M4A",
           "feature2": "Stapelverarbeitung für mehrere Dateien gleichzeitig",
           "feature3": "Einstellbare Qualitätsstufen für optimale Ergebnisse",
@@ -347,8 +347,8 @@
           "usecase": "Der perfekte Begleiter für alle, die ihre lokale Musiksammlung elegant abspielen möchten."
         },
         "visualizer": {
-          "title": "Audio Visualizer",
-          "description": "In der Welt von TikTok, Instagram Reels und YouTube Shorts sind visuelle Inhalte König. Der Audio Visualizer verwandelt Ihre Musik in beeindruckende MP4-Videos mit dynamischen Visualisierungen. Perfekt optimiert für alle gängigen Social-Media-Plattformen, erstellen Sie im Handumdrehen content-würdige Videos.",
+          "title": "Audio-Visualizer",
+          "description": "In der Welt von TikTok, Instagram Reels und YouTube Shorts sind visuelle Inhalte König. Der Audio-Visualizer verwandelt Ihre Musik in beeindruckende MP4-Videos mit dynamischen Visualisierungen. Perfekt optimiert für alle gängigen Social-Media-Plattformen, erstellen Sie im Handumdrehen content-würdige Videos.",
           "feature1": "Erstellt MP4-Videos aus Audio-Dateien",
           "feature2": "Optimiert für TikTok, Instagram und YouTube",
           "feature3": "Verschiedene Visualisierungsstile verfügbar",
@@ -356,16 +356,16 @@
           "usecase": "Unverzichtbar für Musiker, DJs und Content-Creator, die ihre Musik visuell präsentieren möchten."
         },
         "mp3Converter": {
-          "title": "MP3 Konverter",
-          "description": "Manchmal braucht man einfach nur MP3. Unser spezialisierter MP3 Konverter ist für Geschwindigkeit und Einfachheit optimiert. Laden Sie Ihre Datei hoch, wählen Sie die Qualität und erhalten Sie im Handumdrehen Ihre MP3-Datei. Besonders für Podcaster und Musik-Enthusiasten entwickelt.",
+          "title": "MP3-Konverter",
+          "description": "Manchmal braucht man einfach nur MP3. Unser spezialisierter MP3-Konverter ist für Geschwindigkeit und Einfachheit optimiert. Laden Sie Ihre Datei hoch, wählen Sie die Qualität und erhalten Sie im Handumdrehen Ihre MP3-Datei. Besonders für Podcaster und Musik-Enthusiasten entwickelt.",
           "feature1": "Schnelle Konvertierung zu MP3",
           "feature2": "Optimierte Qualität für Podcasts und Musik",
           "feature3": "Einfache Ein-Klick-Bedienung",
           "usecase": "Perfekt für Podcaster, die ihre Episoden veröffentlichen möchten, oder für alle, die universell kompatible Audiodateien benötigen."
         },
         "interactiveEq": {
-          "title": "Interaktiver Audio Equalizer",
-          "description": "Der Interaktive Audio Equalizer macht Klangbearbeitung spielend einfach. Mit seiner intuitiven grafischen Oberfläche sehen Sie Ihre Änderungen und hören sie in Echtzeit. Ideal für alle, die einen einfachen Einstieg in die Welt der Audiobearbeitung suchen.",
+          "title": "Interaktiver Audio-Equalizer",
+          "description": "Der Interaktive Audio-Equalizer macht Klangbearbeitung spielend einfach. Mit seiner intuitiven grafischen Oberfläche sehen Sie Ihre Änderungen und hören sie in Echtzeit. Ideal für alle, die einen einfachen Einstieg in die Welt der Audiobearbeitung suchen.",
           "feature1": "Intuitive grafische Benutzeroberfläche",
           "feature2": "Echtzeit-Vorschau aller Änderungen",
           "feature3": "Presets, Visualisierung und Playlist",
@@ -380,8 +380,8 @@
           "usecase": "Für alle, die Wert auf Ästhetik legen und einen stilvollen Player für ihre Musiksammlung suchen."
         },
         "playlistGenerator": {
-          "title": "Wiedergabeliste Generator",
-          "description": "Organisieren Sie Ihre Musiksammlung automatisch! Der Wiedergabeliste Generator analysiert Ihre Audiodateien und erstellt intelligent sortierte Playlists. Mit umfangreichen Sortier- und Filterfunktionen haben Sie die volle Kontrolle über Ihre Musikorganisation.",
+          "title": "Wiedergabelisten-Generator",
+          "description": "Organisieren Sie Ihre Musiksammlung automatisch! Der Wiedergabelisten-Generator analysiert Ihre Audiodateien und erstellt intelligent sortierte Playlists. Mit umfangreichen Sortier- und Filterfunktionen haben Sie die volle Kontrolle über Ihre Musikorganisation.",
           "feature1": "Automatische Playlist-Erstellung",
           "feature2": "Vielfältige Sortieroptionen",
           "feature3": "Filterfunktionen nach verschiedenen Kriterien",
@@ -396,15 +396,15 @@
           "usecase": "Perfekt für alle, die einen unverwechselbaren Alarm-, Signal- oder Benachrichtigungston erstellen möchten."
         },
         "audioNormalizer": {
-          "title": "Audio Normalizer",
-          "description": "Kennen Sie das Problem: Ein Track ist zu leise, der nächste zu laut? Der Audio Normalizer gleicht automatisch die Lautstärke Ihrer Audiodateien an. Besonders wichtig für Podcasts und Hörbücher, wo eine konstante Lautstärke für ein angenehmes Hörerlebnis sorgt.",
+          "title": "Audio-Normalizer",
+          "description": "Kennen Sie das Problem: Ein Track ist zu leise, der nächste zu laut? Der Audio-Normalizer gleicht automatisch die Lautstärke Ihrer Audiodateien an. Besonders wichtig für Podcasts und Hörbücher, wo eine konstante Lautstärke für ein angenehmes Hörerlebnis sorgt.",
           "feature1": "Automatische Lautstärke-Normalisierung",
           "feature2": "Intelligente Peak-Erkennung",
           "feature3": "Batch-Verarbeitung für mehrere Dateien",
           "usecase": "Ein Must-Have für Podcaster, Hörbuch-Ersteller und alle, die eine konsistente Lautstärke über mehrere Dateien benötigen."
         },
         "playlistWebm": {
-          "title": "Wiedergabeliste Konverter",
+          "title": "Wiedergabelisten-Konverter",
           "description": "Ein einzigartiges Tool für spezielle Anforderungen: Konvertieren Sie bis zu 50 Audio-Tracks in eine einzige WebM-Datei. Ideal für die Erstellung von Hintergrundmusik-Compilations oder langen Audio-Sammlungen in einem websicheren Format.",
           "feature1": "Bis zu 50 Tracks in einer Datei",
           "feature2": "WebM-Format für maximale Web-Kompatibilität",
@@ -426,7 +426,7 @@
         },
         "batchEditor": {
           "title": "Batch Bildbearbeitung",
-          "description": "Zeit ist kostbar – besonders wenn Sie hunderte von Bildern bearbeiten müssen. Der Batch Bildbearbeiter ermöglicht es Ihnen, über 100 Bilder gleichzeitig zu bearbeiten. Ändern Sie die Größe, benennen Sie um und exportieren Sie als ZIP oder sogar als PDF – alles in einem Arbeitsschritt.",
+          "description": "Zeit ist kostbar – besonders wenn Sie hunderte von Bildern bearbeiten müssen. Der Batch-Bildbearbeiter ermöglicht es Ihnen, über 100 Bilder gleichzeitig zu bearbeiten. Ändern Sie die Größe, benennen Sie um und exportieren Sie als ZIP oder sogar als PDF – alles in einem Arbeitsschritt.",
           "feature1": "Bearbeitung von 100+ Bildern gleichzeitig",
           "feature2": "Größenanpassung mit benutzerdefinierten Dimensionen",
           "feature3": "Massenumbenennung mit Vorlagen",
@@ -480,7 +480,7 @@
           "pro1": "Schnellere Verarbeitung komplexer Aufgaben",
           "pro2": "Geringere Belastung Ihres Geräts",
           "pro3": "Ideal für große Dateien",
-          "examples": "Audio Konverter, MP3 Konverter, Video Konverter, Bildkonverter"
+          "examples": "Audio-Konverter, MP3-Konverter, Videokonverter, Bildkonverter"
         }
       },
       "privacy": {
@@ -522,7 +522,7 @@
       },
       "q2": {
         "question": "Werden meine Dateien gespeichert oder weitergegeben?",
-        "answer": "Nein. Bei Browser-basierten Tools verlassen Ihre Dateien niemals Ihren Computer – die Verarbeitung erfolgt komplett lokal. Bei Server-basierten Tools werden Ihre Dateien verschlüsselt übertragen, nur für die Verarbeitung zwischengespeichert und spätestens nach 12 Stunden automatisch gelöscht. Dauerhafte Kopien Ihrer Dateien speichern wir nicht."
+        "answer": "Nicht dauerhaft. Bei Browser-basierten Tools verlassen Ihre Dateien niemals Ihren Computer – die Verarbeitung erfolgt komplett lokal. Bei Server-basierten Tools werden Ihre Dateien verschlüsselt übertragen, nur für die Verarbeitung zwischengespeichert und spätestens nach 12 Stunden automatisch gelöscht. Dauerhafte Kopien Ihrer Dateien speichern wir nicht."
       },
       "q3": {
         "question": "Welche Dateiformate werden unterstützt?",
@@ -558,27 +558,27 @@
       },
       "q11": {
         "question": "Wie konvertiere ich MP3 zu WAV kostenlos?",
-        "answer": "Mit dem KodiniTools Audio Konverter ganz einfach: Datei hochladen, WAV als Zielformat auswählen und auf Konvertieren klicken. Die fertige WAV-Datei steht sofort zum Download bereit – ohne Registrierung und ohne Installierung."
+        "answer": "Mit dem KodiniTools Audio-Konverter ganz einfach: Datei hochladen, WAV als Zielformat auswählen und auf Konvertieren klicken. Die fertige WAV-Datei steht sofort zum Download bereit – ohne Registrierung und ohne Installation."
       },
       "q12": {
         "question": "Wie kann ich mehrere Bilder gleichzeitig verkleinern?",
-        "answer": "Mit dem Batch Bildbearbeiter können Sie über 100 Bilder auf einmal verkleinern: Bilder per Drag-and-Drop hochladen, Zielgrösse in Pixeln oder Prozent festlegen und als ZIP-Archiv herunterladen. Die Bearbeitung läuft direkt im Browser, Ihre Bilder bleiben dabei auf Ihrem Computer. Einzige Ausnahme: Für den Export als SVG werden die Bilder zur Umwandlung an unseren Server übertragen."
+        "answer": "Mit dem Batch-Bildbearbeiter können Sie über 100 Bilder auf einmal verkleinern: Bilder per Drag-and-Drop hochladen, Zielgröße in Pixeln oder Prozent festlegen und als ZIP-Archiv herunterladen. Die Bearbeitung läuft direkt im Browser, Ihre Bilder bleiben dabei auf Ihrem Computer. Einzige Ausnahme: Für den Export als SVG werden die Bilder zur Umwandlung an unseren Server übertragen."
       },
       "q13": {
         "question": "Was ist der Unterschied zwischen MP3 und WAV?",
-        "answer": "MP3 ist ein komprimiertes Format – kleinere Dateigrösse, leichter Qualitätsverlust durch Kompression, ideal für Streaming und Podcasts. WAV ist unkomprimiert – grössere Dateigrösse, verlustfreie Qualität, ideal für professionelle Musikproduktion und Archivierung. Mit dem Audio Konverter können Sie jederzeit zwischen beiden Formaten wechseln."
+        "answer": "MP3 ist ein komprimiertes Format – kleinere Dateigröße, leichter Qualitätsverlust durch Kompression, ideal für Streaming und Podcasts. WAV ist unkomprimiert – größere Dateigröße, verlustfreie Qualität, ideal für professionelle Musikproduktion und Archivierung. Mit dem Audio-Konverter können Sie jederzeit zwischen beiden Formaten wechseln."
       },
       "q14": {
         "question": "Wie erstelle ich ein Musik-Video für TikTok oder Instagram?",
-        "answer": "Mit dem KodiniTools Audio Visualizer in wenigen Schritten: Audiodatei hochladen, einen Visualisierungsstil auswählen und das fertige MP4-Video exportieren. Das Video ist direkt optimiert für TikTok, Instagram Reels und YouTube Shorts – komplett kostenlos und ohne App-Download."
+        "answer": "Mit dem KodiniTools Audio-Visualizer in wenigen Schritten: Audiodatei hochladen, einen Visualisierungsstil auswählen und das fertige MP4-Video exportieren. Das Video ist direkt optimiert für TikTok, Instagram Reels und YouTube Shorts – komplett kostenlos und ohne App-Download."
       },
       "q15": {
         "question": "Welches Bildformat ist am besten für Websites?",
-        "answer": "WebP und AVIF bieten die beste Kombination aus Qualität und kleiner Dateigrösse für Websites und verbessern die Ladegeschwindigkeit deutlich. Unser Bildkonverter wandelt JPG, PNG und andere Formate direkt in WebP oder AVIF um – ideal zur Website-Optimierung."
+        "answer": "WebP und AVIF bieten die beste Kombination aus Qualität und kleiner Dateigröße für Websites und verbessern die Ladegeschwindigkeit deutlich. Unser Bildkonverter wandelt JPG, PNG und andere Formate direkt in WebP oder AVIF um – ideal zur Website-Optimierung."
       },
       "q16": {
         "question": "Wie normalisiere ich die Lautstärke meiner Audiodateien?",
-        "answer": "Mit dem Audio Normalizer von KodiniTools: Audiodatei auswählen und das Tool gleicht die Lautstärke automatisch auf einen einheitlichen Pegel an. Besonders nützlich für Podcasts, Hörbücher oder Musiksammlungen, bei denen unterschiedliche Tracks unterschiedlich laut sind. Die Verarbeitung erfolgt lokal in Ihrem Browser, ohne Upload."
+        "answer": "Mit dem Audio-Normalizer von KodiniTools: Audiodatei auswählen – das Tool gleicht die Lautstärke automatisch auf einen einheitlichen Pegel an. Besonders nützlich für Podcasts, Hörbücher oder Musiksammlungen, bei denen unterschiedliche Tracks unterschiedlich laut sind. Die Verarbeitung erfolgt lokal in Ihrem Browser, ohne Upload."
       },
       "q17": {
         "question": "Wie erstelle ich eine Fotocollage kostenlos online?",
@@ -586,11 +586,11 @@
       },
       "q18": {
         "question": "Kann ich Audiodateien für Podcasts vorbereiten?",
-        "answer": "Ja, KodiniTools bietet mehrere Tools speziell für Podcaster: Mit dem Audio Normalizer stellen Sie eine konstante Lautstärke sicher, mit dem MP3 Konverter erstellen Sie kompatible Podcast-Dateien und mit dem Audio Konverter wechseln Sie zwischen Formaten wie WAV, MP3 oder M4A. Alle Tools sind kostenlos und ohne Registrierung nutzbar."
+        "answer": "Ja, KodiniTools bietet mehrere Tools speziell für Podcaster: Mit dem Audio-Normalizer stellen Sie eine konstante Lautstärke sicher, mit dem MP3-Konverter erstellen Sie kompatible Podcast-Dateien und mit dem Audio-Konverter wechseln Sie zwischen Formaten wie WAV, MP3 oder M4A. Alle Tools sind kostenlos und ohne Registrierung nutzbar."
       },
       "q19": {
         "question": "Was ist die KodiniTools Bildergalerie und darf ich die Bilder verwenden?",
-        "answer": "Die Bildergalerie bietet nach Kategorien sortierte Bilder, die meisten davon mit KI erstellt und mit „KI“ gekennzeichnet. Alle Bilder dürfen kostenlos heruntergeladen und für private, nicht-kommerzielle Zwecke genutzt werden, auch verändert und ohne Namensnennung; eine kommerzielle Nutzung ist nicht gestattet. Ein Bild lässt sich direkt aus der Vorschau an das Fotocollage-Tool, den Bildkonverter, den Batch Bildbearbeiter oder den Kodini Farbextraktor übergeben."
+        "answer": "Die Bildergalerie bietet nach Kategorien sortierte Bilder, die meisten davon mit KI erstellt und mit „KI“ gekennzeichnet. Alle Bilder dürfen kostenlos heruntergeladen und für private, nicht-kommerzielle Zwecke genutzt werden, auch verändert und ohne Namensnennung; eine kommerzielle Nutzung ist nicht gestattet. Ein Bild lässt sich direkt aus der Vorschau an das Fotocollage-Tool, den Bildkonverter, den Batch-Bildbearbeiter oder den Kodini Farbextraktor übergeben."
       },
       "q20": {
         "question": "Wie schneide ich eine Audiodatei millisekundengenau?",
@@ -598,7 +598,7 @@
       },
       "q21": {
         "question": "Wie erstelle ich ein Favicon für meine Website?",
-        "answer": "Mit dem Favicon Konverter: Bild hochladen, zum Beispiel als PNG oder SVG, und alle gängigen Formate auf einmal erhalten: favicon.ico (16, 32, 48 px), PNG in 16 und 32 px, Apple-Touch-Icon 180 px, Android-Icons 192 und 512 px (auch maskable), site.webmanifest und den passenden HTML-Code. Bei einer SVG-Quelle gibt es zusätzlich favicon.svg. Die Umwandlung läuft komplett im Browser."
+        "answer": "Mit dem Favicon-Konverter: Bild hochladen, zum Beispiel als PNG oder SVG, und alle gängigen Formate auf einmal erhalten: favicon.ico (16, 32, 48 px), PNG in 16 und 32 px, Apple-Touch-Icon 180 px, Android-Icons 192 und 512 px (auch maskable), site.webmanifest und den passenden HTML-Code. Bei einer SVG-Quelle gibt es zusätzlich favicon.svg. Die Umwandlung läuft komplett im Browser."
       },
       "q22": {
         "question": "Wie finde ich die Farbpalette eines Bildes heraus?",
@@ -606,7 +606,7 @@
       },
       "q23": {
         "question": "Wie füge ich mehrere Audiodateien zu einer Datei zusammen?",
-        "answer": "Mit dem Wiedergabeliste Konverter: bis zu 50 Audio-Tracks per Drag-and-Drop hochladen, die Reihenfolge festlegen und alles in eine einzige MP3- oder WebM-Datei umwandeln. Die Verarbeitung läuft auf unseren Servern mit Fortschrittsanzeige, die Dateien werden nach dem Download automatisch gelöscht."
+        "answer": "Mit dem Wiedergabelisten-Konverter: bis zu 50 Audio-Tracks per Drag-and-Drop hochladen, die Reihenfolge festlegen und alles in eine einzige MP3- oder WebM-Datei umwandeln. Die Verarbeitung läuft auf unseren Servern mit Fortschrittsanzeige, die Dateien werden nach dem Download automatisch gelöscht."
       }
     }
   }

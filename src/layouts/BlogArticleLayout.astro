@@ -4,8 +4,7 @@ import GlobalNav from '../components/GlobalNav.astro'
 import TickerBar from '../components/TickerBar.astro'
 import SiteFooter from '../components/SiteFooter.astro'
 import { getSiteFontStyle, getSiteBackgroundStyle } from '../content/content'
-import { readFileSync } from 'fs'
-import { resolve } from 'path'
+import { loadCookieBanner } from '../i18n/cookieBanner'
 
 // Globale Basis-Schrift (im Admin per Kachel gesetzt, sprachübergreifend).
 const siteFontStyle = getSiteFontStyle()
@@ -31,7 +30,8 @@ interface Props {
 const { title, description, canonical, publishedDate, lang, altHref, modifiedDate, ogImage } = Astro.props
 const DEFAULT_OG_IMAGE = 'https://kodinitools.com/image/kodinitools-og-image.jpg'
 const ogImageUrl = ogImage ? new URL(ogImage, 'https://kodinitools.com').href : DEFAULT_OG_IMAGE
-const cookieBannerHtml = readFileSync(resolve('public/partials/cookie-banner.html'), 'utf-8')
+// Cookie-Banner in der Seitensprache vorgerendert (src/i18n/cookieBanner.ts).
+const cookieBannerHtml = loadCookieBanner(lang)
 
 const homeHref = lang === 'de' ? '/' : '/en/'
 const blogHref = lang === 'de' ? '/blog/' : '/en/blog/'

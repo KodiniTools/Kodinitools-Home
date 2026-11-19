@@ -522,7 +522,7 @@
       },
       "q2": {
         "question": "Are my files stored or shared?",
-        "answer": "No. With browser-based tools, your files never leave your computer – processing happens completely locally. With server-based tools, your files are transmitted encrypted, stored temporarily for processing only and automatically deleted after 12 hours at the latest. We do not keep permanent copies of your files."
+        "answer": "Not permanently. With browser-based tools, your files never leave your computer – processing happens completely locally. With server-based tools, your files are transmitted encrypted, stored temporarily for processing only and automatically deleted after 12 hours at the latest. We do not keep permanent copies of your files."
       },
       "q3": {
         "question": "Which file formats are supported?",
@@ -590,7 +590,7 @@
       },
       "q19": {
         "question": "What is the KodiniTools Image Gallery and may I use the images?",
-        "answer": "The Image Gallery offers images sorted by category, most of them created with AI and marked “AI”. All images may be downloaded free of charge and used for private, non-commercial purposes, including modified and without attribution; commercial use is not permitted. You can pass an image straight from the preview to the Photo Collage tool, the Image Converter, the Batch Image Editor or the Kodini Color Extractor."
+        "answer": "The Image Gallery offers images sorted by category, most of them created with AI and marked “AI”. All images may be downloaded free of charge and used for private, non-commercial purposes, including in modified form and without attribution; commercial use is not permitted. You can pass an image straight from the preview to the Photo Collage tool, the Image Converter, the Batch Image Editor or the Kodini Color Extractor."
       },
       "q20": {
         "question": "How do I cut an audio file with millisecond precision?",

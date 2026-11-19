@@ -91,11 +91,12 @@ describe('FAQ-Inhalte', () => {
     }
   });
 
-  it('verlinken den Audio Visualizer in der TikTok-Frage', () => {
+  it('verlinken den Audio-Visualizer in der TikTok-Frage', () => {
+    const name = { de: 'Audio-Visualizer', en: 'Audio Visualizer' } as const;
     for (const lang of LANGS) {
       const segs = linkFaqAnswer(questions(lang).q14.answer, FAQ_LINKS[lang]);
       expect(segs).toContainEqual({
-        text: 'Audio Visualizer',
+        text: name[lang],
         href: 'https://kodinitools.com/visualizer/',
       });
     }

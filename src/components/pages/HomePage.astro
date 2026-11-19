@@ -7,9 +7,8 @@ import HeroBackground from '../HeroBackground.astro'
 import HeroCellMedia from '../HeroCellMedia.astro'
 import SectionMediaBlock from '../SectionMediaBlock.astro'
 import SiteFooter from '../SiteFooter.astro'
-import { readFileSync } from 'fs'
 import homeCompactCssRaw from '../../styles/parts/home-compact.css?raw'
-import { resolve } from 'path'
+import { loadCookieBanner } from '../../i18n/cookieBanner'
 import { getContent, getMedia, HERO_LAYOUT_CELLS, heroGridReflowCols, effectiveHeroCellStyle, heroCellImageVars, getTextStylesCss, getHeroBannerCss, getHeroImageCss, getSectionMediaCss, getToolCardsCss, getIconTintCss, getHiddenCards, getHomeLayout } from '../../content/content'
 import type { Lang } from '../../i18n/lang'
 import { HOME_UI } from '../../i18n/home-ui'
@@ -71,7 +70,8 @@ const homeCompactCss = compact
 const heroHasMedia =
   media.heroMode === 'grid' || (media.heroBannerShow !== false && Boolean(media.heroBanner || media.heroBannerText))
 
-const cookieBannerHtml = readFileSync(resolve('public/partials/cookie-banner.html'), 'utf-8')
+// Cookie-Banner in der Seitensprache vorgerendert (src/i18n/cookieBanner.ts).
+const cookieBannerHtml = loadCookieBanner(lang)
 
 // Type guard for tool entries (filters out sectionTitle, sectionDescription, processingBadge)
 type ToolEntry = { title: string; description: string; badge: string; link: string; svg: string }
