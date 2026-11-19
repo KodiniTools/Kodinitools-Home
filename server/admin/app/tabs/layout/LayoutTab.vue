@@ -50,6 +50,13 @@
               : 'Hinweis: Der Banner-Text ist leer. Animation, Größe, Farbe und Deckkraft des Banner-Texts wirken auf der Seite erst, wenn ein Banner-Text eingetragen ist.'
           "
         />
+        <AiImagePanel
+          v-if="service.stageImage && !grid"
+          :on-use="useAiBanner"
+          use-label="Als Banner verwenden"
+          default-purpose="Hero-Banner oben auf der Startseite"
+          default-aspect="21:9"
+        />
       </div>
       <template v-if="grid">
         <LyGridPreview />
@@ -151,6 +158,7 @@ import {
 import { copyGridDesign, layoutCells, normLayout } from './gridData';
 import { lyUi } from './layoutUi';
 import { provideLayout } from './useLayout';
+import AiImagePanel from '../files/AiImagePanel.vue';
 import AiDesignAssist, { type Applicable } from '../hero/AiDesignAssist.vue';
 import type { AiChange } from '../hero/aiHero';
 import { applyLayoutChange, describeLayoutCurrent, resolveLayoutChange } from './aiLayout';
@@ -170,6 +178,17 @@ const { view, change, toast, text, styles, slideshow, slides, cell, markCell } =
 );
 const service = props.service;
 const aiCurrent = () => JSON.stringify(view.value.m);
+/** KI-Bild als Banner dieser Sprache (Entwurf, Strg+Z, Vorschau; Upload erst beim Veröffentlichen). */
+async function useAiBanner(file: File) {
+  const url = await service.stageImage?.(file);
+  if (!url) return;
+  change(() => {
+    view.value.m.heroBanner = url;
+  });
+  toast('Als Banner gesetzt (Entwurf) – mit Strg+Z rückgängig, in der Vorschau prüfen', {
+    type: 'success',
+  });
+}
 function aiResolve(c: AiChange): Applicable | null {
   const r = resolveLayoutChange(c);
   if (!r) return null;

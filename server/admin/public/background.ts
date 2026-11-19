@@ -32,7 +32,7 @@ import {
   setSiteSection,
   defaultSectionSide,
 } from './model';
-import { objUrl, openMediaPicker } from './media';
+import { objUrl, openMediaPicker, stageFile } from './media';
 import { mountVueTab } from './islands';
 import type { BgService } from '../app/tabs/background/bgData';
 import type { ThemeMode } from '../types';
@@ -78,6 +78,7 @@ function bgService(): BgService {
     setSection: setSiteSection,
     resolveUrl: previewUrl,
     pick,
+    stageImage: async (file: File) => 'staged:' + (await stageFile(file, file.name)),
     fxList: SITE_FX,
     patterns: SITE_PATTERNS,
     gradientTypes: SITE_GRADIENT_TYPES,

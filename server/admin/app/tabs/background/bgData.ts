@@ -78,6 +78,8 @@ export interface BgService {
   resolveUrl: (val: string) => string;
   /** Bild-Auswahl (alle Sprachen, nur Bilder); false = keine Medien vorhanden. */
   pick: (title: string, onPick: (url: string) => void) => boolean;
+  /** Datei in den Browser-Zwischenspeicher legen → Wert `staged:<id>` (optional: Tests). */
+  stageImage?: (file: File) => Promise<string>;
   fxList: readonly { key: FxKey; label: string }[];
   patterns: readonly string[];
   gradientTypes: readonly string[];

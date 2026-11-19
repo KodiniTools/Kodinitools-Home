@@ -614,6 +614,8 @@ export interface LayoutService {
   resolve: (val: string) => ResolvedMedia | null;
   /** Medien-Auswahl öffnen; false = keine Medien vorhanden (öffnet nichts). */
   pick: (target: PickTarget, title: string, onPick: (url: string) => void) => boolean;
+  /** Datei in den Browser-Zwischenspeicher legen → Wert `staged:<id>` (optional: Tests). */
+  stageImage?: (file: File) => Promise<string>;
   /** Bild aus der Zwischenablage einsetzen (zeichnet den Tab neu). */
   paste: (target: PasteTarget) => void;
   /** Kachel-Markierung für Strg/Cmd+V anmelden; Rückgabe meldet wieder ab. */
