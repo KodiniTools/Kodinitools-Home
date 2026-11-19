@@ -85,6 +85,17 @@ describe('aiTasks', () => {
     expect(p).toContain('Allgemein verbessern');
   });
 
+  it('prüft Eingaben des Bild-Prompts', () => {
+    expect(() => buildUserPrompt('imageprompt', {})).toThrow(/idea/);
+    const p = buildUserPrompt('imageprompt', {
+      idea: 'blaue Wellen',
+      purpose: 'Hero-Banner',
+      aspectRatio: '16:9',
+    });
+    expect(p).toContain('Idee: blaue Wellen');
+    expect(p).toContain('Seitenverhältnis: 16:9');
+  });
+
   it('baut Anfrage mit Modell, Aufwand und JSON-Schema, ohne Sampling-Parameter', () => {
     const p = buildRequestParams(
       'seo',
@@ -157,6 +168,7 @@ describe('ai.ts', () => {
       'ticker',
       'icon',
       'design',
+      'imageprompt',
     ]);
     await expect(batchStatus('../etc')).rejects.toThrow(/Batch-ID/);
   });

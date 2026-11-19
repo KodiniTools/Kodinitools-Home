@@ -9,7 +9,16 @@ export interface AiConfig {
   tasks: { id: AiTask; label: string; effort: string }[];
 }
 
-export type AiTask = 'seo' | 'compare' | 'blog' | 'alt' | 'card' | 'ticker' | 'icon' | 'design';
+export type AiTask =
+  | 'seo'
+  | 'compare'
+  | 'blog'
+  | 'alt'
+  | 'card'
+  | 'ticker'
+  | 'icon'
+  | 'design'
+  | 'imageprompt';
 
 /** Aufgaben, die das Panel im Tab „Texte“ anbietet (die übrigen haben eigene Stellen). */
 export const PANEL_TASKS: readonly AiTask[] = ['seo', 'compare', 'blog'];
@@ -99,6 +108,7 @@ export function resultToText(task: AiTask, data: Record<string, unknown> | undef
     const terms = Array.isArray(data.terms) ? (data.terms as string[]) : [];
     return `${terms.join(', ')}\n${s('reasoning')}`.trim();
   }
+  if (task === 'imageprompt') return `${s('prompt')}\n${s('notes')}`.trim();
   if (task === 'design') {
     const sug = Array.isArray(data.suggestions)
       ? (data.suggestions as Record<string, string>[])

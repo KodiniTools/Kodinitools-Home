@@ -81,7 +81,16 @@ export function estimateCostUsd(model: ModelId, usage: Usage, batch = false): nu
   return Math.round(usd * (batch ? 0.5 : 1) * 1e6) / 1e6;
 }
 
-export type TaskId = 'seo' | 'compare' | 'blog' | 'alt' | 'card' | 'ticker' | 'icon' | 'design';
+export type TaskId =
+  | 'seo'
+  | 'compare'
+  | 'blog'
+  | 'alt'
+  | 'card'
+  | 'ticker'
+  | 'icon'
+  | 'design'
+  | 'imageprompt';
 
 export type TaskDef = {
   id: TaskId;
@@ -283,6 +292,26 @@ export const TASKS: Record<TaskId, TaskDef> = {
       additionalProperties: false,
     },
   },
+  imageprompt: {
+    id: 'imageprompt',
+    label: 'Bild-Prompt für Gemini',
+    effort: 'low',
+    maxTokens: 1500,
+    system:
+      SITE_CONTEXT +
+      ' Aufgabe: Mache aus einer groben Idee einen guten Prompt für einen Bildgenerator (Google Gemini). ' +
+      'Der Prompt ist englisch, konkret und beschreibend (Motiv, Stil, Licht, Farben, Perspektive, Stimmung), ' +
+      'in ganzen Sätzen statt Stichwortlisten. Das Bild enthält keinen Text und keine Logos oder Markennamen. ' +
+      'Beachte den Verwendungszweck (z. B. Hero-Banner: ruhige Fläche für Text, wenig Details am Rand; ' +
+      'Hintergrund: dezent, kachelbar nicht nötig, geringer Kontrast) und das Seitenverhältnis. ' +
+      'Erfinde keine Motive, die der Idee widersprechen. notes: ein deutscher Satz, was du ergänzt hast.',
+    schema: {
+      type: 'object',
+      properties: { prompt: STR, notes: STR },
+      required: ['prompt', 'notes'],
+      additionalProperties: false,
+    },
+  },
 };
 
 export function isTaskId(v: unknown): v is TaskId {
@@ -365,6 +394,14 @@ export function buildUserPrompt(task: TaskId, input: unknown): string {
         `Aktuelle Einstellungen (JSON):\n${text(i.current, 'current')}`,
       ].join('\n');
     }
+    case 'imageprompt':
+      return [
+        `Idee: ${text(i.idea, 'idea')}`,
+        i.purpose ? `Verwendungszweck: ${text(i.purpose, 'purpose', false)}` : '',
+        i.aspectRatio ? `Seitenverhältnis: ${text(i.aspectRatio, 'aspectRatio', false)}` : '',
+      ]
+        .filter(Boolean)
+        .join('\n');
     case 'alt':
       return i.context
         ? `Verwendung des Bildes: ${text(i.context, 'context')}`

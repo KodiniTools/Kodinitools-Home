@@ -25,6 +25,39 @@
           placeholder="z. B. Abstrakter dunkelblauer Hintergrund mit sanften Lichtverläufen, ohne Text"
           data-aiimg-prompt
         />
+        <div class="ai-row" data-aiimg-assist>
+          <UiSelect
+            v-model="purpose"
+            label="Verwendung"
+            size="sm"
+            :options="PURPOSES"
+            data-aiimg-purpose
+          />
+          <UiButton
+            size="sm"
+            :disabled="ai.busy.value || !prompt.trim() || !ai.config.value?.configured"
+            data-aiimg-improve
+            @click="improve"
+          >
+            {{ ai.busy.value ? 'Claude schreibt …' : '✨ Prompt mit Claude verbessern' }}
+          </UiButton>
+          <UiButton v-if="previous !== null" size="sm" data-aiimg-undo @click="undo"
+            >↺ Vorherigen Prompt wiederherstellen</UiButton
+          >
+        </div>
+        <details v-if="ai.config.value" class="ai-m0">
+          <summary class="hint">Claude-Modell für die Prompt-Hilfe</summary>
+          <AiModelPicker
+            v-model:model="ai.model.value"
+            v-model:effort="ai.effort.value"
+            :config="ai.config.value"
+          />
+        </details>
+        <p v-if="ai.loadError.value" class="ai-err">{{ ai.loadError.value }}</p>
+        <p v-if="ai.error.value" class="ai-err" data-aiimg-aierror>{{ ai.error.value }}</p>
+        <p v-if="notes" class="hint ai-m0" data-aiimg-notes>
+          {{ notes }} (Kosten Prompt-Hilfe, geschätzt: {{ formatUsd(ai.costUsd.value) }})
+        </p>
         <div class="ai-row">
           <UiSelect
             v-model="model"
@@ -80,6 +113,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { UiButton, UiCallout, UiSelect, UiTextArea } from '../../components/ui';
+import AiModelPicker from '../../components/AiModelPicker.vue';
+import { useAiAssist } from '../../lib/useAiAssist';
 import { formatUsd } from '../texts/aiClient';
 import {
   fetchGeminiConfig,
@@ -127,8 +162,38 @@ const previewSrc = computed(() =>
   image.value ? `data:${image.value.mime};base64,${image.value.data}` : '',
 );
 
+// Prompt-Hilfe (Anthropic): schreibt die grobe Idee in einen Gemini-Prompt um.
+const ai = useAiAssist('imageprompt', 'low');
+const PURPOSES = [
+  { value: '', label: 'Allgemein' },
+  { value: 'Hero-Banner oben auf der Startseite', label: 'Hero-Banner' },
+  { value: 'Seiten-Hintergrund', label: 'Hintergrund' },
+  { value: 'Bild für eine Tool-Karte', label: 'Tool-Karte' },
+];
+const purpose = ref('');
+const previous = ref<string | null>(null);
+const notes = ref('');
+
+async function improve() {
+  const idea = prompt.value.trim();
+  if (!idea) return;
+  const r = await ai.run({ idea, purpose: purpose.value, aspectRatio: aspect.value });
+  const text = typeof r?.data?.prompt === 'string' ? r.data.prompt.trim() : '';
+  if (!text) return;
+  previous.value = prompt.value;
+  prompt.value = text;
+  notes.value = String(r?.data?.notes ?? '');
+}
+function undo() {
+  if (previous.value === null) return;
+  prompt.value = previous.value;
+  previous.value = null;
+  notes.value = '';
+}
+
 async function toggle() {
   open.value = !open.value;
+  if (open.value && !ai.config.value) void ai.toggle();
   if (!open.value || config.value) return;
   const r = await fetchGeminiConfig();
   if (!r.ok) {
