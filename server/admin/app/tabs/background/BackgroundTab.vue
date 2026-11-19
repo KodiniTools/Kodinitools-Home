@@ -108,6 +108,7 @@
             <strong>Hell</strong>, rechts <strong>Dunkel</strong>. Darunter je Modus die abgesetzten
             Sektionen. Hier in der Mitte: Vorschau, allgemeine Sektions-Einstellungen und Effekte.
           </p>
+          <AiDesignAssist area="background" :get-current="aiCurrent" />
         </div>
 
         <!-- Abgesetzte Sektionen (allgemein) -->
@@ -240,6 +241,7 @@ import {
 } from '../../components/ui';
 import { useToastStore } from '../../stores/toast';
 import BgSide from './BgSide.vue';
+import AiDesignAssist from '../hero/AiDesignAssist.vue';
 import {
   AURORA_BG,
   FX_DESC,
@@ -272,6 +274,13 @@ import { bgRev, bgUi } from './bgUi';
  */
 const props = defineProps<{ service: BgService }>();
 const toasts = useToastStore();
+const aiCurrent = () =>
+  JSON.stringify({
+    light: props.service.bg('light'),
+    dark: props.service.bg('dark'),
+    sectionStyle: props.service.sectionStyle(),
+    sectionGap: props.service.sectionGap(),
+  });
 
 type Column = ThemeMode | 'main';
 const COLUMNS: Column[] = ['light', 'main', 'dark'];

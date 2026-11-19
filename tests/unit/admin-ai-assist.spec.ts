@@ -9,6 +9,7 @@ vi.mock('../../server/admin/app/lib/api', () => api);
 
 import AiCardAssist from '../../server/admin/app/tabs/toolcards/AiCardAssist.vue';
 import AiTickerAssist from '../../server/admin/app/tabs/ticker/AiTickerAssist.vue';
+import AiDesignAssist from '../../server/admin/app/tabs/hero/AiDesignAssist.vue';
 import AiIconAssist from '../../server/admin/app/tabs/icons/AiIconAssist.vue';
 
 const CONFIG = {
@@ -85,5 +86,32 @@ describe('AiIconAssist', () => {
     expect(chips).toHaveLength(2);
     await chips[0]!.trigger('click');
     expect(search).toHaveBeenCalledWith('scissors');
+  });
+});
+
+describe('AiDesignAssist', () => {
+  it('sendet Bereich und Einstellungen, zeigt nur gültige Farben, ändert nichts', async () => {
+    answer({
+      summary: 'Ruhiger',
+      suggestions: [{ title: 'Kontrast', why: 'zu schwach', how: 'Hero-Design → Farben' }],
+      colors: [
+        { name: 'Blau', hex: '#1166aa', use: 'Akzent' },
+        { name: 'Böse', hex: 'red;background:url(x)', use: 'x' },
+      ],
+      imagePrompt: 'soft gradient',
+    });
+    const getCurrent = vi.fn(() => '{"x":1}');
+    const w = mount(AiDesignAssist, { props: { area: 'background', getCurrent } });
+    await w.get('[data-aids-toggle]').trigger('click');
+    await flushPromises();
+    await w.get('[data-aids-run]').trigger('click');
+    await flushPromises();
+    expect(api.apiPost.mock.calls[0]?.[1]).toMatchObject({
+      task: 'design',
+      input: { area: 'background', current: '{"x":1}' },
+    });
+    expect(w.findAll('[data-aids-suggestion]')).toHaveLength(1);
+    expect(w.findAll('[data-aids-color]')).toHaveLength(1);
+    expect(w.get('[data-aids-prompt]').text()).toContain('soft gradient');
   });
 });

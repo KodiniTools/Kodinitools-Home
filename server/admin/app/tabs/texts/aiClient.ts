@@ -9,7 +9,7 @@ export interface AiConfig {
   tasks: { id: AiTask; label: string; effort: string }[];
 }
 
-export type AiTask = 'seo' | 'compare' | 'blog' | 'alt' | 'card' | 'ticker' | 'icon';
+export type AiTask = 'seo' | 'compare' | 'blog' | 'alt' | 'card' | 'ticker' | 'icon' | 'design';
 
 /** Aufgaben, die das Panel im Tab „Texte“ anbietet (die übrigen haben eigene Stellen). */
 export const PANEL_TASKS: readonly AiTask[] = ['seo', 'compare', 'blog'];
@@ -98,6 +98,20 @@ export function resultToText(task: AiTask, data: Record<string, unknown> | undef
   if (task === 'icon') {
     const terms = Array.isArray(data.terms) ? (data.terms as string[]) : [];
     return `${terms.join(', ')}\n${s('reasoning')}`.trim();
+  }
+  if (task === 'design') {
+    const sug = Array.isArray(data.suggestions)
+      ? (data.suggestions as Record<string, string>[])
+      : [];
+    const cols = Array.isArray(data.colors) ? (data.colors as Record<string, string>[]) : [];
+    return [
+      s('summary'),
+      ...sug.map((x, i) => `${i + 1}. ${x.title}: ${x.why} (${x.how})`),
+      cols.map((c) => `${c.name} ${c.hex} – ${c.use}`).join('\n'),
+      s('imagePrompt') ? `Bild-Prompt: ${s('imagePrompt')}` : '',
+    ]
+      .filter(Boolean)
+      .join('\n');
   }
   if (task === 'alt') {
     return `Alt DE: ${s('altDe')}\nAlt EN: ${s('altEn')}\nDateiname: ${s('filename')}${data.decorative ? '\n(dekorativ)' : ''}`;

@@ -38,6 +38,7 @@
     <div class="tc-main">
       <LyPagePanel />
       <LyModePanel />
+      <div class="panel"><AiDesignAssist area="layout" :get-current="aiCurrent" /></div>
       <template v-if="grid">
         <LyGridPreview />
         <LyGridSettings />
@@ -138,6 +139,7 @@ import {
 import { copyGridDesign, layoutCells, normLayout } from './gridData';
 import { lyUi } from './layoutUi';
 import { provideLayout } from './useLayout';
+import AiDesignAssist from '../hero/AiDesignAssist.vue';
 
 /**
  * Tab „Layout“ (Vue-Fassung von `renderLayout`, `public/layout-banner.js` und
@@ -153,6 +155,7 @@ const { view, change, toast, styles, slideshow, slides, cell, markCell } = provi
   props.service,
 );
 const service = props.service;
+const aiCurrent = () => JSON.stringify(view.value.m);
 const OTHER = otherLang(service.lang);
 const OTHER_NAME = LANG_LABEL[OTHER];
 

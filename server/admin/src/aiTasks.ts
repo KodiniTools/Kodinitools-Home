@@ -81,7 +81,7 @@ export function estimateCostUsd(model: ModelId, usage: Usage, batch = false): nu
   return Math.round(usd * (batch ? 0.5 : 1) * 1e6) / 1e6;
 }
 
-export type TaskId = 'seo' | 'compare' | 'blog' | 'alt' | 'card' | 'ticker' | 'icon';
+export type TaskId = 'seo' | 'compare' | 'blog' | 'alt' | 'card' | 'ticker' | 'icon' | 'design';
 
 export type TaskDef = {
   id: TaskId;
@@ -242,6 +242,47 @@ export const TASKS: Record<TaskId, TaskDef> = {
       additionalProperties: false,
     },
   },
+  design: {
+    id: 'design',
+    label: 'Design-Beratung (Hero, Hintergrund, Layout)',
+    effort: 'medium',
+    maxTokens: 4000,
+    system:
+      SITE_CONTEXT +
+      ' Aufgabe: Berate zum Design eines Bereichs der Startseite (Hero-Design, Seiten-Hintergrund oder Hero-Layout). ' +
+      'Du bekommst die aktuellen Einstellungen als JSON und ein Ziel. Gib 3 bis 5 konkrete Vorschläge, jeweils mit Begründung ' +
+      'und einem Hinweis, welche Einstellung im Admin zu ändern ist. Beachte Lesbarkeit (Kontrast WCAG AA), ' +
+      'Mobil-Performance (keine schweren Bilder, keine Animationen über dem Falz, kein Einblenden der ganzen Seite) und ' +
+      'Hell/Dunkel-Modus. Farben als Hex-Werte (#rrggbb). imagePrompt nur, wenn ein Bild sinnvoll ist: englischer ' +
+      'Prompt für einen Bildgenerator, ohne Text im Bild, sonst leerer String. Erfinde keine Einstellungen, die es nicht gibt.',
+    schema: {
+      type: 'object',
+      properties: {
+        summary: STR,
+        suggestions: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: { title: STR, why: STR, how: STR },
+            required: ['title', 'why', 'how'],
+            additionalProperties: false,
+          },
+        },
+        colors: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: { name: STR, hex: STR, use: STR },
+            required: ['name', 'hex', 'use'],
+            additionalProperties: false,
+          },
+        },
+        imagePrompt: STR,
+      },
+      required: ['summary', 'suggestions', 'colors', 'imagePrompt'],
+      additionalProperties: false,
+    },
+  },
 };
 
 export function isTaskId(v: unknown): v is TaskId {
@@ -315,6 +356,15 @@ export function buildUserPrompt(task: TaskId, input: unknown): string {
       ]
         .filter(Boolean)
         .join('\n');
+    case 'design': {
+      const area = String(i.area ?? '');
+      if (!['hero', 'background', 'layout'].includes(area)) throw inputError('area ungültig');
+      return [
+        `Bereich: ${area}`,
+        `Ziel: ${text(i.goal, 'goal', false) || 'Allgemein verbessern'}`,
+        `Aktuelle Einstellungen (JSON):\n${text(i.current, 'current')}`,
+      ].join('\n');
+    }
     case 'alt':
       return i.context
         ? `Verwendung des Bildes: ${text(i.context, 'context')}`
