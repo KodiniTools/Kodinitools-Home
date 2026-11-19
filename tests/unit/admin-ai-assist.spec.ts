@@ -236,3 +236,43 @@ describe('AiImagePanel: Prompt-Hilfe', () => {
     expect(w.find('[data-aiimg-undo]').exists()).toBe(false);
   });
 });
+
+describe('compressImage', () => {
+  it('liefert das Original, wenn der Browser nicht kodieren kann', async () => {
+    const { compressImage } = await import('../../server/admin/app/tabs/files/geminiClient');
+    const f = new File([new Uint8Array(10)], 'a.png', { type: 'image/png' });
+    const r = await compressImage(f);
+    expect(r.compressed).toBe(false);
+    expect(r.file).toBe(f);
+  });
+  it('skaliert, kodiert als WebP und nimmt nur ein kleineres Ergebnis', async () => {
+    const { compressImage } = await import('../../server/admin/app/tabs/files/geminiClient');
+    const draw = vi.fn();
+    vi.stubGlobal(
+      'createImageBitmap',
+      vi.fn(async () => ({ width: 4000, height: 2000, close: vi.fn() })),
+    );
+    const canvas = {
+      width: 0,
+      height: 0,
+      getContext: () => ({ drawImage: draw }),
+      toBlob: (cb: (b: Blob | null) => void, type: string) =>
+        cb(new Blob([new Uint8Array(100)], { type })),
+    };
+    const spy = vi.spyOn(document, 'createElement').mockReturnValue(canvas as never);
+    try {
+      const f = new File([new Uint8Array(5000)], 'x.png', { type: 'image/png' });
+      const r = await compressImage(f, { maxWidth: 1000 });
+      expect(r.compressed).toBe(true);
+      expect(r.file.name).toBe('x.webp');
+      expect(r.file.type).toBe('image/webp');
+      expect(canvas.width).toBe(1000);
+      expect(canvas.height).toBe(500);
+      const big = new File([new Uint8Array(50)], 'y.png', { type: 'image/png' });
+      expect((await compressImage(big)).compressed).toBe(false);
+    } finally {
+      spy.mockRestore();
+      vi.unstubAllGlobals();
+    }
+  });
+});

@@ -62,3 +62,55 @@ export function imageToFile(img: GeminiImage, stem = 'ki-bild'): File {
   const ext = EXT[img.mime] ?? 'png';
   return new File([bytes], `${stem}-${Date.now()}.${ext}`, { type: img.mime });
 }
+
+export interface CompressResult {
+  file: File;
+  before: number;
+  after: number;
+  /** false = Original beibehalten (Browser kann es nicht, nicht kleiner, Fehler). */
+  compressed: boolean;
+}
+
+/**
+ * Verkleinert ein Bild im Browser: Breite auf `maxWidth` begrenzen (nie vergrößern),
+ * als WebP neu kodieren (Transparenz bleibt erhalten). Ist das Ergebnis nicht kleiner
+ * oder geht etwas schief, kommt das Original unverändert zurück.
+ */
+export async function compressImage(
+  file: File,
+  opts: { maxWidth?: number; quality?: number } = {},
+): Promise<CompressResult> {
+  const keep: CompressResult = { file, before: file.size, after: file.size, compressed: false };
+  const maxWidth = opts.maxWidth ?? 1920;
+  const quality = opts.quality ?? 0.82;
+  try {
+    const bmp = await createImageBitmap(file);
+    try {
+      const scale = Math.min(1, maxWidth / bmp.width);
+      const w = Math.max(1, Math.round(bmp.width * scale));
+      const h = Math.max(1, Math.round(bmp.height * scale));
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return keep;
+      ctx.drawImage(bmp, 0, 0, w, h);
+      const blob = await new Promise<Blob | null>((res) =>
+        canvas.toBlob(res, 'image/webp', quality),
+      );
+      // Manche Browser liefern bei fehlender WebP-Unterstützung PNG zurück.
+      if (!blob || blob.type !== 'image/webp' || blob.size >= file.size) return keep;
+      const name = file.name.replace(/\.[a-z0-9]+$/i, '') + '.webp';
+      return {
+        file: new File([blob], name, { type: 'image/webp' }),
+        before: file.size,
+        after: blob.size,
+        compressed: true,
+      };
+    } finally {
+      bmp.close();
+    }
+  } catch {
+    return keep;
+  }
+}

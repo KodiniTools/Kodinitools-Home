@@ -98,6 +98,12 @@
             data-aiimg-download
             >⬇ Original herunterladen</a
           >
+          <UiSwitch
+            v-if="onUse"
+            v-model="compress"
+            label="Komprimieren (WebP, max. 1920 px breit)"
+            data-aiimg-compress
+          />
           <UiSelect
             v-if="targets && targets.length > 1"
             v-model="target"
@@ -122,12 +128,14 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import { UiButton, UiCallout, UiSelect, UiTextArea } from '../../components/ui';
+import { UiButton, UiCallout, UiSelect, UiSwitch, UiTextArea } from '../../components/ui';
 import AiModelPicker from '../../components/AiModelPicker.vue';
 import { useAiAssist } from '../../lib/useAiAssist';
+import { useToastStore } from '../../stores/toast';
 import { formatUsd } from '../texts/aiClient';
 import {
   fetchGeminiConfig,
+  compressImage,
   generateGeminiImage,
   imageToFile,
   type GeminiConfig,
@@ -161,6 +169,8 @@ const aspect = ref(props.defaultAspect ?? '16:9');
 const size = ref('1K');
 const image = ref<GeminiImage | null>(null);
 const fileName = ref('ki-bild.png');
+const compress = ref(true);
+const toasts = useToastStore();
 
 const currentModel = computed(() => config.value?.models.find((m) => m.id === model.value));
 const modelOptions = computed(() =>
@@ -257,9 +267,21 @@ async function run() {
 
 async function use() {
   if (!image.value) return;
-  const file = imageToFile(image.value);
-  if (props.onUse) await props.onUse(file, target.value);
-  else await props.add?.([file]);
+  let file = imageToFile(image.value);
+  if (props.onUse) {
+    if (compress.value) {
+      const r = await compressImage(file);
+      file = r.file;
+      const kb = (n: number) => `${Math.round(n / 1024)} KB`;
+      toasts.addToast(
+        r.compressed
+          ? `Komprimiert: ${kb(r.before)} → ${kb(r.after)} (WebP)`
+          : 'Nicht komprimiert (Original behalten)',
+        { type: r.compressed ? 'success' : 'info' },
+      );
+    }
+    await props.onUse(file, target.value);
+  } else await props.add?.([file]);
 }
 </script>
 
