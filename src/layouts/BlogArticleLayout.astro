@@ -4,7 +4,6 @@ import GlobalNav from '../components/GlobalNav.astro'
 import TickerBar from '../components/TickerBar.astro'
 import SiteFooter from '../components/SiteFooter.astro'
 import { getSiteFontStyle, getSiteBackgroundStyle } from '../content/content'
-import { loadCookieBanner } from '../i18n/cookieBanner'
 
 // Globale Basis-Schrift (im Admin per Kachel gesetzt, sprachübergreifend).
 const siteFontStyle = getSiteFontStyle()
@@ -30,9 +29,6 @@ interface Props {
 const { title, description, canonical, publishedDate, lang, altHref, modifiedDate, ogImage } = Astro.props
 const DEFAULT_OG_IMAGE = 'https://kodinitools.com/image/kodinitools-og-image.jpg'
 const ogImageUrl = ogImage ? new URL(ogImage, 'https://kodinitools.com').href : DEFAULT_OG_IMAGE
-// Cookie-Banner in der Seitensprache vorgerendert (src/i18n/cookieBanner.ts).
-const cookieBannerHtml = loadCookieBanner(lang)
-
 const homeHref = lang === 'de' ? '/' : '/en/'
 const blogHref = lang === 'de' ? '/blog/' : '/en/blog/'
 const homeLabel = lang === 'de' ? 'Startseite' : 'Home'
@@ -77,23 +73,6 @@ const schemaBreadcrumb = {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script is:inline>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);} // eslint-disable-line prefer-rest-params -- offizielles Google-Snippet, arguments bewusst
-  gtag('consent', 'default', {
-    'ad_storage': 'denied', 'ad_user_data': 'denied', 'ad_personalization': 'denied',
-    'analytics_storage': 'denied', 'functionality_storage': 'denied',
-    'personalization_storage': 'denied', 'security_storage': 'granted', 'wait_for_update': 500
-  });
-  (function() {
-    try {
-      const c = JSON.parse(localStorage.getItem('cookieConsent') || '{}');
-      if (c.analytics) gtag('consent', 'update', { 'analytics_storage': 'granted', 'functionality_storage': 'granted', 'personalization_storage': 'granted' });
-    } catch { /* Consent optional – Fehler bewusst ignorieren */ }
-  })();
-  </script>
-  <script is:inline>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});const f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-T7NS656K');</script>
-
   <title>{title}</title>
   <meta name="description" content={description} />
   <meta name="robots" content="index, follow" />
@@ -666,7 +645,6 @@ const schemaBreadcrumb = {
     <div class="global-gradient"></div>
     <div class="global-noise"></div>
   </div>
-  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T7NS656K" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   <GlobalNav lang={lang} altHref={altHref} />
   <TickerBar lang={lang} />
@@ -699,7 +677,6 @@ const schemaBreadcrumb = {
   </main>
 
   <SiteFooter lang={lang} />
-  <Fragment set:html={cookieBannerHtml} />
 
   <div id="blog-lightbox" class="lightbox-overlay" hidden>
     <button type="button" class="lightbox-close" aria-label={lang === 'de' ? 'Schliessen' : 'Close'}>&times;</button>

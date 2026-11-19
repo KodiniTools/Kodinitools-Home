@@ -39,13 +39,6 @@ export default tseslint.config(
 
   // Astro-Seiten: der Client-`<script>`-Teil läuft im Browser, der Frontmatter-
   // Teil zur Build-Zeit in Node. Beide Global-Sets bereitstellen.
-  // Hinweis: Das offizielle Google-gtag-Snippet nutzt bewusst das
-  // `arguments`-Objekt (`function gtag(){dataLayer.push(arguments);}`). Eine
-  // Umschreibung auf Rest-Parameter würde das an den Tag Manager übergebene
-  // Objekt verändern; die Regel `prefer-rest-params` wird deshalb direkt an
-  // diesen Stellen per Inline-Kommentar deaktiviert (ein Datei-Override greift
-  // hier nicht, da eslint-plugin-astro die <script>-Blöcke als virtuelle
-  // Dateien ohne .astro-Endung lintet).
   {
     files: ['**/*.astro'],
     languageOptions: {
