@@ -106,10 +106,10 @@
     "catSearch": true,
     "mediaPosDesktop": "side",
     "mediaPosMobile": "bottom",
-    "toolBadge": false,
-    "toolFilter": false,
-    "cmdPalette": false,
-    "workflows": false
+    "toolBadge": true,
+    "toolFilter": true,
+    "cmdPalette": true,
+    "workflows": true
   },
   "de": {
     "sectionVideos": {
@@ -263,12 +263,13 @@
     "heroMediaOffsetX": 0,
     "heroMediaOffsetY": 0,
     "toolCardOffsets": {},
+    "imageAlt": {},
     "heroBanner": "/uploads/de/kt-de-00ec89b5.webp",
     "heroBannerLink": "",
     "heroBannerText": "",
     "heroBannerFont": "Hind-Regular.woff2",
-    "heroBannerTextColor": "#f7f3f3",
-    "heroBannerTextSize": 50,
+    "heroBannerTextColor": "#ffffff",
+    "heroBannerTextSize": 0,
     "heroBannerTextPos": "bottom",
     "heroBannerTextX": 17,
     "heroBannerTextY": 35,
@@ -280,9 +281,9 @@
     "heroBannerTextStrokeColor": "#fafafa",
     "heroBannerTextStrokeWidth": 0.5,
     "heroBannerTextOpacity": 100,
-    "heroBannerTextAnim": "pulse",
-    "heroBannerTextAnimIntensity": 7,
-    "heroBannerTextAnimSpeed": "fast",
+    "heroBannerTextAnim": "none",
+    "heroBannerTextAnimIntensity": 2,
+    "heroBannerTextAnimSpeed": "slow",
     "heroBannerStyle": {
       "light": {
         "borderColor": "#161490",
@@ -2317,6 +2318,7 @@
     "heroMediaOffsetX": 0,
     "heroMediaOffsetY": 0,
     "toolCardOffsets": {},
+    "imageAlt": {},
     "heroBanner": "/uploads/en/kt-en-43ef0263.webp",
     "heroBannerLink": "",
     "heroBannerText": "",
