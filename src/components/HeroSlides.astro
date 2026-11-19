@@ -6,6 +6,8 @@
 // variant 'cell':   Container füllt die Kachel; jedes weitere Bild bekommt den
 //                   gleichen .hero-cell-media-Wrapper wie das erste (Bild-
 //                   bearbeitung wirkt auf alle).
+import { IMAGE_ALT_DECORATIVE } from '../content/content';
+
 interface Props {
   slides: string[];
   settings: {
@@ -22,6 +24,7 @@ interface Props {
   pauseTarget?: string; // Selektor eines Vorfahren, dessen Hover pausiert (z. B. '.hero' für den Hintergrund)
 }
 const { slides, settings, variant, offset = 0, total, pauseTarget, alts = {} } = Astro.props;
+const altOf = (src: string) => (alts[src] === IMAGE_ALT_DECORATIVE ? '' : alts[src] || '');
 const interval = Math.max(1, Math.min(30, Number(settings.interval) || 5));
 const duration = Math.max(
   0,
@@ -47,18 +50,12 @@ const showDots = settings.dots !== false;
     slides.map((src) =>
       variant === 'cell' ? (
         <div class="hero-cell-media hero-slide">
-          <img
-            src={src}
-            alt={alts[src] || ''}
-            class="hero-grid-media"
-            loading="lazy"
-            decoding="async"
-          />
+          <img src={src} alt={altOf(src)} class="hero-grid-media" loading="lazy" decoding="async" />
         </div>
       ) : (
         <img
           src={src}
-          alt={alts[src] || ''}
+          alt={altOf(src)}
           class="hero-banner hero-slide"
           loading="lazy"
           decoding="async"

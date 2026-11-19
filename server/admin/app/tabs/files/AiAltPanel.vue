@@ -74,7 +74,10 @@
         </div>
         <article v-for="r in rows" :key="r.path" class="ai-result" data-aialt-result>
           <strong>{{ r.path }}</strong>
-          <p v-if="hasAlt(r.path)" class="hint ai-m0" data-aialt-current>
+          <p v-if="isDecorative(r.path)" class="hint ai-m0" data-aialt-current>
+            Im Entwurf: dekorativ (leeres alt)
+          </p>
+          <p v-else-if="hasAlt(r.path)" class="hint ai-m0" data-aialt-current>
             Im Entwurf: DE „{{ cur(r.path).de || '–' }}“ · EN „{{ cur(r.path).en || '–' }}“
           </p>
           <p v-if="!r.res.ok" class="ai-err">{{ r.res.error }}</p>
@@ -82,13 +85,20 @@
             <pre class="ai-pre">{{ resultToText('alt', r.res.data) }}</pre>
             <div class="ai-row">
               <UiButton
+                v-if="!r.res.data?.decorative"
                 size="sm"
                 variant="primary"
-                :disabled="Boolean(r.res.data?.decorative)"
-                :title="r.res.data?.decorative ? 'Dekoratives Bild: kein Alt-Text nötig' : ''"
                 data-aialt-apply
                 @click="apply(r.path, r.res)"
                 >Übernehmen</UiButton
+              >
+              <UiButton
+                size="sm"
+                :variant="r.res.data?.decorative ? 'primary' : 'secondary'"
+                title="Setzt ein bewusst leeres alt: Screenreader überspringen das Bild"
+                data-aialt-decorative
+                @click="markDecorative(r.path)"
+                >Als dekorativ übernehmen</UiButton
               >
               <UiButton
                 v-if="hasAlt(r.path)"
@@ -119,6 +129,7 @@
 import { computed, onBeforeUnmount, ref } from 'vue';
 import { UiButton, UiCallout, UiSelect, UiTextField } from '../../components/ui';
 import { useToastStore } from '../../stores/toast';
+import { IMAGE_ALT_DECORATIVE } from './filesData';
 import {
   createAiBatch,
   fetchAiConfig,
@@ -306,6 +317,7 @@ const hasAlt = (path: string) => {
   const a = cur(path);
   return Boolean(a.de || a.en);
 };
+const isDecorative = (path: string) => cur(path).de === IMAGE_ALT_DECORATIVE;
 const applicableRows = computed(() =>
   rows.value.filter((r) => r.res.ok && !r.res.data?.decorative),
 );
@@ -317,6 +329,16 @@ function apply(path: string, res: AiResult, quiet = false) {
     toasts.addToast('Übernommen (Entwurf) – mit Strg+Z rückgängig, in der Vorschau prüfen', {
       type: 'success',
     });
+}
+function markDecorative(path: string) {
+  props.setAlt(path, { de: IMAGE_ALT_DECORATIVE, en: IMAGE_ALT_DECORATIVE });
+  stamp.value++;
+  toasts.addToast(
+    'Als dekorativ übernommen (Entwurf) – mit Strg+Z rückgängig, in der Vorschau prüfen',
+    {
+      type: 'success',
+    },
+  );
 }
 function applyAll() {
   for (const r of applicableRows.value) apply(r.path, r.res, true);

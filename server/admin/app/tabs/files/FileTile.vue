@@ -7,6 +7,7 @@
     <video v-if="file.isVid" :src="file.src" muted preload="metadata"></video>
     <img v-else :src="file.src" alt="" loading="lazy" />
     <div class="nm">{{ file.name }}</div>
+    <a class="fl-dl" :href="file.src" :download="file.name" data-fl-download>⬇ Herunterladen</a>
     <template v-if="file.kind === 'server'">
       <div class="st pub">
         ✓ Server{{ file.ext ? ' · ' + file.ext : '' }} · {{ fmtBytes(file.bytes) }}
@@ -59,6 +60,12 @@ const meta = computed(() =>
 .fl-tile--inmode {
   outline: 2px solid var(--ds-accent);
   outline-offset: -1px;
+}
+.fl-dl {
+  font-size: var(--ds-text-xs);
+  color: var(--ds-accent);
+  text-decoration: underline;
+  cursor: pointer;
 }
 .fl-muted {
   color: var(--ds-text-3);

@@ -318,6 +318,8 @@ export function defMediaVal(key: MediaKey): string {
 }
 // Ersetzt eine Medien-URL in ALLEN Slots (beide Sprachen) — z.B. nachdem eine
 // Datei serverseitig verschoben wurde, damit die Zuweisungen erhalten bleiben.
+/** Markierung „dekoratives Bild“ (gleich wie IMAGE_ALT_DECORATIVE auf der Seite). */
+export const IMAGE_ALT_DECORATIVE = '[dekorativ]';
 /** Größte Länge eines Alt-Textes (wie im Server). */
 export const IMAGE_ALT_MAX_LEN = 200;
 /** Alt-Text eines Bildes (URL) in einer Sprache ('' = keiner). */

@@ -64,6 +64,8 @@ export interface FilesService {
   setAlt: (path: string, alt: { de: string; en: string }) => void;
 }
 
+/** Markierung „dekoratives Bild“ in den Alt-Texten (= IMAGE_ALT_DECORATIVE in content.ts). */
+export const IMAGE_ALT_DECORATIVE = '[dekorativ]';
 export const LOC_LABEL: Record<FileLoc, string> = { de: 'DE', en: 'EN', '': 'Gemeinsam' };
 export const MODE_LABEL: Record<ThemeMode, string> = { light: '☀️ Hell', dark: '🌙 Dunkel' };
 export const MODE_ICON: Record<UsageMode, string> = { light: '☀️', dark: '🌙', both: '' };
