@@ -38,13 +38,57 @@
 
         <template v-if="mode === 'now'">
           <template v-if="task === 'seo'">
-            <UiTextField v-model="seoPage" label="Seitenname" data-ai-seo-page />
+            <div class="ai-row">
+              <UiSelect
+                v-model="seoPick"
+                label="Seite"
+                :options="SEO_PICK_OPTIONS"
+                data-ai-seo-pick
+              />
+              <UiTextField
+                v-model="seoUrl"
+                class="ai-grow"
+                label="Adresse (URL) der Seite"
+                placeholder="https://kodinitools.com/…"
+                hint="Der Server liest die Seite selbst: Text, aktueller Titel, Beschreibung und H1. Nur Seiten von kodinitools.com."
+                data-ai-seo-url
+              />
+            </div>
             <UiTextField v-model="seoKeywords" label="Bevorzugte Keywords (optional)" />
-            <UiTextArea v-model="seoText" label="Seiteninhalt" :rows="6" data-ai-seo-text />
+            <details class="ai-m0">
+              <summary class="hint">
+                Text selbst einfügen (optional, ersetzt das Lesen der URL)
+              </summary>
+              <UiTextField v-model="seoPage" label="Seitenname" data-ai-seo-page />
+              <UiTextArea v-model="seoText" label="Seiteninhalt" :rows="6" data-ai-seo-text />
+            </details>
           </template>
           <template v-else-if="task === 'compare'">
-            <UiTextArea v-model="cmpDe" label="Deutscher Text" :rows="4" data-ai-cmp-de />
-            <UiTextArea v-model="cmpEn" label="Englischer Text" :rows="4" data-ai-cmp-en />
+            <UiSelect
+              v-model="cmpPick"
+              label="Seite"
+              :options="SEO_PICK_OPTIONS"
+              data-ai-cmp-pick
+            />
+            <UiTextField
+              v-model="cmpDeUrl"
+              label="Deutsche Seite (URL)"
+              placeholder="https://kodinitools.com/…"
+              data-ai-cmp-de-url
+            />
+            <UiTextField
+              v-model="cmpEnUrl"
+              label="Englische Seite (URL)"
+              placeholder="https://kodinitools.com/en/…"
+              data-ai-cmp-en-url
+            />
+            <details class="ai-m0">
+              <summary class="hint">
+                Texte selbst einfügen (optional, ersetzt die jeweilige URL)
+              </summary>
+              <UiTextArea v-model="cmpDe" label="Deutscher Text" :rows="4" data-ai-cmp-de />
+              <UiTextArea v-model="cmpEn" label="Englischer Text" :rows="4" data-ai-cmp-en />
+            </details>
           </template>
           <template v-else>
             <UiTextField v-model="blogTopic" label="Thema" data-ai-blog-topic />
@@ -129,7 +173,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import {
   UiButton,
   UiCallout,
@@ -140,7 +184,7 @@ import {
 } from '../../components/ui';
 import { useToastStore } from '../../stores/toast';
 import { PAGE_META_KEYS, type PageMetaKey } from '../../../public/model-media';
-import { PAGE_META_LABEL } from './pageMeta';
+import { PAGE_META_LABEL, PAGE_META_URL } from './pageMeta';
 import {
   cancelAiBatch,
   createAiBatch,
@@ -201,8 +245,9 @@ const MODE_OPTIONS = [
   { value: 'batch', label: 'Batch (50 % günstiger)' },
 ];
 const BATCH_HINT: Record<AiTask, string> = {
-  seo: 'Je Eintrag: erste Zeile = Seitenname, danach der Seitentext.',
-  compare: 'Je Eintrag: deutscher Text, eine Zeile ===, englischer Text.',
+  seo: 'Je Eintrag eine Adresse (https://kodinitools.com/…), der Server liest die Seite. Oder: erste Zeile = Seitenname, danach der Seitentext.',
+  compare:
+    'Je Eintrag: deutscher Text oder deutsche URL, eine Zeile ===, englischer Text oder englische URL.',
   blog: 'Je Eintrag ein Thema.',
   alt: '',
   card: '',
@@ -226,6 +271,26 @@ const effort = ref<AiEffort>('medium');
 const lang = ref<'de' | 'en'>('de');
 const mode = ref<'now' | 'batch'>('now');
 const seoPage = ref('');
+const seoUrl = ref('');
+const cmpDeUrl = ref('');
+const cmpEnUrl = ref('');
+/** Schnellwahl der eigenen Seiten: füllt die URL(s); '' = eigene Adresse. */
+const SEO_PICK_OPTIONS = [
+  { value: '', label: 'Andere Adresse …' },
+  ...PAGE_META_KEYS.map((k) => ({ value: k, label: PAGE_META_LABEL[k] })),
+];
+const seoPick = ref<PageMetaKey | ''>('');
+const cmpPick = ref<PageMetaKey | ''>('');
+watch([seoPick, lang], () => {
+  if (!seoPick.value) return;
+  seoUrl.value = PAGE_META_URL[lang.value][seoPick.value];
+  seoTarget.value = seoPick.value;
+});
+watch(cmpPick, (k) => {
+  if (!k) return;
+  cmpDeUrl.value = PAGE_META_URL.de[k];
+  cmpEnUrl.value = PAGE_META_URL.en[k];
+});
 const seoKeywords = ref('');
 const seoText = ref('');
 const cmpDe = ref('');
@@ -308,11 +373,23 @@ async function toggle() {
 
 function currentInput(): AiInput {
   if (task.value === 'seo') {
-    const i: AiInput = { lang: lang.value, page: seoPage.value.trim(), text: seoText.value.trim() };
+    const i: AiInput = { lang: lang.value };
+    // Eingefügter Text hat Vorrang; sonst liest der Server die URL.
+    if (seoText.value.trim()) {
+      i.page = seoPage.value.trim() || seoUrl.value.trim();
+      i.text = seoText.value.trim();
+    } else i.url = seoUrl.value.trim();
     if (seoKeywords.value.trim()) i.keywords = seoKeywords.value.trim();
     return i;
   }
-  if (task.value === 'compare') return { de: cmpDe.value.trim(), en: cmpEn.value.trim() };
+  if (task.value === 'compare') {
+    const i: AiInput = {};
+    if (cmpDe.value.trim()) i.de = cmpDe.value.trim();
+    else i.deUrl = cmpDeUrl.value.trim();
+    if (cmpEn.value.trim()) i.en = cmpEn.value.trim();
+    else i.enUrl = cmpEnUrl.value.trim();
+    return i;
+  }
   const i: AiInput = { lang: lang.value, topic: blogTopic.value.trim() };
   if (blogNotes.value.trim()) i.notes = blogNotes.value.trim();
   return i;
@@ -324,7 +401,12 @@ async function submit() {
   busy.value = true;
   try {
     if (mode.value === 'now') {
-      const r = await runAi(sel, currentInput());
+      const input = currentInput();
+      if (sel.task === 'seo' && !input.url && !input.text)
+        return void (formError.value = 'Bitte eine Seite wählen oder eine Adresse eintragen');
+      if (sel.task === 'compare' && (!(input.de || input.deUrl) || !(input.en || input.enUrl)))
+        return void (formError.value = 'Bitte deutsche und englische Seite angeben');
+      const r = await runAi(sel, input);
       if (!r.ok) return void (formError.value = r.error);
       resultTask.value = sel.task;
       resultLang.value = lang.value;
@@ -434,6 +516,9 @@ async function copy(r: AiResult) {
   flex-direction: column;
   gap: var(--ds-space-2);
   margin-top: var(--ds-space-3);
+}
+.ai-grow {
+  flex: 1 1 320px;
 }
 .ai-row {
   display: flex;

@@ -7,6 +7,7 @@ import { extname, resolve } from 'node:path';
 import Anthropic from '@anthropic-ai/sdk';
 import { config } from './config.js';
 import { isValidUploadPath } from './uploads.js';
+import { fetchPage, type PageInfo } from './pageFetch.js';
 import {
   DEFAULT_MODEL,
   MODELS,
@@ -80,6 +81,36 @@ export async function loadUploadImage(relPath: unknown): Promise<ImageData> {
   return { mediaType, data: (await readFile(full)).toString('base64') };
 }
 
+/**
+ * SEO/Vergleich mit URL statt Text: Der Server liest die Seite(n) selbst und füllt
+ * Text, Seitenname und den aktuellen Stand (Titel, Beschreibung, H1). Eingefügter
+ * Text hat Vorrang vor der URL.
+ */
+export async function withPages(
+  task: TaskId,
+  input: unknown,
+  load: (url: unknown) => Promise<PageInfo> = fetchPage,
+): Promise<unknown> {
+  if (!input || typeof input !== 'object') return input;
+  const i = input as Record<string, unknown>;
+  if (task === 'seo' && i.url && !i.text) {
+    const p = await load(i.url);
+    return {
+      ...i,
+      page: i.page || p.url,
+      text: p.text,
+      current: `Titel: ${p.title || '(keiner)'}\nBeschreibung: ${p.description || '(keine)'}\nH1: ${p.h1.join(' | ') || '(keine)'}`,
+    };
+  }
+  if (task === 'compare' && (i.deUrl || i.enUrl)) {
+    const [de, en] = await Promise.all([i.de ? null : load(i.deUrl), i.en ? null : load(i.enUrl)]);
+    const full = (p: PageInfo) =>
+      `Titel: ${p.title}\nBeschreibung: ${p.description}\nH1: ${p.h1.join(' | ')}\n${p.text}`;
+    return { ...i, de: de ? full(de) : i.de, en: en ? full(en) : i.en };
+  }
+  return input;
+}
+
 /** Anfrage-Parameter je Eingabe; Vision-Aufgaben laden zuerst das Bild. */
 async function prepare(sel: Selection, input: unknown) {
   let image: ImageData | undefined;
@@ -88,7 +119,13 @@ async function prepare(sel: Selection, input: unknown) {
       input && typeof input === 'object' ? (input as { path?: unknown }).path : undefined;
     image = await loadUploadImage(path);
   }
-  return buildRequestParams(sel.task, sel.model, input, sel.effort, image);
+  return buildRequestParams(
+    sel.task,
+    sel.model,
+    await withPages(sel.task, input),
+    sel.effort,
+    image,
+  );
 }
 
 type Selection = { task: TaskId; model: ModelId; effort?: Effort };

@@ -54,6 +54,8 @@ export function parseBatchBlocks(task: AiTask, lang: 'de' | 'en', raw: string): 
   return blocks.map((block, i): AiInput => {
     const n = i + 1;
     if (task === 'seo') {
+      // Nur eine Adresse: der Server liest die Seite selbst.
+      if (/^https:\/\/\S+$/.test(block)) return { lang, url: block };
       const nl = block.indexOf('\n');
       const page = (nl < 0 ? block : block.slice(0, nl)).trim();
       const text = nl < 0 ? '' : block.slice(nl + 1).trim();
@@ -65,7 +67,13 @@ export function parseBatchBlocks(task: AiTask, lang: 'de' | 'en', raw: string): 
       if (parts.length !== 2 || !parts[0] || !parts[1]) {
         throw new Error(`Eintrag ${n}: deutscher und englischer Text mit einer Zeile === trennen`);
       }
-      return { de: parts[0], en: parts[1] };
+      const isUrl = (s: string) => /^https:\/\/\S+$/.test(s);
+      const out: AiInput = {};
+      if (isUrl(parts[0])) out.deUrl = parts[0];
+      else out.de = parts[0];
+      if (isUrl(parts[1])) out.enUrl = parts[1];
+      else out.en = parts[1];
+      return out;
     }
     if (task === 'alt') return { path: block };
     if (task !== 'blog') throw new Error('Batch wird für diese Aufgabe nicht angeboten');
