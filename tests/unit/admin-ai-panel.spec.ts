@@ -8,6 +8,7 @@ const api = vi.hoisted(() => ({ apiGet: vi.fn(), apiPost: vi.fn() }));
 vi.mock('../../server/admin/app/lib/api', () => api);
 
 import AiAltPanel from '../../server/admin/app/tabs/files/AiAltPanel.vue';
+import { IMAGE_ALT_DECORATIVE } from '../../server/admin/app/tabs/files/filesData';
 import AiPanel from '../../server/admin/app/tabs/texts/AiPanel.vue';
 import {
   formatUsd,
@@ -337,7 +338,7 @@ describe('AiAltPanel', () => {
     expect(w.find('[data-aialt-current]').exists()).toBe(false);
   });
 
-  it('dekorative Bilder lassen sich nicht übernehmen', async () => {
+  it('dekorative Bilder: kein Alt-Text, aber „Als dekorativ übernehmen“ setzt die Markierung', async () => {
     api.apiGet.mockResolvedValue({ ok: true, status: 200, data: CONFIG });
     api.apiPost.mockResolvedValue({
       ok: true,
@@ -352,7 +353,13 @@ describe('AiAltPanel', () => {
     await flushPromises();
     await w.get('[data-aialt-run]').trigger('click');
     await flushPromises();
-    expect(w.get('[data-aialt-apply]').attributes('disabled')).toBeDefined();
-    expect(alt.setAlt).not.toHaveBeenCalled();
+    expect(w.find('[data-aialt-apply]').exists()).toBe(false);
+    await w.get('[data-aialt-decorative]').trigger('click');
+    expect(alt.setAlt).toHaveBeenCalledWith('de/a.png', {
+      de: IMAGE_ALT_DECORATIVE,
+      en: IMAGE_ALT_DECORATIVE,
+    });
+    await flushPromises();
+    expect(w.get('[data-aialt-current]').text()).toContain('dekorativ');
   });
 });

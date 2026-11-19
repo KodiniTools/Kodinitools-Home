@@ -1539,9 +1539,16 @@ export function heroGridReflowCols(layout: MediaConfig['heroLayout'], n: number)
 }
 
 /** Medien-Konfiguration für eine Sprache (Defaults + Admin-Override). */
-/** Alt-Text eines hochgeladenen Bildes aus dem Admin; fehlt er, gilt `fallback`. */
+/** Markierung „dekoratives Bild“ in `imageAlt`: ergibt ein bewusst leeres alt="". */
+export const IMAGE_ALT_DECORATIVE = '[dekorativ]';
+
+/**
+ * Alt-Text eines hochgeladenen Bildes aus dem Admin; fehlt er, gilt `fallback`.
+ * Ein als dekorativ markiertes Bild bekommt bewusst ein leeres alt.
+ */
 export function imageAltFor(media: MediaConfig, src: string, fallback = ''): string {
   const v = src && media.imageAlt ? media.imageAlt[src] : undefined;
+  if (v === IMAGE_ALT_DECORATIVE) return '';
   return typeof v === 'string' && v.trim() !== '' ? v : fallback;
 }
 
