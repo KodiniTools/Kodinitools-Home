@@ -3,7 +3,6 @@ import GlobalNav from '../GlobalNav.astro'
 import TickerBar from '../TickerBar.astro'
 import SiteFooter from '../SiteFooter.astro'
 import SiteFont from '../SiteFont.astro'
-import { loadCookieBanner } from '../../i18n/cookieBanner'
 import { alternates, HOME_LABEL, HOME_PATH, OG_LOCALE, SITE, type Lang } from '../../i18n/lang'
 import { pageMetaFor } from '../../content/content'
 import { DONATE_PAGE, DONATE_PATH } from '../../i18n/donate'
@@ -19,9 +18,6 @@ const pm = pageMetaFor(lang, 'donate')
 const pageUrl = `${SITE}${DONATE_PATH[lang]}`
 const alt = alternates(DONATE_PATH)
 
-// Cookie-Banner in der Seitensprache vorgerendert (src/i18n/cookieBanner.ts).
-const cookieBannerHtml = loadCookieBanner(lang)
-
 const paypalUrl = 'https://www.paypal.com/qrcodes/managed/3dd3fbb9-29f0-4293-809e-171fccde19e1?utm_source=payandgetpaid'
 ---
 
@@ -30,24 +26,6 @@ const paypalUrl = 'https://www.paypal.com/qrcodes/managed/3dd3fbb9-29f0-4293-809
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script is:inline>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);} // eslint-disable-line prefer-rest-params -- offizielles Google-Snippet, arguments bewusst
-  gtag('consent', 'default', {
-    'ad_storage': 'denied', 'ad_user_data': 'denied', 'ad_personalization': 'denied',
-    'analytics_storage': 'denied', 'functionality_storage': 'denied',
-    'personalization_storage': 'denied', 'security_storage': 'granted', 'wait_for_update': 500
-  });
-  (function() {
-    try {
-      const c = JSON.parse(localStorage.getItem('cookieConsent') || '{}');
-      if (c.analytics) gtag('consent', 'update', { 'analytics_storage': 'granted', 'functionality_storage': 'granted', 'personalization_storage': 'granted' });
-      if (c.marketing) gtag('consent', 'update', { 'ad_storage': 'granted', 'ad_user_data': 'granted', 'ad_personalization': 'granted' });
-    } catch { /* Consent optional – Fehler bewusst ignorieren */ }
-  })();
-  </script>
-  <script is:inline>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});const f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-T7NS656K');</script>
-
   <title>{pm.title || t.title}</title>
   <meta name="description" content={pm.description || t.description} />
   <meta name="robots" content="index, follow" />
@@ -335,7 +313,6 @@ const paypalUrl = 'https://www.paypal.com/qrcodes/managed/3dd3fbb9-29f0-4293-809
     <div class="global-gradient"></div>
     <div class="global-noise"></div>
   </div>
-  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T7NS656K" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   <GlobalNav lang={lang} />
   <TickerBar lang={lang} />
@@ -429,7 +406,6 @@ const paypalUrl = 'https://www.paypal.com/qrcodes/managed/3dd3fbb9-29f0-4293-809
   </main>
 
   <SiteFooter lang={lang} />
-  <Fragment set:html={cookieBannerHtml} />
 
   <script is:inline>
   (function() {

@@ -245,32 +245,6 @@
     "sectionTitle": "My Favorites",
     "clearAll": "Remove all"
   },
-  "cookies": {
-    "bannerTitle": "Cookie Settings",
-    "bannerText": "We use cookies to improve your experience and analyze website traffic. You decide which cookies you allow.",
-    "moreInfo": "Learn more",
-    "acceptAll": "Accept all",
-    "rejectAll": "Reject all",
-    "settings": "Settings",
-    "settingsTitle": "Cookie Settings",
-    "settingsIntro": "Here you can customize your cookie settings. Essential cookies are always active as they are required for the basic functions of the website.",
-    "saveSettings": "Save settings",
-    "close": "Close",
-    "alwaysActive": "Always active",
-    "cookieSettings": "Cookie settings",
-    "essential": {
-      "title": "Essential Cookies",
-      "description": "These cookies are required for the basic functions of the website (e.g., language setting, theme preference). They cannot be disabled."
-    },
-    "analytics": {
-      "title": "Analytics Cookies",
-      "description": "These cookies help us understand how visitors interact with the website. All data is collected anonymously (Google Analytics)."
-    },
-    "marketing": {
-      "title": "Marketing Cookies",
-      "description": "These cookies are used to make advertising more relevant to you. They also enable measuring the effectiveness of advertising campaigns."
-    }
-  },
   "blog": {
     "badge": "Official Guide",
     "title": "KodiniTools: The Complete Overview of All Free Multimedia Tools",
@@ -492,8 +466,8 @@
           "description": "Full compliance with the European General Data Protection Regulation (GDPR)."
         },
         "cookies": {
-          "title": "Transparent Cookie Settings",
-          "description": "You decide which cookies you allow. Detailed control over essential, analytics, and marketing cookies."
+          "title": "No Tracking Cookies",
+          "description": "We do not use analytics, marketing or tracking cookies. Only settings such as language and theme are stored locally in your browser."
         },
         "deletion": {
           "title": "Automatic Deletion",
@@ -554,7 +528,7 @@
       },
       "q10": {
         "question": "Is KodiniTools GDPR compliant?",
-        "answer": "Yes, KodiniTools is fully GDPR compliant. We use Google Consent Mode v2, offer transparent cookie settings, and do not store personal data without your consent. Detailed information can be found in our privacy policy."
+        "answer": "Yes, KodiniTools is fully GDPR compliant. We do not use analytics, marketing or tracking cookies, and we do not store personal data without your consent. Detailed information can be found in our privacy policy."
       },
       "q11": {
         "question": "How do I convert MP3 to WAV for free?",

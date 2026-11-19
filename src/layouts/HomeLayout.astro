@@ -59,51 +59,6 @@ const siteBgStyle = getSiteBackgroundStyle()
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Google Consent Mode v2 - DSGVO/GDPR -->
-    <script is:inline>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);} // eslint-disable-line prefer-rest-params -- offizielles Google-Snippet, arguments bewusst
-    gtag('consent', 'default', {
-      'ad_storage': 'denied',
-      'ad_user_data': 'denied',
-      'ad_personalization': 'denied',
-      'analytics_storage': 'denied',
-      'functionality_storage': 'denied',
-      'personalization_storage': 'denied',
-      'security_storage': 'granted',
-      'wait_for_update': 500
-    });
-    (function() {
-      try {
-        const savedConsent = localStorage.getItem('cookieConsent');
-        if (savedConsent) {
-          const consent = JSON.parse(savedConsent);
-          if (consent.analytics) {
-            gtag('consent', 'update', {
-              'analytics_storage': 'granted',
-              'functionality_storage': 'granted',
-              'personalization_storage': 'granted'
-            });
-          }
-          if (consent.marketing) {
-            gtag('consent', 'update', {
-              'ad_storage': 'granted',
-              'ad_user_data': 'granted',
-              'ad_personalization': 'granted'
-            });
-          }
-        }
-      } catch { /* Consent optional – Fehler bewusst ignorieren */ }
-    })();
-    </script>
-
-    <!-- Google Tag Manager -->
-    <script is:inline>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});const f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-T7NS656K');</script>
-
     <!-- Primary Meta Tags -->
     <title>{seo.title}</title>
     <meta name="title" content={seo.metaTitle}>
@@ -163,9 +118,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <!-- Schriften des LCP-Elements (Hero-Titel) früh laden, statt sie erst über das CSS zu entdecken -->
     {preloadFonts.map((href) => <link rel="preload" as="font" type="font/woff2" href={href} crossorigin>)}
 
-    <!-- Preconnect -->
-    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
-
     <!-- Sprache für die Client-Übersetzungen merken (nur EN, wie bisher) -->
     {lang === 'en' && <script is:inline>localStorage.setItem('locale', 'en');</script>}
 
@@ -175,9 +127,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     {siteBgStyle && <style set:html={siteBgStyle}></style>}
 </head>
 <body>
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T7NS656K"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     <slot />
 </body>

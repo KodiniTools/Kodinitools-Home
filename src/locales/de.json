@@ -245,32 +245,6 @@
     "sectionTitle": "Meine Favoriten",
     "clearAll": "Alle entfernen"
   },
-  "cookies": {
-    "bannerTitle": "Cookie-Einstellungen",
-    "bannerText": "Wir verwenden Cookies, um Ihre Erfahrung zu verbessern und den Website-Traffic zu analysieren. Sie entscheiden, welche Cookies Sie zulassen.",
-    "moreInfo": "Mehr erfahren",
-    "acceptAll": "Alle akzeptieren",
-    "rejectAll": "Alle ablehnen",
-    "settings": "Einstellungen",
-    "settingsTitle": "Cookie-Einstellungen",
-    "settingsIntro": "Hier können Sie Ihre Cookie-Einstellungen anpassen. Notwendige Cookies sind immer aktiv, da sie für die Grundfunktionen der Website erforderlich sind.",
-    "saveSettings": "Einstellungen speichern",
-    "close": "Schliessen",
-    "alwaysActive": "Immer aktiv",
-    "cookieSettings": "Cookie-Einstellungen",
-    "essential": {
-      "title": "Notwendige Cookies",
-      "description": "Diese Cookies sind für die Grundfunktionen der Website erforderlich (z.B. Spracheinstellung, Theme-Präferenz). Sie können nicht deaktiviert werden."
-    },
-    "analytics": {
-      "title": "Analyse-Cookies",
-      "description": "Diese Cookies helfen uns zu verstehen, wie Besucher mit der Website interagieren. Alle Daten werden anonymisiert erfasst (Google Analytics)."
-    },
-    "marketing": {
-      "title": "Marketing-Cookies",
-      "description": "Diese Cookies werden verwendet, um Werbung relevanter für Sie zu gestalten. Sie ermöglichen auch die Messung der Wirksamkeit von Werbekampagnen."
-    }
-  },
   "blog": {
     "badge": "Offizieller Guide",
     "title": "KodiniTools: Die komplette Übersicht aller kostenlosen Multimedia-Tools",
@@ -492,8 +466,8 @@
           "description": "Vollständige Einhaltung der europäischen Datenschutz-Grundverordnung (DSGVO/GDPR)."
         },
         "cookies": {
-          "title": "Transparente Cookie-Einstellungen",
-          "description": "Sie entscheiden, welche Cookies Sie zulassen. Detaillierte Kontrolle über essenzielle, Analyse- und Marketing-Cookies."
+          "title": "Keine Tracking-Cookies",
+          "description": "Wir setzen keine Analyse-, Marketing- oder Tracking-Cookies ein. Nur Einstellungen wie Sprache und Design werden lokal in Ihrem Browser gespeichert."
         },
         "deletion": {
           "title": "Automatische Löschung",
@@ -554,7 +528,7 @@
       },
       "q10": {
         "question": "Ist KodiniTools DSGVO-konform?",
-        "answer": "Ja, KodiniTools ist vollständig DSGVO-konform. Wir verwenden Google Consent Mode v2, bieten transparente Cookie-Einstellungen und speichern keine personenbezogenen Daten ohne Ihre Einwilligung. Detaillierte Informationen finden Sie in unserer Datenschutzerklärung."
+        "answer": "Ja, KodiniTools ist vollständig DSGVO-konform. Wir setzen keine Analyse-, Marketing- oder Tracking-Cookies ein und speichern keine personenbezogenen Daten ohne Ihre Einwilligung. Detaillierte Informationen finden Sie in unserer Datenschutzerklärung."
       },
       "q11": {
         "question": "Wie konvertiere ich MP3 zu WAV kostenlos?",
