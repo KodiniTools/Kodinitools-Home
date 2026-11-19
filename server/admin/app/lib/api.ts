@@ -26,3 +26,33 @@ export async function apiGet(
     return { ok: false, status: 0, data: null };
   }
 }
+
+/**
+ * POST mit JSON-Body gegen die Admin-API (Kennungs-Header für CSRF). Wirft nie;
+ * Fehler kommen als `ok: false`, `data` trägt dann meist `{ error }`.
+ */
+export async function apiPost(
+  path: string,
+  body: unknown,
+  init: { signal?: AbortSignal } = {},
+): Promise<{ ok: boolean; status: number; data: unknown }> {
+  try {
+    const res = await fetch(new URL('api' + path, document.baseURI).toString(), {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'X-Kodini-Admin': '1', 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: init.signal,
+    });
+    let data: unknown = null;
+    try {
+      data = await res.json();
+    } catch {
+      /* kann leer sein */
+    }
+    return { ok: res.ok, status: res.status, data };
+  } catch (e) {
+    console.warn('[admin] API-Aufruf fehlgeschlagen', path, e);
+    return { ok: false, status: 0, data: null };
+  }
+}

@@ -172,6 +172,7 @@
             </p>
           </section>
         </div>
+        <AiPanel />
       </div>
 
       <!-- Seitenleiste des nicht bearbeiteten Modus: schmale, klickbare Leiste -->
@@ -299,6 +300,7 @@ import {
   type TextStyle,
   type TextStyleHost,
 } from './textStyle';
+import AiPanel from './AiPanel.vue';
 import TextFxFields from './TextFxFields.vue';
 import { textsUi } from './textsUi';
 
