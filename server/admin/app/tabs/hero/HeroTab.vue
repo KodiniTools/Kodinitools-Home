@@ -14,7 +14,16 @@
             Texte, Schriften und Typografie (gelten für beide Modi). Alle <strong>Farben</strong> je
             Modus stehen links (Hell) und rechts (Dunkel). Ausgeschaltet = Standard-Design.
           </p>
-          <AiDesignAssist area="hero" :get-current="aiCurrent" />
+          <AiDesignAssist
+            area="hero"
+            :get-current="aiCurrent"
+            :resolve="aiResolve"
+            :apply-note="
+              view.hd.enabled
+                ? ''
+                : 'Hinweis: „Eigenes Hero-Design verwenden“ ist aus. Die Änderungen wirken erst, wenn du es einschaltest.'
+            "
+          />
           <div class="hd-line">
             <UiSwitch
               :model-value="view.hd.enabled"
@@ -187,7 +196,8 @@ import {
 } from './heroData';
 import { hdUi } from './heroUi';
 import { provideHero } from './useHero';
-import AiDesignAssist from './AiDesignAssist.vue';
+import AiDesignAssist, { type Applicable } from './AiDesignAssist.vue';
+import { applyResolved, describeCurrent, resolveChange, type AiChange } from './aiHero';
 
 /**
  * Tab „Hero-Design“ (je Sprache, Vue-Fassung von `renderHeroDesign` in
@@ -201,6 +211,19 @@ import AiDesignAssist from './AiDesignAssist.vue';
 const props = defineProps<{ service: HeroService }>();
 const { view, change, toast } = provideHero(props.service);
 const aiCurrent = () => JSON.stringify(view.value.hd);
+function aiResolve(c: AiChange): Applicable | null {
+  const r = resolveChange(c);
+  if (!r) return null;
+  return {
+    label: r.label,
+    current: describeCurrent(view.value.hd, r),
+    next:
+      r.kind === 'typo'
+        ? String(r.value)
+        : `${r.modes.map((m) => (m === 'light' ? 'Hell' : 'Dunkel')).join('/')} ${r.value}`,
+    apply: () => applyResolved(view.value.hd, r),
+  };
+}
 const service = props.service;
 const LANG = service.lang.toUpperCase();
 const LANG_NAME = service.lang === 'de' ? 'Deutsch' : 'English';

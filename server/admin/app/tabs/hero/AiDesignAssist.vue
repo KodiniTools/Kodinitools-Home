@@ -51,6 +51,33 @@
             <span class="hint ai-block">Im Admin: {{ x.how }}</span>
           </li>
         </ol>
+        <div v-if="applicable.length" class="ai-changes" data-aids-changes>
+          <strong class="ai-m0"
+            >Direkt anwendbar (landet im Entwurf, Strg+Z macht es rückgängig)</strong
+          >
+          <span v-if="applyNote" class="hint ai-m0" data-aids-note>{{ applyNote }}</span>
+          <ul class="ai-list ai-clist">
+            <li v-for="(a, i) in applicable" :key="i" data-aids-change>
+              <strong>{{ a.label }}</strong
+              >: {{ a.current }} → <code>{{ a.next }}</code>
+              <span class="hint ai-block">{{ a.why }}</span>
+              <UiButton size="sm" :disabled="applied.has(i)" data-aids-apply @click="applyOne(i)">{{
+                applied.has(i) ? '✓ Angewendet' : 'Anwenden'
+              }}</UiButton>
+            </li>
+          </ul>
+          <UiButton
+            v-if="applicable.length > 1"
+            size="sm"
+            variant="primary"
+            data-aids-applyall
+            @click="applyAll"
+            >Alle anwenden</UiButton
+          >
+          <span v-if="skipped" class="hint ai-m0"
+            >{{ skipped }} Vorschlag/Vorschläge nicht anwendbar (ungültiger Wert oder Feld).</span
+          >
+        </div>
         <div v-if="result.colors.length" class="ai-colors">
           <button
             v-for="c in result.colors"
@@ -85,15 +112,27 @@ import AiModelPicker from '../../components/AiModelPicker.vue';
 import { useAiAssist } from '../../lib/useAiAssist';
 import { useToastStore } from '../../stores/toast';
 import { formatUsd } from '../texts/aiClient';
+import type { AiChange } from './aiHero';
 
 /**
  * KI-Design-Beratung für Hero-Design, Hintergrund und Layout. `getCurrent` liefert
  * die aktuellen Einstellungen als JSON-Text. Ergebnisse sind reine Vorschläge
  * (nur Kopieren), der Tab wird nicht verändert.
  */
+/** Anwendbarer Vorschlag: `null` = nicht anwendbar (Feld unbekannt/Wert ungültig). */
+export interface Applicable {
+  label: string;
+  current: string;
+  next: string;
+  apply: () => void;
+}
 const props = defineProps<{
   area: 'hero' | 'background' | 'layout';
   getCurrent: () => string;
+  /** Prüft einen Änderungsvorschlag der KI; nur Bereiche mit sicherem Anwenden setzen das. */
+  resolve?: (c: AiChange) => Applicable | null;
+  /** Hinweis über der Anwenden-Liste (z. B. „Funktion ist aus“). */
+  applyNote?: string;
 }>();
 
 const HEX = /^#[0-9a-fA-F]{6}$/;
@@ -126,6 +165,31 @@ const result = computed(() => {
   };
 });
 
+const applied = ref(new Set<number>());
+const applicableAll = computed(() => {
+  const d = ai.data.value?.changes;
+  const raw = Array.isArray(d) ? (d as AiChange[]) : [];
+  if (!props.resolve) return [];
+  return raw.map((c) => {
+    const r = props.resolve!(c);
+    return r ? { ...r, why: String(c.why ?? '') } : null;
+  });
+});
+const applicable = computed(() =>
+  applicableAll.value.filter((x): x is NonNullable<typeof x> => x !== null),
+);
+const skipped = computed(() => applicableAll.value.length - applicable.value.length);
+function applyOne(i: number) {
+  const a = applicable.value[i];
+  if (!a || applied.value.has(i)) return;
+  a.apply();
+  applied.value = new Set(applied.value).add(i);
+  toasts.addToast(`Angewendet: ${a.label}`, { type: 'success' });
+}
+function applyAll() {
+  applicable.value.forEach((_, i) => applyOne(i));
+}
+
 /** Nur geprüfte Hex-Werte landen im style (kein freier Text aus der KI). */
 const swatch = (hex: string) => ({ background: HEX.test(hex) ? hex : 'transparent' });
 
@@ -137,6 +201,7 @@ async function run() {
     current = '{}';
   }
   if (current.length > MAX_CURRENT) current = current.slice(0, MAX_CURRENT);
+  applied.value = new Set();
   await ai.run({ area: props.area, goal: goal.value, current });
 }
 
@@ -176,6 +241,18 @@ async function copy(text: string) {
 .ai-list {
   margin: 0;
   padding-left: 1.2rem;
+}
+.ai-clist {
+  list-style: none;
+  padding-left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-2);
+}
+.ai-changes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-2);
 }
 .ai-colors {
   display: flex;

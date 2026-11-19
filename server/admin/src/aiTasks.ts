@@ -255,7 +255,7 @@ export const TASKS: Record<TaskId, TaskDef> = {
     id: 'design',
     label: 'Design-Beratung (Hero, Hintergrund, Layout)',
     effort: 'medium',
-    maxTokens: 4000,
+    maxTokens: 5000,
     system:
       SITE_CONTEXT +
       ' Aufgabe: Berate zum Design eines Bereichs der Startseite (Hero-Design, Seiten-Hintergrund oder Hero-Layout). ' +
@@ -263,7 +263,15 @@ export const TASKS: Record<TaskId, TaskDef> = {
       'und einem Hinweis, welche Einstellung im Admin zu ändern ist. Beachte Lesbarkeit (Kontrast WCAG AA), ' +
       'Mobil-Performance (keine schweren Bilder, keine Animationen über dem Falz, kein Einblenden der ganzen Seite) und ' +
       'Hell/Dunkel-Modus. Farben als Hex-Werte (#rrggbb). imagePrompt nur, wenn ein Bild sinnvoll ist: englischer ' +
-      'Prompt für einen Bildgenerator, ohne Text im Bild, sonst leerer String. Erfinde keine Einstellungen, die es nicht gibt.',
+      'Prompt für einen Bildgenerator, ohne Text im Bild, sonst leerer String. Erfinde keine Einstellungen, die es nicht gibt. ' +
+      'changes: nur bei Bereich hero oder layout konkrete, direkt anwendbare Änderungen (bei background ein leeres Array), höchstens 8. ' +
+      'Layout, nur diese Felder (mode „both“): textAnim (none, pulse, float, shake, wobble, glow), textAnimSpeed (slow, normal, fast), ' +
+      'textAnimIntensity (1 bis 10), textSize (px, 0 bis 96, 0 = automatisch), textOpacity (0 bis 100), textColor (#rrggbb). ' +
+      'Hero, nur diese Felder: ' +
+      'Schriftgrößen in px (8 bis 96), mode „both“: titleFontSize, subtitleFontSize, chipFontSize, ctaFontSize; ' +
+      'Farben als #rrggbb mit mode „light“ oder „dark“: titleTextColor, chipTextColor, chipBgColor, ctaTextColor, ctaBgColor, bgColor, borderColor; ' +
+      'Prozent 0 bis 100 mit mode „light“ oder „dark“: bgOpacity, bgImageDarken. value immer als Text. ' +
+      'Schlage nur Änderungen vor, die aus den gelieferten Einstellungen begründet sind; why: ein kurzer deutscher Satz.',
     schema: {
       type: 'object',
       properties: {
@@ -287,8 +295,17 @@ export const TASKS: Record<TaskId, TaskDef> = {
           },
         },
         imagePrompt: STR,
+        changes: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: { field: STR, mode: STR, value: STR, why: STR },
+            required: ['field', 'mode', 'value', 'why'],
+            additionalProperties: false,
+          },
+        },
       },
-      required: ['summary', 'suggestions', 'colors', 'imagePrompt'],
+      required: ['summary', 'suggestions', 'colors', 'imagePrompt', 'changes'],
       additionalProperties: false,
     },
   },
