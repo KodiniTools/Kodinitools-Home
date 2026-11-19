@@ -224,3 +224,48 @@ describe('aiToolcards', () => {
     expect(setText).toHaveBeenCalledWith('descSize', 14);
   });
 });
+
+describe('aiBackground', () => {
+  const c = (field: string, mode: string, value: string) => ({ field, mode, value, why: '' });
+  function svc() {
+    return {
+      bg: vi.fn(() => ({ color: '#ffffff', gradient: false, type: 'linear', pattern: 'none' })),
+      setBg: vi.fn(),
+      fx: vi.fn(() => ({ on: false, intensity: 50 })),
+      setFx: vi.fn(),
+      sectionStyle: () => 'band',
+      setSectionStyle: vi.fn(),
+      sectionGap: () => 0,
+      setSectionGap: vi.fn(),
+      gapMax: 160,
+      gradientTypes: ['linear', 'radial'],
+      patterns: ['none', 'dots'],
+    } as never;
+  }
+  it('prüft Werte und Modi', async () => {
+    const { resolveBgChange } = await import('../../server/admin/app/tabs/background/aiBackground');
+    const s = svc();
+    expect(resolveBgChange(c('color', 'dark', '#ABCDEF'), s)?.next).toBe('#abcdef');
+    expect(resolveBgChange(c('color', 'both', '#abcdef'), s)).toBeNull();
+    expect(resolveBgChange(c('color', 'light', 'blue'), s)).toBeNull();
+    expect(resolveBgChange(c('imageBlur', 'light', '99'), s)?.next).toBe('40');
+    expect(resolveBgChange(c('pattern', 'light', 'evil'), s)).toBeNull();
+    expect(resolveBgChange(c('type', 'light', 'radial'), s)?.next).toBe('radial');
+    expect(resolveBgChange(c('sectionGap', 'both', '500'), s)?.next).toBe('160');
+    expect(resolveBgChange(c('sectionStyle', 'both', 'x'), s)).toBeNull();
+    expect(resolveBgChange(c('image', 'light', '/x.png'), s)).toBeNull();
+  });
+  it('schreibt über die Service-Setter', async () => {
+    const { resolveBgChange } = await import('../../server/admin/app/tabs/background/aiBackground');
+    const s = svc() as unknown as {
+      setBg: ReturnType<typeof vi.fn>;
+      setFx: ReturnType<typeof vi.fn>;
+    };
+    resolveBgChange(c('opacity', 'dark', '40'), s as never)!.apply();
+    resolveBgChange(c('fxNoiseIntensity', 'both', '30'), s as never)!.apply();
+    resolveBgChange(c('fxAurora', 'both', 'true'), s as never)!.apply();
+    expect(s.setBg).toHaveBeenCalledWith('dark', { opacity: 40 });
+    expect(s.setFx).toHaveBeenCalledWith('fxNoise', { intensity: 30 });
+    expect(s.setFx).toHaveBeenCalledWith('fxAurora', { on: true });
+  });
+});

@@ -108,7 +108,12 @@
             <strong>Hell</strong>, rechts <strong>Dunkel</strong>. Darunter je Modus die abgesetzten
             Sektionen. Hier in der Mitte: Vorschau, allgemeine Sektions-Einstellungen und Effekte.
           </p>
-          <AiDesignAssist area="background" :get-current="aiCurrent" />
+          <AiDesignAssist
+            area="background"
+            :get-current="aiCurrent"
+            :resolve="aiResolve"
+            apply-note="Änderungen gelten für die Seite (Hell/Dunkel wie vorgeschlagen). Bilder wählt die KI nie aus. Bild-Einstellungen wirken nur, wenn ein Hintergrundbild gesetzt ist."
+          />
         </div>
 
         <!-- Abgesetzte Sektionen (allgemein) -->
@@ -241,7 +246,9 @@ import {
 } from '../../components/ui';
 import { useToastStore } from '../../stores/toast';
 import BgSide from './BgSide.vue';
-import AiDesignAssist from '../hero/AiDesignAssist.vue';
+import AiDesignAssist, { type Applicable } from '../hero/AiDesignAssist.vue';
+import type { AiChange } from '../hero/aiHero';
+import { resolveBgChange } from './aiBackground';
 import {
   AURORA_BG,
   FX_DESC,
@@ -280,7 +287,13 @@ const aiCurrent = () =>
     dark: props.service.bg('dark'),
     sectionStyle: props.service.sectionStyle(),
     sectionGap: props.service.sectionGap(),
+    fx: Object.fromEntries(props.service.fxList.map((f) => [f.key, props.service.fx(f.key)])),
   });
+function aiResolve(c: AiChange): Applicable | null {
+  const r = resolveBgChange(c, props.service);
+  if (!r) return null;
+  return { label: r.label, current: r.current, next: r.next, apply: () => change(r.apply) };
+}
 
 type Column = ThemeMode | 'main';
 const COLUMNS: Column[] = ['light', 'main', 'dark'];

@@ -264,7 +264,7 @@ export const TASKS: Record<TaskId, TaskDef> = {
       'Mobil-Performance (keine schweren Bilder, keine Animationen über dem Falz, kein Einblenden der ganzen Seite) und ' +
       'Hell/Dunkel-Modus. Farben als Hex-Werte (#rrggbb). imagePrompt nur, wenn ein Bild sinnvoll ist: englischer ' +
       'Prompt für einen Bildgenerator, ohne Text im Bild, sonst leerer String. Erfinde keine Einstellungen, die es nicht gibt. ' +
-      'changes: nur bei Bereich hero, layout oder toolcards konkrete, direkt anwendbare Änderungen (bei background ein leeres Array), höchstens 8. ' +
+      'changes: nur bei Bereich hero, layout, toolcards oder background konkrete, direkt anwendbare Änderungen, höchstens 8. ' +
       'Layout, nur diese Felder (mode „both“): ' +
       'text (Banner-Text, höchstens 120 Zeichen, ohne HTML, in der Sprache des Tabs; nur wenn heroBannerText leer ist und eine kurze Aussage sinnvoll ist; erfinde keine Fakten), ' +
       'bannerLink (interner Pfad wie /de/… bzw. /en/… oder https-Adresse, nur wenn du das Ziel aus den Einstellungen sicher kennst, sonst als Vorschlag ohne change), ' +
@@ -279,6 +279,10 @@ export const TASKS: Record<TaskId, TaskDef> = {
       'Farben als #rrggbb mit mode „light“ oder „dark“: borderColor, bgColor, titleColor, badgeColor, badgeBgColor, openColor, descColor; ' +
       'Prozent 0 bis 100 mit mode „light“ oder „dark“: bgOpacity, borderOpacity; mode „light“ oder „dark“: borderWidth (px 0 bis 8), borderRadius (px 0 bis 40); ' +
       'Schriftgrößen in px, mode „both“: titleSize (0 bis 40), descSize (0 bis 24), badgeSize (0 bis 20), openSize (0 bis 20), „0“ = Standard. Beachte Kontrast zwischen Text- und Hintergrundfarbe der Karte. ' +
+      'Hintergrund (background; JSON = light/dark Seiten-Hintergrund, sectionStyle, sectionGap, fx), nur diese Felder: ' +
+      'je mode „light“ oder „dark“: color, color2, patternColor (#rrggbb), opacity, patternOpacity, imageDarken, imageOpacity (0 bis 100), angle (0 bis 360), patternSpacing (4 bis 200), patternThickness (1 bis 6), imageBlur (0 bis 40), gradient (true/false), type (linear, radial), pattern (none, dots, grid, cross, diagonal, diamond, triangles, waves, blueprint); ' +
+      'mode „both“: sectionStyle (band, card), sectionGap (px 0 bis 160), fxAurora, fxNoise, fxSpotlight (true/false), fxAuroraIntensity, fxNoiseIntensity, fxSpotlightIntensity (0 bis 100). ' +
+      'Bilder wählst du nie aus. Die Seite soll mobil leicht bleiben: wenig Effekte, kein starkes Muster. ' +
       'Alt-Texte (imageAlt) setzt du nicht per change: verweise darauf, dass sie im Tab Dateien mit der KI-Alt-Text-Hilfe entstehen. ' +
       'Schlage nur Änderungen vor, die aus den gelieferten Einstellungen begründet sind; why: ein kurzer deutscher Satz.',
     schema: {
