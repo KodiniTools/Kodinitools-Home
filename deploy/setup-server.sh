@@ -137,6 +137,9 @@ GIT_BRANCH=${BRANCH}
 SESSION_SECRET=${SECRET}
 ADMIN_PASSWORD_HASH=
 MAX_UPLOAD_MB=2048
+# Optional: KI im Admin (Anthropic). Ohne Schlüssel bleibt die KI aus.
+# ANTHROPIC_API_KEY=
+# AI_MAX_PER_MINUTE=20
 EOF
   c_ok ".env angelegt (SESSION_SECRET generiert)"
 else

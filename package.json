@@ -20,6 +20,7 @@
     "build:admin": "vite build --config vite.admin.config.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.10.0",
     "@astrojs/vue": "5.1.4",
     "astro": "^5.17.2",
     "js-yaml": "^4.1.0",
