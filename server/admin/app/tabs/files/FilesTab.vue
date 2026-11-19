@@ -144,6 +144,8 @@
       </div>
     </div>
 
+    <AiAltPanel :files="altFiles" :get-alt="service.getAlt" :set-alt="service.setAlt" />
+
     <!-- Browser-Zwischenspeicher -->
     <div class="panel" data-fl-staged>
       <h2>Medien-Zwischenspeicher (Browser)</h2>
@@ -213,6 +215,7 @@ import { computed, ref, shallowRef } from 'vue';
 import type { Lang, ThemeMode } from '../../../types';
 import { UiButton, UiDialog, UiSegmentedControl } from '../../components/ui';
 import { useToastStore } from '../../stores/toast';
+import AiAltPanel from './AiAltPanel.vue';
 import FileTile from './FileTile.vue';
 import {
   LOC_LABEL,
@@ -249,6 +252,7 @@ const mode = computed<ThemeMode>({
 
 const snap = shallowRef<FilesSnapshot>(props.service.snapshot());
 const refresh = () => (snap.value = props.service.snapshot());
+const altFiles = computed(() => [...snap.value.server, ...snap.value.shared]);
 const entries = computed(() => modeEntries(snap.value, props.lang, mode.value));
 const onlyHere = computed(
   () => entries.value.filter((e) => e.used.every((u) => u.mode === mode.value)).length,

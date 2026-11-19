@@ -14,6 +14,8 @@ import {
   allImageSlots,
   heroLayoutCells,
   updateMediaUrlEverywhere,
+  getImageAlt,
+  setImageAlt,
   getSectionMedia,
   defaultSectionMediaSide,
   defaultSectionMediaText,
@@ -252,6 +254,14 @@ export function renderFiles() {
       moveServer: moveServerFile,
       deleteStaged: deleteStagedItem,
       addFiles: stageFiles,
+      getAlt: (path: string) => ({
+        de: getImageAlt('de', '/uploads/' + path),
+        en: getImageAlt('en', '/uploads/' + path),
+      }),
+      setAlt: (path: string, alt: { de: string; en: string }) => {
+        setImageAlt('de', '/uploads/' + path, alt.de);
+        setImageAlt('en', '/uploads/' + path, alt.en);
+      },
     } as FilesService,
   });
 }

@@ -2,8 +2,11 @@
 // günstiger, Ergebnis nach Minuten bis Stunden). Der API-Schlüssel kommt nur
 // aus der Umgebung (ANTHROPIC_API_KEY), nie aus dem Repo oder dem Browser.
 
+import { readFile, stat } from 'node:fs/promises';
+import { extname, resolve } from 'node:path';
 import Anthropic from '@anthropic-ai/sdk';
 import { config } from './config.js';
+import { isValidUploadPath } from './uploads.js';
 import {
   DEFAULT_MODEL,
   MODELS,
@@ -15,6 +18,7 @@ import {
   isModelId,
   isTaskId,
   type Effort,
+  type ImageData,
   type ModelId,
   type TaskId,
   type Usage,
@@ -48,6 +52,43 @@ export function checkThrottle(limit = config.aiMaxPerMinute, now = Date.now()): 
 /** Nur für Tests. */
 export function resetThrottle(): void {
   calls.length = 0;
+}
+
+const IMAGE_TYPES: Record<string, ImageData['mediaType']> = {
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.webp': 'image/webp',
+  '.gif': 'image/gif',
+};
+/** Größtes Bild für die KI (API-Grenze 5 MB je Bild). */
+export const MAX_IMAGE_BYTES = 4.5 * 1024 * 1024;
+
+/** Liest ein Bild aus dem Uploads-Ordner (nur dort, nur Bildformate, Größenlimit). */
+export async function loadUploadImage(relPath: unknown): Promise<ImageData> {
+  if (!isValidUploadPath(relPath)) throw inputError('Ungültiger Upload-Pfad');
+  const mediaType = IMAGE_TYPES[extname(relPath).toLowerCase()];
+  if (!mediaType) throw inputError('Nur JPG, PNG, WebP und GIF können analysiert werden');
+  const full = resolve(config.uploadsDir, relPath);
+  let size: number;
+  try {
+    size = (await stat(full)).size;
+  } catch {
+    throw Object.assign(new Error('Datei nicht gefunden'), { statusCode: 404 });
+  }
+  if (size > MAX_IMAGE_BYTES) throw inputError('Bild ist größer als 4,5 MB');
+  return { mediaType, data: (await readFile(full)).toString('base64') };
+}
+
+/** Anfrage-Parameter je Eingabe; Vision-Aufgaben laden zuerst das Bild. */
+async function prepare(sel: Selection, input: unknown) {
+  let image: ImageData | undefined;
+  if (sel.task === 'alt') {
+    const path =
+      input && typeof input === 'object' ? (input as { path?: unknown }).path : undefined;
+    image = await loadUploadImage(path);
+  }
+  return buildRequestParams(sel.task, sel.model, input, sel.effort, image);
 }
 
 type Selection = { task: TaskId; model: ModelId; effort?: Effort };
@@ -112,7 +153,7 @@ export function parseMessage(
 /** Sofort-Aufruf: eine Aufgabe, ein Ergebnis. */
 export async function runNow(body: Record<string, unknown>): Promise<AiResult & Selection> {
   const sel = parseSelection(body);
-  const params = buildRequestParams(sel.task, sel.model, body.input, sel.effort);
+  const params = await prepare(sel, body.input);
   const c = getClient();
   checkThrottle();
   const message = await c.messages.stream(params).finalMessage();
@@ -127,10 +168,12 @@ export async function createBatch(body: Record<string, unknown>) {
   if (items.length > MAX_BATCH_ITEMS) {
     throw inputError(`Zu viele Einträge (max. ${MAX_BATCH_ITEMS})`);
   }
-  const requests = items.map((input, idx) => ({
-    custom_id: `${sel.task}-${idx}`,
-    params: buildRequestParams(sel.task, sel.model, input, sel.effort),
-  }));
+  const requests = await Promise.all(
+    items.map(async (input, idx) => ({
+      custom_id: `${sel.task}-${idx}`,
+      params: await prepare(sel, input),
+    })),
+  );
   const c = getClient();
   checkThrottle();
   const batch = await c.messages.batches.create({ requests });

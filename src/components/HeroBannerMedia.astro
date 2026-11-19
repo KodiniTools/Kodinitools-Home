@@ -5,7 +5,7 @@
 // zum bisherigen Banner.
 import SectionMedia from './SectionMedia.astro';
 import HeroSlides from './HeroSlides.astro';
-import type { MediaConfig } from '../content/content';
+import { imageAltFor, type MediaConfig } from '../content/content';
 import { getPublicImageSize } from '../content/imageSize';
 import { uploadSrcset } from '../content/responsiveImage';
 
@@ -24,18 +24,27 @@ const size = slides.length > 0 ? null : getPublicImageSize(media.heroBanner);
 // Angezeigt wird das Banner höchstens rund 500 px breit (Höhe begrenzt), hochgeladen
 // oft 1800 px: kleinere Fassungen sparen Datenmenge und LCP-Zeit. sizes großzügig,
 // damit ein im Admin vergrößertes Banner scharf bleibt.
-const srcset = size ? uploadSrcset(media.heroBanner, size.width, import.meta.env.BASE_URL) : undefined;
+const srcset = size
+  ? uploadSrcset(media.heroBanner, size.width, import.meta.env.BASE_URL)
+  : undefined;
 const sizes = '(max-width: 640px) 70vw, 600px';
+const bannerAlt = imageAltFor(media, media.heroBanner, alt);
 ---
 
 {
   slides.length > 0 ? (
-    <HeroSlides slides={slides} settings={ss} variant="banner" total={slides.length + 1}>
+    <HeroSlides
+      slides={slides}
+      settings={ss}
+      variant="banner"
+      total={slides.length + 1}
+      alts={media.imageAlt}
+    >
       <SectionMedia
         src={media.heroBanner}
         eager={true}
         priority={true}
-        alt={alt}
+        alt={bannerAlt}
         wrapperClass="hero-banner-inner"
         mediaClass="hero-banner hero-slide is-active"
       />
@@ -49,7 +58,7 @@ const sizes = '(max-width: 640px) 70vw, 600px';
       height={size?.height}
       srcset={srcset}
       sizes={sizes}
-      alt={alt}
+      alt={bannerAlt}
       wrapperClass="hero-banner-inner"
       mediaClass="hero-banner"
     />

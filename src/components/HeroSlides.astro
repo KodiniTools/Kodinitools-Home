@@ -18,9 +18,10 @@ interface Props {
   variant: 'banner' | 'cell';
   offset?: number; // ms – versetzter Start (Kacheln nacheinander)
   total: number; // Anzahl aller Bilder inkl. dem ersten (für die Punkte)
+  alts?: Record<string, string>; // Alt-Texte je Bild-URL (Admin > Dateien > KI); fehlt = leer
   pauseTarget?: string; // Selektor eines Vorfahren, dessen Hover pausiert (z. B. '.hero' für den Hintergrund)
 }
-const { slides, settings, variant, offset = 0, total, pauseTarget } = Astro.props;
+const { slides, settings, variant, offset = 0, total, pauseTarget, alts = {} } = Astro.props;
 const interval = Math.max(1, Math.min(30, Number(settings.interval) || 5));
 const duration = Math.max(
   0,
@@ -46,10 +47,22 @@ const showDots = settings.dots !== false;
     slides.map((src) =>
       variant === 'cell' ? (
         <div class="hero-cell-media hero-slide">
-          <img src={src} alt="" class="hero-grid-media" loading="lazy" decoding="async" />
+          <img
+            src={src}
+            alt={alts[src] || ''}
+            class="hero-grid-media"
+            loading="lazy"
+            decoding="async"
+          />
         </div>
       ) : (
-        <img src={src} alt="" class="hero-banner hero-slide" loading="lazy" decoding="async" />
+        <img
+          src={src}
+          alt={alts[src] || ''}
+          class="hero-banner hero-slide"
+          loading="lazy"
+          decoding="async"
+        />
       ),
     )
   }

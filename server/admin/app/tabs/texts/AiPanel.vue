@@ -169,6 +169,7 @@ const BATCH_HINT: Record<AiTask, string> = {
   seo: 'Je Eintrag: erste Zeile = Seitenname, danach der Seitentext.',
   compare: 'Je Eintrag: deutscher Text, eine Zeile ===, englischer Text.',
   blog: 'Je Eintrag ein Thema.',
+  alt: '',
 };
 const JOB_KEY = 'kdt-ai-job';
 
@@ -207,7 +208,9 @@ const job = ref<Job | null>(null);
 let timer: ReturnType<typeof setInterval> | undefined;
 
 const taskOptions = computed(() =>
-  (config.value?.tasks ?? []).map((t) => ({ value: t.id, label: t.label })),
+  (config.value?.tasks ?? [])
+    .filter((t) => t.id !== 'alt')
+    .map((t) => ({ value: t.id, label: t.label })),
 );
 const modelOptions = computed(() =>
   (config.value?.models ?? []).map((m) => ({ value: m.id, label: m.label })),

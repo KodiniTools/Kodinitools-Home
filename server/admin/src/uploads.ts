@@ -184,7 +184,7 @@ export async function listUploads() {
 /**
  * Erlaubt "de/datei", "en/datei" oder "datei" (kein Traversal).
  */
-function isValidUploadPath(p: unknown): p is string {
+export function isValidUploadPath(p: unknown): p is string {
   return typeof p === 'string' && /^((de|en)\/)?[a-zA-Z0-9][a-zA-Z0-9._-]*$/.test(p);
 }
 
