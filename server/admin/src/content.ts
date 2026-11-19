@@ -525,6 +525,7 @@ function defaultMediaLocale() {
     heroMediaOffsetX: 0,
     heroMediaOffsetY: 0,
     toolCardOffsets: {},
+    imageAlt: {},
     heroBannerLink: '',
     heroBannerStyle: defaultBannerStyles(),
     heroBannerSlides: [],
@@ -839,6 +840,23 @@ function validateSlideList(arr: unknown, label: string) {
     if (!isValidMediaUrl(v)) throw new Error(`${label} ungültig`);
     out.push(v);
     if (out.length >= BANNER_SLIDES_MAX) break;
+  }
+  return out;
+}
+
+/** Alt-Texte je Bild-URL (/uploads/…): max. 300 Einträge, je max. 200 Zeichen, leere entfallen. */
+export const IMAGE_ALT_MAX_LEN = 200;
+function validateImageAlt(v: unknown, langLabel: string) {
+  const out: Record<string, string> = {};
+  if (v == null) return out;
+  if (!isPlainObject(v)) throw new Error(`media.${langLabel}.imageAlt muss ein Objekt sein`);
+  for (const k of Object.keys(v)) {
+    if (!/^\/[^\s]+$/.test(k)) throw new Error(`media.${langLabel}.imageAlt: Schlüssel ungültig`);
+    const t = typeof v[k] === 'string' ? v[k].trim() : '';
+    if (t.length > IMAGE_ALT_MAX_LEN)
+      throw new Error(`media.${langLabel}.imageAlt: Alt-Text zu lang (max. ${IMAGE_ALT_MAX_LEN})`);
+    if (t) out[k] = t;
+    if (Object.keys(out).length >= 300) break;
   }
   return out;
 }
@@ -1178,6 +1196,7 @@ function validateMediaLocale(m: unknown, langLabel: string): AnyObj {
     }
     return res;
   })();
+  out.imageAlt = validateImageAlt(m.imageAlt, langLabel);
   out.heroBanner = '';
   if (m.heroBanner != null && m.heroBanner !== '') {
     if (!isValidMediaUrl(m.heroBanner)) throw new Error(`media.${langLabel}.heroBanner ungültig`);

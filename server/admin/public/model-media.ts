@@ -74,6 +74,7 @@ export function defaultMediaLocale() {
     heroBannerShow: true, // Einzelbanner ein-/ausgeblendet (Tab „Layout“)
     heroMediaOffsetX: 0, // Verschiebung des Hero-Mediums (Banner/Raster) in px
     heroMediaOffsetY: 0,
+    imageAlt: {} as Record<string, string>, // Alt-Texte hochgeladener Bilder (Schlüssel = URL)
     toolCardOffsets: {} as Record<string, ToolCardOffset>, // Verschiebung je Tool-Karte { 'sektion.key': { x, y } } (px, nur ≠ 0)
     heroBannerText: '', // Text über dem Einzelbanner
     heroBannerFont: '', // Schriftart des Banner-Textes (Dateiname im /fonts-Ordner)
@@ -143,6 +144,17 @@ export function normCardScale(v: unknown): number {
     ? Math.max(CARD_SCALE_MIN, Math.min(CARD_SCALE_MAX, Math.round(n)))
     : 100;
 }
+/** Alt-Texte je Bild-URL: nur Text-Werte, getrimmt, leere entfallen, max. 300. */
+export function normImageAlt(v: RawJson): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return out;
+  for (const k of Object.keys(v)) {
+    const t = typeof v[k] === 'string' ? v[k].trim() : '';
+    if (k.startsWith('/') && t) out[k] = t;
+    if (Object.keys(out).length >= 300) break;
+  }
+  return out;
+}
 /**
  * @param v Roh-Wert aus der geladenen Config
  */
@@ -185,6 +197,7 @@ export function normalizeMedia(m: RawJson) {
       heroMediaOffsetX: normMediaOffset(o?.heroMediaOffsetX, 'x'),
       heroMediaOffsetY: normMediaOffset(o?.heroMediaOffsetY, 'y'),
       toolCardOffsets: normToolCardOffsets(o?.toolCardOffsets),
+      imageAlt: normImageAlt(o?.imageAlt),
       heroBannerText: typeof o?.heroBannerText === 'string' ? o.heroBannerText : '',
       heroBannerFont: normFontFile(o?.heroBannerFont),
       heroBannerTextColor: /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(o?.heroBannerTextColor))
@@ -305,6 +318,23 @@ export function defMediaVal(key: MediaKey): string {
 }
 // Ersetzt eine Medien-URL in ALLEN Slots (beide Sprachen) — z.B. nachdem eine
 // Datei serverseitig verschoben wurde, damit die Zuweisungen erhalten bleiben.
+/** Größte Länge eines Alt-Textes (wie im Server). */
+export const IMAGE_ALT_MAX_LEN = 200;
+/** Alt-Text eines Bildes (URL) in einer Sprache ('' = keiner). */
+export function getImageAlt(lang: Lang, url: string): string {
+  return state.media[lang].imageAlt?.[url] ?? '';
+}
+/**
+ * Setzt den Alt-Text eines Bildes in einer Sprache; leer = entfernen. Schreibt nur
+ * in den Entwurf (state), Undo/Redo und Autosave greifen wie bei allen Feldern.
+ */
+export function setImageAlt(lang: Lang, url: string, text: string): void {
+  const t = String(text).trim().slice(0, IMAGE_ALT_MAX_LEN);
+  const m = state.media[lang];
+  if (!m.imageAlt) m.imageAlt = {};
+  if (t) m.imageAlt[url] = t;
+  else delete m.imageAlt[url];
+}
 export function updateMediaUrlEverywhere(oldUrl: string, newUrl: string): void {
   for (const lang of MEDIA_LANGS) {
     for (const key of MEDIA_KEYS) {
@@ -313,5 +343,13 @@ export function updateMediaUrlEverywhere(oldUrl: string, newUrl: string): void {
   }
   for (const slot of allImageSlots()) {
     if (slot.get() === oldUrl) slot.set(newUrl);
+  }
+  // Alt-Texte ziehen mit der Datei um.
+  for (const lang of MEDIA_LANGS) {
+    const alts = state.media[lang].imageAlt;
+    if (alts && oldUrl in alts) {
+      alts[newUrl] = alts[oldUrl]!;
+      delete alts[oldUrl];
+    }
   }
 }

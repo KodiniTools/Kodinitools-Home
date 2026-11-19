@@ -7,7 +7,12 @@
 // <SectionMedia> (gleicher Wrapper mit .section-video-wrapper).
 import SectionMedia from './SectionMedia.astro';
 import HeroSlides from './HeroSlides.astro';
-import { textFontId, type MediaConfig, type SectionMediaKey } from '../content/content';
+import {
+  imageAltFor,
+  textFontId,
+  type MediaConfig,
+  type SectionMediaKey,
+} from '../content/content';
 
 interface Props {
   media: MediaConfig;
@@ -16,6 +21,7 @@ interface Props {
 }
 const { media, section, eager = false } = Astro.props;
 const src = (media.sectionVideos && media.sectionVideos[section]) || '';
+const mediaAlt = imageAltFor(media, src, '');
 const cfg = media.sectionMedia ? media.sectionMedia[section] : undefined;
 const isVideo = /\.(mp4|webm|mov|m4v|ogv)(\?.*)?$/i.test(src);
 const slides =
@@ -71,17 +77,23 @@ function textStyle(): string {
 
 {
   src && (
-    <div class="section-video-wrapper section-media-wrapper" data-section-media={section} style={wrapStyle}>
+    <div
+      class="section-video-wrapper section-media-wrapper"
+      data-section-media={section}
+      style={wrapStyle}
+    >
       {slides.length > 0 && cfg ? (
         <HeroSlides
           slides={slides}
           settings={cfg.slideshow || {}}
           variant="cell"
           total={slides.length + 1}
+          alts={media.imageAlt}
         >
           <SectionMedia
             src={src}
             eager={eager}
+            alt={mediaAlt}
             wrapperClass="hero-cell-media hero-slide is-active"
             mediaClass="section-video"
           />
@@ -90,6 +102,7 @@ function textStyle(): string {
         <SectionMedia
           src={src}
           eager={eager}
+          alt={mediaAlt}
           wrapperClass="section-media-inner"
           mediaClass="section-video"
         />

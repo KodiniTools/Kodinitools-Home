@@ -9,7 +9,9 @@
     <p class="hint ai-m0">
       Die KI sieht sich das Bild an und schlägt Alt-Text (DE und EN) und einen sprechenden
       Dateinamen vor. Nur JPG, PNG, WebP und GIF bis 4,5&nbsp;MB. Das Bild geht an die Anthropic-API
-      (USA). Die Vorschläge sind zum Kopieren; geändert wird nichts.
+      (USA). „Übernehmen“ schreibt den Alt-Text nur in den <strong>Entwurf</strong>: mit dem
+      Rückgängig-Knopf (Strg+Z) zurücknehmbar, über die Vorschau prüfbar und erst mit
+      „Veröffentlichen“ live. Gilt für Bilder in Hero, Raster, Diashows und Sektions-Medien.
     </p>
 
     <template v-if="open">
@@ -65,12 +67,37 @@
           Ergebnisse
           <span class="hint ai-m0">Kosten (geschätzt): {{ formatUsd(totalCost) }}</span>
         </h3>
+        <div v-if="applicableRows.length > 1" class="ai-row">
+          <UiButton size="sm" variant="primary" data-aialt-applyall @click="applyAll">
+            Alle {{ applicableRows.length }} übernehmen
+          </UiButton>
+        </div>
         <article v-for="r in rows" :key="r.path" class="ai-result" data-aialt-result>
           <strong>{{ r.path }}</strong>
+          <p v-if="hasAlt(r.path)" class="hint ai-m0" data-aialt-current>
+            Im Entwurf: DE „{{ cur(r.path).de || '–' }}“ · EN „{{ cur(r.path).en || '–' }}“
+          </p>
           <p v-if="!r.res.ok" class="ai-err">{{ r.res.error }}</p>
           <template v-else>
             <pre class="ai-pre">{{ resultToText('alt', r.res.data) }}</pre>
             <div class="ai-row">
+              <UiButton
+                size="sm"
+                variant="primary"
+                :disabled="Boolean(r.res.data?.decorative)"
+                :title="r.res.data?.decorative ? 'Dekoratives Bild: kein Alt-Text nötig' : ''"
+                data-aialt-apply
+                @click="apply(r.path, r.res)"
+                >Übernehmen</UiButton
+              >
+              <UiButton
+                v-if="hasAlt(r.path)"
+                size="sm"
+                variant="ghost"
+                data-aialt-remove
+                @click="removeAlt(r.path)"
+                >Alt-Text entfernen</UiButton
+              >
               <UiButton size="sm" data-aialt-copy="de" @click="copy(r.res, 'altDe')"
                 >Alt DE kopieren</UiButton
               >
@@ -110,7 +137,12 @@ import {
  * /uploads) und schickt nur den Pfad an /api/ai/*; der Server liest das Bild
  * selbst aus dem Uploads-Ordner. Lädt erst nach dem Öffnen; ändert nichts.
  */
-const props = defineProps<{ files: { path: string; ext: string }[] }>();
+const props = defineProps<{
+  files: { path: string; ext: string }[];
+  /** Alt-Texte aus dem Entwurf lesen / in den Entwurf schreiben ('' = entfernen). */
+  getAlt: (path: string) => { de: string; en: string };
+  setAlt: (path: string, alt: { de: string; en: string }) => void;
+}>();
 const toasts = useToastStore();
 
 const IMAGE_EXT = new Set(['JPG', 'JPEG', 'PNG', 'WEBP', 'GIF']);
@@ -265,6 +297,38 @@ async function checkJob() {
   }
   results.value = next;
   totalCost.value = res.data.totalCostUsd;
+}
+
+// ---- Übernehmen (nur Entwurf) ---------------------------------------------------
+const stamp = ref(0); // erzwingt Neulesen der Entwurfs-Werte nach Änderungen
+const cur = (path: string) => (stamp.value >= 0 ? props.getAlt(path) : { de: '', en: '' });
+const hasAlt = (path: string) => {
+  const a = cur(path);
+  return Boolean(a.de || a.en);
+};
+const applicableRows = computed(() =>
+  rows.value.filter((r) => r.res.ok && !r.res.data?.decorative),
+);
+function apply(path: string, res: AiResult, quiet = false) {
+  if (!res.ok || res.data?.decorative) return;
+  props.setAlt(path, { de: String(res.data?.altDe ?? ''), en: String(res.data?.altEn ?? '') });
+  stamp.value++;
+  if (!quiet)
+    toasts.addToast('Übernommen (Entwurf) – mit Strg+Z rückgängig, in der Vorschau prüfen', {
+      type: 'success',
+    });
+}
+function applyAll() {
+  for (const r of applicableRows.value) apply(r.path, r.res, true);
+  toasts.addToast(
+    `${applicableRows.value.length} Alt-Texte übernommen (Entwurf) – Strg+Z macht es rückgängig`,
+    { type: 'success' },
+  );
+}
+function removeAlt(path: string) {
+  props.setAlt(path, { de: '', en: '' });
+  stamp.value++;
+  toasts.addToast('Alt-Text entfernt (Entwurf)', { type: 'success' });
 }
 
 function forgetJob() {

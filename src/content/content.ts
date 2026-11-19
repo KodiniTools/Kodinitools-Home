@@ -235,6 +235,9 @@ export interface MediaConfig {
   // Verschiebung je Tool-Karte ('sektion.key' -> px), Admin > Layout > Ganze Seite.
   // w/h: Skalierung in % (25–300; transform: scale, Inhalt skaliert mit), fehlt = 100.
   toolCardOffsets: Record<string, { x: number; y: number; w?: number; h?: number }>;
+  // Alt-Texte hochgeladener Bilder (Schlüssel = Bild-URL, z. B. '/uploads/de/bild.webp'),
+  // Admin > Dateien > KI. Fehlt ein Eintrag, gilt der bisherige Standard-Alt-Text.
+  imageAlt: Record<string, string>;
   // Optionaler Text über dem Banner + Schriftart, Farbe, Größe, Position.
   heroBannerText: string;
   heroBannerFont: string;
@@ -658,6 +661,7 @@ const MEDIA_DEFAULTS: MediaConfig = {
   heroMediaOffsetX: 0,
   heroMediaOffsetY: 0,
   toolCardOffsets: {},
+  imageAlt: {},
   heroBannerText: '',
   heroBannerFont: '',
   heroBannerTextColor: '#ffffff',
@@ -1535,6 +1539,12 @@ export function heroGridReflowCols(layout: MediaConfig['heroLayout'], n: number)
 }
 
 /** Medien-Konfiguration für eine Sprache (Defaults + Admin-Override). */
+/** Alt-Text eines hochgeladenen Bildes aus dem Admin; fehlt er, gilt `fallback`. */
+export function imageAltFor(media: MediaConfig, src: string, fallback = ''): string {
+  const v = src && media.imageAlt ? media.imageAlt[src] : undefined;
+  return typeof v === 'string' && v.trim() !== '' ? v : fallback;
+}
+
 export function getMedia(locale: Locale): MediaConfig {
   return deepMerge(MEDIA_DEFAULTS, mediaOverrideFor(locale));
 }

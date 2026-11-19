@@ -5,7 +5,7 @@
 // „Versetzt wechseln" aktiv ist. Ohne weitere Bilder unveränderte Ausgabe.
 import SectionMedia from './SectionMedia.astro';
 import HeroSlides from './HeroSlides.astro';
-import type { MediaConfig } from '../content/content';
+import { imageAltFor, type MediaConfig } from '../content/content';
 
 interface Props {
   media: MediaConfig;
@@ -14,6 +14,7 @@ interface Props {
   alt?: string;
 }
 const { media, index, src, alt = `Bild ${index + 1}` } = Astro.props;
+const cellAlt = imageAltFor(media, src, alt);
 const all = Array.isArray(media.heroGridSlides) ? media.heroGridSlides : [];
 const clean = (arr: unknown): string[] =>
   Array.isArray(arr)
@@ -39,11 +40,12 @@ const offset =
       variant="cell"
       offset={offset}
       total={slides.length + 1}
+      alts={media.imageAlt}
     >
       <SectionMedia
         src={src}
         eager={true}
-        alt={alt}
+        alt={cellAlt}
         wrapperClass="hero-cell-media hero-slide is-active"
         mediaClass="hero-grid-media"
       />
@@ -52,7 +54,7 @@ const offset =
     <SectionMedia
       src={src}
       eager={true}
-      alt={alt}
+      alt={cellAlt}
       wrapperClass="hero-cell-media"
       mediaClass="hero-grid-media"
     />

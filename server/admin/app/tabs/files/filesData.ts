@@ -58,6 +58,10 @@ export interface FilesService {
   addFiles: (
     files: FileList | File[],
   ) => Promise<ActionResult & { added: number; tooBig: string[] }>;
+  /** Alt-Texte eines Server-Bildes (Pfad relativ zu /uploads); '' = keiner. */
+  getAlt: (path: string) => { de: string; en: string };
+  /** Schreibt Alt-Texte in den Entwurf; '' entfernt. Undo/Autosave wie bei allen Feldern. */
+  setAlt: (path: string, alt: { de: string; en: string }) => void;
 }
 
 export const LOC_LABEL: Record<FileLoc, string> = { de: 'DE', en: 'EN', '': 'Gemeinsam' };

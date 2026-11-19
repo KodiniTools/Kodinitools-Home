@@ -198,6 +198,18 @@ describe('AiPanel', () => {
   });
 });
 
+function altApi() {
+  const store: Record<string, { de: string; en: string }> = {};
+  return {
+    store,
+    getAlt: vi.fn((p: string) => store[p] ?? { de: '', en: '' }),
+    setAlt: vi.fn((p: string, a: { de: string; en: string }) => {
+      if (a.de || a.en) store[p] = a;
+      else delete store[p];
+    }),
+  };
+}
+
 describe('AiAltPanel', () => {
   const FILES = [
     { path: 'de/a.png', ext: 'PNG' },
@@ -226,7 +238,7 @@ describe('AiAltPanel', () => {
         data: { decorative: false, altDe: 'Ein Logo', altEn: 'A logo', filename: 'logo' },
       },
     });
-    const w = mount(AiAltPanel, { props: { files: FILES } });
+    const w = mount(AiAltPanel, { props: { files: FILES, ...altApi() } });
     await w.get('[data-aialt-toggle]').trigger('click');
     await flushPromises();
     expect(
@@ -274,7 +286,7 @@ describe('AiAltPanel', () => {
       status: 202,
       data: { id: 'msgbatch_1', count: 2, status: 'in_progress' },
     });
-    const w = mount(AiAltPanel, { props: { files: FILES } });
+    const w = mount(AiAltPanel, { props: { files: FILES, ...altApi() } });
     await w.get('[data-aialt-toggle]').trigger('click');
     await flushPromises();
     await w.get('[data-aialt-mode]').setValue('batch');
@@ -294,5 +306,53 @@ describe('AiAltPanel', () => {
     expect(texts[1]).toContain('b.webp');
     expect(texts[1]).toContain('(dekorativ)');
     w.unmount();
+  });
+
+  it('Übernehmen schreibt DE und EN in den Entwurf, Entfernen nimmt sie zurück', async () => {
+    api.apiGet.mockResolvedValue({ ok: true, status: 200, data: CONFIG });
+    api.apiPost.mockResolvedValue({
+      ok: true,
+      status: 200,
+      data: {
+        ok: true,
+        data: { decorative: false, altDe: 'Ein Logo', altEn: 'A logo', filename: 'logo' },
+      },
+    });
+    const alt = altApi();
+    const w = mount(AiAltPanel, {
+      props: { files: FILES, getAlt: alt.getAlt, setAlt: alt.setAlt },
+    });
+    await w.get('[data-aialt-toggle]').trigger('click');
+    await flushPromises();
+    await w.get('[data-aialt-run]').trigger('click');
+    await flushPromises();
+    expect(w.find('[data-aialt-current]').exists()).toBe(false);
+    await w.get('[data-aialt-apply]').trigger('click');
+    expect(alt.setAlt).toHaveBeenCalledWith('de/a.png', { de: 'Ein Logo', en: 'A logo' });
+    await flushPromises();
+    expect(w.get('[data-aialt-current]').text()).toContain('Ein Logo');
+    await w.get('[data-aialt-remove]').trigger('click');
+    expect(alt.setAlt).toHaveBeenLastCalledWith('de/a.png', { de: '', en: '' });
+    await flushPromises();
+    expect(w.find('[data-aialt-current]').exists()).toBe(false);
+  });
+
+  it('dekorative Bilder lassen sich nicht übernehmen', async () => {
+    api.apiGet.mockResolvedValue({ ok: true, status: 200, data: CONFIG });
+    api.apiPost.mockResolvedValue({
+      ok: true,
+      status: 200,
+      data: { ok: true, data: { decorative: true, altDe: '', altEn: '', filename: 'x' } },
+    });
+    const alt = altApi();
+    const w = mount(AiAltPanel, {
+      props: { files: FILES, getAlt: alt.getAlt, setAlt: alt.setAlt },
+    });
+    await w.get('[data-aialt-toggle]').trigger('click');
+    await flushPromises();
+    await w.get('[data-aialt-run]').trigger('click');
+    await flushPromises();
+    expect(w.get('[data-aialt-apply]').attributes('disabled')).toBeDefined();
+    expect(alt.setAlt).not.toHaveBeenCalled();
   });
 });

@@ -144,7 +144,7 @@
       </div>
     </div>
 
-    <AiAltPanel :files="altFiles" />
+    <AiAltPanel :files="altFiles" :get-alt="service.getAlt" :set-alt="service.setAlt" />
 
     <!-- Browser-Zwischenspeicher -->
     <div class="panel" data-fl-staged>
