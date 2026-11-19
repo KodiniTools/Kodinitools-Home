@@ -41,6 +41,7 @@
       <div class="panel">
         <AiDesignAssist
           area="layout"
+          :lang="service.lang"
           :get-current="aiCurrent"
           :resolve="aiResolve"
           :apply-note="
@@ -174,7 +175,7 @@ function aiResolve(c: AiChange): Applicable | null {
   if (!r) return null;
   return {
     label: r.label,
-    current: describeLayoutCurrent(text.value, r),
+    current: describeLayoutCurrent(text.value, r, view.value.m),
     next: r.value,
     apply: () => applyLayoutChange(view.value.m, r),
   };
