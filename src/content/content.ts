@@ -1624,6 +1624,8 @@ export interface SiteConfig {
   toolFilter: boolean;
   // Such-Overlay (Strg/Cmd + K) mit Schaltfläche unter dem Hero. Standard aus.
   cmdPalette: boolean;
+  // Abschnitt „Workflows“ mit Tool-Ketten unter den Tool-Sektionen. Standard aus.
+  workflows: boolean;
 }
 export interface SiteSectionSide {
   color: string; // '' = keine Tönung
@@ -1731,6 +1733,7 @@ const SITE_DEFAULTS: SiteConfig = {
   toolBadge: false,
   toolFilter: false,
   cmdPalette: false,
+  workflows: false,
 };
 // Erlaubte Bild-URL (interner Pfad oder http(s)), ohne Zeichen, die url("…") brechen.
 const SITE_MEDIA_URL = /^(\/[^\s"'()\\]*|https?:\/\/[^\s"'()\\]+)$/;
@@ -1770,6 +1773,7 @@ export function getHomeLayout(): {
   toolBadge: boolean;
   toolFilter: boolean;
   cmdPalette: boolean;
+  workflows: boolean;
 } {
   const site = getSite();
   return {
@@ -1788,6 +1792,7 @@ export function getHomeLayout(): {
     toolBadge: site.toolBadge === true,
     toolFilter: site.toolFilter === true,
     cmdPalette: site.cmdPalette === true,
+    workflows: site.workflows === true,
   };
 }
 

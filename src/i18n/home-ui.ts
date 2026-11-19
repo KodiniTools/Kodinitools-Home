@@ -21,6 +21,8 @@ export interface HomeUi {
   procFilterLabel: string;
   procFilterAll: string;
   procNoResults: string;
+  /** Abschnitt „Workflows“ (Admin > Layout > Workflows). */
+  workflows: { title: string; intro: string; hint: string };
   /** Such-Overlay (Strg/Cmd + K, Admin > Layout > Suche). */
   palette: {
     trigger: string;
@@ -56,6 +58,12 @@ export const HOME_UI: Record<Lang, HomeUi> = {
     procFilterLabel: 'Tools nach Verarbeitung filtern',
     procFilterAll: 'Alle',
     procNoResults: 'Keine Tools in dieser Auswahl.',
+    workflows: {
+      title: 'Workflows: Tools kombinieren',
+      intro:
+        'Viele Aufgaben brauchen zwei oder drei Schritte. Diese Ketten zeigen, welche Tools Sie nacheinander nutzen.',
+      hint: 'Laden Sie das Ergebnis herunter und wählen Sie die Datei im nächsten Schritt aus. Alles ohne Registrierung.',
+    },
     palette: {
       trigger: 'Tool finden',
       keyHint: 'Strg K',
@@ -87,6 +95,12 @@ export const HOME_UI: Record<Lang, HomeUi> = {
     procFilterLabel: 'Filter tools by processing',
     procFilterAll: 'All',
     procNoResults: 'No tools in this selection.',
+    workflows: {
+      title: 'Workflows: combine tools',
+      intro:
+        'Many tasks take two or three steps. These chains show which tools to use one after the other.',
+      hint: 'Download the result and select the file in the next step. No registration needed.',
+    },
     palette: {
       trigger: 'Find a tool',
       keyHint: 'Ctrl K',

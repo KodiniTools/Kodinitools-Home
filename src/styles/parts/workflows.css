@@ -1,0 +1,143 @@
+/* Workflow-Ketten der Startseite (Admin > Layout > Workflows). Wird nur ins HTML
+   geschrieben, wenn der Schalter an ist. Reines HTML/CSS, kein JavaScript. */
+
+.workflows-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem clamp(0.75rem, 3vw, 2rem) 1rem;
+  scroll-margin-top: 6rem;
+}
+
+.workflows-section h2 {
+  margin: 0 0 0.5rem;
+  text-align: center;
+}
+
+.wf-intro {
+  max-width: 46rem;
+  margin: 0 auto 1.5rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.wf-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wf-card {
+  padding: 1rem 1.1rem 1.1rem;
+  border: 1.5px solid rgba(1, 79, 153, 0.35);
+  border-radius: 1rem;
+  background: var(--tc-desc-bg, #ffffff);
+  color: #0b2a4a;
+}
+
+[data-theme="dark"] .wf-card {
+  background: #0d2238;
+  color: #eef3f8;
+  border-color: rgba(248, 225, 169, 0.35);
+}
+
+.wf-card h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1.05rem;
+}
+
+.wf-card p {
+  margin: 0 0 0.8rem;
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+.wf-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: wf;
+}
+
+.wf-step {
+  position: relative;
+  counter-increment: wf;
+}
+
+/* Pfeil zwischen den Schritten (nur Zierde, nicht vorgelesen). */
+.wf-step + .wf-step::before {
+  content: "↓" / "";
+  display: block;
+  margin: 0 0 0.4rem 1.1rem;
+  font-weight: 700;
+  color: #014f99;
+}
+
+[data-theme="dark"] .wf-step + .wf-step::before {
+  color: #f8e1a9;
+}
+
+.wf-step a {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 44px;
+  padding: 0.35rem 0.6rem;
+  border: 1.5px solid #014f99;
+  border-radius: 0.7rem;
+  color: inherit;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+[data-theme="dark"] .wf-step a {
+  border-color: #f8e1a9;
+}
+
+.wf-step a:hover,
+.wf-step a:focus-visible {
+  background: rgba(1, 79, 153, 0.1);
+}
+
+[data-theme="dark"] .wf-step a:hover,
+[data-theme="dark"] .wf-step a:focus-visible {
+  background: rgba(248, 225, 169, 0.12);
+}
+
+.wf-step a::before {
+  content: counter(wf);
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: #014f99;
+  color: #ffffff;
+  font-size: 0.8rem;
+  line-height: 1.5rem;
+  text-align: center;
+}
+
+[data-theme="dark"] .wf-step a::before {
+  background: #f8e1a9;
+  color: #001d3d;
+}
+
+.wf-step img {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.wf-hint {
+  margin: 1rem auto 0;
+  max-width: 46rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
