@@ -59,7 +59,6 @@ const schemaFaq = {
     try {
       const c = JSON.parse(localStorage.getItem('cookieConsent') || '{}');
       if (c.analytics) gtag('consent', 'update', { 'analytics_storage': 'granted', 'functionality_storage': 'granted', 'personalization_storage': 'granted' });
-      if (c.marketing) gtag('consent', 'update', { 'ad_storage': 'granted', 'ad_user_data': 'granted', 'ad_personalization': 'granted' });
     } catch { /* Consent optional – Fehler bewusst ignorieren */ }
   })();
   </script>

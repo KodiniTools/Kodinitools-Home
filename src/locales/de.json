@@ -255,7 +255,7 @@
     "settingsTitle": "Cookie-Einstellungen",
     "settingsIntro": "Hier können Sie Ihre Cookie-Einstellungen anpassen. Notwendige Cookies sind immer aktiv, da sie für die Grundfunktionen der Website erforderlich sind.",
     "saveSettings": "Einstellungen speichern",
-    "close": "Schliessen",
+    "close": "Schließen",
     "alwaysActive": "Immer aktiv",
     "cookieSettings": "Cookie-Einstellungen",
     "essential": {
@@ -265,10 +265,6 @@
     "analytics": {
       "title": "Analyse-Cookies",
       "description": "Diese Cookies helfen uns zu verstehen, wie Besucher mit der Website interagieren. Alle Daten werden anonymisiert erfasst (Google Analytics)."
-    },
-    "marketing": {
-      "title": "Marketing-Cookies",
-      "description": "Diese Cookies werden verwendet, um Werbung relevanter für Sie zu gestalten. Sie ermöglichen auch die Messung der Wirksamkeit von Werbekampagnen."
     }
   },
   "blog": {
@@ -493,7 +489,7 @@
         },
         "cookies": {
           "title": "Transparente Cookie-Einstellungen",
-          "description": "Sie entscheiden, welche Cookies Sie zulassen. Detaillierte Kontrolle über essenzielle, Analyse- und Marketing-Cookies."
+          "description": "Sie entscheiden, welche Cookies Sie zulassen. Detaillierte Kontrolle über notwendige und Analyse-Cookies."
         },
         "deletion": {
           "title": "Automatische Löschung",

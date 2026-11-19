@@ -395,21 +395,6 @@
         </div>
       </div>
 
-      <!-- Marketing -->
-      <div class="cookie-category">
-        <div class="cookie-category-header">
-          <div class="cookie-category-info">
-            <h4 data-i18n="cookie.marketingTitle">Marketing-Cookies</h4>
-            <p data-i18n="cookie.marketingDesc">Werden verwendet, um Werbung relevanter für Sie zu gestalten und die Effektivität von Werbekampagnen zu messen.</p>
-          </div>
-          <div class="cookie-toggle">
-            <label class="toggle-switch">
-              <input type="checkbox" id="marketingConsent">
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-        </div>
-      </div>
     </div>
     <div class="cookie-modal-footer">
       <button class="cookie-btn cookie-btn-reject" onclick="CookieConsent.rejectAll()" data-i18n="cookie.rejectAllModal">Alle ablehnen</button>
@@ -425,7 +410,6 @@ var CookieConsent = (function() {
   var banner = document.getElementById('cookieBanner');
   var modal = document.getElementById('cookieModal');
   var analyticsCheckbox = document.getElementById('analyticsConsent');
-  var marketingCheckbox = document.getElementById('marketingConsent');
 
   // i18n Übersetzungen
   var COOKIE_TRANSLATIONS = {
@@ -443,8 +427,6 @@ var CookieConsent = (function() {
       'cookie.alwaysActive': 'Immer aktiv',
       'cookie.analyticsTitle': 'Analyse-Cookies',
       'cookie.analyticsDesc': 'Helfen uns zu verstehen, wie Besucher mit der Website interagieren, um die Benutzererfahrung zu verbessern.',
-      'cookie.marketingTitle': 'Marketing-Cookies',
-      'cookie.marketingDesc': 'Werden verwendet, um Werbung relevanter für Sie zu gestalten und die Effektivität von Werbekampagnen zu messen.',
       'cookie.rejectAllModal': 'Alle ablehnen',
       'cookie.saveSettings': 'Einstellungen speichern',
       'cookie.acceptAllModal': 'Alle akzeptieren',
@@ -464,8 +446,6 @@ var CookieConsent = (function() {
       'cookie.alwaysActive': 'Always active',
       'cookie.analyticsTitle': 'Analytics cookies',
       'cookie.analyticsDesc': 'Help us understand how visitors interact with the website to improve the user experience.',
-      'cookie.marketingTitle': 'Marketing cookies',
-      'cookie.marketingDesc': 'Used to make advertising more relevant to you and to measure the effectiveness of advertising campaigns.',
       'cookie.rejectAllModal': 'Reject all',
       'cookie.saveSettings': 'Save settings',
       'cookie.acceptAllModal': 'Accept all',
@@ -509,7 +489,6 @@ var CookieConsent = (function() {
       try {
         var consent = JSON.parse(saved);
         analyticsCheckbox.checked = consent.analytics;
-        marketingCheckbox.checked = consent.marketing;
       } catch(e) {
         showBanner();
       }
@@ -534,49 +513,43 @@ var CookieConsent = (function() {
     modal.classList.remove('show');
   }
 
-  function updateGoogleConsent(analytics, marketing) {
+  // Nur Analyse-Einwilligung. Werbe-Speicher (ad_*) bleibt auf dem Standard
+  // „denied“ aus dem Consent-Mode-Block im <head>: KodiniTools nutzt keine Werbung.
+  function updateGoogleConsent(analytics) {
     if (typeof gtag === 'function') {
       gtag('consent', 'update', {
         'analytics_storage': analytics ? 'granted' : 'denied',
         'functionality_storage': analytics ? 'granted' : 'denied',
         'personalization_storage': analytics ? 'granted' : 'denied'
       });
-      gtag('consent', 'update', {
-        'ad_storage': marketing ? 'granted' : 'denied',
-        'ad_user_data': marketing ? 'granted' : 'denied',
-        'ad_personalization': marketing ? 'granted' : 'denied'
-      });
     }
   }
 
-  function saveConsent(analytics, marketing) {
+  function saveConsent(analytics) {
     var data = {
       analytics: analytics,
-      marketing: marketing,
       timestamp: new Date().toISOString()
     };
     localStorage.setItem('cookieConsent', JSON.stringify(data));
-    updateGoogleConsent(analytics, marketing);
+    updateGoogleConsent(analytics);
   }
 
   function acceptAll() {
     analyticsCheckbox.checked = true;
-    marketingCheckbox.checked = true;
-    saveConsent(true, true);
+    saveConsent(true);
     hideBanner();
     hideSettings();
   }
 
   function rejectAll() {
     analyticsCheckbox.checked = false;
-    marketingCheckbox.checked = false;
-    saveConsent(false, false);
+    saveConsent(false);
     hideBanner();
     hideSettings();
   }
 
   function saveSettings() {
-    saveConsent(analyticsCheckbox.checked, marketingCheckbox.checked);
+    saveConsent(analyticsCheckbox.checked);
     hideBanner();
     hideSettings();
   }

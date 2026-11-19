@@ -265,10 +265,6 @@
     "analytics": {
       "title": "Analytics Cookies",
       "description": "These cookies help us understand how visitors interact with the website. All data is collected anonymously (Google Analytics)."
-    },
-    "marketing": {
-      "title": "Marketing Cookies",
-      "description": "These cookies are used to make advertising more relevant to you. They also enable measuring the effectiveness of advertising campaigns."
     }
   },
   "blog": {
@@ -493,7 +489,7 @@
         },
         "cookies": {
           "title": "Transparent Cookie Settings",
-          "description": "You decide which cookies you allow. Detailed control over essential, analytics, and marketing cookies."
+          "description": "You decide which cookies you allow. Detailed control over essential and analytics cookies."
         },
         "deletion": {
           "title": "Automatic Deletion",

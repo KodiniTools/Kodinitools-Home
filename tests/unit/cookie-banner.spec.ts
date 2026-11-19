@@ -65,3 +65,24 @@ describe('Anrede und Schreibung (DE)', () => {
     expect(cookieTranslations(html, 'de')['cookie.essentialTitle']).toBe('Notwendige Cookies');
   });
 });
+
+describe('Keine Marketing-Cookies', () => {
+  it('Banner, Consent-Code und Texte erwähnen keine Werbe-Einwilligung mehr', () => {
+    expect(html).not.toMatch(/marketing|ad_storage/i);
+    for (const f of [
+      'public/partials/consent-mode.html',
+      'src/layouts/HomeLayout.astro',
+      'src/layouts/BlogArticleLayout.astro',
+      'src/components/pages/FaqPage.astro',
+      'src/components/pages/DonatePage.astro',
+      'src/components/pages/ImprintPage.astro',
+      'src/components/pages/BlogIndexPage.astro',
+    ]) {
+      const src = readFileSync(resolve(f), 'utf-8');
+      expect(src, f).not.toMatch(/\.marketing|'ad_storage': 'granted'/);
+    }
+    for (const l of ['de', 'en']) {
+      expect(readFileSync(resolve(`src/locales/${l}.json`), 'utf-8'), l).not.toMatch(/marketing/i);
+    }
+  });
+});

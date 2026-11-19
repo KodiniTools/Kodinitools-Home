@@ -30,13 +30,6 @@ gtag('consent', 'default', {
           'personalization_storage': 'granted'
         });
       }
-      if (consent.marketing) {
-        gtag('consent', 'update', {
-          'ad_storage': 'granted',
-          'ad_user_data': 'granted',
-          'ad_personalization': 'granted'
-        });
-      }
     }
   } catch(e) {}
 })();
