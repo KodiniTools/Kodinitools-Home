@@ -37,6 +37,8 @@ export interface PageSettings {
   catSearch: boolean;
   mediaPosDesktop: MediaPosDesktop;
   mediaPosMobile: MediaPosMobile;
+  toolBadge: boolean;
+  toolFilter: boolean;
 }
 export type PageKey = keyof PageSettings;
 
@@ -80,6 +82,10 @@ export function pageToast<K extends PageKey>(key: K, v: PageSettings[K]): string
       return 'Sektionsmedien Desktop geändert';
     case 'mediaPosMobile':
       return 'Sektionsmedien Handy/Tablet geändert';
+    case 'toolBadge':
+      return v ? 'Verarbeitungs-Plakette eingeblendet' : 'Verarbeitungs-Plakette ausgeblendet';
+    case 'toolFilter':
+      return v ? 'Verarbeitungs-Filter eingeblendet' : 'Verarbeitungs-Filter ausgeblendet';
     default: {
       const never: never = key;
       return String(never);

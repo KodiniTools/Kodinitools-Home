@@ -1618,6 +1618,10 @@ export interface SiteConfig {
   // Nur im Kompakt-Layout: Lage der Sektionsmedien (Bild/Video) zu den Karten.
   mediaPosDesktop: 'top' | 'side' | 'bottom' | 'off';
   mediaPosMobile: 'top' | 'bottom' | 'off';
+  // Werkbank (unabhängig vom Layout): Plakette „Browser / Server / Hybrid“ auf den Karten
+  // und Filter-Chips nach Verarbeitung. Standard aus.
+  toolBadge: boolean;
+  toolFilter: boolean;
 }
 export interface SiteSectionSide {
   color: string; // '' = keine Tönung
@@ -1722,6 +1726,8 @@ const SITE_DEFAULTS: SiteConfig = {
   catSearch: true,
   mediaPosDesktop: 'side',
   mediaPosMobile: 'bottom',
+  toolBadge: false,
+  toolFilter: false,
 };
 // Erlaubte Bild-URL (interner Pfad oder http(s)), ohne Zeichen, die url("…") brechen.
 const SITE_MEDIA_URL = /^(\/[^\s"'()\\]*|https?:\/\/[^\s"'()\\]+)$/;
@@ -1758,6 +1764,8 @@ export function getHomeLayout(): {
   catSearch: boolean;
   mediaPosDesktop: SiteConfig['mediaPosDesktop'];
   mediaPosMobile: SiteConfig['mediaPosMobile'];
+  toolBadge: boolean;
+  toolFilter: boolean;
 } {
   const site = getSite();
   return {
@@ -1773,6 +1781,8 @@ export function getHomeLayout(): {
     mediaPosMobile: (MEDIA_POS_MOBILE as readonly string[]).includes(site.mediaPosMobile)
       ? site.mediaPosMobile
       : 'bottom',
+    toolBadge: site.toolBadge === true,
+    toolFilter: site.toolFilter === true,
   };
 }
 
