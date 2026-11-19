@@ -21,6 +21,21 @@ export interface HomeUi {
   procFilterLabel: string;
   procFilterAll: string;
   procNoResults: string;
+  /** Such-Overlay (Strg/Cmd + K, Admin > Layout > Suche). */
+  palette: {
+    trigger: string;
+    keyHint: string;
+    keyHintMac: string;
+    title: string;
+    placeholder: string;
+    noResults: string;
+    favorites: string;
+    recent: string;
+    all: string;
+    results: string;
+    help: string;
+    close: string;
+  };
   /** Alt-Text einer Hero-Kachel (Index ab 0). */
   heroCellAlt: (index: number) => string;
 }
@@ -41,6 +56,20 @@ export const HOME_UI: Record<Lang, HomeUi> = {
     procFilterLabel: 'Tools nach Verarbeitung filtern',
     procFilterAll: 'Alle',
     procNoResults: 'Keine Tools in dieser Auswahl.',
+    palette: {
+      trigger: 'Tool finden',
+      keyHint: 'Strg K',
+      keyHintMac: '⌘ K',
+      title: 'Tools durchsuchen',
+      placeholder: 'Aufgabe, Tool oder Format, z. B. „lauter machen“, „schneiden“, „HEX“',
+      noResults: 'Kein Tool gefunden. Versuchen Sie einen anderen Begriff oder ein Dateiformat.',
+      favorites: 'Favoriten',
+      recent: 'Zuletzt genutzt',
+      all: 'Alle Tools',
+      results: 'Treffer',
+      help: '↑ ↓ wählen · Enter öffnen · Esc schließen',
+      close: 'Schließen',
+    },
     heroCellAlt: (index) => `Bild ${index + 1}`,
   },
   en: {
@@ -58,6 +87,20 @@ export const HOME_UI: Record<Lang, HomeUi> = {
     procFilterLabel: 'Filter tools by processing',
     procFilterAll: 'All',
     procNoResults: 'No tools in this selection.',
+    palette: {
+      trigger: 'Find a tool',
+      keyHint: 'Ctrl K',
+      keyHintMac: '⌘ K',
+      title: 'Search tools',
+      placeholder: 'Task, tool or format, e.g. “make louder”, “trim”, “HEX”',
+      noResults: 'No tool found. Try another term or a file format.',
+      favorites: 'Favorites',
+      recent: 'Recently used',
+      all: 'All tools',
+      results: 'Results',
+      help: '↑ ↓ select · Enter open · Esc close',
+      close: 'Close',
+    },
     heroCellAlt: (index) => `Image ${index + 1}`,
   },
 };

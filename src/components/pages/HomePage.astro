@@ -15,6 +15,8 @@ import type { Lang } from '../../i18n/lang'
 import { HOME_UI } from '../../i18n/home-ui'
 import FavoritesSection from '../../islands/favorites/FavoritesSection.vue'
 import { TOOL_CATALOG, type ToolProcessing } from '../../content/toolCatalog'
+import CommandPalette from '../../islands/palette/CommandPalette.vue'
+import paletteCssRaw from '../../styles/parts/palette.css?raw'
 
 // Inhalte aus der Content-Schicht (Standard-Locale + Admin-Overrides, gemergt).
 // Startseite für / (de) und /en/ (en); die Routen in src/pages/ sind nur Hüllen.
@@ -42,6 +44,11 @@ const catBar = compact && homeLayout.catBar
 const catSearch = catBar && homeLayout.catSearch
 // Werkbank (Admin > Layout > Verarbeitung der Tools): Plakette und Filter, anfangs aus.
 // Ohne Schalter bleibt das HTML der Karten unverändert.
+// Such-Overlay (Strg/Cmd + K, Admin > Layout > Suche): CSS und Island nur bei aktivem Schalter.
+const cmdPalette = homeLayout.cmdPalette
+const paletteCss = cmdPalette
+  ? paletteCssRaw.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ').trim()
+  : undefined
 const procBadge = homeLayout.toolBadge
 const procFilter = homeLayout.toolFilter
 const procOf = (key: string): ToolProcessing | undefined =>
@@ -69,6 +76,10 @@ function isTool(val: unknown): val is ToolEntry {
 // Im Admin ausgeblendete Karten (gilt für DE + EN) erscheinen nicht auf der Seite.
 const hiddenCards = getHiddenCards()
 const notHidden = (t: { i18nKey: string }) => !hiddenCards.has(t.i18nKey)
+// Suchbegriffe und Formate je sichtbarer Karte für das Such-Overlay (Titel, Link, Icon kommen aus den Karten).
+const paletteEntries = Object.entries(TOOL_CATALOG)
+  .filter(([key]) => !hiddenCards.has(key))
+  .map(([key, entry]) => ({ key, keywords: [...entry.keywords[lang]], formats: [...entry.formats] }))
 
 // Werkzeugkarten aus der Locale der Seitensprache (Single Source of Truth)
 const audioTools = Object.entries(page.tools as Record<string, unknown>)
@@ -366,7 +377,7 @@ const pageI18n = {
     {heroImageCss && <style is:global set:html={heroImageCss} />}
     {sectionMediaCss && <style is:global set:html={sectionMediaCss} />}
     {toolCardsCss && <style is:global set:html={toolCardsCss} />}
-    {homeCompactCss && <style is:global set:html={homeCompactCss} />}
+    {homeCompactCss && <style is:global set:html={homeCompactCss} />}{paletteCss && <style is:global set:html={paletteCss} />}
     <section class="hero">
       <HeroBackground media={media} mode="light" />
       <HeroBackground media={media} mode="dark" />
@@ -492,7 +503,7 @@ const pageI18n = {
           <path d="M12 5v14M5 12l7 7 7-7"/>
         </svg>
       </div>
-    </section>
+    </section>{cmdPalette && <CommandPalette client:idle lang={lang} entries={paletteEntries} texts={{ ...ui.palette }} />}
 
     {catBar && (
       <nav class="cat-bar" aria-label={ui.catNavLabel}>
