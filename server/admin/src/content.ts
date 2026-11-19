@@ -956,6 +956,8 @@ function defaultSite() {
     toolFilter: false,
     // Such-Overlay Strg/Cmd + K (Standard aus).
     cmdPalette: false,
+    // Abschnitt „Workflows“ (Standard aus).
+    workflows: false,
   };
 }
 const SECTION_KEYS = ['audio', 'image', 'diverse'];
@@ -1068,6 +1070,7 @@ function validateSite(s: unknown) {
     toolBadge: s.toolBadge === true,
     toolFilter: s.toolFilter === true,
     cmdPalette: s.cmdPalette === true,
+    workflows: s.workflows === true,
   };
 }
 

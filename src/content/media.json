@@ -108,7 +108,8 @@
     "mediaPosMobile": "bottom",
     "toolBadge": false,
     "toolFilter": false,
-    "cmdPalette": false
+    "cmdPalette": false,
+    "workflows": false
   },
   "de": {
     "sectionVideos": {

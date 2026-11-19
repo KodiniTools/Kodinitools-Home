@@ -428,3 +428,25 @@ describe('Such-Overlay Strg+K (Admin > Layout > Suche)', () => {
     }
   });
 });
+
+describe('Workflow-Ketten (Admin > Layout > Workflows)', () => {
+  // Folgt media.json: aus = nichts im HTML (Standard), an = Abschnitt mit Ketten und CSS.
+  const site = (mediaJson as { site?: { workflows?: boolean } }).site;
+  const on = site?.workflows === true;
+  it.each(['index.html', 'en/index.html'])('%s entspricht dem Schalter aus media.json', (file) => {
+    const html = read(file);
+    if (on) {
+      expect(html).toContain('id="workflows"');
+      expect(html).toContain('.wf-card');
+      const chains = html.match(/<li class="wf-card"/g) ?? [];
+      expect(chains.length).toBeGreaterThan(0);
+      // Jeder Schritt verlinkt auf ein Tool.
+      const links = [...html.matchAll(/<li class="wf-step"><a href="([^"]+)"/g)].map((m) => m[1]);
+      expect(links.length).toBeGreaterThanOrEqual(chains.length * 2);
+      for (const href of links) expect(href).toMatch(/^https:\/\/kodinitools\.com\//);
+    } else {
+      expect(html).not.toContain('workflows');
+      expect(html).not.toContain('wf-card');
+    }
+  });
+});

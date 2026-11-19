@@ -37,6 +37,8 @@ import {
   setToolFilter,
   getCmdPalette,
   setCmdPalette,
+  getWorkflows,
+  setWorkflows,
   getBannerStyle,
   getBannerSlides,
   getBannerSlideshow,
@@ -99,6 +101,7 @@ const PAGE_GET = {
   toolBadge: getToolBadge,
   toolFilter: getToolFilter,
   cmdPalette: getCmdPalette,
+  workflows: getWorkflows,
 };
 const PAGE_SET: Record<keyof typeof PAGE_GET, (v: unknown) => void> = {
   homeLayout: setHomeLayout,
@@ -112,6 +115,7 @@ const PAGE_SET: Record<keyof typeof PAGE_GET, (v: unknown) => void> = {
   toolBadge: setToolBadge,
   toolFilter: setToolFilter,
   cmdPalette: setCmdPalette,
+  workflows: setWorkflows,
 };
 
 // Medium (Server-URL oder 'staged:<id>') für die Vue-Fassung auflösen.

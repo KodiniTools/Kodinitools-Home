@@ -14,9 +14,10 @@ import { getContent, getMedia, HERO_LAYOUT_CELLS, heroGridReflowCols, effectiveH
 import type { Lang } from '../../i18n/lang'
 import { HOME_UI } from '../../i18n/home-ui'
 import FavoritesSection from '../../islands/favorites/FavoritesSection.vue'
-import { TOOL_CATALOG, type ToolProcessing } from '../../content/toolCatalog'
+import { TOOL_CATALOG, resolveWorkflows, type ToolProcessing } from '../../content/toolCatalog'
 import CommandPalette from '../../islands/palette/CommandPalette.vue'
 import paletteCssRaw from '../../styles/parts/palette.css?raw'
+import workflowsCssRaw from '../../styles/parts/workflows.css?raw'
 
 // Inhalte aus der Content-Schicht (Standard-Locale + Admin-Overrides, gemergt).
 // Startseite für / (de) und /en/ (en); die Routen in src/pages/ sind nur Hüllen.
@@ -48,6 +49,11 @@ const catSearch = catBar && homeLayout.catSearch
 const cmdPalette = homeLayout.cmdPalette
 const paletteCss = cmdPalette
   ? paletteCssRaw.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ').trim()
+  : undefined
+// Workflow-Ketten (Admin > Layout > Workflows): CSS und Abschnitt nur bei aktivem Schalter.
+const showWorkflows = homeLayout.workflows
+const workflowsCss = showWorkflows
+  ? workflowsCssRaw.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ').trim()
   : undefined
 const procBadge = homeLayout.toolBadge
 const procFilter = homeLayout.toolFilter
@@ -96,6 +102,13 @@ const diverseTools = Object.entries(page.diverseTools as Record<string, unknown>
   .filter((e): e is [string, ToolEntry] => isTool(e[1]))
   .map(([k, t]) => ({ title: t.title, description: t.description, link: t.link, svg: t.svg, i18nKey: `diverseTools.${k}`, badge: t.badge }))
   .filter(notHidden)
+
+const workflows = showWorkflows
+  ? resolveWorkflows(
+      new Map([...audioTools, ...imageTools, ...diverseTools].map((t) => [t.i18nKey, { title: t.title, link: t.link, svg: t.svg }])),
+      lang,
+    )
+  : []
 
 const features = Object.entries(page.hero.features).map(([k, text]) => ({
   key: k,
@@ -377,7 +390,7 @@ const pageI18n = {
     {heroImageCss && <style is:global set:html={heroImageCss} />}
     {sectionMediaCss && <style is:global set:html={sectionMediaCss} />}
     {toolCardsCss && <style is:global set:html={toolCardsCss} />}
-    {homeCompactCss && <style is:global set:html={homeCompactCss} />}{paletteCss && <style is:global set:html={paletteCss} />}
+    {homeCompactCss && <style is:global set:html={homeCompactCss} />}{paletteCss && <style is:global set:html={paletteCss} />}{workflowsCss && <style is:global set:html={workflowsCss} />}
     <section class="hero">
       <HeroBackground media={media} mode="light" />
       <HeroBackground media={media} mode="dark" />
@@ -651,7 +664,26 @@ const pageI18n = {
           </a>
         ))}
       </div>
-    </section>
+    </section>{workflows.length > 0 && (
+      <section id="workflows" class="workflows-section" aria-labelledby="workflows-title">
+        <h2 id="workflows-title">{ui.workflows.title}</h2>
+        <p class="wf-intro">{ui.workflows.intro}</p>
+        <ul class="wf-grid">
+          {workflows.map((wf) => (
+            <li class="wf-card" data-workflow={wf.id}>
+              <h3>{wf.title}</h3>
+              <p>{wf.description}</p>
+              <ol class="wf-steps">
+                {wf.steps.map((step) => (
+                  <li class="wf-step"><a href={step.link}>{step.svg && <img src={step.svg} alt="" width="32" height="32" loading="lazy" decoding="async" />}<span>{step.title}</span></a></li>
+                ))}
+              </ol>
+            </li>
+          ))}
+        </ul>
+        <p class="wf-hint">{ui.workflows.hint}</p>
+      </section>
+    )}
 
     <SiteFooter lang={lang} />
     <Fragment set:html={cookieBannerHtml} />

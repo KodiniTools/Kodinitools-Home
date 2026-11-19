@@ -145,6 +145,23 @@
         @update:model-value="set('cmdPalette', $event)"
       />
     </div>
+    <h3 class="ly-sub">Workflows <span class="lang-badge">DE + EN</span></h3>
+    <p class="hint">
+      Ein Abschnitt unter den Tool-Sektionen zeigt vier fertige Ketten, die Tools nacheinander
+      verbinden (zum Beispiel Audio Konverter → Audio Normalizer → Audio Visualizer). Jeder Schritt
+      verlinkt auf das Tool; die Datei wird dort neu gewählt. Ketten und Texte stehen im
+      Tool-Katalog (<code>src/content/toolCatalog.ts</code>). Ausgeblendete Tool-Karten entfallen
+      auch in den Ketten. Wirkt in jedem Layout und ist anfangs aus.
+    </p>
+    <div class="ly-row">
+      <UiSwitch
+        :model-value="p.workflows"
+        label="Abschnitt „Workflows“"
+        title="Zeigt die Tool-Ketten unter den Tool-Sektionen."
+        data-workflows
+        @update:model-value="set('workflows', $event)"
+      />
+    </div>
   </div>
 </template>
 

@@ -72,6 +72,12 @@ describe.each([
     });
   });
 
+  it('Workflows: anfangs aus, nur true schaltet ein', () => {
+    expect(norm({})).toMatchObject({ workflows: false });
+    expect(norm({ workflows: true })).toMatchObject({ workflows: true });
+    expect(norm({ workflows: 1 })).toMatchObject({ workflows: false });
+  });
+
   it('Suche Strg+K: anfangs aus, nur true schaltet ein', () => {
     expect(norm({})).toMatchObject({ cmdPalette: false });
     expect(norm({ cmdPalette: true })).toMatchObject({ cmdPalette: true });

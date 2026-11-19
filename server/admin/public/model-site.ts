@@ -126,6 +126,8 @@ export function defaultSite() {
     toolFilter: false,
     // Such-Overlay Strg/Cmd + K (Standard aus).
     cmdPalette: false,
+    // Abschnitt „Workflows“ (Standard aus).
+    workflows: false,
   };
 }
 export const SITE_SECTION_KEYS: SiteSectionKey[] = ['audio', 'image', 'diverse'];
@@ -284,6 +286,7 @@ export function normSite(s: RawJson): Site {
     toolBadge: s.toolBadge === true,
     toolFilter: s.toolFilter === true,
     cmdPalette: s.cmdPalette === true,
+    workflows: s.workflows === true,
   };
 }
 // Seiten-Hintergrund eines Modus als CSS-background-Wert – identisch zur
@@ -678,6 +681,14 @@ export function getCmdPalette() {
 
 export function setCmdPalette(on: unknown) {
   siteObj().cmdPalette = on === true;
+}
+// Abschnitt „Workflows“ mit Tool-Ketten unter den Tool-Sektionen (Standard aus).
+export function getWorkflows() {
+  return siteObj().workflows === true;
+}
+
+export function setWorkflows(on: unknown) {
+  siteObj().workflows = on === true;
 }
 // Kompakt-Layout: Lage der Sektionsmedien je Gerät.
 export function getMediaPosDesktop() {

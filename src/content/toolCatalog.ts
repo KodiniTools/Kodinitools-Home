@@ -295,3 +295,47 @@ export const TOOL_WORKFLOWS: readonly ToolWorkflow[] = [
     },
   },
 ];
+
+export interface ResolvedWorkflowStep {
+  key: string;
+  title: string;
+  link: string;
+  svg: string;
+}
+
+export interface ResolvedWorkflow {
+  id: string;
+  title: string;
+  description: string;
+  steps: ResolvedWorkflowStep[];
+}
+
+/** Karte der Seite (Titel mit Umbruch erlaubt, Link, Icon) für die Auflösung der Ketten. */
+export interface WorkflowTool {
+  title: string;
+  link: string;
+  svg: string;
+}
+
+/**
+ * Ketten für eine Sprache: Schritte, deren Karte im Admin ausgeblendet ist oder fehlt,
+ * entfallen; bleiben weniger als zwei Schritte übrig, entfällt die ganze Kette.
+ * Der Titel eines Schritts ist die erste Zeile des Kartentitels (ohne Formatzeile).
+ */
+export function resolveWorkflows(
+  tools: ReadonlyMap<string, WorkflowTool>,
+  lang: Lang,
+  workflows: readonly ToolWorkflow[] = TOOL_WORKFLOWS,
+): ResolvedWorkflow[] {
+  return workflows.flatMap((wf) => {
+    const steps = wf.steps.flatMap((key) => {
+      const tool = tools.get(key);
+      return tool
+        ? [{ key, title: tool.title.split('\n')[0] ?? tool.title, link: tool.link, svg: tool.svg }]
+        : [];
+    });
+    return steps.length >= 2
+      ? [{ id: wf.id, title: wf.title[lang], description: wf.description[lang], steps }]
+      : [];
+  });
+}

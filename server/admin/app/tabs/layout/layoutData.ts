@@ -40,6 +40,7 @@ export interface PageSettings {
   toolBadge: boolean;
   toolFilter: boolean;
   cmdPalette: boolean;
+  workflows: boolean;
 }
 export type PageKey = keyof PageSettings;
 
@@ -85,6 +86,8 @@ export function pageToast<K extends PageKey>(key: K, v: PageSettings[K]): string
       return 'Sektionsmedien Handy/Tablet geändert';
     case 'toolBadge':
       return v ? 'Verarbeitungs-Plakette eingeblendet' : 'Verarbeitungs-Plakette ausgeblendet';
+    case 'workflows':
+      return v ? 'Workflows eingeblendet' : 'Workflows ausgeblendet';
     case 'cmdPalette':
       return v ? 'Suche (Strg + K) eingeblendet' : 'Suche (Strg + K) ausgeblendet';
     case 'toolFilter':
