@@ -80,11 +80,13 @@
       </div>
       <p class="hint tc-m0">{{ card.custom ? f.customHint : f.hint }}</p>
     </div>
+    <AiCardAssist :lang="service.lang" :current="aiCurrent" :on-apply="applyAi" />
   </TcDetails>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, useId } from 'vue';
+import AiCardAssist from './AiCardAssist.vue';
 import TcDetails from './TcDetails.vue';
 import TcDraftInput from './TcDraftInput.vue';
 import { CARD_TEXT_FIELDS, oneLine, setCardText, type CardTextKey } from './tcData';
@@ -127,6 +129,20 @@ function setText(key: CardTextKey, v: string) {
     ok = setCardText(service, view.value.selected, key, v);
   });
   invalid.value = ok ? '' : key;
+}
+/** Aktuelle Texte der Karte für die KI-Hilfe. */
+const aiCurrent = computed(() => {
+  void view.value;
+  return {
+    title: service.effText(path('title')),
+    badge: service.effText(path('badge')),
+    description: service.effText(path('description')),
+  };
+});
+/** „Übernehmen“ aus der KI-Hilfe: wie eine Handeingabe in den Entwurf. */
+function applyAi(key: 'title' | 'badge' | 'description', value: string) {
+  setText(key, value);
+  toast('Übernommen (Entwurf) – Strg+Z macht es rückgängig, die Vorschau zeigt es');
 }
 function commit(key: CardTextKey) {
   if (invalid.value === key)

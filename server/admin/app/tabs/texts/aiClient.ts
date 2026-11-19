@@ -9,7 +9,10 @@ export interface AiConfig {
   tasks: { id: AiTask; label: string; effort: string }[];
 }
 
-export type AiTask = 'seo' | 'compare' | 'blog' | 'alt';
+export type AiTask = 'seo' | 'compare' | 'blog' | 'alt' | 'card' | 'ticker' | 'icon';
+
+/** Aufgaben, die das Panel im Tab „Texte“ anbietet (die übrigen haben eigene Stellen). */
+export const PANEL_TASKS: readonly AiTask[] = ['seo', 'compare', 'blog'];
 export type AiEffort = 'low' | 'medium' | 'high';
 
 /** Ein Ergebnis (Sofort-Aufruf oder Eintrag eines Batches). */
@@ -55,6 +58,7 @@ export function parseBatchBlocks(task: AiTask, lang: 'de' | 'en', raw: string): 
       return { de: parts[0], en: parts[1] };
     }
     if (task === 'alt') return { path: block };
+    if (task !== 'blog') throw new Error('Batch wird für diese Aufgabe nicht angeboten');
     return { lang, topic: block };
   });
 }
@@ -83,6 +87,17 @@ export function resultToText(task: AiTask, data: Record<string, unknown> | undef
       )
       .join('\n');
     return `${s('verdict')}\n${list}`.trim();
+  }
+  if (task === 'card') {
+    return `Titel: ${s('title')}\nBadge: ${s('badge')}\nBeschreibung: ${s('description')}\nHinweise: ${s('notes')}`;
+  }
+  if (task === 'ticker') {
+    const items = Array.isArray(data.items) ? (data.items as string[]) : [];
+    return `${items.map((t, i) => `${i + 1}. ${t}`).join('\n')}\n${s('notes')}`.trim();
+  }
+  if (task === 'icon') {
+    const terms = Array.isArray(data.terms) ? (data.terms as string[]) : [];
+    return `${terms.join(', ')}\n${s('reasoning')}`.trim();
   }
   if (task === 'alt') {
     return `Alt DE: ${s('altDe')}\nAlt EN: ${s('altEn')}\nDateiname: ${s('filename')}${data.decorative ? '\n(dekorativ)' : ''}`;

@@ -50,6 +50,33 @@ describe('aiTasks', () => {
     expect(buildUserPrompt('compare', { de: 'Hallo', en: 'Hello' })).toContain('Hello');
   });
 
+  it('prüft Eingaben der Aufgaben Karte, Laufband, Icon', () => {
+    expect(() => buildUserPrompt('card', { lang: 'de', title: 'A' })).toThrow(/description/);
+    const c = buildUserPrompt('card', {
+      lang: 'de',
+      title: 'Alarm',
+      description: 'Wecker',
+      facts: 'Erzeugt Alarmtöne',
+    });
+    expect(c).toContain('verbindlich');
+    expect(c).toContain('Badge: (keins)');
+    expect(() => buildUserPrompt('ticker', { lang: 'de' })).toThrow(/hints oder current/);
+    expect(buildUserPrompt('ticker', { lang: 'en', hints: 'x', count: 99 })).toContain(
+      'Anzahl Vorschläge: 10',
+    );
+    expect(() => buildUserPrompt('icon', {})).toThrow(/title/);
+    expect(buildUserPrompt('icon', { title: 'Cutter' })).toContain('Tool: Cutter');
+    for (const t of ['card', 'ticker', 'icon'] as const)
+      expect(
+        buildRequestParams(t, 'claude-haiku-5-5', {
+          lang: 'de',
+          title: 'T',
+          description: 'D',
+          hints: 'h',
+        }).output_config.format.type,
+      ).toBe('json_schema');
+  });
+
   it('baut Anfrage mit Modell, Aufwand und JSON-Schema, ohne Sampling-Parameter', () => {
     const p = buildRequestParams(
       'seo',
@@ -113,7 +140,15 @@ describe('ai.ts', () => {
   it('aiConfig listet Modelle und Aufgaben; Batch-ID wird geprüft', async () => {
     const c = aiConfig();
     expect(c.models).toHaveLength(3);
-    expect(c.tasks.map((t) => t.id)).toEqual(['seo', 'compare', 'blog', 'alt']);
+    expect(c.tasks.map((t) => t.id)).toEqual([
+      'seo',
+      'compare',
+      'blog',
+      'alt',
+      'card',
+      'ticker',
+      'icon',
+    ]);
     await expect(batchStatus('../etc')).rejects.toThrow(/Batch-ID/);
   });
 });
