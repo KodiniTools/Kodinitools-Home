@@ -6,6 +6,7 @@ import SiteFont from '../SiteFont.astro'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
 import { alternates, HOME_LABEL, HOME_PATH, OG_LOCALE, SITE, type Lang } from '../../i18n/lang'
+import { pageMetaFor } from '../../content/content'
 import { DONATE_PAGE, DONATE_PATH } from '../../i18n/donate'
 
 // Spenden-Seite für /spenden/ (de) und /en/donate/ (en); die Routen in src/pages/ sind nur Hüllen.
@@ -14,6 +15,8 @@ interface Props {
 }
 const { lang } = Astro.props
 const t = DONATE_PAGE[lang]
+// Admin > Texte > Seiten-Meta; leer = Standard aus dem Code.
+const pm = pageMetaFor(lang, 'donate')
 const pageUrl = `${SITE}${DONATE_PATH[lang]}`
 const alt = alternates(DONATE_PATH)
 
@@ -45,8 +48,8 @@ const paypalUrl = 'https://www.paypal.com/qrcodes/managed/3dd3fbb9-29f0-4293-809
   </script>
   <script is:inline>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});const f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-T7NS656K');</script>
 
-  <title>{t.title}</title>
-  <meta name="description" content={t.description} />
+  <title>{pm.title || t.title}</title>
+  <meta name="description" content={pm.description || t.description} />
   <meta name="robots" content="index, follow" />
   <meta name="language" content={lang} />
   <link rel="canonical" href={pageUrl} />
@@ -56,8 +59,8 @@ const paypalUrl = 'https://www.paypal.com/qrcodes/managed/3dd3fbb9-29f0-4293-809
 
   <meta property="og:type" content="website" />
   <meta property="og:url" content={pageUrl} />
-  <meta property="og:title" content={t.ogTitle} />
-  <meta property="og:description" content={t.ogDescription} />
+  <meta property="og:title" content={pm.title || t.ogTitle} />
+  <meta property="og:description" content={pm.description || t.ogDescription} />
   <meta property="og:locale" content={OG_LOCALE[lang]} />
   <meta property="og:site_name" content="KodiniTools" />
   <meta property="og:image" content="https://kodinitools.com/image/kodinitools-og-image.jpg" />
@@ -349,7 +352,7 @@ const paypalUrl = 'https://www.paypal.com/qrcodes/managed/3dd3fbb9-29f0-4293-809
       <div class="donate-content">
 
       <header class="donate-header">
-        <h1>{t.heading}</h1>
+        <h1>{pm.h1 || t.heading}</h1>
         <p class="donate-subtitle">{t.subtitle}</p>
       </header>
 

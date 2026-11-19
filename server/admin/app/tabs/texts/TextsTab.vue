@@ -175,7 +175,8 @@
         <div class="panel">
           <AiSlotAssist :lang="lang" :slots="aiSlots" :on-apply="applyAi" />
         </div>
-        <AiPanel />
+        <PageMetaPanel ref="pageMetaPanel" :lang="lang" :media="media" />
+        <AiPanel :on-apply-seo="applySeo" />
       </div>
 
       <!-- Seitenleiste des nicht bearbeiteten Modus: schmale, klickbare Leiste -->
@@ -304,6 +305,9 @@ import {
   type TextStyleHost,
 } from './textStyle';
 import AiPanel from './AiPanel.vue';
+import PageMetaPanel from './PageMetaPanel.vue';
+import { PAGE_META_LABEL } from './pageMeta';
+import { pageMetaHas, setPageMeta, type PageMetaKey } from '../../../public/model-media';
 import AiSlotAssist from './AiSlotAssist.vue';
 import TextFxFields from './TextFxFields.vue';
 import { textsUi } from './textsUi';
@@ -399,6 +403,24 @@ function applyAi(key: string, value: string) {
   toasts.addToast('Übernommen (Entwurf) – mit Strg+Z rückgängig, in der Vorschau prüfen', {
     type: 'success',
   });
+}
+// ---- Seiten-Meta: SEO-Vorschlag der KI übernehmen ---------------------------------
+const pageMetaPanel = ref<{ refresh: () => void } | null>(null);
+function applySeo(
+  l: 'de' | 'en',
+  page: PageMetaKey,
+  values: { title: string; description: string; h1: string },
+) {
+  // In die Sprache des Vorschlags schreiben (kann von der Sprache des Tabs abweichen).
+  const host = l === props.lang ? media : reactive(l === 'de' ? props.mediaDe : props.mediaEn);
+  for (const f of ['title', 'description', 'h1'] as const) {
+    if (pageMetaHas(page, f) && values[f].trim()) setPageMeta(host, page, f, values[f]);
+  }
+  pageMetaPanel.value?.refresh();
+  toasts.addToast(
+    `Seiten-Meta „${PAGE_META_LABEL[page]}“ (${l.toUpperCase()}) übernommen (Entwurf) – mit Strg+Z rückgängig, in der Vorschau prüfen`,
+    { type: 'success' },
+  );
 }
 function previewOf(f: TextField): string {
   return previewText(getPath(overrides, f.path), getPath(props.defaults, f.path), f.label);

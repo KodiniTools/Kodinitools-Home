@@ -238,6 +238,9 @@ export interface MediaConfig {
   // Alt-Texte hochgeladener Bilder (Schlüssel = Bild-URL, z. B. '/uploads/de/bild.webp'),
   // Admin > Dateien > KI. Fehlt ein Eintrag, gilt der bisherige Standard-Alt-Text.
   imageAlt: Record<string, string>;
+  // Seiten-Meta (Titel, Beschreibung, H1) je Seite aus dem Admin > Texte.
+  // Fehlt ein Wert, gilt der Standard aus dem Code (src/i18n).
+  pageMeta: Partial<Record<PageMetaKey, PageMeta>>;
   // Optionaler Text über dem Banner + Schriftart, Farbe, Größe, Position.
   heroBannerText: string;
   heroBannerFont: string;
@@ -662,6 +665,7 @@ const MEDIA_DEFAULTS: MediaConfig = {
   heroMediaOffsetY: 0,
   toolCardOffsets: {},
   imageAlt: {},
+  pageMeta: {},
   heroBannerText: '',
   heroBannerFont: '',
   heroBannerTextColor: '#ffffff',
@@ -1538,7 +1542,15 @@ export function heroGridReflowCols(layout: MediaConfig['heroLayout'], n: number)
   return Math.max(1, Math.ceil(n / rows));
 }
 
-/** Medien-Konfiguration für eine Sprache (Defaults + Admin-Override). */
+/** Seiten mit einstellbaren Meta-Daten (Admin > Texte > Seiten-Meta). */
+export const PAGE_META_KEYS = ['home', 'faq', 'donate', 'imprint', 'blog'] as const;
+export type PageMetaKey = (typeof PAGE_META_KEYS)[number];
+export interface PageMeta {
+  title?: string;
+  description?: string;
+  h1?: string;
+}
+
 /** Markierung „dekoratives Bild“ in `imageAlt`: ergibt ein bewusst leeres alt="". */
 export const IMAGE_ALT_DECORATIVE = '[dekorativ]';
 
@@ -1550,6 +1562,16 @@ export function imageAltFor(media: MediaConfig, src: string, fallback = ''): str
   const v = src && media.imageAlt ? media.imageAlt[src] : undefined;
   if (v === IMAGE_ALT_DECORATIVE) return '';
   return typeof v === 'string' && v.trim() !== '' ? v : fallback;
+}
+
+/**
+ * Seiten-Meta aus dem Admin für eine Seite; '' = Standard aus dem Code verwenden.
+ * Aufrufer: `pm.title || t.title`.
+ */
+export function pageMetaFor(locale: Locale, page: PageMetaKey): Required<PageMeta> {
+  const v = getMedia(locale).pageMeta?.[page];
+  const s = (x: unknown) => (typeof x === 'string' ? x.trim() : '');
+  return { title: s(v?.title), description: s(v?.description), h1: s(v?.h1) };
 }
 
 export function getMedia(locale: Locale): MediaConfig {
