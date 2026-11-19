@@ -253,18 +253,18 @@ export const TASKS: Record<TaskId, TaskDef> = {
   },
   design: {
     id: 'design',
-    label: 'Design-Beratung (Hero, Hintergrund, Layout)',
+    label: 'Design-Beratung (Hero, Hintergrund, Layout, Tool-Karten)',
     effort: 'medium',
     maxTokens: 5000,
     system:
       SITE_CONTEXT +
-      ' Aufgabe: Berate zum Design eines Bereichs der Startseite (Hero-Design, Seiten-Hintergrund oder Hero-Layout). ' +
+      ' Aufgabe: Berate zum Design eines Bereichs der Startseite (Hero-Design, Seiten-Hintergrund, Hero-Layout oder Tool-Karten-Design). ' +
       'Du bekommst die aktuellen Einstellungen als JSON und ein Ziel. Gib 3 bis 5 konkrete Vorschläge, jeweils mit Begründung ' +
       'und einem Hinweis, welche Einstellung im Admin zu ändern ist. Beachte Lesbarkeit (Kontrast WCAG AA), ' +
       'Mobil-Performance (keine schweren Bilder, keine Animationen über dem Falz, kein Einblenden der ganzen Seite) und ' +
       'Hell/Dunkel-Modus. Farben als Hex-Werte (#rrggbb). imagePrompt nur, wenn ein Bild sinnvoll ist: englischer ' +
       'Prompt für einen Bildgenerator, ohne Text im Bild, sonst leerer String. Erfinde keine Einstellungen, die es nicht gibt. ' +
-      'changes: nur bei Bereich hero oder layout konkrete, direkt anwendbare Änderungen (bei background ein leeres Array), höchstens 8. ' +
+      'changes: nur bei Bereich hero, layout oder toolcards konkrete, direkt anwendbare Änderungen (bei background ein leeres Array), höchstens 8. ' +
       'Layout, nur diese Felder (mode „both“): ' +
       'text (Banner-Text, höchstens 120 Zeichen, ohne HTML, in der Sprache des Tabs; nur wenn heroBannerText leer ist und eine kurze Aussage sinnvoll ist; erfinde keine Fakten), ' +
       'bannerLink (interner Pfad wie /de/… bzw. /en/… oder https-Adresse, nur wenn du das Ziel aus den Einstellungen sicher kennst, sonst als Vorschlag ohne change), ' +
@@ -275,6 +275,10 @@ export const TASKS: Record<TaskId, TaskDef> = {
       'Anzeigen mit value „true“ oder „false“, mode „both“: showTitle, showSubtitle, showChips, showCta, und „chip:<Schlüssel>“ (Schlüssel aus hiddenChips, blendet einen einzelnen Chip ein oder aus); ' +
       'Farben als #rrggbb mit mode „light“ oder „dark“: titleTextColor, chipTextColor, chipBgColor, ctaTextColor, ctaBgColor, bgColor, borderColor; ' +
       'Prozent 0 bis 100 mit mode „light“ oder „dark“: bgOpacity, bgImageDarken. value immer als Text. ' +
+      'Tool-Karten (toolcards; JSON = gerade bearbeitetes Karten-Design mit light/dark/text/show; ändert nur dieses Design), nur diese Felder: ' +
+      'Farben als #rrggbb mit mode „light“ oder „dark“: borderColor, bgColor, titleColor, badgeColor, badgeBgColor, openColor, descColor; ' +
+      'Prozent 0 bis 100 mit mode „light“ oder „dark“: bgOpacity, borderOpacity; mode „light“ oder „dark“: borderWidth (px 0 bis 8), borderRadius (px 0 bis 40); ' +
+      'Schriftgrößen in px, mode „both“: titleSize (0 bis 40), descSize (0 bis 24), badgeSize (0 bis 20), openSize (0 bis 20), „0“ = Standard. Beachte Kontrast zwischen Text- und Hintergrundfarbe der Karte. ' +
       'Alt-Texte (imageAlt) setzt du nicht per change: verweise darauf, dass sie im Tab Dateien mit der KI-Alt-Text-Hilfe entstehen. ' +
       'Schlage nur Änderungen vor, die aus den gelieferten Einstellungen begründet sind; why: ein kurzer deutscher Satz.',
     schema: {
@@ -409,7 +413,8 @@ export function buildUserPrompt(task: TaskId, input: unknown): string {
         .join('\n');
     case 'design': {
       const area = String(i.area ?? '');
-      if (!['hero', 'background', 'layout'].includes(area)) throw inputError('area ungültig');
+      if (!['hero', 'background', 'layout', 'toolcards'].includes(area))
+        throw inputError('area ungültig');
       return [
         `Bereich: ${area}`,
         i.lang === 'de' || i.lang === 'en' ? `Sprache des Tabs: ${i.lang}` : '',
