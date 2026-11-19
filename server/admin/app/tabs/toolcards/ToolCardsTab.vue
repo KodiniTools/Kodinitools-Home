@@ -184,6 +184,17 @@
 
           <TcTexts :key="`tx-${view.selected}`" />
 
+          <!-- KI: Design-Beratung mit anwendbaren Vorschlägen -->
+          <div class="tc-box">
+            <AiDesignAssist
+              area="toolcards"
+              :lang="service.lang"
+              :get-current="aiCurrent"
+              :resolve="aiResolve"
+              :apply-note="aiNote"
+            />
+          </div>
+
           <!-- Eigenes Design der Karte -->
           <div v-if="view.selCard" class="tc-box tc-line">
             <UiSwitch
@@ -298,6 +309,9 @@
 import { computed, ref, shallowRef } from 'vue';
 import type { ThemeMode } from '../../../types';
 import { UiButton, UiDialog, UiSegmentedControl, UiSelect, UiSwitch } from '../../components/ui';
+import AiDesignAssist, { type Applicable } from '../hero/AiDesignAssist.vue';
+import type { AiChange } from '../hero/aiHero';
+import { applyTcChange, describeTcCurrent, resolveTcChange } from './aiToolcards';
 import TcApply from './TcApply.vue';
 import TcCard from './TcCard.vue';
 import TcDetails from './TcDetails.vue';
@@ -335,6 +349,36 @@ const props = defineProps<{ service: TcService }>();
 const api = provideTc(props.service);
 const { view, change, toast, show, showResetSource, setShow, ensureEnabled, select } = api;
 const service = props.service;
+
+const aiCurrent = () =>
+  JSON.stringify({
+    enabled: view.value.tc.enabled,
+    bearbeitet:
+      view.value.selected && view.value.tc.cards[view.value.selected]
+        ? `Karte ${view.value.selected}`
+        : 'Standard (alle Karten)',
+    style: view.value.style,
+  });
+const aiNote = computed(() =>
+  [
+    view.value.selected && view.value.tc.cards[view.value.selected]
+      ? `Änderungen gelten nur für das eigene Design der Karte „${view.value.selected}“.`
+      : 'Änderungen gelten für das Standard-Design aller Karten (für eine einzelne Karte zuerst „Eigenes Design“ einschalten).',
+    view.value.tc.enabled ? '' : 'Das Tool-Karten-Design wird beim Anwenden eingeschaltet.',
+  ]
+    .filter(Boolean)
+    .join(' '),
+);
+function aiResolve(c: AiChange): Applicable | null {
+  const r = resolveTcChange(c);
+  if (!r) return null;
+  return {
+    label: r.label,
+    current: describeTcCurrent(view.value.style, api.text.value, r),
+    next: String(r.value),
+    apply: () => applyTcChange(api, r),
+  };
+}
 const LANG = service.lang.toUpperCase();
 const OTHER_LANG_NAME = service.lang === 'de' ? 'English' : 'Deutsch';
 

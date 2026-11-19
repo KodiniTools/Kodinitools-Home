@@ -200,3 +200,27 @@ describe('erweitertes Anwenden (Chips, Anzeigen, Link, Text)', () => {
     expect(m.heroBannerText).toBe('Kostenlose Browser-Tools');
   });
 });
+
+describe('aiToolcards', () => {
+  const c = (field: string, mode: string, value: string) => ({ field, mode, value, why: '' });
+  it('prüft Farben, Modi und begrenzt Zahlen', async () => {
+    const { resolveTcChange } = await import('../../server/admin/app/tabs/toolcards/aiToolcards');
+    expect(resolveTcChange(c('bgColor', 'dark', '#112233'))?.value).toBe('#112233');
+    expect(resolveTcChange(c('bgColor', 'both', '#112233'))).toBeNull();
+    expect(resolveTcChange(c('bgColor', 'light', 'red'))).toBeNull();
+    expect(resolveTcChange(c('borderRadius', 'light', '99'))?.value).toBe(40);
+    expect(resolveTcChange(c('titleSize', 'both', '99'))?.value).toBe(40);
+    expect(resolveTcChange(c('titleSize', 'light', '20'))?.mode).toBe('both');
+    expect(resolveTcChange(c('evil', 'light', '1'))).toBeNull();
+  });
+  it('schreibt über setSide/setText', async () => {
+    const { resolveTcChange, applyTcChange } =
+      await import('../../server/admin/app/tabs/toolcards/aiToolcards');
+    const setSide = vi.fn();
+    const setText = vi.fn();
+    applyTcChange({ setSide, setText } as never, resolveTcChange(c('borderWidth', 'dark', '3'))!);
+    applyTcChange({ setSide, setText } as never, resolveTcChange(c('descSize', 'both', '14'))!);
+    expect(setSide).toHaveBeenCalledWith('dark', { borderWidth: 3 });
+    expect(setText).toHaveBeenCalledWith('descSize', 14);
+  });
+});

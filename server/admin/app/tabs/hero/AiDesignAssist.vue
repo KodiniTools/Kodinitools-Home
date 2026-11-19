@@ -127,7 +127,7 @@ export interface Applicable {
   apply: () => void;
 }
 const props = defineProps<{
-  area: 'hero' | 'background' | 'layout';
+  area: 'hero' | 'background' | 'layout' | 'toolcards';
   getCurrent: () => string;
   /** Prüft einen Änderungsvorschlag der KI; nur Bereiche mit sicherem Anwenden setzen das. */
   resolve?: (c: AiChange) => Applicable | null;
