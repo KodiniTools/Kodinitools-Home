@@ -139,7 +139,7 @@ describe('AiImagePanel', () => {
     await flushPromises();
     expect(w.get('[data-aiimg-price]').text()).toContain('$');
     expect(w.get('[data-aiimg-run]').attributes('disabled')).toBeDefined();
-    await w.get('[data-aiimg-prompt] textarea, textarea[data-aiimg-prompt]').setValue('Test');
+    await w.get('textarea[data-aiimg-prompt]').setValue('Test');
     await w.get('[data-aiimg-run]').trigger('click');
     await flushPromises();
     expect(api.apiPost).toHaveBeenCalledTimes(1);
@@ -153,5 +153,43 @@ describe('AiImagePanel', () => {
     const file = add.mock.calls[0]?.[0]?.[0] as File;
     expect(file.type).toBe('image/png');
     expect(file.size).toBe(10);
+  });
+});
+
+describe('AiImagePanel: Prompt-Hilfe', () => {
+  it('ersetzt den Prompt per Claude und stellt ihn auf Wunsch wieder her', async () => {
+    api.apiGet.mockImplementation(async (path: string) =>
+      path.startsWith('/gemini')
+        ? {
+            ok: true,
+            data: {
+              configured: true,
+              defaultModel: 'm1',
+              aspectRatios: ['1:1'],
+              models: [{ id: 'm1', label: 'M1', hint: 'h', sizes: ['1K'] }],
+            },
+          }
+        : { ok: true, data: CONFIG },
+    );
+    api.apiPost.mockResolvedValue({
+      ok: true,
+      data: { ok: true, data: { prompt: 'A calm blue wave, soft light.', notes: 'Licht ergänzt' } },
+    });
+    const w = mount(AiImagePanel, { props: { add: vi.fn() } });
+    await w.get('[data-aiimg-toggle]').trigger('click');
+    await flushPromises();
+    const ta = w.get('textarea[data-aiimg-prompt]');
+    await ta.setValue('blaue Wellen');
+    await w.get('[data-aiimg-improve]').trigger('click');
+    await flushPromises();
+    expect(api.apiPost.mock.calls[0]?.[1]).toMatchObject({
+      task: 'imageprompt',
+      input: { idea: 'blaue Wellen' },
+    });
+    expect((ta.element as HTMLTextAreaElement).value).toBe('A calm blue wave, soft light.');
+    expect(w.get('[data-aiimg-notes]').text()).toContain('Licht ergänzt');
+    await w.get('[data-aiimg-undo]').trigger('click');
+    expect((ta.element as HTMLTextAreaElement).value).toBe('blaue Wellen');
+    expect(w.find('[data-aiimg-undo]').exists()).toBe(false);
   });
 });
