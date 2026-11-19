@@ -9,7 +9,7 @@
   "tools": {
     "audioConverter": {
       "svg": "",
-      "title": "Audio Konverter\nmp3-wav-aac-flac-ogg",
+      "title": "Audio-Konverter\nmp3-wav-aac-flac-ogg",
       "badge": "server"
     },
     "audioEqualizer": {
@@ -25,7 +25,7 @@
     "audioVisualizer": {
       "svg": "",
       "badge": "50+ Visualizer-browser-server",
-      "title": "Audio Visualizer\nmp4-webm"
+      "title": "Audio-Visualizer\nmp4-webm"
     },
     "mp3Converter": {
       "svg": "",
@@ -41,7 +41,7 @@
     },
     "playlistGenerator": {
       "svg": "",
-      "title": "Wiedergabeliste Generator\nm3u-pls-cue-json-txt",
+      "title": "Wiedergabelisten-Generator\nm3u-pls-cue-json-txt",
       "badge": "browser"
     },
     "alarmTool": {
@@ -54,7 +54,7 @@
       "svg": "",
       "description": "Bis zu 50 Audio-Tracks in eine MP3 oder WebM-Datei konvertieren",
       "badge": "server",
-      "title": "Wiedergabeliste Konverter\nmp3-webm"
+      "title": "Wiedergabelisten-Konverter\nmp3-webm"
     },
     "audioCutter": {
       "svg": ""
@@ -91,7 +91,7 @@
       "badge": "Text-browser"
     },
     "textEditor-kopie": {
-      "title": "Favicon Konverter\nico, png, webp, gif, bmp, svg",
+      "title": "Favicon-Konverter\nico, png, webp, gif, bmp, svg",
       "badge": "browser-favicon",
       "description": "Feste Formate für alle Plattformen: favicon.ico (16, 32, 48 px), PNG 16 und 32 px, Apple-Touch-Icon 180 px, Android-Icons 192 und 512 px (auch maskable), site.webmanifest, HTML-Code und bei SVG-Quelle favicon.svg. ",
       "link": "https://kodinitools.com/favicon-tool/",

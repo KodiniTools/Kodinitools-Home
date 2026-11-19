@@ -3,8 +3,7 @@ import GlobalNav from '../GlobalNav.astro'
 import TickerBar from '../TickerBar.astro'
 import SiteFooter from '../SiteFooter.astro'
 import SiteFont from '../SiteFont.astro'
-import { readFileSync } from 'fs'
-import { resolve } from 'path'
+import { loadCookieBanner } from '../../i18n/cookieBanner'
 import { compareNewestFirst, getArticles, toBlogPost, type BlogPost } from '../../content/blog'
 import { alternates, HOME_LABEL, HOME_PATH, OG_LOCALE, SITE, type Lang } from '../../i18n/lang'
 import { pageMetaFor } from '../../content/content'
@@ -21,7 +20,8 @@ const pm = pageMetaFor(lang, 'blog')
 const pageUrl = `${SITE}${BLOG_INDEX_PATH[lang]}`
 const alt = alternates(BLOG_INDEX_PATH)
 
-const cookieBannerHtml = readFileSync(resolve('public/partials/cookie-banner.html'), 'utf-8')
+// Cookie-Banner in der Seitensprache vorgerendert (src/i18n/cookieBanner.ts).
+const cookieBannerHtml = loadCookieBanner(lang)
 
 // Karte in der Übersicht: Beitrag plus formatiertes Anzeigedatum
 interface BlogCard extends BlogPost {

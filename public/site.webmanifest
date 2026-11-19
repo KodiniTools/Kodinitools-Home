@@ -1,7 +1,7 @@
 {
   "name": "KodiniTools - Kostenlose Audio & Bild Tools",
   "short_name": "KodiniTools",
-  "description": "Professionelle Audio- und Bildbearbeitungstools kostenlos im Browser. MP3 Konverter, Audio Equalizer, Bildkonverter und mehr.",
+  "description": "Professionelle Audio- und Bildbearbeitungstools kostenlos im Browser. MP3-Konverter, Audio-Equalizer, Bildkonverter und mehr.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

@@ -3,8 +3,7 @@ import GlobalNav from '../GlobalNav.astro'
 import TickerBar from '../TickerBar.astro'
 import SiteFooter from '../SiteFooter.astro'
 import SiteFont from '../SiteFont.astro'
-import { readFileSync } from 'fs'
-import { resolve } from 'path'
+import { loadCookieBanner } from '../../i18n/cookieBanner'
 import { alternates, HOME_LABEL, HOME_PATH, OG_LOCALE, SITE, type Lang } from '../../i18n/lang'
 import { pageMetaFor } from '../../content/content'
 import { DONATE_PAGE, DONATE_PATH } from '../../i18n/donate'
@@ -20,7 +19,8 @@ const pm = pageMetaFor(lang, 'donate')
 const pageUrl = `${SITE}${DONATE_PATH[lang]}`
 const alt = alternates(DONATE_PATH)
 
-const cookieBannerHtml = readFileSync(resolve('public/partials/cookie-banner.html'), 'utf-8')
+// Cookie-Banner in der Seitensprache vorgerendert (src/i18n/cookieBanner.ts).
+const cookieBannerHtml = loadCookieBanner(lang)
 
 const paypalUrl = 'https://www.paypal.com/qrcodes/managed/3dd3fbb9-29f0-4293-809e-171fccde19e1?utm_source=payandgetpaid'
 ---

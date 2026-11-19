@@ -336,7 +336,7 @@ describe('Navigation (Bildergalerie)', () => {
 
 describe('Navigation (Favicon Konverter)', () => {
   it.each([
-    ['index.html', 'Favicon Konverter'],
+    ['index.html', 'Favicon-Konverter'],
     ['en/index.html', 'Favicon Converter'],
   ])('%s führt den Favicon Konverter im Tools-Menü', (file, label) => {
     const html = read(file);

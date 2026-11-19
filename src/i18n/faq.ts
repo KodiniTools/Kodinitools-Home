@@ -14,8 +14,7 @@ export const FAQ_PAGE: Record<
     description:
       'Antworten auf die häufigsten Fragen zu KodiniTools: MP3 konvertieren, Bilder umwandeln, Audio normalisieren, Datenschutz, Dateiformate und mehr – kostenlos, ohne Registrierung.',
     ogTitle: 'FAQ – Häufige Fragen zu KodiniTools',
-    ogDescription:
-      'Antworten zu MP3 konvertieren, Bildformate, Datenschutz, Dateigrössen und mehr.',
+    ogDescription: 'Antworten zu MP3 konvertieren, Bildformate, Datenschutz, Dateigrößen und mehr.',
     listLabel: 'Häufig gestellte Fragen',
   },
   en: {
@@ -57,18 +56,18 @@ const TOOL_URL = {
 
 export const FAQ_LINKS: Record<Lang, Record<string, string>> = {
   de: {
-    'Audio Konverter': TOOL_URL.audioConverter,
-    'MP3 Konverter': TOOL_URL.mp3Converter,
-    'Audio Normalizer': TOOL_URL.audioNormalizer,
-    'Audio Visualizer': TOOL_URL.audioVisualizer,
+    'Audio-Konverter': TOOL_URL.audioConverter,
+    'MP3-Konverter': TOOL_URL.mp3Converter,
+    'Audio-Normalizer': TOOL_URL.audioNormalizer,
+    'Audio-Visualizer': TOOL_URL.audioVisualizer,
     'Audio-Schneider': TOOL_URL.audioCutter,
-    'Wiedergabeliste Konverter': TOOL_URL.playlistConverter,
+    'Wiedergabelisten-Konverter': TOOL_URL.playlistConverter,
     Bildkonverter: TOOL_URL.imageConverter,
-    'Batch Bildbearbeiter': TOOL_URL.batchImageEditor,
+    'Batch-Bildbearbeiter': TOOL_URL.batchImageEditor,
     'Fotocollage-Tool': TOOL_URL.photoCollage,
     'Kodini Farbextraktor': TOOL_URL.colorExtractor,
     Videokonverter: TOOL_URL.videoConverter,
-    'Favicon Konverter': TOOL_URL.faviconConverter,
+    'Favicon-Konverter': TOOL_URL.faviconConverter,
     Bildergalerie: TOOL_URL.gallery,
     Kontaktformular: TOOL_URL.contact,
     Datenschutzerklärung: TOOL_URL.privacy,

@@ -345,7 +345,7 @@
   <div class="cookie-content">
     <div class="cookie-text">
       <h3 data-i18n="cookie.title">Cookie-Einstellungen</h3>
-      <p data-i18n="cookie.text">Wir verwenden Cookies, um Ihnen die beste Erfahrung auf unserer Website zu bieten. Sie koennen waehlen, welche Cookies Sie zulassen moechten.</p>
+      <p data-i18n="cookie.text">Wir verwenden Cookies, um Ihnen die beste Erfahrung auf unserer Website zu bieten. Sie können wählen, welche Cookies Sie zulassen möchten.</p>
       <button class="cookie-link" onclick="CookieConsent.showSettings()" data-i18n="cookie.moreInfo">Mehr erfahren</button>
     </div>
     <div class="cookie-actions">
@@ -361,17 +361,17 @@
   <div class="cookie-modal">
     <div class="cookie-modal-header">
       <h2 data-i18n="cookie.settingsTitle">Cookie-Einstellungen</h2>
-      <button class="cookie-modal-close" onclick="CookieConsent.hideSettings()">&times;</button>
+      <button class="cookie-modal-close" onclick="CookieConsent.hideSettings()" aria-label="Schließen" data-i18n-aria="cookie.close">&times;</button>
     </div>
     <div class="cookie-modal-body">
-      <p class="cookie-modal-intro" data-i18n="cookie.settingsIntro">Hier koennen Sie Ihre Cookie-Praeferenzen verwalten. Essentielle Cookies sind fuer die Grundfunktionen der Website erforderlich und koennen nicht deaktiviert werden.</p>
+      <p class="cookie-modal-intro" data-i18n="cookie.settingsIntro">Hier können Sie Ihre Cookie-Präferenzen verwalten. Essentielle Cookies sind für die Grundfunktionen der Website erforderlich und können nicht deaktiviert werden.</p>
 
       <!-- Essential -->
       <div class="cookie-category">
         <div class="cookie-category-header">
           <div class="cookie-category-info">
             <h4 data-i18n="cookie.essentialTitle">Essentielle Cookies</h4>
-            <p data-i18n="cookie.essentialDesc">Diese Cookies sind fuer die Grundfunktionen der Website erforderlich, wie Sicherheit und Zugangssteuerung.</p>
+            <p data-i18n="cookie.essentialDesc">Diese Cookies sind für die Grundfunktionen der Website erforderlich, wie Sicherheit und Zugangssteuerung.</p>
           </div>
           <div class="cookie-toggle">
             <span class="toggle-disabled" data-i18n="cookie.alwaysActive">Immer aktiv</span>
@@ -400,7 +400,7 @@
         <div class="cookie-category-header">
           <div class="cookie-category-info">
             <h4 data-i18n="cookie.marketingTitle">Marketing-Cookies</h4>
-            <p data-i18n="cookie.marketingDesc">Werden verwendet, um Werbung relevanter fuer Sie zu gestalten und die Effektivitaet von Werbekampagnen zu messen.</p>
+            <p data-i18n="cookie.marketingDesc">Werden verwendet, um Werbung relevanter für Sie zu gestalten und die Effektivität von Werbekampagnen zu messen.</p>
           </div>
           <div class="cookie-toggle">
             <label class="toggle-switch">
@@ -447,38 +447,56 @@ var CookieConsent = (function() {
       'cookie.marketingDesc': 'Werden verwendet, um Werbung relevanter für Sie zu gestalten und die Effektivität von Werbekampagnen zu messen.',
       'cookie.rejectAllModal': 'Alle ablehnen',
       'cookie.saveSettings': 'Einstellungen speichern',
-      'cookie.acceptAllModal': 'Alle akzeptieren'
+      'cookie.acceptAllModal': 'Alle akzeptieren',
+      'cookie.close': 'Schließen'
     },
     en: {
-      'cookie.title': 'Cookie Settings',
-      'cookie.text': 'We use cookies to provide you with the best experience on our website. You can choose which cookies you want to allow.',
+      'cookie.title': 'Cookie settings',
+      'cookie.text': 'We use cookies to give you the best experience on our website. You can choose which cookies to allow.',
       'cookie.moreInfo': 'Learn more',
-      'cookie.rejectAll': 'Reject',
+      'cookie.rejectAll': 'Decline',
       'cookie.settings': 'Settings',
       'cookie.acceptAll': 'Accept',
-      'cookie.settingsTitle': 'Cookie Settings',
+      'cookie.settingsTitle': 'Cookie settings',
       'cookie.settingsIntro': 'Here you can manage your cookie preferences. Essential cookies are required for the basic functions of the website and cannot be disabled.',
-      'cookie.essentialTitle': 'Essential Cookies',
+      'cookie.essentialTitle': 'Essential cookies',
       'cookie.essentialDesc': 'These cookies are required for the basic functions of the website, such as security and access control.',
       'cookie.alwaysActive': 'Always active',
-      'cookie.analyticsTitle': 'Analytics Cookies',
+      'cookie.analyticsTitle': 'Analytics cookies',
       'cookie.analyticsDesc': 'Help us understand how visitors interact with the website to improve the user experience.',
-      'cookie.marketingTitle': 'Marketing Cookies',
+      'cookie.marketingTitle': 'Marketing cookies',
       'cookie.marketingDesc': 'Used to make advertising more relevant to you and to measure the effectiveness of advertising campaigns.',
       'cookie.rejectAllModal': 'Reject all',
       'cookie.saveSettings': 'Save settings',
-      'cookie.acceptAllModal': 'Accept all'
+      'cookie.acceptAllModal': 'Accept all',
+      'cookie.close': 'Close'
     }
   };
 
+  // Sprache: Seiten mit fester Sprache (Home-Build setzt data-lang am Banner,
+  // z. B. /en/faq/) gewinnen immer. Sonst die gespeicherte Wahl, dann <html lang>.
+  function currentLang() {
+    var fixed = banner.getAttribute('data-lang');
+    if (fixed) return fixed;
+    var stored = null;
+    try { stored = localStorage.getItem('locale'); } catch (e) {}
+    if (stored) return stored;
+    var htmlLang = (document.documentElement.getAttribute('lang') || '').toLowerCase();
+    return htmlLang.indexOf('en') === 0 ? 'en' : 'de';
+  }
+
   function applyCookieTranslations() {
-    var lang = localStorage.getItem('locale') || 'de';
+    var lang = currentLang();
     var t = COOKIE_TRANSLATIONS[lang] || COOKIE_TRANSLATIONS['de'];
 
     // Banner + Modal Übersetzungen
     document.querySelectorAll('#cookieBanner [data-i18n], #cookieModal [data-i18n]').forEach(function(el) {
       var key = el.getAttribute('data-i18n');
       if (t[key]) el.textContent = t[key];
+    });
+    document.querySelectorAll('#cookieModal [data-i18n-aria]').forEach(function(el) {
+      var key = el.getAttribute('data-i18n-aria');
+      if (t[key]) el.setAttribute('aria-label', t[key]);
     });
   }
 
