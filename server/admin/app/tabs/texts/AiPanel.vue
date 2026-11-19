@@ -176,6 +176,7 @@ const BATCH_HINT: Record<AiTask, string> = {
   icon: '',
   design: '',
   imageprompt: '',
+  slottext: '',
 };
 const JOB_KEY = 'kdt-ai-job';
 

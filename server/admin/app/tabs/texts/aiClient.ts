@@ -18,7 +18,8 @@ export type AiTask =
   | 'ticker'
   | 'icon'
   | 'design'
-  | 'imageprompt';
+  | 'imageprompt'
+  | 'slottext';
 
 /** Aufgaben, die das Panel im Tab „Texte“ anbietet (die übrigen haben eigene Stellen). */
 export const PANEL_TASKS: readonly AiTask[] = ['seo', 'compare', 'blog'];
@@ -107,6 +108,10 @@ export function resultToText(task: AiTask, data: Record<string, unknown> | undef
   if (task === 'icon') {
     const terms = Array.isArray(data.terms) ? (data.terms as string[]) : [];
     return `${terms.join(', ')}\n${s('reasoning')}`.trim();
+  }
+  if (task === 'slottext') {
+    const items = Array.isArray(data.items) ? (data.items as Record<string, string>[]) : [];
+    return `${items.map((x) => `${x.key}: ${x.text}`).join('\n')}\n${s('notes')}`.trim();
   }
   if (task === 'imageprompt') return `${s('prompt')}\n${s('notes')}`.trim();
   if (task === 'design') {

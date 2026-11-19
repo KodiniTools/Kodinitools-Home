@@ -176,8 +176,22 @@ describe('ai.ts', () => {
       'icon',
       'design',
       'imageprompt',
+      'slottext',
     ]);
     await expect(batchStatus('../etc')).rejects.toThrow(/Batch-ID/);
+  });
+
+  it('slottext: prüft Slots und baut den Prompt', () => {
+    const slots = JSON.stringify([
+      { key: 'tools.sectionTitle', label: 'Audio', current: 'Audio-Tools' },
+    ]);
+    expect(() => buildUserPrompt('slottext', { lang: 'de' })).toThrow(/slots/);
+    expect(() => buildUserPrompt('slottext', { lang: 'de', slots: 'kaputt' })).toThrow(/slots/);
+    expect(() => buildUserPrompt('slottext', { lang: 'de', slots: '[]' })).toThrow(/slots/);
+    const p = buildUserPrompt('slottext', { lang: 'de', slots, hints: 'kürzer' });
+    expect(p).toContain('Schlüssel tools.sectionTitle');
+    expect(p).toContain('„Audio-Tools“');
+    expect(p).toContain('kürzer');
   });
 });
 
