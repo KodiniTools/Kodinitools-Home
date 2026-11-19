@@ -124,6 +124,8 @@ export function defaultSite() {
     // Werkbank: Plakette Browser/Server/Hybrid und Filter-Chips (Standard aus).
     toolBadge: false,
     toolFilter: false,
+    // Such-Overlay Strg/Cmd + K (Standard aus).
+    cmdPalette: false,
   };
 }
 export const SITE_SECTION_KEYS: SiteSectionKey[] = ['audio', 'image', 'diverse'];
@@ -281,6 +283,7 @@ export function normSite(s: RawJson): Site {
     mediaPosMobile: oneOf(MEDIA_POS_MOBILE, s.mediaPosMobile, 'bottom'),
     toolBadge: s.toolBadge === true,
     toolFilter: s.toolFilter === true,
+    cmdPalette: s.cmdPalette === true,
   };
 }
 // Seiten-Hintergrund eines Modus als CSS-background-Wert – identisch zur
@@ -667,6 +670,14 @@ export function getToolFilter() {
 
 export function setToolFilter(on: unknown) {
   siteObj().toolFilter = on === true;
+}
+// Such-Overlay (Strg/Cmd + K) mit Schaltfläche unter dem Hero (Standard aus).
+export function getCmdPalette() {
+  return siteObj().cmdPalette === true;
+}
+
+export function setCmdPalette(on: unknown) {
+  siteObj().cmdPalette = on === true;
 }
 // Kompakt-Layout: Lage der Sektionsmedien je Gerät.
 export function getMediaPosDesktop() {

@@ -72,6 +72,12 @@ describe.each([
     });
   });
 
+  it('Suche Strg+K: anfangs aus, nur true schaltet ein', () => {
+    expect(norm({})).toMatchObject({ cmdPalette: false });
+    expect(norm({ cmdPalette: true })).toMatchObject({ cmdPalette: true });
+    expect(norm({ cmdPalette: 'ja' })).toMatchObject({ cmdPalette: false });
+  });
+
   it('fällt bei unbekanntem Wert auf Klassisch zurück', () => {
     expect(norm({ homeLayout: 'grid', heroMediaMobile: 'nein' })).toMatchObject({
       homeLayout: 'classic',

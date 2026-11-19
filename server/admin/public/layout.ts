@@ -35,6 +35,8 @@ import {
   setToolBadge,
   getToolFilter,
   setToolFilter,
+  getCmdPalette,
+  setCmdPalette,
   getBannerStyle,
   getBannerSlides,
   getBannerSlideshow,
@@ -96,6 +98,7 @@ const PAGE_GET = {
   mediaPosMobile: getMediaPosMobile,
   toolBadge: getToolBadge,
   toolFilter: getToolFilter,
+  cmdPalette: getCmdPalette,
 };
 const PAGE_SET: Record<keyof typeof PAGE_GET, (v: unknown) => void> = {
   homeLayout: setHomeLayout,
@@ -108,6 +111,7 @@ const PAGE_SET: Record<keyof typeof PAGE_GET, (v: unknown) => void> = {
   mediaPosMobile: setMediaPosMobile,
   toolBadge: setToolBadge,
   toolFilter: setToolFilter,
+  cmdPalette: setCmdPalette,
 };
 
 // Medium (Server-URL oder 'staged:<id>') für die Vue-Fassung auflösen.

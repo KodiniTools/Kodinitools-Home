@@ -107,7 +107,8 @@
     "mediaPosDesktop": "side",
     "mediaPosMobile": "bottom",
     "toolBadge": false,
-    "toolFilter": false
+    "toolFilter": false,
+    "cmdPalette": false
   },
   "de": {
     "sectionVideos": {

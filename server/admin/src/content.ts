@@ -954,6 +954,8 @@ function defaultSite() {
     // Werkbank: Plakette Browser/Server/Hybrid und Filter-Chips (Standard aus).
     toolBadge: false,
     toolFilter: false,
+    // Such-Overlay Strg/Cmd + K (Standard aus).
+    cmdPalette: false,
   };
 }
 const SECTION_KEYS = ['audio', 'image', 'diverse'];
@@ -1065,6 +1067,7 @@ function validateSite(s: unknown) {
     mediaPosMobile: MEDIA_POS_MOBILE.includes(s.mediaPosMobile) ? s.mediaPosMobile : 'bottom',
     toolBadge: s.toolBadge === true,
     toolFilter: s.toolFilter === true,
+    cmdPalette: s.cmdPalette === true,
   };
 }
 

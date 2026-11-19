@@ -39,6 +39,7 @@ export interface PageSettings {
   mediaPosMobile: MediaPosMobile;
   toolBadge: boolean;
   toolFilter: boolean;
+  cmdPalette: boolean;
 }
 export type PageKey = keyof PageSettings;
 
@@ -84,6 +85,8 @@ export function pageToast<K extends PageKey>(key: K, v: PageSettings[K]): string
       return 'Sektionsmedien Handy/Tablet geändert';
     case 'toolBadge':
       return v ? 'Verarbeitungs-Plakette eingeblendet' : 'Verarbeitungs-Plakette ausgeblendet';
+    case 'cmdPalette':
+      return v ? 'Suche (Strg + K) eingeblendet' : 'Suche (Strg + K) ausgeblendet';
     case 'toolFilter':
       return v ? 'Verarbeitungs-Filter eingeblendet' : 'Verarbeitungs-Filter ausgeblendet';
     default: {

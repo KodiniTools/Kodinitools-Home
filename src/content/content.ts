@@ -1622,6 +1622,8 @@ export interface SiteConfig {
   // und Filter-Chips nach Verarbeitung. Standard aus.
   toolBadge: boolean;
   toolFilter: boolean;
+  // Such-Overlay (Strg/Cmd + K) mit Schaltfläche unter dem Hero. Standard aus.
+  cmdPalette: boolean;
 }
 export interface SiteSectionSide {
   color: string; // '' = keine Tönung
@@ -1728,6 +1730,7 @@ const SITE_DEFAULTS: SiteConfig = {
   mediaPosMobile: 'bottom',
   toolBadge: false,
   toolFilter: false,
+  cmdPalette: false,
 };
 // Erlaubte Bild-URL (interner Pfad oder http(s)), ohne Zeichen, die url("…") brechen.
 const SITE_MEDIA_URL = /^(\/[^\s"'()\\]*|https?:\/\/[^\s"'()\\]+)$/;
@@ -1766,6 +1769,7 @@ export function getHomeLayout(): {
   mediaPosMobile: SiteConfig['mediaPosMobile'];
   toolBadge: boolean;
   toolFilter: boolean;
+  cmdPalette: boolean;
 } {
   const site = getSite();
   return {
@@ -1783,6 +1787,7 @@ export function getHomeLayout(): {
       : 'bottom',
     toolBadge: site.toolBadge === true,
     toolFilter: site.toolFilter === true,
+    cmdPalette: site.cmdPalette === true,
   };
 }
 

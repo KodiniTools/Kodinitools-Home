@@ -128,6 +128,23 @@
         @update:model-value="set('toolFilter', $event)"
       />
     </div>
+    <h3 class="ly-sub">Suche (Strg + K) <span class="lang-badge">DE + EN</span></h3>
+    <p class="hint">
+      Die Schaltfläche <strong>Tool finden</strong> unter dem Hero öffnet ein Such-Overlay, auch per
+      <kbd>Strg</kbd> + <kbd>K</kbd> bzw. <kbd>⌘</kbd> + <kbd>K</kbd>. Es findet Tools nach Name,
+      Aufgabe („lauter machen“, „schneiden“) und Dateiformat und zeigt ohne Eingabe Favoriten und
+      zuletzt genutzte Tools. Die Suchbegriffe stehen im Tool-Katalog
+      (<code>src/content/toolCatalog.ts</code>). Wirkt in jedem Layout und ist anfangs aus.
+    </p>
+    <div class="ly-row">
+      <UiSwitch
+        :model-value="p.cmdPalette"
+        label="Suche mit Strg + K"
+        title="Schaltfläche „Tool finden“ unter dem Hero und Such-Overlay."
+        data-cmdpalette
+        @update:model-value="set('cmdPalette', $event)"
+      />
+    </div>
   </div>
 </template>
 

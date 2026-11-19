@@ -409,3 +409,22 @@ describe('Verarbeitung der Tools (Admin > Layout)', () => {
     }
   });
 });
+
+describe('Such-Overlay Strg+K (Admin > Layout > Suche)', () => {
+  // Folgt media.json: aus = nichts im HTML (Standard), an = Schaltfläche, Island und CSS.
+  const site = (mediaJson as { site?: { cmdPalette?: boolean } }).site;
+  const on = site?.cmdPalette === true;
+  it.each(['index.html', 'en/index.html'])('%s entspricht dem Schalter aus media.json', (file) => {
+    const html = read(file);
+    if (on) {
+      expect(html).toContain('class="cmdk-trigger"');
+      expect(html).toContain('.cmdk-backdrop');
+      expect(html).toMatch(/component-url="\/_astro\/CommandPalette\.[^"]+\.js"/);
+      // Das Overlay selbst lädt erst beim Öffnen: nicht im HTML.
+      expect(html).not.toContain('class="cmdk-dialog"');
+    } else {
+      expect(html).not.toContain('cmdk');
+      expect(html).not.toContain('CommandPalette');
+    }
+  });
+});
