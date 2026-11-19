@@ -39,7 +39,16 @@
       <LyPagePanel />
       <LyModePanel />
       <div class="panel">
-        <AiDesignAssist area="layout" :get-current="aiCurrent" :resolve="aiResolve" />
+        <AiDesignAssist
+          area="layout"
+          :get-current="aiCurrent"
+          :resolve="aiResolve"
+          :apply-note="
+            text.text.trim()
+              ? ''
+              : 'Hinweis: Der Banner-Text ist leer. Animation, Größe, Farbe und Deckkraft des Banner-Texts wirken auf der Seite erst, wenn ein Banner-Text eingetragen ist.'
+          "
+        />
       </div>
       <template v-if="grid">
         <LyGridPreview />

@@ -265,7 +265,7 @@ export const TASKS: Record<TaskId, TaskDef> = {
       'Hell/Dunkel-Modus. Farben als Hex-Werte (#rrggbb). imagePrompt nur, wenn ein Bild sinnvoll ist: englischer ' +
       'Prompt für einen Bildgenerator, ohne Text im Bild, sonst leerer String. Erfinde keine Einstellungen, die es nicht gibt. ' +
       'changes: nur bei Bereich hero oder layout konkrete, direkt anwendbare Änderungen (bei background ein leeres Array), höchstens 8. ' +
-      'Layout, nur diese Felder (mode „both“): textAnim (none, pulse, float, shake, wobble, glow), textAnimSpeed (slow, normal, fast), ' +
+      'Layout: Banner-Text-Felder wirken nur, wenn heroBannerText nicht leer ist; ist er leer, schlage dazu keine Änderungen vor, sondern weise in den suggestions darauf hin. Nur diese Felder (mode „both“): textAnim (none, pulse, float, shake, wobble, glow), textAnimSpeed (slow, normal, fast), ' +
       'textAnimIntensity (1 bis 10), textSize (px, 0 bis 96, 0 = automatisch), textOpacity (0 bis 100), textColor (#rrggbb). ' +
       'Hero, nur diese Felder: ' +
       'Schriftgrößen in px (8 bis 96), mode „both“: titleFontSize, subtitleFontSize, chipFontSize, ctaFontSize; ' +
