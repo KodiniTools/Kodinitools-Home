@@ -7,6 +7,12 @@
       die Vorschau, dann als Banner, Raster-Kachel oder Tool-Icon setzen bzw. die URL kopieren.
     </p>
 
+    <AiIconAssist
+      :tools="aiTools"
+      :search="onSearch"
+      :hits="(t) => filterIcons(iconLists, t, iconsUi.cat).length"
+    />
+
     <!-- Suche + Set -->
     <div class="ic-row">
       <UiTextField
@@ -305,6 +311,7 @@ import {
   type TintHost,
   type ToolRef,
 } from './iconsData';
+import AiIconAssist from './AiIconAssist.vue';
 import { ensureIconsLoaded, iconLists, iconsLoading, iconsUi } from './iconsUi';
 
 /**
@@ -358,6 +365,7 @@ function onSearch(v: string) {
   clearTimeout(searchTimer);
   searchTimer = setTimeout(() => (iconsUi.q = v), 120);
 }
+const aiTools = computed(() => props.tools.map((t) => ({ key: cardId(t), title: t.title })));
 const items = computed(() => filterIcons(iconLists.value, iconsUi.q, iconsUi.cat));
 const countText = computed(() =>
   !loading.value && total.value ? `${items.value.length} Treffer` : '',

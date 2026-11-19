@@ -107,6 +107,12 @@
       + Eintrag hinzufügen
     </UiButton>
 
+    <AiTickerAssist
+      :lang="lang"
+      :current="ticker.items.map((it) => it.text)"
+      :on-add="addSuggested"
+    />
+
     <details class="tk-design" :open="designOpen" @toggle="onDesignToggle">
       <summary>🎨 Design ({{ lang.toUpperCase() }})</summary>
       <p class="hint">
@@ -258,6 +264,7 @@ import {
   tickerPreviewNote,
   tickerPreviewStyle,
 } from './tickerText';
+import AiTickerAssist from './AiTickerAssist.vue';
 import { tickerUi } from './tickerUi';
 
 /**
@@ -347,6 +354,14 @@ function linkWord(i: number) {
 
 function add() {
   ticker.items.push({ id: String(Date.now()), text: '', link: '' });
+}
+let suggestedSeq = 0;
+/** Meldung aus der KI-Hilfe als neuer Eintrag im Entwurf (Undo/Autosave wie bei „Eintrag hinzufügen“). */
+function addSuggested(text: string) {
+  ticker.items.push({ id: `ki-${Date.now()}-${suggestedSeq++}`, text: text.trim(), link: '' });
+  toasts.addToast('Eintrag hinzugefügt (Entwurf) – Strg+Z macht es rückgängig', {
+    type: 'success',
+  });
 }
 function remove(i: number) {
   ticker.items.splice(i, 1);

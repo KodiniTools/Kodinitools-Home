@@ -134,6 +134,7 @@ import {
   formatUsd,
   getAiBatch,
   getAiBatchResults,
+  PANEL_TASKS,
   parseBatchBlocks,
   resultToText,
   runAi,
@@ -170,6 +171,9 @@ const BATCH_HINT: Record<AiTask, string> = {
   compare: 'Je Eintrag: deutscher Text, eine Zeile ===, englischer Text.',
   blog: 'Je Eintrag ein Thema.',
   alt: '',
+  card: '',
+  ticker: '',
+  icon: '',
 };
 const JOB_KEY = 'kdt-ai-job';
 
@@ -209,7 +213,7 @@ let timer: ReturnType<typeof setInterval> | undefined;
 
 const taskOptions = computed(() =>
   (config.value?.tasks ?? [])
-    .filter((t) => t.id !== 'alt')
+    .filter((t) => PANEL_TASKS.includes(t.id))
     .map((t) => ({ value: t.id, label: t.label })),
 );
 const modelOptions = computed(() =>

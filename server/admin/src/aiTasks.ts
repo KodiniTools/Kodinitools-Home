@@ -81,7 +81,7 @@ export function estimateCostUsd(model: ModelId, usage: Usage, batch = false): nu
   return Math.round(usd * (batch ? 0.5 : 1) * 1e6) / 1e6;
 }
 
-export type TaskId = 'seo' | 'compare' | 'blog' | 'alt';
+export type TaskId = 'seo' | 'compare' | 'blog' | 'alt' | 'card' | 'ticker' | 'icon';
 
 export type TaskDef = {
   id: TaskId;
@@ -188,6 +188,60 @@ export const TASKS: Record<TaskId, TaskDef> = {
       additionalProperties: false,
     },
   },
+  card: {
+    id: 'card',
+    label: 'Text einer Tool-Karte verbessern',
+    effort: 'medium',
+    maxTokens: 3000,
+    system:
+      SITE_CONTEXT +
+      ' Aufgabe: Verbessere Titel, Badge und Beschreibung einer Tool-Karte auf der Startseite. ' +
+      'Titel: kurz, höchstens zwei Zeilen. Badge: ein kurzes Etikett (höchstens 14 Zeichen) oder leer. ' +
+      'Beschreibung: ein bis zwei Sätze, höchstens 170 Zeichen, sagt was das Tool tut. ' +
+      'Verwende nur Fakten aus der bisherigen Karte und den „Fakten zum Tool“ (diese sind verbindlich). ' +
+      'Widerspricht die bisherige Karte den Fakten, korrigiere sie und nenne das in notes. ' +
+      'Ohne Fakten verbesserst du nur Stil und Länge und erfindest nichts.',
+    schema: {
+      type: 'object',
+      properties: { title: STR, badge: STR, description: STR, notes: STR },
+      required: ['title', 'badge', 'description', 'notes'],
+      additionalProperties: false,
+    },
+  },
+  ticker: {
+    id: 'ticker',
+    label: 'Laufband-Meldungen vorschlagen',
+    effort: 'low',
+    maxTokens: 3000,
+    system:
+      SITE_CONTEXT +
+      ' Aufgabe: Schlage Meldungen für das Laufband auf der Startseite vor (einzeilig, jeweils höchstens ' +
+      '140 Zeichen, in der angegebenen Sprache). Erfinde keine Neuigkeiten, Preise, Zahlen oder Funktionen: ' +
+      'verwende nur das, was in den Hinweisen oder den bisherigen Meldungen steht. Ohne Hinweise formuliere ' +
+      'nur die bisherigen Meldungen besser. Nenne Unsicherheiten in notes.',
+    schema: {
+      type: 'object',
+      properties: { items: { type: 'array', items: STR }, notes: STR },
+      required: ['items', 'notes'],
+      additionalProperties: false,
+    },
+  },
+  icon: {
+    id: 'icon',
+    label: 'Icon-Suchbegriffe für ein Tool',
+    effort: 'low',
+    maxTokens: 1500,
+    system:
+      SITE_CONTEXT +
+      ' Aufgabe: Nenne sechs englische Suchbegriffe für passende Font-Awesome-Icons zum Tool ' +
+      '(einzelne Wörter, Kleinbuchstaben, ggf. mit Bindestrich wie „file-audio“; nach Passung geordnet).',
+    schema: {
+      type: 'object',
+      properties: { terms: { type: 'array', items: STR }, reasoning: STR },
+      required: ['terms', 'reasoning'],
+      additionalProperties: false,
+    },
+  },
 };
 
 export function isTaskId(v: unknown): v is TaskId {
@@ -233,6 +287,34 @@ export function buildUserPrompt(task: TaskId, input: unknown): string {
     }
     case 'compare':
       return `Deutscher Text:\n${text(i.de, 'de')}\n\nEnglischer Text:\n${text(i.en, 'en')}`;
+    case 'card':
+      return [
+        `Sprache: ${lang(i.lang)}`,
+        `Titel: ${text(i.title, 'title')}`,
+        i.badge ? `Badge: ${text(i.badge, 'badge', false)}` : 'Badge: (keins)',
+        `Beschreibung: ${text(i.description, 'description')}`,
+        i.facts ? `Fakten zum Tool (verbindlich):\n${text(i.facts, 'facts', false)}` : '',
+      ]
+        .filter(Boolean)
+        .join('\n');
+    case 'ticker': {
+      if (!i.hints && !i.current) throw inputError('hints oder current fehlt');
+      return [
+        `Sprache: ${lang(i.lang)}`,
+        `Anzahl Vorschläge: ${Math.max(1, Math.min(10, Number(i.count) || 3))}`,
+        i.hints ? `Hinweise:\n${text(i.hints, 'hints', false)}` : '',
+        i.current ? `Bisherige Meldungen:\n${text(i.current, 'current', false)}` : '',
+      ]
+        .filter(Boolean)
+        .join('\n');
+    }
+    case 'icon':
+      return [
+        `Tool: ${text(i.title, 'title')}`,
+        i.description ? `Beschreibung: ${text(i.description, 'description', false)}` : '',
+      ]
+        .filter(Boolean)
+        .join('\n');
     case 'alt':
       return i.context
         ? `Verwendung des Bildes: ${text(i.context, 'context')}`
