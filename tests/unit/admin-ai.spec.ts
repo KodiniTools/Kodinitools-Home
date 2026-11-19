@@ -77,6 +77,14 @@ describe('aiTasks', () => {
       ).toBe('json_schema');
   });
 
+  it('prüft Eingaben der Design-Beratung', () => {
+    expect(() => buildUserPrompt('design', { area: 'x', current: '{}' })).toThrow(/area/);
+    expect(() => buildUserPrompt('design', { area: 'hero' })).toThrow(/current/);
+    const p = buildUserPrompt('design', { area: 'layout', current: '{"a":1}' });
+    expect(p).toContain('Bereich: layout');
+    expect(p).toContain('Allgemein verbessern');
+  });
+
   it('baut Anfrage mit Modell, Aufwand und JSON-Schema, ohne Sampling-Parameter', () => {
     const p = buildRequestParams(
       'seo',
@@ -148,6 +156,7 @@ describe('ai.ts', () => {
       'card',
       'ticker',
       'icon',
+      'design',
     ]);
     await expect(batchStatus('../etc')).rejects.toThrow(/Batch-ID/);
   });

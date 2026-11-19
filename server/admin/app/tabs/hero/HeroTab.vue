@@ -14,6 +14,7 @@
             Texte, Schriften und Typografie (gelten für beide Modi). Alle <strong>Farben</strong> je
             Modus stehen links (Hell) und rechts (Dunkel). Ausgeschaltet = Standard-Design.
           </p>
+          <AiDesignAssist area="hero" :get-current="aiCurrent" />
           <div class="hd-line">
             <UiSwitch
               :model-value="view.hd.enabled"
@@ -186,6 +187,7 @@ import {
 } from './heroData';
 import { hdUi } from './heroUi';
 import { provideHero } from './useHero';
+import AiDesignAssist from './AiDesignAssist.vue';
 
 /**
  * Tab „Hero-Design“ (je Sprache, Vue-Fassung von `renderHeroDesign` in
@@ -198,6 +200,7 @@ import { provideHero } from './useHero';
  */
 const props = defineProps<{ service: HeroService }>();
 const { view, change, toast } = provideHero(props.service);
+const aiCurrent = () => JSON.stringify(view.value.hd);
 const service = props.service;
 const LANG = service.lang.toUpperCase();
 const LANG_NAME = service.lang === 'de' ? 'Deutsch' : 'English';
