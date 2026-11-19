@@ -34,7 +34,8 @@ describe('Cookie-Banner', () => {
     const text = visibleText(out);
     expect(out).toContain('<div id="cookieBanner" class="cookie-banner" data-lang="en">');
     expect(text).toContain('We use cookies to give you the best experience on our website.');
-    expect(text).toContain('Decline');
+    expect(out).toContain('data-i18n="cookie.rejectAll">Reject</button>');
+    expect(text).not.toContain('Decline');
     expect(text).toContain('Reject all');
     expect(text).toContain('Save settings');
     expect(text).toContain('Always active');
@@ -48,5 +49,19 @@ describe('Cookie-Banner', () => {
     expect(visibleText(out)).toContain('Sie können wählen, welche Cookies Sie zulassen möchten.');
     // Script und Styles bleiben unverändert.
     expect(out.slice(out.indexOf('<script>'))).toBe(html.slice(html.indexOf('<script>')));
+  });
+});
+
+describe('Anrede und Schreibung (DE)', () => {
+  it('Spendenseite siezt durchgehend und schreibt ß', async () => {
+    const { DONATE_PAGE } = await import('../../src/i18n/donate');
+    const all = JSON.stringify(DONATE_PAGE.de);
+    expect(all).not.toMatch(/\b(du|dir|dich|dein\w*|Dein\w*|Unterstütze|Hilf|wähle)\b/);
+    expect(all).not.toMatch(/fliesst|grosses|regelmässig|abzuschliessen/);
+  });
+
+  it('Cookie-Banner nennt „Notwendige Cookies“', () => {
+    expect(html).not.toContain('Essentielle');
+    expect(cookieTranslations(html, 'de')['cookie.essentialTitle']).toBe('Notwendige Cookies');
   });
 });

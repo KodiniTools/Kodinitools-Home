@@ -39,16 +39,16 @@ export const DONATE_PAGE: Record<Lang, DonatePage> = {
   de: {
     title: 'KodiniTools unterstützen – Freiwillig spenden statt Paywall | KodiniTools',
     description:
-      'Unterstütze KodiniTools freiwillig per PayPal. Keine Paywalls, keine Abofallen – einfach nützliche, kostenlose Werkzeuge, die durch freiwillige Spenden am Laufen gehalten werden.',
+      'Unterstützen Sie KodiniTools freiwillig per PayPal oder Buy Me a Coffee. Keine Paywalls, keine Abofallen – einfach nützliche, kostenlose Werkzeuge, die durch freiwillige Spenden am Laufen gehalten werden.',
     ogTitle: 'KodiniTools unterstützen – Freiwillig spenden statt Paywall',
     ogDescription:
       'Keine Paywalls. Keine Abofallen. Einfach nützliche Werkzeuge – getragen von freiwilligen Spenden.',
     breadcrumb: 'Spenden',
-    heading: 'Unterstütze KodiniTools: Software frei halten',
+    heading: 'Unterstützen Sie KodiniTools: Software frei halten',
     subtitle: 'Keine Paywalls. Keine Abofallen. Einfach nützliche Werkzeuge.',
     intro: [
       'KodiniTools entstand aus einer einfachen Überzeugung: Moderne digitale Werkzeuge für Audio, Bild und Medien sollten für jeden direkt zugänglich sein – ohne teure Monatsabos, ohne Registrierungszwang und ohne künstliche Barrieren.',
-      'Ich entwickle und betreue diese Plattform unabhängig aus Uster in der Schweiz. Jedes Tool ist von Grund auf so gebaut, dass es dir sofort Zeit spart und deine Arbeit erleichtert.',
+      'Ich entwickle und betreue diese Plattform unabhängig aus Uster in der Schweiz. Jedes Tool ist von Grund auf so gebaut, dass es Ihnen sofort Zeit spart und Ihre Arbeit erleichtert.',
     ],
     whyHeading: 'Warum freiwillige Spenden?',
     costsIntro: 'Der Betrieb von KodiniTools ist mit realen Kosten verbunden:',
@@ -67,10 +67,10 @@ export const DONATE_PAGE: Record<Lang, DonatePage> = {
       },
     ],
     trust:
-      'Statt alle Funktionen hinter einer 20-Euro-Paywall einzusperren, setze ich auf Vertrauen und Wertschätzung: Wer die Tools regelmässig nutzt und davon profitiert, gibt freiwillig etwas zurück. Wer es sich gerade nicht leisten kann, nutzt sie trotzdem kostenfrei.',
+      'Statt alle Funktionen hinter einer 20-Euro-Paywall einzusperren, setze ich auf Vertrauen und Wertschätzung: Wer die Tools regelmäßig nutzt und davon profitiert, gibt freiwillig etwas zurück. Wer es sich gerade nicht leisten kann, nutzt sie trotzdem kostenfrei.',
     contributeHeading: 'Einen Beitrag leisten',
     contributeIntro:
-      'Wenn dir KodiniTools geholfen hat, einen Auftrag abzuschliessen, Zeit zu sparen oder ein kreatives Projekt umzusetzen, freue ich mich über deinen Support:',
+      'Wenn Ihnen KodiniTools geholfen hat, einen Auftrag abzuschließen, Zeit zu sparen oder ein kreatives Projekt umzusetzen, freue ich mich über Ihre Unterstützung:',
     options: [
       {
         title: 'Einen Kaffee spendieren',
@@ -78,28 +78,28 @@ export const DONATE_PAGE: Record<Lang, DonatePage> = {
       },
       {
         title: 'Projekt-Unterstützer',
-        text: 'Hilf mit, die monatlichen Hosting- und Serverkosten direkt zu decken.',
+        text: 'Helfen Sie mit, die monatlichen Hosting- und Serverkosten direkt zu decken.',
       },
       {
         title: 'Wunschbetrag',
-        text: 'Jeder Franken oder Euro fliesst direkt in die Weiterentwicklung der Tools.',
+        text: 'Jeder Franken oder Euro fließt direkt in die Weiterentwicklung der Tools.',
       },
     ],
-    actionText: 'Schnell & sicher spenden – wähle deine bevorzugte Methode.',
+    actionText: 'Schnell & sicher spenden – wählen Sie Ihre bevorzugte Methode.',
     paypalQrAlt: 'PayPal QR-Code zum Spenden an KodiniTools',
     coffeeQrAlt: 'Buy Me a Coffee QR-Code zum Spenden an KodiniTools',
     scanHint: 'Mit dem Smartphone scannen',
     paypalButton: 'Jetzt via PayPal spenden →',
     thanks:
-      'Ein grosses Dankeschön an alle, die dieses Projekt mittragen. Deine Unterstützung sorgt dafür, dass das Web ein Stück offener, fairer und werbefreier bleibt.',
+      'Ein großes Dankeschön an alle, die dieses Projekt mittragen. Ihre Unterstützung sorgt dafür, dass das Web ein Stück offener, fairer und werbefreier bleibt.',
     signature: '– Dinko Ramic, Entwickler von KodiniTools',
     back: 'Zurück zur Startseite',
   },
   en: {
-    title: 'Support KodiniTools – Donate Voluntarily Instead of a Paywall | KodiniTools',
+    title: 'Support KodiniTools – Voluntary Donations Instead of a Paywall | KodiniTools',
     description:
-      'Support KodiniTools voluntarily via PayPal. No paywalls, no subscription traps — just useful, free tools kept running by voluntary donations.',
-    ogTitle: 'Support KodiniTools – Donate Voluntarily Instead of a Paywall',
+      'Support KodiniTools voluntarily via PayPal or Buy Me a Coffee. No paywalls, no subscription traps — just useful, free tools kept running by voluntary donations.',
+    ogTitle: 'Support KodiniTools – Voluntary Donations Instead of a Paywall',
     ogDescription:
       'No paywalls. No subscription traps. Just useful tools — kept alive by voluntary donations.',
     breadcrumb: 'Donate',
@@ -137,8 +137,8 @@ export const DONATE_PAGE: Record<Lang, DonatePage> = {
         text: 'Help cover the monthly hosting and server costs directly.',
       },
       {
-        title: 'Any Amount',
-        text: 'Every franc or euro flows directly into further developing the tools.',
+        title: 'Custom Amount',
+        text: 'Every franc or euro goes directly toward developing the tools further.',
       },
     ],
     actionText: 'Donate quickly & securely — choose your preferred method.',
