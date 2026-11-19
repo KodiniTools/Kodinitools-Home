@@ -9,6 +9,7 @@ vi.mock('../../server/admin/app/lib/api', () => api);
 
 import AiCardAssist from '../../server/admin/app/tabs/toolcards/AiCardAssist.vue';
 import AiTickerAssist from '../../server/admin/app/tabs/ticker/AiTickerAssist.vue';
+import AiSlotAssist from '../../server/admin/app/tabs/texts/AiSlotAssist.vue';
 import AiImagePanel from '../../server/admin/app/tabs/files/AiImagePanel.vue';
 import AiDesignAssist from '../../server/admin/app/tabs/hero/AiDesignAssist.vue';
 import AiIconAssist from '../../server/admin/app/tabs/icons/AiIconAssist.vue';
@@ -274,5 +275,57 @@ describe('compressImage', () => {
       spy.mockRestore();
       vi.unstubAllGlobals();
     }
+  });
+});
+
+describe('AiSlotAssist', () => {
+  it('zeigt nur geprüfte Vorschläge und übergibt Übernehmen an den Tab', async () => {
+    api.apiGet.mockResolvedValue({
+      ok: true,
+      data: {
+        configured: true,
+        defaultModel: 'm',
+        models: [{ id: 'm', label: 'M', hint: '' }],
+        tasks: [],
+      },
+    });
+    api.apiPost.mockResolvedValue({
+      ok: true,
+      data: {
+        ok: true,
+        data: {
+          items: [
+            { key: 'a', text: 'Neu A' },
+            { key: 'b', text: 'Gleich' },
+            { key: 'x', text: 'Unbekannter Slot' },
+            { key: 'a', text: 'Doppelt' },
+            { key: 'b', text: '<b>böse</b>' },
+          ],
+          notes: 'ok',
+        },
+      },
+    });
+    const onApply = vi.fn();
+    const w = mount(AiSlotAssist, {
+      props: {
+        lang: 'de',
+        slots: [
+          { key: 'a', label: 'A', current: 'Alt A' },
+          { key: 'b', label: 'B', current: 'Gleich' },
+        ],
+        onApply,
+      },
+    });
+    await w.get('[data-aislot-toggle]').trigger('click');
+    await flushPromises();
+    await w.get('[data-aislot-run]').trigger('click');
+    await flushPromises();
+    const sent = api.apiPost.mock.calls[0]?.[1] as { task: string; input: { slots: string } };
+    expect(sent.task).toBe('slottext');
+    expect(JSON.parse(sent.input.slots)).toHaveLength(2);
+    expect(w.findAll('[data-aislot-row]')).toHaveLength(2);
+    await w.get('[data-aislot-row="a"] [data-aislot-apply]').trigger('click');
+    expect(onApply).toHaveBeenCalledWith('a', 'Neu A');
+    expect(w.get('[data-aislot-row="b"] [data-aislot-apply]').attributes('disabled')).toBeDefined();
   });
 });

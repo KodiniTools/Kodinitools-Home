@@ -90,7 +90,8 @@ export type TaskId =
   | 'ticker'
   | 'icon'
   | 'design'
-  | 'imageprompt';
+  | 'imageprompt'
+  | 'slottext';
 
 export type TaskDef = {
   id: TaskId;
@@ -342,6 +343,36 @@ export const TASKS: Record<TaskId, TaskDef> = {
       additionalProperties: false,
     },
   },
+  slottext: {
+    id: 'slottext',
+    label: 'Abschnitts-Titel der Startseite verbessern',
+    effort: 'low',
+    maxTokens: 2000,
+    system:
+      SITE_CONTEXT +
+      ' Aufgabe: Verbessere die Titel der Abschnitte auf der Startseite (z. B. „Audio-Tools“). ' +
+      'Du bekommst je Abschnitt Schlüssel, Bezeichnung und den aktuellen Titel. Gib je Schlüssel genau einen Titel zurück: ' +
+      'kurz (höchstens 40 Zeichen), klar, ohne HTML und ohne Anführungszeichen, in der angegebenen Sprache, ' +
+      'im gleichen Stil für alle Abschnitte. Ist ein Titel schon gut, gib ihn unverändert zurück. ' +
+      'Erfinde keine Funktionen. Nenne Besonderheiten in notes.',
+    schema: {
+      type: 'object',
+      properties: {
+        items: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: { key: STR, text: STR },
+            required: ['key', 'text'],
+            additionalProperties: false,
+          },
+        },
+        notes: STR,
+      },
+      required: ['items', 'notes'],
+      additionalProperties: false,
+    },
+  },
 };
 
 export function isTaskId(v: unknown): v is TaskId {
@@ -424,6 +455,32 @@ export function buildUserPrompt(task: TaskId, input: unknown): string {
         i.lang === 'de' || i.lang === 'en' ? `Sprache des Tabs: ${i.lang}` : '',
         `Ziel: ${text(i.goal, 'goal', false) || 'Allgemein verbessern'}`,
         `Aktuelle Einstellungen (JSON):\n${text(i.current, 'current')}`,
+      ]
+        .filter(Boolean)
+        .join('\n');
+    }
+    case 'slottext': {
+      let slots: unknown;
+      try {
+        slots = JSON.parse(text(i.slots, 'slots'));
+      } catch (e) {
+        if ((e as { statusCode?: number }).statusCode) throw e;
+        throw inputError('slots ungültig');
+      }
+      if (!Array.isArray(slots)) throw inputError('slots ungültig');
+      if (!slots.length || slots.length > 10) throw inputError('slots ungültig');
+      const lines = slots.map((x) => {
+        const o = (x ?? {}) as Record<string, unknown>;
+        const one = (v: unknown, n: string) => {
+          if (typeof v !== 'string' || v.length > 300) throw inputError(`${n} ungültig`);
+          return v.replace(/\s+/g, ' ').trim();
+        };
+        return `- Schlüssel ${one(o.key, 'key')} | ${one(o.label, 'label')} | aktuell: „${one(o.current, 'current')}“`;
+      });
+      return [
+        `Sprache: ${lang(i.lang)}`,
+        `Abschnitte:\n${lines.join('\n')}`,
+        i.hints ? `Hinweise:\n${text(i.hints, 'hints', false)}` : '',
       ]
         .filter(Boolean)
         .join('\n');

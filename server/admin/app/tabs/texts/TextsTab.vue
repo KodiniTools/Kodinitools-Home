@@ -172,6 +172,9 @@
             </p>
           </section>
         </div>
+        <div class="panel">
+          <AiSlotAssist :lang="lang" :slots="aiSlots" :on-apply="applyAi" />
+        </div>
         <AiPanel />
       </div>
 
@@ -301,6 +304,7 @@ import {
   type TextStyleHost,
 } from './textStyle';
 import AiPanel from './AiPanel.vue';
+import AiSlotAssist from './AiSlotAssist.vue';
 import TextFxFields from './TextFxFields.vue';
 import { textsUi } from './textsUi';
 
@@ -379,6 +383,22 @@ function setText(f: TextField, v: string) {
   drafts[f.key] = v;
   if (v.trim() === '') delPath(overrides, f.path);
   else setPath(overrides, f.path, v);
+}
+/** Slots mit dem aktuell wirksamen Titel für die KI-Hilfe. */
+const aiSlots = computed(() =>
+  TEXT_FIELDS.map((f) => ({
+    key: f.key,
+    label: f.label,
+    current: (drafts[f.key]?.trim() || defaultText(f)).trim(),
+  })),
+);
+function applyAi(key: string, value: string) {
+  const f = TEXT_FIELDS.find((x) => x.key === key);
+  if (!f) return;
+  setText(f, value);
+  toasts.addToast('Übernommen (Entwurf) – mit Strg+Z rückgängig, in der Vorschau prüfen', {
+    type: 'success',
+  });
 }
 function previewOf(f: TextField): string {
   return previewText(getPath(overrides, f.path), getPath(props.defaults, f.path), f.label);
