@@ -105,6 +105,29 @@
         "
       />
     </div>
+    <h3 class="ly-sub">Verarbeitung der Tools <span class="lang-badge">DE + EN</span></h3>
+    <p class="hint">
+      Die <strong>Plakette</strong> zeigt auf jeder Karte, wo die Dateien verarbeitet werden: im
+      Browser, auf dem Server in Deutschland oder beides (Hybrid, mit kurzer Erklärung beim
+      Überfahren). Die <strong>Filter</strong> unter der Navigation blenden Karten nach dieser
+      Verarbeitung aus. Beides wirkt in jedem Layout und ist anfangs aus.
+    </p>
+    <div class="ly-row">
+      <UiSwitch
+        :model-value="p.toolBadge"
+        label="Plakette „Browser / Server / Hybrid“"
+        title="Zeigt auf jeder Tool-Karte, wo die Dateien verarbeitet werden."
+        data-toolbadge
+        @update:model-value="set('toolBadge', $event)"
+      />
+      <UiSwitch
+        :model-value="p.toolFilter"
+        label="Filter nach Verarbeitung"
+        title="Chips „Alle / Im Browser / Server / Hybrid“ vor den Tool-Sektionen."
+        data-toolfilter
+        @update:model-value="set('toolFilter', $event)"
+      />
+    </div>
   </div>
 </template>
 
@@ -156,5 +179,9 @@ function set<K extends PageKey>(key: K, v: PageSettings[K]) {
 }
 .ly-dim {
   opacity: 0.5;
+}
+.ly-sub {
+  margin: var(--ds-space-5) 0 0;
+  font-size: 1rem;
 }
 </style>

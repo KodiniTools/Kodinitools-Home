@@ -951,6 +951,9 @@ function defaultSite() {
     catSearch: true,
     mediaPosDesktop: 'side',
     mediaPosMobile: 'bottom',
+    // Werkbank: Plakette Browser/Server/Hybrid und Filter-Chips (Standard aus).
+    toolBadge: false,
+    toolFilter: false,
   };
 }
 const SECTION_KEYS = ['audio', 'image', 'diverse'];
@@ -1060,6 +1063,8 @@ function validateSite(s: unknown) {
     catSearch: s.catSearch !== false,
     mediaPosDesktop: MEDIA_POS_DESKTOP.includes(s.mediaPosDesktop) ? s.mediaPosDesktop : 'side',
     mediaPosMobile: MEDIA_POS_MOBILE.includes(s.mediaPosMobile) ? s.mediaPosMobile : 'bottom',
+    toolBadge: s.toolBadge === true,
+    toolFilter: s.toolFilter === true,
   };
 }
 

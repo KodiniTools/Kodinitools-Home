@@ -60,6 +60,18 @@ describe.each([
     });
   });
 
+  it('Verarbeitung der Tools: Plakette und Filter sind anfangs aus, nur true schaltet ein', () => {
+    expect(norm({})).toMatchObject({ toolBadge: false, toolFilter: false });
+    expect(norm({ toolBadge: true, toolFilter: true })).toMatchObject({
+      toolBadge: true,
+      toolFilter: true,
+    });
+    expect(norm({ toolBadge: 'ja', toolFilter: 1 })).toMatchObject({
+      toolBadge: false,
+      toolFilter: false,
+    });
+  });
+
   it('fällt bei unbekanntem Wert auf Klassisch zurück', () => {
     expect(norm({ homeLayout: 'grid', heroMediaMobile: 'nein' })).toMatchObject({
       homeLayout: 'classic',

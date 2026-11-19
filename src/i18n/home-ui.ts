@@ -16,6 +16,11 @@ export interface HomeUi {
   open: string;
   /** Beschriftung der Kategorie-Leiste (Kompakt-Layout) für Screenreader. */
   catNavLabel: string;
+  /** Werkbank: Plakette und Filter nach Verarbeitung (Admin > Layout). */
+  procLabel: Record<'browser' | 'server' | 'hybrid', string>;
+  procFilterLabel: string;
+  procFilterAll: string;
+  procNoResults: string;
   /** Alt-Text einer Hero-Kachel (Index ab 0). */
   heroCellAlt: (index: number) => string;
 }
@@ -32,6 +37,10 @@ export const HOME_UI: Record<Lang, HomeUi> = {
     favTitle: 'Favorit',
     open: 'Öffnen',
     catNavLabel: 'Tool-Kategorien',
+    procLabel: { browser: 'Im Browser', server: 'Server (DE)', hybrid: 'Hybrid' },
+    procFilterLabel: 'Tools nach Verarbeitung filtern',
+    procFilterAll: 'Alle',
+    procNoResults: 'Keine Tools in dieser Auswahl.',
     heroCellAlt: (index) => `Bild ${index + 1}`,
   },
   en: {
@@ -45,6 +54,10 @@ export const HOME_UI: Record<Lang, HomeUi> = {
     favTitle: 'Favorite',
     open: 'Open',
     catNavLabel: 'Tool categories',
+    procLabel: { browser: 'In the browser', server: 'Server (DE)', hybrid: 'Hybrid' },
+    procFilterLabel: 'Filter tools by processing',
+    procFilterAll: 'All',
+    procNoResults: 'No tools in this selection.',
     heroCellAlt: (index) => `Image ${index + 1}`,
   },
 };

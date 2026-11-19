@@ -31,6 +31,10 @@ import {
   setMediaPosDesktop,
   getMediaPosMobile,
   setMediaPosMobile,
+  getToolBadge,
+  setToolBadge,
+  getToolFilter,
+  setToolFilter,
   getBannerStyle,
   getBannerSlides,
   getBannerSlideshow,
@@ -90,6 +94,8 @@ const PAGE_GET = {
   catSearch: getCatSearch,
   mediaPosDesktop: getMediaPosDesktop,
   mediaPosMobile: getMediaPosMobile,
+  toolBadge: getToolBadge,
+  toolFilter: getToolFilter,
 };
 const PAGE_SET: Record<keyof typeof PAGE_GET, (v: unknown) => void> = {
   homeLayout: setHomeLayout,
@@ -100,6 +106,8 @@ const PAGE_SET: Record<keyof typeof PAGE_GET, (v: unknown) => void> = {
   catSearch: setCatSearch,
   mediaPosDesktop: setMediaPosDesktop,
   mediaPosMobile: setMediaPosMobile,
+  toolBadge: setToolBadge,
+  toolFilter: setToolFilter,
 };
 
 // Medium (Server-URL oder 'staged:<id>') für die Vue-Fassung auflösen.

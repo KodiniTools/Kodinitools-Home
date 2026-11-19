@@ -121,6 +121,9 @@ export function defaultSite() {
     catSearch: true,
     mediaPosDesktop: 'side',
     mediaPosMobile: 'bottom',
+    // Werkbank: Plakette Browser/Server/Hybrid und Filter-Chips (Standard aus).
+    toolBadge: false,
+    toolFilter: false,
   };
 }
 export const SITE_SECTION_KEYS: SiteSectionKey[] = ['audio', 'image', 'diverse'];
@@ -276,6 +279,8 @@ export function normSite(s: RawJson): Site {
     catSearch: s.catSearch !== false,
     mediaPosDesktop: oneOf(MEDIA_POS_DESKTOP, s.mediaPosDesktop, 'side'),
     mediaPosMobile: oneOf(MEDIA_POS_MOBILE, s.mediaPosMobile, 'bottom'),
+    toolBadge: s.toolBadge === true,
+    toolFilter: s.toolFilter === true,
   };
 }
 // Seiten-Hintergrund eines Modus als CSS-background-Wert – identisch zur
@@ -647,6 +652,21 @@ export function getCatSearch() {
 
 export function setCatSearch(on: unknown) {
   siteObj().catSearch = on === true;
+}
+// Werkbank: Plakette Browser/Server/Hybrid auf den Karten und Filter-Chips (Standard aus).
+export function getToolBadge() {
+  return siteObj().toolBadge === true;
+}
+
+export function setToolBadge(on: unknown) {
+  siteObj().toolBadge = on === true;
+}
+export function getToolFilter() {
+  return siteObj().toolFilter === true;
+}
+
+export function setToolFilter(on: unknown) {
+  siteObj().toolFilter = on === true;
 }
 // Kompakt-Layout: Lage der Sektionsmedien je Gerät.
 export function getMediaPosDesktop() {

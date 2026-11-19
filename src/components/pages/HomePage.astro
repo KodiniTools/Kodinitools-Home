@@ -14,6 +14,7 @@ import { getContent, getMedia, HERO_LAYOUT_CELLS, heroGridReflowCols, effectiveH
 import type { Lang } from '../../i18n/lang'
 import { HOME_UI } from '../../i18n/home-ui'
 import FavoritesSection from '../../islands/favorites/FavoritesSection.vue'
+import { TOOL_CATALOG, type ToolProcessing } from '../../content/toolCatalog'
 
 // Inhalte aus der Content-Schicht (Standard-Locale + Admin-Overrides, gemergt).
 // Startseite für / (de) und /en/ (en); die Routen in src/pages/ sind nur Hüllen.
@@ -39,6 +40,14 @@ const cardList = compact && homeLayout.cardForm === 'list'
 // Skript unten ein.
 const catBar = compact && homeLayout.catBar
 const catSearch = catBar && homeLayout.catSearch
+// Werkbank (Admin > Layout > Verarbeitung der Tools): Plakette und Filter, anfangs aus.
+// Ohne Schalter bleibt das HTML der Karten unverändert.
+const procBadge = homeLayout.toolBadge
+const procFilter = homeLayout.toolFilter
+const procOf = (key: string): ToolProcessing | undefined =>
+  procBadge || procFilter ? TOOL_CATALOG[key]?.processing : undefined
+const procNote = (key: string): string | undefined =>
+  procBadge && TOOL_CATALOG[key]?.processing === 'hybrid' ? TOOL_CATALOG[key]?.hybridNote?.[lang] : undefined
 // Die Regeln kommen nur ins HTML, wenn das Kompakt-Layout aktiv ist (Kommentare
 // und Einrückung entfernt) – andere Seiten und das klassische Layout tragen nichts.
 const homeCompactCss = compact
@@ -499,6 +508,14 @@ const pageI18n = {
         </div>
         {catSearch && <p class="cat-noresults" role="status" hidden>{pageI18n[lang]['search.noResults']}</p>}
       </nav>
+    )}{procFilter && (
+      <div class="proc-filter" role="group" aria-label={ui.procFilterLabel}>
+        <button type="button" class="proc-chip is-active" data-proc-filter="all" aria-pressed="true">{ui.procFilterAll}</button>
+        <button type="button" class="proc-chip" data-proc-filter="browser" aria-pressed="false">{ui.procLabel.browser}</button>
+        <button type="button" class="proc-chip" data-proc-filter="server" aria-pressed="false">{ui.procLabel.server}</button>
+        <button type="button" class="proc-chip" data-proc-filter="hybrid" aria-pressed="false">{ui.procLabel.hybrid}</button>
+        <p class="proc-noresults" role="status" hidden>{ui.procNoResults}</p>
+      </div>
     )}
 
     <!-- Favoriten (Vue-Island, versteckt bis mindestens ein Favorit gespeichert ist) -->
@@ -522,13 +539,13 @@ const pageI18n = {
 
       <div class="svg-card-grid">
         {audioTools.map((tool) => (
-          <a href={tool.link} class="svg-card-link" style={cardOffsetStyle(tool.i18nKey)} data-title={tool.title} data-description={tool.description} {...{ [`data-svg-${lang}`]: tool.svg }} data-i18n-key={tool.i18nKey}>
+          <a href={tool.link} class="svg-card-link" style={cardOffsetStyle(tool.i18nKey)} data-title={tool.title} data-description={tool.description} {...{ [`data-svg-${lang}`]: tool.svg }} data-i18n-key={tool.i18nKey} data-processing={procOf(tool.i18nKey)}>
             <div class="tool-card">
               {tool.svg && (
                 <div class="tool-card-icon"><img src={tool.svg} alt={tool.title} loading="lazy" decoding="async" /></div>
               )}
               {tool.badge && <span class="tool-card-badge">{tool.badge}</span>}
-              <h3 class="tool-card-title">{tool.title}</h3>
+              <h3 class="tool-card-title">{tool.title}</h3>{procBadge && procOf(tool.i18nKey) && <span class={`processing-badge ${procOf(tool.i18nKey)}`}>{ui.procLabel[procOf(tool.i18nKey)!]}</span>}
               {cardList && <p class="tool-card-desc">{tool.description}</p>}
               <div class="tool-card-footer">
                 <button class="fav-btn" aria-label={ui.favAdd} title={ui.favTitle}>
@@ -542,7 +559,7 @@ const pageI18n = {
               </div>
             </div>
             <div class="tool-popup" role="tooltip">
-              <p class="tool-popup-desc">{tool.description}</p>
+              <p class="tool-popup-desc">{tool.description}</p>{procNote(tool.i18nKey) && <p class="tool-popup-proc">{procNote(tool.i18nKey)}</p>}
             </div>
           </a>
         ))}
@@ -560,13 +577,13 @@ const pageI18n = {
 
       <div class="svg-card-grid grid-centered">
         {imageTools.map((tool) => (
-          <a href={tool.link} class="svg-card-link" style={cardOffsetStyle(tool.i18nKey)} data-title={tool.title} data-description={tool.description} {...{ [`data-svg-${lang}`]: tool.svg }} data-i18n-key={tool.i18nKey}>
+          <a href={tool.link} class="svg-card-link" style={cardOffsetStyle(tool.i18nKey)} data-title={tool.title} data-description={tool.description} {...{ [`data-svg-${lang}`]: tool.svg }} data-i18n-key={tool.i18nKey} data-processing={procOf(tool.i18nKey)}>
             <div class="tool-card">
               {tool.svg && (
                 <div class="tool-card-icon"><img src={tool.svg} alt={tool.title} loading="lazy" decoding="async" /></div>
               )}
               {tool.badge && <span class="tool-card-badge">{tool.badge}</span>}
-              <h3 class="tool-card-title">{tool.title}</h3>
+              <h3 class="tool-card-title">{tool.title}</h3>{procBadge && procOf(tool.i18nKey) && <span class={`processing-badge ${procOf(tool.i18nKey)}`}>{ui.procLabel[procOf(tool.i18nKey)!]}</span>}
               {cardList && <p class="tool-card-desc">{tool.description}</p>}
               <div class="tool-card-footer">
                 <button class="fav-btn" aria-label={ui.favAdd} title={ui.favTitle}>
@@ -580,7 +597,7 @@ const pageI18n = {
               </div>
             </div>
             <div class="tool-popup" role="tooltip">
-              <p class="tool-popup-desc">{tool.description}</p>
+              <p class="tool-popup-desc">{tool.description}</p>{procNote(tool.i18nKey) && <p class="tool-popup-proc">{procNote(tool.i18nKey)}</p>}
             </div>
           </a>
         ))}
@@ -598,13 +615,13 @@ const pageI18n = {
 
       <div class="svg-card-grid grid-centered">
         {diverseTools.map((tool) => (
-          <a href={tool.link} class="svg-card-link" style={cardOffsetStyle(tool.i18nKey)} data-title={tool.title} data-description={tool.description} {...{ [`data-svg-${lang}`]: tool.svg }} data-i18n-key={tool.i18nKey}>
+          <a href={tool.link} class="svg-card-link" style={cardOffsetStyle(tool.i18nKey)} data-title={tool.title} data-description={tool.description} {...{ [`data-svg-${lang}`]: tool.svg }} data-i18n-key={tool.i18nKey} data-processing={procOf(tool.i18nKey)}>
             <div class="tool-card">
               {tool.svg && (
                 <div class="tool-card-icon"><img src={tool.svg} alt={tool.title} loading="lazy" decoding="async" /></div>
               )}
               {tool.badge && <span class="tool-card-badge">{tool.badge}</span>}
-              <h3 class="tool-card-title">{tool.title}</h3>
+              <h3 class="tool-card-title">{tool.title}</h3>{procBadge && procOf(tool.i18nKey) && <span class={`processing-badge ${procOf(tool.i18nKey)}`}>{ui.procLabel[procOf(tool.i18nKey)!]}</span>}
               {cardList && <p class="tool-card-desc">{tool.description}</p>}
               <div class="tool-card-footer">
                 <button class="fav-btn" aria-label={ui.favAdd} title={ui.favTitle}>
@@ -618,7 +635,7 @@ const pageI18n = {
               </div>
             </div>
             <div class="tool-popup" role="tooltip">
-              <p class="tool-popup-desc">{tool.description}</p>
+              <p class="tool-popup-desc">{tool.description}</p>{procNote(tool.i18nKey) && <p class="tool-popup-proc">{procNote(tool.i18nKey)}</p>}
             </div>
           </a>
         ))}
@@ -821,6 +838,43 @@ const pageI18n = {
     }
   });
   </script>
+
+  {procFilter && (
+    <script is:inline>
+    (function () {
+      // Filter nach Verarbeitung: blendet Karten mit anderem data-processing und
+      // dadurch leere Sektionen aus (Klassen proc-miss / proc-empty, unabhängig
+      // von der Suche der Kategorie-Leiste).
+      const bar = document.querySelector('.proc-filter');
+      if (!bar) return;
+      const chips = bar.querySelectorAll('.proc-chip');
+      const none = bar.querySelector('.proc-noresults');
+      const sections = document.querySelectorAll('#app .tools-section[data-bgsection]');
+      function apply(mode) {
+        let total = 0;
+        sections.forEach(function (sec) {
+          let hits = 0;
+          sec.querySelectorAll('.svg-card-link').forEach(function (card) {
+            const hit = mode === 'all' || card.getAttribute('data-processing') === mode;
+            card.classList.toggle('proc-miss', !hit);
+            if (hit) hits++;
+          });
+          sec.classList.toggle('proc-empty', hits === 0);
+          total += hits;
+        });
+        chips.forEach(function (chip) {
+          const on = chip.getAttribute('data-proc-filter') === mode;
+          chip.classList.toggle('is-active', on);
+          chip.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        if (none) none.hidden = total > 0;
+      }
+      chips.forEach(function (chip) {
+        chip.addEventListener('click', function () { apply(chip.getAttribute('data-proc-filter') || 'all'); });
+      });
+    })();
+    </script>
+  )}
 
   {catSearch && (
     <script is:inline>

@@ -386,3 +386,26 @@ describe('Seiten-Layout (Admin > Layout)', () => {
     }
   });
 });
+
+describe('Verarbeitung der Tools (Admin > Layout)', () => {
+  // Folgt media.json: aus = kein Eintrag im HTML (Standard), an = Plakette bzw. Filter.
+  const site = (mediaJson as { site?: { toolBadge?: boolean; toolFilter?: boolean } }).site;
+  const badge = site?.toolBadge === true;
+  const filter = site?.toolFilter === true;
+  it.each(['index.html', 'en/index.html'])('%s entspricht den Schaltern aus media.json', (file) => {
+    const html = read(file);
+    if (badge) {
+      expect(html).toContain('class="processing-badge ');
+      expect(html).toContain('class="processing-badge hybrid"');
+    } else {
+      expect(html).not.toContain('class="processing-badge');
+    }
+    if (filter) {
+      expect(html).toContain('class="proc-filter"');
+      expect(html).toContain('data-processing="hybrid"');
+    } else {
+      expect(html).not.toContain('proc-filter"');
+      expect(html).not.toContain('data-processing=');
+    }
+  });
+});

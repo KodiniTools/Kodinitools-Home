@@ -105,7 +105,9 @@
     "catBar": true,
     "catSearch": true,
     "mediaPosDesktop": "side",
-    "mediaPosMobile": "bottom"
+    "mediaPosMobile": "bottom",
+    "toolBadge": false,
+    "toolFilter": false
   },
   "de": {
     "sectionVideos": {
