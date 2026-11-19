@@ -35,6 +35,12 @@ const PaletteDialog = defineAsyncComponent(() => import('./PaletteDialog.vue'));
 
 const open = ref(false);
 const isMac = ref(false);
+/**
+ * Teleport erst nach dem Mount rendern: Im SSR-Markup würde <Teleport v-if="clientReady" to="body"> bei der
+ * Hydration gegen das erste Kind von <body> (den Seiten-Container) abgeglichen; der
+ * Mismatch ließ Vue diesen Container entfernen (leere Startseite, 20.11.2026).
+ */
+const clientReady = ref(false);
 let lastFocus: HTMLElement | null = null;
 
 function show(): void {
@@ -75,6 +81,7 @@ function onCardClick(event: MouseEvent): void {
 }
 
 onMounted(() => {
+  clientReady.value = true;
   isMac.value = /Mac|iPhone|iPad/i.test(navigator.platform || navigator.userAgent);
   window.addEventListener('keydown', onKey);
   document.addEventListener('click', onCardClick);
@@ -112,7 +119,7 @@ onBeforeUnmount(() => {
       <span class="cmdk-trigger-label">{{ texts.trigger }}</span>
       <kbd class="cmdk-kbd">{{ isMac ? texts.keyHintMac : texts.keyHint }}</kbd>
     </button>
-    <Teleport to="body">
+    <Teleport v-if="clientReady" to="body">
       <PaletteDialog v-if="open" :lang="lang" :entries="entries" :texts="texts" @close="hide" />
     </Teleport>
   </div>
