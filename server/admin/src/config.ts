@@ -56,6 +56,8 @@ export const config = {
   // KI (Anthropic). Schlüssel nur per Umgebung; Aufrufe/Minute als Schutz vor Schleifen (0 = aus).
   anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
   aiMaxPerMinute: int('AI_MAX_PER_MINUTE', 20),
+  // Bilder (Google Gemini). Schlüssel nur per Umgebung; Aufrufe zählen zum selben Minutenlimit.
+  geminiApiKey: process.env.GEMINI_API_KEY || '',
 
   isProd: process.env.NODE_ENV === 'production',
 };

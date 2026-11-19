@@ -212,6 +212,7 @@ In `/opt/kodini/.env` setzen und den Dienst neu starten:
 ```
 ANTHROPIC_API_KEY=sk-ant-...      # nur hier, nie im Repo
 AI_MAX_PER_MINUTE=20              # Schutz vor Schleifen, 0 = aus (kein Budgetlimit)
+GEMINI_API_KEY=...                # nur für KI-Bilder (Tab Dateien); ohne Schlüssel bleibt das aus
 ```
 
 Ohne Schlüssel antworten die Endpunkte `/api/ai/*` mit 503. Es gehen nur Admin-Inhalte an die API

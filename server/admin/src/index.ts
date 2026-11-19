@@ -18,6 +18,7 @@ import {
 } from './auth.js';
 import { readJson, readBody, sendJson, sendText, clientIp, csrfOk, asErr } from './util.js';
 import { loadContent, saveContent } from './content.js';
+import { geminiConfig, generateImage } from './gemini.js';
 import { saveUpload, listUploads, deleteUpload, moveUpload } from './uploads.js';
 import { listFonts } from './fonts.js';
 import { listFontAwesome } from './fontawesome.js';
@@ -343,6 +344,23 @@ async function handleApi(req: IncomingMessage, res: ServerResponse, path: string
   if (path === '/api/ai/config' && method === 'GET') {
     if (!requireAuth(req, res)) return;
     return sendJson(res, 200, aiConfig());
+  }
+
+  // --- Bilder (Google Gemini): ein Aufruf = ein Bild, Ergebnis nur zur Anzeige/zum Download ---
+  if (path === '/api/gemini/config' && method === 'GET') {
+    if (!requireAuth(req, res)) return;
+    return sendJson(res, 200, geminiConfig());
+  }
+  if (path === '/api/gemini/image' && method === 'POST') {
+    if (!requireAuth(req, res)) return;
+    if (!requireCsrf(req, res)) return;
+    try {
+      const body = await readJson(req, 64 * 1024);
+      return sendJson(res, 200, await generateImage(body));
+    } catch (eRaw) {
+      const e = asErr(eRaw);
+      return sendJson(res, e.statusCode || 502, { error: e.message || 'Bild-Fehler' });
+    }
   }
 
   if (path.startsWith('/api/ai/')) {
