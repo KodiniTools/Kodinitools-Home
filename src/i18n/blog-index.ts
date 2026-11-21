@@ -31,10 +31,10 @@ export interface BlogIndexTexts {
 
 export const BLOG_INDEX: Record<Lang, BlogIndexTexts> = {
   de: {
-    title: 'Blog – Tipps & Anleitungen für Audio und Bildbearbeitung | KodiniTools',
+    title: 'Blog – Tipps für Audio- und Bildbearbeitung | KodiniTools',
     description:
       'How-to Guides für kostenlose Online-Tools: Audiodatei Format ändern, JPG zu WebP konvertieren, Audio normalisieren, TikTok Videos erstellen und mehr – DSGVO-konform.',
-    ogTitle: 'Blog – Tipps & Anleitungen für Audio und Bildbearbeitung | KodiniTools',
+    ogTitle: 'Blog – Tipps für Audio- und Bildbearbeitung | KodiniTools',
     ogDescription:
       'How-to Guides für kostenlose Online-Tools: Audio konvertieren, Bilder optimieren, TikTok Videos erstellen und mehr.',
     heading: 'Blog – Tipps & Anleitungen',
@@ -54,10 +54,10 @@ export const BLOG_INDEX: Record<Lang, BlogIndexTexts> = {
     invalidDate: (iso) => `Ungültiges Datum „${iso}“ in der Blog-Übersicht – erwartet JJJJ-MM-TT`,
   },
   en: {
-    title: 'Blog – How-to Guides for Audio & Image Editing | KodiniTools',
+    title: 'Blog – Audio & Image Editing Guides | KodiniTools',
     description:
       'How-to guides for free online tools: JPG to WebP, normalize audio, create TikTok videos and more — GDPR compliant, no registration.',
-    ogTitle: 'Blog – How-to Guides for Audio & Image Editing | KodiniTools',
+    ogTitle: 'Blog – Audio & Image Editing Guides | KodiniTools',
     ogDescription:
       'How-to guides for free online tools: convert audio, optimize images, create TikTok videos and more.',
     heading: 'Blog – Tips & How-to Guides',

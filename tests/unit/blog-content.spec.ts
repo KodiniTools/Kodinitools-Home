@@ -64,4 +64,12 @@ describe('Blog-Artikel', () => {
       expect(article.body).toMatch(/^<h1>/);
     },
   );
+
+  // Google kürzt <title> ab etwa 60 Zeichen.
+  it.each(articles.map((a) => [a.file, a] as const))(
+    '%s: Titel höchstens 60 Zeichen',
+    (_, article) => {
+      expect([...String(article.data.title)].length).toBeLessThanOrEqual(60);
+    },
+  );
 });
