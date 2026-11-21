@@ -19,7 +19,6 @@ const toolPages = ['tools', 'imageTools', 'diverseTools'].flatMap((group) =>
 // Unterseiten von Tool-Apps und verlinkte Seiten, die nicht als eigener
 // Eintrag in de.json stehen (Liste mit tests/smoke/build.spec.ts abgleichen).
 const EXTRA_SITEMAP_PAGES = [
-  'https://kodinitools.com/kodini-color-extractor/generator',
   'https://kodinitools.com/equaliser19/faq',
   'https://kodinitools.com/playlistkonverter/faq.html',
   'https://kodinitools.com/playlistkonverter/funktion.html',
@@ -30,7 +29,6 @@ const EXTRA_SITEMAP_PAGES = [
   // Unterseiten der Tool-Apps (früher in eigenen Tool-Sitemaps; diese Sitemap ist
   // jetzt die einzige). Nur indexierbare Seiten mit englischer Fassung (?lang=en).
   'https://kodinitools.com/audionormalisierer/anleitung',
-  'https://kodinitools.com/audionormalisierer/app',
   'https://kodinitools.com/bilderseriebearbeiten/app',
   'https://kodinitools.com/bilderseriebearbeiten/artikel',
   'https://kodinitools.com/bilderseriebearbeiten/blog',
@@ -56,10 +54,7 @@ const EXTRA_SITEMAP_PAGES = [
   'https://kodinitools.com/bildkonverter/konvertieren/webp-zu-png',
   'https://kodinitools.com/collagemaker/artikel',
   'https://kodinitools.com/collagemaker/blog',
-  'https://kodinitools.com/collagemaker/editor',
   'https://kodinitools.com/collagemaker/faq',
-  'https://kodinitools.com/equaliser19/app',
-  'https://kodinitools.com/kodini-color-extractor/app',
   'https://kodinitools.com/kodini-color-extractor/faq',
   'https://kodinitools.com/playlist_generator/app',
   'https://kodinitools.com/playlist_generator/blog',
@@ -67,9 +62,12 @@ const EXTRA_SITEMAP_PAGES = [
   'https://kodinitools.com/texteditor/blog',
   'https://kodinitools.com/texteditor/funktionen',
   'https://kodinitools.com/videokonverter/converter.html',
-  'https://kodinitools.com/visualizer/app',
   'https://kodinitools.com/visualizer/blog',
 ];
+// Bewusst NICHT in der Sitemap: reine App-Seiten, deren Metadaten die Tool-Startseite
+// doppeln und deren Canonical auf sie zeigt (Entscheidung 21.11.2026, Test in tests/smoke/build.spec.ts):
+// /audionormalisierer/app, /collagemaker/editor, /equaliser19/app,
+// /kodini-color-extractor/app, /kodini-color-extractor/generator, /visualizer/app.
 toolPages.push(...EXTRA_SITEMAP_PAGES);
 
 export default defineConfig({

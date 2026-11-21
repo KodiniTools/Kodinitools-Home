@@ -157,14 +157,28 @@ describe('sitemap.xml', () => {
 
   it('Unterseiten der Tool-Apps (früher eigene Tool-Sitemaps) mit ?lang=en', () => {
     for (const url of [
-      `${SITE}/collagemaker/editor`,
+      `${SITE}/collagemaker/faq`,
       `${SITE}/texteditor/blog`,
       `${SITE}/videokonverter/converter.html`,
-      `${SITE}/visualizer/app`,
+      `${SITE}/visualizer/blog`,
       `${SITE}/bildkonverter/konvertieren/heic-zu-jpg`,
     ]) {
       expect(locs).toContain(url);
       expect(locs).toContain(`${url}?lang=en`);
+    }
+  });
+
+  it('reine App-Seiten mit Canonical auf die Tool-Startseite fehlen', () => {
+    for (const url of [
+      `${SITE}/audionormalisierer/app`,
+      `${SITE}/collagemaker/editor`,
+      `${SITE}/equaliser19/app`,
+      `${SITE}/kodini-color-extractor/app`,
+      `${SITE}/kodini-color-extractor/generator`,
+      `${SITE}/visualizer/app`,
+    ]) {
+      expect(locs).not.toContain(url);
+      expect(locs).not.toContain(`${url}?lang=en`);
     }
   });
 
