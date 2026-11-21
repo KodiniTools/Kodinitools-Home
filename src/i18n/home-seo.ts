@@ -34,18 +34,16 @@ export const HOME_SEO: Record<Lang, HomeSeo> = {
       'Kostenlose Online-Tools ohne Registrierung: Audio konvertieren, schneiden und normalisieren, Bilder umwandeln, Videos konvertieren. DSGVO-konform.',
     schemaUrl: 'https://kodinitools.com',
     schemaDescription:
-      'MP3 in WAV umwandeln kostenlos, JPG zu WebP konvertieren, Audio Lautstärke normalisieren, Bilder Batch konvertieren, Audiodatei Format ändern DSGVO-konform. Direkt im Browser, keine Registrierung.',
+      'Kostenlose Online-Tools ohne Registrierung für Audio, Bild, Video und Text: konvertieren, schneiden, normalisieren, bearbeiten. Direkt im Browser, DSGVO-konform.',
     featureList: [
-      'MP3 in WAV umwandeln kostenlos online',
-      'MP3 Konverter ohne Registrierung',
-      'Equalizer für Browser kostenlos',
-      'JPG zu WebP konvertieren online',
-      'Audio Lautstärke normalisieren online',
-      'Bilder Batch konvertieren kostenlos',
-      'Bildgröße ändern mehrere Bilder gleichzeitig',
-      'Musik-Video für TikTok erstellen kostenlos',
-      'Foto Collage erstellen ohne App',
-      'Audiodatei Format ändern DSGVO-konform',
+      'Audio konvertieren, schneiden und normalisieren',
+      'Equalizer, Musikplayer und Audio-Visualizer im Browser',
+      'Wiedergabelisten erstellen und Audiodateien zusammenfügen',
+      'Bilder konvertieren und stapelweise bearbeiten',
+      'Fotocollagen, Farbpaletten und Favicons erstellen',
+      'Videos konvertieren',
+      'Texte schreiben und als PDF speichern',
+      'Ohne Registrierung, ohne Tracking',
     ],
   },
   en: {
@@ -63,146 +61,179 @@ export const HOME_SEO: Record<Lang, HomeSeo> = {
       'Free online tools with no sign-up: convert, cut and normalize audio, convert and batch edit images, convert videos. Works in your browser, GDPR compliant.',
     schemaUrl: 'https://kodinitools.com/en/',
     schemaDescription:
-      'Convert MP3 to WAV free online, JPG to WebP converter, normalize audio volume online, batch resize images, change audio file format GDPR compliant. Directly in your browser, no registration.',
+      'Free online tools with no sign-up for audio, images, video and text: convert, cut, normalize, edit. Right in your browser, GDPR compliant.',
     featureList: [
-      'Convert MP3 to WAV free online',
-      'MP3 converter without registration',
-      'Free browser equalizer',
-      'JPG to WebP converter online',
-      'Normalize audio volume online',
-      'Batch convert images free',
-      'Resize multiple images at once',
-      'Create music video for TikTok free',
-      'Photo collage without app',
-      'Change audio file format GDPR compliant',
+      'Convert, cut and normalize audio',
+      'Equalizer, music player and audio visualizer in your browser',
+      'Create playlists and merge audio files',
+      'Convert and batch edit images',
+      'Create photo collages, color palettes and favicons',
+      'Convert videos',
+      'Write texts and save them as PDF',
+      'No sign-up, no tracking',
     ],
   },
 };
 
-/** Tools im JSON-LD (hasPart), Reihenfolge wie bisher. */
+/**
+ * Tools im JSON-LD (hasPart): alle öffentlichen Tools. `path` relativ zur Domain;
+ * die EN-Fassung verweist auf `?lang=en` (siehe HomeLayout). Texte nach Keyword-Set 11/2026.
+ */
 export const HOME_SCHEMA_TOOLS: {
-  url: string;
+  path: string;
   name: Record<Lang, string>;
   description: Record<Lang, string>;
 }[] = [
   {
-    url: 'https://kodinitools.com/audiokonverter/',
+    path: '/audiokonverter/',
     name: { de: 'Audio-Konverter', en: 'Audio Converter' },
     description: {
-      de: 'Audio konvertieren online zwischen MP3, WAV, OGG, FLAC, AAC. Verlustfreie Audiokonvertierung im Browser.',
-      en: 'Convert audio online between MP3, WAV, OGG, FLAC, AAC. Lossless audio conversion in browser.',
+      de: 'MP3 in WAV umwandeln und umgekehrt: Audioformat ändern zwischen MP3, WAV, FLAC, OGG, AAC, M4A und OPUS.',
+      en: 'Convert MP3 to WAV and back: change audio format between MP3, WAV, FLAC, OGG, AAC, M4A and OPUS.',
     },
   },
   {
-    url: 'https://kodinitools.com/equaliser19/',
-    name: { de: '19-Band EQ Pro', en: '19-Band EQ Pro' },
-    description: {
-      de: '19 Band Equalizer online mit Presets und Dynamic Compressor. Audio Frequenzen online anpassen.',
-      en: '19 band equalizer online with presets and dynamic compressor. Adjust audio frequencies online.',
-    },
-  },
-  {
-    url: 'https://kodinitools.com/ultimativer-musikplayer/',
-    name: { de: 'Ultimativer Musikplayer', en: 'Music Player' },
-    description: {
-      de: 'Online Musikplayer mit Playlist, Shuffle und Visualizer. Moderner Musikplayer für lokale Dateien im Browser.',
-      en: 'Online music player with playlist, shuffle and visualizer. Modern music player for local files in browser.',
-    },
-  },
-  {
-    url: 'https://kodinitools.com/visualizer/',
-    name: { de: 'Audio-Visualizer', en: 'Audio Visualizer' },
-    description: {
-      de: 'Audio Visualizer online: Musik visualisieren für YouTube, TikTok und Instagram. Echtzeit Audio-Wellenform generieren.',
-      en: 'Audio visualizer online: Create music visualizations for YouTube, TikTok and Instagram. Real-time audio waveform generator.',
-    },
-  },
-  {
-    url: 'https://kodinitools.com/mp3konverter/',
+    path: '/mp3konverter/',
     name: { de: 'MP3-Konverter', en: 'MP3 Converter' },
     description: {
-      de: 'MP3 Konverter kostenlos: Video zu MP3 umwandeln, MP3 Bitrate online ändern. Schnellster In-Browser MP3 Konverter.',
-      en: 'Free MP3 converter: Convert video to MP3, change MP3 bitrate online. Fastest in-browser MP3 converter.',
+      de: 'Audiodateien in MP3 umwandeln: WAV, FLAC, M4A, OGG und AAC bis 100 MB, Bitrate wählbar.',
+      en: 'Convert audio files to MP3: WAV, FLAC, M4A, OGG and AAC up to 100 MB, with selectable bitrate.',
     },
   },
   {
-    url: 'https://kodinitools.com/audioequalizer/',
-    name: { de: 'Audio-Equalizer', en: 'Audio Equalizer' },
-    description: {
-      de: 'Sound Equalizer Browser: Audio lauter machen online, Bass Booster online kostenlos mit Web Audio API Presets.',
-      en: 'Browser sound equalizer: Make audio louder online, free bass booster with Web Audio API presets.',
-    },
-  },
-  {
-    url: 'https://kodinitools.com/modernermusikplayer/',
-    name: { de: 'Moderner Musikplayer', en: 'Modern Music Player' },
-    description: {
-      de: 'Minimalistischer Musikplayer Web mit Dark Mode und Playlist-Unterstützung.',
-      en: 'Minimalist web music player with dark mode and playlist support.',
-    },
-  },
-  {
-    url: 'https://kodinitools.com/playlist_generator/',
-    name: { de: 'Playlist Generator', en: 'Playlist Generator' },
-    description: {
-      de: 'Playlist erstellen online: Automatische Playlist aus Audio-Ordner, M3U Playlist online erstellen.',
-      en: 'Create playlists online: Automatic playlist from audio folder, create M3U playlist online.',
-    },
-  },
-  {
-    url: 'https://kodinitools.com/alarmtool/',
-    name: { de: 'Alarmtool', en: 'Alarm Tool' },
-    description: {
-      de: 'Alarmton-Generator online: eigene Alarm- und Signaltöne mit Oszillatoren, Filter und Hüllkurve erstellen und aufnehmen.',
-      en: 'Online alarm sound generator: create and record custom alarm and signal tones with oscillators, filters and envelope.',
-    },
-  },
-  {
-    url: 'https://kodinitools.com/audionormalisierer/',
+    path: '/audionormalisierer/',
     name: { de: 'Audio-Normalizer', en: 'Audio Normalizer' },
     description: {
-      de: 'Audio normalisieren online: MP3 Lautstärke angleichen, LUFS Normalisierung online kostenlos.',
-      en: 'Normalize audio online: Match MP3 volume levels, free LUFS normalization online.',
+      de: 'Audio-Lautstärke normalisieren nach EBU R128/LUFS, RMS oder Peak, lokal im Browser ohne Upload.',
+      en: 'Normalize audio volume with EBU R128/LUFS, RMS or Peak, locally in your browser with no upload.',
     },
   },
   {
-    url: 'https://kodinitools.com/bildkonverter/',
+    path: '/audio-cutter/',
+    name: { de: 'Audio-Schneider', en: 'Audio Cutter' },
+    description: {
+      de: 'MP3 und andere Audiodateien millisekundengenau schneiden, mit Fade-In/-Out, Export als WAV, MP3 oder FLAC.',
+      en: 'Cut MP3 and other audio files with millisecond precision, with fade in/out, export as WAV, MP3 or FLAC.',
+    },
+  },
+  {
+    path: '/visualizer/',
+    name: { de: 'Audio-Visualizer', en: 'Audio Visualizer' },
+    description: {
+      de: 'Musikvideo für TikTok, Reels und YouTube erstellen: Track laden, Visualisierung wählen, als MP4 exportieren.',
+      en: 'Turn a song into a video for TikTok, Reels and YouTube: load a track, pick a visualizer, export as MP4.',
+    },
+  },
+  {
+    path: '/equaliser19/',
+    name: { de: '19-Band EQ Pro', en: '19-Band EQ Pro' },
+    description: {
+      de: 'Equalizer online mit 19 Bändern, Kompressor, Effekten und Aufnahme in Echtzeit.',
+      en: 'Online equalizer with 19 bands, compressor, effects and real-time recording.',
+    },
+  },
+  {
+    path: '/audioequalizer/',
+    name: { de: 'Interaktiver Audio-Equalizer', en: 'Interactive Audio Equalizer' },
+    description: {
+      de: '15-Band-Equalizer im Browser: Frequenzen in Echtzeit anpassen, mit Presets, Visualisierung und Playlist.',
+      en: '15-band equalizer in your browser: adjust frequencies in real time, with presets, visualization and playlist.',
+    },
+  },
+  {
+    path: '/playlist_generator/',
+    name: { de: 'Wiedergabelisten-Generator', en: 'Playlist Generator' },
+    description: {
+      de: 'M3U-Playlist aus MP3-, WAV- und FLAC-Dateien erstellen, auch als M3U8, PLS, XSPF, JSON oder CSV.',
+      en: 'Create an M3U playlist from MP3, WAV and FLAC files, or export as M3U8, PLS, XSPF, JSON or CSV.',
+    },
+  },
+  {
+    path: '/playlistkonverter/',
+    name: { de: 'Wiedergabelisten-Konverter', en: 'Playlist Converter' },
+    description: {
+      de: 'Mehrere MP3-, WAV-, FLAC- oder OGG-Dateien zu einer Datei zusammenfügen, Ausgabe als MP3, WebM oder OGG.',
+      en: 'Merge several MP3, WAV, FLAC or OGG files into one, output as MP3, WebM or OGG.',
+    },
+  },
+  {
+    path: '/ultimativer-musikplayer/',
+    name: { de: 'Ultimativer Musikplayer', en: 'Ultimate Music Player' },
+    description: {
+      de: 'MP3-Player online: lokale Musik im Browser abspielen, mit 7 Visualisierungen, Playlist und Equalizer.',
+      en: 'Online MP3 player: play local music in your browser with 7 visualizer modes, playlist and equalizer.',
+    },
+  },
+  {
+    path: '/modernermusikplayer/',
+    name: { de: 'Moderner Musikplayer', en: 'Modern Music Player' },
+    description: {
+      de: 'Audio-Player im Browser mit Playlist-Verwaltung, Equalizer und Dark Mode, ohne Installation.',
+      en: 'Web audio player with playlist management, equalizer and dark mode, no installation.',
+    },
+  },
+  {
+    path: '/alarmtool/',
+    name: { de: 'Alarmtool', en: 'Alarm Tool' },
+    description: {
+      de: 'Alarmton-Generator: eigene Alarm- und Signaltöne mit Oszillatoren, Filter und Hüllkurve bauen, als WAV oder MP3 speichern.',
+      en: 'Alarm sound generator: build custom alarm and signal tones with oscillators, filter and envelope, save as WAV or MP3.',
+    },
+  },
+  {
+    path: '/bildkonverter/',
     name: { de: 'Bildkonverter', en: 'Image Converter' },
     description: {
-      de: 'Bilder konvertieren online: JPG in WebP umwandeln, HEIC in JPG. Sicherer Bildkonverter ohne Upload.',
-      en: 'Convert images online: JPG to WebP, HEIC to JPG. Secure image converter without upload.',
+      de: 'Bilder konvertieren online: JPG zu WebP, WebP in JPG, HEIC in JPG, PNG in JPG, dazu komprimieren und zuschneiden.',
+      en: 'Convert images online: JPG to WebP, WebP to JPG, HEIC to JPG, PNG to JPG, plus compress and crop.',
     },
   },
   {
-    url: 'https://kodinitools.com/bilderseriebearbeiten/',
-    name: { de: 'Batch Bildbearbeitung', en: 'Batch Image Editor' },
+    path: '/bilderseriebearbeiten/',
+    name: { de: 'Bilder-Batchbearbeitung', en: 'Batch Image Editor' },
     description: {
-      de: 'Bilder im Batch bearbeiten: Mehrere Bilder gleichzeitig skalieren, Wasserzeichen auf mehrere Bilder online.',
-      en: 'Batch edit images: Resize multiple images at once, add watermark to multiple images online.',
+      de: 'Mehrere Bilder gleichzeitig verkleinern, umbenennen und mit Wasserzeichen versehen, Export als ZIP oder PDF.',
+      en: 'Batch resize images, rename them and add a watermark to many photos at once, export as ZIP or PDF.',
     },
   },
   {
-    url: 'https://kodinitools.com/collagemaker/',
-    name: { de: 'Fotocollage', en: 'Photo Collage' },
+    path: '/collagemaker/',
+    name: { de: 'Fotocollage', en: 'Photo Collage Maker' },
     description: {
-      de: 'Fotocollage online erstellen kostenlos mit Raster-Layout. Collage Maker für Instagram und mehr.',
-      en: 'Create photo collage online free with grid layout. Collage maker for Instagram and more.',
+      de: 'Fotocollage erstellen ohne Anmeldung und ohne Wasserzeichen: 14 Layouts, Bildbearbeitung und Texte im Browser.',
+      en: 'Create a photo collage with no sign-up and no watermark: 14 layouts, image editing and text in your browser.',
     },
   },
   {
-    url: 'https://kodinitools.com/kodini-color-extractor/',
+    path: '/kodini-color-extractor/',
     name: { de: 'Farbextraktor', en: 'Color Extractor' },
     description: {
-      de: 'Farben aus Bild extrahieren: HEX Codes aus Bild finden online, Farbpalette aus Foto generieren.',
-      en: 'Extract colors from image: Find HEX codes from image online, generate color palette from photo.',
+      de: 'Farbpalette aus Bild erstellen: dominante Farben extrahieren und als HEX, RGB, HSL oder CSS kopieren.',
+      en: 'Create a color palette from an image: extract dominant colors and copy them as HEX, RGB, HSL or CSS.',
     },
   },
   {
-    url: 'https://kodinitools.com/videokonverter/',
+    path: '/favicon-tool/',
+    name: { de: 'Favicon-Generator', en: 'Favicon Generator' },
+    description: {
+      de: 'Favicon erstellen aus PNG, JPG, SVG und mehr: als ICO oder komplettes Paket mit Apple-Touch-Icon und Webmanifest.',
+      en: 'Create a favicon from PNG, JPG, SVG and more: as ICO or a complete package with Apple touch icon and web manifest.',
+    },
+  },
+  {
+    path: '/videokonverter/',
     name: { de: 'Videokonverter', en: 'Video Converter' },
     description: {
-      de: 'Video konvertieren online: MP4 in MOV umwandeln, Video zu GIF Converter online.',
-      en: 'Convert video online: MP4 to MOV, video to GIF converter online.',
+      de: 'Video konvertieren online: MOV, AVI, WebM, MKV, FLV, WMV und TS in MP4 und zurück, Dateien bis 5 GB.',
+      en: 'Convert video online: MOV, AVI, WebM, MKV, FLV, WMV and TS to MP4 and back, files up to 5 GB.',
+    },
+  },
+  {
+    path: '/texteditor/',
+    name: { de: 'Texteditor', en: 'Text Editor' },
+    description: {
+      de: 'Texteditor online: schreiben, formatieren, Bilder einfügen, als PDF speichern oder drucken. Texte bleiben lokal.',
+      en: 'Online text editor: write, format, insert images, save as PDF or print. Your texts stay local.',
     },
   },
 ];
