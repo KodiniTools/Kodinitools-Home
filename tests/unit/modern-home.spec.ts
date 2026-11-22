@@ -2,6 +2,8 @@
  * Startseite im modernen Design: Hilfen aus src/content/modernHome.ts und die
  * neuen DE/EN-Texte (src/i18n/home-ui.ts, Abschnitt `modern`).
  */
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   featureIconId,
@@ -58,10 +60,15 @@ describe('Reiter und Icons', () => {
 });
 
 describe('3D-Kachel', () => {
-  it('hat 30 Ebenen von hinten nach vorn, vorne die helle Kante', () => {
+  it('hat 30 Bild-Ebenen von hinten nach vorn, vorne die helle Kante', () => {
     expect(TILE_LAYERS.map((l) => l.depth)).toEqual(Array.from({ length: 30 }, (_, i) => 30 - i));
-    expect(TILE_LAYERS.at(-1)?.background).toBe('#9fd0ff');
-    for (const l of TILE_LAYERS.slice(0, -1)) expect(l.background).toMatch(/^linear-gradient\(/);
+    expect(TILE_LAYERS.at(-1)?.src).toBe('/image/home/tile/tile-layer-5.webp');
+    expect(TILE_LAYERS[0].src).toBe('/image/home/tile/tile-layer-4.webp');
+    for (const l of TILE_LAYERS) expect(existsSync(join('public', l.src)), l.src).toBe(true);
+    // Handy: jede dritte Ebene und die Kante (10 Ebenen, gleiche Dicke).
+    expect(TILE_LAYERS.filter((l) => !l.fine).map((l) => l.depth)).toEqual([
+      30, 27, 24, 21, 18, 15, 12, 9, 6, 1,
+    ]);
   });
   it('aufsteigende Icons existieren im Sprite', () => {
     for (const id of PARTICLE_ICONS) expect(MODERN_ICONS).toHaveProperty(id);

@@ -1,9 +1,9 @@
 /*
  * Bewegung der modernen Startseite (ergänzt home-modern.css).
  * Alles hier wirkt nur ohne „Bewegung reduzieren". Das Kachel-Intro (Anflug, Zahnrad,
- * aufsteigende Icons, Schweben) zusätzlich nur auf großen Bildschirmen mit JavaScript:
- * MOTION_QUERY in src/content/modernHome.ts muss mit der Media-Query unten übereinstimmen.
- * Handy und Tablet hoch zeigen die fertige Kachel ruhend (Mobil-Score).
+ * aufsteigende Icons, Schweben) zusätzlich nur mit JavaScript: MOTION_QUERY und SMALL_QUERY
+ * in src/content/modernHome.ts müssen den Media-Queries unten entsprechen. Handy und Tablet
+ * bekommen die leichte Fassung (flacher Anflug ohne Überschläge, ohne Blur).
  */
 
 @media (prefers-reduced-motion: no-preference) {
@@ -77,8 +77,8 @@
   }
 }
 
-/* ---------- Kachel-Intro (nur große Bildschirme) ---------- */
-@media (min-width: 901px) and (prefers-reduced-motion: no-preference) and (scripting: enabled) {
+/* ---------- Kachel-Intro ---------- */
+@media (prefers-reduced-motion: no-preference) and (scripting: enabled) {
   /* Bis das Skript startet: Kachel unsichtbar (kein Aufblitzen der fertigen Kachel). */
   #app[data-design='modern'] .mh-tile-wrap:not(.is-intro):not(.is-done) .mh-tile-stage {
     opacity: 0;
@@ -220,6 +220,44 @@
     100% {
       opacity: 0;
       transform: translate(var(--dx), calc(var(--rise) * -1)) rotate(var(--rot)) scale(1);
+    }
+  }
+}
+
+/* Hell: Icons dunkler, damit sie auf hellem Grund sichtbar sind. */
+@media (prefers-reduced-motion: no-preference) and (scripting: enabled) {
+  :root:not([data-theme='dark']) #app[data-design='modern'] .mh-tp {
+    color: #17409e;
+    filter: drop-shadow(0 0 4px rgba(31, 79, 184, 0.35));
+  }
+}
+
+/* Handy/Tablet: sanftes Hereinzoomen ohne 3D-Überschläge und ohne Filter. */
+@media (prefers-reduced-motion: no-preference) and (scripting: enabled) and (max-width: 900px),
+  (prefers-reduced-motion: no-preference) and (scripting: enabled) and (pointer: coarse) {
+  #app[data-design='modern'] .mh-tile-wrap.is-intro .mh-tile-stage {
+    will-change: transform, opacity;
+    animation-name: mh-tile-intro-small, mh-tile-float;
+  }
+
+  #app[data-design='modern'] .mh-tp,
+  :root:not([data-theme='dark']) #app[data-design='modern'] .mh-tp {
+    filter: none;
+  }
+
+  @keyframes mh-tile-intro-small {
+    0% {
+      opacity: 0;
+      transform: translate3d(0, 50px, 0) scale(0.35) rotate(-14deg);
+    }
+
+    15% {
+      opacity: 1;
+    }
+
+    100% {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
     }
   }
 }
