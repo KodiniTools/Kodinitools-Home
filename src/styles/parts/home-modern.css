@@ -46,19 +46,20 @@
 
 /* ---------- Seite ---------- */
 /* Hintergrund wie im Entwurf: Navy-Verlauf mit zwei weichen Lichtflecken (nur Verläufe,
-   kein Bild, kein Effekt-Layer). Die Admin-Effekte (Aurora, Noise, Spotlight) entfallen. */
+   kein Bild, kein Effekt-Layer). Die Admin-Effekte (Aurora, Noise, Spotlight) entfallen.
+   Bewusst ohne background-attachment: fixed – das kostete mobil ~300 ms TBT (Lighthouse). */
 [data-theme='dark'] body:has(#app[data-design='modern']) {
   background:
     radial-gradient(ellipse 48% 35% at 81% 22%, rgba(34, 99, 214, 0.18), transparent 78%),
     radial-gradient(ellipse 42% 28% at 6% 82%, rgba(67, 88, 165, 0.13), transparent 80%),
-    linear-gradient(125deg, #1b2330 0%, #0e1520 55%, #121b29 100%) fixed;
+    linear-gradient(125deg, #1b2330 0%, #0e1520 55%, #121b29 100%);
   background-color: #101721;
 }
 
 :root:not([data-theme='dark']) body:has(#app[data-design='modern']) {
   background:
     radial-gradient(ellipse at 80% 10%, rgba(159, 200, 255, 0.47), transparent 48%),
-    linear-gradient(130deg, #f4f8ff, #dce8fb) fixed;
+    linear-gradient(130deg, #f4f8ff, #dce8fb);
   background-color: #eef4fd;
 }
 

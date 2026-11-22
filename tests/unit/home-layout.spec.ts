@@ -150,5 +150,7 @@ describe('home-modern.css', () => {
     expect(css).not.toMatch(/@keyframes|animation:(?!\s*none)/);
     expect(css).not.toMatch(/filter:\s*blur|backdrop-filter:(?!\s*none)/);
     expect(css).not.toMatch(/@import|fonts\.googleapis/);
+    // Fester Hintergrund erzwingt Neuzeichnen beim Scrollen (mobil ~300 ms TBT).
+    expect(css).not.toMatch(/\bfixed\b/);
   });
 });
