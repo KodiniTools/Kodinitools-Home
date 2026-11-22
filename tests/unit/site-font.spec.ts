@@ -3,7 +3,8 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { normFontFile } from '../../server/admin/public/model-core';
 
-// Vorgabe 22.11.2026: Arial Bold ist die einzige Schrift der Website; keine Schriftdateien.
+// Vorgabe 22.11.2026: Supreme Regular ist die einzige Schrift der Website (eine Datei, vorgeladen).
+// Der Admin bleibt bei Arial Bold.
 const ROOT = join(__dirname, '../..');
 const read = (p: string) => readFileSync(join(ROOT, p), 'utf8');
 
@@ -17,16 +18,31 @@ function files(dir: string, ext: RegExp): string[] {
   return out;
 }
 
-describe('Schrift: nur Arial Bold', () => {
-  it('site-font.css erzwingt Arial und Stärke 700 für alle Elemente', () => {
+describe('Schrift: nur Supreme Regular', () => {
+  it('site-font.css lädt Supreme Regular und erzwingt sie mit Stärke 400 für alle Elemente', () => {
     const css = read('src/styles/site-font.css');
     expect(css).toMatch(/body \*,/);
-    expect(css).toMatch(/font-family: var\(--site-font, Arial[^)]*\) !important;/);
-    expect(css).toMatch(/font-weight: 700 !important;/);
+    expect(css).toMatch(/src: url\('\/fonts\/Supreme-Regular\.woff2'\) format\('woff2'\);/);
+    expect(css).toMatch(/font-display: swap;/);
+    expect(css.replace(/\s+/g, ' ')).toMatch(
+      /font-family: var\( ?--site-font, 'Supreme', Arial[^)]*\) !important;/,
+    );
+    expect(css).toMatch(/font-weight: 400 !important;/);
   });
 
-  it('--site-font beginnt mit Arial', () => {
-    expect(read('src/styles/parts/tokens.css')).toMatch(/--site-font: Arial,/);
+  it('--site-font beginnt mit Supreme', () => {
+    expect(read('src/styles/parts/tokens.css')).toMatch(/--site-font: 'Supreme', Arial,/);
+  });
+
+  it('die Schriftdatei wird im <head> vorgeladen', () => {
+    for (const p of [
+      'src/components/SiteFont.astro',
+      'src/layouts/HomeLayout.astro',
+      'src/layouts/BlogArticleLayout.astro',
+    ])
+      expect(read(p), p).toMatch(
+        /<link rel="preload" href="\/fonts\/Supreme-Regular\.woff2" as="font" type="font\/woff2" crossorigin/,
+      );
   });
 
   it('site-font.css wird global (per JS-Import) eingebunden', () => {
@@ -38,21 +54,24 @@ describe('Schrift: nur Arial Bold', () => {
       expect(read(p), p).toMatch(/import '\.\.\/styles\/site-font\.css'/);
   });
 
-  it('keine Schriftdateien und kein @font-face im Website-Code', () => {
-    expect(existsSync(join(ROOT, 'public/fonts'))).toBe(false);
-    for (const p of [
-      ...files('src', /\.(css|astro|ts)$/),
+  it('nur eine Schriftdatei, @font-face nur in site-font.css und im Nav-Partial', () => {
+    expect(readdirSync(join(ROOT, 'public/fonts'))).toEqual(['Supreme-Regular.woff2']);
+    const faces = [
+      ...files('src', /\.(css|astro|ts|vue)$/),
       ...files('public/partials', /\.html$/),
-    ]) {
-      const s = read(p);
-      expect(s, p).not.toMatch(/@font-face|\/fonts\//);
-      expect(s, p).not.toMatch(/Supreme|Plus Jakarta/);
-    }
+    ].filter((p) => /@font-face/.test(read(p)));
+    expect(faces.sort()).toEqual(['public/partials/nav.html', 'src/styles/site-font.css']);
+    for (const p of files('src', /\.(css|astro|ts|vue)$/))
+      expect(read(p), p).not.toMatch(/Plus Jakarta|font-family: Arial/);
   });
 
-  it('Partials für die Tool-Seiten setzen Arial', () => {
-    for (const p of ['public/partials/nav.html', 'public/partials/footer.html'])
-      expect(read(p), p).toMatch(/font-family: Arial,/);
+  it('Partials für die Tool-Seiten setzen Supreme Regular', () => {
+    for (const p of ['public/partials/nav.html', 'public/partials/footer.html']) {
+      const s = read(p);
+      expect(s, p).toMatch(/font-family: 'Supreme', Arial,/);
+      expect(s, p).not.toMatch(/font-family: Arial|font-weight: [5-9]00/);
+    }
+    expect(read('public/partials/nav.html')).toMatch(/url\('\/fonts\/Supreme-Regular\.woff2'\)/);
   });
 
   it('Admin: keine Schriftwahl, kein /api/fonts, Oberfläche in Arial Bold', () => {
