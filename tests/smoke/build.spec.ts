@@ -385,8 +385,8 @@ describe('Verkleinerte Bildfassungen (srcset)', () => {
   });
 });
 
-describe('Seiten-Layout (Admin > Layout)', () => {
-  if (MODERN) return; // Modernes Design: eigener describe-Block unten.
+// Modernes Design: eigener describe-Block unten.
+describe.skipIf(MODERN)('Seiten-Layout (Admin > Layout)', () => {
   // Folgt der Einstellung in media.json: Klassisch = HTML ohne Attribut und ohne
   // Kompakt-CSS, Kompakt = Attribut an #app und die Regeln inline.
   const site = (mediaJson as { site?: { homeLayout?: string; catBar?: boolean } }).site;

@@ -8,6 +8,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { validateMedia } from '../../server/admin/src/content.js';
 import { normSite } from '../../server/admin/public/model-site';
+import { MOTION_QUERY } from '../../src/content/modernHome';
 
 const SCOPE = "#app[data-home-layout='compact']";
 
@@ -152,5 +153,57 @@ describe('home-modern.css', () => {
     expect(css).not.toMatch(/@import|fonts\.googleapis/);
     // Fester Hintergrund erzwingt Neuzeichnen beim Scrollen (mobil ~300 ms TBT).
     expect(css).not.toMatch(/\bfixed\b/);
+  });
+});
+
+describe('home-modern-motion.css', () => {
+  const MODERN = "#app[data-design='modern']";
+  const css = readFileSync(
+    join(process.cwd(), 'src/styles/parts/home-modern-motion.css'),
+    'utf-8',
+  ).replace(/\/\*[\s\S]*?\*\//g, '');
+  // Oberste Ebene: nur @media-Blöcke, deren Inhalt bis zur passenden Klammer reicht.
+  const blocks: { query: string; body: string }[] = [];
+  let rest = css.trim();
+  while (rest) {
+    const m = /^@media([^{]+)\{/.exec(rest);
+    expect(m, `nur @media auf oberster Ebene: ${rest.slice(0, 60)}`).not.toBeNull();
+    let depth = 0;
+    let i = m![0].length - 1;
+    for (; i < rest.length; i++) {
+      if (rest[i] === '{') depth++;
+      if (rest[i] === '}' && --depth === 0) break;
+    }
+    blocks.push({ query: m![1].trim(), body: rest.slice(m![0].length, i) });
+    rest = rest.slice(i + 1).trim();
+  }
+
+  it('bewegt nur ohne „Bewegung reduzieren"', () => {
+    expect(blocks.length).toBeGreaterThan(0);
+    for (const b of blocks) expect(b.query).toContain('prefers-reduced-motion: no-preference');
+  });
+
+  it('Kachel-Intro nur bei MOTION_QUERY (große Bildschirme mit Skript)', () => {
+    const intro = blocks.filter((b) => b.body.includes('mh-tile'));
+    expect(intro.length).toBe(1);
+    expect(`(${intro[0].query.replace(/^\(|\)$/g, '')})`).toBe(MOTION_QUERY);
+    // Außerhalb des Intro-Blocks kein Blur.
+    for (const b of blocks.filter((x) => x !== intro[0])) {
+      expect(b.body).not.toMatch(/filter:\s*blur|backdrop-filter/);
+    }
+  });
+
+  it('beschränkt jede Regel auf das moderne Design', () => {
+    for (const b of blocks) {
+      const sels = [
+        ...b.body
+          .replace(/@keyframes[^{]+\{([^{}]*\{[^{}]*\})*[^{}]*\}/g, '')
+          .matchAll(/([^{}]+)\{/g),
+      ]
+        .map((m) => m[1].trim())
+        .flatMap((x) => x.split(',').map((p) => p.trim()));
+      expect(sels.length).toBeGreaterThan(0);
+      for (const sel of sels) expect(sel.includes(MODERN), sel).toBe(true);
+    }
   });
 });

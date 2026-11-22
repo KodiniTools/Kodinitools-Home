@@ -1,0 +1,225 @@
+/*
+ * Bewegung der modernen Startseite (ergänzt home-modern.css).
+ * Alles hier wirkt nur ohne „Bewegung reduzieren". Das Kachel-Intro (Anflug, Zahnrad,
+ * aufsteigende Icons, Schweben) zusätzlich nur auf großen Bildschirmen mit JavaScript:
+ * MOTION_QUERY in src/content/modernHome.ts muss mit der Media-Query unten übereinstimmen.
+ * Handy und Tablet hoch zeigen die fertige Kachel ruhend (Mobil-Score).
+ */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Karten blenden beim Erscheinen (Laden, Reiterwechsel) kurz ein. */
+  #app[data-design='modern'] .mh-card {
+    animation: mh-fade-up 0.45s both;
+  }
+
+  #app[data-design='modern'] .mh-cat:not(.is-active):hover {
+    animation: mh-tab-flash 0.7s ease-out;
+  }
+
+  #app[data-design='modern'] .mh-card:hover .mh-icon {
+    animation: mh-icon-flash 0.7s ease-out;
+  }
+
+  @keyframes mh-fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes mh-tab-flash {
+    0% {
+      border-color: var(--md-border);
+      box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+    }
+
+    25% {
+      border-color: rgba(140, 195, 255, 0.8);
+      box-shadow:
+        0 0 0 1px rgba(80, 160, 255, 0.4),
+        0 0 12px rgba(59, 155, 255, 0.35);
+    }
+
+    100% {
+      border-color: rgba(96, 165, 250, 0.45);
+      box-shadow:
+        0 0 0 1px rgba(96, 165, 250, 0.18),
+        0 0 10px rgba(59, 130, 246, 0.2);
+    }
+  }
+
+  @keyframes mh-icon-flash {
+    0% {
+      border-color: rgba(255, 255, 255, 0.05);
+      box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+    }
+
+    22% {
+      border-color: #9fd0ff;
+      box-shadow:
+        0 0 0 2px #3b9bff,
+        0 0 22px 6px rgba(59, 155, 255, 0.85),
+        inset 0 0 14px rgba(90, 170, 255, 0.6);
+      color: #cfe6ff;
+    }
+
+    100% {
+      border-color: rgba(96, 165, 250, 0.55);
+      box-shadow:
+        0 0 0 1px rgba(96, 165, 250, 0.25),
+        0 0 14px rgba(59, 130, 246, 0.3);
+    }
+  }
+}
+
+/* ---------- Kachel-Intro (nur große Bildschirme) ---------- */
+@media (min-width: 901px) and (prefers-reduced-motion: no-preference) and (scripting: enabled) {
+  /* Bis das Skript startet: Kachel unsichtbar (kein Aufblitzen der fertigen Kachel). */
+  #app[data-design='modern'] .mh-tile-wrap:not(.is-intro):not(.is-done) .mh-tile-stage {
+    opacity: 0;
+  }
+
+  #app[data-design='modern'] .mh-tile-wrap.is-intro .mh-tile-part,
+  #app[data-design='modern'] .mh-tile-wrap.is-done .mh-tile-part {
+    display: block;
+  }
+
+  #app[data-design='modern'] .mh-tile-wrap.is-intro .mh-tile-stage {
+    will-change: transform, opacity, filter;
+    animation:
+      mh-tile-intro 5.2s cubic-bezier(0.25, 0.35, 0.25, 1) both,
+      mh-tile-float 6s ease-in-out 5.2s infinite;
+  }
+
+  #app[data-design='modern'] .mh-tile-wrap.is-intro .mh-tile-gearfull,
+  #app[data-design='modern'] .mh-tile-wrap.is-intro .mh-tile-gear {
+    animation: mh-gear-spin 4s cubic-bezier(0.45, 0, 0.3, 1) 3.8s both;
+  }
+
+  /* Fertige Kachel: während des Intros fast unsichtbar (nicht 0, damit sie früh und klein
+     gezeichnet wird und nicht nach 8 s als größtes Element zählt), am Ende eingeblendet. */
+  #app[data-design='modern'] .mh-tile-wrap.is-intro .mh-tile-img {
+    animation: mh-reveal 0.3s linear 7.8s both;
+  }
+
+  #app[data-design='modern'] .mh-tile-wrap.is-intro .mh-tile-halo {
+    animation: mh-halo-in 5.2s ease-out both;
+  }
+
+  #app[data-design='modern'] .mh-tile-wrap.is-done .mh-tile-stage {
+    animation: mh-tile-float 6s ease-in-out -3s infinite;
+  }
+
+  /* Aufsteigende Audio- und Video-Icons (vom Skript erzeugt). */
+  #app[data-design='modern'] .mh-tp {
+    position: absolute;
+    width: var(--sz);
+    height: var(--sz);
+    color: #9cc6ff;
+    opacity: 0;
+    filter: drop-shadow(0 0 6px rgba(80, 150, 255, 0.55));
+    will-change: transform, opacity;
+    animation: mh-tp-rise var(--dur) linear forwards;
+  }
+
+  #app[data-design='modern'] .mh-tp svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Anflug aus großer Ferne, durchgehend flippend um alle drei Achsen. */
+  @keyframes mh-tile-intro {
+    0% {
+      opacity: 0;
+      transform: perspective(900px) translateZ(-6000px) translateY(-60px) rotateX(-430deg)
+        rotateY(400deg) rotateZ(-135deg) scale(0.6);
+      filter: blur(6px) brightness(0.5);
+    }
+
+    8% {
+      opacity: 1;
+    }
+
+    75% {
+      filter: blur(0) brightness(1.1);
+    }
+
+    100% {
+      opacity: 1;
+      transform: perspective(900px) translateZ(0) translateY(0) rotateX(0deg) rotateY(0deg)
+        rotateZ(0deg) scale(1);
+      filter: blur(0) brightness(1);
+    }
+  }
+
+  @keyframes mh-gear-spin {
+    from {
+      transform: rotate(1080deg);
+    }
+
+    to {
+      transform: rotate(0deg);
+    }
+  }
+
+  @keyframes mh-reveal {
+    from {
+      opacity: 0.004;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes mh-tile-float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes mh-halo-in {
+    0% {
+      opacity: 0;
+    }
+
+    60% {
+      opacity: 0.4;
+    }
+
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes mh-tp-rise {
+    0% {
+      opacity: 0;
+      transform: translate(0, 0) rotate(0) scale(0.7);
+    }
+
+    15% {
+      opacity: var(--op);
+    }
+
+    75% {
+      opacity: calc(var(--op) * 0.8);
+    }
+
+    100% {
+      opacity: 0;
+      transform: translate(var(--dx), calc(var(--rise) * -1)) rotate(var(--rot)) scale(1);
+    }
+  }
+}

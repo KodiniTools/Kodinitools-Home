@@ -1,14 +1,15 @@
 ---
 /**
  * Startseite im modernen Design (Admin > Layout > Seiten-Layout „Modernes Design").
- * Aufbau 1:1 nach dem Entwurf „KodiniTools-Design-Nachbau-Dropdown-Fix.html":
- * Navigation mit Tools-Dropdown, Hero (Eyebrow, Titel mit Akzent, zwei Knöpfe,
- * Vorteile, 3D-Logo), große Suche, 4 Reiter, Karten, schlichter Footer.
+ * Aufbau nach dem Entwurf „KodiniTools – Kostenlose Online-Tools (Copy)": Navigation mit
+ * Tools-Dropdown, Hero (Eyebrow, Titel mit Akzent, zwei Knöpfe, Vorteile, 3D-Kachel mit
+ * Lichtbogen), große Suche, 4 Reiter, Karten, schlichter Footer.
  *
  * Texte: vorhandene Locale-/Admin-Schlüssel unverändert (hero.*, search.*,
  * *.sectionTitle/sectionDescription, Kartentexte); nur was es dort nicht gibt,
- * kommt aus HOME_UI[lang].modern. Mobil-Performance: Hero-Titel im HTML, keine
- * Animation, kein Web-Font, alle Karten-Links im HTML (Reiter blenden nur per CSS aus).
+ * kommt aus HOME_UI[lang].modern. Mobil-Performance: Hero-Titel im HTML, alle Karten-Links
+ * im HTML (Reiter blenden nur per CSS aus). Das Kachel-Intro läuft nur bei MOTION_QUERY
+ * (große Bildschirme, keine reduzierte Bewegung); sonst ruht die fertige Kachel.
  */
 import type { Lang } from '../i18n/lang';
 import { HOME_UI, type ModernCat } from '../i18n/home-ui';
@@ -21,6 +22,9 @@ import {
   splitAccent,
   MODERN_ICONS,
   MODERN_VISIBLE,
+  MOTION_QUERY,
+  PARTICLE_ICONS,
+  TILE_LAYERS,
 } from '../content/modernHome';
 import FavoritesSection from '../islands/favorites/FavoritesSection.vue';
 
@@ -97,6 +101,9 @@ const catCount = (c: ModernCat) => seen[c];
 const showAllText = (c: ModernCat) => m.showAll.replace('{title}', catHead[c].title);
 const activeCat: ModernCat = CATS.find((c) => catCount(c) > 0) ?? 'audio';
 
+const LANG_NAME: Record<Lang, string> = { de: 'Deutsch', en: 'English' };
+const TILE = '/image/home/tile';
+
 const titleLines = (hero.title || ui.heroTitleFallback).split('\n');
 const visibleFeatures = features.filter((f) => !f.hidden);
 
@@ -111,6 +118,8 @@ const scriptData = {
   menuOpen: m.nav.menuOpen,
   menuClose: m.nav.menuClose,
   visible: MODERN_VISIBLE,
+  motion: MOTION_QUERY,
+  particles: PARTICLE_ICONS.map((id) => MODERN_ICONS[id]).filter(Boolean),
 };
 ---
 
@@ -139,13 +148,7 @@ const scriptData = {
 <header class="mh-topbar">
   <div class="mh-shell mh-nav">
     <a class="mh-brand" href={homeHref}>
-      <img
-        src="/image/home/logo-3d-96.webp"
-        width="48"
-        height="48"
-        alt="KodiniTools Logo"
-        decoding="async"
-      />
+      <img src={`${TILE}/brand.webp`} width="44" height="47" alt="KodiniTools Logo" />
       <span>KodiniTools</span>
     </a>
     <nav class="mh-navlinks" id="mh-navlinks" aria-label={m.nav.label}>
@@ -176,8 +179,9 @@ const scriptData = {
         <svg width="20" height="20" aria-hidden="true"><use href="#mhi-search"></use></svg>
       </button>
       <button type="button" class="mh-switch" id="mh-theme" aria-label={m.nav.theme}>
-        <span class="mh-moon" aria-hidden="true">☾</span><span class="mh-orb" aria-hidden="true"
-        ></span>
+        <svg class="mh-moon" width="16" height="16" aria-hidden="true"
+          ><use href="#mhi-moon"></use></svg
+        ><span class="mh-orb" aria-hidden="true"></span>
       </button>
       <div class="mh-menu mh-lang">
         <button
@@ -193,8 +197,8 @@ const scriptData = {
           >
         </button>
         <div class="mh-menu-list mh-menu-list--right">
-          <a href={homeHref} aria-current="page" lang={lang}>{lang.toUpperCase()}</a>
-          <a href={otherHref} lang={other} hreflang={other}>{other.toUpperCase()}</a>
+          <a href={homeHref} aria-current="page" lang={lang}>{LANG_NAME[lang]}</a>
+          <a href={otherHref} lang={other} hreflang={other}>{LANG_NAME[other]}</a>
         </div>
       </div>
       <button
@@ -211,185 +215,272 @@ const scriptData = {
   </div>
 </header>
 
-<main id="main-content" class="mh-shell">
+<main id="main-content">
   <section class="mh-hero">
-    <div class="mh-hero-copy">
-      <p class="mh-eyebrow">{m.eyebrow}</p>
-      {/* Titel sofort vollständig im HTML (LCP). *…* im Admin-Text = farbiger Teil. */}
-      <h1 class="mh-title hero-title">
-        {
-          titleLines.map((line, i) => [
-            i > 0 ? <br /> : null,
-            splitAccent(line).map((part) =>
-              part.accent ? <span class="mh-accent">{part.text}</span> : part.text,
-            ),
-          ])
-        }
-      </h1>
-      {
-        hero.subtitle && (
-          <p class="mh-lead">
-            {hero.subtitle.split('\n').map((line, i) => (i > 0 ? [<br />, line] : line))}
-          </p>
-        )
-      }
-      <div class="mh-hero-buttons">
-        <a class="mh-primary" href="#tools">
-          <svg width="14" height="14" aria-hidden="true"><use href="#mhi-play-solid"></use></svg>
-          <span>{hero.cta || ui.cta}</span>
-        </a>
-        <a class="mh-secondary" href="#tools" data-show-all>
-          <span>{m.allTools}</span>
-          <svg width="16" height="16" aria-hidden="true"><use href="#mhi-arrow"></use></svg>
-        </a>
+    <svg class="mh-hero-arc" viewBox="0 0 1100 560" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="mh-arc-g" x1="0" x2="1">
+          <stop offset="0" stop-color="#3b82f6" stop-opacity="0"></stop>
+          <stop offset=".45" stop-color="#5a9bff" stop-opacity=".9"></stop>
+          <stop offset=".75" stop-color="#bcd6ff" stop-opacity="1"></stop>
+          <stop offset="1" stop-color="#3b82f6" stop-opacity=".2"></stop>
+        </linearGradient>
+        <radialGradient id="mh-arc-fill" cx=".7" cy=".55" r=".6">
+          <stop offset="0" stop-color="#1e4fb8" stop-opacity=".35"></stop>
+          <stop offset="1" stop-color="#0b1222" stop-opacity="0"></stop>
+        </radialGradient>
+      </defs>
+      <path d="M180 470 Q 600 120 1100 160 L1100 560 L180 560Z" fill="url(#mh-arc-fill)"></path>
+      {/* Weicher Schein: breiter, blasser Strich statt SVG-Blur (spart Rechenzeit). */}
+      <path
+        d="M180 470 Q 600 120 1100 160"
+        fill="none"
+        stroke="url(#mh-arc-g)"
+        stroke-width="14"
+        opacity=".22"></path>
+      <path
+        d="M180 470 Q 600 120 1100 160"
+        fill="none"
+        stroke="url(#mh-arc-g)"
+        stroke-width="6"
+        opacity=".35"></path>
+      <path d="M180 470 Q 600 120 1100 160" fill="none" stroke="url(#mh-arc-g)" stroke-width="1.6"
+      ></path>
+    </svg>
+    <div class="mh-shell">
+      <div class="mh-hero-grid">
+        <div class="mh-hero-copy">
+          <p class="mh-eyebrow">{m.eyebrow}</p>
+          {/* Titel sofort vollständig im HTML (LCP). *…* im Admin-Text = farbiger Teil. */}
+          <h1 class="mh-title hero-title">
+            {
+              titleLines.map((line, i) => [
+                i > 0 ? <br /> : null,
+                splitAccent(line).map((part) =>
+                  part.accent ? <span class="mh-accent">{part.text}</span> : part.text,
+                ),
+              ])
+            }
+          </h1>
+          {
+            hero.subtitle && (
+              <p class="mh-lead">
+                {hero.subtitle.split('\n').map((line, i) => (i > 0 ? [<br />, line] : line))}
+              </p>
+            )
+          }
+          <div class="mh-hero-buttons">
+            <a class="mh-primary" href="#tools">
+              <svg width="18" height="18" aria-hidden="true"><use href="#mhi-play-solid"></use></svg
+              >
+              <span>{hero.cta || ui.cta}</span>
+            </a>
+            <a class="mh-secondary" href="#tools" data-show-all>
+              <span>{m.allTools}</span>
+              <svg width="20" height="20" aria-hidden="true"><use href="#mhi-arrow"></use></svg>
+            </a>
+          </div>
+          {
+            visibleFeatures.length > 0 && (
+              <ul class="mh-features">
+                {visibleFeatures.map((f) => (
+                  <li data-feature={f.key}>
+                    <svg width="22" height="22" aria-hidden="true">
+                      <use href={`#mhi-${featureIconId(f.key)}`} />
+                    </svg>
+                    <span>{f.text}</span>
+                  </li>
+                ))}
+              </ul>
+            )
+          }
+        </div>
+        <div class="mh-tile-wrap" id="mh-tile-wrap" aria-hidden="true">
+          <div class="mh-tile-halo"></div>
+          <div class="mh-tile-stage" id="mh-tile-stage">
+            <div class="mh-tile-tilt">
+              {
+                TILE_LAYERS.map((l) => (
+                  <span
+                    class="mh-tile-layer"
+                    style={`transform:translateZ(-${l.depth}px);background:${l.background}`}
+                  />
+                ))
+              }
+              <div class="mh-tile-face">
+                {
+                  /* Einzelteile nur fürs Intro: Adresse in data-src, das Skript lädt sie erst dann. */
+                }
+                <img
+                  class="mh-tile-part mh-tile-base"
+                  data-src={`${TILE}/tile-base.webp`}
+                  width="249"
+                  height="263"
+                  alt=""
+                  decoding="async"
+                />
+                <img
+                  class="mh-tile-part mh-tile-gearfull"
+                  data-src={`${TILE}/tile-gear-full.webp`}
+                  width="128"
+                  height="128"
+                  alt=""
+                  decoding="async"
+                />
+                <img
+                  class="mh-tile-part mh-tile-k"
+                  data-src={`${TILE}/tile-k.webp`}
+                  width="249"
+                  height="263"
+                  alt=""
+                  decoding="async"
+                />
+                <img
+                  class="mh-tile-part mh-tile-gear"
+                  data-src={`${TILE}/tile-gear.webp`}
+                  width="69"
+                  height="69"
+                  alt=""
+                  decoding="async"
+                />
+                <img
+                  class="mh-tile-img"
+                  src={`${TILE}/tile.webp`}
+                  width="249"
+                  height="263"
+                  alt=""
+                  decoding="async"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      {
-        visibleFeatures.length > 0 && (
-          <ul class="mh-features">
-            {visibleFeatures.map((f) => (
-              <li data-feature={f.key}>
-                <svg width="18" height="18" aria-hidden="true">
-                  <use href={`#mhi-${featureIconId(f.key)}`} />
-                </svg>
-                <span>{f.text}</span>
-              </li>
-            ))}
-          </ul>
-        )
-      }
-    </div>
-    <div class="mh-hero-art" aria-hidden="true">
-      <img
-        class="mh-hero-logo"
-        src="/image/home/hero-logo-3d-420.webp"
-        srcset="/image/home/hero-logo-3d-240.webp 240w, /image/home/hero-logo-3d-420.webp 420w"
-        sizes="(max-width: 740px) 215px, 300px"
-        width="300"
-        height="300"
-        alt=""
-        decoding="async"
-      />
     </div>
   </section>
 
-  <form class="mh-search" id="mh-search-form" role="search" action="#tools">
-    <svg width="22" height="22" aria-hidden="true"><use href="#mhi-search"></use></svg>
-    <input
-      id="mh-search"
-      type="search"
-      placeholder={search.placeholder}
-      aria-label={m.searchLabel}
-      autocomplete="off"
-      enterkeyhint="search"
-    />
-    <button type="submit">{m.searchButton}</button>
-  </form>
+  <div class="mh-shell">
+    <form class="mh-search" id="mh-search-form" role="search" action="#tools">
+      <svg width="22" height="22" aria-hidden="true"><use href="#mhi-search"></use></svg>
+      <input
+        id="mh-search"
+        type="search"
+        placeholder={search.placeholder}
+        aria-label={m.searchLabel}
+        autocomplete="off"
+        enterkeyhint="search"
+      />
+      <button type="submit">{m.searchButton}</button>
+    </form>
 
-  <div class="mh-cats" role="group" aria-label={m.catGroupLabel}>
-    {
-      CATS.filter((c) => catCount(c) > 0).map((c) => (
-        <button
-          type="button"
-          class:list={['mh-cat', { 'is-active': c === activeCat }]}
-          data-cat={c}
-          aria-pressed={c === activeCat ? 'true' : 'false'}
-        >
-          <svg width="26" height="26" aria-hidden="true">
-            <use href={`#mhi-cat-${c}`} />
-          </svg>
-          <span>{catHead[c].title}</span>
-        </button>
-      ))
-    }
-  </div>
-
-  <FavoritesSection
-    client:idle
-    lang={lang}
-    hiddenKeys={hiddenKeys}
-    showDesc
-    texts={{
-      title: ui.favoritesTitle,
-      clearAll: ui.favoritesClearAll,
-      favRemove: ui.favRemove,
-      favTitle: ui.favTitle,
-      open: ui.open,
-    }}
-  />
-
-  <section id="tools" class="mh-tools" data-active={activeCat} aria-labelledby="mh-section-title">
-    {/* Alte Sprungziele (#audio-tools usw.) wählen weiter den passenden Reiter. */}
-    <span id="audio-tools" class="mh-anchor"></span><span id="image-tools" class="mh-anchor"
-    ></span><span id="diverse-tools" class="mh-anchor"></span>
-    <div class="mh-section-head">
-      <p class="mh-eyebrow" id="mh-section-kicker">{catHead[activeCat].kicker}</p>
-      <h2 id="mh-section-title">{catHead[activeCat].title}</h2>
-      <p id="mh-section-desc">{catHead[activeCat].description}</p>
-    </div>
-    <div class="mh-grid" id="mh-grid">
+    <div class="mh-cats" role="group" aria-label={m.catGroupLabel}>
       {
-        cards.map((t) => (
-          <a
-            href={t.link}
-            class:list={['svg-card-link', 'mh-card', { 'is-extra': t.extra }]}
-            data-cat={t.cat}
-            data-title={t.title}
-            data-description={t.description}
-            data-i18n-key={t.i18nKey}
-            data-processing={t.proc}
-            {...{ [`data-svg-${lang}`]: t.svg }}
-            title={t.description}
+        CATS.filter((c) => catCount(c) > 0).map((c) => (
+          <button
+            type="button"
+            class:list={['mh-cat', { 'is-active': c === activeCat }]}
+            data-cat={c}
+            aria-pressed={c === activeCat ? 'true' : 'false'}
           >
-            <span class="mh-icon">
-              {t.svg ? (
-                <img src={t.svg} alt="" width="38" height="38" loading="lazy" decoding="async" />
-              ) : (
-                <svg width="38" height="38" aria-hidden="true">
-                  <use href={`#mhi-${t.icon}`} />
-                </svg>
-              )}
-            </span>
-            <span class="mh-info">
-              <h3 class="tool-card-title">{t.name}</h3>
-              {t.sub && <span class="mh-sub">{t.sub}</span>}
-              <span class="mh-tags">
-                {t.badge && <span class="tool-card-badge">{t.badge}</span>}
-                {t.proc && <span class="mh-tag-proc">{ui.procLabel[t.proc]}</span>}
-              </span>
-            </span>
-            <button type="button" class="fav-btn" aria-label={ui.favAdd} title={ui.favTitle}>
-              <svg width="16" height="16" aria-hidden="true">
-                <use href="#mhi-bookmark" />
-              </svg>
-            </button>
-            <span class="mh-arrow" aria-hidden="true">
-              <svg width="16" height="16">
-                <use href="#mhi-arrow" />
-              </svg>
-            </span>
-          </a>
+            <svg width="30" height="30" aria-hidden="true">
+              <use href={`#mhi-cat-${c}`} />
+            </svg>
+            <span>{catHead[c].title}</span>
+          </button>
         ))
       }
-      <p class="mh-noresults" id="mh-noresults" role="status" hidden>{search.noResults}</p>
     </div>
-    <div class="mh-footer-action">
-      <button
-        type="button"
-        class="mh-all"
-        id="mh-show-all"
-        hidden={catCount(activeCat) <= MODERN_VISIBLE}
-      >
-        <span id="mh-show-all-text">{showAllText(activeCat)}</span>
-        <svg width="16" height="16" aria-hidden="true"><use href="#mhi-arrow"></use></svg>
-      </button>
-    </div>
-  </section>
+
+    <FavoritesSection
+      client:idle
+      lang={lang}
+      hiddenKeys={hiddenKeys}
+      showDesc
+      texts={{
+        title: ui.favoritesTitle,
+        clearAll: ui.favoritesClearAll,
+        favRemove: ui.favRemove,
+        favTitle: ui.favTitle,
+        open: ui.open,
+      }}
+    />
+
+    <section id="tools" class="mh-tools" data-active={activeCat} aria-labelledby="mh-section-title">
+      {/* Alte Sprungziele (#audio-tools usw.) wählen weiter den passenden Reiter. */}
+      <span id="audio-tools" class="mh-anchor"></span><span id="image-tools" class="mh-anchor"
+      ></span><span id="diverse-tools" class="mh-anchor"></span>
+      <div class="mh-section-head">
+        <p class="mh-eyebrow" id="mh-section-kicker">{catHead[activeCat].kicker}</p>
+        <h2 id="mh-section-title">{catHead[activeCat].title}</h2>
+        <p id="mh-section-desc">{catHead[activeCat].description}</p>
+      </div>
+      <div class="mh-grid" id="mh-grid">
+        {
+          cards.map((t) => (
+            <a
+              href={t.link}
+              class:list={['svg-card-link', 'mh-card', { 'is-extra': t.extra }]}
+              data-cat={t.cat}
+              data-title={t.title}
+              data-description={t.description}
+              data-i18n-key={t.i18nKey}
+              data-processing={t.proc}
+              {...{ [`data-svg-${lang}`]: t.svg }}
+              title={t.description}
+            >
+              <span class="mh-icon">
+                {t.svg ? (
+                  <img src={t.svg} alt="" width="38" height="38" loading="lazy" decoding="async" />
+                ) : (
+                  <svg width="38" height="38" aria-hidden="true">
+                    <use href={`#mhi-${t.icon}`} />
+                  </svg>
+                )}
+              </span>
+              <span class="mh-info">
+                <h3 class="tool-card-title">{t.name}</h3>
+                {t.sub && <span class="mh-sub">{t.sub}</span>}
+                <span class="mh-tags">
+                  {t.badge && <span class="tool-card-badge">{t.badge}</span>}
+                  {t.proc && <span class="mh-tag-proc">{ui.procLabel[t.proc]}</span>}
+                </span>
+              </span>
+              <button type="button" class="fav-btn" aria-label={ui.favAdd} title={ui.favTitle}>
+                <svg width="16" height="16" aria-hidden="true">
+                  <use href="#mhi-bookmark" />
+                </svg>
+              </button>
+              <span class="mh-arrow" aria-hidden="true">
+                <svg width="18" height="18">
+                  <use href="#mhi-arrow" />
+                </svg>
+              </span>
+            </a>
+          ))
+        }
+        <p class="mh-noresults" id="mh-noresults" role="status" hidden>{search.noResults}</p>
+      </div>
+      <div class="mh-footer-action">
+        <button
+          type="button"
+          class="mh-all"
+          id="mh-show-all"
+          hidden={catCount(activeCat) <= MODERN_VISIBLE}
+        >
+          <span id="mh-show-all-text">{showAllText(activeCat)}</span>
+          <svg width="20" height="20" aria-hidden="true"><use href="#mhi-arrow"></use></svg>
+        </button>
+      </div>
+    </section>
+  </div>
 </main>
 
 <footer class="mh-footer">
   <div class="mh-shell mh-footer-inner">
     <span>© {new Date().getFullYear()} KodiniTools · {m.footerTagline}</span>
-    <span><a href={IMPRINT_PATH[lang]}>{m.imprint}</a> · <a href={PRIVACY_URL}>{m.privacy}</a></span
+    <span
+      ><a href={IMPRINT_PATH[lang]}>{m.imprint}</a> · <a href={PRIVACY_URL}>{m.privacy}</a> ·
+      <a href={CONTACT_URL}>{m.nav.contact}</a></span
     >
   </div>
 </footer>
@@ -571,5 +662,104 @@ const scriptData = {
         burger.setAttribute('aria-label', mh.menuOpen);
       }
     });
+
+    // Kachel-Intro (nur große Bildschirme, siehe MOTION_QUERY): Einzelteile laden, dann
+    // Anflug und Zahnrad; Icons steigen nur während des Intros auf, danach schwebt die Kachel.
+    const wrap = document.getElementById('mh-tile-wrap');
+    const stage = document.getElementById('mh-tile-stage');
+    if (wrap && stage && window.matchMedia && matchMedia(mh.motion).matches) {
+      const INTRO_MS = 8200;
+      const done = function () {
+        wrap.classList.remove('is-intro');
+        wrap.classList.add('is-done');
+      };
+      const particles = function (until) {
+        const box = document.createElement('div');
+        box.className = 'mh-tile-particles';
+        wrap.insertBefore(box, wrap.firstChild);
+        const rnd = function (a, b) {
+          return a + Math.random() * (b - a);
+        };
+        let alive = 0;
+        const timer = setInterval(function () {
+          if (Date.now() > until) {
+            clearInterval(timer);
+            return;
+          }
+          if (document.visibilityState !== 'visible' || alive > 14) return;
+          const wr = wrap.getBoundingClientRect();
+          const tr = stage.getBoundingClientRect();
+          if (!tr.width) return;
+          const cx = tr.left - wr.left + tr.width / 2;
+          const w = tr.width;
+          const h = tr.height;
+          // meist links/rechts neben der Kachel, ab und zu dahinter
+          const side = Math.random() < 0.5 ? -1 : 1;
+          const off = Math.random() < 0.8 ? side * rnd(0.42, 0.78) * w : rnd(-0.35, 0.35) * w;
+          const sz = rnd(18, 30);
+          const el = document.createElement('div');
+          el.className = 'mh-tp';
+          el.innerHTML =
+            '<svg viewBox="0 0 24 24">' +
+            mh.particles[Math.floor(Math.random() * mh.particles.length)] +
+            '</svg>';
+          el.style.left = cx + off - sz / 2 + 'px';
+          el.style.top = tr.bottom - wr.top - rnd(0, 0.25) * h + 'px';
+          el.style.setProperty('--sz', sz + 'px');
+          el.style.setProperty('--dur', rnd(6.5, 10) + 's');
+          el.style.setProperty('--rise', h * rnd(0.9, 1.3) + 'px');
+          el.style.setProperty('--dx', rnd(-24, 24) + 'px');
+          el.style.setProperty('--rot', rnd(-25, 25) + 'deg');
+          el.style.setProperty('--op', rnd(0.4, 0.65).toFixed(2));
+          alive++;
+          box.appendChild(el);
+          el.addEventListener('animationend', function () {
+            el.remove();
+            alive--;
+          });
+        }, 650);
+      };
+      const start = function () {
+        wrap.classList.add('is-intro');
+        particles(Date.now() + INTRO_MS);
+        setTimeout(done, INTRO_MS);
+      };
+      const whenVisible = function () {
+        if (document.visibilityState === 'visible') {
+          start();
+          return;
+        }
+        document.addEventListener('visibilitychange', function onVis() {
+          if (document.visibilityState !== 'visible') return;
+          document.removeEventListener('visibilitychange', onVis);
+          start();
+        });
+      };
+      // Einzelteile erst hier laden (data-src): ohne Intro werden sie nie angefragt.
+      Promise.all(
+        Array.prototype.map.call(wrap.querySelectorAll('img[data-src]'), function (img) {
+          img.src = img.getAttribute('data-src');
+          return img.decode ? img.decode() : Promise.resolve();
+        }),
+      ).then(
+        function () {
+          if (!('IntersectionObserver' in window)) {
+            whenVisible();
+            return;
+          }
+          const io = new IntersectionObserver(
+            function (entries) {
+              if (!entries.some((e) => e.isIntersecting)) return;
+              io.disconnect();
+              whenVisible();
+            },
+            { threshold: 0.3 },
+          );
+          io.observe(wrap);
+        },
+        // Einzelteile nicht ladbar: fertige Kachel ohne Intro zeigen.
+        done,
+      );
+    }
   })();
 </script>

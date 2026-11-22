@@ -35,7 +35,7 @@ const ICON_BY_KEY: Readonly<Record<string, string>> = {
   'tools.audioConverter': 'headphones',
   'tools.audioEqualizer': 'wave',
   'tools.musicPlayer': 'play',
-  'tools.audioVisualizer': 'wave',
+  'tools.audioVisualizer': 'bars',
   'tools.mp3Converter': 'convert',
   'tools.interactiveEqualizer': 'sliders',
   'tools.modernPlayer': 'radio',
@@ -87,20 +87,20 @@ export function stripAccent(text: string): string {
 
 /** SVG-Pfade (24×24, Linien) für das Inline-Sprite der Seite. */
 export const MODERN_ICONS: Readonly<Record<string, string>> = {
-  search: '<circle cx="10.5" cy="10.5" r="7.5"/><path d="m16 16 5 5"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
   chevron: '<path d="m6 9 6 6 6-6"/>',
   burger: '<path d="M4 7h16M4 12h16M4 17h16"/>',
   arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
-  'play-solid': '<path d="m7 4 13 8-13 8z" fill="currentColor" stroke="none"/>',
+  'play-solid': '<path fill="currentColor" stroke="none" d="M6 4v16l14-8z"/>',
   bookmark: '<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>',
   headphones:
-    '<path d="M3 14v-3a9 9 0 0 1 18 0v3M3 14v5a2 2 0 0 0 2 2h2v-8H5a2 2 0 0 0-2 2m18-1v5a2 2 0 0 1-2 2h-2v-8h2a2 2 0 0 1 2 2"/>',
-  wave: '<path d="M3 9v6M7 4v16M11 8v8M15 2v20M19 6v12M23 10v4"/>',
-  play: '<path d="m7 3 14 9-14 9z"/>',
+    '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1v-6h3zM3 19a2 2 0 0 0 2 2h1v-6H3z"/>',
+  wave: '<path d="M3 10v4M7 7v10M11 3v18M15 8v8M19 10v4" stroke-width="2"/>',
+  play: '<circle cx="12" cy="12" r="9.5"/><path d="M10 8v8l6-4z" fill="currentColor"/>',
   sliders:
-    '<path d="M3 6h18M3 12h18M3 18h18"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="10" cy="18" r="2"/>',
+    '<path d="M3 6h18M3 12h18M3 18h18"/><g fill="currentColor" stroke="none"><circle cx="15" cy="6" r="1.8"/><circle cx="9" cy="12" r="1.8"/><circle cx="14" cy="18" r="1.8"/></g>',
   radio:
-    '<rect x="3" y="8" width="18" height="13" rx="2"/><path d="M5 8 18 3M15 13h4M15 17h4"/><circle cx="8" cy="15" r="3"/>',
+    '<path fill="currentColor" stroke="none" d="M4 8h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2zm4 3.5a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM14 12v1.6h5V12zm0 3v1.6h5V15z"/><path d="m5 8 11-5"/>',
   convert: '<path d="M4 7h16M16 3l4 4-4 4M20 17H4m4-4-4 4 4 4"/>',
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 3"/>',
   music:
@@ -109,27 +109,75 @@ export const MODERN_ICONS: Readonly<Record<string, string>> = {
   scissors:
     '<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/>',
   image:
-    '<rect x="2" y="3" width="20" height="18" rx="2"/><circle cx="8" cy="9" r="2"/><path d="m2 18 6-6 4 4 4-5 6 7"/>',
+    '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="9.5" r="1.6"/><path d="m4 18 5-5 3 3 3-4 5 6"/>',
   layers: '<path d="m12 2 10 5-10 5L2 7z"/><path d="m2 12 10 5 10-5M2 17l10 5 10-5"/>',
   collage:
     '<rect x="3" y="3" width="8" height="18" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/>',
   drop: '<path d="M12 2.7 6.3 9a8 8 0 1 0 11.4 0z"/>',
-  text: '<path d="M3 6V4h18v2M12 4v16m-5 0h10"/>',
+  text: '<path d="M5 5h14M12 5v15M9 20h6"/>',
   favicon:
     '<rect x="3" y="3" width="18" height="18" rx="4"/><path d="m12 7 1.5 3.2 3.5.4-2.6 2.4.7 3.5L12 14.8 8.9 16.5l.7-3.5L7 10.6l3.5-.4z"/>',
   'cat-audio':
-    '<path d="M3 14v-3a9 9 0 0 1 18 0v3M3 14v5a2 2 0 0 0 2 2h2v-8H5a2 2 0 0 0-2 2m18-1v5a2 2 0 0 1-2 2h-2v-8h2a2 2 0 0 1 2 2"/>',
+    '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1v-6h3zM3 19a2 2 0 0 0 2 2h1v-6H3z"/>',
   'cat-image':
-    '<rect x="2" y="3" width="20" height="18" rx="2"/><circle cx="8" cy="9" r="2"/><path d="m2 18 6-6 4 4 4-5 6 7"/>',
-  'cat-video': '<path d="m7 3 14 9-14 9z"/>',
-  'cat-text': '<path d="M3 6V4h18v2M12 4v16m-5 0h10"/>',
-  'f-free': '<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
-  'f-privacy': '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+    '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="9.5" r="1.6"/><path d="m4 18 5-5 3 3 3-4 5 6"/>',
+  'cat-video': '<path d="M6 4v16l14-8z"/>',
+  'cat-text': '<path d="M5 5h14M12 5v15M9 20h6M5 5v2M19 5v2"/>',
+  'f-free': '<path fill="currentColor" stroke="none" d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
+  'f-privacy':
+    '<path fill="currentColor" stroke="none" d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z"/><path d="m8.5 12 2.5 2.5 4.5-5" style="stroke:var(--md-bg)" stroke-width="2.2"/>',
   'f-browserBased':
-    '<path d="m12 3 8.5 6.2-3.2 10H6.7L3.5 9.2z" fill="currentColor" stroke="none"/>',
+    '<path fill="currentColor" stroke="none" d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z"/><path d="m8.5 12 2.5 2.5 4.5-5" style="stroke:var(--md-bg)" stroke-width="2.2"/>',
   'f-serverBased':
     '<rect x="3" y="3" width="18" height="8" rx="2"/><rect x="3" y="13" width="18" height="8" rx="2"/><path d="M7 7h.01M7 17h.01"/>',
-  'f-multiLanguage': '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/>',
+  'f-multiLanguage':
+    '<circle cx="12" cy="12" r="9.5"/><path d="M2.5 12h19M12 2.5c2.8 3 2.8 16 0 19M12 2.5c-2.8 3-2.8 16 0 19"/>',
   'f-noInstall': '<path d="M12 3v12M7 10l5 5 5-5M4 21h16"/>',
   'f-check': '<path d="M20 6 9 17l-5-5"/>',
+  bars: '<g fill="currentColor" stroke="none"><rect x="3" y="14" width="3" height="7" rx="1.2"/><rect x="8" y="11" width="3" height="10" rx="1.2"/><rect x="13" y="7" width="3" height="14" rx="1.2"/><rect x="18" y="3" width="3" height="18" rx="1.2"/></g>',
+  film: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 3v18M17 3v18M3 8h4M3 16h4M17 8h4M17 16h4M3 12h18"/>',
+  gif: '<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M9 10H7.5a1.5 1.5 0 0 0 0 3H9v-1.5M12 9.5v5M15 14.5v-5h2.5M15 12h2"/>',
+  camera: '<rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 6-3v10l-6-3z"/>',
+  moon: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
 };
+
+/**
+ * Kachel-Intro nur auf großen Bildschirmen ohne „Bewegung reduzieren" (Handy ruht: Mobil-Score).
+ * Muss der Media-Query des Intro-Blocks in home-modern-motion.css entsprechen.
+ */
+export const MOTION_QUERY =
+  '(min-width: 901px) and (prefers-reduced-motion: no-preference) and (scripting: enabled)';
+
+/** Icons, die beim Intro rund um die Kachel aufsteigen (wie im Entwurf). */
+export const PARTICLE_ICONS: readonly string[] = [
+  'headphones',
+  'wave',
+  'play',
+  'bars',
+  'radio',
+  'sliders',
+  'film',
+  'scissors',
+  'gif',
+  'camera',
+];
+
+/**
+ * Dicke der 3D-Kachel: 30 gestapelte Ebenen (1 px Abstand) hinter der Front, hinten dunkler.
+ * Reihenfolge von hinten nach vorn; die vorderste Ebene ist die helle Kante.
+ */
+export const TILE_LAYERS: readonly { depth: number; background: string }[] = Array.from(
+  { length: 30 },
+  (_, n) => {
+    const depth = 30 - n;
+    const k = depth / 30;
+    const r = (v: number) => Math.round(v * 10) / 10;
+    return {
+      depth,
+      background:
+        depth <= 1
+          ? '#9fd0ff'
+          : `linear-gradient(160deg,hsl(210 90% ${r(58 - k * 26)}%),hsl(220 95% ${r(34 - k * 18)}%))`,
+    };
+  },
+);
