@@ -142,11 +142,13 @@ export const MODERN_ICONS: Readonly<Record<string, string>> = {
 };
 
 /**
- * Kachel-Intro nur auf großen Bildschirmen ohne „Bewegung reduzieren" (Handy ruht: Mobil-Score).
- * Muss der Media-Query des Intro-Blocks in home-modern-motion.css entsprechen.
+ * Kachel-Intro ohne „Bewegung reduzieren" und mit Skript, auf allen Bildschirmen. Handy und
+ * Tablet (SMALL_QUERY) bekommen die leichte Fassung: flacher Anflug ohne 3D-Überschläge und
+ * Blur, weniger Ebenen und Icons erst nach der Landung. Muss den Media-Queries in
+ * home-modern-motion.css entsprechen.
  */
-export const MOTION_QUERY =
-  '(min-width: 901px) and (prefers-reduced-motion: no-preference) and (scripting: enabled)';
+export const MOTION_QUERY = '(prefers-reduced-motion: no-preference) and (scripting: enabled)';
+export const SMALL_QUERY = '(max-width: 900px), (pointer: coarse)';
 
 /** Icons, die beim Intro rund um die Kachel aufsteigen (wie im Entwurf). */
 export const PARTICLE_ICONS: readonly string[] = [
@@ -163,21 +165,23 @@ export const PARTICLE_ICONS: readonly string[] = [
 ];
 
 /**
- * Dicke der 3D-Kachel: 30 gestapelte Ebenen (1 px Abstand) hinter der Front, hinten dunkler.
- * Reihenfolge von hinten nach vorn; die vorderste Ebene ist die helle Kante.
+ * Dicke der 3D-Kachel: 30 gestapelte Bild-Ebenen (1 px Abstand) hinter der Front, hinten
+ * dunkler (tile-layer-1…4), vorn die helle Kante (tile-layer-5). Bilder statt CSS-Masken,
+ * weil Safari Masken in 3D nicht zuverlässig zeichnet. `fine`: Zwischenebenen, die Handy
+ * und Tablet weglassen (gleiche Dicke mit 10 statt 30 Ebenen, wie im Entwurf).
+ * Reihenfolge von hinten nach vorn.
  */
-export const TILE_LAYERS: readonly { depth: number; background: string }[] = Array.from(
+export const TILE_LAYERS: readonly { depth: number; src: string; fine: boolean }[] = Array.from(
   { length: 30 },
   (_, n) => {
     const depth = 30 - n;
     const k = depth / 30;
-    const r = (v: number) => Math.round(v * 10) / 10;
+    const n4 = Math.min(3, Math.floor(k * 4 - 1e-9));
     return {
       depth,
-      background:
-        depth <= 1
-          ? '#9fd0ff'
-          : `linear-gradient(160deg,hsl(210 90% ${r(58 - k * 26)}%),hsl(220 95% ${r(34 - k * 18)}%))`,
+      src: `/image/home/tile/tile-layer-${depth <= 1 ? 5 : n4 + 1}.webp`,
+      // Handy: jede dritte Ebene; statt Tiefe 3 die helle Kante (Tiefe 1).
+      fine: depth === 3 || (depth !== 1 && depth % 3 !== 0),
     };
   },
 );

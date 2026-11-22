@@ -429,6 +429,15 @@ body:has(#app[data-design='modern']) {
   mask-image: linear-gradient(to bottom, #000 55%, transparent 92%);
 }
 
+/* Hell: Bogen-Fläche ausblenden (nur der Strich bleibt). */
+:root:not([data-theme='dark']) #app[data-design='modern'] .mh-hero-arc .mh-arc-fill {
+  display: none;
+}
+
+:root:not([data-theme='dark']) #app[data-design='modern'] .mh-features svg {
+  color: #2a5bc4;
+}
+
 #app[data-design='modern'] .mh-hero-grid {
   position: relative;
   z-index: 1;
@@ -577,8 +586,8 @@ body:has(#app[data-design='modern']) {
   transform: translateY(-50%);
   background: radial-gradient(
     closest-side,
-    rgba(59, 130, 246, 0.5),
-    rgba(37, 99, 235, 0.16) 60%,
+    rgba(70, 120, 200, 0.3),
+    rgba(50, 90, 170, 0.1) 60%,
     transparent
   );
   pointer-events: none;
@@ -597,12 +606,23 @@ body:has(#app[data-design='modern']) {
   transform: perspective(1000px) rotateY(-18deg) rotateX(4deg);
 }
 
-/* Dicke: gestapelte Ebenen hinter der Front (Farbe/Tiefe je Ebene inline). */
+/* Dicke: gestapelte Bild-Ebenen hinter der Front (Tiefe je Ebene inline). Bilder statt
+   CSS-Masken: Safari zeichnet Masken in 3D nicht zuverlässig. */
 #app[data-design='modern'] .mh-tile-layer {
   position: absolute;
-  inset: 0;
-  -webkit-mask: url('/image/home/tile/tile-mask.png') center / 100% 100% no-repeat;
-  mask: url('/image/home/tile/tile-mask.png') center / 100% 100% no-repeat;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+/* Handy/Tablet: 10 statt 30 Ebenen (jede dritte), gleiche Dicke. */
+@media (max-width: 900px), (pointer: coarse) {
+  #app[data-design='modern'] .mh-tile-layer.is-fine {
+    display: none;
+  }
 }
 
 #app[data-design='modern'] .mh-tile-face {
@@ -624,6 +644,16 @@ body:has(#app[data-design='modern']) {
 #app[data-design='modern'] .mh-tile-part {
   display: none;
   position: absolute;
+}
+
+/* Glanz und Plaketten-Rand über allem. */
+#app[data-design='modern'] .mh-tile-face .mh-tile-gloss {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 4;
+  width: 100%;
+  pointer-events: none;
 }
 
 #app[data-design='modern'] .mh-tile-base {
@@ -1165,6 +1195,21 @@ body:has(#app[data-design='modern']) {
     width: 100%;
     padding: 0 24px;
     justify-content: center;
+  }
+
+  /* 16px im Suchfeld: iOS zoomt beim Antippen sonst hinein. */
+  #app[data-design='modern'] .mh-search {
+    gap: 10px;
+    padding-left: 14px;
+  }
+
+  #app[data-design='modern'] .mh-search input {
+    font-size: 16px;
+  }
+
+  #app[data-design='modern'] .mh-search button {
+    padding: 0 16px;
+    font-size: 15px;
   }
 }
 
