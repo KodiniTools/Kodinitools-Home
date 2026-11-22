@@ -1,0 +1,575 @@
+---
+/**
+ * Startseite im modernen Design (Admin > Layout > Seiten-Layout „Modernes Design").
+ * Aufbau 1:1 nach dem Entwurf „KodiniTools-Design-Nachbau-Dropdown-Fix.html":
+ * Navigation mit Tools-Dropdown, Hero (Eyebrow, Titel mit Akzent, zwei Knöpfe,
+ * Vorteile, 3D-Logo), große Suche, 4 Reiter, Karten, schlichter Footer.
+ *
+ * Texte: vorhandene Locale-/Admin-Schlüssel unverändert (hero.*, search.*,
+ * *.sectionTitle/sectionDescription, Kartentexte); nur was es dort nicht gibt,
+ * kommt aus HOME_UI[lang].modern. Mobil-Performance: Hero-Titel im HTML, keine
+ * Animation, kein Web-Font, alle Karten-Links im HTML (Reiter blenden nur per CSS aus).
+ */
+import type { Lang } from '../i18n/lang';
+import { HOME_UI, type ModernCat } from '../i18n/home-ui';
+import { IMPRINT_PATH, PRIVACY_URL, CONTACT_URL, GALLERY_URL } from '../i18n/imprint';
+import { TOOL_CATALOG, type ToolProcessing } from '../content/toolCatalog';
+import {
+  modernCatOf,
+  modernIconOf,
+  featureIconId,
+  splitAccent,
+  MODERN_ICONS,
+  MODERN_VISIBLE,
+} from '../content/modernHome';
+import FavoritesSection from '../islands/favorites/FavoritesSection.vue';
+
+export interface ModernTool {
+  i18nKey: string;
+  title: string;
+  description: string;
+  link: string;
+  svg: string;
+  badge: string;
+}
+
+interface Props {
+  lang: Lang;
+  tools: ModernTool[];
+  hero: { title: string; subtitle: string; cta: string };
+  features: { key: string; text: string; hidden: boolean }[];
+  sections: Record<'tools' | 'imageTools', { title: string; description: string }>;
+  search: { placeholder: string; resultsTitle: string; noResults: string };
+  procBadge: boolean;
+  hiddenKeys: string[];
+}
+
+const { lang, tools, hero, features, sections, search, procBadge, hiddenKeys } = Astro.props;
+const ui = HOME_UI[lang];
+const m = ui.modern;
+const other: Lang = lang === 'de' ? 'en' : 'de';
+const homeHref = lang === 'de' ? '/' : '/en/';
+const otherHref = other === 'de' ? '/' : '/en/';
+const blogHref = lang === 'de' ? '/blog/' : '/en/blog/';
+const faqHref = lang === 'de' ? '/faq/' : '/en/faq/';
+
+const CATS: ModernCat[] = ['audio', 'image', 'video', 'text'];
+const catHead: Record<ModernCat, { kicker: string; title: string; description: string }> = {
+  audio: {
+    kicker: m.kicker.audio,
+    title: sections.tools.title,
+    description: sections.tools.description,
+  },
+  image: {
+    kicker: m.kicker.image,
+    title: sections.imageTools.title,
+    description: sections.imageTools.description,
+  },
+  video: { kicker: m.kicker.video, title: m.videoTitle, description: m.videoDescription },
+  text: { kicker: m.kicker.text, title: m.textTitle, description: m.textDescription },
+};
+
+// Karten je Reiter; ab der 7. Karte eines Reiters „is-extra" (erst mit „Alle … anzeigen" sichtbar).
+const seen: Record<ModernCat, number> = { audio: 0, image: 0, video: 0, text: 0 };
+const cards = tools.map((t) => {
+  const cat = modernCatOf(t.i18nKey);
+  const idx = seen[cat]++;
+  const [name, ...rest] = t.title
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
+  const formats = TOOL_CATALOG[t.i18nKey]?.formats ?? [];
+  const sub = rest.length ? rest.join(' ') : formats.join('-');
+  const proc: ToolProcessing | undefined = procBadge
+    ? TOOL_CATALOG[t.i18nKey]?.processing
+    : undefined;
+  return {
+    ...t,
+    cat,
+    extra: idx >= MODERN_VISIBLE,
+    name: name ?? t.title,
+    sub,
+    icon: modernIconOf(t.i18nKey),
+    proc,
+  };
+});
+const catCount = (c: ModernCat) => seen[c];
+const showAllText = (c: ModernCat) => m.showAll.replace('{title}', catHead[c].title);
+const activeCat: ModernCat = CATS.find((c) => catCount(c) > 0) ?? 'audio';
+
+const titleLines = (hero.title || ui.heroTitleFallback).split('\n');
+const visibleFeatures = features.filter((f) => !f.hidden);
+
+// Texte für das kleine Seitenskript (Reiter, Suche, „Alle anzeigen").
+const scriptData = {
+  heads: catHead,
+  showAll: Object.fromEntries(CATS.map((c) => [c, showAllText(c)])),
+  counts: Object.fromEntries(CATS.map((c) => [c, catCount(c)])),
+  searchKicker: m.kicker.search,
+  searchTitle: search.resultsTitle,
+  searchFor: m.searchFor,
+  menuOpen: m.nav.menuOpen,
+  menuClose: m.nav.menuClose,
+  visible: MODERN_VISIBLE,
+};
+---
+
+<script is:inline>
+  // Farbschema vor dem ersten Zeichnen setzen (gleicher Speicher wie die übrigen Seiten).
+  (function () {
+    try {
+      const t =
+        localStorage.getItem('theme') ||
+        (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', t);
+    } catch {
+      // Speicher gesperrt (privater Modus): Farbschema gilt nur bis zum Neuladen.
+    }
+  })();
+</script>
+
+<svg xmlns="http://www.w3.org/2000/svg" class="mh-sprite" aria-hidden="true">
+  {
+    Object.entries(MODERN_ICONS).map(([id, d]) => (
+      <symbol id={`mhi-${id}`} viewBox="0 0 24 24" set:html={d} />
+    ))
+  }
+</svg>
+
+<header class="mh-topbar">
+  <div class="mh-shell mh-nav">
+    <a class="mh-brand" href={homeHref}>
+      <img
+        src="/image/home/logo-3d-96.webp"
+        width="48"
+        height="48"
+        alt="KodiniTools Logo"
+        decoding="async"
+      />
+      <span>KodiniTools</span>
+    </a>
+    <nav class="mh-navlinks" id="mh-navlinks" aria-label={m.nav.label}>
+      <div class="mh-menu">
+        <button type="button" class="mh-menu-btn" aria-haspopup="true" aria-expanded="false">
+          {m.nav.tools}
+          <svg class="mh-chev" width="12" height="12" aria-hidden="true"
+            ><use href="#mhi-chevron"></use></svg
+          >
+        </button>
+        <div class="mh-menu-list">
+          {
+            CATS.filter((c) => catCount(c) > 0).map((c) => (
+              <a href="#tools" data-cat-link={c}>
+                {catHead[c].title}
+              </a>
+            ))
+          }
+        </div>
+      </div>
+      <a href={blogHref}>{m.nav.blog}</a>
+      <a href={GALLERY_URL}>{m.nav.gallery}</a>
+      <a href={faqHref}>{m.nav.faq}</a>
+      <a href={CONTACT_URL}>{m.nav.contact}</a>
+    </nav>
+    <div class="mh-actions">
+      <button type="button" class="mh-round" id="mh-focus-search" aria-label={m.nav.search}>
+        <svg width="20" height="20" aria-hidden="true"><use href="#mhi-search"></use></svg>
+      </button>
+      <button type="button" class="mh-switch" id="mh-theme" aria-label={m.nav.theme}>
+        <span class="mh-moon" aria-hidden="true">☾</span><span class="mh-orb" aria-hidden="true"
+        ></span>
+      </button>
+      <div class="mh-menu mh-lang">
+        <button
+          type="button"
+          class="mh-pill"
+          aria-haspopup="true"
+          aria-expanded="false"
+          aria-label={m.nav.language}
+        >
+          {lang.toUpperCase()}
+          <svg class="mh-chev" width="12" height="12" aria-hidden="true"
+            ><use href="#mhi-chevron"></use></svg
+          >
+        </button>
+        <div class="mh-menu-list mh-menu-list--right">
+          <a href={homeHref} aria-current="page" lang={lang}>{lang.toUpperCase()}</a>
+          <a href={otherHref} lang={other} hreflang={other}>{other.toUpperCase()}</a>
+        </div>
+      </div>
+      <button
+        type="button"
+        class="mh-round mh-hamburger"
+        id="mh-burger"
+        aria-label={m.nav.menuOpen}
+        aria-expanded="false"
+        aria-controls="mh-navlinks"
+      >
+        <svg width="20" height="20" aria-hidden="true"><use href="#mhi-burger"></use></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main-content" class="mh-shell">
+  <section class="mh-hero">
+    <div class="mh-hero-copy">
+      <p class="mh-eyebrow">{m.eyebrow}</p>
+      {/* Titel sofort vollständig im HTML (LCP). *…* im Admin-Text = farbiger Teil. */}
+      <h1 class="mh-title hero-title">
+        {
+          titleLines.map((line, i) => [
+            i > 0 ? <br /> : null,
+            splitAccent(line).map((part) =>
+              part.accent ? <span class="mh-accent">{part.text}</span> : part.text,
+            ),
+          ])
+        }
+      </h1>
+      {
+        hero.subtitle && (
+          <p class="mh-lead">
+            {hero.subtitle.split('\n').map((line, i) => (i > 0 ? [<br />, line] : line))}
+          </p>
+        )
+      }
+      <div class="mh-hero-buttons">
+        <a class="mh-primary" href="#tools">
+          <svg width="14" height="14" aria-hidden="true"><use href="#mhi-play-solid"></use></svg>
+          <span>{hero.cta || ui.cta}</span>
+        </a>
+        <a class="mh-secondary" href="#tools" data-show-all>
+          <span>{m.allTools}</span>
+          <svg width="16" height="16" aria-hidden="true"><use href="#mhi-arrow"></use></svg>
+        </a>
+      </div>
+      {
+        visibleFeatures.length > 0 && (
+          <ul class="mh-features">
+            {visibleFeatures.map((f) => (
+              <li data-feature={f.key}>
+                <svg width="18" height="18" aria-hidden="true">
+                  <use href={`#mhi-${featureIconId(f.key)}`} />
+                </svg>
+                <span>{f.text}</span>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+    <div class="mh-hero-art" aria-hidden="true">
+      <img
+        class="mh-hero-logo"
+        src="/image/home/hero-logo-3d-420.webp"
+        srcset="/image/home/hero-logo-3d-240.webp 240w, /image/home/hero-logo-3d-420.webp 420w"
+        sizes="(max-width: 740px) 215px, 300px"
+        width="300"
+        height="300"
+        alt=""
+        decoding="async"
+      />
+    </div>
+  </section>
+
+  <form class="mh-search" id="mh-search-form" role="search" action="#tools">
+    <svg width="22" height="22" aria-hidden="true"><use href="#mhi-search"></use></svg>
+    <input
+      id="mh-search"
+      type="search"
+      placeholder={search.placeholder}
+      aria-label={m.searchLabel}
+      autocomplete="off"
+      enterkeyhint="search"
+    />
+    <button type="submit">{m.searchButton}</button>
+  </form>
+
+  <div class="mh-cats" role="group" aria-label={m.catGroupLabel}>
+    {
+      CATS.filter((c) => catCount(c) > 0).map((c) => (
+        <button
+          type="button"
+          class:list={['mh-cat', { 'is-active': c === activeCat }]}
+          data-cat={c}
+          aria-pressed={c === activeCat ? 'true' : 'false'}
+        >
+          <svg width="26" height="26" aria-hidden="true">
+            <use href={`#mhi-cat-${c}`} />
+          </svg>
+          <span>{catHead[c].title}</span>
+        </button>
+      ))
+    }
+  </div>
+
+  <FavoritesSection
+    client:idle
+    lang={lang}
+    hiddenKeys={hiddenKeys}
+    showDesc
+    texts={{
+      title: ui.favoritesTitle,
+      clearAll: ui.favoritesClearAll,
+      favRemove: ui.favRemove,
+      favTitle: ui.favTitle,
+      open: ui.open,
+    }}
+  />
+
+  <section id="tools" class="mh-tools" data-active={activeCat} aria-labelledby="mh-section-title">
+    {/* Alte Sprungziele (#audio-tools usw.) wählen weiter den passenden Reiter. */}
+    <span id="audio-tools" class="mh-anchor"></span><span id="image-tools" class="mh-anchor"
+    ></span><span id="diverse-tools" class="mh-anchor"></span>
+    <div class="mh-section-head">
+      <p class="mh-eyebrow" id="mh-section-kicker">{catHead[activeCat].kicker}</p>
+      <h2 id="mh-section-title">{catHead[activeCat].title}</h2>
+      <p id="mh-section-desc">{catHead[activeCat].description}</p>
+    </div>
+    <div class="mh-grid" id="mh-grid">
+      {
+        cards.map((t) => (
+          <a
+            href={t.link}
+            class:list={['svg-card-link', 'mh-card', { 'is-extra': t.extra }]}
+            data-cat={t.cat}
+            data-title={t.title}
+            data-description={t.description}
+            data-i18n-key={t.i18nKey}
+            data-processing={t.proc}
+            {...{ [`data-svg-${lang}`]: t.svg }}
+            title={t.description}
+          >
+            <span class="mh-icon">
+              {t.svg ? (
+                <img src={t.svg} alt="" width="38" height="38" loading="lazy" decoding="async" />
+              ) : (
+                <svg width="38" height="38" aria-hidden="true">
+                  <use href={`#mhi-${t.icon}`} />
+                </svg>
+              )}
+            </span>
+            <span class="mh-info">
+              <h3 class="tool-card-title">{t.name}</h3>
+              {t.sub && <span class="mh-sub">{t.sub}</span>}
+              <span class="mh-tags">
+                {t.badge && <span class="tool-card-badge">{t.badge}</span>}
+                {t.proc && <span class="mh-tag-proc">{ui.procLabel[t.proc]}</span>}
+              </span>
+            </span>
+            <button type="button" class="fav-btn" aria-label={ui.favAdd} title={ui.favTitle}>
+              <svg width="16" height="16" aria-hidden="true">
+                <use href="#mhi-bookmark" />
+              </svg>
+            </button>
+            <span class="mh-arrow" aria-hidden="true">
+              <svg width="16" height="16">
+                <use href="#mhi-arrow" />
+              </svg>
+            </span>
+          </a>
+        ))
+      }
+      <p class="mh-noresults" id="mh-noresults" role="status" hidden>{search.noResults}</p>
+    </div>
+    <div class="mh-footer-action">
+      <button
+        type="button"
+        class="mh-all"
+        id="mh-show-all"
+        hidden={catCount(activeCat) <= MODERN_VISIBLE}
+      >
+        <span id="mh-show-all-text">{showAllText(activeCat)}</span>
+        <svg width="16" height="16" aria-hidden="true"><use href="#mhi-arrow"></use></svg>
+      </button>
+    </div>
+  </section>
+</main>
+
+<footer class="mh-footer">
+  <div class="mh-shell mh-footer-inner">
+    <span>© {new Date().getFullYear()} KodiniTools · {m.footerTagline}</span>
+    <span><a href={IMPRINT_PATH[lang]}>{m.imprint}</a> · <a href={PRIVACY_URL}>{m.privacy}</a></span
+    >
+  </div>
+</footer>
+
+{/* Ohne JS: alle Karten aller Reiter zeigen (Links bleiben nutzbar). */}
+<noscript
+  ><style is:inline>
+    #app[data-design='modern'] .mh-card {
+      display: flex !important;
+    }
+    #app[data-design='modern'] .mh-cats,
+    #app[data-design='modern'] .mh-search,
+    #app[data-design='modern'] .mh-footer-action {
+      display: none !important;
+    }
+  </style></noscript
+>
+
+<script is:inline define:vars={{ mh: scriptData }}>
+  (function () {
+    const root = document.getElementById('tools');
+    if (!root) return;
+    const grid = document.getElementById('mh-grid');
+    const input = document.getElementById('mh-search');
+    const none = document.getElementById('mh-noresults');
+    const showAll = document.getElementById('mh-show-all');
+    const showAllText = document.getElementById('mh-show-all-text');
+    const kicker = document.getElementById('mh-section-kicker');
+    const title = document.getElementById('mh-section-title');
+    const desc = document.getElementById('mh-section-desc');
+    const cats = document.querySelectorAll('.mh-cat');
+    const cards = grid.querySelectorAll('.mh-card');
+    let cat = root.getAttribute('data-active');
+
+    function head(k, t, d) {
+      kicker.textContent = k;
+      title.textContent = t;
+      desc.textContent = d;
+    }
+
+    function setCat(next, all) {
+      if (!mh.heads[next]) return;
+      cat = next;
+      if (input.value) {
+        input.value = '';
+        root.classList.remove('is-search');
+        cards.forEach(function (c) {
+          c.classList.remove('is-hit');
+        });
+        none.hidden = true;
+      }
+      root.setAttribute('data-active', cat);
+      root.classList.toggle('is-all', !!all);
+      cats.forEach(function (b) {
+        const on = b.getAttribute('data-cat') === cat;
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      head(mh.heads[cat].kicker, mh.heads[cat].title, mh.heads[cat].description);
+      showAllText.textContent = mh.showAll[cat];
+      showAll.hidden = !!all || mh.counts[cat] <= mh.visible;
+    }
+
+    cats.forEach(function (b) {
+      b.addEventListener('click', function () {
+        setCat(b.getAttribute('data-cat'), false);
+      });
+    });
+    document.querySelectorAll('[data-cat-link]').forEach(function (a) {
+      a.addEventListener('click', function () {
+        setCat(a.getAttribute('data-cat-link'), false);
+        closeMenu();
+      });
+    });
+    document.querySelectorAll('[data-show-all]').forEach(function (a) {
+      a.addEventListener('click', function () {
+        setCat(cat, true);
+      });
+    });
+    showAll.addEventListener('click', function () {
+      setCat(cat, true);
+    });
+
+    input.addEventListener('input', function () {
+      const q = input.value.trim().toLowerCase();
+      root.classList.toggle('is-search', !!q);
+      if (!q) {
+        setCat(cat, root.classList.contains('is-all'));
+        return;
+      }
+      let hits = 0;
+      cards.forEach(function (c) {
+        const text = (
+          (c.getAttribute('data-title') || '') +
+          ' ' +
+          (c.getAttribute('data-description') || '') +
+          ' ' +
+          c.textContent
+        ).toLowerCase();
+        const hit = text.indexOf(q) !== -1;
+        c.classList.toggle('is-hit', hit);
+        if (hit) hits++;
+      });
+      none.hidden = hits > 0;
+      showAll.hidden = true;
+      head(mh.searchKicker, mh.searchTitle, mh.searchFor.replace('{q}', input.value.trim()));
+    });
+    document.getElementById('mh-search-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    document.getElementById('mh-focus-search').addEventListener('click', function () {
+      input.focus({ preventScroll: true });
+      input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+
+    // Alte Sprungziele aus Links: #image-tools -> Reiter Bild usw.
+    const legacy = { '#audio-tools': 'audio', '#image-tools': 'image', '#diverse-tools': 'video' };
+    function fromHash() {
+      if (legacy[location.hash]) setCat(legacy[location.hash], false);
+    }
+    fromHash();
+    window.addEventListener('hashchange', fromHash);
+
+    // Hell/Dunkel
+    document.getElementById('mh-theme').addEventListener('click', function () {
+      const next =
+        document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try {
+        localStorage.setItem('theme', next);
+      } catch {
+        // Speicher gesperrt (privater Modus): Farbschema gilt nur bis zum Neuladen.
+      }
+    });
+
+    // Menüs (Tools, Sprache): Klick/Tastatur; Hover regelt das CSS (Desktop mit Maus).
+    const menus = document.querySelectorAll('.mh-menu');
+    function closeMenu(except) {
+      menus.forEach(function (mn) {
+        if (mn !== except) {
+          mn.classList.remove('is-open');
+          mn.querySelector('button').setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+    menus.forEach(function (mn) {
+      const btn = mn.querySelector('button');
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        closeMenu(mn);
+        const open = mn.classList.toggle('is-open');
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+      mn.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          closeMenu();
+          btn.focus();
+        }
+      });
+    });
+    document.addEventListener('click', function () {
+      closeMenu();
+    });
+
+    // Hamburger (bis 1240px)
+    const burger = document.getElementById('mh-burger');
+    const links = document.getElementById('mh-navlinks');
+    burger.addEventListener('click', function (e) {
+      e.stopPropagation();
+      const open = links.classList.toggle('is-open');
+      burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+      burger.setAttribute('aria-label', open ? mh.menuClose : mh.menuOpen);
+    });
+    links.addEventListener('click', function (e) {
+      if (e.target.closest('a')) {
+        links.classList.remove('is-open');
+        burger.setAttribute('aria-expanded', 'false');
+        burger.setAttribute('aria-label', mh.menuOpen);
+      }
+    });
+  })();
+</script>

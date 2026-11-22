@@ -1,0 +1,88 @@
+---
+// Startseite im modernen Design (Admin > Layout > Seiten-Layout „Modernes Design“, nur mit
+// Kompakt-Layout). src/pages/index.astro und en/index.astro wählen zwischen dieser Seite und
+// HomePage.astro; das klassische HTML bleibt dadurch unverändert.
+import HomeLayout from '../../layouts/HomeLayout.astro';
+import ModernHome, { type ModernTool } from '../ModernHome.astro';
+import homeModernCssRaw from '../../styles/parts/home-modern.css?raw';
+import { getContent, getHiddenCards, getHomeLayout, getMedia } from '../../content/content';
+import type { Lang } from '../../i18n/lang';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+const de = getContent('de');
+const page = lang === 'de' ? de : (getContent('en') as typeof de);
+const media = getMedia(lang);
+const hiddenCards = getHiddenCards();
+const homeLayout = getHomeLayout();
+
+type ToolEntry = { title: string; description: string; badge: string; link: string; svg: string };
+function isTool(val: unknown): val is ToolEntry {
+  return typeof val === 'object' && val !== null && 'title' in val && 'link' in val;
+}
+function cardsOf(section: 'tools' | 'imageTools' | 'diverseTools'): ModernTool[] {
+  return Object.entries(page[section] as Record<string, unknown>)
+    .filter((e): e is [string, ToolEntry] => isTool(e[1]))
+    .map(([k, t]) => ({
+      i18nKey: `${section}.${k}`,
+      title: t.title,
+      description: t.description,
+      link: t.link,
+      svg: t.svg,
+      badge: t.badge,
+    }))
+    .filter((t) => !hiddenCards.has(t.i18nKey));
+}
+const tools = [...cardsOf('tools'), ...cardsOf('imageTools'), ...cardsOf('diverseTools')];
+
+const hiddenChips = new Set(
+  Array.isArray(media.heroDesign.hiddenChips) ? media.heroDesign.hiddenChips : [],
+);
+const features = Object.entries(page.hero.features).map(([key, text]) => ({
+  key,
+  text,
+  hidden: hiddenChips.has(key) || media.heroDesign.showChips === false,
+}));
+const str = (v: unknown) => (typeof v === 'string' ? v : '');
+const sections = {
+  tools: { title: str(page.tools.sectionTitle), description: str(page.tools.sectionDescription) },
+  imageTools: {
+    title: str(page.imageTools.sectionTitle),
+    description: str(page.imageTools.sectionDescription),
+  },
+};
+const hero = {
+  title: media.heroDesign.showTitle === false ? '' : page.hero.title,
+  subtitle: media.heroDesign.showSubtitle === false ? '' : page.hero.subtitle,
+  cta: page.hero.cta,
+};
+const search = {
+  placeholder: page.search.placeholder,
+  resultsTitle: page.search.resultsTitle,
+  noResults: page.search.noResults,
+};
+// Kommentare und Einrückung entfernen; die Regeln stehen inline (eine Anfrage weniger).
+const css = homeModernCssRaw
+  .replace(/\/\*[\s\S]*?\*\//g, '')
+  .replace(/\s+/g, ' ')
+  .trim();
+---
+
+<HomeLayout lang={lang}>
+  <div id="app" data-design="modern" data-home-layout="compact">
+    <style is:global set:html={css}></style>
+    <ModernHome
+      lang={lang}
+      tools={tools}
+      hero={hero}
+      features={features}
+      sections={sections}
+      search={search}
+      procBadge={homeLayout.toolBadge}
+      hiddenKeys={[...hiddenCards]}
+    />
+  </div>
+</HomeLayout>
