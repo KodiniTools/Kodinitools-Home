@@ -5,7 +5,7 @@
 
 :root {
   /* Schrift */
-  --site-font: 'Supreme', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+  --site-font: Arial, 'Helvetica Neue', Helvetica, sans-serif;
   /* Markenfarben */
   --color-gold: #e8a945;
   --color-blue: #014f99;

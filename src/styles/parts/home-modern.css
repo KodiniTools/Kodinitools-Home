@@ -1,26 +1,13 @@
 /*
  * Startseite im modernen Design (Admin > Layout > Seiten-Layout „Modernes Design").
  * Markup: src/components/ModernHome.astro, eingebunden über ModernHomePage.astro (inline, ?raw).
- * Vorlage: Entwurf „KodiniTools – Kostenlose Online-Tools (Copy)" (3D-Kachel, Plus Jakarta Sans).
+ * Vorlage: Entwurf „KodiniTools – Kostenlose Online-Tools (Copy)" (3D-Kachel). Schrift: Arial Bold wie die ganze Website (base.css).
  *
  * Diese Datei ist der ruhende Zustand: keine Animation, kein filter: blur(), kein
  * backdrop-filter, kein background-attachment: fixed. Alles Bewegte (Kachel-Intro,
  * aufsteigende Icons, Einblenden, Hover-Blitz) steht in home-modern-motion.css.
  * Alle Regeln gelten nur unter #app[data-design='modern'] (bzw. body:has(...)).
  */
-
-/* Schrift selbst ausgeliefert (variabel 200–800, nur Latin, 27 KB), Ersatz bis zum Laden. */
-@font-face {
-  font-family: 'Plus Jakarta Sans';
-  src: url('/fonts/PlusJakartaSans-Variable.woff2') format('woff2');
-  font-weight: 200 800;
-  font-style: normal;
-  /* optional: kein Austausch nach dem ersten Zeichnen (LCP/CLS); vorgeladen meist sofort da. */
-  font-display: optional;
-  unicode-range:
-    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
-    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
 
 /* ---------- Farben (dunkel = Entwurf) ---------- */
 #app[data-design='modern'] {
@@ -48,13 +35,7 @@
 
   min-height: 100vh;
   color: var(--md-text);
-  font-family:
-    'Plus Jakarta Sans',
-    system-ui,
-    -apple-system,
-    'Segoe UI',
-    Roboto,
-    sans-serif;
+  font-family: var(--site-font);
 }
 
 :root:not([data-theme='dark']) #app[data-design='modern'] {

@@ -297,7 +297,6 @@
   flex: none;
   font-size: var(--tc-desc-size, 0.8rem);
   color: var(--tc-desc-color, var(--text-muted));
-  font-family: var(--tc-text-font);
   text-align: var(--tc-align, left);
 }
 

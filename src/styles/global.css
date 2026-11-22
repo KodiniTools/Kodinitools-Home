@@ -5,7 +5,7 @@
  * reihenfolge, damit die CSS-Kaskade unverändert bleibt (keine Regression).
  * @import wird von Vite beim Build inline zusammengeführt (kein Extra-Request).
  */
-@import './parts/base.css'; /* @font-face, Reset */
+@import './parts/base.css'; /* Reset (Schrift: ../site-font.css) */
 @import './parts/tokens.css'; /* Design-Tokens (generiert aus ../tokens.json) */
 @import './parts/keyframes.css'; /* geteilte Keyframes (fadeInUp, shimmer, …) */
 @import './parts/background.css'; /* globaler Hintergrund, Aurora-Mesh, Spotlight */

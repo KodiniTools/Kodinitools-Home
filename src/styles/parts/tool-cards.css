@@ -145,7 +145,6 @@
   text-transform: var(--tc-badge-transform, uppercase);
   color: var(--tc-badge-color, var(--primary-color));
   background: var(--tc-badge-bg, rgba(1, 79, 153, 0.08));
-  font-family: var(--tc-text-font); /* undefiniert = erben (Admin > Tool-Karten > Typografie) */
   border: 1px solid rgba(1, 79, 153, 0.14);
   border-radius: 0.35rem;
   padding: 0.15rem 0.42rem;
@@ -166,7 +165,6 @@
   color: var(--tc-title-color, var(--text-color));
   letter-spacing: var(--tc-title-spacing, normal);
   text-transform: var(--tc-title-transform, none);
-  font-family: var(--tc-title-font); /* undefiniert = erben */
   text-align: var(--tc-align, left);
   line-height: 1.3;
   /* Platz für zwei Zeilen reservieren: ein- und zweizeilige Titel ergeben gleich hohe Karten. */
@@ -209,7 +207,6 @@
   font-size: var(--tc-open-size, 0.75rem);
   font-weight: var(--tc-open-weight, 600);
   color: var(--tc-open-color, var(--primary-color));
-  font-family: var(--tc-text-font);
   display: flex;
   align-items: center;
   gap: 0.25rem;
@@ -323,7 +320,6 @@
 .tool-popup-desc {
   font-size: var(--tc-desc-size, 0.8rem);
   color: var(--tc-desc-color, var(--text-muted));
-  font-family: var(--tc-text-font);
   text-align: var(--tc-align, left);
   line-height: 1.55;
   margin: 0;

@@ -59,7 +59,6 @@
   z-index: 1;
   font-weight: 600;
   color: var(--hero-chip-text, #013f7a);
-  font-family: var(--hero-btn-ff, inherit);
   letter-spacing: var(--hero-btn-ls, normal);
   -webkit-text-stroke: var(--hero-btn-stroke, 0);
   font-size: var(--hero-chip-fs, 0.95rem);
