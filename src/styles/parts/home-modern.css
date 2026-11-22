@@ -580,11 +580,19 @@ body:has(#app[data-design='modern']) {
   width: calc(var(--ts) * 1.05);
 }
 
-/* Leichte Neigung: rechte Außenkante als 3D-Kante sichtbar. */
+/* Endlage gerade (Wunsch Kodini 22.11.2026): Die Kachel-Bilder sind schräg gezeichnet
+   (gedreht und perspektivisch). Diese Gegendrehung, an den Ecken von tile.webp
+   ausgemessen, stellt das Logo frontal und aufrecht. Drehpunkt = Mitte der Kachel im Bild.
+   Die Perspektive wächst mit der Kachelgröße (--ts), damit die Korrektur bei jeder
+   Breite gleich wirkt. scaleX gleicht die Stauchung der Zeichnung aus (Seitenverhältnis
+   wie das Logo brand.webp). Das Intro (home-modern-motion.css) bewegt .mh-tile-stage und
+   endet bei 0, die Endlage kommt also von hier. */
 #app[data-design='modern'] .mh-tile-tilt {
   position: relative;
   transform-style: preserve-3d;
-  transform: perspective(1000px) rotateY(-18deg) rotateX(4deg);
+  transform-origin: 50.06% 48.75%;
+  transform: scaleX(1.08) perspective(calc(var(--ts) * 4.217)) rotateX(5.38deg) rotateY(16.98deg)
+    rotateZ(-7.49deg);
 }
 
 /* Dicke: gestapelte Bild-Ebenen hinter der Front (Tiefe je Ebene inline). Bilder statt
