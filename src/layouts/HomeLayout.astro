@@ -1,17 +1,16 @@
 ---
 import '../styles/global.css';
-import { getSiteFontStyle, getSiteBackgroundStyle, pageMetaFor } from '../content/content';
+import '../styles/site-font.css';
+import { getSiteBackgroundStyle, pageMetaFor } from '../content/content';
 import { alternates, HOME_PATH, OG_LOCALE, SITE, type Lang } from '../i18n/lang';
 import { HOME_SCHEMA_TOOLS, HOME_SEO } from '../i18n/home-seo';
 
 // Kopf der Startseite (/ und /en/): Meta-Tags, Open Graph, JSON-LD, hreflang.
 interface Props {
   lang: Lang;
-  /** Früh zu ladende Schriften (Pfade unter /fonts/, nur .woff2), z. B. die Hero-Titelschrift. */
-  preloadFonts?: string[];
 }
 
-const { lang, preloadFonts = [] } = Astro.props;
+const { lang } = Astro.props;
 const pm = pageMetaFor(lang, 'home');
 // Admin > Texte > Seiten-Meta überschreibt Titel/Beschreibung (auch Open Graph/Twitter); leer = Standard.
 const seo = {
@@ -56,7 +55,6 @@ const schema = {
 };
 
 // Globale Basis-Schrift (im Admin per Kachel gesetzt, sprachübergreifend).
-const siteFontStyle = getSiteFontStyle();
 // Globale Seiten-Hintergrundfarbe (Admin-Tab „Hintergrund", sprachübergreifend).
 const siteBgStyle = getSiteBackgroundStyle();
 ---
@@ -125,18 +123,9 @@ const siteBgStyle = getSiteBackgroundStyle();
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
 
-    <!-- Schriften des LCP-Elements (Hero-Titel) früh laden, statt sie erst über das CSS zu entdecken -->
-    {
-      preloadFonts.map((href) => (
-        <link rel="preload" as="font" type="font/woff2" href={href} crossorigin />
-      ))
-    }
-
     <!-- Sprache für die Client-Übersetzungen merken (nur EN, wie bisher) -->
     {lang === 'en' && <script is:inline>localStorage.setItem('locale', 'en');</script>}
 
-    <!-- Globale Basis-Schrift (Admin, sprachübergreifend) -->
-    {siteFontStyle && <style set:html={siteFontStyle} />}
     <!-- Globale Seiten-Hintergrundfarbe (Admin, sprachübergreifend) -->
     {siteBgStyle && <style set:html={siteBgStyle} />}
   </head>

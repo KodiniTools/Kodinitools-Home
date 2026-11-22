@@ -1,12 +1,12 @@
 ---
 import '../styles/global.css'
+import '../styles/site-font.css'
 import GlobalNav from '../components/GlobalNav.astro'
 import TickerBar from '../components/TickerBar.astro'
 import SiteFooter from '../components/SiteFooter.astro'
-import { getSiteFontStyle, getSiteBackgroundStyle } from '../content/content'
+import { getSiteBackgroundStyle } from '../content/content'
 
 // Globale Basis-Schrift (im Admin per Kachel gesetzt, sprachübergreifend).
-const siteFontStyle = getSiteFontStyle()
 // Globale Seiten-Hintergrundfarbe (Admin-Tab „Hintergrund", sprachübergreifend).
 const siteBgStyle = getSiteBackgroundStyle()
 
@@ -636,7 +636,6 @@ const schemaBreadcrumb = {
   </style>
 
   <!-- Globale Basis-Schrift (Admin, sprachübergreifend) -->
-  {siteFontStyle && <style set:html={siteFontStyle}></style>}
   <!-- Globale Seiten-Hintergrundfarbe (Admin, sprachübergreifend) -->
   {siteBgStyle && <style set:html={siteBgStyle}></style>}
 </head>

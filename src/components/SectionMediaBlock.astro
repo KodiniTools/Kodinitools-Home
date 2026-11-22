@@ -7,12 +7,7 @@
 // <SectionMedia> (gleicher Wrapper mit .section-video-wrapper).
 import SectionMedia from './SectionMedia.astro';
 import HeroSlides from './HeroSlides.astro';
-import {
-  imageAltFor,
-  textFontId,
-  type MediaConfig,
-  type SectionMediaKey,
-} from '../content/content';
+import { imageAltFor, type MediaConfig, type SectionMediaKey } from '../content/content';
 
 interface Props {
   media: MediaConfig;
@@ -30,7 +25,6 @@ const slides =
     : [];
 const t = cfg && cfg.text ? cfg.text : null;
 const hasText = !!(t && typeof t.text === 'string' && t.text.trim() !== '');
-const VALID_FONT = /^[a-zA-Z0-9][a-zA-Z0-9._ -]*\.(woff2|woff|ttf|otf)$/i;
 // Verschiebung des Blocks (Admin > Medien > Ganze Seite): relative Position, der
 // Platz im Fluss bleibt (.section-media-wrapper ist position:relative).
 const offX = Math.max(-1200, Math.min(1200, typeof cfg?.offsetX === 'number' ? cfg.offsetX : 0));
@@ -60,8 +54,6 @@ function textStyle(): string {
   if (t.color) p.push(`color:${t.color}`);
   const size = num(t.size, 0, 96, 0);
   if (size > 0) p.push(`font-size:${size}px`);
-  if (t.font && VALID_FONT.test(t.font))
-    p.push(`font-family:"${textFontId(t.font)}", var(--site-font)`);
   const op = num(t.opacity, 0, 100, 100);
   if (op < 100) p.push(`opacity:${(op / 100).toFixed(2)}`);
   const sw = num(t.strokeWidth, 0, 10, 0);

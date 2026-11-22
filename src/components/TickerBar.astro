@@ -43,18 +43,6 @@ function hexToRgba(hex: string, opacityPct: number): string | null {
   return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
 
-// Eigene Schrift (optional): der Admin wählt einen Dateinamen aus /fonts. Wir
-// erzeugen dafür eine @font-face-Regel und setzen die Schrift per CSS-Variable.
-function fontFormat(file: string): string {
-  const ext = (file.split('.').pop() || '').toLowerCase();
-  return { woff2: 'woff2', woff: 'woff', ttf: 'truetype', otf: 'opentype' }[ext] ?? '';
-}
-// Dateiname -> eindeutiger, CSS-sicherer Family-Name.
-function fontFamilyId(file: string): string {
-  return 'ticker-font-' + file.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9]+/g, '-');
-}
-const VALID_FONT = /^[a-zA-Z0-9][a-zA-Z0-9._ -]*\.(woff2|woff|ttf|otf)$/i;
-
 // Inline-Links im Text: [Wort](/pfad/) oder [Wort](https://…) machen nur dieses
 // Wort zum Link. Andere/ungültige URLs bleiben unveränderter Literaltext (sicher
 // gegen javascript: & Co.). Rückgabe: Segmente aus Text bzw. Text+Link.
@@ -80,20 +68,11 @@ const s = ticker.style;
 // Modus kommen als eigener <style>-Block, der über einen id-Selektor gescopt ist –
 // so lässt sich der Dunkelmodus getrennt setzen (Inline-Style könnte das nicht).
 const styleVars: string[] = [];
-let fontFace: string | undefined;
 let colorCss: string | undefined;
 const tickerId = `ticker-${lang}`;
 if (s && s.enabled) {
   if (s.fontSize) styleVars.push(`--ticker-fs:${s.fontSize}px`);
   if (typeof s.letterSpacing === 'number') styleVars.push(`--ticker-ls:${s.letterSpacing}px`);
-  const font = typeof s.fontFamily === 'string' ? s.fontFamily.trim() : '';
-  if (font && VALID_FONT.test(font)) {
-    const fam = fontFamilyId(font);
-    const fmt = fontFormat(font);
-    const src = `url("/fonts/${encodeURIComponent(font)}")${fmt ? ` format("${fmt}")` : ''}`;
-    fontFace = `@font-face{font-family:"${fam}";src:${src};font-display:swap;}`;
-    styleVars.push(`--ticker-ff:"${fam}", system-ui, sans-serif`);
-  }
   const colorVars = (c: { textColor: string; bgColor: string; bgOpacity: number }): string => {
     const parts: string[] = [];
     if (c.textColor) parts.push(`--ticker-fg:${c.textColor}`);
@@ -111,8 +90,8 @@ if (s && s.enabled) {
   colorCss = rules.join('');
 }
 const tickerStyle = styleVars.length ? styleVars.join(';') : undefined;
-// @font-face + die modusabhängigen Farb-Regeln zusammen als globaler Style.
-const headCss = [fontFace, colorCss].filter(Boolean).join('');
+// Die modusabhängigen Farb-Regeln als globaler Style.
+const headCss = colorCss;
 ---
 
 {headCss && <style is:global set:html={headCss} />}
@@ -232,7 +211,6 @@ const headCss = [fontFace, colorCss].filter(Boolean).join('');
     align-items: center;
     padding: 8px 0;
     font-size: var(--ticker-fs, 0.9rem);
-    font-family: var(--ticker-ff, inherit);
     letter-spacing: var(--ticker-ls, normal);
     font-weight: 500;
     line-height: 1.2;

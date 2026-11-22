@@ -1,0 +1,18 @@
+/*
+ * Einzige Schrift der Website: Arial Bold (Vorgabe Kodini, 22.11.2026). Arial ist eine
+ * Systemschrift, es wird keine Schriftdatei geladen. Die Regel gilt bewusst mit !important,
+ * damit auch Formularfelder, Inline-Stile und ältere Admin-Einstellungen keine andere Schrift
+ * oder Stärke setzen. --site-font steht in tokens.css (aus tokens.json).
+ *
+ * Eigene Datei, per JS-Import eingebunden (SiteFont.astro, HomeLayout, BlogArticleLayout):
+ * Seiten, die global.css per @import in einem gescopten <style> laden, würden die Regel
+ * sonst auf ihre eigene Komponente beschränken (die Navigation bliebe aussen vor).
+ */
+html,
+body,
+body *,
+body *::before,
+body *::after {
+  font-family: var(--site-font, Arial, 'Helvetica Neue', Helvetica, sans-serif) !important;
+  font-weight: 700 !important;
+}

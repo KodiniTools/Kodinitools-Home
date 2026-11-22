@@ -1047,21 +1047,6 @@ export function getHeroBannerCss(media: MediaConfig): string | undefined {
   return rules.length ? rules.join('\n') : undefined;
 }
 
-// Schrift-Helfer für die Text-Slots (Dateiname -> Family-Name + @font-face).
-const TEXT_FONT_FILE = /^[a-zA-Z0-9][a-zA-Z0-9._ -]*\.(woff2|woff|ttf|otf)$/i;
-export function textFontId(file: string): string {
-  return 'kodini-font-' + file.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9]+/g, '-');
-}
-function textFontFaceCss(file: string): string {
-  const ext = (file.split('.').pop() || '').toLowerCase();
-  const fmt =
-    ({ woff2: 'woff2', woff: 'woff', ttf: 'truetype', otf: 'opentype' } as Record<string, string>)[
-      ext
-    ] || '';
-  const src = `url("/fonts/${encodeURIComponent(file)}")${fmt ? ` format("${fmt}")` : ''}`;
-  return `@font-face{font-family:"${textFontId(file)}";src:${src};font-display:swap;}`;
-}
-
 // CSS-Selektor je Text-Slot. Alle Slots außer dem Hero-Titel (wird per
 // Tipp-Animation gefüllt) sind über ihr data-i18n-Attribut erreichbar.
 // Tempo (Animationsdauer) je Geschwindigkeitsstufe – identisch zum Banner-Text.
@@ -1139,8 +1124,7 @@ const UNIFORM_TEXT_KEYS: readonly string[] = [
  */
 /**
  * Design der Sektions-Medien (Admin: Medien > linke Leiste) als CSS: Rahmen,
- * Eckenradius, Deckkraft, Verdunkelung je Sektion und Modus, plus @font-face
- * der Text-Overlay-Schriften. Nur Abweichungen vom Standard; `undefined` wenn
+ * Eckenradius, Deckkraft, Verdunkelung je Sektion und Modus. Nur Abweichungen vom Standard; `undefined` wenn
  * nichts gesetzt (unveränderte Seiten bleiben identisch).
  */
 export function getSectionMediaCss(media: MediaConfig): string | undefined {
@@ -1154,7 +1138,6 @@ export function getSectionMediaCss(media: MediaConfig): string | undefined {
   const hex = (v: unknown, def: string): string =>
     typeof v === 'string' && /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(v) ? v : def;
   const rules: string[] = [];
-  const faces = new Set<string>();
   for (const key of ['audio', 'image', 'diverse'] as SectionMediaKey[]) {
     const cfg = sm[key];
     if (!isPlainObject(cfg)) continue;
@@ -1202,11 +1185,8 @@ export function getSectionMediaCss(media: MediaConfig): string | undefined {
     };
     emit(wrap, L.w, D.w, BASE_W);
     emit(inner, L.m, D.m, BASE_M);
-    const font =
-      isPlainObject(cfg.text) && typeof cfg.text.font === 'string' ? cfg.text.font.trim() : '';
-    if (font && TEXT_FONT_FILE.test(font)) faces.add(font);
   }
-  const css = [...faces].map(textFontFaceCss).join('') + rules.join('\n');
+  const css = rules.join('\n');
   return css || undefined;
 }
 
@@ -1225,7 +1205,6 @@ export function getTextStylesCss(media: MediaConfig): string | undefined {
   const rules: string[] = [
     `${Object.values(TEXT_STYLE_SELECTORS).join(',')}{white-space:pre-line}`,
   ];
-  const faces = new Set<string>();
   const isHex = (v: unknown): v is string => /^#[0-9a-fA-F]{3,6}$/.test(String(v ?? ''));
   // -webkit-text-fill-color überschreibt auch Verlaufs-Überschriften.
   const colorDecl = (c: string) => `color:${c};-webkit-text-fill-color:${c};background:none`;
@@ -1246,11 +1225,6 @@ export function getTextStylesCss(media: MediaConfig): string | undefined {
     // schmalen Bildschirmen begrenzen kann (home-compact.css).
     if (typeof s.size === 'number' && s.size > 0)
       decl.push(`font-size:${s.size}px`, `--ts-fs:${s.size}px`);
-    const font = (s.font || '').trim();
-    if (font && TEXT_FONT_FILE.test(font)) {
-      faces.add(textFontFaceCss(font));
-      decl.push(`font-family:"${textFontId(font)}", var(--site-font)`);
-    }
     // Effekte (Deckkraft, Umriss, Schatten, Animation) anhängen.
     for (const d of textFxDecls(s)) decl.push(d);
     // Verschiebung: relative Position (nicht transform – die Entrance-Animationen
@@ -1265,7 +1239,7 @@ export function getTextStylesCss(media: MediaConfig): string | undefined {
     if (light) rules.push(`${lightSel(sel)}{${colorDecl(light)}}`);
     if (dark) rules.push(`[data-theme="dark"] ${sel}{${colorDecl(dark)}}`);
   }
-  return [...faces].join('') + rules.join('');
+  return rules.join('');
 }
 
 // --- Tool-Karten-Design (Tab „Tool-Karten") ---
@@ -1334,7 +1308,6 @@ export function getToolCardsCss(media: MediaConfig): string | undefined {
   const tc = media.toolCards;
   if (!tc || tc.enabled !== true || !isPlainObject(tc.default)) return undefined;
   const rules: string[] = [];
-  const faces = new Set<string>();
   const def = tc.default;
   if (isPlainObject(def.light)) rules.push(`#app .tool-card{${toolCardSideVars(def.light)}}`);
   if (isPlainObject(def.dark))
@@ -1361,7 +1334,7 @@ export function getToolCardsCss(media: MediaConfig): string | undefined {
   const pushText = (sel: string, style: ToolCardStyle, isDefault: boolean) => {
     const L = isDefault ? defL : colorMap(style.light);
     const D = isDefault ? defD : colorMap(style.dark);
-    const typo = isPlainObject(style.text) ? toolCardTextVars(style.text, faces) : [];
+    const typo = isPlainObject(style.text) ? toolCardTextVars(style.text) : [];
     emit(sel, [...L.entries(), ...typo]);
     const dark = isDefault
       ? darkEntries([defL, defD], [defD])
@@ -1401,7 +1374,7 @@ export function getToolCardsCss(media: MediaConfig): string | undefined {
     pushShow(`#app .svg-card-link[data-i18n-key="${key}"]`, style, def);
   }
   if (!rules.length) return undefined;
-  return [...faces, ...rules].join('');
+  return rules.join('');
 }
 // Text-Farben eines Modus als [--tc-*-Variable, Wert] (nur gesetzte Felder).
 function toolCardTextColorVars(side: ToolCardSide): Array<[string, string]> {
@@ -1421,19 +1394,11 @@ function toolCardTextColorVars(side: ToolCardSide): Array<[string, string]> {
   if (isHex(side.descBgColor)) v.push(['--tc-desc-bg', side.descBgColor]);
   return v;
 }
-// Typografie (Hell + Dunkel) als Variablen; Schriften ergänzen @font-face in `faces`.
-function toolCardTextVars(text: ToolCardText, faces: Set<string>): Array<[string, string]> {
+// Typografie (Hell + Dunkel) als Variablen. Schriftwahl entfällt: überall Arial Bold (base.css).
+function toolCardTextVars(text: ToolCardText): Array<[string, string]> {
   const v: Array<[string, string]> = [];
   const num = (n: unknown, min: number, max: number) =>
     typeof n === 'number' && Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : 0;
-  const font = (file: unknown, name: string) => {
-    const f = String(file ?? '').trim();
-    if (!f || !TEXT_FONT_FILE.test(f)) return;
-    faces.add(textFontFaceCss(f));
-    v.push([name, `"${textFontId(f)}", ${SITE_FONT_FALLBACK}`]);
-  };
-  font(text.titleFont, '--tc-title-font');
-  font(text.textFont, '--tc-text-font');
   const size = (n: unknown, max: number, name: string) => {
     const s = num(n, 0, max);
     if (s > 0) v.push([name, `${s}px`]);
@@ -1847,35 +1812,6 @@ export function getHiddenCards(): Set<string> {
   if (Array.isArray(raw))
     for (const k of raw) if (typeof k === 'string' && TOOL_CARD_KEY.test(k)) out.add(k);
   return out;
-}
-
-// System-Fallback-Stack, wenn die globale Schrift nicht lädt.
-const SITE_FONT_FALLBACK =
-  "'Supreme', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif";
-const VALID_FONT_FILE = /^[a-zA-Z0-9][a-zA-Z0-9._ -]*\.(woff2|woff|ttf|otf)$/i;
-function siteFontId(file: string): string {
-  return 'kodini-font-' + file.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9]+/g, '-');
-}
-
-/**
- * CSS zum Setzen der globalen Basis-Schrift der ganzen Seite (@font-face plus
- * Überschreiben der CSS-Variable --site-font). Gibt `undefined` zurück, wenn
- * keine (gültige) globale Schrift gesetzt ist – dann bleibt der Standard.
- * Wird von allen Layouts (HomeLayout, BlogArticleLayout) im <head>
- * eingebunden, damit die Schrift auf der GANZEN Website greift.
- */
-export function getSiteFontStyle(): string | undefined {
-  const file = getSite().globalFont;
-  if (!file || !VALID_FONT_FILE.test(file)) return undefined;
-  const ext = (file.split('.').pop() || '').toLowerCase();
-  const fmt =
-    ({ woff2: 'woff2', woff: 'woff', ttf: 'truetype', otf: 'opentype' } as Record<string, string>)[
-      ext
-    ] || '';
-  const src = `url("/fonts/${encodeURIComponent(file)}")${fmt ? ` format("${fmt}")` : ''}`;
-  const id = siteFontId(file);
-  // html:root gewinnt gegen global.css :root (höhere Spezifität), unabhängig von der Reihenfolge.
-  return `@font-face{font-family:"${id}";src:${src};font-display:swap;}html:root{--site-font:"${id}", ${SITE_FONT_FALLBACK};}`;
 }
 
 // Gültige Hex-Farbe (#rgb oder #rrggbb).
