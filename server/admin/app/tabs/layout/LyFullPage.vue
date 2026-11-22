@@ -399,7 +399,7 @@
                   >{{ card.badge }}</span
                 >
                 <h3
-                  :style="`font-size:${card.d.titleSize}px;font-weight:${card.d.titleWeight};color:${c.title};line-height:1.3;min-height:2.6em;margin:0 0 5.6px;white-space:pre-line;text-align:${card.d.align};${card.d.titleFont}${vis(card.d.hidden.title)}`"
+                  :style="`font-size:${card.d.titleSize}px;font-weight:${card.d.titleWeight};color:${c.title};line-height:1.3;min-height:2.6em;margin:0 0 5.6px;white-space:pre-line;text-align:${card.d.align};${vis(card.d.hidden.title)}`"
                 >
                   {{ card.title }}
                 </h3>
@@ -482,7 +482,7 @@ const { service, view, styles, toast } = useLayout();
 const fp = service.fullPage;
 const lang = service.lang;
 const MODES: ThemeMode[] = ['light', 'dark'];
-/** @font-face der Seitenschrift + Kompakt-CSS als <style> (feste Texte aus dem Service). */
+/** Kompakt-CSS als <style> (feste Texte aus dem Service). */
 const StyleTag = (p: { css: string }) => h('style', p.css);
 StyleTag.props = ['css'];
 const STEP_OPTIONS = GRID_STEPS.map((n) => ({ value: String(n), label: `${n} px` }));

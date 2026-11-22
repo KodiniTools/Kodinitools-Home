@@ -116,11 +116,11 @@ describe('mediaData (Regeln wie public/sectionmedia.ts)', () => {
       strokeWidth: 1.5,
       shadowColor: '#112233',
     };
-    expect(textOverlayStyle(t, '')).toBe(vanillaTextStyle(t));
-    expect(textOverlayStyle({ ...t, shadow: false, opacity: 100, strokeWidth: 0 }, '')).toBe(
+    expect(textOverlayStyle(t)).toBe(vanillaTextStyle(t));
+    expect(textOverlayStyle({ ...t, shadow: false, opacity: 100, strokeWidth: 0 })).toBe(
       vanillaTextStyle({ ...t, shadow: false, opacity: 100, strokeWidth: 0 }),
     );
-    expect(textOverlayStyle(t, 'KtFont')).toContain("font-family:'KtFont'");
+    expect(textOverlayStyle({ ...t, font: 'KtFont.woff2' })).not.toContain('font-family');
   });
 
   it('Slot-Werte und Verlinkung (alle sechs Kacheln)', () => {
@@ -188,8 +188,6 @@ describe('MediaTab (Vue-Insel)', () => {
         media: state.media[lang] as unknown as MediaHost,
         service,
         pageBg: { light: '#fafafa', dark: '#091428' },
-        fonts: [],
-        ensureFontFace: (f: string) => 'kt-' + f,
         gotoLayout: vi.fn(),
       },
     });

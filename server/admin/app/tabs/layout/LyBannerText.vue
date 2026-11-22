@@ -2,19 +2,19 @@
   <aside class="tc-side" data-tcside="right">
     <div class="tc-side-head right">✍️ Banner-Text</div>
     <p class="hint">
-      Optionaler Text über dem Banner: Schriftart (aus <code>/fonts</code>), Farbe, Größe, Position
-      sowie Schatten, Umriss, Deckkraft und Animation. Leer = kein Text.
+      Optionaler Text über dem Banner (Schrift: Arial Bold): Farbe, Größe, Position sowie Schatten,
+      Umriss, Deckkraft und Animation. Leer = kein Text.
     </p>
     <div class="panel ly-copybox">
       <button
         type="button"
         class="hd-reset ly-wrapbtn"
-        title="Schrift, Farbe, Größe, Position und Effekte in die andere Sprache übernehmen – der Text selbst bleibt je Sprache"
+        title="Farbe, Größe, Position und Effekte in die andere Sprache übernehmen – der Text selbst bleibt je Sprache"
         :data-bannertextcopylang="OTHER"
         @click="emit('askCopyText')"
       >
         📋 Text-Design nach {{ LANG_LABEL[OTHER] }} übertragen<br /><span class="hint ly-m0"
-          >(Schrift, Farbe, Größe, Position, Effekte – der Text selbst bleibt)</span
+          >(Farbe, Größe, Position, Effekte – der Text selbst bleibt)</span
         >
       </button>
     </div>
@@ -30,23 +30,10 @@
           rows="3"
           placeholder="z.B. Willkommen (Enter = neue Zeile)"
           :value="t.text"
-          :style="fontStyle"
           data-bannerfield="text"
           @input="set('text', ($event.target as HTMLTextAreaElement).value)"
         ></textarea>
         <ResetBtn field="text" @reset="reset('text')" />
-      </div>
-      <div class="ly-inline ly-end">
-        <UiSelect
-          :model-value="t.font"
-          label="Schriftart des Textes"
-          size="sm"
-          :options="fontOptions(t.font)"
-          :style="fontStyle"
-          data-bannerfont
-          @update:model-value="set('font', String($event))"
-        />
-        <ResetBtn field="font" @reset="reset('font')" />
       </div>
       <TcColor
         field="textColor"
@@ -208,7 +195,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, useId } from 'vue';
+import { useId } from 'vue';
 import { SliderControl, UiSelect, UiSwitch } from '../../components/ui';
 import HdNum from '../hero/HdNum.vue';
 import ResetBtn from '../media/ResetBtn.vue';
@@ -228,15 +215,14 @@ import { useLayout } from './useLayout';
 
 /**
  * Rechte Seitenleiste „Banner-Text“ (wie `textSide` in
- * `public/layout-banner.js`): Text, Schrift, Farbe, Größe, Position und
+ * `public/layout-banner.js`): Text, Farbe, Größe, Position und
  * Effekte (Schatten, Umriss, Deckkraft, Animation). Gilt für beide Modi.
  */
 const emit = defineEmits<{ askCopyText: [] }>();
-const { service, view, text: t, fontDecl, fontOptions, toast } = useLayout();
+const { service, view, text: t, toast } = useLayout();
 const uid = `ly-bt-${useId()}`;
 const OTHER = otherLang(service.lang);
 
-const fontStyle = computed(() => fontDecl(t.value.font));
 const PRESETS: Record<PosPreset, { icon: string; title: string }> = {
   top: { icon: '⤒', title: 'Oben' },
   center: { icon: '◎', title: 'Mitte' },

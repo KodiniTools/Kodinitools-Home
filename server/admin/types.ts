@@ -170,14 +170,6 @@ export interface ServerFile {
 /** Server-Uploads getrennt nach Sprache; `shared` = alte, ungetrennte Dateien. */
 export type ServerFiles = ByLang<ServerFile[]> & { shared: ServerFile[] };
 
-/** Verfügbare Schrift (`GET /api/fonts`). */
-export interface FontEntry {
-  name: string;
-  label: string;
-  url: string;
-  bytes: number;
-}
-
 /** Schlüssel der Unter-Tabs je Sprache (Reihenfolge siehe `SUBTABS`). */
 export type SubtabKey =
   | 'ticker'
@@ -212,7 +204,6 @@ export interface AdminState {
   defaults: ByLang<Overrides>;
   stagedItems: StagedItem[];
   serverFiles: ServerFiles;
-  fonts: FontEntry[];
   /** id → objectURL (Vorschau gestagter Dateien). */
   objectUrls: Map<string, string>;
   nav: NavState;

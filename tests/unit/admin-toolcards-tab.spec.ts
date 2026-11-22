@@ -90,16 +90,12 @@ describe('tcData (Regeln wie public/toolcards.ts)', () => {
     expect(st.border).toBe('2px solid rgba(229, 231, 235, 1)');
     expect(st['--tc-hbc']).toBe('rgba(1, 79, 153, 0.22)');
     expect(st['--tc-hbg']).toBe('rgba(255, 255, 255, 0.5)');
-    const ts = textStyles(
-      { ...s, titleColor: '#ff0000' },
-      'dark',
-      {
-        ...tcService('de').textDefault(),
-        titleSize: 20,
-        align: 'center',
-      },
-      (f) => f,
-    );
+    const ts = textStyles({ ...s, titleColor: '#ff0000' }, 'dark', {
+      ...tcService('de').textDefault(),
+      titleSize: 20,
+      align: 'center',
+      titleFont: 'Alt.woff2',
+    });
     expect(ts.title).toBe('color:#ff0000;font-size:20px;text-align:center;');
     expect(ts.alignSelf).toBe('align-self:center;');
   });

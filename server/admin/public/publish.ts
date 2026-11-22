@@ -303,7 +303,7 @@ btnEl('#previewBtn').addEventListener('click', async () => {
   if (win) {
     win.document.write(
       '<!doctype html><meta charset="utf-8"><title>Vorschau wird erstellt…</title>' +
-        '<body style="font-family:system-ui;background:#0f172a;color:#e2e8f0;padding:2rem;line-height:1.6">' +
+        '<body style="font-family:Arial,Helvetica,sans-serif;font-weight:700;background:#0f172a;color:#e2e8f0;padding:2rem;line-height:1.6">' +
         '<p>🛠️ <strong>Vorschau wird gebaut …</strong></p>' +
         '<p>Das dauert typischerweise 15–40 Sekunden. Dieses Fenster lädt die ' +
         'Vorschau automatisch, sobald sie fertig ist.</p></body>',
@@ -327,7 +327,9 @@ btnEl('#previewBtn').addEventListener('click', async () => {
     setPill('error', 'Fehler');
     if (win)
       win.document.body.innerHTML =
-        '<p style="font-family:system-ui;color:#fecaca;padding:2rem">Fehler: ' + esc(msg) + '</p>';
+        '<p style="font-family:Arial,Helvetica,sans-serif;font-weight:700;color:#fecaca;padding:2rem">Fehler: ' +
+        esc(msg) +
+        '</p>';
     toast('Vorschau: ' + msg);
     btnEl('#previewBtn').disabled = false;
     btnEl('#publishBtn').disabled = false;
@@ -391,7 +393,7 @@ function pollPreview(win: Window | null) {
       btnEl('#publishBtn').disabled = false;
       if (win)
         win.document.body.innerHTML =
-          '<pre style="font-family:ui-monospace;color:#fecaca;padding:1rem;white-space:pre-wrap">' +
+          '<pre style="font-family:Arial,Helvetica,sans-serif;font-weight:700;color:#fecaca;padding:1rem;white-space:pre-wrap">' +
           esc(UNREACHABLE_DIAG) +
           '</pre>';
       return;
@@ -416,7 +418,7 @@ function pollPreview(win: Window | null) {
     } else {
       if (win)
         win.document.body.innerHTML =
-          '<pre style="font-family:ui-monospace;color:#fecaca;padding:1rem;white-space:pre-wrap">' +
+          '<pre style="font-family:Arial,Helvetica,sans-serif;font-weight:700;color:#fecaca;padding:1rem;white-space:pre-wrap">' +
           esc((s.log || []).join('\n') || s.error || 'Build-Fehler') +
           '</pre>';
       toast('Vorschau fehlgeschlagen');
@@ -490,7 +492,7 @@ function showPreviewChooser(win: Window | null, s: JobStatus) {
   win.document.open();
   win.document.write(
     '<!doctype html><meta charset="utf-8"><title>Vorschau</title>' +
-      '<body style="font-family:system-ui;background:#0f172a;color:#e2e8f0;padding:3rem 1rem;text-align:center;line-height:1.6">' +
+      '<body style="font-family:Arial,Helvetica,sans-serif;font-weight:700;background:#0f172a;color:#e2e8f0;padding:3rem 1rem;text-align:center;line-height:1.6">' +
       '<h2>Vorschau bereit ✓</h2>' +
       '<p>Welche Startseite möchtest du prüfen?</p>' +
       `<p><a href="${base}" style="${btn}">🇩🇪 Deutsche Startseite</a>` +

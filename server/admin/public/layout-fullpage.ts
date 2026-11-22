@@ -21,7 +21,6 @@ import {
   TOOL_CARD_KEY,
   getToolCards,
   rgbaFromHex,
-  getGlobalFont,
   normCardScale,
   getTextStyle,
   UNIFORM_TEXT_KEYS,
@@ -29,7 +28,6 @@ import {
   getHomeLayout,
 } from './model';
 import { heroPreviewMediaStyle, heroCompactCss } from './hero-preview';
-import { fontFF } from './layout-shared';
 import { mediaInfo, designCss, textStyle, MEDIA_BASE } from './sectionmedia';
 
 import type { Lang, ThemeMode, ObjPath, SectionVideoKey, MediaKey, ToolCardOffset } from '../types';
@@ -44,20 +42,8 @@ import type {
 } from '../app/tabs/layout/fullPageData';
 
 const PAGE_W = 1200;
-// Seitenschrift „Supreme“ (base.css) mit denselben Schnitten, damit Zeilenumbrüche
-// und Höhen der Vorschau der Seite entsprechen (Dateien wie die Seite aus /fonts).
-const PREV_FONT = 'kodini-prev-supreme';
-const PREV_FONT_FACES_LIST: [string, number][] = [
-  ['Supreme-Regular.woff2', 400],
-  ['Supreme-Medium.woff2', 500],
-  ['Supreme-Bold.woff2', 700],
-  ['Supreme-Extrabold.woff2', 800],
-];
-const PREV_FONT_FACES = PREV_FONT_FACES_LIST.map(
-  ([f, w]) =>
-    `@font-face{font-family:"${PREV_FONT}";src:url("/fonts/${f}") format("woff2");font-weight:${w};font-style:normal;font-display:swap;}`,
-).join('');
-const PREV_FONT_STACK = `font-family:'${PREV_FONT}',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;`;
+// Seitenschrift wie die Website (site-font.css): Arial Bold, keine Schriftdatei.
+const PREV_FONT_STACK = "font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;font-weight:700;";
 const FULL_KEYS: ('hero' | SectionVideoKey)[] = ['hero', ...SECTION_MEDIA_KEYS];
 const FULL_LABELS: Record<'hero' | SectionVideoKey, string> = {
   hero: 'Hero-Medium (Banner/Raster)',
@@ -249,7 +235,6 @@ function cardDesign(lang: Lang, id: string, mode: ThemeMode) {
   const badgeSize = text && text.badgeSize > 0 ? text.badgeSize : 9.92;
   const align = text && text.align ? text.align : 'left';
   const alignSelf = align === 'center' ? 'center' : align === 'right' ? 'flex-end' : 'flex-start';
-  const titleFont = text && text.titleFont ? fontFF(text.titleFont) : '';
   // Ausgeblendete Elemente (Tab „Tool-Karten“): unsichtbar, Platz bleibt.
   const show: Partial<Record<string, boolean>> =
     st && st.show && typeof st.show === 'object' ? st.show : {};
@@ -263,7 +248,6 @@ function cardDesign(lang: Lang, id: string, mode: ThemeMode) {
     badgeSize,
     align,
     alignSelf,
-    titleFont,
     hid,
   };
 }
@@ -372,8 +356,8 @@ export function fullPageModel(lang: Lang, mode: ThemeMode | string): FpModel {
     chips,
     sections,
     pageBg: prevBg(md),
-    fontCss: fontFF(getGlobalFont()) || PREV_FONT_STACK,
-    css: `${PREV_FONT_FACES}${heroCompactCss('fp')}`,
+    fontCss: PREV_FONT_STACK,
+    css: heroCompactCss('fp'),
   };
 }
 /** Wählbare Elemente (Medien, Texte, Tool-Karten je Sektion) für die Auswahl. */

@@ -175,33 +175,19 @@
             rows="2"
             placeholder="z.B. Neu (Enter = neue Zeile)"
             :value="s.text"
-            :style="fontDecl(s.font)"
             :data-cellfield="`${i}:text`"
             @input="cell(i).text = ($event.target as HTMLTextAreaElement).value"
           ></textarea>
           <ResetBtn field="text" @reset="reset('text')" />
         </span>
       </div>
-      <span class="ly-line ly-end ly-nowrap">
-        <UiSelect
-          :model-value="s.font"
-          label="Schriftart des Textes"
-          size="sm"
-          :disabled="inh"
-          :options="fontOptions(s.font)"
-          :style="fontDecl(s.font)"
-          :data-cellfont="i"
-          @update:model-value="cell(i).font = String($event)"
-        />
-        <ResetBtn field="font" :disabled="inh" @reset="reset('font')" />
-      </span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, useId } from 'vue';
-import { SliderControl, UiButton, UiSelect, UiSwitch } from '../../components/ui';
+import { SliderControl, UiButton, UiSwitch } from '../../components/ui';
 import ResetBtn from '../media/ResetBtn.vue';
 import { moveSlide } from './layoutData';
 import {
@@ -219,21 +205,10 @@ import { useLayout } from './useLayout';
 /**
  * Linke Seitenleiste im Raster-Modus: Inhalt einer Kachel (wie
  * `cellContentEditor` in `public/layout-grid.js`) – Ein-/Ausblenden, Bild aus
- * Zwischenablage/Mediathek mit Bildbearbeitung, Diashow, Text und Schriftart.
+ * Zwischenablage/Mediathek mit Bildbearbeitung, Diashow und Text (Schrift: Arial Bold).
  */
 const props = defineProps<{ i: number; big: boolean }>();
-const {
-  view,
-  service,
-  cell,
-  effCell,
-  inherited,
-  cellSlides,
-  markCell,
-  fontDecl,
-  fontOptions,
-  toast,
-} = useLayout();
+const { view, service, cell, effCell, inherited, cellSlides, markCell, toast } = useLayout();
 
 const uid = `ly-gc-${useId()}`;
 const s = computed(() => effCell(props.i));

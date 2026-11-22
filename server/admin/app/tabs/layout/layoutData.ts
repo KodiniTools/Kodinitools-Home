@@ -472,52 +472,41 @@ export function bannerAnimVars(t: BannerText): string[] {
 export const bannerAnimClass = (t: BannerText) =>
   t.text && t.textAnim !== 'none' ? `kt-${t.textAnim}` : '';
 
-/** font-family-Deklaration einer Schriftdatei (lädt @font-face) oder ''. */
-export type FontDecl = (file: string) => string;
-
 /**
  * Gemeinsamer Overlay-Style (wie `overlayStyle` in `public/layout-shared.ts`):
  * Text an (x,y) in % verankert, in der Vorschau verschiebbar.
  */
-export function overlayStyle(
-  o: {
-    color: string;
-    size: number;
-    x: number;
-    y: number;
-    font: string;
-    fsDefault: string;
-    shadow: string;
-    extra: string;
-  },
-  fontDecl: FontDecl,
-): string {
+export function overlayStyle(o: {
+  color: string;
+  size: number;
+  x: number;
+  y: number;
+  fsDefault: string;
+  shadow: string;
+  extra: string;
+}): string {
   const fs = o.size > 0 ? `${o.size}px` : o.fsDefault;
   const cx = clamp(Number(o.x) || 0, 0, 100);
   const cy = clamp(Number(o.y) || 0, 0, 100);
-  return `position:absolute;left:${cx}%;top:${cy}%;transform:translate(-50%,-50%);max-width:92%;text-align:center;padding:.1rem .3rem;color:${o.color || '#fff'};font-size:${fs};line-height:1.2;text-shadow:${o.shadow};white-space:pre-line;word-break:break-word;cursor:move;pointer-events:auto;user-select:none;touch-action:none;${fontDecl(o.font)}${o.extra}`;
+  return `position:absolute;left:${cx}%;top:${cy}%;transform:translate(-50%,-50%);max-width:92%;text-align:center;padding:.1rem .3rem;color:${o.color || '#fff'};font-size:${fs};line-height:1.2;text-shadow:${o.shadow};white-space:pre-line;word-break:break-word;cursor:move;pointer-events:auto;user-select:none;touch-action:none;${o.extra}`;
 }
 /** Inline-Style des Banner-Textes (leer ohne Text, wie die Vanilla-Vorschau). */
-export function bannerTextStyle(t: BannerText, fontDecl: FontDecl): string {
+export function bannerTextStyle(t: BannerText): string {
   if (!t.text) return '';
   const parts: string[] = [];
   if (t.textStrokeWidth > 0)
     parts.push(`-webkit-text-stroke:${t.textStrokeWidth}px ${t.textStrokeColor}`);
   if (t.textOpacity < 100) parts.push(`opacity:${clamp(t.textOpacity, 0, 100) / 100}`);
   parts.push(...bannerAnimVars(t));
-  return overlayStyle(
-    {
-      color: t.textColor,
-      size: t.textSize,
-      x: t.textX,
-      y: t.textY,
-      font: t.font,
-      fsDefault: '1.3rem',
-      shadow: bannerShadowCss(t),
-      extra: parts.length ? `;${parts.join(';')}` : '',
-    },
-    fontDecl,
-  );
+  return overlayStyle({
+    color: t.textColor,
+    size: t.textSize,
+    x: t.textX,
+    y: t.textY,
+    fsDefault: '1.3rem',
+    shadow: bannerShadowCss(t),
+    extra: parts.length ? `;${parts.join(';')}` : '',
+  });
 }
 
 // ---- Medium & Diashow ---------------------------------------------------------------
@@ -557,38 +546,6 @@ export function clampSlideshowNum(field: 'interval' | 'duration', raw: unknown):
 }
 
 // ---- Service der Vanilla-Seite ---------------------------------------------------------
-/** Schriftdatei aus `/fonts` (wie `state.fonts`). */
-export interface FontEntry {
-  name: string;
-  label?: string;
-}
-export interface FontOption {
-  value: string;
-  label: string;
-  style?: { fontFamily: string };
-}
-/** Optionen einer Schriftauswahl (jede in ihrer Schrift; fehlende bleibt wählbar). */
-export function fontOptionsOf(
-  fonts: readonly FontEntry[],
-  ensureFontFace: (file: string) => string,
-  cur: string,
-): FontOption[] {
-  const list = fonts.slice();
-  if (cur && !list.some((f) => f.name === cur))
-    list.unshift({ name: cur, label: `${cur} (nicht gefunden)` });
-  return [
-    { value: '', label: 'Standard (System)' },
-    ...list.map((f) => {
-      const fam = ensureFontFace(f.name);
-      return {
-        value: f.name,
-        label: f.label || f.name,
-        style: fam ? { fontFamily: `'${fam}', system-ui, sans-serif` } : undefined,
-      };
-    }),
-  ];
-}
-
 /** Ziel der Medien-Auswahl: Banner, Banner-Diashow, Kachel i, Diashow von Kachel i. */
 export type PickTarget = 'banner' | 'slide' | { cell: number } | { cellSlide: number };
 /** Ziel beim Einfügen aus der Zwischenablage (wie `assignImageBlob` in layout-paste.ts). */
@@ -623,8 +580,6 @@ export interface LayoutService {
   paste: (target: PasteTarget) => void;
   /** Kachel-Markierung für Strg/Cmd+V anmelden; Rückgabe meldet wieder ab. */
   bindCells: (hooks: CellHooks) => () => void;
-  fonts: () => readonly FontEntry[];
-  ensureFontFace: (file: string) => string;
   fmtBytes: (n: number) => string;
   styleDefault: () => BannerStyle;
   styleLimits: StyleLimits;

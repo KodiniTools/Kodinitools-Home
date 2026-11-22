@@ -38,7 +38,6 @@ export interface FpCard {
     badgeSize: number;
     align: string;
     alignSelf: string;
-    titleFont: string;
     hidden: Record<'icon' | 'badge' | 'title' | 'fav' | 'open', boolean>;
   };
 }
@@ -71,8 +70,9 @@ export interface FpModel {
   chips: { key: string; label: string; hidden: boolean }[];
   sections: FpSection[];
   pageBg: string;
+  /** Seitenschrift der Vorschau (Arial Bold wie die Website). */
   fontCss: string;
-  /** @font-face der Seitenschrift + Kompakt-Layout-CSS (Präfix fp). */
+  /** Kompakt-Layout-CSS (Präfix fp). */
   css: string;
 }
 export interface FpKey {

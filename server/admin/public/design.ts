@@ -19,11 +19,8 @@ import {
   defaultHeroDesign,
   heroSideLight,
   heroSideDark,
-  getGlobalFont,
-  setGlobalFont,
   HERO_TEXT_SLOTS,
   TEXT_OFFSET_MAX,
-  MEDIA_LANGS,
   HERO_IMG_FIELDS,
   BANNER_SLIDES_MAX,
   BANNER_TRANSITIONS,
@@ -34,7 +31,6 @@ import {
 import { heroPreviewMedia, heroPreviewMediaStyle, HERO_PREVIEW_LAYOUT_CSS } from './hero-preview';
 import { objUrl, openMediaPicker } from './media';
 import { slideInfo } from './layout-shared';
-import { ensureFontFace } from './fonts';
 import { mountVueTab } from './islands';
 
 import type { AnyObj, Lang, ThemeMode } from '../types';
@@ -100,20 +96,7 @@ export function heroService(lang: Lang): HeroService {
     overrides: () => state.overrides[lang],
     defaults: () => state.defaults[lang] || {},
     features: () => featureDefs(lang),
-    globalFont: getGlobalFont,
-    // Globale Schrift + Hero-Schriften beider Sprachen (wie die Kachel-Klicks unten).
-    setGlobalFont: (name: string) => {
-      setGlobalFont(name);
-      const file = getGlobalFont();
-      for (const l of MEDIA_LANGS) {
-        const hd = heroDesignOf(l);
-        hd.titleFont = file;
-        hd.buttonFont = file;
-      }
-    },
     homeLayout: getHomeLayout,
-    fonts: () => state.fonts,
-    ensureFontFace,
     resolveUrl: heroImgUrl,
     slideInfo: (val: string) => {
       const info = slideInfo(val);

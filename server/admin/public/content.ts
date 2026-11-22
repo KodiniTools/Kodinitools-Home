@@ -3,13 +3,12 @@
 // Overrides als JSON). Die Hero-Texte (Titel, Untertitel, Button-Text) werden
 // samt ihren Stil-Einstellungen im Tab „Hero-Design" bearbeitet (design.ts).
 //
-// Layout des Texte-Tabs (wie Tool-Karten): Mitte = Texte, Schriftart, Größe,
+// Layout des Texte-Tabs (wie Tool-Karten): Mitte = Texte, Größe,
 // Effekte und „Standard für alle Slots" (gelten für beide Modi); Seitenleiste
 // Hell links und Dunkel rechts = Vorschau + Textfarbe je Slot für den Modus.
 
 import { $, esc, toast } from './core';
 import { state, navLang } from './model';
-import { ensureFontFace } from './fonts';
 import { goto } from './admin';
 import { mountVueTab } from './islands';
 
@@ -24,8 +23,6 @@ export function renderTexts() {
     media: state.media[lang],
     mediaDe: state.media.de,
     mediaEn: state.media.en,
-    fonts: state.fonts,
-    ensureFontFace,
     gotoDesign: () => goto(lang, 'design'),
   });
 }

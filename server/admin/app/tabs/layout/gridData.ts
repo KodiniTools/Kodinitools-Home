@@ -1,5 +1,5 @@
 import { rgbaFromHex } from '../../../public/model-core';
-import { clamp, overlayStyle, type FontDecl, type Slideshow } from './layoutData';
+import { clamp, overlayStyle, type Slideshow } from './layoutData';
 
 /**
  * Datenmodell und reine Regeln des Raster-Modus im Tab „Layout“ (Vue-Fassung
@@ -132,21 +132,17 @@ export function cellImgStyle(s: CellStyle): string {
   return `position:absolute;inset:${inset}px;opacity:${(s.imgOpacity / 100).toFixed(2)};filter:${f.join(' ') || 'none'}`;
 }
 /** Text-Overlay einer Vorschau-Kachel ('' ohne Text). */
-export function cellTextStyle(s: CellStyle, fontDecl: FontDecl): string {
+export function cellTextStyle(s: CellStyle): string {
   if (!s.text) return '';
-  return overlayStyle(
-    {
-      color: s.textColor,
-      size: s.textSize,
-      x: s.textX,
-      y: s.textY,
-      font: s.font,
-      fsDefault: '.85rem',
-      shadow: '0 1px 3px rgba(0,0,0,.7)',
-      extra: '',
-    },
-    fontDecl,
-  );
+  return overlayStyle({
+    color: s.textColor,
+    size: s.textSize,
+    x: s.textX,
+    y: s.textY,
+    fsDefault: '.85rem',
+    shadow: '0 1px 3px rgba(0,0,0,.7)',
+    extra: '',
+  });
 }
 
 const GAP = '.45rem';

@@ -5,8 +5,8 @@
       <p class="hint">
         Pro Kachel: <strong>Bild</strong> (aus der Zwischenablage oder Mediathek) mit
         Bildbearbeitung (Deckkraft, Abdunkelung, Weichzeichner, Sättigung) sowie optionaler
-        <strong>Text</strong> mit <strong>Schriftart</strong> (aus dem Server-Ordner
-        <code>/fonts</code>). Kachel in der Vorschau anklicken springt zur passenden Kachel.
+        <strong>Text</strong> (Schrift: Arial Bold). Kachel in der Vorschau anklicken springt zur
+        passenden Kachel.
       </p>
       <LyGridCellContent v-for="i in cells" :key="i" :i="i" :big="isMosaic && i === 0" />
     </aside>

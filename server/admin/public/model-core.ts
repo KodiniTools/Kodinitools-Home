@@ -22,11 +22,9 @@ export function clampSpacing(v: unknown, def: number): number {
   const n = Number(v);
   return Number.isFinite(n) ? Math.max(-5, Math.min(20, Math.round(n * 2) / 2)) : def;
 }
-// Erlaubt einen einfachen Schrift-Dateinamen oder '' (Standardschrift).
-export function normFontFile(v: unknown): string {
-  return typeof v === 'string' && /^[a-zA-Z0-9][a-zA-Z0-9._ -]*\.(woff2|woff|ttf|otf)$/i.test(v)
-    ? v
-    : '';
+/** Schrift-Felder bleiben im Format, sind aber immer leer: einzige Schrift ist Arial Bold. */
+export function normFontFile(_v: unknown): string {
+  return '';
 }
 // Hex + Deckkraft(%) -> rgba() (für Vorschau). Ungültiges Hex kommt unverändert zurück.
 export function rgbaFromHex<T>(hex: T, opacityPct: unknown): string | T {

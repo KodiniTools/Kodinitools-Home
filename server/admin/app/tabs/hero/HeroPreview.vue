@@ -129,7 +129,7 @@ import { useHero } from './useHero';
  * Pfeiltasten bewegen um 1 px (Shift: 10 px). Das Hintergrundbild wechselt im
  * Takt der Diashow.
  */
-const { service, view, ff, side, style, slotText, select, offsetOf, setOffset } = useHero();
+const { service, view, side, style, slotText, select, offsetOf, setOffset } = useHero();
 
 const MODE_OPTIONS = (['light', 'dark'] as const).map((m) => ({ value: m, label: MODE_LABEL[m] }));
 const prevMode = computed<ThemeMode>({
@@ -145,7 +145,7 @@ CssTag.props = ['css'];
 const cssText = computed(() => `${hoverCss(view.value.hd)}\n${service.layoutCss}`);
 const med = computed(() => (void view.value, service.previewMedia()));
 const mediaCss = computed(() => service.mediaStyle(mode.value, view.value.layout === 'compact'));
-const boxCss = computed(() => boxStyle(s.value, ff(view.value.globalFont)));
+const boxCss = computed(() => boxStyle(s.value));
 
 // ---- Bildebene + Vorschau-Diashow -------------------------------------------------
 const srcs = computed(() =>
@@ -187,13 +187,13 @@ watch(
 // ---- Texte und Buttons -------------------------------------------------------------
 const animClass = (key: HeroSlotKey) => slotAnimClass(style(key));
 const titleCss = computed(() =>
-  titleStyle(s.value, view.value.hd, style('hero.title'), mode.value, ff),
+  titleStyle(s.value, view.value.hd, style('hero.title'), mode.value),
 );
 const subCss = computed(() =>
-  subtitleStyle(s.value, view.value.hd, style('hero.subtitle'), mode.value, ff),
+  subtitleStyle(s.value, view.value.hd, style('hero.subtitle'), mode.value),
 );
-const ctaCss = computed(() => ctaStyle(s.value, view.value.hd, style('hero.cta'), mode.value, ff));
-const chipCss = computed(() => chipStyle(s.value, view.value.hd, ff));
+const ctaCss = computed(() => ctaStyle(s.value, view.value.hd, style('hero.cta'), mode.value));
+const chipCss = computed(() => chipStyle(s.value, view.value.hd));
 const chipsBoxCss = computed(() => {
   const cols = Math.max(1, Math.min(6, view.value.feats.length));
   return `display:grid;grid-template-columns:repeat(${cols},1fr);gap:9.6px;margin-top:32px;visibility:${view.value.hd.showChips === false ? 'hidden' : 'visible'}`;

@@ -389,7 +389,7 @@ function copyColors() {
 // ---- Hero-Texte ------------------------------------------------------------------------
 function slotCss(key: HeroSlotKey) {
   const st = style(key);
-  return slotPreviewStyle(st, props.mode, st.font ? service.ensureFontFace(st.font) : '');
+  return slotPreviewStyle(st, props.mode);
 }
 function resetSlotColor(key: HeroSlotKey) {
   editStyle(key)[colorField(props.mode)] = '';

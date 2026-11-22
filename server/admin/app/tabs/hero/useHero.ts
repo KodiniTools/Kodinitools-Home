@@ -7,7 +7,6 @@ import {
   clampOffset,
   setChipOffset,
   slotText as slotTextOf,
-  type FontFamilyOf,
   type HeroDesign,
   type HeroFeature,
   type HeroMediaHost,
@@ -29,7 +28,6 @@ export interface HeroView {
   ov: Overrides;
   defs: Overrides;
   feats: HeroFeature[];
-  globalFont: string;
   layout: 'classic' | 'compact';
 }
 
@@ -39,8 +37,6 @@ export interface HeroApi {
   toast: (message: string, options?: ToastOptions) => void;
   /** Änderung am Proxy vorbei (Service, andere Sprache): ausführen, dann alles neu lesen. */
   change: (fn: () => void) => void;
-  /** font-family-Wert einer Schriftdatei (lädt @font-face) oder ''. */
-  ff: FontFamilyOf;
   side: (mode: ThemeMode) => HeroSide;
   slot: (key: HeroSlotKey) => HeroTextSlot;
   /** Feinabstimmung eines Hero-Textes lesen (legt nichts an). */
@@ -51,14 +47,6 @@ export interface HeroApi {
   select: (kind: HeroPartKind, key?: string) => void;
   offsetOf: (kind: HeroPartKind, key: string) => { x: number; y: number };
   setOffset: (kind: HeroPartKind, key: string, x: number, y: number) => void;
-  /** Optionen einer Schriftauswahl (jede in ihrer Schrift; fehlende bleibt wählbar). */
-  fontOptions: (cur: string) => FontOption[];
-}
-
-export interface FontOption {
-  value: string;
-  label: string;
-  style?: { fontFamily: string };
 }
 
 const KEY: InjectionKey<HeroApi> = Symbol('hero');
@@ -85,7 +73,6 @@ export function provideHero(service: HeroService): HeroApi {
       ov: reactive(service.overrides()) as Overrides,
       defs: service.defaults(),
       feats: service.features(),
-      globalFont: service.globalFont(),
       layout: service.homeLayout(),
     };
   });
@@ -94,8 +81,6 @@ export function provideHero(service: HeroService): HeroApi {
     fn();
     hdRev.value++;
   }
-  const ff: FontFamilyOf = (file) =>
-    file ? `'${service.ensureFontFace(file)}', system-ui, sans-serif` : '';
   const side = (mode: ThemeMode) => view.value.hd[mode];
   const slot = (key: HeroSlotKey) => service.textSlots.find((s) => s.key === key)!;
   const style = (key: HeroSlotKey) => readTextStyle(view.value.media, key);
@@ -125,29 +110,11 @@ export function provideHero(service: HeroService): HeroApi {
     st.offsetY = cy;
   }
 
-  function fontOptions(cur: string): FontOption[] {
-    const list = service.fonts().slice();
-    if (cur && !list.some((f) => f.name === cur))
-      list.unshift({ name: cur, label: `${cur} (nicht gefunden)`, url: '', bytes: 0 });
-    return [
-      { value: '', label: 'Standard (System)' },
-      ...list.map((f) => {
-        const fam = service.ensureFontFace(f.name);
-        return {
-          value: f.name,
-          label: f.label || f.name,
-          style: fam ? { fontFamily: `'${fam}', system-ui, sans-serif` } : undefined,
-        };
-      }),
-    ];
-  }
-
   const api: HeroApi = {
     service,
     view,
     toast,
     change,
-    ff,
     side,
     slot,
     style,
@@ -156,7 +123,6 @@ export function provideHero(service: HeroService): HeroApi {
     select,
     offsetOf,
     setOffset,
-    fontOptions,
   };
   provide(KEY, api);
   return api;

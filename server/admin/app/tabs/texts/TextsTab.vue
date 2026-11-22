@@ -83,48 +83,11 @@
               :label="`${f.label}: Text`"
               :rows="2"
               :placeholder="defaultText(f)"
-              :style="fieldFont(f)"
               data-tx-text
               @update:model-value="setText(f, $event)"
             />
 
             <div class="tx-row">
-              <label class="tx-field tx-field--grow">
-                <span>Schriftart</span>
-                <span class="tx-inline">
-                  <!-- Natives Select: Optionen erscheinen in ihrer eigenen Schrift. -->
-                  <select
-                    :value="st(f).font"
-                    :disabled="slot(f).inherited"
-                    :style="fieldFont(f)"
-                    data-tx-font
-                    @change="setFont(f, ($event.target as HTMLSelectElement).value)"
-                  >
-                    <option value="">Standard (System)</option>
-                    <option
-                      v-for="o in fontOptions(st(f).font)"
-                      :key="o.name"
-                      :value="o.name"
-                      :style="
-                        o.family ? { fontFamily: `'${o.family}', system-ui, sans-serif` } : {}
-                      "
-                    >
-                      {{ o.label }}
-                    </option>
-                  </select>
-                  <button
-                    type="button"
-                    class="hd-reset"
-                    :disabled="slot(f).inherited"
-                    title="Schriftart zurücksetzen"
-                    aria-label="Schriftart zurücksetzen"
-                    data-tx-reset="font"
-                    @click="reset(f, 'font')"
-                  >
-                    ↺
-                  </button>
-                </span>
-              </label>
               <label class="tx-field">
                 <span>Textgröße (px, 0=Standard)</span>
                 <span class="tx-inline">
@@ -270,7 +233,7 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue';
-import type { FontEntry, Lang, Overrides, ThemeMode } from '../../../types';
+import type { Lang, Overrides, ThemeMode } from '../../../types';
 import { delPath, getPath, setPath } from '../../../public/model-core';
 import {
   ColorField,
@@ -292,7 +255,6 @@ import {
   copyStylesDeToEn,
   effectiveTextStyle,
   ensureTextStyle,
-  fontFamilyCss,
   fxActive,
   previewText,
   slotAnimClass,
@@ -330,9 +292,6 @@ const props = defineProps<{
   /** `state.media.de` / `state.media.en` für „DE → EN übernehmen“. */
   mediaDe: TextStyleHost;
   mediaEn: TextStyleHost;
-  fonts: FontEntry[];
-  /** Lädt eine Schrift per @font-face in die Admin-Seite, liefert den Family-Namen. */
-  ensureFontFace: (file: string) => string;
   /** Wechselt zum Tab „Hero-Design“ dieser Sprache. */
   gotoDesign: () => void;
 }>();
@@ -426,36 +385,15 @@ function previewOf(f: TextField): string {
   return previewText(getPath(overrides, f.path), getPath(props.defaults, f.path), f.label);
 }
 
-// ---- Schrift ------------------------------------------------------------------
-function familyOf(font: string): string {
-  return font ? props.ensureFontFace(font) : '';
-}
-function fieldFont(f: TextField) {
-  const fam = familyOf(st(f).font);
-  return fam ? { fontFamily: fontFamilyCss(fam) } : {};
-}
-function fontOptions(current: string) {
-  const list = props.fonts.slice();
-  if (current && !list.some((x) => x.name === current))
-    list.unshift({ name: current, label: `${current} (nicht gefunden)`, url: '', bytes: 0 });
-  return list.map((x) => ({
-    name: x.name,
-    label: x.label || x.name,
-    family: props.ensureFontFace(x.name),
-  }));
-}
+// ---- Vorschau (Schrift: Arial Bold wie die Website) ---------------------------
 function previewStyle(f: TextField, mode: ThemeMode): string {
-  const s = st(f);
-  return slotPreviewStyle(s, mode, familyOf(s.font));
+  return slotPreviewStyle(st(f), mode);
 }
 
 // ---- Stil schreiben (immer in den EIGENEN Slot; gesperrte Slots sind disabled)
 const own = (f: TextField) => ensureTextStyle(media, f.key);
 function setSize(f: TextField, v: string) {
   own(f).size = clampTextSize(v);
-}
-function setFont(f: TextField, v: string) {
-  own(f).font = v;
 }
 function setColor(f: TextField, mode: ThemeMode, hex: string) {
   own(f)[colorField(mode)] = hex;
@@ -475,7 +413,7 @@ function syncInput(e: Event, v: number) {
   (e.target as HTMLInputElement).value = String(v);
 }
 
-type ResetWhat = 'text' | 'size' | 'color' | 'font' | 'fx';
+type ResetWhat = 'text' | 'size' | 'color' | 'fx';
 function reset(f: TextField, what: ResetWhat, mode: ThemeMode = 'light') {
   switch (what) {
     case 'text':
@@ -487,9 +425,6 @@ function reset(f: TextField, what: ResetWhat, mode: ThemeMode = 'light') {
       break;
     case 'color':
       own(f)[colorField(mode)] = '';
-      break;
-    case 'font':
-      own(f).font = '';
       break;
     case 'fx':
       Object.assign(own(f), TEXT_FX_DEFAULTS);

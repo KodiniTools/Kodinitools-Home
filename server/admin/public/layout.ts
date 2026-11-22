@@ -12,7 +12,6 @@
 import { $, fmtBytes } from './core';
 import { mountVueTab } from './islands';
 import { objUrl, openMediaPicker, stageFile } from './media';
-import { ensureFontFace } from './fonts';
 import {
   state,
   getHomeLayout,
@@ -199,8 +198,6 @@ export function layoutService(lang: Lang): LayoutService {
         if (vueCells === hooks) vueCells = null;
       };
     },
-    fonts: () => state.fonts,
-    ensureFontFace,
     fmtBytes,
     styleDefault: defaultBannerStyle,
     styleLimits: BANNER_STYLE_LIMITS,

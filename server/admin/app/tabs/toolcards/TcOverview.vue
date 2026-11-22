@@ -43,7 +43,6 @@
                   :show="styleOf(c.id).show"
                   :open="view.openLabel"
                   :resolve-url="service.resolveUrl"
-                  :ensure-font-face="service.ensureFontFace"
                   :data-tcov="c.id"
                 />
               </div>
@@ -60,7 +59,7 @@ import { computed } from 'vue';
 import type { ThemeMode } from '../../../types';
 import { UiSegmentedControl } from '../../components/ui';
 import TcCard from './TcCard.vue';
-import { MODE_LABEL, SECTION_LABEL, THEME_LABEL, fontCss } from './tcData';
+import { MODE_LABEL, SECTION_LABEL, THEME_LABEL } from './tcData';
 import { tcUi } from './tcUi';
 import { useTc } from './useTc';
 
@@ -83,7 +82,7 @@ const groups = computed(() =>
 );
 const pageCss = computed(() => {
   void view.value;
-  return `background:${service.pageBg(theme.value)};${fontCss(service.globalFont(), service.ensureFontFace)}`;
+  return `background:${service.pageBg(theme.value)};`;
 });
 function onToggle(e: Event) {
   tcUi.ovOpen = (e.target as HTMLDetailsElement).open;

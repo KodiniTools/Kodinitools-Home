@@ -20,7 +20,6 @@ import { readJson, readBody, sendJson, sendText, clientIp, csrfOk, asErr } from 
 import { loadContent, saveContent } from './content.js';
 import { geminiConfig, generateImage } from './gemini.js';
 import { saveUpload, listUploads, deleteUpload, moveUpload } from './uploads.js';
-import { listFonts } from './fonts.js';
 import { listFontAwesome } from './fontawesome.js';
 import { startPublish, getPublishState } from './publish.js';
 import { startPreview, getPreviewState, PREVIEW_DIR } from './preview.js';
@@ -244,12 +243,6 @@ async function handleApi(req: IncomingMessage, res: ServerResponse, path: string
   if (path === '/api/uploads' && method === 'GET') {
     if (!requireAuth(req, res)) return;
     return sendJson(res, 200, await listUploads());
-  }
-
-  // Verfügbare Schriftarten (aus dem Fonts-Ordner) für die Laufband-Schrift.
-  if (path === '/api/fonts' && method === 'GET') {
-    if (!requireAuth(req, res)) return;
-    return sendJson(res, 200, { fonts: await listFonts() });
   }
 
   // Verfügbare Font-Awesome-Icons (SVG, je Kategorie) für den „Icons"-Tab.

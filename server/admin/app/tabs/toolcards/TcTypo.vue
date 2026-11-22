@@ -14,17 +14,6 @@
     </div>
 
     <p class="tc-head">Titel</p>
-    <div class="tc-line tc-end">
-      <UiSelect
-        :model-value="t.titleFont"
-        label="Schriftart"
-        size="sm"
-        :options="fontOptions(t.titleFont)"
-        data-tct="titleFont"
-        @update:model-value="set('titleFont', $event)"
-      />
-      <ResetBtn field="titleFont" @reset="reset" />
-    </div>
     <SliderControl
       :model-value="t.titleSize"
       label="Größe (0 = Standard)"
@@ -116,18 +105,7 @@
       <ResetBtn field="openWeight" @reset="reset" />
     </div>
 
-    <p class="tc-head">Popup-Beschreibung &amp; Text-Schriftart</p>
-    <div class="tc-line tc-end">
-      <UiSelect
-        :model-value="t.textFont"
-        label="Schriftart (Badge, „Öffnen“, Popup)"
-        size="sm"
-        :options="fontOptions(t.textFont)"
-        data-tct="textFont"
-        @update:model-value="set('textFont', $event)"
-      />
-      <ResetBtn field="textFont" @reset="reset" />
-    </div>
+    <p class="tc-head">Popup-Beschreibung</p>
     <SliderControl
       :model-value="t.descSize"
       label="Popup-Textgröße (0 = Standard)"
@@ -137,15 +115,14 @@
       @update:model-value="set('descSize', $event)"
     />
     <p class="hint tc-m0">
-      Typografie gilt für Hell und Dunkel gemeinsam; 0 bzw. „Standard“ = Wert der Seite. Schriften
-      aus dem Ordner <code>/fonts</code>.
+      Typografie gilt für Hell und Dunkel gemeinsam; 0 bzw. „Standard“ = Wert der Seite. Schrift ist
+      überall Arial Bold.
     </p>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { normFontFile } from '../../../public/model-core';
 import { SliderControl, UiSelect } from '../../components/ui';
 import ResetBtn from '../media/ResetBtn.vue';
 import { ALIGN_LABEL, TRANSFORM_LABEL, WEIGHT_LABEL, normTextField, type TcText } from './tcData';
@@ -157,25 +134,8 @@ const src = computed(() => textResetSource());
 
 const opts = (values: readonly string[], labels: Record<string, string>) =>
   values.map((v) => ({ value: v, label: labels[v] ?? v }));
-/** Schriften des Servers, jede in ihrer eigenen Schrift; fehlende bleibt wählbar. */
-function fontOptions(cur: string) {
-  const list = service.fonts().slice();
-  if (cur && !list.some((f) => f.name === cur))
-    list.unshift({ name: cur, label: `${cur} (nicht gefunden)`, url: '', bytes: 0 });
-  return [
-    { value: '', label: 'Standard (System)' },
-    ...list.map((f) => {
-      const fam = service.ensureFontFace(f.name);
-      return {
-        value: f.name,
-        label: f.label || f.name,
-        style: fam ? { fontFamily: `'${fam}', system-ui, sans-serif` } : undefined,
-      };
-    }),
-  ];
-}
 function set(field: keyof TcText, v: unknown) {
-  setText(field, normTextField(field, v, service, normFontFile) as never);
+  setText(field, normTextField(field, v, service) as never);
 }
 function reset(field: string) {
   const f = field as keyof TcText;

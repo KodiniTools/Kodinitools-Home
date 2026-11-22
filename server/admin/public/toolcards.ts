@@ -16,7 +16,6 @@ import {
   toolCardSideDark,
   TOOL_CARD_BORDER_STYLES,
   siteBgLayerCss,
-  getGlobalFont,
   getPath,
   setPath,
   delPath,
@@ -39,7 +38,6 @@ import {
   navLang,
 } from './model';
 import { objUrl, openMediaPicker } from './media';
-import { ensureFontFace } from './fonts';
 import { mountVueTab } from './islands';
 
 import type { Lang, ThemeMode, ObjPath, AnyObj } from '../types';
@@ -129,9 +127,6 @@ export function tcService(lang: Lang): TcService {
       if (!state.media[other].toolCards) state.media[other].toolCards = defaultToolCards();
     },
     pageBg,
-    globalFont: getGlobalFont,
-    fonts: () => state.fonts,
-    ensureFontFace,
     resolveUrl: cardImageUrl,
     pick: (title: string, onPick: (url: string) => void) => {
       const srv = [lang, 'shared' as const].reduce(

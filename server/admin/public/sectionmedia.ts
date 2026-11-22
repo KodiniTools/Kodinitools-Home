@@ -59,7 +59,6 @@ export function textStyle(t: SectionMediaText) {
     t.size,
     t.x,
     t.y,
-    t.font,
     '1.3rem',
     shadow,
     extra.length ? ';' + extra.join(';') : '',

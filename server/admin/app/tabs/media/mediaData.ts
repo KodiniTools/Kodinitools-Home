@@ -180,12 +180,8 @@ export function designCss(s: SectionSide): { wrap: string; media: string } {
   };
 }
 
-/** font-family-CSS (wie `fontFF` in `public/layout-shared.ts`), family = @font-face-Name. */
-export const fontFF = (family: string) =>
-  family ? `font-family:'${family}', var(--site-font, sans-serif);` : '';
-
 /** Text-Overlay der Vorschau (wie `textStyle` + `overlayStyle`). */
-export function textOverlayStyle(t: SectionText, family: string): string {
+export function textOverlayStyle(t: SectionText): string {
   const shadow = t.shadow
     ? `${t.shadowX}px ${t.shadowY}px ${t.shadowBlur}px ${rgbaFromHex(t.shadowColor || '#000000', 60)}`
     : 'none';
@@ -196,7 +192,7 @@ export function textOverlayStyle(t: SectionText, family: string): string {
   const cx = clamp(Number(t.x) || 0, 0, 100);
   const cy = clamp(Number(t.y) || 0, 0, 100);
   return (
-    `position:absolute;left:${cx}%;top:${cy}%;transform:translate(-50%,-50%);max-width:92%;text-align:center;padding:.1rem .3rem;color:${t.color || '#fff'};font-size:${fs};line-height:1.2;text-shadow:${shadow};white-space:pre-line;word-break:break-word;cursor:move;pointer-events:auto;user-select:none;touch-action:none;${fontFF(family)}` +
+    `position:absolute;left:${cx}%;top:${cy}%;transform:translate(-50%,-50%);max-width:92%;text-align:center;padding:.1rem .3rem;color:${t.color || '#fff'};font-size:${fs};line-height:1.2;text-shadow:${shadow};white-space:pre-line;word-break:break-word;cursor:move;pointer-events:auto;user-select:none;touch-action:none;` +
     (extra.length ? ';' + extra.join(';') : '')
   );
 }

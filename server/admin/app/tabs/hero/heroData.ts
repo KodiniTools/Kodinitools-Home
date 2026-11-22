@@ -1,4 +1,4 @@
-import type { FontEntry, Lang, ObjPath, Overrides, ThemeMode } from '../../../types';
+import type { Lang, ObjPath, Overrides, ThemeMode } from '../../../types';
 import { getPath, rgbaFromHex } from '../../../public/model-core';
 import {
   colorField,
@@ -72,7 +72,9 @@ export type HeroNumField = Exclude<
 /** `media.<lang>.heroDesign` (`defaultHeroDesign`). */
 export interface HeroDesign {
   enabled: boolean;
+  /** Schriftdatei (veraltet): immer '', Schrift ist Arial Bold. */
   titleFont: string;
+  /** Schriftdatei (veraltet): immer ''. */
   buttonFont: string;
   titleLetterSpacing: number;
   titleStrokeColor: string;
@@ -139,11 +141,7 @@ export interface HeroService {
   overrides: () => Overrides;
   defaults: () => Overrides;
   features: () => HeroFeature[];
-  globalFont: () => string;
-  setGlobalFont: (file: string) => void;
   homeLayout: () => 'classic' | 'compact';
-  fonts: () => FontEntry[];
-  ensureFontFace: (file: string) => string;
   /** Vorschau-URL eines Bildes ('staged:<id>' → Objekt-URL), '' ohne Bild. */
   resolveUrl: (val: string) => string;
   slideInfo: (val: string) => { src: string; name: string } | null;
@@ -235,13 +233,10 @@ export function slotTuned(st: TextStyle): boolean {
 }
 
 // ---- Stile der Vorschau (1:1 wie design.ts) ---------------------------------------
-/** font-family-Wert für eine Schriftdatei oder ''. */
-export type FontFamilyOf = (file: string) => string;
-
-export function boxStyle(s: HeroSide, globalFF: string): string {
+// Schrift: Arial Bold wie die Website (keine eigene Schrift in der Vorschau).
+export function boxStyle(s: HeroSide): string {
   const bg = rgbaFromHex(s.bgColor, s.bgOpacity);
-  const base = globalFF ? `font-family:${globalFF};` : '';
-  return `${base}position:relative;overflow:hidden;isolation:isolate;box-sizing:border-box;width:${HERO_SITE_WIDTH}px;max-width:none;margin:0 auto;font-size:16px;line-height:1.6;background:${bg};border:${s.borderWidth}px solid ${s.borderColor};border-radius:32px;padding:64px 32px;text-align:center`;
+  return `position:relative;overflow:hidden;isolation:isolate;box-sizing:border-box;width:${HERO_SITE_WIDTH}px;max-width:none;margin:0 auto;font-size:16px;line-height:1.6;background:${bg};border:${s.borderWidth}px solid ${s.borderColor};border-radius:32px;padding:64px 32px;text-align:center`;
 }
 /** Bildebene (wie .hero::before): Deckkraft, Abdunkelung, Weichzeichner, Sättigung. */
 export function imageStyle(s: HeroSide, url: string): string {
@@ -253,38 +248,35 @@ export function imageStyle(s: HeroSide, url: string): string {
   const inset = s.bgImageBlur > 0 ? -s.bgImageBlur * 2 : 0;
   return `position:absolute;inset:${inset}px;z-index:-1;pointer-events:none;border-radius:inherit;background:url('${url.replace(/['"]/g, '')}') center / cover no-repeat;opacity:${(s.bgImageOpacity / 100).toFixed(2)};filter:${f.join(' ') || 'none'}`;
 }
-export function titleTypo(hd: HeroDesign, ff: FontFamilyOf): string {
-  const fam = ff(hd.titleFont);
-  let css = fam ? `font-family:${fam};` : '';
+export function titleTypo(hd: HeroDesign): string {
+  let css = '';
   if (hd.titleLetterSpacing) css += `letter-spacing:${hd.titleLetterSpacing}px;`;
   if (hd.titleStrokeWidth > 0)
     css += `-webkit-text-stroke:${hd.titleStrokeWidth}px ${hd.titleStrokeColor};`;
   return css;
 }
-export function buttonTypo(hd: HeroDesign, ff: FontFamilyOf): string {
-  const fam = ff(hd.buttonFont);
-  let css = fam ? `font-family:${fam};` : '';
+export function buttonTypo(hd: HeroDesign): string {
+  let css = '';
   if (hd.buttonLetterSpacing) css += `letter-spacing:${hd.buttonLetterSpacing}px;`;
   if (hd.buttonStrokeWidth > 0)
     css += `-webkit-text-stroke:${hd.buttonStrokeWidth}px ${hd.buttonStrokeColor};`;
   return css;
 }
 /** Feinabstimmung eines Hero-Textes als Inline-CSS (überschreibt die allgemeinen Werte). */
-export function slotOverrideCss(st: TextStyle, mode: ThemeMode, ff: FontFamilyOf): string {
+export function slotOverrideCss(st: TextStyle, mode: ThemeMode): string {
   const parts: string[] = [];
   if (st.size > 0) parts.push(`font-size:${st.size}px`);
-  if (st.font) parts.push(`font-family:${ff(st.font)}`);
   const c = st[colorField(mode)];
   if (c) parts.push(`color:${c}`);
   if (st.offsetX || st.offsetY)
     parts.push('position:relative', `left:${st.offsetX || 0}px`, `top:${st.offsetY || 0}px`);
   return parts.concat(slotFxParts(st)).join(';');
 }
-export function chipStyle(s: HeroSide, hd: HeroDesign, ff: FontFamilyOf): string {
+export function chipStyle(s: HeroSide, hd: HeroDesign): string {
   const bg = rgbaFromHex(s.chipBgColor, s.chipBgOpacity);
   const bd = rgbaFromHex(s.chipBorderColor, s.chipBorderOpacity);
   const size = hd.chipFontSize > 0 ? `${hd.chipFontSize}px` : '15.2px';
-  return `background:${bg};color:${s.chipTextColor};border:1px solid ${bd};border-radius:12px;padding:13.6px 8px;font-weight:600;font-size:${size};text-align:center;${buttonTypo(hd, ff)}`;
+  return `background:${bg};color:${s.chipTextColor};border:1px solid ${bd};border-radius:12px;padding:13.6px 8px;font-weight:600;font-size:${size};text-align:center;${buttonTypo(hd)}`;
 }
 export function chipHidden(hd: HeroDesign, key: string): boolean {
   return Array.isArray(hd.hiddenChips) && hd.hiddenChips.includes(key);
@@ -295,43 +287,25 @@ export function chipExtraCss(hd: HeroDesign, key: string): string {
   const off = o && (o.x || o.y) ? `;position:relative;left:${o.x || 0}px;top:${o.y || 0}px` : '';
   return `;cursor:move;touch-action:none;user-select:none${off}${chipHidden(hd, key) ? ';visibility:hidden' : ''}`;
 }
-export function ctaStyle(
-  s: HeroSide,
-  hd: HeroDesign,
-  st: TextStyle,
-  mode: ThemeMode,
-  ff: FontFamilyOf,
-): string {
+export function ctaStyle(s: HeroSide, hd: HeroDesign, st: TextStyle, mode: ThemeMode): string {
   const size = hd.ctaFontSize > 0 ? `${hd.ctaFontSize}px` : '16.8px';
   const bg = rgbaFromHex(s.ctaBgColor, s.ctaBgOpacity);
   const bd =
     s.ctaBorderOpacity > 0
       ? `border:1px solid ${rgbaFromHex(s.ctaBorderColor, s.ctaBorderOpacity)};`
       : '';
-  return `display:inline-block;margin-top:32px;padding:13.6px 35.2px;border-radius:50px;background:${bg};color:${s.ctaTextColor};${bd}font-weight:700;font-size:${size};cursor:move;touch-action:none;user-select:none;${buttonTypo(hd, ff)}${slotOverrideCss(st, mode, ff)}${hd.showCta === false ? ';visibility:hidden' : ''}`;
+  return `display:inline-block;margin-top:32px;padding:13.6px 35.2px;border-radius:50px;background:${bg};color:${s.ctaTextColor};${bd}font-weight:700;font-size:${size};cursor:move;touch-action:none;user-select:none;${buttonTypo(hd)}${slotOverrideCss(st, mode)}${hd.showCta === false ? ';visibility:hidden' : ''}`;
 }
 function textHiddenCss(shown: boolean): string {
   return `;cursor:move;touch-action:none;user-select:none${shown ? '' : ';visibility:hidden'}`;
 }
-export function titleStyle(
-  s: HeroSide,
-  hd: HeroDesign,
-  st: TextStyle,
-  mode: ThemeMode,
-  ff: FontFamilyOf,
-): string {
+export function titleStyle(s: HeroSide, hd: HeroDesign, st: TextStyle, mode: ThemeMode): string {
   const size = hd.titleFontSize > 0 ? `${hd.titleFontSize}px` : '40px';
-  return `font-weight:800;font-size:${size};line-height:1.2;margin:0 0 12px;letter-spacing:-0.02em;color:${s.titleTextColor};${titleTypo(hd, ff)}${slotOverrideCss(st, mode, ff)}${textHiddenCss(hd.showTitle !== false)}`;
+  return `font-weight:800;font-size:${size};line-height:1.2;margin:0 0 12px;letter-spacing:-0.02em;color:${s.titleTextColor};${titleTypo(hd)}${slotOverrideCss(st, mode)}${textHiddenCss(hd.showTitle !== false)}`;
 }
-export function subtitleStyle(
-  s: HeroSide,
-  hd: HeroDesign,
-  st: TextStyle,
-  mode: ThemeMode,
-  ff: FontFamilyOf,
-): string {
+export function subtitleStyle(s: HeroSide, hd: HeroDesign, st: TextStyle, mode: ThemeMode): string {
   const size = hd.subtitleFontSize > 0 ? `${hd.subtitleFontSize}px` : '17.6px';
-  return `max-width:600px;margin:0 auto;font-weight:500;font-size:${size};white-space:pre-line;color:${s.titleTextColor};${titleTypo(hd, ff)}${slotOverrideCss(st, mode, ff)}${textHiddenCss(hd.showSubtitle !== false)}`;
+  return `max-width:600px;margin:0 auto;font-weight:500;font-size:${size};white-space:pre-line;color:${s.titleTextColor};${titleTypo(hd)}${slotOverrideCss(st, mode)}${textHiddenCss(hd.showSubtitle !== false)}`;
 }
 /** Echte Hover-Regeln der Vorschau (Chips + CTA), je Modus. */
 export function hoverCss(hd: HeroDesign): string {

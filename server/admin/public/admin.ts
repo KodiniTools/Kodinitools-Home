@@ -7,7 +7,6 @@ import { $, api, mediaAll } from './core';
 import type { NavSection, SubtabKey } from '../types';
 import { state, normTicker, normalizeMedia, SUBTABS, isLangSection } from './model';
 import { renderTicker } from './ticker';
-import { loadFonts } from './fonts';
 import { renderTexts, renderAdvanced } from './content';
 import { renderHeroDesign } from './design';
 import { renderBackground } from './background';
@@ -139,7 +138,6 @@ async function boot() {
   state.defaults = { de: r.data.defaults?.de || {}, en: r.data.defaults?.en || {} };
   state.stagedItems = await mediaAll();
   await loadServerFiles();
-  await loadFonts();
 
   $('#loginView').classList.add('hidden');
   $('#appView').classList.remove('hidden');
