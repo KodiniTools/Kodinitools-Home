@@ -106,4 +106,48 @@ describe('FavoritesSection', () => {
     expect(wrapper.get('#favoritesSection').attributes('style')).toContain('display: none');
     wrapper.unmount();
   });
+
+  it('modernes Design: Favorit ist eine Kopie der Rasterkarte und entfernt sich per Merk-Button', async () => {
+    localStorage.setItem(
+      FAV_KEY,
+      JSON.stringify([
+        { key: 'tools.a', title: 'A', link: '/a/' },
+        { key: 'tools.z', title: 'Z', link: '/z/' },
+      ]),
+    );
+    const grid = document.createElement('div');
+    grid.id = 'mh-grid';
+    grid.innerHTML =
+      '<a class="svg-card-link mh-card is-extra" href="/a/" data-i18n-key="tools.a">' +
+      '<span class="mh-icon"></span><span class="mh-info"><h3 class="tool-card-title">A</h3>' +
+      '<span class="mh-sub">Sub A</span></span><button class="fav-btn"></button>' +
+      '<span class="mh-arrow"></span></a>';
+    document.body.appendChild(grid);
+    const wrapper = mount(FavoritesSection, {
+      props: { lang: 'de', hiddenKeys: [], texts, modern: true },
+      attachTo: document.body,
+    });
+    await nextTick();
+
+    const copy = wrapper.get('#favoritesGrid .mh-card');
+    expect(copy.get('.mh-sub').text()).toBe('Sub A');
+    expect(copy.classes()).not.toContain('is-extra');
+    expect(copy.get('.fav-btn').classes()).toContain('is-active');
+    expect(copy.get('.fav-btn').attributes('aria-label')).toBe(texts.favRemove);
+    // tools.z hat keine Karte im Raster: entfällt
+    expect(wrapper.findAll('#favoritesGrid .mh-card')).toHaveLength(1);
+    // Rasterkarte bleibt unverändert
+    expect(grid.querySelector('.fav-btn')!.classList.contains('is-active')).toBe(true);
+    expect(grid.querySelector('.mh-card')!.classList.contains('is-extra')).toBe(true);
+
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+    copy.get('.fav-btn').element.dispatchEvent(event);
+    await nextTick();
+    expect(event.defaultPrevented).toBe(true);
+    expect(stored().map((f) => f.key)).toEqual(['tools.z']);
+    expect(grid.querySelector('.fav-btn')!.classList.contains('is-active')).toBe(false);
+    expect(wrapper.findAll('#favoritesGrid .mh-card')).toHaveLength(0);
+    expect(wrapper.get('#favoritesSection').attributes('style')).toContain('display: none');
+    wrapper.unmount();
+  });
 });

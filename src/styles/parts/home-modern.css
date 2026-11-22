@@ -1056,6 +1056,11 @@ body:has(#app[data-design='modern']) {
   background: var(--md-panel);
 }
 
+/* Favoriten-Karten = Kopien der Tool-Karten aus dem Raster: gleiches Aussehen, immer sichtbar. */
+#app[data-design='modern'] .favorites-section .mh-card {
+  display: flex;
+}
+
 /* ---------- Footer ---------- */
 #app[data-design='modern'] .mh-footer {
   padding: 26px 0;
