@@ -7,6 +7,10 @@
  *   - im Tab gerade Audio/Video abgespielt wird (z. B. Musikplayer im Hintergrund).
  * Nach 4 h ohne Seitenwechsel ist Schluss (vergessene Tabs).
  *
+ * Zusätzlich meldet es jede angesehene Seite einmal sofort (/__kt_hb?v=1):
+ * beim Laden, bei Seitenwechseln ohne Neuladen (pushState) und beim Zurück-
+ * Button aus dem Browser-Cache. Daraus zählt das Dashboard "Besucher (bestätigt)".
+ *
  * Datenschutz: keine Cookies, kein Storage, keine IDs, keine Parameter ausser
  * einem Cache-Buster. Der Server sieht nur, was er ohnehin sieht (IP, User-Agent).
  *
@@ -53,8 +57,9 @@
     return document.visibilityState === 'visible' && Date.now() - lastActivity < IDLE_MS;
   }
 
-  function send(useBeacon) {
-    var url = ENDPOINT + '?t=' + Date.now();
+  // isView: einmalige Ansichts-Meldung ("Seite angesehen") statt Heartbeat
+  function send(useBeacon, isView) {
+    var url = ENDPOINT + '?' + (isView ? 'v=1&' : '') + 't=' + Date.now();
     try {
       if (useBeacon && navigator.sendBeacon) {
         navigator.sendBeacon(url);
@@ -90,5 +95,41 @@
     if (Date.now() - lastActivity < IDLE_MS || isMediaPlaying()) send(true);
   });
 
+  // --- Ansichts-Meldung -------------------------------------------------
+  // Sofort beim Laden einmal melden, unabhängig von Aktivität/Verweildauer.
+  // Zusätzlich bei Seitenwechseln ohne Neuladen (pushState/popstate, z. B. Vue
+  // Router) und bei Rückkehr aus dem Browser-Cache (Zurück-Button, bfcache) –
+  // beides erzeugt sonst keinen Eintrag im Access-Log.
+  var lastPath = location.pathname;
+
+  function newView() {
+    startedAt = Date.now();
+    markActive();
+    send(true, true);
+  }
+
+  function onRouteChange() {
+    if (location.pathname === lastPath) return; // nur Query/Hash geändert (z. B. ?lang=en)
+    lastPath = location.pathname;
+    newView();
+    start(); // falls nach 4 h gestoppt
+  }
+
+  ['pushState', 'replaceState'].forEach(function (name) {
+    var original = history[name];
+    if (typeof original !== 'function') return;
+    history[name] = function () {
+      var result = original.apply(this, arguments);
+      try { onRouteChange(); } catch { /* nie die Seite stören */ }
+      return result;
+    };
+  });
+  window.addEventListener('popstate', onRouteChange);
+
+  window.addEventListener('pageshow', function (e) {
+    if (e.persisted) { lastPath = location.pathname; newView(); start(); }
+  });
+
+  send(true, true);
   start();
 })();
