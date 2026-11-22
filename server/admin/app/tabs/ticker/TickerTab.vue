@@ -147,25 +147,10 @@
             "
           />
         </label>
-        <label class="tk-font">
-          <span>Schriftart</span>
-          <!-- Natives Select: Optionen erscheinen in ihrer eigenen Schrift. -->
-          <select v-model="style.fontFamily" data-tk-font>
-            <option value="">Standard (System)</option>
-            <option
-              v-for="f in fontOptions"
-              :key="f.name"
-              :value="f.name"
-              :style="{ fontFamily: `'${f.family}', system-ui, sans-serif` }"
-            >
-              {{ f.label }}
-            </option>
-          </select>
-        </label>
       </div>
       <p class="hint">
-        Schriftgröße, Buchstabenabstand und Schriftart gelten für <strong>beide</strong> Modi.
-        Schriftarten aus dem Ordner <code>/fonts</code> auf dem Server.
+        Schriftgröße und Buchstabenabstand gelten für <strong>beide</strong> Modi. Schrift ist
+        überall Arial Bold.
       </p>
 
       <div class="tk-mode">
@@ -242,7 +227,7 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue';
-import type { FontEntry, Lang, ThemeMode, TickerConfig, TickerItem } from '../../../types';
+import type { Lang, ThemeMode, TickerConfig, TickerItem } from '../../../types';
 import { clampSpacing } from '../../../public/model-core';
 import {
   UiButton,
@@ -276,11 +261,8 @@ import { tickerUi } from './tickerUi';
 const props = defineProps<{
   ticker: TickerConfig;
   lang: Lang;
-  fonts: FontEntry[];
   /** Seitenhintergrund je Modus (Tab „Hintergrund“ bzw. Standard). */
   pageBg: Record<ThemeMode, string>;
-  /** Lädt eine Schrift per @font-face in die Admin-Seite, liefert den Family-Namen. */
-  ensureFontFace: (file: string) => string;
 }>();
 
 // reactive() auf das Roh-Objekt: Änderungen landen direkt in state.ticker.
@@ -313,21 +295,8 @@ function onDesignToggle(e: Event) {
 
 const segmentsOf = (item: TickerItem) => parseTickerText(item.text);
 
-const fontOptions = computed(() => {
-  const list = props.fonts.slice();
-  const current = style.fontFamily;
-  if (current && !list.some((f) => f.name === current))
-    list.unshift({ name: current, label: `${current} (nicht gefunden)`, url: '', bytes: 0 });
-  return list.map((f) => ({
-    name: f.name,
-    label: f.label || f.name,
-    family: props.ensureFontFace(f.name),
-  }));
-});
-
 function previewStyle(mode: ThemeMode) {
-  const fam = style.fontFamily ? props.ensureFontFace(style.fontFamily) : '';
-  return tickerPreviewStyle(style, mode, fam);
+  return tickerPreviewStyle(style, mode);
 }
 
 // Eingaben des „Wort verlinken“-Helfers je Eintrag (nicht gespeichert).
@@ -467,7 +436,6 @@ function move(i: number, dir: -1 | 1) {
   font-weight: 600;
 }
 .tk-num,
-.tk-font,
 .tk-color {
   display: flex;
   flex-direction: column;
@@ -477,9 +445,6 @@ function move(i: number, dir: -1 | 1) {
 }
 .tk-num input {
   width: 90px;
-}
-.tk-font {
-  flex: 1 1 240px;
 }
 .tk-slider {
   flex: 1 1 240px;

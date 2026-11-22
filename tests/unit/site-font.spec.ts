@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { normFontFile } from '../../server/admin/public/model-core';
 
 // Vorgabe 22.11.2026: Arial Bold ist die einzige Schrift der Website; keine Schriftdateien.
 const ROOT = join(__dirname, '../..');
@@ -52,5 +53,22 @@ describe('Schrift: nur Arial Bold', () => {
   it('Partials für die Tool-Seiten setzen Arial', () => {
     for (const p of ['public/partials/nav.html', 'public/partials/footer.html'])
       expect(read(p), p).toMatch(/font-family: Arial,/);
+  });
+
+  it('Admin: keine Schriftwahl, kein /api/fonts, Oberfläche in Arial Bold', () => {
+    expect(normFontFile('Inter.woff2')).toBe('');
+    expect(read('server/admin/src/index.ts')).not.toMatch(/\/api\/fonts'/);
+    expect(existsSync(join(ROOT, 'server/admin/src/fonts.ts'))).toBe(false);
+    expect(existsSync(join(ROOT, 'server/admin/public/fonts.ts'))).toBe(false);
+    const html = read('server/admin/public/index.html');
+    expect(html).toMatch(/font-family: Arial, [^;]*!important;/);
+    expect(html).toMatch(/font-weight: 700 !important;/);
+    expect(read('server/admin/app/design-system/tokens-v2.css')).toMatch(/--ds-font-sans: Arial,/);
+    for (const p of files('server/admin/app', /\.(vue|ts)$/)) {
+      const s = read(p);
+      expect(s, p).not.toMatch(
+        /ensureFontFace|@font-face|data-(tk|tx|md)-font[\s>=]|data-hdfont[\s>=]/,
+      );
+    }
   });
 });

@@ -48,9 +48,9 @@
   --ds-shadow-overlay: 0 8px 24px rgba(0, 0, 0, 0.35);
 
   /* === Typografie === */
-  --ds-font-sans:
-    'Supreme', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; /* Admin: Supreme nicht gebündelt -> Systemschrift */
-  --ds-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* Einzige Schrift (Website und Admin): Arial Bold. Kein Monospace, keine Schriftdatei. */
+  --ds-font-sans: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+  --ds-font-mono: Arial, 'Helvetica Neue', Helvetica, sans-serif;
   --ds-text-xs: 12px;
   --ds-text-sm: 13px;
   --ds-text-md: 14px;

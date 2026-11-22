@@ -16,7 +16,6 @@ export const state: AdminState = {
   defaults: { de: {}, en: {} },
   stagedItems: [], // aus IndexedDB (nur im Browser)
   serverFiles: { de: [], en: [], shared: [] }, // Server-Uploads getrennt nach Sprache
-  fonts: [], // verfügbare Schriftarten aus /fonts (für die Laufband-Schrift)
   objectUrls: new Map(), // id -> objectURL (für Vorschau)
   nav: { section: 'de', sub: 'ticker' }, // Ebene 1 (de|en|publish) + Ebene 2
   publishing: false, // läuft gerade eine Veröffentlichung?

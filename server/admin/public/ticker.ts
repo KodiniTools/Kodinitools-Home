@@ -1,9 +1,8 @@
 // Laufband-Tab (eine Sprache): Vue-Insel (app/tabs/ticker) mit Einträgen,
-// Design (Farben/Größe/Abstand/Schrift) und Live-Vorschau.
+// Design (Farben/Größe/Abstand) und Live-Vorschau.
 
 import { $ } from './core';
 import { state, getPageBg, PAGE_BG_DEFAULT, navLang } from './model';
-import { ensureFontFace } from './fonts';
 import { mountVueTab } from './islands';
 import type { ThemeMode } from '../types';
 
@@ -19,8 +18,6 @@ export function renderTicker() {
   mountVueTab(pane, 'ticker', {
     ticker: state.ticker[lang],
     lang,
-    fonts: state.fonts,
     pageBg: { light: tkPageBg('light'), dark: tkPageBg('dark') },
-    ensureFontFace,
   });
 }

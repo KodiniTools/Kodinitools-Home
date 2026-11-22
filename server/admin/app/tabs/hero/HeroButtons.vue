@@ -4,17 +4,6 @@
       ✏️ Text der Buttons <span class="hint hd-normal">(gilt für beide Modi)</span>
     </p>
     <div class="hd-line hd-end">
-      <UiSelect
-        :model-value="hd.buttonFont"
-        label="Schriftart (Chips + CTA-Button)"
-        size="sm"
-        :options="fontOptions(hd.buttonFont)"
-        data-hdfont="buttonFont"
-        @update:model-value="hd.buttonFont = String($event)"
-      />
-      <ResetBtn field="buttonFont" @reset="reset" />
-    </div>
-    <div class="hd-line hd-end">
       <label class="hd-field">
         <span>Schriftgröße Chips (px)</span>
         <span class="hd-line">
@@ -155,7 +144,7 @@
 <script setup lang="ts">
 import { computed, useId } from 'vue';
 import { delPath, getPath, setPath } from '../../../public/model-core';
-import { SliderControl, UiSelect } from '../../components/ui';
+import { SliderControl } from '../../components/ui';
 import ResetBtn from '../media/ResetBtn.vue';
 import TcColor from '../toolcards/TcColor.vue';
 import TcDraftInput from '../toolcards/TcDraftInput.vue';
@@ -169,7 +158,7 @@ import { useHero } from './useHero';
  * `public/design.ts`): Schrift, Größen, Abstand und Kontur der Buttons (beide
  * Modi) sowie Beschriftung (Override) und Verschiebung je Feature-Button.
  */
-const { service, view, offsetOf, setOffset, fontOptions, toast } = useHero();
+const { service, view, offsetOf, setOffset, toast } = useHero();
 const uid = `hd-ft-${useId()}`;
 const LANG = service.lang.toUpperCase();
 const hd = computed(() => view.value.hd);

@@ -68,7 +68,7 @@
         data-bannertext
         :class="bannerAnimClass(text)"
         :title="text.text ? 'Zum Verschieben ziehen' : undefined"
-        :style="bannerTextStyle(text, fontDecl)"
+        :style="bannerTextStyle(text)"
         @pointerdown="onDown"
         @pointermove="onMove"
         @pointerup="onUp"
@@ -100,7 +100,7 @@ import { useLayout } from './useLayout';
  * `public/layout-banner.js`): Medium im Banner-Design des gewählten Modus,
  * ziehbarer Text (Position in %), Diashow im eingestellten Takt.
  */
-const { view, text, style, slides, slideshow, service, fontDecl, toast } = useLayout();
+const { view, text, style, slides, slideshow, service, toast } = useLayout();
 
 const MODE_OPTIONS = (['light', 'dark'] as const).map((m) => ({ value: m, label: MODE_LABEL[m] }));
 const prevMode = computed<string>({

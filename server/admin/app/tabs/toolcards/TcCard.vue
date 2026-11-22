@@ -75,10 +75,9 @@ const props = defineProps<{
   /** Beschriftung des „Öffnen“-Links. */
   open: string;
   resolveUrl: (val: string) => string;
-  ensureFontFace: (file: string) => string;
 }>();
 
-const ts = computed(() => textStyles(props.side, props.theme, props.text, props.ensureFontFace));
+const ts = computed(() => textStyles(props.side, props.theme, props.text));
 // Icon-Färbung (Tab „Icons“): Farbe als Maske, eigener Kasten-Hintergrund.
 const tintColor = computed(() =>
   props.theme === 'dark' ? props.card.tint.dark : props.card.tint.light,

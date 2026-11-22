@@ -2,13 +2,10 @@ import { computed, inject, provide, reactive, type ComputedRef, type InjectionKe
 import type { ThemeMode } from '../../../types';
 import { useToastStore, type ToastOptions } from '../../stores/toast';
 import {
-  fontOptionsOf,
   readBannerText,
   type BannerHost,
   type BannerStyle,
   type BannerText,
-  type FontDecl,
-  type FontOption,
   type LayoutService,
   type PageKey,
   type PageSettings,
@@ -44,9 +41,6 @@ export interface LayoutApi {
   slides: () => string[];
   slideshow: () => Slideshow;
   setPage: <K extends PageKey>(key: K, v: PageSettings[K]) => void;
-  /** font-family-Deklaration (lädt @font-face) oder '' – wie `fontFF`. */
-  fontDecl: FontDecl;
-  fontOptions: (cur: string) => FontOption[];
   // ---- Raster ----
   /** Eigener (gespeicherter) Stil von Kachel i – zum Schreiben. */
   cell: (i: number) => CellStyle;
@@ -87,9 +81,6 @@ export function provideLayout(service: LayoutService): LayoutApi {
   function setPage<K extends PageKey>(key: K, v: PageSettings[K]) {
     change(() => service.setPage(key, v));
   }
-  const fontDecl: FontDecl = (file) =>
-    file ? `font-family:'${service.ensureFontFace(file)}', var(--site-font, sans-serif);` : '';
-  const fontOptions = (cur: string) => fontOptionsOf(service.fonts(), service.ensureFontFace, cur);
 
   const cell = (i: number) => view.value.m.heroGridStyles![i]!;
   const effCell = (i: number) => effectiveCell(view.value.m, i, service.syncProps);
@@ -112,8 +103,6 @@ export function provideLayout(service: LayoutService): LayoutApi {
     slides,
     slideshow,
     setPage,
-    fontDecl,
-    fontOptions,
     cell,
     effCell,
     inherited,

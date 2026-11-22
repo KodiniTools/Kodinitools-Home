@@ -110,8 +110,8 @@ describe('textStyle (Regeln wie model-hero.ts / textstyle.js)', () => {
     for (const [v, head, fx] of cases) {
       const host: TextStyleHost = { textStyles: { k: v as never } };
       const st = readTextStyle(host, 'k');
-      expect(slotPreviewStyle(st, 'light', '')).toBe(`${head};${light}${fx}`);
-      expect(slotPreviewStyle(st, 'dark', '')).toBe(`${head};${dark}${fx}`);
+      expect(slotPreviewStyle(st, 'light')).toBe(`${head};${light}${fx}`);
+      expect(slotPreviewStyle(st, 'dark')).toBe(`${head};${dark}${fx}`);
     }
   });
 
@@ -183,8 +183,6 @@ describe('TextsTab (Vue-Insel)', () => {
         media: media[lang] as TextStyleHost,
         mediaDe: media.de as TextStyleHost,
         mediaEn: media.en as TextStyleHost,
-        fonts: [{ name: 'Inter.woff2', label: 'Inter', url: '/fonts/Inter.woff2', bytes: 1 }],
-        ensureFontFace: (f: string) => `kf-${f}`,
         gotoDesign: () => gotoCalls++,
       },
     });
@@ -212,13 +210,12 @@ describe('TextsTab (Vue-Insel)', () => {
     w.unmount();
   });
 
-  it('Größe, Schrift und Effekte schreiben in media.textStyles (begrenzt)', async () => {
+  it('Größe und Effekte schreiben in media.textStyles (begrenzt)', async () => {
     const w = mountTab();
     const slot = w.findAll('[data-tx-slot]')[0]!;
     await slot.find('[data-tx-size]').setValue('300');
     expect(media.de.textStyles['tools.sectionTitle']!.size).toBe(120);
-    await slot.find('[data-tx-font]').setValue('Inter.woff2');
-    expect(media.de.textStyles['tools.sectionTitle']!.font).toBe('Inter.woff2');
+    expect(slot.find('[data-tx-font]').exists()).toBe(false);
     await slot.find('[data-tx-fx-field="opacity"]').setValue('40');
     await slot.find('[data-tx-fx-field="anim"]').setValue('pulse');
     const s = media.de.textStyles['tools.sectionTitle']!;

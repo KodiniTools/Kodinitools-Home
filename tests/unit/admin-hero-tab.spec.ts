@@ -29,7 +29,6 @@ function makeService(picked: string | null = '/uploads/de/hero.webp'): HeroServi
   const svc = heroService('de') as unknown as HeroService;
   return {
     ...svc,
-    ensureFontFace: (f: string) => `fam-${f}`,
     pick: vi.fn((_k: string, _t: string, onPick: (u: string) => void) => {
       if (picked === null) return false;
       onPick(picked);
@@ -56,7 +55,6 @@ beforeEach(() => {
     en: { hero: { title: 'Free tools', features: { free: 'Free' } } },
   } as typeof state.defaults;
   state.overrides = { de: {}, en: {} };
-  state.fonts = [{ name: 'Inter.woff2', label: 'Inter', url: '/fonts/Inter.woff2', bytes: 1 }];
   Object.assign(hdUi, { prevMode: 'light', selected: null, selSeq: 0, slideIdx: 0 });
   hdRev.value = 0;
   document.body.innerHTML = '';
@@ -96,7 +94,7 @@ describe('heroData (Regeln wie public/design.ts)', () => {
       { textStyles: { k: { size: 30, colorDark: '#ff0000', offsetX: 4, opacity: 50 } } },
       'k',
     );
-    expect(slotOverrideCss(st, 'dark', () => '')).toBe(
+    expect(slotOverrideCss(st, 'dark')).toBe(
       'font-size:30px;color:#ff0000;position:relative;left:4px;top:0px;opacity:0.5',
     );
     const side = { ...d.light, bgImageBlur: 2, bgImageDarken: 50 };
@@ -229,13 +227,11 @@ describe('HeroTab (Vue-Insel)', () => {
     none.unmount();
   });
 
-  it('Globale Schrift setzt Hero-Schriften in DE + EN; Übertragen nach EN', async () => {
+  it('Keine Schriftwahl (Arial Bold); Übertragen nach EN', async () => {
     const w = mountTab();
-    await w.find('[data-hdglobalfont="Inter.woff2"]').trigger('click');
-    expect(state.media.site.globalFont).toBe('Inter.woff2');
-    expect(state.media.de.heroDesign.titleFont).toBe('Inter.woff2');
-    expect(state.media.en.heroDesign.buttonFont).toBe('Inter.woff2');
-    expect(w.find('[data-hdglobalfont="Inter.woff2"]').classes()).toContain('active');
+    expect(w.find('[data-hdglobalfont]').exists()).toBe(false);
+    expect(w.find('[data-hdfont]').exists()).toBe(false);
+    expect(w.find('[data-txtfont]').exists()).toBe(false);
 
     hd().light.chipBgColor = '#010203';
     await w.find('[data-hdtxtrow="hero.title"] [data-tx-fx-field="opacity"]').setValue('40');

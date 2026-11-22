@@ -61,11 +61,11 @@ describe('tickerText (Regeln wie public/ticker.ts)', () => {
     const s = emptyTicker().style;
     s.dark.bgColor = '#000000';
     s.dark.bgOpacity = 50;
-    const st = tickerPreviewStyle(s, 'dark', 'kodini-font-x');
+    const st = tickerPreviewStyle(s, 'dark');
     expect(st.background).toBe('rgba(0, 0, 0, 0.5)');
     expect(st.fontSize).toBe('14px');
-    expect(st.fontFamily).toBe('"kodini-font-x", system-ui, sans-serif');
-    expect(tickerPreviewStyle(s, 'light', '').fontFamily).toBeUndefined();
+    expect(st.fontWeight).toBe('700');
+    expect(st.fontFamily).toBeUndefined();
     expect(tickerPreviewNote(s)).toMatch(/^⚠️/);
     s.enabled = true;
     expect(tickerPreviewNote(s)).toMatch(/^✅/);
@@ -81,9 +81,7 @@ describe('TickerTab.vue', () => {
       props: {
         ticker,
         lang: 'de',
-        fonts: [{ name: 'A.woff2', label: 'A', url: '/fonts/A.woff2', bytes: 1 }],
         pageBg: { light: '#fafafa', dark: '#091428' },
-        ensureFontFace: (f: string) => (f ? `kodini-font-${f}` : ''),
       },
       attachTo: document.body,
     });
@@ -158,9 +156,7 @@ describe('TickerTab.vue', () => {
     expect(ticker.style.fontSize).toBe(48);
     await w.find('[data-tk-spacing]').setValue('3.3');
     expect(ticker.style.letterSpacing).toBe(3.5);
-    await w.find('[data-tk-font]').setValue('A.woff2');
-    expect(ticker.style.fontFamily).toBe('A.woff2');
-    expect(w.find('[data-tk-preview]').attributes('style')).toContain('kodini-font-A.woff2');
+    expect(w.find('[data-tk-font]').exists()).toBe(false);
     expect(w.find('[data-tk-mode="light"]').exists()).toBe(true);
     await w.find('[data-tk-showmode="dark"]').trigger('keydown', { key: 'Enter' });
     expect(tickerUi.editMode).toBe('dark');
@@ -170,11 +166,10 @@ describe('TickerTab.vue', () => {
     w.unmount();
   });
 
-  it('unbekannte gespeicherte Schrift bleibt auswählbar („nicht gefunden“)', () => {
+  it('gespeicherte Schrift wird ignoriert: Vorschau ohne eigene Schrift', () => {
     ticker.style.fontFamily = 'Weg.woff2';
     const w = mk();
-    const opts = w.findAll('[data-tk-font] option').map((o) => o.text());
-    expect(opts).toEqual(['Standard (System)', 'Weg.woff2 (nicht gefunden)', 'A']);
+    expect(w.find('[data-tk-preview]').attributes('style')).not.toContain('font-family');
     w.unmount();
   });
 });

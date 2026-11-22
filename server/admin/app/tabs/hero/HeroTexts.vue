@@ -34,35 +34,15 @@
         :rows="sl.key === 'hero.cta' ? 1 : 2"
         :value="overrideOf(sl)"
         :placeholder="defaultOf(sl)"
-        :style="fieldFont(sl.key)"
+        :style="FIELD_STYLE"
         :data-hdtxt="sl.key"
         @input="setText(sl, $event)"
       />
       <details class="hd-tune" :open="tuneOpen(sl.key)" @toggle="onTuneToggle(sl.key, $event)">
         <summary :class="{ 'hd-tune--on': slotTuned(style(sl.key)) }">
-          Feinabstimmung – Schriftart, Größe, Effekte (beide Modi){{
-            slotTuned(style(sl.key)) ? ' •' : ''
-          }}
+          Feinabstimmung – Größe, Effekte (beide Modi){{ slotTuned(style(sl.key)) ? ' •' : '' }}
         </summary>
         <div class="hd-line hd-end hd-mt">
-          <UiSelect
-            :model-value="style(sl.key).font"
-            label="Schriftart"
-            size="sm"
-            :options="fontOptions(style(sl.key).font)"
-            :data-txtfont="sl.key"
-            @update:model-value="editStyle(sl.key).font = String($event)"
-          />
-          <button
-            type="button"
-            class="hd-reset"
-            title="Schriftart zurücksetzen"
-            aria-label="Schriftart zurücksetzen"
-            data-hdtxtreset="font"
-            @click="reset(sl.key, 'font')"
-          >
-            ↺
-          </button>
           <label class="hd-field">
             <span>Textgröße (px, 0=Standard)</span>
             <span class="hd-line">
@@ -142,7 +122,6 @@
 <script setup lang="ts">
 import { computed, reactive, useId } from 'vue';
 import { delPath, getPath, setPath } from '../../../public/model-core';
-import { UiSelect } from '../../components/ui';
 import TextFxFields from '../texts/TextFxFields.vue';
 import {
   TEXT_FX_DEFAULTS,
@@ -164,7 +143,7 @@ import { useHero } from './useHero';
  * Feinabstimmung für beide Modi – Schriftart, Größe, Verschiebung, Effekte.
  * Die Textfarbe je Modus steht in den Seitenleisten.
  */
-const { service, view, style, editStyle, fontOptions, toast } = useHero();
+const { service, view, style, editStyle, toast } = useHero();
 const uid = `hd-tx-${useId()}`;
 
 const TXT_OF = { cta: 'hero.cta', title: 'hero.title', subtitle: 'hero.subtitle' } as const;
@@ -190,15 +169,7 @@ function resetText(sl: HeroTextSlot) {
   delPath(view.value.ov, sl.path);
   toast('Auf Standard zurückgesetzt');
 }
-function fieldFont(key: HeroSlotKey) {
-  const font = style(key).font;
-  const fam = font ? service.ensureFontFace(font) : '';
-  return {
-    minHeight: '48px',
-    fontSize: '.95rem',
-    ...(fam ? { fontFamily: `'${fam}', system-ui, sans-serif` } : {}),
-  };
-}
+const FIELD_STYLE = { minHeight: '48px', fontSize: '.95rem' };
 
 // ---- Feinabstimmung -------------------------------------------------------------------
 function setOff(key: HeroSlotKey, axis: 'x' | 'y', raw: string) {
@@ -213,11 +184,10 @@ function setFx(key: HeroSlotKey, field: FxField, v: string | boolean) {
   else if (field === 'animSpeed') s.animSpeed = v as TextStyle['animSpeed'];
   else s[field] = String(v);
 }
-type ResetWhat = 'font' | 'size' | 'off' | 'fx';
+type ResetWhat = 'size' | 'off' | 'fx';
 function reset(key: HeroSlotKey, what: ResetWhat) {
   const st = editStyle(key);
-  if (what === 'font') st.font = '';
-  else if (what === 'size') st.size = 0;
+  if (what === 'size') st.size = 0;
   else if (what === 'off') {
     st.offsetX = 0;
     st.offsetY = 0;

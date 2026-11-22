@@ -1,7 +1,7 @@
 {
   "site": {
     "hiddenCards": [],
-    "globalFont": "Hind-Medium.woff2",
+    "globalFont": "",
     "bgColor": "#fafafa",
     "bgColorDark": "#111418",
     "bgOpacity": 100,
@@ -269,7 +269,7 @@
     "heroBanner": "/uploads/de/kt-de-00ec89b5.webp",
     "heroBannerLink": "",
     "heroBannerText": "",
-    "heroBannerFont": "Hind-Regular.woff2",
+    "heroBannerFont": "",
     "heroBannerTextColor": "#ffffff",
     "heroBannerTextSize": 0,
     "heroBannerTextPos": "bottom",
@@ -407,7 +407,7 @@
         "bgColor": "#014f99",
         "bgOpacity": 8,
         "text": "neu",
-        "font": "Alpino-Thin.woff2",
+        "font": "",
         "textColor": "#ffffff",
         "textSize": 0,
         "textPos": "center",
@@ -479,25 +479,25 @@
         "size": 37,
         "colorLight": "#010f5a",
         "colorDark": "#eee8b0",
-        "font": "Hind-Medium.woff2"
+        "font": ""
       },
       "hero.subtitle": {
         "size": 20,
         "colorLight": "#010f5a",
         "colorDark": "#eee8b0",
-        "font": "Hind-Medium.woff2"
+        "font": ""
       },
       "hero.cta": {
         "size": 15,
         "colorLight": "#010f5a",
         "colorDark": "#eee8b0",
-        "font": "Hind-Medium.woff2"
+        "font": ""
       },
       "tools.sectionTitle": {
         "size": 0,
         "colorLight": "#010f5a",
         "colorDark": "#eee8b0",
-        "font": "Hind-Regular.woff2"
+        "font": ""
       },
       "imageTools.sectionTitle": {
         "size": 0,
@@ -516,8 +516,8 @@
     "textStyleUniformKey": "tools.sectionTitle",
     "heroDesign": {
       "enabled": true,
-      "titleFont": "Hind-Medium.woff2",
-      "buttonFont": "Hind-Medium.woff2",
+      "titleFont": "",
+      "buttonFont": "",
       "titleLetterSpacing": 0,
       "titleStrokeColor": "#000000",
       "titleStrokeWidth": 0,
@@ -663,12 +663,12 @@
           "bgImageDarken": 0
         },
         "text": {
-          "titleFont": "Hind-Medium.woff2",
+          "titleFont": "",
           "titleSize": 20,
           "titleWeight": "",
           "titleSpacing": 0,
           "titleTransform": "",
-          "textFont": "Hind-Medium.woff2",
+          "textFont": "",
           "badgeSize": 10,
           "badgeWeight": "",
           "badgeTransform": "",
@@ -741,12 +741,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -818,12 +818,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -895,12 +895,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -972,12 +972,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -1049,12 +1049,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -1126,12 +1126,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -1203,12 +1203,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -1280,12 +1280,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -1357,12 +1357,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -1434,12 +1434,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -1511,12 +1511,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -1588,12 +1588,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -1665,12 +1665,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -1742,12 +1742,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -1819,12 +1819,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -1896,12 +1896,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -1973,12 +1973,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -2050,12 +2050,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -2127,12 +2127,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -2311,7 +2311,7 @@
     "heroBanner": "/uploads/en/kt-en-43ef0263.webp",
     "heroBannerLink": "",
     "heroBannerText": "",
-    "heroBannerFont": "Hind-Regular.woff2",
+    "heroBannerFont": "",
     "heroBannerTextColor": "#f9f1f1",
     "heroBannerTextSize": 50,
     "heroBannerTextPos": "bottom",
@@ -2521,25 +2521,25 @@
         "size": 37,
         "colorLight": "#010f5a",
         "colorDark": "#eee8b0",
-        "font": "Hind-Medium.woff2"
+        "font": ""
       },
       "hero.subtitle": {
         "size": 20,
         "colorLight": "#010f5a",
         "colorDark": "#eee8b0",
-        "font": "Hind-Medium.woff2"
+        "font": ""
       },
       "hero.cta": {
         "size": 15,
         "colorLight": "#010f5a",
         "colorDark": "#eee8b0",
-        "font": "Hind-Medium.woff2"
+        "font": ""
       },
       "tools.sectionTitle": {
         "size": 0,
         "colorLight": "#010f5a",
         "colorDark": "#eee8b0",
-        "font": "Hind-Regular.woff2",
+        "font": "",
         "shadow": true,
         "shadowColor": "#999999",
         "shadowX": -3,
@@ -2569,8 +2569,8 @@
     "textStyleUniformKey": "tools.sectionTitle",
     "heroDesign": {
       "enabled": true,
-      "titleFont": "Hind-Medium.woff2",
-      "buttonFont": "Hind-Medium.woff2",
+      "titleFont": "",
+      "buttonFont": "",
       "titleLetterSpacing": 0,
       "titleStrokeColor": "#000000",
       "titleStrokeWidth": 0,
@@ -2716,12 +2716,12 @@
           "bgImageDarken": 0
         },
         "text": {
-          "titleFont": "Hind-Medium.woff2",
+          "titleFont": "",
           "titleSize": 20,
           "titleWeight": "",
           "titleSpacing": 0,
           "titleTransform": "",
-          "textFont": "Hind-Medium.woff2",
+          "textFont": "",
           "badgeSize": 10,
           "badgeWeight": "",
           "badgeTransform": "",
@@ -2794,12 +2794,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -2871,12 +2871,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -2948,12 +2948,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -3025,12 +3025,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -3102,12 +3102,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -3179,12 +3179,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -3256,12 +3256,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -3333,12 +3333,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -3410,12 +3410,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -3487,12 +3487,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -3564,12 +3564,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -3641,12 +3641,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -3718,12 +3718,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -3795,12 +3795,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -3872,12 +3872,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -3949,12 +3949,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -4026,12 +4026,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -4103,12 +4103,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",
@@ -4180,12 +4180,12 @@
             "bgImageDarken": 0
           },
           "text": {
-            "titleFont": "Hind-Medium.woff2",
+            "titleFont": "",
             "titleSize": 20,
             "titleWeight": "",
             "titleSpacing": 0,
             "titleTransform": "",
-            "textFont": "Hind-Medium.woff2",
+            "textFont": "",
             "badgeSize": 12,
             "badgeWeight": "",
             "badgeTransform": "",

@@ -21,14 +21,16 @@
       * {
         box-sizing: border-box;
       }
+      /* Einzige Schrift im Admin wie auf der Website: Arial Bold (auch Vorschauen, Felder, Code). */
+      body,
+      body *,
+      body *::before,
+      body *::after {
+        font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif !important;
+        font-weight: 700 !important;
+      }
       body {
         margin: 0;
-        font-family:
-          system-ui,
-          -apple-system,
-          Segoe UI,
-          Roboto,
-          sans-serif;
         background: var(--bg);
         color: var(--text);
         line-height: 1.5;
@@ -98,64 +100,6 @@
         background: var(--accent);
         color: #fff;
       }
-      /* Kachel-Galerie für die globale Standard-Schrift */
-      .hd-fonttiles {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-        gap: 0.5rem;
-        margin: 0.2rem 0 0.6rem;
-        /* Bei vielen Schriften scrollbar statt endlos lang */
-        max-height: 300px;
-        overflow-y: auto;
-        padding: 0.15rem 0.4rem 0.15rem 0.15rem;
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        background: var(--bg);
-      }
-      button.hd-fonttile {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.25rem;
-        padding: 0.6rem 0.4rem;
-        height: auto;
-        background: var(--bg);
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-      }
-      button.hd-fonttile:hover {
-        border-color: var(--accent);
-        background: var(--panel-2);
-      }
-      button.hd-fonttile.active {
-        border-color: var(--accent);
-        box-shadow: 0 0 0 2px var(--accent) inset;
-      }
-      .hd-fonttile-sample {
-        font-size: 1.15rem;
-        line-height: 1.2;
-        color: var(--text);
-        width: 100%;
-        overflow-wrap: anywhere;
-        word-break: break-word;
-      }
-      .hd-fonttile-label {
-        font-size: 0.72rem;
-        color: var(--muted);
-        max-width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        width: 100%;
-      }
-      .hd-fonttile-badge {
-        font-size: 0.65rem;
-        font-weight: 700;
-        color: var(--accent-2, #4ade80);
-      }
       input,
       textarea,
       select {
@@ -170,7 +114,7 @@
       textarea {
         min-height: 90px;
         resize: vertical;
-        font-family: ui-monospace, monospace;
+        font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
         font-size: 0.85rem;
       }
       /* Mehrzeilige Overlay-Texte im Layout-Tab (Banner/Kacheln): normale Schrift,
@@ -435,7 +379,7 @@
       /* Publish status */
       .status {
         white-space: pre-wrap;
-        font-family: ui-monospace, monospace;
+        font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
         font-size: 0.8rem;
         background: #0b1220;
         border: 1px solid var(--border);
@@ -991,7 +935,7 @@
       .cp-hex {
         width: 5.6rem;
         padding: 0.3rem 0.4rem;
-        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
         font-size: 0.85rem;
       }
       .cp-toggle.active {

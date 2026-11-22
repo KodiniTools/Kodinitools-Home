@@ -423,9 +423,8 @@
     <aside class="tc-side" data-tcside="right">
       <div class="tc-side-head right">✍️ Text – {{ SECTION_LABEL[section] }}</div>
       <p class="hint">
-        Optionaler Text über dem Sektions-Medium: Schriftart (aus <code>/fonts</code>), Farbe,
-        Größe, Position (in der Vorschau mit der Maus ziehen), Deckkraft, Schatten und Umriss. Leer
-        = kein Text.
+        Optionaler Text über dem Sektions-Medium (Schrift: Arial Bold): Farbe, Größe, Position (in
+        der Vorschau mit der Maus ziehen), Deckkraft, Schatten und Umriss. Leer = kein Text.
       </p>
       <div class="panel">
         <div class="md-inline md-end">
@@ -435,34 +434,11 @@
             placeholder="z.B. Neu"
             maxlength="200"
             class="md-grow"
-            :style="textFont"
             data-md-text
             @update:model-value="cfg.text.text = $event.slice(0, 200)"
           />
           <ResetBtn field="text" @reset="resetText" />
         </div>
-        <label class="md-label">Schriftart</label>
-        <span class="md-inline">
-          <!-- Natives Select: Optionen erscheinen in ihrer eigenen Schrift. -->
-          <select
-            :value="cfg.text.font"
-            :style="textFont"
-            aria-label="Schriftart"
-            data-md-font
-            @change="cfg.text.font = ($event.target as HTMLSelectElement).value"
-          >
-            <option value="">Standard (System)</option>
-            <option
-              v-for="o in fontOptions"
-              :key="o.name"
-              :value="o.name"
-              :style="o.family ? { fontFamily: `'${o.family}', system-ui, sans-serif` } : {}"
-            >
-              {{ o.label }}
-            </option>
-          </select>
-          <ResetBtn field="font" @reset="resetText" />
-        </span>
         <div class="md-row md-end">
           <div class="md-field">
             <span class="md-flabel">Textfarbe</span>
@@ -605,7 +581,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, reactive, ref, shallowRef, watch } from 'vue';
-import type { FontEntry, Lang, ThemeMode } from '../../../types';
+import type { Lang, ThemeMode } from '../../../types';
 import {
   ColorField,
   SliderControl,
@@ -635,7 +611,6 @@ import {
   clampText,
   copySectionDesign,
   designCss,
-  fontFF,
   getHeroLink,
   getSlotVal,
   moveSlide,
@@ -670,8 +645,6 @@ const props = defineProps<{
   service: MediaService;
   /** Seitenhintergrund je Modus (Tab „Hintergrund“ bzw. Standard). */
   pageBg: Record<ThemeMode, string>;
-  fonts: FontEntry[];
-  ensureFontFace: (file: string) => string;
   /** Wechselt zum Tab „Layout“ dieser Sprache. */
   gotoLayout: () => void;
 }>();
@@ -721,9 +694,7 @@ const mainRes = computed(() => resolveVal(mainVal.value));
 // ---- Vorschau ---------------------------------------------------------------------
 const prevBg = computed(() => props.pageBg[prevMode.value]);
 const css = computed(() => designCss(side.value));
-const family = (font: string) => (font ? props.ensureFontFace(font) : '');
-const overlay = computed(() => textOverlayStyle(cfg.value.text, family(cfg.value.text.font)));
-const textFont = computed(() => fontFF(family(cfg.value.text.font)));
+const overlay = computed(() => textOverlayStyle(cfg.value.text));
 
 // Vorschau-Diashow: Hauptbild + weitere Bilder im eingestellten Takt.
 const srcs = computed(() => slideSources(mainRes.value, cfg.value.slides, props.service.resolve));
@@ -890,18 +861,6 @@ function resetText(f: string) {
     (t as unknown as Record<string, unknown>)[k] = d[k];
   }
 }
-
-const fontOptions = computed(() => {
-  const cur = cfg.value.text.font;
-  const list = props.fonts.slice();
-  if (cur && !list.some((x) => x.name === cur))
-    list.unshift({ name: cur, label: `${cur} (nicht gefunden)`, url: '', bytes: 0 });
-  return list.map((x) => ({
-    name: x.name,
-    label: x.label || x.name,
-    family: props.ensureFontFace(x.name),
-  }));
-});
 
 // ---- Rückfragen ------------------------------------------------------------------
 interface Pending {

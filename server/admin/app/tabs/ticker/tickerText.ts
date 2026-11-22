@@ -65,29 +65,21 @@ export function insertInlineLink(item: TickerItem, word: string, url: string): I
   return { ok: true };
 }
 
-/**
- * Inline-Stil der Vorschau für einen Modus. `fontFamilyId` ist der per
- * `ensureFontFace` geladene Family-Name ('' = Systemschrift).
- */
-export function tickerPreviewStyle(
-  s: TickerStyle,
-  mode: ThemeMode,
-  fontFamilyId: string,
-): Record<string, string> {
+/** Inline-Stil der Vorschau für einen Modus (Schrift: Arial Bold wie die Website). */
+export function tickerPreviewStyle(s: TickerStyle, mode: ThemeMode): Record<string, string> {
   const c = s[mode] || s.light;
   const style: Record<string, string> = {
     background: String(rgbaFromHex(c.bgColor, c.bgOpacity)),
     color: c.textColor,
     fontSize: `${s.fontSize}px`,
     letterSpacing: `${Number(s.letterSpacing) || 0}px`,
-    fontWeight: '500',
+    fontWeight: '700',
     padding: '8px 14px',
     borderRadius: '6px',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
   };
-  if (fontFamilyId) style.fontFamily = `"${fontFamilyId}", system-ui, sans-serif`;
   return style;
 }
 

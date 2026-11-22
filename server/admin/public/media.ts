@@ -26,7 +26,6 @@ import {
   PAGE_BG_DEFAULT,
   navLang,
 } from './model';
-import { ensureFontFace } from './fonts';
 
 import type { Lang, MediaKey, ServerFile, SectionVideoKey, StagedItem } from '../types';
 import type { MediaService } from '../app/tabs/media/mediaData';
@@ -125,8 +124,6 @@ export function renderMedia() {
       light: getPageBg('light') || PAGE_BG_DEFAULT.light,
       dark: getPageBg('dark') || PAGE_BG_DEFAULT.dark,
     },
-    fonts: state.fonts,
-    ensureFontFace,
     gotoLayout: () =>
       (document.querySelector('#subnav button[data-sub="layout"]') as HTMLElement | null)?.click(),
   });

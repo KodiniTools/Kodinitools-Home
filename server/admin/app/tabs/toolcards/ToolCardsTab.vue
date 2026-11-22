@@ -70,7 +70,6 @@
                 :show="view.style.show"
                 :open="view.openLabel"
                 :resolve-url="service.resolveUrl"
-                :ensure-font-face="service.ensureFontFace"
               />
               <p v-if="view.selCard" class="hint tc-desc" :style="{ color: PAGE[prevMode].muted }">
                 <span data-tcdesclabel>{{
@@ -326,7 +325,6 @@ import {
   SHOW_LABEL,
   THEME_LABEL,
   clone,
-  fontCss,
   noteText,
   oneLine,
   showInfoText,
@@ -416,13 +414,13 @@ const cardOptions = computed(() => [
 ]);
 const pageCss = computed(() => {
   void view.value;
-  return `background:${service.pageBg(prevMode.value)};${fontCss(service.globalFont(), service.ensureFontFace)}`;
+  return `background:${service.pageBg(prevMode.value)};`;
 });
 const descCss = computed(() => {
   const st = view.value.style;
   const m = prevMode.value;
   const hidden = show.value.popup === false ? 'text-decoration:line-through;opacity:.45;' : '';
-  return textStyles(st[m], m, st.text, service.ensureFontFace).desc + hidden;
+  return textStyles(st[m], m, st.text).desc + hidden;
 });
 const note = computed(() =>
   noteText(view.value.tc, view.value.selected, !!view.value.selCard?.hidden),

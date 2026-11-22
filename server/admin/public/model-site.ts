@@ -604,17 +604,6 @@ export function setPageBg(mode: ThemeMode | string, val: unknown) {
   if (mode === 'dark') state.media.site.bgColorDark = hex;
   else state.media.site.bgColor = hex;
 }
-// Aktuell gesetzte globale Basis-Schrift (Dateiname oder '').
-export function getGlobalFont() {
-  if (!state.media.site || typeof state.media.site !== 'object') state.media.site = defaultSite();
-  return state.media.site.globalFont || '';
-}
-// Globale Basis-Schrift setzen ('' = Standard).
-
-export function setGlobalFont(file: unknown) {
-  if (!state.media.site || typeof state.media.site !== 'object') state.media.site = defaultSite();
-  state.media.site.globalFont = normFontFile(file);
-}
 // Startseiten-Layout ('classic' | 'compact'), gilt für DE + EN.
 export function getHomeLayout() {
   return siteObj().homeLayout === 'compact' ? 'compact' : 'classic';

@@ -111,8 +111,7 @@ import { useLayout } from './useLayout';
  * Werten der Master-Kachel), ausgeblendete Kacheln entfallen; Klick markiert,
  * Text ziehen verschiebt (Position in %); Diashow im gemeinsamen Takt.
  */
-const { view, service, inherited, cellSlides, gridSlideshow, markCell, fontDecl, cell, toast } =
-  useLayout();
+const { view, service, inherited, cellSlides, gridSlideshow, markCell, cell, toast } = useLayout();
 
 const pv = computed(() =>
   previewLayout(view.value.m, service.layouts, service.layoutCols, service.syncProps),
@@ -129,7 +128,7 @@ const mediaFit = computed(
 );
 const media = (i: number) => service.resolve(view.value.m.heroGrid?.[i] || '');
 const textStyle = (i: number, s: CellStyle) => {
-  const css = cellTextStyle(s, fontDecl);
+  const css = cellTextStyle(s);
   return css && inherited(i) ? `${css};cursor:default;pointer-events:none` : css;
 };
 function show(i: number) {

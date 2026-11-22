@@ -67,11 +67,13 @@ function clampSpacing(v: unknown, def: number) {
 }
 
 /**
- * Erlaubt einen einfachen Schrift-Dateinamen (kein Pfad) oder '' (Standard).
+ * Schrift-Felder (Laufband, Hero, Texte, Medien, Raster, Tool-Karten, globale Schrift):
+ * Seit 22.11.2026 ist Arial Bold die einzige Schrift der Website, eigene Schriften gibt
+ * es nicht mehr. Die Felder bleiben im Format erhalten (ältere media.json bleiben gültig),
+ * werden aber immer geleert.
  */
-function normFontFile(v: unknown) {
-  if (typeof v !== 'string' || v === '') return '';
-  return /^[a-zA-Z0-9][a-zA-Z0-9._ -]*\.(woff2|woff|ttf|otf)$/i.test(v.trim()) ? v.trim() : '';
+function normFontFile(_v: unknown): string {
+  return '';
 }
 
 function defaultTicker() {

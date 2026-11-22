@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'vue';
-import type { FontEntry, IconTint, Lang, ThemeMode } from '../../../types';
+import type { IconTint, Lang, ThemeMode } from '../../../types';
 import { rgbaFromHex } from '../../../public/model-core';
 
 /**
@@ -43,11 +43,13 @@ export interface TcSide {
 }
 /** Typografie (Hell + Dunkel gemeinsam); 0 / '' = Standard der Seite. */
 export interface TcText {
+  /** Schriftdatei (veraltet): immer '', Schrift ist Arial Bold. */
   titleFont: string;
   titleSize: number;
   titleWeight: string;
   titleSpacing: number;
   titleTransform: string;
+  /** Schriftdatei (veraltet): immer ''. */
   textFont: string;
   badgeSize: number;
   badgeWeight: string;
@@ -110,9 +112,6 @@ export interface TcService {
   copyToOtherLang: () => void;
   /** Seiten-Hintergrund (Tab „Hintergrund“) für die Vorschau. */
   pageBg: (mode: ThemeMode) => string;
-  globalFont: () => string;
-  fonts: () => FontEntry[];
-  ensureFontFace: (file: string) => string;
   /** Vorschau-URL (`staged:<id>` → Objekt-URL). */
   resolveUrl: (val: string) => string;
   /** Bild-Auswahl der Sprache (nur Bilder); false = keine Medien vorhanden. */
@@ -344,9 +343,9 @@ export function normTextField(
   f: keyof TcText,
   v: unknown,
   svc: Pick<TcService, 'weights' | 'transforms' | 'aligns'>,
-  normFont: (v: unknown) => string,
 ): string | number {
-  if (f === 'titleFont' || f === 'textFont') return normFont(v);
+  // Keine eigenen Schriften mehr (Arial Bold überall): Schrift-Felder bleiben leer.
+  if (f === 'titleFont' || f === 'textFont') return '';
   if (f.endsWith('Weight')) return svc.weights.includes(String(v)) ? String(v) : '';
   if (f.endsWith('Transform')) return svc.transforms.includes(String(v)) ? String(v) : '';
   if (f === 'align') return svc.aligns.includes(String(v)) ? String(v) : '';
@@ -417,46 +416,31 @@ export interface TextStyles {
   alignSelf: string;
 }
 /** Inline-Styles der Karten-Texte (Seitenstandard, wenn nichts gesetzt). */
-export function textStyles(
-  s: TcSide,
-  theme: ThemeMode,
-  text: TcText | undefined,
-  ensureFontFace: (file: string) => string,
-): TextStyles {
+export function textStyles(s: TcSide, theme: ThemeMode, text: TcText | undefined): TextStyles {
   const p = PAGE[theme];
   const t: Partial<TcText> = text || {};
-  const font = (f?: string) =>
-    f ? `font-family:'${ensureFontFace(f)}', system-ui, sans-serif;` : '';
   const size = (n?: number) => (n && n > 0 ? `font-size:${n}px;` : '');
   const weight = (w?: string) => (w ? `font-weight:${w};` : '');
   const transform = (v?: string) => (v ? `text-transform:${v};` : '');
   const self = t.align ? ALIGN_SELF[t.align] : undefined;
   const ta = self ? `text-align:${t.align};` : '';
   const alignSelf = self ? `align-self:${self};` : '';
-  const title = `color:${s.titleColor || p.title};${font(t.titleFont)}${size(t.titleSize)}${weight(
+  const title = `color:${s.titleColor || p.title};${size(t.titleSize)}${weight(
     t.titleWeight,
   )}${t.titleSpacing ? `letter-spacing:${t.titleSpacing}px;` : ''}${transform(t.titleTransform)}${ta}`;
   const badgeBg = s.badgeBgColor ? rgbaFromHex(s.badgeBgColor, s.badgeBgOpacity ?? 100) : p.badgeBg;
   const badge = `color:${s.badgeColor || p.badgeFg};background:${badgeBg};border-color:${
     p.badgeBd
-  };${font(t.textFont)}${size(t.badgeSize)}${weight(t.badgeWeight)}${transform(
-    t.badgeTransform,
-  )}${alignSelf}`;
-  const open = `color:${s.openColor || p.primary};${font(t.textFont)}${size(t.openSize)}${weight(
-    t.openWeight,
-  )}`;
+  };${size(t.badgeSize)}${weight(t.badgeWeight)}${transform(t.badgeTransform)}${alignSelf}`;
+  const open = `color:${s.openColor || p.primary};${size(t.openSize)}${weight(t.openWeight)}`;
   const desc = `${s.descColor ? `color:${s.descColor};` : ''}${
     s.descBgColor ? `background:${s.descBgColor};padding:.15rem .4rem;border-radius:.3rem;` : ''
-  }${font(t.textFont)}${size(t.descSize)}${ta}`;
+  }${size(t.descSize)}${ta}`;
   return { title, badge, open, desc, alignSelf };
 }
 /** Ausgeblendetes Element (Platz bleibt erhalten). */
 export function hiddenCss(show: TcShow | undefined, key: TcShowKey): string {
   return show && show[key] === false ? 'visibility:hidden;' : '';
-}
-/** Schrift der Seite (Tab „Design“) für die Vorschau-Fläche. */
-export function fontCss(globalFont: string, ensureFontFace: (file: string) => string): string {
-  return globalFont ? `font-family:'${ensureFontFace(globalFont)}', system-ui, sans-serif;` : '';
 }
 /** Beispiel-Karte für das Standard-Design (Icon der ersten Karte mit Icon). */
 export function sampleCard(lang: Lang, cards: CardInfo[]): CardInfo {

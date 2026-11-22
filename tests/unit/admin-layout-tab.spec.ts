@@ -47,7 +47,6 @@ function makeService(picked: string | null = '/uploads/de/banner.webp') {
   const svc = layoutService('de') as unknown as LayoutService;
   const service: LayoutService = {
     ...svc,
-    ensureFontFace: (f: string) => `fam-${f}`,
     pick: vi.fn((_k: PickTarget, _t: string, onPick: (u: string) => void) => {
       if (picked === null) return false;
       onPick(picked);
@@ -64,7 +63,6 @@ const m = () => state.media.de as unknown as BannerHost;
 beforeEach(() => {
   setActivePinia(createPinia());
   state.media = defaultMedia() as typeof state.media;
-  state.fonts = [{ name: 'Inter.woff2', label: 'Inter', url: '/fonts/Inter.woff2', bytes: 1 }];
   state.stagedItems = [];
   Object.assign(lyUi, { prevMode: 'light', slideIdx: 0, activeCell: null, selSeq: 0, gridTick: 0 });
   lyRev.value = 0;
@@ -114,19 +112,18 @@ describe('layoutData (Regeln wie public/layout-banner.js)', () => {
 
   it('Text-Overlay und Banner-Design wie die Vanilla-Fassung', () => {
     const b: BannerHost = { ...(defaultMedia().de as unknown as BannerHost) };
-    expect(bannerTextStyle(readBannerText(b), () => '')).toBe('');
+    expect(bannerTextStyle(readBannerText(b))).toBe('');
     b.heroBannerText = 'Hallo';
     b.heroBannerTextStrokeWidth = 1;
     b.heroBannerTextOpacity = 80;
     b.heroBannerTextAnim = 'pulse';
     const t = readBannerText(b);
-    expect(bannerTextStyle(t, () => '')).toBe(
+    expect(bannerTextStyle(t)).toBe(
       overlayStyle(
         '#ffffff',
         0,
         50,
         50,
-        '',
         '1.3rem',
         `0px 2px 6px ${rgbaFromHex('#000000', 60)}`,
         ';-webkit-text-stroke:1px #000000;opacity:0.8;--anim-dur:1.8s;--anim-scale:1.100',

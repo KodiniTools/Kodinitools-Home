@@ -224,11 +224,6 @@ export function previewText(cur: unknown, def: unknown, label: string): string {
   return t || label;
 }
 
-/** CSS-Wert font-family für Felder/Vorschau (Family-Name aus `ensureFontFace`). */
-export function fontFamilyCss(family: string): string {
-  return family ? `'${family}', var(--site-font, sans-serif)` : '';
-}
-
 function rgba(hex: string, a: number): string {
   const m = /^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.exec(String(hex || '').trim());
   if (!m) return `rgba(0,0,0,${a})`;
@@ -282,10 +277,9 @@ export function slotFxParts(st: TextStyle): string[] {
 
 /**
  * Inline-Style der Slot-Vorschau (Farbe des Modus + Effekte), identisch zu
- * `slotPreviewStyle` in `public/textstyle.js`. `family` = Ergebnis von
- * `ensureFontFace(st.font)` bzw. '' ohne eigene Schrift.
+ * `slotPreviewStyle` in `public/textstyle.js`. Schrift: Arial Bold (keine eigene Schrift).
  */
-export function slotPreviewStyle(st: TextStyle, mode: ThemeMode, family: string): string {
+export function slotPreviewStyle(st: TextStyle, mode: ThemeMode): string {
   const dark = mode === 'dark';
   const color = (dark ? st.colorDark : st.colorLight) || DEFAULT_TEXT_COLOR[mode];
   const size = st.size > 0 ? Math.max(12, Math.min(40, st.size)) : 22;
@@ -300,7 +294,6 @@ export function slotPreviewStyle(st: TextStyle, mode: ThemeMode, family: string)
     `color:${color}`,
     `-webkit-text-fill-color:${color}`,
   ];
-  if (st.font && family) parts.push(`font-family:${fontFamilyCss(family)}`);
   return parts.concat(slotFxParts(st)).join(';');
 }
 
