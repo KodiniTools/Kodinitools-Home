@@ -1,7 +1,7 @@
 /*
  * Startseite im modernen Design (Admin > Layout > Seiten-Layout „Modernes Design").
  * Markup: src/components/ModernHome.astro, eingebunden über ModernHomePage.astro (inline, ?raw).
- * Vorlage: Entwurf „KodiniTools – Kostenlose Online-Tools (Copy)" (3D-Kachel). Schrift: Arial Bold wie die ganze Website (base.css).
+ * Vorlage: Entwurf „KodiniTools – Kostenlose Online-Tools (Copy)" (3D-Kachel). Schrift: Supreme Regular wie die ganze Website (site-font.css).
  *
  * Diese Datei ist der ruhende Zustand: keine Animation, kein filter: blur(), kein
  * backdrop-filter, kein background-attachment: fixed. Alles Bewegte (Kachel-Intro,

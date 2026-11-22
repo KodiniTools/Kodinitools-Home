@@ -1394,7 +1394,7 @@ function toolCardTextColorVars(side: ToolCardSide): Array<[string, string]> {
   if (isHex(side.descBgColor)) v.push(['--tc-desc-bg', side.descBgColor]);
   return v;
 }
-// Typografie (Hell + Dunkel) als Variablen. Schriftwahl entfällt: überall Arial Bold (base.css).
+// Typografie (Hell + Dunkel) als Variablen. Schriftwahl entfällt: überall Supreme Regular (site-font.css).
 function toolCardTextVars(text: ToolCardText): Array<[string, string]> {
   const v: Array<[string, string]> = [];
   const num = (n: unknown, min: number, max: number) =>

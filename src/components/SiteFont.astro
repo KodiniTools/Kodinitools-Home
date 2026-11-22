@@ -1,5 +1,5 @@
 ---
-// Bindet die einzige Schrift (Arial Bold, site-font.css) und die im Admin gesetzten
+// Bindet die einzige Schrift (Supreme Regular, site-font.css, Datei vorgeladen) und die im Admin gesetzten
 // GLOBALEN Seiten-Styles ein:
 //  - Seiten-Hintergrund (Tab „Hintergrund"): Farbe/Deckkraft/Verlauf je Modus
 //    sowie die zuschaltbaren Effekte (Aurora, Rauschen, Spotlight)
@@ -11,4 +11,5 @@ import { getSiteBackgroundStyle } from '../content/content';
 const siteBgStyle = getSiteBackgroundStyle();
 ---
 
+<link rel="preload" href="/fonts/Supreme-Regular.woff2" as="font" type="font/woff2" crossorigin />
 {siteBgStyle && <style set:html={siteBgStyle} />}
