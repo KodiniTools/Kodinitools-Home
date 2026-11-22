@@ -109,7 +109,8 @@
     "toolBadge": true,
     "toolFilter": true,
     "cmdPalette": true,
-    "workflows": true
+    "workflows": true,
+    "modernDesign": true
   },
   "de": {
     "sectionVideos": {
