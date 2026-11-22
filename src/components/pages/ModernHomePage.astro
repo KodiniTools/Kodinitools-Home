@@ -5,6 +5,7 @@
 import HomeLayout from '../../layouts/HomeLayout.astro';
 import ModernHome, { type ModernTool } from '../ModernHome.astro';
 import homeModernCssRaw from '../../styles/parts/home-modern.css?raw';
+import homeModernMotionCssRaw from '../../styles/parts/home-modern-motion.css?raw';
 import { getContent, getHiddenCards, getHomeLayout, getMedia } from '../../content/content';
 import type { Lang } from '../../i18n/lang';
 
@@ -65,13 +66,13 @@ const search = {
   noResults: page.search.noResults,
 };
 // Kommentare und Einrückung entfernen; die Regeln stehen inline (eine Anfrage weniger).
-const css = homeModernCssRaw
+const css = (homeModernCssRaw + homeModernMotionCssRaw)
   .replace(/\/\*[\s\S]*?\*\//g, '')
   .replace(/\s+/g, ' ')
   .trim();
 ---
 
-<HomeLayout lang={lang}>
+<HomeLayout lang={lang} preloadFonts={['/fonts/PlusJakartaSans-Variable.woff2']}>
   <div id="app" data-design="modern" data-home-layout="compact">
     <style is:global set:html={css}></style>
     <ModernHome

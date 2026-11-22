@@ -8,6 +8,8 @@ import {
   modernCatOf,
   modernIconOf,
   MODERN_ICONS,
+  PARTICLE_ICONS,
+  TILE_LAYERS,
   splitAccent,
   stripAccent,
 } from '../../src/content/modernHome';
@@ -52,6 +54,17 @@ describe('Reiter und Icons', () => {
     }
     expect(featureIconId('free')).toBe('f-free');
     expect(featureIconId('gibtsnicht')).toBe('f-check');
+  });
+});
+
+describe('3D-Kachel', () => {
+  it('hat 30 Ebenen von hinten nach vorn, vorne die helle Kante', () => {
+    expect(TILE_LAYERS.map((l) => l.depth)).toEqual(Array.from({ length: 30 }, (_, i) => 30 - i));
+    expect(TILE_LAYERS.at(-1)?.background).toBe('#9fd0ff');
+    for (const l of TILE_LAYERS.slice(0, -1)) expect(l.background).toMatch(/^linear-gradient\(/);
+  });
+  it('aufsteigende Icons existieren im Sprite', () => {
+    for (const id of PARTICLE_ICONS) expect(MODERN_ICONS).toHaveProperty(id);
   });
 });
 
