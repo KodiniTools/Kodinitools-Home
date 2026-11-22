@@ -34,6 +34,11 @@ const props = defineProps<{
   texts: Texts;
   /** Kompakt-Layout mit Listenkarten: Beschreibung in der Karte zeigen. */
   showDesc?: boolean;
+  /**
+   * Modernes Design: Favoriten als Kopie der Tool-Karte aus dem Raster (#mh-grid) zeigen,
+   * damit sie genau so aussehen wie dort (Icon, Untertitel, Plaketten, Pfeil).
+   */
+  modern?: boolean;
 }>();
 
 const favorites = ref<FavoriteItem[]>([]);
@@ -79,6 +84,50 @@ function remove(key: string, event: MouseEvent): void {
   save(favorites.value.filter((f) => f.key !== key));
 }
 
+/** Modernes Design: Container der Favoriten-Karten und Zahl der gezeigten Karten. */
+const modernGrid = ref<HTMLElement | null>(null);
+const modernCount = ref(0);
+
+/**
+ * Modernes Design: Favoriten als Kopien der Tool-Karten aus dem Raster (#mh-grid) zeigen,
+ * damit sie genau so aussehen (Icon, Untertitel, Plaketten, Pfeil). Merk-Button aktiv
+ * („Entfernen“). Favoriten ohne Karte im Raster (Tool nicht mehr auf der Seite) entfallen.
+ */
+function renderModern(list: FavoriteItem[]): void {
+  if (!props.modern || !modernGrid.value) return;
+  const source = new Map(
+    Array.from(document.querySelectorAll<HTMLElement>('#mh-grid .mh-card[data-i18n-key]')).map(
+      (c) => [c.dataset.i18nKey, c],
+    ),
+  );
+  const cards = list.flatMap((f) => {
+    const src = source.get(f.key);
+    if (!src) return [];
+    const card = src.cloneNode(true) as HTMLElement;
+    card.classList.remove('is-extra', 'is-hit');
+    const btn = card.querySelector('.fav-btn');
+    btn?.classList.remove('pop');
+    btn?.classList.add('is-active');
+    btn?.setAttribute('aria-label', props.texts.favRemove);
+    return [card];
+  });
+  modernGrid.value.replaceChildren(...cards);
+  modernCount.value = cards.length;
+}
+
+/** Modernes Design: Klick auf den Merk-Button einer kopierten Karte entfernt den Favoriten. */
+function onModernGridClick(event: MouseEvent): void {
+  const target = event.target;
+  if (!(target instanceof Element)) return;
+  const button = target.closest('.fav-btn');
+  const key = button?.closest<HTMLElement>(CARD_SELECTOR)?.dataset.i18nKey;
+  if (!button || !key) return;
+  event.preventDefault(); // Button liegt im Karten-Link: nicht navigieren
+  event.stopPropagation();
+  pop(button);
+  save(favorites.value.filter((f) => f.key !== key));
+}
+
 /** Klicks auf Merk-Buttons der statischen Karten (nicht in der Favoriten-Sektion). */
 function onDocumentClick(event: MouseEvent): void {
   const target = event.target;
@@ -108,11 +157,15 @@ function onStorage(event: StorageEvent): void {
   if (event.key === FAV_KEY) load();
 }
 
-watch(favorites, syncStaticButtons);
+watch(favorites, (list) => {
+  syncStaticButtons(list);
+  renderModern(list);
+});
 
 onMounted(() => {
   load();
   syncStaticButtons(favorites.value);
+  renderModern(favorites.value);
   document.addEventListener('click', onDocumentClick);
   window.addEventListener('storage', onStorage);
 });
@@ -127,7 +180,7 @@ onBeforeUnmount(() => {
   <section
     id="favoritesSection"
     class="tools-section favorites-section"
-    :style="{ display: favorites.length ? 'block' : 'none' }"
+    :style="{ display: (modern ? modernCount : favorites.length) ? 'block' : 'none' }"
   >
     <div class="section-header">
       <h2>{{ texts.title }}</h2>
@@ -135,7 +188,14 @@ onBeforeUnmount(() => {
         {{ texts.clearAll }}
       </button>
     </div>
-    <div id="favoritesGrid" class="svg-card-grid">
+    <div
+      v-if="modern"
+      id="favoritesGrid"
+      ref="modernGrid"
+      class="mh-grid mh-fav-grid"
+      @click="onModernGridClick"
+    />
+    <div v-else id="favoritesGrid" class="svg-card-grid">
       <a
         v-for="item in favorites"
         :key="item.key"
