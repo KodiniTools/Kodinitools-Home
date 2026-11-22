@@ -1665,6 +1665,8 @@ export interface SiteConfig {
   cmdPalette: boolean;
   // Abschnitt „Workflows“ mit Tool-Ketten unter den Tool-Sektionen. Standard aus.
   workflows: boolean;
+  // Modernes Design der Startseite (Navy/Glas, Listenkarten). Wirkt nur im Kompakt-Layout. Standard aus.
+  modernDesign: boolean;
 }
 export interface SiteSectionSide {
   color: string; // '' = keine Tönung
@@ -1773,6 +1775,7 @@ const SITE_DEFAULTS: SiteConfig = {
   toolFilter: false,
   cmdPalette: false,
   workflows: false,
+  modernDesign: false,
 };
 // Erlaubte Bild-URL (interner Pfad oder http(s)), ohne Zeichen, die url("…") brechen.
 const SITE_MEDIA_URL = /^(\/[^\s"'()\\]*|https?:\/\/[^\s"'()\\]+)$/;
@@ -1813,6 +1816,7 @@ export function getHomeLayout(): {
   toolFilter: boolean;
   cmdPalette: boolean;
   workflows: boolean;
+  modernDesign: boolean;
 } {
   const site = getSite();
   return {
@@ -1832,6 +1836,7 @@ export function getHomeLayout(): {
     toolFilter: site.toolFilter === true,
     cmdPalette: site.cmdPalette === true,
     workflows: site.workflows === true,
+    modernDesign: site.modernDesign === true,
   };
 }
 

@@ -1,0 +1,405 @@
+/*
+ * Modernes Design der Startseite (Admin > Layout > Seiten-Layout „Modernes Design").
+ * Baut auf dem Kompakt-Layout auf: HomePage.astro bindet die Datei nur ein, wenn
+ * Kompakt-Layout UND der Schalter aktiv sind (inline, ?raw); dann trägt #app das
+ * Attribut data-design="modern". Klassisches Design und andere Seiten bleiben unberührt.
+ *
+ * Vorlage: Entwurf „KodiniTools-Design-Nachbau-Dropdown-Fix.html" (Navy, Glas-Flächen,
+ * blauer Akzent). Texte kommen unverändert aus den Sprachschlüsseln/Admin-Texten.
+ * Mobil-Performance: keine Animation, kein filter: blur(), kein backdrop-filter im Hero;
+ * die Glow-Bögen sind statische Rahmen mit Schatten. Der Hero-Titel steht im HTML.
+ *
+ * Die Selektoren beginnen mit #app[data-design='modern'] und schlagen so die
+ * Admin-Farben und -Größen der Hero-Texte (#app .hero-title …, siehe content.ts).
+ */
+
+/* ---------- Farben ---------- */
+#app[data-design='modern'] {
+  --md-text: #f4f6ff;
+  --md-muted: #c9d2e2;
+  --md-lead: #e1e6ef;
+  --md-accent: #80adff;
+  --md-accent-strong: #aac9ff;
+  --md-stroke: rgba(198, 217, 255, 0.16);
+  --md-glass: linear-gradient(140deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.035));
+  --md-glass-border: rgba(160, 180, 211, 0.27);
+  --md-btn: linear-gradient(115deg, #54a5ff, #1e6cdb 85%);
+  --md-btn-border: #8bbcff;
+  --md-arc: rgba(168, 208, 255, 0.7);
+  --md-arc-glow: rgba(36, 123, 255, 0.45);
+  --md-halo: rgba(39, 114, 255, 0.32);
+}
+
+:root:not([data-theme='dark']) #app[data-design='modern'] {
+  --md-text: #172742;
+  --md-muted: #3a4e6b;
+  --md-lead: #243957;
+  --md-accent: #1e5fb8;
+  --md-accent-strong: #20518c;
+  --md-stroke: #b8cbe4;
+  --md-glass: linear-gradient(140deg, rgba(255, 255, 255, 0.92), rgba(228, 237, 252, 0.92));
+  --md-glass-border: #b6c8e0;
+  --md-arc: rgba(70, 141, 232, 0.55);
+  --md-arc-glow: rgba(70, 141, 232, 0.25);
+  --md-halo: rgba(110, 165, 240, 0.28);
+}
+
+/* ---------- Seite ---------- */
+/* Hintergrund wie im Entwurf: Navy-Verlauf mit zwei weichen Lichtflecken (nur Verläufe,
+   kein Bild, kein Effekt-Layer). Die Admin-Effekte (Aurora, Noise, Spotlight) entfallen. */
+[data-theme='dark'] body:has(#app[data-design='modern']) {
+  background:
+    radial-gradient(ellipse 48% 35% at 81% 22%, rgba(34, 99, 214, 0.18), transparent 78%),
+    radial-gradient(ellipse 42% 28% at 6% 82%, rgba(67, 88, 165, 0.13), transparent 80%),
+    linear-gradient(125deg, #1b2330 0%, #0e1520 55%, #121b29 100%) fixed;
+  background-color: #101721;
+}
+
+:root:not([data-theme='dark']) body:has(#app[data-design='modern']) {
+  background:
+    radial-gradient(ellipse at 80% 10%, rgba(159, 200, 255, 0.47), transparent 48%),
+    linear-gradient(130deg, #f4f8ff, #dce8fb) fixed;
+  background-color: #eef4fd;
+}
+
+#app[data-design='modern'] .global-background {
+  display: none;
+}
+
+/* ---------- Hero ---------- */
+#app[data-design='modern'] .hero {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  border-radius: 0;
+  /* Glow-Bögen dürfen über den Hero-Rand ragen; html/body schneiden seitlich ab
+     (overflow-x: clip aus dem Kompakt-Layout, kein horizontales Scrollen). */
+  overflow: visible;
+  color: var(--md-text);
+}
+
+/* Admin-Hintergründe des Hero-Kastens und Mesh-Blobs gehören zum klassischen Look. */
+#app[data-design='modern'] .hero > .hero-bg,
+#app[data-design='modern'] .hero > .mesh-gradient-container,
+#app[data-design='modern'] .hero > .noise-overlay {
+  display: none;
+}
+
+#app[data-design='modern'] .hero-content {
+  position: relative;
+  isolation: isolate;
+  text-align: left;
+}
+
+/* Titel: sofort im HTML, kein Einblenden. Farben/Größe aus dem Entwurf. */
+#app[data-design='modern'] .hero .hero-title,
+[data-theme='dark'] #app[data-design='modern'] .hero .hero-title,
+:root:not([data-theme='dark']) #app[data-design='modern'] .hero .hero-title {
+  font-size: clamp(2.1rem, 3.25vw, 3.05rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  font-weight: 800;
+  max-width: 44rem;
+  margin: 0;
+  text-align: left;
+  background: none;
+  color: var(--md-text);
+  -webkit-text-fill-color: var(--md-text);
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+  animation: none;
+}
+
+#app[data-design='modern'] .hero .hero-subtitle,
+[data-theme='dark'] #app[data-design='modern'] .hero [data-i18n='hero.subtitle'],
+:root:not([data-theme='dark']) #app[data-design='modern'] .hero [data-i18n='hero.subtitle'] {
+  font-size: 1.0625rem;
+  line-height: 1.52;
+  max-width: 34rem;
+  margin: 0.9rem 0 0;
+  text-align: left;
+  color: var(--md-lead);
+  -webkit-text-fill-color: var(--md-lead);
+  background: none;
+  text-shadow: none;
+}
+
+/* Vorteile: schlichte Zeile mit Icon statt Kästen (Icon per Maske, Farbe per Token). */
+#app[data-design='modern'] .features-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.75rem;
+  justify-content: flex-start;
+  margin: 1.2rem 0 0;
+  padding: 0;
+  max-width: none;
+}
+
+#app[data-design='modern'] .hero .feature-card {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0;
+  min-height: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  border-radius: 0;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  animation: none;
+  opacity: 1;
+  /* Die 3D-Neigung aus dem Seitenskript setzt transform inline; hier ohne Neigung. */
+  transform: none !important;
+  color: var(--md-text);
+  font-size: 0.8rem;
+}
+
+/* Ausgeblendete Vorteile (Admin > Hero-Design) nehmen keinen Platz ein. */
+#app[data-design='modern'] .hero .feature-card.hero-hidden {
+  display: none;
+}
+
+#app[data-design='modern'] .hero .feature-card::before {
+  content: '';
+  flex: none;
+  width: 1.1rem;
+  height: 1.1rem;
+  background: var(--md-accent-strong);
+  -webkit-mask: var(--md-ico) center / contain no-repeat;
+  mask: var(--md-ico) center / contain no-repeat;
+}
+
+#app[data-design='modern'] .hero .feature-card::after {
+  display: none;
+}
+
+#app[data-design='modern'] .hero .feature-text {
+  color: inherit;
+  -webkit-text-fill-color: currentColor;
+  font-size: inherit;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Icons je Feature-Schlüssel (hero.features.*), unbekannte Schlüssel: Häkchen. */
+#app[data-design='modern'] .feature-card {
+  --md-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+}
+#app[data-design='modern'] .feature-card[data-feature='free'] {
+  --md-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M13 2 4 14h7l-1 8 9-12h-7z'/%3E%3C/svg%3E");
+}
+#app[data-design='modern'] .feature-card[data-feature='privacy'] {
+  --md-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3C/svg%3E");
+}
+#app[data-design='modern'] .feature-card[data-feature='browserBased'] {
+  --md-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='16' rx='2'/%3E%3Cpath d='M3 9h18M7 6.5h.01M10 6.5h.01'/%3E%3C/svg%3E");
+}
+#app[data-design='modern'] .feature-card[data-feature='serverBased'] {
+  --md-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='8' rx='2'/%3E%3Crect x='3' y='13' width='18' height='8' rx='2'/%3E%3Cpath d='M7 7h.01M7 17h.01'/%3E%3C/svg%3E");
+}
+#app[data-design='modern'] .feature-card[data-feature='multiLanguage'] {
+  --md-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18'/%3E%3C/svg%3E");
+}
+#app[data-design='modern'] .feature-card[data-feature='noInstall'] {
+  --md-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3v12M7 10l5 5 5-5M4 21h16'/%3E%3C/svg%3E");
+}
+
+/* CTA: blaue Pille mit Play-Dreieck wie „Jetzt Tools entdecken". */
+#app[data-design='modern'] .hero-cta-wrap {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 1.4rem;
+  text-align: left;
+}
+
+#app[data-design='modern'] .hero .hero-cta-btn,
+[data-theme='dark'] #app[data-design='modern'] .hero [data-i18n='hero.cta'],
+:root:not([data-theme='dark']) #app[data-design='modern'] .hero [data-i18n='hero.cta'] {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-height: 49px;
+  padding: 0 1.75rem;
+  border-radius: 28px;
+  border: 1px solid var(--md-btn-border);
+  background: var(--md-btn);
+  box-shadow:
+    inset 0 1px rgba(211, 237, 255, 0.6),
+    0 8px 25px rgba(22, 91, 205, 0.25);
+  color: #fff;
+  -webkit-text-fill-color: #fff;
+  font-size: 0.95rem;
+  font-weight: 750;
+  letter-spacing: 0;
+  text-decoration: none;
+  animation: none;
+  opacity: 1;
+  transition:
+    transform 0.2s,
+    filter 0.2s;
+}
+
+#app[data-design='modern'] .hero .hero-cta-btn::before {
+  content: '';
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 6px 0 6px 10px;
+  border-color: transparent transparent transparent currentColor;
+}
+
+#app[data-design='modern'] .hero .hero-cta-btn::after {
+  display: none;
+}
+
+#app[data-design='modern'] .hero .hero-cta-btn:hover,
+#app[data-design='modern'] .hero .hero-cta-btn:focus-visible {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+
+#app[data-design='modern'] .hero .hero-cta-btn:focus-visible {
+  outline: 2px solid #a7caff;
+  outline-offset: 4px;
+}
+
+/* Medium (Admin-Banner bzw. Raster): Halo und zwei Glow-Bögen dahinter.
+   Statisch (keine Animation, kein filter), damit mobil kaum Paint-Kosten entstehen. */
+#app[data-design='modern'] .hero-promo > :not(.hero-title):not(.hero-subtitle) {
+  position: relative;
+  z-index: 1;
+}
+
+#app[data-design='modern'] .hero-content::before,
+#app[data-design='modern'] .hero-content::after {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 50%;
+  border-top: 2px solid var(--md-arc);
+  box-shadow: 0 -12px 40px var(--md-arc-glow);
+  right: -4%;
+  width: 62%;
+  height: 46%;
+  top: 30%;
+  transform: rotate(-20deg);
+}
+
+#app[data-design='modern'] .hero-content::after {
+  border-top-width: 1px;
+  right: -12%;
+  width: 70%;
+  height: 54%;
+  top: 38%;
+  transform: rotate(-17deg);
+}
+
+#app[data-design='modern'] .hero-content[data-hero-media='none']::before,
+#app[data-design='modern'] .hero-content[data-hero-media='none']::after {
+  display: none;
+}
+
+#app[data-design='modern'] .hero-promo > .hero-banner-wrapper,
+#app[data-design='modern'] .hero-promo > .hero-grid,
+#app[data-design='modern'] .hero-promo > .hero-media-link {
+  background-image: radial-gradient(ellipse at center, var(--md-halo) 0%, transparent 68%);
+}
+
+/* Handy/Tablet: Texte linksbündig oben, Medium unter Buttons und Vorteilen (wie Entwurf).
+   .hero-promo löst sich auf, damit das Medium ans Ende rücken kann. */
+@media (max-width: 1023px) {
+  #app[data-design='modern'] .hero-content {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #app[data-design='modern'] .hero-promo {
+    display: contents;
+  }
+
+  #app[data-design='modern'] .hero-title {
+    order: 1;
+  }
+  #app[data-design='modern'] .hero-subtitle {
+    order: 2;
+  }
+  #app[data-design='modern'] .hero-cta-wrap {
+    order: 3;
+  }
+  #app[data-design='modern'] .features-grid {
+    order: 4;
+  }
+  #app[data-design='modern'] .hero-promo > :not(.hero-title):not(.hero-subtitle) {
+    order: 5;
+    margin-top: 1.5rem;
+    align-self: center;
+  }
+
+  #app[data-design='modern'] .hero-content::before {
+    right: -10%;
+    width: 110%;
+    height: 24%;
+    top: auto;
+    bottom: 4%;
+  }
+
+  #app[data-design='modern'] .hero-content::after {
+    right: -20%;
+    width: 120%;
+    height: 28%;
+    top: auto;
+    bottom: -2%;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Kompakt-Layout macht die Vorteile zur Wischzeile; hier umbrechen sie wie im Entwurf. */
+  #app[data-design='modern'] .features-grid {
+    flex-wrap: wrap;
+    overflow: visible;
+    margin-inline: 0;
+    padding-inline: 0;
+    gap: 0.6rem 1rem;
+  }
+
+  #app[data-design='modern'] .hero .feature-card {
+    padding: 0;
+  }
+}
+
+/* Desktop: Reihenfolge wie im Entwurf (Titel, Text, Button, Vorteile | Medium). */
+@media (min-width: 1024px) {
+  #app[data-design='modern'] .hero-content {
+    grid-template-areas:
+      '. media'
+      'title media'
+      'sub media'
+      'cta media'
+      'chips media'
+      '. media';
+  }
+
+  #app[data-design='modern'] .hero-content[data-hero-media='none'] {
+    grid-template-areas: 'title' 'sub' 'cta' 'chips';
+  }
+
+  #app[data-design='modern'] .hero-cta-wrap {
+    grid-area: cta;
+  }
+
+  #app[data-design='modern'] .features-grid {
+    grid-area: chips;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #app[data-design='modern'] .hero .hero-cta-btn {
+    transition: none;
+  }
+}

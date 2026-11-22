@@ -8,6 +8,7 @@ import HeroCellMedia from '../HeroCellMedia.astro'
 import SectionMediaBlock from '../SectionMediaBlock.astro'
 import SiteFooter from '../SiteFooter.astro'
 import homeCompactCssRaw from '../../styles/parts/home-compact.css?raw'
+import homeModernCssRaw from '../../styles/parts/home-modern.css?raw'
 import { getContent, getMedia, HERO_LAYOUT_CELLS, heroGridReflowCols, effectiveHeroCellStyle, heroCellImageVars, getTextStylesCss, getHeroBannerCss, getHeroImageCss, getSectionMediaCss, getToolCardsCss, getIconTintCss, getHiddenCards, getHomeLayout } from '../../content/content'
 import type { Lang } from '../../i18n/lang'
 import { HOME_UI } from '../../i18n/home-ui'
@@ -63,6 +64,12 @@ const procNote = (key: string): string | undefined =>
 // und Einrückung entfernt) – andere Seiten und das klassische Layout tragen nichts.
 const homeCompactCss = compact
   ? homeCompactCssRaw.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ').trim()
+  : undefined
+// Modernes Design (Admin > Layout > Seiten-Layout): baut auf dem Kompakt-Layout auf.
+// Nur dann trägt #app data-design="modern" und die Regeln kommen ins HTML.
+const modern = compact && homeLayout.modernDesign
+const homeModernCss = modern
+  ? homeModernCssRaw.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ').trim()
   : undefined
 // Rendert der Hero ein Medium (Raster, Banner oder Nur-Text-Banner)? Ohne Medium
 // bleibt der kompakte Desktop-Hero einspaltig.
@@ -361,6 +368,7 @@ const pageI18n = {
   <div
     id="app"
     data-home-layout={compact ? 'compact' : undefined}
+    data-design={modern ? 'modern' : undefined}
     data-hero-media-mobile={compact && !homeLayout.heroMediaMobile ? 'off' : undefined}
     data-card-form={compact ? homeLayout.cardForm : undefined}
     data-card-width={compact ? homeLayout.cardWidth : undefined}
@@ -388,17 +396,20 @@ const pageI18n = {
     {heroImageCss && <style is:global set:html={heroImageCss} />}
     {sectionMediaCss && <style is:global set:html={sectionMediaCss} />}
     {toolCardsCss && <style is:global set:html={toolCardsCss} />}
-    {homeCompactCss && <style is:global set:html={homeCompactCss} />}{paletteCss && <style is:global set:html={paletteCss} />}{workflowsCss && <style is:global set:html={workflowsCss} />}
+    {homeCompactCss && <style is:global set:html={homeCompactCss} />}{homeModernCss && <style is:global set:html={homeModernCss} />}{paletteCss && <style is:global set:html={paletteCss} />}{workflowsCss && <style is:global set:html={workflowsCss} />}
     <section class="hero">
-      <HeroBackground media={media} mode="light" />
-      <HeroBackground media={media} mode="dark" />
-      <div class="mesh-gradient-container">
-        <div class="mesh-blob mesh-blob-1"></div>
-        <div class="mesh-blob mesh-blob-2"></div>
-        <div class="mesh-blob mesh-blob-3"></div>
-        <div class="mesh-blob mesh-blob-4"></div>
-      </div>
-      <div class="noise-overlay"></div>
+      {/* Modernes Design: eigener Seitenhintergrund, Hero-Hintergrundbilder und Mesh entfallen (spart Downloads). */}
+      {!modern && <HeroBackground media={media} mode="light" />}
+      {!modern && <HeroBackground media={media} mode="dark" />}
+      {!modern && (
+        <div class="mesh-gradient-container">
+          <div class="mesh-blob mesh-blob-1"></div>
+          <div class="mesh-blob mesh-blob-2"></div>
+          <div class="mesh-blob mesh-blob-3"></div>
+          <div class="mesh-blob mesh-blob-4"></div>
+        </div>
+      )}
+      {!modern && <div class="noise-overlay"></div>}
 
       <div class="hero-content" data-hero-media={compact && !heroHasMedia ? 'none' : undefined}>
         <div class="hero-promo" style={heroPromoStyle}>
@@ -496,7 +507,7 @@ const pageI18n = {
         <!-- Features Grid (Admin > Hero-Design: ausblendbar – der Platz bleibt erhalten) -->
         <div class={`features-grid${media.heroDesign.showChips === false ? ' hero-hidden' : ''}`} aria-hidden={media.heroDesign.showChips === false ? 'true' : undefined}>
           {features.map((feature) => (
-            <div class={`feature-card${hiddenChips.has(feature.key) ? ' hero-hidden' : ''}`} aria-hidden={hiddenChips.has(feature.key) ? 'true' : undefined} style={chipOffsetStyle(feature.key)}>
+            <div class={`feature-card${hiddenChips.has(feature.key) ? ' hero-hidden' : ''}`} data-feature={modern ? feature.key : undefined} aria-hidden={hiddenChips.has(feature.key) ? 'true' : undefined} style={chipOffsetStyle(feature.key)}>
               <div class="feature-text" data-i18n={feature.i18nKey}>{feature.text}</div>
             </div>
           ))}

@@ -41,6 +41,7 @@ export interface PageSettings {
   toolFilter: boolean;
   cmdPalette: boolean;
   workflows: boolean;
+  modernDesign: boolean;
 }
 export type PageKey = keyof PageSettings;
 
@@ -88,6 +89,8 @@ export function pageToast<K extends PageKey>(key: K, v: PageSettings[K]): string
       return v ? 'Verarbeitungs-Plakette eingeblendet' : 'Verarbeitungs-Plakette ausgeblendet';
     case 'workflows':
       return v ? 'Workflows eingeblendet' : 'Workflows ausgeblendet';
+    case 'modernDesign':
+      return v ? 'Modernes Design eingeschaltet' : 'Klassisches Design eingeschaltet';
     case 'cmdPalette':
       return v ? 'Suche (Strg + K) eingeblendet' : 'Suche (Strg + K) ausgeblendet';
     case 'toolFilter':

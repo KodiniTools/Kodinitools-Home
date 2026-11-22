@@ -468,3 +468,22 @@ describe('Workflow-Ketten (Admin > Layout > Workflows)', () => {
     }
   });
 });
+
+describe('Modernes Design (Admin > Layout > Seiten-Layout)', () => {
+  // Folgt media.json: nur mit Kompakt-Layout und Schalter an trägt #app data-design="modern".
+  const site = (mediaJson as { site?: { homeLayout?: string; modernDesign?: boolean } }).site;
+  const on = site?.homeLayout === 'compact' && site?.modernDesign === true;
+  it.each(['index.html', 'en/index.html'])('%s entspricht dem Schalter aus media.json', (file) => {
+    const html = read(file);
+    if (on) {
+      expect(html).toContain('data-design="modern"');
+      expect(html).toContain("#app[data-design='modern']");
+      // Hero-Titel steht direkt im HTML.
+      expect(html).toMatch(/<h1 class="hero-title[^"]*"[^>]*>[^<]+<\/h1>/);
+    } else {
+      expect(html).not.toContain('data-design=');
+      expect(html).not.toContain("data-design='modern'");
+      expect(html).not.toContain('data-feature=');
+    }
+  });
+});

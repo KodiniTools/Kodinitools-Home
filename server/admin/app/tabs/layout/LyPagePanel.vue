@@ -27,6 +27,16 @@
     </div>
     <div :class="['ly-row', { 'ly-dim': !compact }]">
       <UiSwitch
+        :model-value="p.modernDesign"
+        label="Modernes Design (Navy, Glas-Flächen, Listenkarten)"
+        :disabled="!compact"
+        title="Nur im Kompakt-Layout: neues Erscheinungsbild der Startseite. Texte, Medien und Schalter bleiben gleich."
+        data-moderndesign
+        @update:model-value="set('modernDesign', $event)"
+      />
+    </div>
+    <div :class="['ly-row', { 'ly-dim': !compact }]">
+      <UiSwitch
         :model-value="p.heroMediaMobile"
         label="Banner bzw. Raster auf dem Handy zeigen"
         :disabled="!compact"
