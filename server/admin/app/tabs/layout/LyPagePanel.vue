@@ -27,6 +27,16 @@
     </div>
     <div :class="['ly-row', { 'ly-dim': !compact }]">
       <UiSwitch
+        :model-value="p.modernDesign"
+        label="Modernes Design (neue Startseite nach Entwurf)"
+        :disabled="!compact"
+        title="Nur im Kompakt-Layout: neue Startseite mit eigener Navigation, Hero mit 3D-Logo, Suche, Reitern Audio/Bild/Video/Text und Listenkarten. Hero-Titel, Untertitel, Button, Vorteile und Tool-Karten kommen aus den bestehenden Texten; Laufband, Banner, Sektionsmedien, Filter, Strg+K und Workflows entfallen dort. Text zwischen *Sternchen* im Hero-Titel wird farbig hervorgehoben."
+        data-moderndesign
+        @update:model-value="set('modernDesign', $event)"
+      />
+    </div>
+    <div :class="['ly-row', { 'ly-dim': !compact }]">
+      <UiSwitch
         :model-value="p.heroMediaMobile"
         label="Banner bzw. Raster auf dem Handy zeigen"
         :disabled="!compact"

@@ -1,5 +1,7 @@
 ---
 import HomePage from '../../components/pages/HomePage.astro';
+import ModernHomePage from '../../components/pages/ModernHomePage.astro';
+import { isModernHome } from '../../content/modernHome';
 ---
 
-<HomePage lang="en" />
+{isModernHome() ? <ModernHomePage lang="en" /> : <HomePage lang="en" />}

@@ -1003,6 +1003,8 @@ function defaultSite() {
     cmdPalette: false,
     // Abschnitt „Workflows“ (Standard aus).
     workflows: false,
+    // Modernes Design der Startseite, nur im Kompakt-Layout (Standard aus).
+    modernDesign: false,
   };
 }
 const SECTION_KEYS = ['audio', 'image', 'diverse'];
@@ -1116,6 +1118,7 @@ function validateSite(s: unknown) {
     toolFilter: s.toolFilter === true,
     cmdPalette: s.cmdPalette === true,
     workflows: s.workflows === true,
+    modernDesign: s.modernDesign === true,
   };
 }
 

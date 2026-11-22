@@ -16,6 +16,7 @@ import { TOOL_CATALOG, resolveWorkflows, type ToolProcessing } from '../../conte
 import CommandPalette from '../../islands/palette/CommandPalette.vue'
 import paletteCssRaw from '../../styles/parts/palette.css?raw'
 import workflowsCssRaw from '../../styles/parts/workflows.css?raw'
+import { stripAccent } from '../../content/modernHome'
 
 // Inhalte aus der Content-Schicht (Standard-Locale + Admin-Overrides, gemergt).
 // Startseite für / (de) und /en/ (en); die Routen in src/pages/ sind nur Hüllen.
@@ -328,7 +329,7 @@ const SKIP = new Set(['sectionTitle', 'sectionDescription', 'processingBadge'])
 function buildPageMessages(locale: typeof de): Record<string, string> {
   const r: Record<string, string> = {}
 
-  r['hero.title'] = locale.hero.title
+  r['hero.title'] = stripAccent(locale.hero.title)
   r['hero.subtitle'] = locale.hero.subtitle
   r['hero.cta'] = locale.hero.cta
   for (const [k, v] of Object.entries(locale.hero.features)) r[`hero.features.${k}`] = v
@@ -487,7 +488,7 @@ const pageI18n = {
           ) : null}
           <!-- Titel/Untertitel (Admin > Hero-Design: ausblendbar – der Platz bleibt erhalten) -->
           {/* Titel sofort vollständig (keine Tipp-Animation): größtes Element im Sichtbereich (LCP). */}
-          <h1 class={`hero-title${media.heroDesign.showTitle === false ? ' hero-hidden' : ''}`} aria-hidden={media.heroDesign.showTitle === false ? 'true' : undefined}>{pageI18n[lang]['hero.title'] || ui.heroTitleFallback}</h1>
+          <h1 class={`hero-title${media.heroDesign.showTitle === false ? ' hero-hidden' : ''}`} aria-hidden={media.heroDesign.showTitle === false ? 'true' : undefined}>{stripAccent(pageI18n[lang]['hero.title'] || ui.heroTitleFallback)}</h1>
           {/* Untertitel direkt mit dem Admin-Text rendern (wie das Script, \n -> <br />), sonst
               tauscht das Script beim Laden einen anderen Text ein und verschiebt den Inhalt darunter (CLS). */}
           <p class={`hero-subtitle${media.heroDesign.showSubtitle === false ? ' hero-hidden' : ''}`} data-i18n="hero.subtitle" aria-hidden={media.heroDesign.showSubtitle === false ? 'true' : undefined}>{(pageI18n[lang]['hero.subtitle'] || '').split('\n').map((line, i) => (i > 0 ? [<br />, line] : line))}</p>

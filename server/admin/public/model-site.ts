@@ -128,6 +128,8 @@ export function defaultSite() {
     cmdPalette: false,
     // Abschnitt „Workflows“ (Standard aus).
     workflows: false,
+    // Modernes Design der Startseite, nur im Kompakt-Layout (Standard aus).
+    modernDesign: false,
   };
 }
 export const SITE_SECTION_KEYS: SiteSectionKey[] = ['audio', 'image', 'diverse'];
@@ -287,6 +289,7 @@ export function normSite(s: RawJson): Site {
     toolFilter: s.toolFilter === true,
     cmdPalette: s.cmdPalette === true,
     workflows: s.workflows === true,
+    modernDesign: s.modernDesign === true,
   };
 }
 // Seiten-Hintergrund eines Modus als CSS-background-Wert – identisch zur
@@ -689,6 +692,14 @@ export function getWorkflows() {
 
 export function setWorkflows(on: unknown) {
   siteObj().workflows = on === true;
+}
+// Modernes Design der Startseite (Navy/Glas, Listenkarten), nur im Kompakt-Layout (Standard aus).
+export function getModernDesign() {
+  return siteObj().modernDesign === true;
+}
+
+export function setModernDesign(on: unknown) {
+  siteObj().modernDesign = on === true;
 }
 // Kompakt-Layout: Lage der Sektionsmedien je Gerät.
 export function getMediaPosDesktop() {

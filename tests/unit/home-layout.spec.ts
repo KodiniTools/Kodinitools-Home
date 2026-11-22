@@ -84,6 +84,12 @@ describe.each([
     expect(norm({ cmdPalette: 'ja' })).toMatchObject({ cmdPalette: false });
   });
 
+  it('Modernes Design: anfangs aus, nur true schaltet ein', () => {
+    expect(norm({})).toMatchObject({ modernDesign: false });
+    expect(norm({ modernDesign: true })).toMatchObject({ modernDesign: true });
+    expect(norm({ modernDesign: 'ja' })).toMatchObject({ modernDesign: false });
+  });
+
   it('fällt bei unbekanntem Wert auf Klassisch zurück', () => {
     expect(norm({ homeLayout: 'grid', heroMediaMobile: 'nein' })).toMatchObject({
       homeLayout: 'classic',
@@ -117,5 +123,34 @@ describe('home-compact.css', () => {
     // Ausnahme: html/body nur, solange die Seite das Kompakt-Layout trägt.
     const root = (sel: string) => sel === `html:has(${SCOPE})` || sel === `body:has(${SCOPE})`;
     for (const sel of selectors) expect(sel.startsWith(SCOPE) || root(sel), sel).toBe(true);
+  });
+});
+
+describe('home-modern.css', () => {
+  const MODERN = "#app[data-design='modern']";
+  const css = readFileSync(
+    join(process.cwd(), 'src/styles/parts/home-modern.css'),
+    'utf-8',
+  ).replace(/\/\*[\s\S]*?\*\//g, '');
+  const selectors = [...css.matchAll(/([^{}]+)\{/g)]
+    .map((m) => m[1].trim())
+    .filter((s) => s && !s.startsWith('@'))
+    .flatMap((s) => s.split(',').map((p) => p.trim()));
+
+  it('enthält Regeln', () => {
+    expect(selectors.length).toBeGreaterThan(10);
+  });
+
+  it('beschränkt jede Regel auf das moderne Design', () => {
+    // Erlaubt: #app[data-design] mit Theme-Präfix und body:has(...) für den Seitenhintergrund.
+    for (const sel of selectors) expect(sel.includes(MODERN), sel).toBe(true);
+  });
+
+  it('kostet mobil keine Paint-Zeit: keine Animation, kein Blur, kein Web-Font-Import', () => {
+    expect(css).not.toMatch(/@keyframes|animation:(?!\s*none)/);
+    expect(css).not.toMatch(/filter:\s*blur|backdrop-filter:(?!\s*none)/);
+    expect(css).not.toMatch(/@import|fonts\.googleapis/);
+    // Fester Hintergrund erzwingt Neuzeichnen beim Scrollen (mobil ~300 ms TBT).
+    expect(css).not.toMatch(/\bfixed\b/);
   });
 });

@@ -40,6 +40,46 @@ export interface HomeUi {
   };
   /** Alt-Text einer Hero-Kachel (Index ab 0). */
   heroCellAlt: (index: number) => string;
+  /** Modernes Design (Admin > Layout): Texte, für die es keinen Locale-Schlüssel gibt. */
+  modern: ModernHomeUi;
+}
+
+/** Kategorien der Reiter im modernen Design. */
+export type ModernCat = 'audio' | 'image' | 'video' | 'text';
+
+export interface ModernHomeUi {
+  eyebrow: string;
+  allTools: string;
+  searchButton: string;
+  searchLabel: string;
+  catGroupLabel: string;
+  /** Kleine Zeile über dem Sektionstitel je Reiter bzw. bei der Suche. */
+  kicker: Record<ModernCat | 'search', string>;
+  /** Titel/Beschreibung der Reiter ohne eigene Sektion in den Locales (Video, Text). */
+  videoTitle: string;
+  videoDescription: string;
+  textTitle: string;
+  textDescription: string;
+  /** „Alle Audio Tools anzeigen“ – {title} = Titel des Reiters. */
+  showAll: string;
+  /** Beschreibung bei aktiver Suche – {q} = Suchbegriff. */
+  searchFor: string;
+  nav: {
+    label: string;
+    tools: string;
+    blog: string;
+    gallery: string;
+    faq: string;
+    contact: string;
+    search: string;
+    theme: string;
+    language: string;
+    menuOpen: string;
+    menuClose: string;
+  };
+  footerTagline: string;
+  imprint: string;
+  privacy: string;
 }
 
 export const HOME_UI: Record<Lang, HomeUi> = {
@@ -79,6 +119,42 @@ export const HOME_UI: Record<Lang, HomeUi> = {
       close: 'Schließen',
     },
     heroCellAlt: (index) => `Bild ${index + 1}`,
+    modern: {
+      eyebrow: 'Online-Tools · Kostenlos · Ohne Registrierung',
+      allTools: 'Alle Tools',
+      searchButton: 'Suchen',
+      searchLabel: 'Tools suchen',
+      catGroupLabel: 'Werkzeugkategorien',
+      kicker: {
+        audio: 'Beliebte Audio-Tools',
+        image: 'Kreative Bild-Tools',
+        video: 'Video-Tools',
+        text: 'Text-Tools',
+        search: 'Tool-Suche',
+      },
+      videoTitle: 'Video Tools',
+      videoDescription: 'Video-Werkzeuge im Überblick.',
+      textTitle: 'Text Tools',
+      textDescription: 'Text-Werkzeuge im Überblick.',
+      showAll: 'Alle {title} anzeigen',
+      searchFor: 'Suche nach „{q}“',
+      nav: {
+        label: 'Hauptnavigation',
+        tools: 'Tools',
+        blog: 'Blog',
+        gallery: 'Galerie',
+        faq: 'FAQ',
+        contact: 'Kontakt',
+        search: 'Suche öffnen',
+        theme: 'Farbschema umschalten',
+        language: 'Sprache wechseln',
+        menuOpen: 'Menü öffnen',
+        menuClose: 'Menü schließen',
+      },
+      footerTagline: 'Free Creative Tools',
+      imprint: 'Impressum',
+      privacy: 'Datenschutz',
+    },
   },
   en: {
     heroTitleFallback: 'Free Online Tools for Audio & Images',
@@ -116,5 +192,41 @@ export const HOME_UI: Record<Lang, HomeUi> = {
       close: 'Close',
     },
     heroCellAlt: (index) => `Image ${index + 1}`,
+    modern: {
+      eyebrow: 'Online tools · Free · No sign-up',
+      allTools: 'All tools',
+      searchButton: 'Search',
+      searchLabel: 'Search tools',
+      catGroupLabel: 'Tool categories',
+      kicker: {
+        audio: 'Popular audio tools',
+        image: 'Creative image tools',
+        video: 'Video tools',
+        text: 'Text tools',
+        search: 'Tool search',
+      },
+      videoTitle: 'Video Tools',
+      videoDescription: 'Explore video tools.',
+      textTitle: 'Text Tools',
+      textDescription: 'Explore text tools.',
+      showAll: 'Show all {title}',
+      searchFor: 'Searching for “{q}”',
+      nav: {
+        label: 'Main navigation',
+        tools: 'Tools',
+        blog: 'Blog',
+        gallery: 'Gallery',
+        faq: 'FAQ',
+        contact: 'Contact',
+        search: 'Open search',
+        theme: 'Toggle color scheme',
+        language: 'Switch language',
+        menuOpen: 'Open menu',
+        menuClose: 'Close menu',
+      },
+      footerTagline: 'Free Creative Tools',
+      imprint: 'Legal Notice',
+      privacy: 'Privacy Policy',
+    },
   },
 };

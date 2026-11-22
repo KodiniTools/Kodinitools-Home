@@ -15,6 +15,12 @@ import mediaJson from '../../src/content/media.json';
 
 const SITE = 'https://kodinitools.com';
 const DIST = join(process.cwd(), 'dist');
+/** Startseite im modernen Design (Admin > Layout): eigene Seite, Klassik-Prüfungen entfallen dort. */
+const MODERN = (() => {
+  const site = (mediaJson as { site?: { homeLayout?: string; modernDesign?: boolean } }).site;
+  return site?.homeLayout === 'compact' && site?.modernDesign === true;
+})();
+const classicIt = MODERN ? it.skip : it;
 
 if (!existsSync(join(DIST, 'index.html'))) {
   throw new Error('dist/ fehlt – zuerst `npm run build` ausführen (oder `npm run test:smoke`).');
@@ -311,12 +317,15 @@ describe('Ladeverhalten (PageSpeed)', () => {
 });
 
 describe('Hero-Titel (LCP)', () => {
-  it.each(['index.html', 'en/index.html'])('%s rendert den Titel vollständig im HTML', (file) => {
-    const html = read(file);
-    const title = /<h1 class="hero-title"[^>]*>([^<]+)<\/h1>/.exec(html)?.[1]?.trim() ?? '';
-    expect(title.length).toBeGreaterThan(10);
-    expect(html).not.toContain('id="typedText"');
-  });
+  classicIt.each(['index.html', 'en/index.html'])(
+    '%s rendert den Titel vollständig im HTML',
+    (file) => {
+      const html = read(file);
+      const title = /<h1 class="hero-title"[^>]*>([^<]+)<\/h1>/.exec(html)?.[1]?.trim() ?? '';
+      expect(title.length).toBeGreaterThan(10);
+      expect(html).not.toContain('id="typedText"');
+    },
+  );
 });
 
 describe('Navigation (Tablet-Breite)', () => {
@@ -337,7 +346,7 @@ describe('Navigation (Tablet-Breite)', () => {
 });
 
 describe('Navigation (Bildergalerie)', () => {
-  it.each([
+  classicIt.each([
     ['index.html', 'Bildergalerie', '/blog/', '/faq/'],
     ['en/index.html', 'Image Gallery', '/en/blog/', '/en/faq/'],
   ])('%s verlinkt die Bildergalerie zwischen Blog und FAQ', (file, label, blog, faq) => {
@@ -353,7 +362,7 @@ describe('Navigation (Bildergalerie)', () => {
 });
 
 describe('Navigation (Favicon Konverter)', () => {
-  it.each([
+  classicIt.each([
     ['index.html', 'Favicon-Konverter'],
     ['en/index.html', 'Favicon Converter'],
   ])('%s führt den Favicon Konverter im Tools-Menü', (file, label) => {
@@ -377,6 +386,7 @@ describe('Verkleinerte Bildfassungen (srcset)', () => {
 });
 
 describe('Seiten-Layout (Admin > Layout)', () => {
+  if (MODERN) return; // Modernes Design: eigener describe-Block unten.
   // Folgt der Einstellung in media.json: Klassisch = HTML ohne Attribut und ohne
   // Kompakt-CSS, Kompakt = Attribut an #app und die Regeln inline.
   const site = (mediaJson as { site?: { homeLayout?: string; catBar?: boolean } }).site;
@@ -412,6 +422,12 @@ describe('Verarbeitung der Tools (Admin > Layout)', () => {
   const filter = site?.toolFilter === true;
   it.each(['index.html', 'en/index.html'])('%s entspricht den Schaltern aus media.json', (file) => {
     const html = read(file);
+    if (MODERN) {
+      // Modernes Design: Plakette als Schlagwort in der Karte, kein Filter.
+      expect(html.includes('class="mh-tag-proc"')).toBe(badge);
+      expect(html).not.toContain('proc-filter"');
+      return;
+    }
     if (badge) {
       expect(html).toContain('class="processing-badge ');
       expect(html).toContain('class="processing-badge hybrid"');
@@ -431,7 +447,7 @@ describe('Verarbeitung der Tools (Admin > Layout)', () => {
 describe('Such-Overlay Strg+K (Admin > Layout > Suche)', () => {
   // Folgt media.json: aus = nichts im HTML (Standard), an = Schaltfläche, Island und CSS.
   const site = (mediaJson as { site?: { cmdPalette?: boolean } }).site;
-  const on = site?.cmdPalette === true;
+  const on = site?.cmdPalette === true && !MODERN;
   it.each(['index.html', 'en/index.html'])('%s entspricht dem Schalter aus media.json', (file) => {
     const html = read(file);
     if (on) {
@@ -450,7 +466,7 @@ describe('Such-Overlay Strg+K (Admin > Layout > Suche)', () => {
 describe('Workflow-Ketten (Admin > Layout > Workflows)', () => {
   // Folgt media.json: aus = nichts im HTML (Standard), an = Abschnitt mit Ketten und CSS.
   const site = (mediaJson as { site?: { workflows?: boolean } }).site;
-  const on = site?.workflows === true;
+  const on = site?.workflows === true && !MODERN;
   it.each(['index.html', 'en/index.html'])('%s entspricht dem Schalter aus media.json', (file) => {
     const html = read(file);
     if (on) {
@@ -465,6 +481,46 @@ describe('Workflow-Ketten (Admin > Layout > Workflows)', () => {
     } else {
       expect(html).not.toContain('workflows');
       expect(html).not.toContain('wf-card');
+    }
+  });
+});
+
+describe('Modernes Design (Admin > Layout > Seiten-Layout)', () => {
+  // Folgt media.json: nur mit Kompakt-Layout und Schalter an trägt #app data-design="modern".
+  const site = (mediaJson as { site?: { homeLayout?: string; modernDesign?: boolean } }).site;
+  const on = site?.homeLayout === 'compact' && site?.modernDesign === true;
+  it.each(['index.html', 'en/index.html'])('%s entspricht dem Schalter aus media.json', (file) => {
+    const html = read(file);
+    if (on) {
+      expect(html).toContain('data-design="modern"');
+      expect(html).toContain("#app[data-design='modern']");
+      // Hero-Titel steht direkt im HTML.
+      expect(html).toMatch(/<h1 class="mh-title hero-title"[^>]*>[^<]*\w[\s\S]*?<\/h1>/);
+      // Neue Startseite: Kopfzeile, Suche, Reiter und Kartenraster.
+      for (const id of ['mh-navlinks', 'mh-search', 'mh-grid', 'mh-show-all']) {
+        expect(html).toContain(`id="${id}"`);
+      }
+      // Keine doppelten IDs (Sprite-Symbole dürfen Bedienelementen nicht die ID nehmen).
+      const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]);
+      expect(ids.filter((id, i) => ids.indexOf(id) !== i)).toEqual([]);
+      // Alte Sprungziele (#audio-tools usw.) bleiben erreichbar.
+      for (const id of ['audio-tools', 'image-tools', 'diverse-tools']) {
+        expect(html).toContain(`id="${id}"`);
+      }
+      // Navigation: Blog, Galerie, FAQ in dieser Reihenfolge; jede Karte verlinkt ein Tool.
+      const nav = /<nav[^>]*id="mh-navlinks"[\s\S]*?<\/nav>/.exec(html)?.[0] ?? '';
+      const blog = nav.indexOf('/blog/');
+      const gallery = nav.indexOf('bildergalerie');
+      expect(blog).toBeGreaterThan(-1);
+      expect(gallery).toBeGreaterThan(blog);
+      expect(nav.indexOf('/faq/')).toBeGreaterThan(gallery);
+      const cards = [...html.matchAll(/<a href="([^"]+)" class="svg-card-link mh-card/g)];
+      expect(cards.length).toBeGreaterThan(10);
+      for (const [, href] of cards) expect(href).toMatch(/^https:\/\/kodinitools\.com\//);
+    } else {
+      expect(html).not.toContain('data-design=');
+      expect(html).not.toContain("data-design='modern'");
+      expect(html).not.toContain('data-feature=');
     }
   });
 });
