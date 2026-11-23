@@ -221,6 +221,14 @@ export const HOME_SCHEMA_TOOLS: {
     },
   },
   {
+    path: '/pdf-editor/',
+    name: { de: 'PDF-Editor', en: 'PDF Editor' },
+    description: {
+      de: 'PDF bearbeiten online: Dateien zusammenführen, Seiten drehen, löschen und sortieren, Text einfügen und unterschreiben, direkt im Browser.',
+      en: 'Edit PDF online: merge files, rotate, delete and reorder pages, add text and sign, right in your browser.',
+    },
+  },
+  {
     path: '/videokonverter/',
     name: { de: 'Videokonverter', en: 'Video Converter' },
     description: {

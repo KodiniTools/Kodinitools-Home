@@ -238,6 +238,20 @@ export const TOOL_CATALOG: Readonly<Record<string, ToolCatalogEntry>> = {
       en: ['write text', 'document', 'notes', 'markdown', 'create pdf'],
     },
   },
+  'diverseTools.pdfEditor': {
+    processing: 'browser',
+    formats: ['pdf'],
+    keywords: {
+      de: [
+        'pdf bearbeiten',
+        'pdf zusammenführen',
+        'pdf seiten drehen',
+        'pdf unterschreiben',
+        'pdf sortieren',
+      ],
+      en: ['edit pdf', 'merge pdf', 'rotate pdf pages', 'sign pdf', 'reorder pdf pages'],
+    },
+  },
   // Admin-Karte (nur in overrides.*.json, Schlüssel historisch „textEditor-kopie“).
   'diverseTools.textEditor-kopie': {
     processing: 'browser',

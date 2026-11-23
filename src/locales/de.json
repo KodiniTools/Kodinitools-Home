@@ -185,6 +185,14 @@
       "processing": "browser",
       "link": "https://kodinitools.com/texteditor/",
       "svg": "/image/texteditor.svg"
+    },
+    "pdfEditor": {
+      "title": "PDF-Editor\nzusammenführen-drehen-signieren",
+      "description": "PDFs direkt im Browser bearbeiten: Dateien zusammenführen, Seiten drehen, löschen und sortieren, Text und Markierungen einfügen und unterschreiben. Ihre Dateien bleiben auf Ihrem Gerät.",
+      "badge": "PDF",
+      "processing": "browser",
+      "link": "https://kodinitools.com/pdf-editor/",
+      "svg": ""
     }
   },
   "imageTools": {

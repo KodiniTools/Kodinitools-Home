@@ -17,6 +17,7 @@ export const MODERN_VISIBLE = 6;
 const CAT_BY_KEY: Readonly<Record<string, ModernCat>> = {
   'diverseTools.videoConverter': 'video',
   'diverseTools.textEditor': 'text',
+  'diverseTools.pdfEditor': 'text',
   'diverseTools.colorExtractor': 'image',
   // Favicon-Konverter (Admin-Karte, Schlüssel historisch „textEditor-kopie“).
   'diverseTools.textEditor-kopie': 'image',
@@ -50,6 +51,7 @@ const ICON_BY_KEY: Readonly<Record<string, string>> = {
   'diverseTools.colorExtractor': 'drop',
   'diverseTools.videoConverter': 'play',
   'diverseTools.textEditor': 'text',
+  'diverseTools.pdfEditor': 'pdf',
   'diverseTools.textEditor-kopie': 'favicon',
 };
 
@@ -115,6 +117,7 @@ export const MODERN_ICONS: Readonly<Record<string, string>> = {
     '<rect x="3" y="3" width="8" height="18" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/>',
   drop: '<path d="M12 2.7 6.3 9a8 8 0 1 0 11.4 0z"/>',
   text: '<path d="M5 5h14M12 5v15M9 20h6"/>',
+  pdf: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>',
   favicon:
     '<rect x="3" y="3" width="18" height="18" rx="4"/><path d="m12 7 1.5 3.2 3.5.4-2.6 2.4.7 3.5L12 14.8 8.9 16.5l.7-3.5L7 10.6l3.5-.4z"/>',
   'cat-audio':
