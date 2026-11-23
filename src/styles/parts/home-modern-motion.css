@@ -1,9 +1,8 @@
 /*
  * Bewegung der modernen Startseite (ergänzt home-modern.css).
- * Alles hier wirkt nur ohne „Bewegung reduzieren". Das Kachel-Intro (Anflug, Zahnrad,
- * aufsteigende Icons, Schweben) zusätzlich nur mit JavaScript: MOTION_QUERY und SMALL_QUERY
- * in src/content/modernHome.ts müssen den Media-Queries unten entsprechen. Handy und Tablet
- * bekommen die leichte Fassung (flacher Anflug ohne Überschläge, ohne Blur).
+ * Alles hier wirkt nur ohne „Bewegung reduzieren". Logo-Kachel und ihre Umgebung sind
+ * bewusst ohne Animation (Wunsch Kodini 24.11.2026: kein Intro, kein Schweben, keine
+ * aufsteigenden Icons).
  */
 
 @media (prefers-reduced-motion: no-preference) {
@@ -35,229 +34,43 @@
   @keyframes mh-tab-flash {
     0% {
       border-color: var(--md-border);
-      box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+      box-shadow: 0 0 0 0 transparent;
     }
 
     25% {
-      border-color: rgba(140, 195, 255, 0.8);
+      border-color: var(--md-cta);
       box-shadow:
-        0 0 0 1px rgba(80, 160, 255, 0.4),
-        0 0 12px rgba(59, 155, 255, 0.35);
+        0 0 0 1px var(--md-cta-glow),
+        0 0 12px var(--md-cta-glow);
     }
 
     100% {
-      border-color: rgba(96, 165, 250, 0.45);
+      border-color: var(--md-border-hi);
       box-shadow:
-        0 0 0 1px rgba(96, 165, 250, 0.18),
-        0 0 10px rgba(59, 130, 246, 0.2);
+        0 0 0 1px var(--md-cta-soft),
+        0 0 10px var(--md-cta-soft);
     }
   }
 
   @keyframes mh-icon-flash {
     0% {
-      border-color: rgba(255, 255, 255, 0.05);
-      box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+      border-color: var(--md-border);
+      box-shadow: 0 0 0 0 transparent;
     }
 
     22% {
-      border-color: #9fd0ff;
+      border-color: var(--md-cta-hover);
       box-shadow:
-        0 0 0 2px #3b9bff,
-        0 0 22px 6px rgba(59, 155, 255, 0.85),
-        inset 0 0 14px rgba(90, 170, 255, 0.6);
-      color: #cfe6ff;
+        0 0 0 2px var(--md-cta),
+        0 0 22px 6px var(--md-cta-glow),
+        inset 0 0 14px var(--md-cta-soft);
     }
 
     100% {
-      border-color: rgba(96, 165, 250, 0.55);
+      border-color: var(--md-border-hi);
       box-shadow:
-        0 0 0 1px rgba(96, 165, 250, 0.25),
-        0 0 14px rgba(59, 130, 246, 0.3);
-    }
-  }
-}
-
-/* ---------- Kachel-Intro ---------- */
-@media (prefers-reduced-motion: no-preference) and (scripting: enabled) {
-  /* Bis das Skript startet: Kachel unsichtbar (kein Aufblitzen der fertigen Kachel). */
-  #app[data-design='modern'] .mh-tile-wrap:not(.is-intro):not(.is-done) .mh-tile-stage {
-    opacity: 0;
-  }
-
-  #app[data-design='modern'] .mh-tile-wrap.is-intro .mh-tile-part,
-  #app[data-design='modern'] .mh-tile-wrap.is-done .mh-tile-part {
-    display: block;
-  }
-
-  #app[data-design='modern'] .mh-tile-wrap.is-intro .mh-tile-stage {
-    will-change: transform, opacity, filter;
-    animation:
-      mh-tile-intro 5.2s cubic-bezier(0.25, 0.35, 0.25, 1) both,
-      mh-tile-float 6s ease-in-out 5.2s infinite;
-  }
-
-  #app[data-design='modern'] .mh-tile-wrap.is-intro .mh-tile-gearfull,
-  #app[data-design='modern'] .mh-tile-wrap.is-intro .mh-tile-gear {
-    animation: mh-gear-spin 4s cubic-bezier(0.45, 0, 0.3, 1) 3.8s both;
-  }
-
-  /* Fertige Kachel: während des Intros fast unsichtbar (nicht 0, damit sie früh und klein
-     gezeichnet wird und nicht nach 8 s als größtes Element zählt), am Ende eingeblendet. */
-  #app[data-design='modern'] .mh-tile-wrap.is-intro .mh-tile-img {
-    animation: mh-reveal 0.3s linear 7.8s both;
-  }
-
-  #app[data-design='modern'] .mh-tile-wrap.is-intro .mh-tile-halo {
-    animation: mh-halo-in 5.2s ease-out both;
-  }
-
-  #app[data-design='modern'] .mh-tile-wrap.is-done .mh-tile-stage {
-    animation: mh-tile-float 6s ease-in-out -3s infinite;
-  }
-
-  /* Aufsteigende Audio- und Video-Icons (vom Skript erzeugt). */
-  #app[data-design='modern'] .mh-tp {
-    position: absolute;
-    width: var(--sz);
-    height: var(--sz);
-    color: #9cc6ff;
-    opacity: 0;
-    filter: drop-shadow(0 0 6px rgba(80, 150, 255, 0.55));
-    will-change: transform, opacity;
-    animation: mh-tp-rise var(--dur) linear forwards;
-  }
-
-  #app[data-design='modern'] .mh-tp svg {
-    display: block;
-    width: 100%;
-    height: 100%;
-  }
-
-  /* Anflug aus großer Ferne, durchgehend flippend um alle drei Achsen. */
-  @keyframes mh-tile-intro {
-    0% {
-      opacity: 0;
-      transform: perspective(900px) translateZ(-6000px) translateY(-60px) rotateX(-430deg)
-        rotateY(400deg) rotateZ(-135deg) scale(0.6);
-      filter: blur(6px) brightness(0.5);
-    }
-
-    8% {
-      opacity: 1;
-    }
-
-    75% {
-      filter: blur(0) brightness(1.1);
-    }
-
-    100% {
-      opacity: 1;
-      transform: perspective(900px) translateZ(0) translateY(0) rotateX(0deg) rotateY(0deg)
-        rotateZ(0deg) scale(1);
-      filter: blur(0) brightness(1);
-    }
-  }
-
-  @keyframes mh-gear-spin {
-    from {
-      transform: rotate(1080deg);
-    }
-
-    to {
-      transform: rotate(0deg);
-    }
-  }
-
-  @keyframes mh-reveal {
-    from {
-      opacity: 0.004;
-    }
-
-    to {
-      opacity: 1;
-    }
-  }
-
-  @keyframes mh-tile-float {
-    0%,
-    100% {
-      transform: translateY(0);
-    }
-
-    50% {
-      transform: translateY(-10px);
-    }
-  }
-
-  @keyframes mh-halo-in {
-    0% {
-      opacity: 0;
-    }
-
-    60% {
-      opacity: 0.4;
-    }
-
-    100% {
-      opacity: 1;
-    }
-  }
-
-  @keyframes mh-tp-rise {
-    0% {
-      opacity: 0;
-      transform: translate(0, 0) rotate(0) scale(0.7);
-    }
-
-    15% {
-      opacity: var(--op);
-    }
-
-    75% {
-      opacity: calc(var(--op) * 0.8);
-    }
-
-    100% {
-      opacity: 0;
-      transform: translate(var(--dx), calc(var(--rise) * -1)) rotate(var(--rot)) scale(1);
-    }
-  }
-}
-
-/* Hell: Icons dunkler, damit sie auf hellem Grund sichtbar sind. */
-@media (prefers-reduced-motion: no-preference) and (scripting: enabled) {
-  :root:not([data-theme='dark']) #app[data-design='modern'] .mh-tp {
-    color: #17409e;
-    filter: drop-shadow(0 0 4px rgba(31, 79, 184, 0.35));
-  }
-}
-
-/* Handy/Tablet: sanftes Hereinzoomen ohne 3D-Überschläge und ohne Filter. */
-@media (prefers-reduced-motion: no-preference) and (scripting: enabled) and (max-width: 900px),
-  (prefers-reduced-motion: no-preference) and (scripting: enabled) and (pointer: coarse) {
-  #app[data-design='modern'] .mh-tile-wrap.is-intro .mh-tile-stage {
-    will-change: transform, opacity;
-    animation-name: mh-tile-intro-small, mh-tile-float;
-  }
-
-  #app[data-design='modern'] .mh-tp,
-  :root:not([data-theme='dark']) #app[data-design='modern'] .mh-tp {
-    filter: none;
-  }
-
-  @keyframes mh-tile-intro-small {
-    0% {
-      opacity: 0;
-      transform: translate3d(0, 50px, 0) scale(0.35) rotate(-14deg);
-    }
-
-    15% {
-      opacity: 1;
-    }
-
-    100% {
-      opacity: 1;
-      transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+        0 0 0 1px var(--md-cta-soft),
+        0 0 14px var(--md-cta-soft);
     }
   }
 }

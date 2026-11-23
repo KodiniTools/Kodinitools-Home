@@ -9,29 +9,37 @@
  * Alle Regeln gelten nur unter #app[data-design='modern'] (bzw. body:has(...)).
  */
 
-/* ---------- Farben (dunkel = Entwurf) ---------- */
+/* ---------- Farben ----------
+   Palette des Audio Normalizers (KodiniTools Design Tokens v2, --ds-*), Entscheidung
+   Kodini 24.11.2026: Flächen, Texte und Rahmen 1:1; Gold (accent) nur für Handlungen
+   (Primärknopf, aktiver Reiter, Pfeil, Lesezeichen, Fokus); Blau (link/info) für Icons
+   und Links. Die Logo-Kachel bleibt blau. Dunkel = :root-Werte der Palette. */
 #app[data-design='modern'] {
-  --md-bg: #0b1222;
-  --md-bg2: #0f1830;
-  --md-panel: rgba(30, 40, 62, 0.55);
-  --md-panel-hi: rgba(44, 56, 84, 0.65);
-  --md-border: rgba(140, 165, 210, 0.18);
-  --md-border-hi: rgba(150, 180, 235, 0.35);
-  --md-text: #f2f5fb;
-  --md-muted: #c3cbdb;
-  --md-dim: #8f9ab0;
-  --md-blue: #3b82f6;
-  --md-accent: #8fb4ff;
-  --md-chip: rgba(120, 140, 180, 0.22);
-  --md-header: linear-gradient(180deg, rgba(11, 18, 34, 0.96), rgba(11, 18, 34, 0.9));
-  --md-menu-bg: #121c33;
+  --md-bg: #0a1324; /* surface-0 */
+  --md-bg2: #111d33; /* surface-1 */
+  --md-panel: rgba(17, 29, 51, 0.78); /* surface-1 */
+  --md-panel-hi: #1f3050; /* surface-3 */
+  --md-border: #223553; /* border */
+  --md-border-hi: rgba(212, 162, 87, 0.5); /* accent, gedämpft */
+  --md-text: #f2eee2; /* text */
+  --md-muted: #a7b3c4; /* text-2 */
+  --md-dim: #8593a8; /* text-3 */
+  --md-accent: #6aaef5; /* link */
+  --md-chip: #1f3050; /* surface-3 */
+  --md-header: linear-gradient(180deg, rgba(10, 19, 36, 0.96), rgba(10, 19, 36, 0.9));
+  --md-menu-bg: #111d33;
   --md-ghost: rgba(255, 255, 255, 0.04);
   --md-ghost-hi: rgba(255, 255, 255, 0.1);
-  --md-search-bg: rgba(25, 34, 55, 0.6);
-  --md-grad: linear-gradient(90deg, #7aa7ff 0%, #a9c4ff 45%, #7ea6ff 100%);
-  --md-icon-bg: linear-gradient(160deg, rgba(80, 96, 130, 0.45), rgba(30, 40, 62, 0.6));
-  --md-icon: #e7edf9;
-  --md-badge-icon: #9db8ef;
+  --md-search-bg: rgba(24, 39, 65, 0.75); /* surface-2 */
+  --md-grad: linear-gradient(90deg, #69d7e9 0%, #6aaef5 100%); /* heading-accent → link */
+  --md-icon-bg: linear-gradient(160deg, #1f3050, #182741);
+  --md-icon: #6aaef5; /* info */
+  --md-badge-icon: #6aaef5;
+  --md-cta: #d4a257; /* accent */
+  --md-cta-hover: #e0b06a; /* accent-hover */
+  --md-on-cta: #0a1324; /* on-accent */
+  --md-cta-soft: rgba(212, 162, 87, 0.14); /* accent-soft */
+  --md-cta-glow: rgba(212, 162, 87, 0.35);
 
   min-height: 100vh;
   color: var(--md-text);
@@ -39,42 +47,48 @@
 }
 
 :root:not([data-theme='dark']) #app[data-design='modern'] {
-  --md-bg: #eef2f9;
-  --md-bg2: #e3e9f5;
-  --md-panel: rgba(255, 255, 255, 0.75);
-  --md-panel-hi: rgba(255, 255, 255, 0.95);
-  --md-border: rgba(40, 60, 110, 0.14);
-  --md-border-hi: rgba(40, 80, 170, 0.35);
-  --md-text: #0f1a33;
-  --md-muted: #3b4763;
-  --md-dim: #5d6984;
-  --md-accent: #2f6be6;
-  --md-chip: rgba(40, 70, 140, 0.1);
-  --md-header: rgba(238, 242, 249, 0.95);
+  --md-bg: #f6f5f1;
+  --md-bg2: #f0eee8;
+  --md-panel: #ffffff;
+  --md-panel-hi: #ffffff;
+  --md-border: #e2dfd7;
+  --md-border-hi: rgba(201, 152, 77, 0.6);
+  --md-text: #14213a;
+  --md-muted: #3f4a60;
+  --md-dim: #5f6b84;
+  --md-accent: #0f5aa8;
+  --md-chip: #e8e5dd;
+  --md-header: rgba(246, 245, 241, 0.95);
   --md-menu-bg: #ffffff;
   --md-ghost: rgba(255, 255, 255, 0.55);
   --md-ghost-hi: rgba(255, 255, 255, 0.9);
   --md-search-bg: #ffffff;
-  --md-grad: linear-gradient(90deg, #1f5fe0, #4f86f0);
-  --md-icon-bg: linear-gradient(160deg, #dde6f7, #c9d6ef);
-  --md-icon: #1f3a78;
-  --md-badge-icon: #2f6be6;
+  --md-grad: linear-gradient(90deg, #086a80, #0f5aa8);
+  --md-icon-bg: linear-gradient(160deg, #f0eee8, #e8e5dd);
+  --md-icon: #0f5aa8;
+  --md-badge-icon: #0f5aa8;
+  --md-cta: #c9984d;
+  --md-cta-hover: #b8842f;
+  --md-on-cta: #14213a;
+  --md-cta-soft: rgba(201, 152, 77, 0.16);
+  --md-cta-glow: rgba(201, 152, 77, 0.35);
 }
 
 /* ---------- Seite ---------- */
 body:has(#app[data-design='modern']) {
   background:
-    radial-gradient(1200px 600px at 80% 10%, rgba(37, 99, 235, 0.16), transparent 60%),
-    radial-gradient(900px 500px at 10% 90%, rgba(37, 99, 235, 0.1), transparent 60%),
-    linear-gradient(180deg, #0b1222 0%, #0f1830 100%);
-  background-color: #0b1222;
+    radial-gradient(1100px 600px at 12% 6%, rgb(55 114 202 / 20%), transparent 60%),
+    radial-gradient(900px 520px at 88% 8%, rgb(38 167 187 / 16%), transparent 60%),
+    linear-gradient(180deg, #0a1324 0%, #111d33 100%);
+  background-color: #0a1324;
 }
 
 :root:not([data-theme='dark']) body:has(#app[data-design='modern']) {
   background:
-    radial-gradient(1200px 600px at 80% 10%, rgba(37, 99, 235, 0.12), transparent 60%),
-    linear-gradient(180deg, #eef2f9 0%, #e3e9f5 100%);
-  background-color: #eef2f9;
+    radial-gradient(1100px 600px at 12% 6%, rgb(86 147 216 / 15%), transparent 60%),
+    radial-gradient(900px 520px at 88% 8%, rgb(35 162 195 / 16%), transparent 60%),
+    linear-gradient(180deg, #f6f5f1 0%, #f0eee8 100%);
+  background-color: #f6f5f1;
 }
 
 html:has(#app[data-design='modern']),
@@ -106,7 +120,7 @@ body:has(#app[data-design='modern']) {
 #app[data-design='modern'] a:focus-visible,
 #app[data-design='modern'] button:focus-visible,
 #app[data-design='modern'] input:focus-visible {
-  outline: 2px solid #a7caff;
+  outline: 2px solid var(--md-cta);
   outline-offset: 4px;
 }
 
@@ -251,18 +265,18 @@ body:has(#app[data-design='modern']) {
 
 #app[data-design='modern'] .mh-menu-list a:hover,
 #app[data-design='modern'] .mh-menu-list a:focus-visible {
-  background: rgba(120, 150, 220, 0.15);
+  background: var(--md-cta-soft);
 }
 
 :root:not([data-theme='dark']) #app[data-design='modern'] .mh-menu-list {
-  color: #172b49;
-  box-shadow: 0 18px 48px rgba(22, 53, 96, 0.2);
+  color: var(--md-text);
+  box-shadow: 0 18px 48px rgba(20, 33, 58, 0.12);
 }
 
 :root:not([data-theme='dark']) #app[data-design='modern'] .mh-menu-list a:hover,
 :root:not([data-theme='dark']) #app[data-design='modern'] .mh-menu-list a:focus-visible {
-  color: #073d83;
-  background: #e4efff;
+  color: var(--md-text);
+  background: var(--md-cta-soft);
 }
 
 #app[data-design='modern'] .mh-actions {
@@ -395,28 +409,8 @@ body:has(#app[data-design='modern']) {
   overflow-x: clip;
 }
 
-/* Lichtbogen rechts oben (SVG im Markup). */
-#app[data-design='modern'] .mh-hero-arc {
-  position: absolute;
-  top: -60px;
-  right: -10vw;
-  width: 1100px;
-  height: 560px;
-  pointer-events: none;
-  z-index: 0;
-  stroke: none;
-  /* Unten weich auslaufen, sonst zeichnet die Fläche eine Kante. */
-  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 92%);
-  mask-image: linear-gradient(to bottom, #000 55%, transparent 92%);
-}
-
-/* Hell: Bogen-Fläche ausblenden (nur der Strich bleibt). */
-:root:not([data-theme='dark']) #app[data-design='modern'] .mh-hero-arc .mh-arc-fill {
-  display: none;
-}
-
 :root:not([data-theme='dark']) #app[data-design='modern'] .mh-features svg {
-  color: #2a5bc4;
+  color: var(--md-accent);
 }
 
 #app[data-design='modern'] .mh-hero-grid {
@@ -484,10 +478,10 @@ body:has(#app[data-design='modern']) {
 
 #app[data-design='modern'] .mh-primary {
   padding: 0 34px;
-  color: #fff;
-  background: linear-gradient(180deg, #3d8bff 0%, #1f62e8 100%);
+  color: var(--md-on-cta);
+  background: linear-gradient(180deg, var(--md-cta-hover) 0%, var(--md-cta) 100%);
   box-shadow:
-    0 8px 28px rgba(37, 99, 235, 0.55),
+    0 8px 28px var(--md-cta-glow),
     inset 0 1px 0 rgba(255, 255, 255, 0.35);
   transition:
     transform 0.2s,
@@ -497,12 +491,12 @@ body:has(#app[data-design='modern']) {
 #app[data-design='modern'] .mh-primary:hover {
   transform: translateY(-2px);
   box-shadow:
-    0 12px 34px rgba(37, 99, 235, 0.7),
+    0 12px 34px var(--md-cta-glow),
     inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
 #app[data-design='modern'] .mh-primary svg {
-  fill: #fff;
+  fill: var(--md-on-cta);
   stroke: none;
 }
 
@@ -624,15 +618,10 @@ body:has(#app[data-design='modern']) {
   height: auto;
 }
 
-/* Ruhend: nur die fertige Kachel. Die Einzelteile braucht nur das Intro. */
+/* Die fertige Kachel als ein Bild (ohne Animation). */
 #app[data-design='modern'] .mh-tile-img {
   position: relative;
   width: 100%;
-}
-
-#app[data-design='modern'] .mh-tile-part {
-  display: none;
-  position: absolute;
 }
 
 /* Glanz und Plaketten-Rand über allem. */
@@ -643,40 +632,6 @@ body:has(#app[data-design='modern']) {
   z-index: 4;
   width: 100%;
   pointer-events: none;
-}
-
-#app[data-design='modern'] .mh-tile-base {
-  left: 0;
-  top: 0;
-  width: 100%;
-}
-
-#app[data-design='modern'] .mh-tile-gearfull {
-  left: 32.1285%;
-  top: 25.0951%;
-  width: 51.4056%;
-  transform-origin: 50.258% 50.375%;
-}
-
-#app[data-design='modern'] .mh-tile-k {
-  left: 0;
-  top: 0;
-  width: 100%;
-}
-
-#app[data-design='modern'] .mh-tile-gear {
-  left: 44.9799%;
-  top: 36.8821%;
-  width: 27.7108%;
-  transform-origin: 49.304% 49.29%;
-}
-
-#app[data-design='modern'] .mh-tile-particles {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  overflow: visible;
 }
 
 /* ---------- Suche ---------- */
@@ -721,13 +676,12 @@ body:has(#app[data-design='modern']) {
 #app[data-design='modern'] .mh-search button {
   height: 42px;
   padding: 0 28px;
-  border: 0;
+  border: 1px solid var(--md-cta);
   border-radius: 999px;
   font-size: 17px;
   font-weight: 700;
-  color: #0d1a3a;
-  background: linear-gradient(180deg, #b9cdfa, #8fb0f3);
-  box-shadow: 0 4px 14px rgba(143, 176, 243, 0.35);
+  color: var(--md-text);
+  background: var(--md-cta-soft);
 }
 
 /* ---------- Reiter ---------- */
@@ -762,20 +716,20 @@ body:has(#app[data-design='modern']) {
 }
 
 #app[data-design='modern'] .mh-cat:not(.is-active):hover {
-  border-color: rgba(96, 165, 250, 0.45);
+  border-color: var(--md-border-hi);
   background: var(--md-panel-hi);
   box-shadow:
-    0 0 0 1px rgba(96, 165, 250, 0.18),
-    0 0 10px rgba(59, 130, 246, 0.2);
+    0 0 0 1px var(--md-cta-soft),
+    0 0 10px var(--md-cta-soft);
 }
 
 #app[data-design='modern'] .mh-cat.is-active {
   position: relative;
-  color: #fff;
-  border-color: rgba(160, 190, 255, 0.6);
-  background: linear-gradient(180deg, #6f97e8 0%, #3f6fd6 60%, #3563c8 100%);
+  color: var(--md-on-cta);
+  border-color: var(--md-cta);
+  background: linear-gradient(180deg, var(--md-cta-hover) 0%, var(--md-cta) 100%);
   box-shadow:
-    0 8px 30px rgba(59, 110, 230, 0.45),
+    0 8px 30px var(--md-cta-glow),
     inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
@@ -788,7 +742,13 @@ body:has(#app[data-design='modern']) {
   right: 30%;
   height: 2px;
   border-radius: 2px;
-  background: linear-gradient(90deg, transparent, #bcd3ff 20%, #bcd3ff 80%, transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 245, 225, 0.9) 20%,
+    rgba(255, 245, 225, 0.9) 80%,
+    transparent
+  );
 }
 
 /* ---------- Sektion und Karten ---------- */
@@ -879,8 +839,8 @@ body:has(#app[data-design='modern']) {
   transform: translateY(-3px);
   border-color: var(--md-border-hi);
   box-shadow:
-    0 14px 34px rgba(0, 0, 0, 0.3),
-    0 0 0 1px rgba(110, 150, 240, 0.15);
+    0 14px 34px rgba(0, 0, 0, 0.25),
+    0 0 0 1px var(--md-cta-soft);
 }
 
 #app[data-design='modern'] .mh-icon {
@@ -889,7 +849,7 @@ body:has(#app[data-design='modern']) {
   height: 66px;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--md-border);
   border-radius: 12px;
   background: var(--md-icon-bg);
   color: var(--md-icon);
@@ -899,10 +859,10 @@ body:has(#app[data-design='modern']) {
 }
 
 #app[data-design='modern'] .mh-card:hover .mh-icon {
-  border-color: rgba(96, 165, 250, 0.55);
+  border-color: var(--md-border-hi);
   box-shadow:
-    0 0 0 1px rgba(96, 165, 250, 0.25),
-    0 0 14px rgba(59, 130, 246, 0.3);
+    0 0 0 1px var(--md-cta-soft),
+    0 0 14px var(--md-cta-soft);
 }
 
 #app[data-design='modern'] .mh-icon img {
@@ -980,7 +940,7 @@ body:has(#app[data-design='modern']) {
 }
 
 :root:not([data-theme='dark']) #app[data-design='modern'] .mh-arrow {
-  background: rgba(40, 70, 140, 0.1);
+  background: var(--md-chip);
 }
 
 #app[data-design='modern'] .mh-arrow svg {
@@ -988,8 +948,8 @@ body:has(#app[data-design='modern']) {
 }
 
 #app[data-design='modern'] .mh-card:hover .mh-arrow {
-  background: var(--md-blue);
-  color: #fff;
+  background: var(--md-cta);
+  color: var(--md-on-cta);
   transform: translateX(2px);
 }
 
@@ -1021,7 +981,7 @@ body:has(#app[data-design='modern']) {
 }
 
 #app[data-design='modern'] .mh-card .fav-btn.is-active {
-  color: #ffb84d;
+  color: var(--md-cta);
 }
 
 #app[data-design='modern'] .mh-card .fav-btn.is-active svg {

@@ -8,7 +8,6 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { validateMedia } from '../../server/admin/src/content.js';
 import { normSite } from '../../server/admin/public/model-site';
-import { MOTION_QUERY, SMALL_QUERY } from '../../src/content/modernHome';
 
 const SCOPE = "#app[data-home-layout='compact']";
 
@@ -183,20 +182,13 @@ describe('home-modern-motion.css', () => {
     for (const b of blocks) expect(b.query).toContain('prefers-reduced-motion: no-preference');
   });
 
-  it('Kachel-Intro nur bei MOTION_QUERY, leichte Fassung bei SMALL_QUERY', () => {
-    const intro = blocks.filter((b) => b.body.includes('mh-tile') || b.body.includes('mh-tp'));
-    expect(intro.map((b) => `(${b.query.replace(/^\(|\)$/g, '')})`)).toContain(MOTION_QUERY);
-    for (const b of intro) expect(b.query).toContain('scripting: enabled');
-    // Leichte Fassung: genau die Teile von SMALL_QUERY, ohne Blur.
-    const small = intro.filter((b) => b.query.includes('max-width: 900px'));
-    expect(small.length).toBe(1);
-    expect(small[0].query).toContain('pointer: coarse');
-    expect(small[0].body).not.toMatch(/blur\(/);
-    expect(SMALL_QUERY).toBe('(max-width: 900px), (pointer: coarse)');
-    // Ohne Intro-Bezug kein Blur.
-    for (const b of blocks.filter((x) => !intro.includes(x))) {
+  it('Logo-Kachel und Umgebung ohne Animation, nirgends Blur', () => {
+    for (const b of blocks) {
+      expect(b.body).not.toMatch(/mh-tile|mh-tp/);
       expect(b.body).not.toMatch(/filter:\s*blur|backdrop-filter/);
     }
+    const css = readFileSync(join(__dirname, '../../src/styles/parts/home-modern.css'), 'utf8');
+    expect(css).not.toMatch(/mh-tile[^{]*\{[^}]*animation/);
   });
 
   it('beschränkt jede Regel auf das moderne Design', () => {
