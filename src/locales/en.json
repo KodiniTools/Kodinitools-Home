@@ -185,6 +185,14 @@
       "processing": "browser",
       "link": "https://kodinitools.com/texteditor/",
       "svg": "/image/texteditor.svg"
+    },
+    "pdfEditor": {
+      "title": "PDF Editor\nmerge-rotate-sign",
+      "description": "Edit PDFs right in your browser: merge files, rotate, delete and reorder pages, add text and highlights, and sign. Your files stay on your device.",
+      "badge": "PDF",
+      "processing": "browser",
+      "link": "https://kodinitools.com/pdf-editor/",
+      "svg": ""
     }
   },
   "imageTools": {

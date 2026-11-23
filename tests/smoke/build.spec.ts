@@ -377,6 +377,35 @@ describe('Navigation (Favicon Konverter)', () => {
   });
 });
 
+describe('PDF-Editor (neues Tool, 23.11.2026)', () => {
+  it.each([
+    ['faq/index.html', 'PDF-Editor'],
+    ['en/faq/index.html', 'PDF Editor'],
+  ])('%s führt den PDF-Editor im Tools-Menü hinter dem Favicon-Konverter', (file, label) => {
+    const html = read(file);
+    const at = html.indexOf(
+      '<a href="https://kodinitools.com/pdf-editor/" class="global-nav-dropdown-item"',
+    );
+    expect(at, 'PDF-Link').toBeGreaterThan(-1);
+    expect(html.indexOf(`>${label}</a>`, at)).toBeGreaterThan(at);
+    expect(html.indexOf('<a href="https://kodinitools.com/favicon-tool/"')).toBeLessThan(at);
+  });
+
+  it('Partial nav.html (Tool-Seiten) führt den PDF-Editor mit Übersetzung', () => {
+    const html = read('partials/nav.html');
+    expect(html).toContain(
+      '<a href="https://kodinitools.com/pdf-editor/" class="global-nav-dropdown-item" role="menuitem" data-i18n="nav.pdfEditor">PDF-Editor</a>',
+    );
+    expect(html).toContain("'nav.pdfEditor': 'PDF Editor'");
+  });
+
+  it.each(['index.html', 'en/index.html'])('%s zeigt die Toolkarte', (file) => {
+    const html = read(file);
+    expect(html).toMatch(/<a[^>]*data-i18n-key="diverseTools\.pdfEditor"/);
+    expect(html).toContain('https://kodinitools.com/pdf-editor/');
+  });
+});
+
 describe('Verkleinerte Bildfassungen (srcset)', () => {
   it.each(['index.html', 'en/index.html'])('%s: jede srcset-Fassung liegt im Build', (file) => {
     const html = read(file);
