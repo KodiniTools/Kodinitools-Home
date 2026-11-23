@@ -2,8 +2,7 @@
 /**
  * Startseite im modernen Design (Admin > Layout > Seiten-Layout „Modernes Design").
  * Aufbau nach dem Entwurf „KodiniTools – Kostenlose Online-Tools (Copy)": Navigation mit
- * Tools-Dropdown, Hero (Eyebrow, Titel mit Akzent, zwei Knöpfe, Vorteile, 3D-Kachel mit
- * Lichtbogen), große Suche, 4 Reiter, Karten, schlichter Footer.
+ * Tools-Dropdown, Hero (Eyebrow, Titel mit Akzent, zwei Knöpfe, Vorteile, 3D-Kachel), große Suche, 4 Reiter, Karten, schlichter Footer.
  *
  * Texte: vorhandene Locale-/Admin-Schlüssel unverändert (hero.*, search.*,
  * *.sectionTitle/sectionDescription, Kartentexte); nur was es dort nicht gibt,
@@ -212,39 +211,6 @@ const scriptData = {
 
 <main id="main-content">
   <section class="mh-hero">
-    <svg class="mh-hero-arc" viewBox="0 0 1100 560" preserveAspectRatio="none" aria-hidden="true">
-      <defs>
-        <linearGradient id="mh-arc-g" x1="0" x2="1">
-          <stop offset="0" stop-color="#3b82f6" stop-opacity="0"></stop>
-          <stop offset=".45" stop-color="#5a9bff" stop-opacity=".9"></stop>
-          <stop offset=".75" stop-color="#bcd6ff" stop-opacity="1"></stop>
-          <stop offset="1" stop-color="#3b82f6" stop-opacity=".2"></stop>
-        </linearGradient>
-        <radialGradient id="mh-arc-fill" cx=".7" cy=".55" r=".6">
-          <stop offset="0" stop-color="#1e4fb8" stop-opacity=".35"></stop>
-          <stop offset="1" stop-color="#0b1222" stop-opacity="0"></stop>
-        </radialGradient>
-      </defs>
-      <path
-        class="mh-arc-fill"
-        d="M180 470 Q 600 120 1100 160 L1100 560 L180 560Z"
-        fill="url(#mh-arc-fill)"></path>
-      {/* Weicher Schein: breiter, blasser Strich statt SVG-Blur (spart Rechenzeit). */}
-      <path
-        d="M180 470 Q 600 120 1100 160"
-        fill="none"
-        stroke="url(#mh-arc-g)"
-        stroke-width="14"
-        opacity=".22"></path>
-      <path
-        d="M180 470 Q 600 120 1100 160"
-        fill="none"
-        stroke="url(#mh-arc-g)"
-        stroke-width="6"
-        opacity=".35"></path>
-      <path d="M180 470 Q 600 120 1100 160" fill="none" stroke="url(#mh-arc-g)" stroke-width="1.6"
-      ></path>
-    </svg>
     <div class="mh-shell">
       <div class="mh-hero-grid">
         <div class="mh-hero-copy">

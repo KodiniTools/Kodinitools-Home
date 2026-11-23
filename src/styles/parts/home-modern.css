@@ -395,26 +395,6 @@ body:has(#app[data-design='modern']) {
   overflow-x: clip;
 }
 
-/* Lichtbogen rechts oben (SVG im Markup). */
-#app[data-design='modern'] .mh-hero-arc {
-  position: absolute;
-  top: -60px;
-  right: -10vw;
-  width: 1100px;
-  height: 560px;
-  pointer-events: none;
-  z-index: 0;
-  stroke: none;
-  /* Unten weich auslaufen, sonst zeichnet die Fläche eine Kante. */
-  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 92%);
-  mask-image: linear-gradient(to bottom, #000 55%, transparent 92%);
-}
-
-/* Hell: Bogen-Fläche ausblenden (nur der Strich bleibt). */
-:root:not([data-theme='dark']) #app[data-design='modern'] .mh-hero-arc .mh-arc-fill {
-  display: none;
-}
-
 :root:not([data-theme='dark']) #app[data-design='modern'] .mh-features svg {
   color: #2a5bc4;
 }
