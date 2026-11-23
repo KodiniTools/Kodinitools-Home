@@ -10,7 +10,6 @@ import {
   modernCatOf,
   modernIconOf,
   MODERN_ICONS,
-  PARTICLE_ICONS,
   TILE_LAYERS,
   splitAccent,
   stripAccent,
@@ -69,9 +68,6 @@ describe('3D-Kachel', () => {
     expect(TILE_LAYERS.filter((l) => !l.fine).map((l) => l.depth)).toEqual([
       30, 27, 24, 21, 18, 15, 12, 9, 6, 1,
     ]);
-  });
-  it('aufsteigende Icons existieren im Sprite', () => {
-    for (const id of PARTICLE_ICONS) expect(MODERN_ICONS).toHaveProperty(id);
   });
 });
 

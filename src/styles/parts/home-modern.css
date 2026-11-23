@@ -624,15 +624,10 @@ body:has(#app[data-design='modern']) {
   height: auto;
 }
 
-/* Ruhend: nur die fertige Kachel. Die Einzelteile braucht nur das Intro. */
+/* Die fertige Kachel als ein Bild (ohne Animation). */
 #app[data-design='modern'] .mh-tile-img {
   position: relative;
   width: 100%;
-}
-
-#app[data-design='modern'] .mh-tile-part {
-  display: none;
-  position: absolute;
 }
 
 /* Glanz und Plaketten-Rand über allem. */
@@ -643,40 +638,6 @@ body:has(#app[data-design='modern']) {
   z-index: 4;
   width: 100%;
   pointer-events: none;
-}
-
-#app[data-design='modern'] .mh-tile-base {
-  left: 0;
-  top: 0;
-  width: 100%;
-}
-
-#app[data-design='modern'] .mh-tile-gearfull {
-  left: 32.1285%;
-  top: 25.0951%;
-  width: 51.4056%;
-  transform-origin: 50.258% 50.375%;
-}
-
-#app[data-design='modern'] .mh-tile-k {
-  left: 0;
-  top: 0;
-  width: 100%;
-}
-
-#app[data-design='modern'] .mh-tile-gear {
-  left: 44.9799%;
-  top: 36.8821%;
-  width: 27.7108%;
-  transform-origin: 49.304% 49.29%;
-}
-
-#app[data-design='modern'] .mh-tile-particles {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  overflow: visible;
 }
 
 /* ---------- Suche ---------- */

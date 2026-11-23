@@ -145,29 +145,6 @@ export const MODERN_ICONS: Readonly<Record<string, string>> = {
 };
 
 /**
- * Kachel-Intro ohne „Bewegung reduzieren" und mit Skript, auf allen Bildschirmen. Handy und
- * Tablet (SMALL_QUERY) bekommen die leichte Fassung: flacher Anflug ohne 3D-Überschläge und
- * Blur, weniger Ebenen und Icons erst nach der Landung. Muss den Media-Queries in
- * home-modern-motion.css entsprechen.
- */
-export const MOTION_QUERY = '(prefers-reduced-motion: no-preference) and (scripting: enabled)';
-export const SMALL_QUERY = '(max-width: 900px), (pointer: coarse)';
-
-/** Icons, die beim Intro rund um die Kachel aufsteigen (wie im Entwurf). */
-export const PARTICLE_ICONS: readonly string[] = [
-  'headphones',
-  'wave',
-  'play',
-  'bars',
-  'radio',
-  'sliders',
-  'film',
-  'scissors',
-  'gif',
-  'camera',
-];
-
-/**
  * Dicke der 3D-Kachel: 30 gestapelte Bild-Ebenen (1 px Abstand) hinter der Front, hinten
  * dunkler (tile-layer-1…4), vorn die helle Kante (tile-layer-5). Bilder statt CSS-Masken,
  * weil Safari Masken in 3D nicht zuverlässig zeichnet. `fine`: Zwischenebenen, die Handy
