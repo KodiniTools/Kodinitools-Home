@@ -3,8 +3,13 @@
     "title": "KodiniTools im Überblick"
   },
   "hero": {
-    "subtitle": "Kein Account? Kein Problem! Greife sofort auf alle Tools zu.\nKostenlos, ohne E-Mail-Adresse, ohne Passwort, ohne Werbung.\nKeine Installation, keine Anmeldung oder Registrierung nötig",
-    "title": "Kostenlose Online-Werkzeuge für Bild, Ton, Video und Text"
+    "subtitle": "Öffnen Sie ein Tool und legen Sie direkt los:\nDatei auswählen, bearbeiten, herunterladen. Ohne Werbung.",
+    "title": "Kostenlose Online-Werkzeuge für Bild, Ton, Video und Text",
+    "features": {
+      "free": "Sofort startklar",
+      "browserBased": "Läuft im Browser",
+      "multiLanguage": "Deutsch und Englisch"
+    }
   },
   "tools": {
     "audioConverter": {
