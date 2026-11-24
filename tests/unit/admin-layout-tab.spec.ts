@@ -614,3 +614,29 @@ describe('LyFullPage (Ganzseiten-Vorschau als Vue)', () => {
     w.unmount();
   });
 });
+
+describe('LayoutTab im modernen Design', () => {
+  it('blendet Banner/Kacheln aus und zeigt den modernen Hero; Ausschalten holt sie zurück', async () => {
+    state.media.site.homeLayout = 'compact';
+    state.media.site.modernDesign = true;
+    state.defaults = {
+      de: {
+        hero: { title: 'Kostenlose Tools', subtitle: 'Im Browser', features: { free: 'Gratis' } },
+      },
+      en: {},
+    } as typeof state.defaults;
+    state.overrides = { de: {}, en: {} };
+    const w = mountTab();
+    await flushPromises();
+    expect(w.find('[data-modern-hero-preview]').exists()).toBe(true);
+    expect(w.find('[data-bannerpick]').exists()).toBe(false);
+    expect(w.findAll('.tc-side').length).toBe(0);
+    expect(w.find('iframe[data-mhp-frame]').attributes('srcdoc')).toContain('Kostenlose Tools');
+    await w.find('[data-moderndesign] button').trigger('click');
+    expect(state.media.site.modernDesign).toBe(false);
+    await flushPromises();
+    expect(w.find('[data-modern-hero-preview]').exists()).toBe(false);
+    expect(w.find('[data-bannerpick]').exists()).toBe(true);
+    w.unmount();
+  });
+});

@@ -26,6 +26,7 @@ import {
   BANNER_TRANSITIONS,
   defaultHeroBgSlideshow,
   getHomeLayout,
+  getModernDesign,
   navLang,
 } from './model';
 import { heroPreviewMedia, heroPreviewMediaStyle, HERO_PREVIEW_LAYOUT_CSS } from './hero-preview';
@@ -34,7 +35,9 @@ import { slideInfo } from './layout-shared';
 import { mountVueTab } from './islands';
 
 import type { AnyObj, Lang, ThemeMode } from '../types';
-import type { HeroService } from '../app/tabs/hero/heroData';
+import type { HeroService, HeroSlotKey } from '../app/tabs/hero/heroData';
+import { featLabel, slotText } from '../app/tabs/hero/heroData';
+import { modernHeroData, type ModernHeroData } from '../app/components/modern/modernHero';
 
 // Feature-Schlüssel (Reihenfolge wie in den Locale-Dateien); Fallback, falls die
 // Defaults (noch) nicht geladen sind.
@@ -84,6 +87,25 @@ function previewMedia(lang: Lang) {
   });
 }
 
+// Daten des Hero im modernen Design (Entwurf einer Sprache) für die Vorschau im Tab Layout;
+// der Tab Hero-Design rechnet dasselbe aus seinem eigenen Zustand.
+export function modernHeroOf(lang: Lang): ModernHeroData {
+  const ov = state.overrides[lang];
+  const defs = state.defaults[lang] || {};
+  const text = (key: HeroSlotKey) => {
+    const slot = HERO_TEXT_SLOTS.find((s) => s.key === key);
+    return slot ? slotText(ov, defs, lang, slot) : '';
+  };
+  return modernHeroData({
+    lang,
+    title: text('hero.title'),
+    subtitle: text('hero.subtitle'),
+    cta: text('hero.cta'),
+    features: featureDefs(lang).map((f) => ({ key: f.key, text: featLabel(ov, f) })),
+    design: heroDesignOf(lang),
+  });
+}
+
 // Service für die Vue-Fassung des Tabs (app/tabs/hero): kapselt die Zugriffe auf
 // den Admin-Zustand, damit das Vue-Bundle model.ts nicht selbst importiert.
 export function heroService(lang: Lang): HeroService {
@@ -97,6 +119,7 @@ export function heroService(lang: Lang): HeroService {
     defaults: () => state.defaults[lang] || {},
     features: () => featureDefs(lang),
     homeLayout: getHomeLayout,
+    modernDesign: getModernDesign,
     resolveUrl: heroImgUrl,
     slideInfo: (val: string) => {
       const info = slideInfo(val);

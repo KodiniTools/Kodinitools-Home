@@ -29,6 +29,8 @@ export interface HeroView {
   defs: Overrides;
   feats: HeroFeature[];
   layout: 'classic' | 'compact';
+  /** Admin › Layout › Modernes Design (wirkt nur mit Kompakt-Layout). */
+  modern: boolean;
 }
 
 export interface HeroApi {
@@ -74,6 +76,7 @@ export function provideHero(service: HeroService): HeroApi {
       defs: service.defaults(),
       feats: service.features(),
       layout: service.homeLayout(),
+      modern: service.modernDesign?.() === true,
     };
   });
 
