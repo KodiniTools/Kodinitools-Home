@@ -129,6 +129,19 @@ const scriptData = {
       // Speicher gesperrt (privater Modus): Farbschema gilt nur bis zum Neuladen.
     }
   })();
+
+  // Versteckter Admin-Zugang wie in GlobalNav: Strg+Shift+Alt+K (bzw. Cmd+Shift+Alt+K).
+  // e.code === 'KeyK' = physische K-Taste, unabhängig vom Tastaturlayout.
+  document.addEventListener(
+    'keydown',
+    function (e) {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.altKey && e.code === 'KeyK') {
+        e.preventDefault();
+        window.location.href = '/admin/';
+      }
+    },
+    true,
+  );
 </script>
 
 <svg xmlns="http://www.w3.org/2000/svg" class="mh-sprite" aria-hidden="true">
