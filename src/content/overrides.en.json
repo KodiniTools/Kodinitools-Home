@@ -1,7 +1,12 @@
 {
   "hero": {
-    "subtitle": "No account? No problem! Access all tools instantly.\nFree, no email address, no password, no ads.\nNo installation, no login or registration required",
-    "title": "Free online tools for image, audio, video, and text"
+    "subtitle": "Open a tool and get started right away:\nChoose a file, edit it, download it. No ads.",
+    "title": "Free online tools for image, audio, video, and text",
+    "features": {
+      "free": "Ready instantly",
+      "browserBased": "Runs in your browser",
+      "multiLanguage": "German and English"
+    }
   },
   "tools": {
     "audioConverter": {
