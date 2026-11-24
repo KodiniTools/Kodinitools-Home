@@ -142,6 +142,8 @@ export interface HeroService {
   defaults: () => Overrides;
   features: () => HeroFeature[];
   homeLayout: () => 'classic' | 'compact';
+  /** Schalter „Modernes Design“ (Admin › Layout). */
+  modernDesign?: () => boolean;
   /** Vorschau-URL eines Bildes ('staged:<id>' → Objekt-URL), '' ohne Bild. */
   resolveUrl: (val: string) => string;
   slideInfo: (val: string) => { src: string; name: string } | null;

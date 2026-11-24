@@ -2,7 +2,12 @@
   <div ref="rootEl" :class="['tc-layout', `bg-collapsed-${otherMode}`]" data-vue-tab="hero">
     <template v-for="col in COLUMNS" :key="col">
       <div v-if="col === 'main'" class="tc-main">
-        <HeroPreview />
+        <ModernHeroPreview
+          v-if="modern"
+          :data="modernData"
+          note="Farben, Schriften, Rahmen, Hintergrund, Buttons-Design und Verschiebungen dieses Tabs wirken nur im klassischen Design."
+        />
+        <HeroPreview v-else />
 
         <div class="panel">
           <h2>
@@ -183,6 +188,8 @@ import { UiButton, UiDialog, UiSwitch } from '../../components/ui';
 import HdSec from './HdSec.vue';
 import HeroButtons from './HeroButtons.vue';
 import HeroPreview from './HeroPreview.vue';
+import ModernHeroPreview from '../../components/modern/ModernHeroPreview.vue';
+import { modernHeroData } from '../../components/modern/modernHero';
 import HeroSide from './HeroSide.vue';
 import HeroTexts from './HeroTexts.vue';
 import HeroTypo from './HeroTypo.vue';
@@ -216,7 +223,7 @@ import {
  * Speichern, Autosave und Undo per Snapshot unverändert greifen.
  */
 const props = defineProps<{ service: HeroService }>();
-const { view, change, toast } = provideHero(props.service);
+const { view, change, toast, slotText } = provideHero(props.service);
 const aiCurrent = () => JSON.stringify(view.value.hd);
 function aiResolve(c: AiChange): Applicable | null {
   const r = resolveChange(
@@ -232,6 +239,18 @@ function aiResolve(c: AiChange): Applicable | null {
   };
 }
 const service = props.service;
+/** Modernes Design (Kompakt + Schalter): Vorschau zeigt den modernen Hero der Seite. */
+const modern = computed(() => view.value.layout === 'compact' && view.value.modern);
+const modernData = computed(() =>
+  modernHeroData({
+    lang: service.lang,
+    title: slotText('hero.title'),
+    subtitle: slotText('hero.subtitle'),
+    cta: slotText('hero.cta'),
+    features: view.value.feats.map((f) => ({ key: f.key, text: featLabel(view.value.ov, f) })),
+    design: view.value.hd,
+  }),
+);
 const LANG = service.lang.toUpperCase();
 const LANG_NAME = service.lang === 'de' ? 'Deutsch' : 'English';
 const OTHER: Lang = service.lang === 'de' ? 'en' : 'de';

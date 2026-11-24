@@ -245,3 +245,31 @@ describe('HeroTab (Vue-Insel)', () => {
     w.unmount();
   });
 });
+
+describe('HeroTab im modernen Design', () => {
+  it('zeigt den modernen Hero statt der klassischen Vorschau, mit Entwurfstexten', async () => {
+    state.media.site.homeLayout = 'compact';
+    state.media.site.modernDesign = true;
+    state.overrides.de = { hero: { title: 'Tools für *Audio* & Bild' } };
+    hd().hiddenChips = ['privacy'];
+    const w = mountTab();
+    await flushPromises();
+    expect(w.find('[data-hd-preview]').exists()).toBe(false);
+    const doc = w.find('iframe[data-mhp-frame]').attributes('srcdoc') ?? '';
+    expect(doc).toContain('<span class="mh-accent">Audio</span> &amp; Bild');
+    expect(doc).toContain('Im Browser');
+    expect(doc).toContain('Gratis');
+    expect(doc).not.toContain('Privat');
+    w.unmount();
+  });
+
+  it('Modernes Design ohne Kompakt-Layout: klassische Vorschau bleibt', async () => {
+    state.media.site.homeLayout = 'classic';
+    state.media.site.modernDesign = true;
+    const w = mountTab();
+    await flushPromises();
+    expect(w.find('[data-hd-preview]').exists()).toBe(true);
+    expect(w.find('[data-modern-hero-preview]').exists()).toBe(false);
+    w.unmount();
+  });
+});

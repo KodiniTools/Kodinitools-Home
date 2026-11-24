@@ -67,6 +67,7 @@ import {
   navLang,
 } from './model';
 import { initPaste, pasteFromClipboardApi } from './layout-paste';
+import { modernHeroOf } from './design';
 import {
   fullPageModel,
   fullPageKeys,
@@ -147,6 +148,7 @@ function resolveMedia(val: string) {
 export function layoutService(lang: Lang): LayoutService {
   return {
     lang,
+    modernHero: () => modernHeroOf(lang),
     media: () => state.media[lang],
     mediaOf: (l: Lang) => state.media[l],
     ensure: (l: Lang) => {

@@ -1,6 +1,13 @@
 <template>
-  <div ref="rootEl" class="tc-layout" data-vue-tab="layout" :data-lymode="grid ? 'grid' : 'banner'">
-    <aside v-if="grid" class="tc-side" data-tcside="left">
+  <div
+    ref="rootEl"
+    class="tc-layout"
+    data-vue-tab="layout"
+    :data-lymode="modern ? 'modern' : grid ? 'grid' : 'banner'"
+    :style="modern ? { gridTemplateColumns: 'minmax(0, 1200px)' } : undefined"
+  >
+    <template v-if="modern" />
+    <aside v-else-if="grid" class="tc-side" data-tcside="left">
       <div class="tc-side-head left">🖼️ Kachel-Inhalte</div>
       <p class="hint">
         Pro Kachel: <strong>Bild</strong> (aus der Zwischenablage oder Mediathek) mit
@@ -37,54 +44,62 @@
 
     <div class="tc-main">
       <LyPagePanel />
-      <LyModePanel />
-      <div class="panel">
-        <AiDesignAssist
-          area="layout"
-          :lang="service.lang"
-          :get-current="aiCurrent"
-          :resolve="aiResolve"
-          :apply-note="
-            text.text.trim()
-              ? ''
-              : 'Hinweis: Der Banner-Text ist leer. Animation, Größe, Farbe und Deckkraft des Banner-Texts wirken auf der Seite erst, wenn ein Banner-Text eingetragen ist.'
-          "
-        />
-        <AiImagePanel
-          v-if="service.stageImage && !grid"
-          :on-use="useAiBanner"
-          use-label="Als Banner verwenden"
-          default-purpose="Hero-Banner oben auf der Startseite"
-          default-aspect="21:9"
-        />
-      </div>
-      <template v-if="grid">
-        <LyGridPreview />
-        <LyGridSettings />
-        <div class="panel">
-          <p class="hint ly-m0">
-            Links die <strong>Inhalte</strong> der Kacheln (Bild, Text, Schrift), rechts ihr
-            <strong>Design</strong> (Rahmen, Hintergrund, Textfarbe/-position). Die Vorschau bleibt
-            beim Scrollen oben sichtbar; Texte darin mit der Maus verschieben.
-          </p>
-        </div>
-      </template>
+      <ModernHeroPreview
+        v-if="modern"
+        :data="modernData"
+        note="Banner, Kacheln, Banner-Text und die Ganzseiten-Vorschau gehören zum klassischen Design und sind ausgeblendet, solange „Modernes Design“ an ist; ihre Einstellungen bleiben erhalten."
+      />
       <template v-else>
-        <LyBannerPreview />
-        <LyBannerMedia />
-        <LyBannerSlides @ask-clear="askClearSlides" />
+        <LyModePanel />
         <div class="panel">
-          <p class="hint ly-m0">
-            Links das <strong>Banner-Design</strong> (Rahmen, Schatten, Deckkraft, Verdunkelung),
-            rechts der <strong>Banner-Text</strong> mit allen Effekten. Die Vorschau bleibt beim
-            Scrollen oben sichtbar; den Text in der Vorschau mit der Maus verschieben.
-          </p>
+          <AiDesignAssist
+            area="layout"
+            :lang="service.lang"
+            :get-current="aiCurrent"
+            :resolve="aiResolve"
+            :apply-note="
+              text.text.trim()
+                ? ''
+                : 'Hinweis: Der Banner-Text ist leer. Animation, Größe, Farbe und Deckkraft des Banner-Texts wirken auf der Seite erst, wenn ein Banner-Text eingetragen ist.'
+            "
+          />
+          <AiImagePanel
+            v-if="service.stageImage && !grid"
+            :on-use="useAiBanner"
+            use-label="Als Banner verwenden"
+            default-purpose="Hero-Banner oben auf der Startseite"
+            default-aspect="21:9"
+          />
         </div>
+        <template v-if="grid">
+          <LyGridPreview />
+          <LyGridSettings />
+          <div class="panel">
+            <p class="hint ly-m0">
+              Links die <strong>Inhalte</strong> der Kacheln (Bild, Text, Schrift), rechts ihr
+              <strong>Design</strong> (Rahmen, Hintergrund, Textfarbe/-position). Die Vorschau
+              bleibt beim Scrollen oben sichtbar; Texte darin mit der Maus verschieben.
+            </p>
+          </div>
+        </template>
+        <template v-else>
+          <LyBannerPreview />
+          <LyBannerMedia />
+          <LyBannerSlides @ask-clear="askClearSlides" />
+          <div class="panel">
+            <p class="hint ly-m0">
+              Links das <strong>Banner-Design</strong> (Rahmen, Schatten, Deckkraft, Verdunkelung),
+              rechts der <strong>Banner-Text</strong> mit allen Effekten. Die Vorschau bleibt beim
+              Scrollen oben sichtbar; den Text in der Vorschau mit der Maus verschieben.
+            </p>
+          </div>
+        </template>
+        <LyFullPage />
       </template>
-      <LyFullPage />
     </div>
 
-    <aside v-if="grid" class="tc-side" data-tcside="right">
+    <template v-if="modern" />
+    <aside v-else-if="grid" class="tc-side" data-tcside="right">
       <div class="tc-side-head right">🎨 Kachel-Design</div>
       <p class="hint">
         Pro Kachel: Rahmenfarbe &amp; -dicke, Hintergrundfarbe &amp; -transparenz, Textfarbe, -größe
@@ -147,6 +162,8 @@ import LyGridPreview from './LyGridPreview.vue';
 import LyGridSettings from './LyGridSettings.vue';
 import LyModePanel from './LyModePanel.vue';
 import LyPagePanel from './LyPagePanel.vue';
+import ModernHeroPreview from '../../components/modern/ModernHeroPreview.vue';
+import { modernHeroData } from '../../components/modern/modernHero';
 import {
   LANG_LABEL,
   MODE_LABEL,
@@ -203,6 +220,22 @@ const OTHER = otherLang(service.lang);
 const OTHER_NAME = LANG_LABEL[OTHER];
 
 const grid = computed(() => view.value.m.heroMode === 'grid');
+/** Modernes Design (Kompakt + Schalter): klassische Banner-/Kachel-Editoren ausblenden. */
+const modern = computed(
+  () => view.value.page.homeLayout === 'compact' && view.value.page.modernDesign === true,
+);
+const modernData = computed(
+  () =>
+    service.modernHero?.() ??
+    modernHeroData({
+      lang: service.lang,
+      title: '',
+      subtitle: '',
+      cta: '',
+      features: [],
+      design: {},
+    }),
+);
 const layout = computed(() => normLayout(service.layouts, view.value.m.heroLayout));
 const isMosaic = computed(() => layout.value === 'mosaic');
 const cells = computed(() =>

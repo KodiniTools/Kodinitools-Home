@@ -1,5 +1,6 @@
 import type { FullPageService } from './fullPageData';
 import type { Lang, ThemeMode } from '../../../types';
+import type { ModernHeroData } from '../../components/modern/modernHero';
 import { rgbaFromHex } from '../../../public/model-core';
 import type {
   CellField,
@@ -560,6 +561,8 @@ export interface CellHooks {
 /** Brücke zu `public/layout.ts` (`layoutService(lang)`). */
 export interface LayoutService {
   lang: Lang;
+  /** Hero im modernen Design (Entwurf) für die Vorschau, solange „Modernes Design“ an ist. */
+  modernHero?: () => ModernHeroData;
   /** `state.media[lang]` (Roh-Objekt). */
   media: () => BannerHost & GridHost;
   mediaOf: (lang: Lang) => BannerHost & GridHost;
