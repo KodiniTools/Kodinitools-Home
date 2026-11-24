@@ -28,8 +28,6 @@
   --md-chip: #1f3050; /* surface-3 */
   --md-header: linear-gradient(180deg, rgba(10, 19, 36, 0.96), rgba(10, 19, 36, 0.9));
   --md-menu-bg: #111d33;
-  --md-ghost: rgba(255, 255, 255, 0.04);
-  --md-ghost-hi: rgba(255, 255, 255, 0.1);
   --md-search-bg: rgba(24, 39, 65, 0.75); /* surface-2 */
   --md-grad: linear-gradient(90deg, #69d7e9 0%, #6aaef5 100%); /* heading-accent → link */
   --md-icon-bg: linear-gradient(160deg, #1f3050, #182741);
@@ -37,7 +35,10 @@
   --md-badge-icon: #6aaef5;
   --md-cta: #d4a257; /* accent */
   --md-cta-hover: #e0b06a; /* accent-hover */
-  --md-on-cta: #0a1324; /* on-accent */
+  --md-on-cta: #ffffff; /* Schrift auf gefüllten Goldflächen (wie Playlist-Generator) */
+  /* Gefüllte Buttons: dunkles Gold, damit Weiß lesbar ist (Playlist-Generator --ds-accent-fill, 5,3:1) */
+  --md-cta-fill: #8f6320;
+  --md-cta-fill-hover: #9a6b24;
   --md-cta-soft: rgba(212, 162, 87, 0.14); /* accent-soft */
   --md-cta-glow: rgba(212, 162, 87, 0.35);
 
@@ -60,8 +61,6 @@
   --md-chip: #e8e5dd;
   --md-header: rgba(246, 245, 241, 0.95);
   --md-menu-bg: #ffffff;
-  --md-ghost: rgba(255, 255, 255, 0.55);
-  --md-ghost-hi: rgba(255, 255, 255, 0.9);
   --md-search-bg: #ffffff;
   --md-grad: linear-gradient(90deg, #086a80, #0f5aa8);
   --md-icon-bg: linear-gradient(160deg, #f0eee8, #e8e5dd);
@@ -69,7 +68,9 @@
   --md-badge-icon: #0f5aa8;
   --md-cta: #c9984d;
   --md-cta-hover: #b8842f;
-  --md-on-cta: #14213a;
+  --md-on-cta: #ffffff;
+  --md-cta-fill: #8f6320;
+  --md-cta-fill-hover: #7d561c;
   --md-cta-soft: rgba(201, 152, 77, 0.16);
   --md-cta-glow: rgba(201, 152, 77, 0.35);
 }
@@ -479,20 +480,18 @@ body:has(#app[data-design='modern']) {
 #app[data-design='modern'] .mh-primary {
   padding: 0 34px;
   color: var(--md-on-cta);
-  background: linear-gradient(180deg, var(--md-cta-hover) 0%, var(--md-cta) 100%);
-  box-shadow:
-    0 8px 28px var(--md-cta-glow),
-    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  background: var(--md-cta-fill);
+  box-shadow: 0 8px 28px var(--md-cta-glow);
   transition:
     transform 0.2s,
+    background 0.2s,
     box-shadow 0.2s;
 }
 
 #app[data-design='modern'] .mh-primary:hover {
   transform: translateY(-2px);
-  box-shadow:
-    0 12px 34px var(--md-cta-glow),
-    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  background: var(--md-cta-fill-hover);
+  box-shadow: 0 12px 34px var(--md-cta-glow);
 }
 
 #app[data-design='modern'] .mh-primary svg {
@@ -503,14 +502,16 @@ body:has(#app[data-design='modern']) {
 #app[data-design='modern'] .mh-secondary,
 #app[data-design='modern'] .mh-all {
   padding: 0 40px;
-  border: 1px solid var(--md-border-hi);
-  background: var(--md-ghost);
+  border: 1px solid var(--md-cta-fill);
+  color: var(--md-on-cta);
+  background: var(--md-cta-fill);
+  box-shadow: 0 8px 28px var(--md-cta-glow);
   transition: background 0.2s;
 }
 
 #app[data-design='modern'] .mh-secondary:hover,
 #app[data-design='modern'] .mh-all:hover {
-  background: var(--md-ghost-hi);
+  background: var(--md-cta-fill-hover);
 }
 
 #app[data-design='modern'] .mh-secondary svg,
@@ -676,12 +677,17 @@ body:has(#app[data-design='modern']) {
 #app[data-design='modern'] .mh-search button {
   height: 42px;
   padding: 0 28px;
-  border: 1px solid var(--md-cta);
+  border: 1px solid var(--md-cta-fill);
   border-radius: 999px;
   font-size: 17px;
   font-weight: 700;
-  color: var(--md-text);
-  background: var(--md-cta-soft);
+  color: var(--md-on-cta);
+  background: var(--md-cta-fill);
+  transition: background 0.2s;
+}
+
+#app[data-design='modern'] .mh-search button:hover {
+  background: var(--md-cta-fill-hover);
 }
 
 /* ---------- Reiter ---------- */
@@ -726,11 +732,9 @@ body:has(#app[data-design='modern']) {
 #app[data-design='modern'] .mh-cat.is-active {
   position: relative;
   color: var(--md-on-cta);
-  border-color: var(--md-cta);
-  background: linear-gradient(180deg, var(--md-cta-hover) 0%, var(--md-cta) 100%);
-  box-shadow:
-    0 8px 30px var(--md-cta-glow),
-    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  border-color: var(--md-cta-fill);
+  background: var(--md-cta-fill);
+  box-shadow: 0 8px 30px var(--md-cta-glow);
 }
 
 /* Lichtkante unter dem aktiven Reiter (ohne Blur: weicher Verlauf). */
@@ -948,7 +952,7 @@ body:has(#app[data-design='modern']) {
 }
 
 #app[data-design='modern'] .mh-card:hover .mh-arrow {
-  background: var(--md-cta);
+  background: var(--md-cta-fill);
   color: var(--md-on-cta);
   transform: translateX(2px);
 }
