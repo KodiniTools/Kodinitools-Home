@@ -181,6 +181,21 @@ describe('sitemap.xml', () => {
     }
   });
 
+  it('indexierbare Tool-Unterseiten mit eigenem Canonical und ?lang=en (Prüfung 25.11.2026)', () => {
+    for (const url of [
+      `${SITE}/alarmtool/app/`,
+      `${SITE}/bildkonverter/download`,
+      `${SITE}/bildkonverter/faq`,
+      `${SITE}/mp3konverter/app/`,
+      `${SITE}/playlist_generator/download`,
+      `${SITE}/playlistkonverter/app.html`,
+      `${SITE}/ultimativer-musikplayer/app/`,
+    ]) {
+      expect(locs).toContain(url);
+      expect(locs).toContain(`${url}?lang=en`);
+    }
+  });
+
   it('reine App-Seiten mit Canonical auf die Tool-Startseite fehlen', () => {
     for (const url of [
       `${SITE}/audionormalisierer/app`,

@@ -28,6 +28,7 @@ const EXTRA_SITEMAP_PAGES = [
   'https://kodinitools.com/favicon-tool/',
   // Unterseiten der Tool-Apps (früher in eigenen Tool-Sitemaps; diese Sitemap ist
   // jetzt die einzige). Nur indexierbare Seiten mit englischer Fassung (?lang=en).
+  'https://kodinitools.com/alarmtool/app/',
   'https://kodinitools.com/audionormalisierer/anleitung',
   'https://kodinitools.com/bilderseriebearbeiten/app',
   'https://kodinitools.com/bilderseriebearbeiten/artikel',
@@ -35,7 +36,9 @@ const EXTRA_SITEMAP_PAGES = [
   'https://kodinitools.com/bilderseriebearbeiten/faq',
   'https://kodinitools.com/bildkonverter/about',
   'https://kodinitools.com/bildkonverter/batch',
+  'https://kodinitools.com/bildkonverter/download',
   'https://kodinitools.com/bildkonverter/editor',
+  'https://kodinitools.com/bildkonverter/faq',
   'https://kodinitools.com/bildkonverter/gallery',
   'https://kodinitools.com/bildkonverter/guide',
   'https://kodinitools.com/bildkonverter/konvertieren/bmp-zu-webp',
@@ -56,11 +59,15 @@ const EXTRA_SITEMAP_PAGES = [
   'https://kodinitools.com/collagemaker/blog',
   'https://kodinitools.com/collagemaker/faq',
   'https://kodinitools.com/kodini-color-extractor/faq',
+  'https://kodinitools.com/mp3konverter/app/',
   'https://kodinitools.com/playlist_generator/app',
   'https://kodinitools.com/playlist_generator/blog',
+  'https://kodinitools.com/playlist_generator/download',
   'https://kodinitools.com/playlist_generator/faq',
+  'https://kodinitools.com/playlistkonverter/app.html',
   'https://kodinitools.com/texteditor/blog',
   'https://kodinitools.com/texteditor/funktionen',
+  'https://kodinitools.com/ultimativer-musikplayer/app/',
   'https://kodinitools.com/videokonverter/converter.html',
   'https://kodinitools.com/visualizer/blog',
 ];
