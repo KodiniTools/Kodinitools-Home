@@ -38,7 +38,9 @@
   --md-on-cta: #ffffff; /* Schrift auf gefüllten Goldflächen (wie Playlist-Generator) */
   /* Gefüllte Buttons: dunkles Gold, damit Weiß lesbar ist (Playlist-Generator --ds-accent-fill, 5,3:1) */
   --md-cta-fill: #8f6320;
-  --md-cta-fill-hover: #9a6b24;
+  /* Verlauf der gefüllten Buttons: hellster Punkt #9c6c26 (Weiß 4,6:1), Hover etwas dunkler */
+  --md-cta-grad: linear-gradient(180deg, #9c6c26 0%, #7a5218 100%);
+  --md-cta-grad-hover: linear-gradient(180deg, #8f6320 0%, #6e4915 100%);
   --md-cta-soft: rgba(212, 162, 87, 0.14); /* accent-soft */
   --md-cta-glow: rgba(212, 162, 87, 0.35);
 
@@ -70,7 +72,8 @@
   --md-cta-hover: #b8842f;
   --md-on-cta: #ffffff;
   --md-cta-fill: #8f6320;
-  --md-cta-fill-hover: #7d561c;
+  --md-cta-grad: linear-gradient(180deg, #9c6c26 0%, #7a5218 100%);
+  --md-cta-grad-hover: linear-gradient(180deg, #8f6320 0%, #6e4915 100%);
   --md-cta-soft: rgba(201, 152, 77, 0.16);
   --md-cta-glow: rgba(201, 152, 77, 0.35);
 }
@@ -480,7 +483,7 @@ body:has(#app[data-design='modern']) {
 #app[data-design='modern'] .mh-primary {
   padding: 0 34px;
   color: var(--md-on-cta);
-  background: var(--md-cta-fill);
+  background: var(--md-cta-grad);
   box-shadow: 0 8px 28px var(--md-cta-glow);
   transition:
     transform 0.2s,
@@ -490,7 +493,7 @@ body:has(#app[data-design='modern']) {
 
 #app[data-design='modern'] .mh-primary:hover {
   transform: translateY(-2px);
-  background: var(--md-cta-fill-hover);
+  background: var(--md-cta-grad-hover);
   box-shadow: 0 12px 34px var(--md-cta-glow);
 }
 
@@ -504,14 +507,14 @@ body:has(#app[data-design='modern']) {
   padding: 0 40px;
   border: 1px solid var(--md-cta-fill);
   color: var(--md-on-cta);
-  background: var(--md-cta-fill);
+  background: var(--md-cta-grad);
   box-shadow: 0 8px 28px var(--md-cta-glow);
   transition: background 0.2s;
 }
 
 #app[data-design='modern'] .mh-secondary:hover,
 #app[data-design='modern'] .mh-all:hover {
-  background: var(--md-cta-fill-hover);
+  background: var(--md-cta-grad-hover);
 }
 
 #app[data-design='modern'] .mh-secondary svg,
@@ -682,12 +685,12 @@ body:has(#app[data-design='modern']) {
   font-size: 17px;
   font-weight: 700;
   color: var(--md-on-cta);
-  background: var(--md-cta-fill);
+  background: var(--md-cta-grad);
   transition: background 0.2s;
 }
 
 #app[data-design='modern'] .mh-search button:hover {
-  background: var(--md-cta-fill-hover);
+  background: var(--md-cta-grad-hover);
 }
 
 /* ---------- Reiter ---------- */
@@ -733,7 +736,7 @@ body:has(#app[data-design='modern']) {
   position: relative;
   color: var(--md-on-cta);
   border-color: var(--md-cta-fill);
-  background: var(--md-cta-fill);
+  background: var(--md-cta-grad);
   box-shadow: 0 8px 30px var(--md-cta-glow);
 }
 
@@ -952,7 +955,7 @@ body:has(#app[data-design='modern']) {
 }
 
 #app[data-design='modern'] .mh-card:hover .mh-arrow {
-  background: var(--md-cta-fill);
+  background: var(--md-cta-grad);
   color: var(--md-on-cta);
   transform: translateX(2px);
 }
