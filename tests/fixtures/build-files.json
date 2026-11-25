@@ -23,6 +23,7 @@
   "blog/wasserzeichen-mehrere-bilder/index.html",
   "blog/wiedergabeliste-erstellen/index.html",
   "browserconfig.xml",
+  "en/about/index.html",
   "en/blog/19-band-equalizer/index.html",
   "en/blog/alarm-tool-custom-alarm-sound/index.html",
   "en/blog/batch-resize-images/index.html",
@@ -53,5 +54,6 @@
   "impressum/index.html",
   "index.html",
   "sitemap.xml",
-  "spenden/index.html"
+  "spenden/index.html",
+  "ueber-mich/index.html"
 ]

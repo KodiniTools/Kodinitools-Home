@@ -20,6 +20,8 @@ const t = {
     gallery: 'Bildergalerie',
     faq: 'FAQ',
     faqHref: '/faq/',
+    about: 'Über mich',
+    aboutHref: '/ueber-mich/',
     donate: 'Spenden',
     donateHref: '/spenden/',
     mp3Converter: 'MP3-Konverter',
@@ -59,6 +61,8 @@ const t = {
     gallery: 'Image Gallery',
     faq: 'FAQ',
     faqHref: '/en/faq/',
+    about: 'About',
+    aboutHref: '/en/about/',
     donate: 'Donate',
     donateHref: '/en/donate/',
     mp3Converter: 'MP3 Converter',
@@ -107,6 +111,7 @@ const pagePairs: Record<string, string> = {
   '/blog/': '/en/blog/',
   '/faq/': '/en/faq/',
   '/spenden/': '/en/donate/',
+  '/ueber-mich/': '/en/about/',
 }
 const enToDe = Object.fromEntries(Object.entries(pagePairs).map(([de, en]) => [en, de]))
 const counterpart =
@@ -657,6 +662,10 @@ html {
 
             <div class="global-nav-item">
                 <a href={c.faqHref} class="global-nav-link">{c.faq}</a>
+            </div>
+
+            <div class="global-nav-item">
+                <a href={c.aboutHref} class="global-nav-link">{c.about}</a>
             </div>
 
             <div class="global-nav-item">

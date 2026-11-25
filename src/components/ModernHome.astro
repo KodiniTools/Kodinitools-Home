@@ -12,6 +12,7 @@
 import type { Lang } from '../i18n/lang';
 import { HOME_UI, type ModernCat } from '../i18n/home-ui';
 import { IMPRINT_PATH, PRIVACY_URL, CONTACT_URL, GALLERY_URL } from '../i18n/imprint';
+import { ABOUT_PATH } from '../i18n/about';
 import { TOOL_CATALOG, type ToolProcessing } from '../content/toolCatalog';
 import {
   modernCatOf,
@@ -52,6 +53,7 @@ const homeHref = lang === 'de' ? '/' : '/en/';
 const otherHref = other === 'de' ? '/' : '/en/';
 const blogHref = lang === 'de' ? '/blog/' : '/en/blog/';
 const faqHref = lang === 'de' ? '/faq/' : '/en/faq/';
+const aboutHref = ABOUT_PATH[lang];
 
 const CATS: ModernCat[] = ['audio', 'image', 'video', 'text'];
 const catHead: Record<ModernCat, { kicker: string; title: string; description: string }> = {
@@ -179,6 +181,7 @@ const scriptData = {
       <a href={blogHref}>{m.nav.blog}</a>
       <a href={GALLERY_URL}>{m.nav.gallery}</a>
       <a href={faqHref}>{m.nav.faq}</a>
+      <a href={aboutHref}>{m.nav.about}</a>
       <a href={CONTACT_URL}>{m.nav.contact}</a>
     </nav>
     <div class="mh-actions">
