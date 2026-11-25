@@ -25,6 +25,7 @@
   --md-muted: #a7b3c4; /* text-2 */
   --md-dim: #8593a8; /* text-3 */
   --md-accent: #6aaef5; /* link */
+  --md-logo-blue: #48a0d8; /* helles Logo-Blau, 6,4:1 auf --md-bg */
   --md-chip: #1f3050; /* surface-3 */
   --md-header: linear-gradient(180deg, rgba(10, 19, 36, 0.96), rgba(10, 19, 36, 0.9));
   --md-menu-bg: #111d33;
@@ -60,6 +61,7 @@
   --md-muted: #3f4a60;
   --md-dim: #5f6b84;
   --md-accent: #0f5aa8;
+  --md-logo-blue: #0058a0; /* Logo-Blau, 6,6:1 auf hellem Grund */
   --md-chip: #e8e5dd;
   --md-header: rgba(246, 245, 241, 0.95);
   --md-menu-bg: #ffffff;
@@ -447,11 +449,9 @@ body:has(#app[data-design='modern']) {
   color: var(--md-text);
 }
 
+/* Farbiger Teil des Hero-Titels (*…* im Admin-Text): Blau des Logos. */
 #app[data-design='modern'] .mh-accent {
-  background: var(--md-grad);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--md-logo-blue);
 }
 
 #app[data-design='modern'] .mh-lead {
