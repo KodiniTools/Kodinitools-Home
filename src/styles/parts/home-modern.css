@@ -26,6 +26,7 @@
   --md-dim: #8593a8; /* text-3 */
   --md-accent: #6aaef5; /* link */
   --md-logo-blue: #48a0d8; /* helles Logo-Blau, 6,4:1 auf --md-bg */
+  --md-title-gold: #b8842f; /* Dunkelgold, aufgehellt: 5,6:1 auf --md-bg */
   --md-chip: #1f3050; /* surface-3 */
   --md-header: linear-gradient(180deg, rgba(10, 19, 36, 0.96), rgba(10, 19, 36, 0.9));
   --md-menu-bg: #111d33;
@@ -62,6 +63,7 @@
   --md-dim: #5f6b84;
   --md-accent: #0f5aa8;
   --md-logo-blue: #0058a0; /* Logo-Blau, 6,6:1 auf hellem Grund */
+  --md-title-gold: #8f6320; /* Dunkelgold der Buttons, 4,8:1 auf hellem Grund */
   --md-chip: #e8e5dd;
   --md-header: rgba(246, 245, 241, 0.95);
   --md-menu-bg: #ffffff;
@@ -446,7 +448,8 @@ body:has(#app[data-design='modern']) {
   font-weight: 700;
   letter-spacing: -1px;
   text-align: left;
-  color: var(--md-text);
+  /* Hero-Titel dunkelgold; der *…*-Teil (.mh-accent) bleibt Logo-Blau. */
+  color: var(--md-title-gold);
 }
 
 /* Farbiger Teil des Hero-Titels (*…* im Admin-Text): Blau des Logos. */
