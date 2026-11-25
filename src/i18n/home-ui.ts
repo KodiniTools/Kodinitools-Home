@@ -70,6 +70,7 @@ export interface ModernHomeUi {
     blog: string;
     gallery: string;
     faq: string;
+    about: string;
     contact: string;
     search: string;
     theme: string;
@@ -144,6 +145,7 @@ export const HOME_UI: Record<Lang, HomeUi> = {
         blog: 'Blog',
         gallery: 'Galerie',
         faq: 'FAQ',
+        about: 'Über mich',
         contact: 'Kontakt',
         search: 'Suche öffnen',
         theme: 'Farbschema umschalten',
@@ -217,6 +219,7 @@ export const HOME_UI: Record<Lang, HomeUi> = {
         blog: 'Blog',
         gallery: 'Gallery',
         faq: 'FAQ',
+        about: 'About',
         contact: 'Contact',
         search: 'Open search',
         theme: 'Toggle color scheme',
