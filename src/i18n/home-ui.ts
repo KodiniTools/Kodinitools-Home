@@ -121,7 +121,7 @@ export const HOME_UI: Record<Lang, HomeUi> = {
     },
     heroCellAlt: (index) => `Bild ${index + 1}`,
     modern: {
-      eyebrow: 'Online-Tools · Kostenlos · Ohne Registrierung',
+      eyebrow: 'Online-Tools · Ohne Anmeldung · Ohne Registrierung',
       allTools: 'Alle Tools',
       searchButton: 'Suchen',
       searchLabel: 'Tools suchen',
@@ -195,7 +195,7 @@ export const HOME_UI: Record<Lang, HomeUi> = {
     },
     heroCellAlt: (index) => `Image ${index + 1}`,
     modern: {
-      eyebrow: 'Online tools · Free · No sign-up',
+      eyebrow: 'Online tools · No login · No sign-up',
       allTools: 'All tools',
       searchButton: 'Search',
       searchLabel: 'Search tools',
