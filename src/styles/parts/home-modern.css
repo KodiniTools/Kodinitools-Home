@@ -38,9 +38,9 @@
   --md-on-cta: #ffffff; /* Schrift auf gefüllten Goldflächen (wie Playlist-Generator) */
   /* Gefüllte Buttons: dunkles Gold, damit Weiß lesbar ist (Playlist-Generator --ds-accent-fill, 5,3:1) */
   --md-cta-fill: #8f6320;
-  /* Verlauf der gefüllten Buttons: hellster Punkt #9c6c26 (Weiß 4,6:1), Hover etwas dunkler */
-  --md-cta-grad: linear-gradient(180deg, #9c6c26 0%, #7a5218 100%);
-  --md-cta-grad-hover: linear-gradient(180deg, #8f6320 0%, #6e4915 100%);
+  /* Verlauf der gefüllten Buttons (dreistufig): hellster Punkt #9c6c26 (Weiß 4,6:1), unten #4a2f0a; Hover etwas dunkler */
+  --md-cta-grad: linear-gradient(180deg, #9c6c26 0%, #7a5218 45%, #4a2f0a 100%);
+  --md-cta-grad-hover: linear-gradient(180deg, #8c5f1f 0%, #6a4614 45%, #402908 100%);
   --md-cta-soft: rgba(212, 162, 87, 0.14); /* accent-soft */
   --md-cta-glow: rgba(212, 162, 87, 0.35);
 
@@ -72,8 +72,8 @@
   --md-cta-hover: #b8842f;
   --md-on-cta: #ffffff;
   --md-cta-fill: #8f6320;
-  --md-cta-grad: linear-gradient(180deg, #9c6c26 0%, #7a5218 100%);
-  --md-cta-grad-hover: linear-gradient(180deg, #8f6320 0%, #6e4915 100%);
+  --md-cta-grad: linear-gradient(180deg, #9c6c26 0%, #7a5218 45%, #4a2f0a 100%);
+  --md-cta-grad-hover: linear-gradient(180deg, #8c5f1f 0%, #6a4614 45%, #402908 100%);
   --md-cta-soft: rgba(201, 152, 77, 0.16);
   --md-cta-glow: rgba(201, 152, 77, 0.35);
 }
