@@ -62,6 +62,24 @@ describe('modernHeroSection', () => {
     for (const c of classes) expect(astro, `Klasse ${c}`).toContain(c);
   });
 
+  it('Hero-Bild statt Kachel (Standard), Kachel nur bei heroImage: false', () => {
+    const pic = modernHeroSection(modernHeroData({ ...base, design: {} }));
+    expect(pic).toContain('class="mh-hero-pic"');
+    expect(pic).toContain('werkbank-480.webp 480w');
+    expect(pic).toMatch(/alt="Schreibtisch[^"]+"/);
+    expect(pic).not.toContain('mh-tile-img');
+    const tile = modernHeroSection(modernHeroData({ ...base, design: {}, heroImage: false }));
+    expect(tile).toContain('mh-tile-img');
+    expect(tile).not.toContain('mh-hero-pic');
+  });
+
+  it('Kachel-Variante nutzt ebenfalls nur Klassen der Seite', () => {
+    const astro = readFileSync(join(__dirname, '../../src/components/ModernHome.astro'), 'utf8');
+    const html = modernHeroSection({ ...base, heroImage: false });
+    for (const m of html.matchAll(/class="([^"]+)"/g))
+      for (const c of m[1]!.split(' ')) expect(astro, `Klasse ${c}`).toContain(c);
+  });
+
   it('Dokument mit Thema und App-Hülle des modernen Designs', () => {
     const doc = modernHeroDoc(modernHeroData({ ...base, design: {} }), 'light');
     expect(doc).toContain('data-theme="light"');

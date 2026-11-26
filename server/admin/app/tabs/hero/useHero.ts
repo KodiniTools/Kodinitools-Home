@@ -31,6 +31,7 @@ export interface HeroView {
   layout: 'classic' | 'compact';
   /** Admin › Layout › Modernes Design (wirkt nur mit Kompakt-Layout). */
   modern: boolean;
+  heroImage: boolean;
 }
 
 export interface HeroApi {
@@ -77,6 +78,7 @@ export function provideHero(service: HeroService): HeroApi {
       feats: service.features(),
       layout: service.homeLayout(),
       modern: service.modernDesign?.() === true,
+      heroImage: service.modernHeroImage?.() !== false,
     };
   });
 

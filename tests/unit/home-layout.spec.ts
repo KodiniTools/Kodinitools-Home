@@ -88,6 +88,8 @@ describe.each([
     expect(norm({})).toMatchObject({ modernDesign: false });
     expect(norm({ modernDesign: true })).toMatchObject({ modernDesign: true });
     expect(norm({ modernDesign: 'ja' })).toMatchObject({ modernDesign: false });
+    expect(norm({})).toMatchObject({ modernHeroImage: true });
+    expect(norm({ modernHeroImage: false })).toMatchObject({ modernHeroImage: false });
   });
 
   it('fällt bei unbekanntem Wert auf Klassisch zurück', () => {

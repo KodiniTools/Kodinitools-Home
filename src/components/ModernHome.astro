@@ -22,6 +22,7 @@ import {
   MODERN_ICONS,
   MODERN_VISIBLE,
   TILE_LAYERS,
+  HERO_PIC,
 } from '../content/modernHome';
 import FavoritesSection from '../islands/favorites/FavoritesSection.vue';
 
@@ -43,9 +44,12 @@ interface Props {
   search: { placeholder: string; resultsTitle: string; noResults: string };
   procBadge: boolean;
   hiddenKeys: string[];
+  /** Hero-Bild statt 3D-Logo-Kachel (Admin › Layout, Standard an). */
+  heroImage: boolean;
 }
 
-const { lang, tools, hero, features, sections, search, procBadge, hiddenKeys } = Astro.props;
+const { lang, tools, hero, features, sections, search, procBadge, hiddenKeys, heroImage } =
+  Astro.props;
 const ui = HOME_UI[lang];
 const m = ui.modern;
 const other: Lang = lang === 'de' ? 'en' : 'de';
@@ -275,46 +279,61 @@ const scriptData = {
             )
           }
         </div>
-        <div class="mh-tile-wrap" id="mh-tile-wrap" aria-hidden="true">
-          <div class="mh-tile-halo"></div>
-          <div class="mh-tile-stage" id="mh-tile-stage">
-            <div class="mh-tile-tilt">
-              {
-                TILE_LAYERS.map((l) => (
-                  <img
-                    class:list={['mh-tile-layer', { 'is-fine': l.fine }]}
-                    src={l.src}
-                    width="249"
-                    height="263"
-                    alt=""
-                    decoding="async"
-                    fetchpriority="low"
-                    style={`transform:translateZ(-${l.depth}px)`}
-                  />
-                ))
-              }
-              <div class="mh-tile-face">
-                <img
-                  class="mh-tile-img"
-                  src={`${TILE}/tile.webp`}
-                  width="249"
-                  height="263"
-                  alt=""
-                  decoding="async"
-                />
-                <img
-                  class="mh-tile-gloss"
-                  src={`${TILE}/tile-gloss.webp`}
-                  width="249"
-                  height="263"
-                  alt=""
-                  decoding="async"
-                  fetchpriority="low"
-                />
+        {
+          heroImage ? (
+            <div class="mh-tile-wrap mh-pic-wrap">
+              <img
+                class="mh-hero-pic"
+                src={HERO_PIC.src}
+                srcset={HERO_PIC.srcset}
+                sizes={HERO_PIC.sizes}
+                width={HERO_PIC.width}
+                height={HERO_PIC.height}
+                alt={m.heroImageAlt}
+                decoding="async"
+              />
+            </div>
+          ) : (
+            <div class="mh-tile-wrap" id="mh-tile-wrap" aria-hidden="true">
+              <div class="mh-tile-halo" />
+              <div class="mh-tile-stage" id="mh-tile-stage">
+                <div class="mh-tile-tilt">
+                  {TILE_LAYERS.map((l) => (
+                    <img
+                      class:list={['mh-tile-layer', { 'is-fine': l.fine }]}
+                      src={l.src}
+                      width="249"
+                      height="263"
+                      alt=""
+                      decoding="async"
+                      fetchpriority="low"
+                      style={`transform:translateZ(-${l.depth}px)`}
+                    />
+                  ))}
+                  <div class="mh-tile-face">
+                    <img
+                      class="mh-tile-img"
+                      src={`${TILE}/tile.webp`}
+                      width="249"
+                      height="263"
+                      alt=""
+                      decoding="async"
+                    />
+                    <img
+                      class="mh-tile-gloss"
+                      src={`${TILE}/tile-gloss.webp`}
+                      width="249"
+                      height="263"
+                      alt=""
+                      decoding="async"
+                      fetchpriority="low"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+          )
+        }
       </div>
     </div>
   </section>
