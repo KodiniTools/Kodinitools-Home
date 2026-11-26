@@ -50,6 +50,8 @@ export type ModernCat = 'audio' | 'image' | 'video' | 'text';
 export interface ModernHomeUi {
   eyebrow: string;
   allTools: string;
+  /** Alt-Text des Hero-Bilds (statt Logo-Kachel). */
+  heroImageAlt: string;
   searchButton: string;
   searchLabel: string;
   catGroupLabel: string;
@@ -123,6 +125,8 @@ export const HOME_UI: Record<Lang, HomeUi> = {
     modern: {
       eyebrow: 'Online-Tools · Ohne Anmeldung · Ohne Registrierung',
       allTools: 'Alle Tools',
+      heroImageAlt:
+        'Schreibtisch mit Wecker, Kamera, Mischpult, Fotos, PDF, Notizbuch und Filmrollen als Sinnbild für die Tools',
       searchButton: 'Suchen',
       searchLabel: 'Tools suchen',
       catGroupLabel: 'Werkzeugkategorien',
@@ -197,6 +201,8 @@ export const HOME_UI: Record<Lang, HomeUi> = {
     modern: {
       eyebrow: 'Online tools · No login · No sign-up',
       allTools: 'All tools',
+      heroImageAlt:
+        'Desk with alarm clock, camera, mixer, photos, PDF, notebook and film reels representing the tools',
       searchButton: 'Search',
       searchLabel: 'Search tools',
       catGroupLabel: 'Tool categories',

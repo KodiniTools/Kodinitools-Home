@@ -1007,6 +1007,8 @@ function defaultSite() {
     workflows: false,
     // Modernes Design der Startseite, nur im Kompakt-Layout (Standard aus).
     modernDesign: false,
+    // Modernes Design: Hero-Bild statt 3D-Logo-Kachel (Standard an).
+    modernHeroImage: true,
   };
 }
 const SECTION_KEYS = ['audio', 'image', 'diverse'];
@@ -1121,6 +1123,7 @@ function validateSite(s: unknown) {
     cmdPalette: s.cmdPalette === true,
     workflows: s.workflows === true,
     modernDesign: s.modernDesign === true,
+    modernHeroImage: s.modernHeroImage !== false,
   };
 }
 

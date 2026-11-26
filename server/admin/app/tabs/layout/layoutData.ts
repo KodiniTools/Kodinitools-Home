@@ -43,6 +43,7 @@ export interface PageSettings {
   cmdPalette: boolean;
   workflows: boolean;
   modernDesign: boolean;
+  modernHeroImage: boolean;
 }
 export type PageKey = keyof PageSettings;
 
@@ -92,6 +93,8 @@ export function pageToast<K extends PageKey>(key: K, v: PageSettings[K]): string
       return v ? 'Workflows eingeblendet' : 'Workflows ausgeblendet';
     case 'modernDesign':
       return v ? 'Modernes Design eingeschaltet' : 'Klassisches Design eingeschaltet';
+    case 'modernHeroImage':
+      return v ? 'Hero-Bild statt Logo eingeschaltet' : '3D-Logo im Hero eingeschaltet';
     case 'cmdPalette':
       return v ? 'Suche (Strg + K) eingeblendet' : 'Suche (Strg + K) ausgeblendet';
     case 'toolFilter':

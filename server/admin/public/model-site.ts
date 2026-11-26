@@ -130,6 +130,8 @@ export function defaultSite() {
     workflows: false,
     // Modernes Design der Startseite, nur im Kompakt-Layout (Standard aus).
     modernDesign: false,
+    // Modernes Design: Hero-Bild statt 3D-Logo-Kachel (Standard an).
+    modernHeroImage: true,
   };
 }
 export const SITE_SECTION_KEYS: SiteSectionKey[] = ['audio', 'image', 'diverse'];
@@ -290,6 +292,7 @@ export function normSite(s: RawJson): Site {
     cmdPalette: s.cmdPalette === true,
     workflows: s.workflows === true,
     modernDesign: s.modernDesign === true,
+    modernHeroImage: s.modernHeroImage !== false,
   };
 }
 // Seiten-Hintergrund eines Modus als CSS-background-Wert – identisch zur
@@ -689,6 +692,14 @@ export function getModernDesign() {
 
 export function setModernDesign(on: unknown) {
   siteObj().modernDesign = on === true;
+}
+// Modernes Design: Hero-Bild statt 3D-Logo-Kachel (Standard an).
+export function getModernHeroImage() {
+  return siteObj().modernHeroImage !== false;
+}
+
+export function setModernHeroImage(on: unknown) {
+  siteObj().modernHeroImage = on === true;
 }
 // Kompakt-Layout: Lage der Sektionsmedien je Gerät.
 export function getMediaPosDesktop() {

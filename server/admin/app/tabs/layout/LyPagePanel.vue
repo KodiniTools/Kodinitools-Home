@@ -35,6 +35,16 @@
         @update:model-value="set('modernDesign', $event)"
       />
     </div>
+    <div :class="['ly-row', { 'ly-dim': !compact || !p.modernDesign }]">
+      <UiSwitch
+        :model-value="p.modernHeroImage"
+        label="Hero-Bild statt 3D-Logo (modernes Design)"
+        :disabled="!compact || !p.modernDesign"
+        title="Nur im modernen Design: rechts im Hero das Bild „Werkbank“ statt der 3D-Logo-Kachel. Aus = 3D-Logo wie bisher."
+        data-modernheroimage
+        @update:model-value="set('modernHeroImage', $event)"
+      />
+    </div>
     <div :class="['ly-row', { 'ly-dim': !compact }]">
       <UiSwitch
         :model-value="p.heroMediaMobile"

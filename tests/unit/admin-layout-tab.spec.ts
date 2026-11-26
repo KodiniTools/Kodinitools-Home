@@ -639,4 +639,24 @@ describe('LayoutTab im modernen Design', () => {
     expect(w.find('[data-bannerpick]').exists()).toBe(true);
     w.unmount();
   });
+
+  it('Schalter „Hero-Bild statt 3D-Logo“: Standard an, Vorschau wechselt auf die Kachel', async () => {
+    state.media.site.homeLayout = 'compact';
+    state.media.site.modernDesign = true;
+    state.defaults = {
+      de: { hero: { title: 'T', subtitle: '', features: {} } },
+      en: {},
+    } as typeof state.defaults;
+    state.overrides = { de: {}, en: {} };
+    const w = mountTab();
+    await flushPromises();
+    expect(w.find('iframe[data-mhp-frame]').attributes('srcdoc')).toContain('mh-hero-pic');
+    await w.find('[data-modernheroimage] button').trigger('click');
+    expect(state.media.site.modernHeroImage).toBe(false);
+    await flushPromises();
+    const doc = w.find('iframe[data-mhp-frame]').attributes('srcdoc') ?? '';
+    expect(doc).toContain('mh-tile-img');
+    expect(doc).not.toContain('mh-hero-pic');
+    w.unmount();
+  });
 });
