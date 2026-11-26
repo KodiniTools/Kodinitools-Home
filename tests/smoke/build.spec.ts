@@ -383,11 +383,11 @@ describe('Navigation (Bildergalerie)', () => {
   });
 });
 
-describe('Navigation (Favicon Konverter)', () => {
+describe('Navigation (Favicon-Generator)', () => {
   classicIt.each([
-    ['index.html', 'Favicon-Konverter'],
-    ['en/index.html', 'Favicon Converter'],
-  ])('%s führt den Favicon Konverter im Tools-Menü', (file, label) => {
+    ['index.html', 'Favicon-Generator'],
+    ['en/index.html', 'Favicon Generator'],
+  ])('%s führt den Favicon-Generator im Tools-Menü', (file, label) => {
     const html = read(file);
     const at = html.indexOf(
       '<a href="https://kodinitools.com/favicon-tool/" class="global-nav-dropdown-item"',
@@ -403,7 +403,7 @@ describe('PDF-Editor (neues Tool, 23.11.2026)', () => {
   it.each([
     ['faq/index.html', 'PDF-Editor'],
     ['en/faq/index.html', 'PDF Editor'],
-  ])('%s führt den PDF-Editor im Tools-Menü hinter dem Favicon-Konverter', (file, label) => {
+  ])('%s führt den PDF-Editor im Tools-Menü hinter dem Favicon-Generator', (file, label) => {
     const html = read(file);
     const at = html.indexOf(
       '<a href="https://kodinitools.com/pdf-editor/" class="global-nav-dropdown-item"',

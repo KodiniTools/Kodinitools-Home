@@ -27,7 +27,7 @@ const CAT_BY_KEY: Readonly<Record<string, ModernCat>> = {
   'diverseTools.textEditor': 'text',
   'diverseTools.pdfEditor': 'text',
   'diverseTools.colorExtractor': 'image',
-  // Favicon-Konverter (Admin-Karte, Schlüssel historisch „textEditor-kopie“).
+  // Favicon-Generator (Admin-Karte, Schlüssel historisch „textEditor-kopie“).
   'diverseTools.textEditor-kopie': 'image',
 };
 

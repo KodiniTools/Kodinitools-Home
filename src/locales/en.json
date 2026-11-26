@@ -580,7 +580,7 @@
       },
       "q21": {
         "question": "How do I create a favicon for my website?",
-        "answer": "With the Favicon Converter: upload an image, for example a PNG or SVG, and get all common formats at once: favicon.ico (16, 32, 48 px), PNG at 16 and 32 px, Apple Touch Icon 180 px, Android icons 192 and 512 px (including maskable), site.webmanifest and the matching HTML code. With an SVG source you also get favicon.svg. The conversion runs entirely in your browser."
+        "answer": "With the Favicon Generator: upload an image, for example a PNG or SVG, and get all common formats at once: favicon.ico (16, 32, 48 px), PNG at 16 and 32 px, Apple Touch Icon 180 px, Android icons 192 and 512 px (including maskable), site.webmanifest and the matching HTML code. With an SVG source you also get favicon.svg. The conversion runs entirely in your browser."
       },
       "q22": {
         "question": "How do I find out the color palette of an image?",
