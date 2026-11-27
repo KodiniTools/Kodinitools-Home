@@ -371,6 +371,12 @@ const scriptData = {
   </section>
 
   <div class="mh-shell">
+    {
+      /* Deckstreifen hinter der klebenden Suche: verdeckt die Reiter, die beim Scrollen sonst
+        zwischen Kopfleiste und Suche durchscheinen. Nimmt keinen Platz ein (negativer Rand),
+        sichtbar nur, solange die Suche klebt (Skript unten). */
+    }
+    <div class="mh-search-band" aria-hidden="true"></div>
     <form class="mh-search" id="mh-search-form" role="search" action="#tools">
       <svg width="22" height="22" aria-hidden="true"><use href="#mhi-search"></use></svg>
       <input
@@ -618,9 +624,27 @@ const scriptData = {
       if (!quiet) announce(all ? mh.counts[cat] : Math.min(mh.counts[cat], mh.visible));
     }
 
+    // Deckstreifen einblenden, solange die Suche unter der Kopfleiste klebt.
+    const band = document.querySelector('.mh-search-band');
+    const form = document.getElementById('mh-search-form');
+    if (band && 'IntersectionObserver' in window) {
+      const stick = parseFloat(getComputedStyle(form).top) || 72;
+      new IntersectionObserver(
+        function (entries) {
+          const e = entries[entries.length - 1];
+          band.classList.toggle('is-on', e.boundingClientRect.top <= stick + 1);
+        },
+        { rootMargin: '-' + (stick + 1) + 'px 0px 0px 0px', threshold: [0, 1] },
+      ).observe(form);
+    }
+
+    // Reiter: nach dem Umschalten zu den Karten scrollen (Abstand für Kopfleiste und klebende
+    // Suche steht in scroll-margin-top von .mh-tools). Ohne Animation bei „Bewegung reduzieren“.
+    const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
     cats.forEach(function (b) {
       b.addEventListener('click', function () {
         setCat(b.getAttribute('data-cat'), false);
+        root.scrollIntoView({ behavior: calm.matches ? 'auto' : 'smooth', block: 'start' });
       });
     });
     document.querySelectorAll('[data-cat-link]').forEach(function (a) {
