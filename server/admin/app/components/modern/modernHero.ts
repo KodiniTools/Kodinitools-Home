@@ -70,7 +70,8 @@ const ESC: Record<string, string> = {
 export const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ESC[c] ?? c);
 
 const TILE = '/image/home/tile';
-const ICONS_USED = ['play-solid', 'arrow'];
+/** Symbole des Heros außerhalb der Merkmale (seit dem Wegfall der Hero-Knöpfe keine). */
+const ICONS_USED: readonly string[] = [];
 
 function titleHtml(title: string): string {
   return title
@@ -114,15 +115,11 @@ export function modernHeroSection(d: ModernHeroData): string {
   ).join('');
   const pic = `<div class="mh-tile-wrap mh-pic-wrap"><img class="mh-hero-pic" src="${HERO_PIC.src}" srcset="${HERO_PIC.srcset}" sizes="${HERO_PIC.sizes}" width="${HERO_PIC.width}" height="${HERO_PIC.height}" alt="${esc(m.heroImageAlt)}"></div>`;
   const tile = `<div class="mh-tile-wrap" aria-hidden="true"><div class="mh-tile-halo"></div><div class="mh-tile-stage"><div class="mh-tile-tilt">${layers}<div class="mh-tile-face"><img class="mh-tile-img" src="${TILE}/tile.webp" width="249" height="263" alt=""><img class="mh-tile-gloss" src="${TILE}/tile-gloss.webp" width="249" height="263" alt=""></div></div></div></div>`;
-  return `<section class="mh-hero"><div class="mh-shell"><div class="mh-hero-grid">
+  return `<section class="mh-hero"><div class="mh-shell"><div class="mh-hero-grid${d.heroImage === false ? '' : ' mh-hero-grid--pic'}">
 <div class="mh-hero-copy">
 <p class="mh-eyebrow">${esc(m.eyebrow)}</p>
 <h1 class="mh-title hero-title">${titleHtml(title)}</h1>
 ${lead}
-<div class="mh-hero-buttons">
-<a class="mh-primary" href="#tools"><svg width="18" height="18" aria-hidden="true"><use href="#mhi-play-solid"></use></svg><span>${esc(d.cta || ui.cta)}</span></a>
-<a class="mh-secondary" href="#tools"><span>${esc(m.allTools)}</span><svg width="20" height="20" aria-hidden="true"><use href="#mhi-arrow"></use></svg></a>
-</div>
 ${feats}
 </div>
 ${d.heroImage === false ? tile : pic}

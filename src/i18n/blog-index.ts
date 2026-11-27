@@ -11,6 +11,8 @@ export interface BlogIndexTexts {
   ogDescription: string;
   heading: string;
   subtitle: string;
+  /** Hinweis unter dem Untertitel auf den Formatvergleich (Text vor dem Link, Linktext, Ziel). */
+  guide: { text: string; link: string; href: string };
   /** Überschrift mit Anzahl, z. B. „19 Beiträge von Dinko Ramić“. */
   count: (n: number) => string;
   searchLabel: string;
@@ -40,6 +42,11 @@ export const BLOG_INDEX: Record<Lang, BlogIndexTexts> = {
     heading: 'Blog – Tipps & Anleitungen',
     subtitle:
       'How-to Guides für Audio- und Bildbearbeitung – kostenlos, DSGVO-konform, ohne Registrierung.',
+    guide: {
+      text: 'JPG, PNG, WebP oder TIFF – was passt für Website, Shop oder Druck?',
+      link: 'Bildformate im Vergleich →',
+      href: '/blog/bildformat-waehlen/',
+    },
     count: (n) => `${n} Beiträge von Dinko Ramić`,
     searchLabel: 'Blog durchsuchen',
     searchPlaceholder: 'Beiträge durchsuchen …',
@@ -63,6 +70,11 @@ export const BLOG_INDEX: Record<Lang, BlogIndexTexts> = {
     heading: 'Blog – Tips & How-to Guides',
     subtitle:
       'Step-by-step guides for audio and image editing — free, GDPR compliant, no registration required.',
+    guide: {
+      text: 'JPG, PNG, WebP or TIFF – which fits your website, shop or print?',
+      link: 'Image formats compared →',
+      href: '/en/blog/choose-image-format/',
+    },
     count: (n) => `${n} posts by Dinko Ramić`,
     searchLabel: 'Search the blog',
     searchPlaceholder: 'Search posts …',

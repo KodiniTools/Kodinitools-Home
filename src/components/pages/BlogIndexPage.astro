@@ -146,6 +146,17 @@ const isGridScrollable = cards.length >= SCROLL_FROM_POSTS
       margin: 0 auto;
     }
 
+    .blog-index-guide {
+      font-size: 0.92rem;
+      max-width: 520px;
+      margin: 0.75rem auto 0;
+    }
+
+    .blog-index-guide a {
+      font-weight: 700;
+      color: var(--primary-color, #014f99);
+    }
+
     /* Anzahl der Beiträge + Suche zwischen Kopfbereich und Liste */
     .blog-toolbar {
       display: flex;
@@ -530,6 +541,7 @@ const isGridScrollable = cards.length >= SCROLL_FROM_POSTS
       <header class="blog-index-header">
         <h1>{pm.h1 || t.heading}</h1>
         <p class="blog-index-subtitle">{t.subtitle}</p>
+        <p class="blog-index-guide">{t.guide.text} <a href={t.guide.href}>{t.guide.link}</a></p>
       </header>
       <div class="blog-toolbar">
         <h2 class="blog-count">{t.count(postCount)}</h2>
