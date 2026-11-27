@@ -12,38 +12,41 @@
     "audioConverter": {
       "svg": "",
       "title": "Audio Converter\nmp3-wav-aac-flac-ogg",
-      "badge": "server"
+      "badge": "Batch"
     },
     "audioEqualizer": {
       "svg": "",
-      "title": "19-Band EQ Pro\nRecording & Export",
+      "title": "19-Band Equalizer Pro\nRecording & Export",
       "badge": "wav webm"
     },
     "musicPlayer": {
       "svg": "",
-      "title": "Music Player\nmp3-wav-aac-flac-ogg",
+      "title": "Music Player\nmp3-wav-flac-m4a-ogg",
       "badge": "no limit"
     },
     "audioVisualizer": {
       "svg": "",
-      "badge": "50+ Visualizer-browser-server"
+      "badge": "50+ Visualizer",
+      "title": "Audio Visualizer\nmp4-webm",
+      "description": "Create free music videos for TikTok – stunning MP4 visualizations for TikTok, Instagram Reels and YouTube. No app required."
     },
     "mp3Converter": {
       "svg": "",
-      "badge": "MP3-browser-server"
+      "badge": "MP3"
     },
     "interactiveEqualizer": {
-      "svg": ""
+      "svg": "",
+      "title": "15-Band Equalizer\nGraphical, real-time"
     },
     "modernPlayer": {
       "svg": "",
-      "badge": "RADIO",
-      "title": "Modern Music Player\nkodinitools radio"
+      "badge": "Radio",
+      "title": "Radio Player\nkodinitools radio"
     },
     "playlistGenerator": {
       "svg": "",
       "title": "Audio Playlist Generator\nm3u-pls-cue-json-txt",
-      "badge": "Playlist-browser"
+      "badge": "Playlist"
     },
     "alarmTool": {
       "svg": ""
@@ -53,13 +56,14 @@
     },
     "playlistToWebm": {
       "svg": "",
-      "badge": "WebM+MP3",
-      "title": "Playlist to MP3 +WebM Converter",
-      "description": "Convert up to 50 audio tracks into a MP3 and WebM file"
+      "badge": "50 tracks",
+      "title": "Playlist to MP3/WebM Converter\nmp3-webm",
+      "description": "Convert up to 50 audio tracks into one MP3 or WebM file."
     },
     "audioCutter": {
       "svg": ""
-    }
+    },
+    "sectionDescription": "Convert, cut, play and record audio files. Each card shows whether the tool runs in your browser or on our server in Germany."
   },
   "imageTools": {
     "imageConverter": {
@@ -74,28 +78,29 @@
     },
     "photoCollage": {
       "svg": ""
-    }
+    },
+    "sectionDescription": "Convert, edit and design images. Each card shows whether the tool runs in your browser or on our server in Germany."
   },
   "diverseTools": {
     "colorExtractor": {
       "svg": "",
       "title": "Kodini Color Extractor\nColor Generator",
-      "badge": "Colors-browser"
+      "badge": "Colors"
     },
     "videoConverter": {
       "svg": "",
-      "badge": "SERVER-5gb max",
+      "badge": "max. 5 GB",
       "title": "Video Converter\nmp4-webm-avi-mov-mkv-flv-wmv-ts"
     },
     "textEditor": {
       "svg": "",
       "title": "Text Editor\ntxt-html-md-pdf",
-      "badge": "Text-browser"
+      "badge": "Text"
     },
     "textEditor-kopie": {
       "title": "Favicon Generator\nico, png, webp, gif, bmp, svg",
-      "badge": "browser favicon",
-      "description": "Standard formats for all platforms: favicon.ico (16, 32, 48 px), PNG 16 and 32 px, Apple Touch Icon 180 px, Android icons 192 and 512 px (including maskable), site.webmanifest, HTML code, and favicon.svg if the source is SVG.",
+      "badge": "Favicon",
+      "description": "All favicon sizes at once: favicon.ico, PNG, Apple Touch and Android icons, site.webmanifest and HTML code.",
       "link": "https://kodinitools.com/favicon-tool/",
       "svg": ""
     }

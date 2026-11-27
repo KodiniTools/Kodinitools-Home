@@ -68,7 +68,8 @@ function itemFromCard(card: HTMLElement): FavoriteItem {
     key: card.dataset.i18nKey ?? '',
     title: card.dataset.title ?? '',
     description: card.dataset.description ?? '',
-    link: card.getAttribute('href') ?? '#',
+    // Modernes Design: Karte = Rahmen, der Link liegt darin (neben dem Merk-Knopf).
+    link: card.getAttribute('href') ?? card.querySelector('a')?.getAttribute('href') ?? '#',
     badge: card.querySelector('.tool-card-badge')?.textContent ?? '',
     svg: card.getAttribute(`data-svg-${props.lang}`) ?? '',
   };

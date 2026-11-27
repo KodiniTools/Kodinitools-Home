@@ -40,12 +40,17 @@ export interface HomeUi {
   };
   /** Alt-Text einer Hero-Kachel (Index ab 0). */
   heroCellAlt: (index: number) => string;
+  /** Hinweis an Links auf Seiten, die es nur auf Deutsch gibt (leer = kein Hinweis). */
+  germanOnly: string;
   /** Modernes Design (Admin > Layout): Texte, für die es keinen Locale-Schlüssel gibt. */
   modern: ModernHomeUi;
 }
 
 /** Kategorien der Reiter im modernen Design. */
-export type ModernCat = 'audio' | 'image' | 'video' | 'text';
+export type ModernCat = 'audio' | 'image' | 'media';
+
+/** Reiter einschließlich „Alle“ (zeigt jede Karte). */
+export type ModernTab = ModernCat | 'all';
 
 export interface ModernHomeUi {
   eyebrow: string;
@@ -56,16 +61,18 @@ export interface ModernHomeUi {
   searchLabel: string;
   catGroupLabel: string;
   /** Kleine Zeile über dem Sektionstitel je Reiter bzw. bei der Suche. */
-  kicker: Record<ModernCat | 'search', string>;
-  /** Titel/Beschreibung der Reiter ohne eigene Sektion in den Locales (Video, Text). */
-  videoTitle: string;
-  videoDescription: string;
-  textTitle: string;
-  textDescription: string;
-  /** „Alle Audio Tools anzeigen“ – {title} = Titel des Reiters. */
+  kicker: Record<ModernTab | 'search', string>;
+  /** Titel/Beschreibung der Reiter ohne eigene Sektion in den Locales (Video & Text, Alle). */
+  mediaTitle: string;
+  mediaDescription: string;
+  allTitle: string;
+  allDescription: string;
+  /** „Alle 12 Audio-Tools anzeigen“ – {n} = Zahl der Karten, {title} = Titel des Reiters. */
   showAll: string;
   /** Beschreibung bei aktiver Suche – {q} = Suchbegriff. */
   searchFor: string;
+  /** Ansage für Screenreader nach Reiterwechsel oder Suche – {n} = Zahl der Karten. */
+  resultCount: string;
   nav: {
     label: string;
     tools: string;
@@ -91,7 +98,7 @@ export const HOME_UI: Record<Lang, HomeUi> = {
     cta: 'Jetzt starten',
     favoritesTitle: 'Meine Favoriten',
     favoritesClearAll: 'Alle entfernen',
-    imageToolsTitle: 'Bild Tools',
+    imageToolsTitle: 'Bild-Tools',
     favAdd: 'Zu Favoriten hinzufügen',
     favRemove: 'Aus Favoriten entfernen',
     favTitle: 'Favorit',
@@ -122,8 +129,9 @@ export const HOME_UI: Record<Lang, HomeUi> = {
       close: 'Schließen',
     },
     heroCellAlt: (index) => `Bild ${index + 1}`,
+    germanOnly: '',
     modern: {
-      eyebrow: 'Online-Tools · Ohne Anmeldung · Ohne Registrierung',
+      eyebrow: 'Online-Tools · Kostenlos · Ohne Registrierung',
       allTools: 'Alle Tools',
       heroImageAlt:
         'Schreibtisch mit Wecker, Kamera, Mischpult, Fotos, PDF, Notizbuch und Filmrollen als Sinnbild für die Tools',
@@ -131,18 +139,19 @@ export const HOME_UI: Record<Lang, HomeUi> = {
       searchLabel: 'Tools suchen',
       catGroupLabel: 'Werkzeugkategorien',
       kicker: {
-        audio: 'Beliebte Audio-Tools',
-        image: 'Kreative Bild-Tools',
-        video: 'Video-Tools',
-        text: 'Text-Tools',
+        audio: 'Musik, Podcasts und Aufnahmen',
+        image: 'Fotos, Grafiken und Farben',
+        media: 'Videos, Texte und PDFs',
+        all: 'Gesamtübersicht',
         search: 'Tool-Suche',
       },
-      videoTitle: 'Video Tools',
-      videoDescription: 'Video-Werkzeuge im Überblick.',
-      textTitle: 'Text Tools',
-      textDescription: 'Text-Werkzeuge im Überblick.',
-      showAll: 'Alle {title} anzeigen',
+      mediaTitle: 'Video & Text',
+      mediaDescription: 'Videos umwandeln, Texte schreiben und PDFs bearbeiten.',
+      allTitle: 'Alle Tools',
+      allDescription: 'Alle Werkzeuge auf einen Blick, kostenlos und ohne Registrierung.',
+      showAll: 'Alle {n} {title} anzeigen',
       searchFor: 'Suche nach „{q}“',
+      resultCount: '{n} Tools angezeigt',
       nav: {
         label: 'Hauptnavigation',
         tools: 'Tools',
@@ -173,7 +182,7 @@ export const HOME_UI: Record<Lang, HomeUi> = {
     favTitle: 'Favorite',
     open: 'Open',
     catNavLabel: 'Tool categories',
-    procLabel: { browser: 'In the browser', server: 'Server (DE)', hybrid: 'Hybrid' },
+    procLabel: { browser: 'In the browser', server: 'Server (Germany)', hybrid: 'Hybrid' },
     procFilterLabel: 'Filter tools by processing',
     procFilterAll: 'All',
     procNoResults: 'No tools in this selection.',
@@ -198,8 +207,9 @@ export const HOME_UI: Record<Lang, HomeUi> = {
       close: 'Close',
     },
     heroCellAlt: (index) => `Image ${index + 1}`,
+    germanOnly: 'Page in German',
     modern: {
-      eyebrow: 'Online tools · No login · No sign-up',
+      eyebrow: 'Online tools · Free · No sign-up',
       allTools: 'All tools',
       heroImageAlt:
         'Desk with alarm clock, camera, mixer, photos, PDF, notebook and film reels representing the tools',
@@ -207,18 +217,19 @@ export const HOME_UI: Record<Lang, HomeUi> = {
       searchLabel: 'Search tools',
       catGroupLabel: 'Tool categories',
       kicker: {
-        audio: 'Popular audio tools',
-        image: 'Creative image tools',
-        video: 'Video tools',
-        text: 'Text tools',
+        audio: 'Music, podcasts and recordings',
+        image: 'Photos, graphics and colors',
+        media: 'Videos, text and PDFs',
+        all: 'Overview',
         search: 'Tool search',
       },
-      videoTitle: 'Video Tools',
-      videoDescription: 'Explore video tools.',
-      textTitle: 'Text Tools',
-      textDescription: 'Explore text tools.',
-      showAll: 'Show all {title}',
+      mediaTitle: 'Video & Text',
+      mediaDescription: 'Convert videos, write text and edit PDFs.',
+      allTitle: 'All Tools',
+      allDescription: 'Every tool at a glance, free and without sign-up.',
+      showAll: 'Show all {n} {title}',
       searchFor: 'Searching for “{q}”',
+      resultCount: '{n} tools shown',
       nav: {
         label: 'Main navigation',
         tools: 'Tools',
