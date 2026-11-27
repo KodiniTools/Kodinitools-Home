@@ -458,21 +458,13 @@ body:has(#app[data-design='modern']) {
 }
 
 #app[data-design='modern'] .mh-lead {
-  margin: 0 0 22px;
+  margin: 0 0 26px;
   max-width: 520px;
   font-size: 18.5px;
   line-height: 1.36;
   opacity: 0.9;
 }
 
-#app[data-design='modern'] .mh-hero-buttons {
-  display: flex;
-  gap: 22px;
-  margin-bottom: 22px;
-}
-
-#app[data-design='modern'] .mh-primary,
-#app[data-design='modern'] .mh-secondary,
 #app[data-design='modern'] .mh-all {
   height: 50px;
   display: inline-flex;
@@ -483,29 +475,6 @@ body:has(#app[data-design='modern']) {
   font-weight: 600;
 }
 
-#app[data-design='modern'] .mh-primary {
-  padding: 0 34px;
-  color: var(--md-on-cta);
-  background: var(--md-cta-grad);
-  box-shadow: 0 8px 28px var(--md-cta-glow);
-  transition:
-    transform 0.2s,
-    background 0.2s,
-    box-shadow 0.2s;
-}
-
-#app[data-design='modern'] .mh-primary:hover {
-  transform: translateY(-2px);
-  background: var(--md-cta-grad-hover);
-  box-shadow: 0 12px 34px var(--md-cta-glow);
-}
-
-#app[data-design='modern'] .mh-primary svg {
-  fill: var(--md-on-cta);
-  stroke: none;
-}
-
-#app[data-design='modern'] .mh-secondary,
 #app[data-design='modern'] .mh-all {
   padding: 0 40px;
   border: 1px solid var(--md-cta-fill);
@@ -515,12 +484,10 @@ body:has(#app[data-design='modern']) {
   transition: background 0.2s;
 }
 
-#app[data-design='modern'] .mh-secondary:hover,
 #app[data-design='modern'] .mh-all:hover {
   background: var(--md-cta-grad-hover);
 }
 
-#app[data-design='modern'] .mh-secondary svg,
 #app[data-design='modern'] .mh-all svg {
   stroke-width: 2;
 }
@@ -708,7 +675,7 @@ body:has(#app[data-design='modern']) {
 
 /* ---------- Reiter ---------- */
 /* Vier gleich breite Reiter zwischen den Linien des Hero-Textes
-   (gleicher Einzug wie .mh-hero-grid), so hoch wie die Hero-Buttons. */
+   (gleicher Einzug wie .mh-hero-grid), 50px hoch wie der Knopf „Alle Tools anzeigen“. */
 #app[data-design='modern'] .mh-cats {
   display: grid;
   align-items: stretch;
@@ -1159,19 +1126,26 @@ body:has(#app[data-design='modern']) {
 }
 
 /* ---------- Hero-Bild statt Kachel (Admin › Layout „Hero-Bild statt 3D-Logo“) ----------
-   Gleicher Platz wie die Kachel (--ts aus .mh-tile-wrap), quadratisch, ohne Halo/3D. */
+   Kodini-Hub mit transparentem Hintergrund: kein Rahmen, kein Schatten, die Ränder laufen
+   per Maske weich in den Seitenhintergrund aus. Die Bildspalte ist breiter als bei der Kachel. */
+#app[data-design='modern'] .mh-hero-grid--pic {
+  grid-template-columns: 1fr 1.05fr;
+}
+
 #app[data-design='modern'] .mh-pic-wrap {
   height: auto;
   perspective: none;
+  justify-items: center;
 }
 
 #app[data-design='modern'] .mh-hero-pic {
   display: block;
-  width: min(100%, calc(var(--ts) * 1.55));
+  width: 100%;
+  max-width: 640px;
   height: auto;
-  aspect-ratio: 1;
-  border-radius: 22px;
-  box-shadow: 0 24px 60px rgba(10, 25, 50, 0.28);
+  aspect-ratio: 1280 / 714;
+  -webkit-mask-image: radial-gradient(ellipse 72% 70% at 50% 50%, #000 70%, transparent 100%);
+  mask-image: radial-gradient(ellipse 72% 70% at 50% 50%, #000 70%, transparent 100%);
 }
 
 /* ---------- Breakpoints (wie im Entwurf) ---------- */
@@ -1190,11 +1164,6 @@ body:has(#app[data-design='modern']) {
 
   #app[data-design='modern'] .mh-lead {
     font-size: 16px;
-  }
-
-  #app[data-design='modern'] .mh-hero-buttons {
-    flex-wrap: wrap;
-    gap: 12px;
   }
 
   #app[data-design='modern'] .mh-grid,
@@ -1224,12 +1193,17 @@ body:has(#app[data-design='modern']) {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  #app[data-design='modern'] .mh-hero-grid {
+  #app[data-design='modern'] .mh-hero-grid,
+  #app[data-design='modern'] .mh-hero-grid--pic {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  #app[data-design='modern'] .mh-lead {
+    margin-bottom: 18px;
+  }
+
   /* Handy: Tools sollen früh sichtbar sein. Die Kachel steht klein wie ein App-Icon über
-     dem Titel statt groß unter den Knöpfen, die Knöpfe stehen nebeneinander. */
+     dem Titel statt groß darunter. */
   #app[data-design='modern'] .mh-hero {
     padding: 16px 0 20px;
   }
@@ -1251,33 +1225,15 @@ body:has(#app[data-design='modern']) {
     left: 0;
   }
 
-  /* Hero-Bild statt Kachel: flaches Banner über dem Titel statt großem Quadrat darunter. */
+  /* Hero-Bild statt Kachel: volle Breite über dem Titel. */
   #app[data-design='modern'] .mh-pic-wrap {
     padding-left: 0;
     margin-bottom: 10px;
   }
 
   #app[data-design='modern'] .mh-hero-pic {
-    width: 100%;
-    aspect-ratio: 8 / 3;
-    object-fit: cover;
-    border-radius: 16px;
-    box-shadow: 0 12px 30px rgba(10, 25, 50, 0.22);
-  }
-
-  #app[data-design='modern'] .mh-hero-buttons {
-    gap: 10px;
-    margin-bottom: 16px;
-  }
-
-  #app[data-design='modern'] .mh-primary,
-  #app[data-design='modern'] .mh-secondary {
-    flex: 1 1 0;
-    min-width: 0;
-    justify-content: center;
-    gap: 10px;
-    padding: 0 14px;
-    font-size: 16px;
+    object-fit: contain;
+    margin-bottom: 4px;
   }
 
   #app[data-design='modern'] .mh-title {

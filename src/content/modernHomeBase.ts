@@ -36,7 +36,6 @@ export const MODERN_ICONS: Readonly<Record<string, string>> = {
   chevron: '<path d="m6 9 6 6 6-6"/>',
   burger: '<path d="M4 7h16M4 12h16M4 17h16"/>',
   arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
-  'play-solid': '<path fill="currentColor" stroke="none" d="M6 4v16l14-8z"/>',
   bookmark: '<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>',
   headphones:
     '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1v-6h3zM3 19a2 2 0 0 0 2 2h1v-6H3z"/>',
@@ -96,17 +95,18 @@ export const MODERN_ICONS: Readonly<Record<string, string>> = {
  * Reihenfolge von hinten nach vorn.
  */
 /**
- * Hero-Bild statt 3D-Logo-Kachel (Admin › Layout „Hero-Bild statt Logo“). Quadratisch,
- * drei Breiten; `sizes` folgt der Breite in home-modern.css (.mh-hero-pic: min(100 %, --ts × 1,55),
- * --ts = clamp(165px, 22vw, 330px)).
+ * Hero-Bild statt 3D-Logo-Kachel (Admin › Layout „Hero-Bild statt Logo“): Grafik „Kodini-Hub“
+ * (Audio, Bild, Text, Video um das Logo). Hintergrund transparent, damit das Bild die Farbe des
+ * Seitenhintergrunds annimmt (hell und dunkel). Seitenverhältnis 2752 × 1536; `sizes` folgt
+ * .mh-hero-pic in home-modern.css (Desktop max. 640 px, Handy volle Breite minus Rand).
  */
 export const HERO_PIC = {
-  src: '/image/home/hero/werkbank-720.webp',
+  src: '/image/home/hero/kodini-hub-960.webp',
   srcset:
-    '/image/home/hero/werkbank-480.webp 480w, /image/home/hero/werkbank-720.webp 720w, /image/home/hero/werkbank-1000.webp 1000w',
-  sizes: '(max-width: 600px) 256px, min(34vw, 512px)',
-  width: 1000,
-  height: 1000,
+    '/image/home/hero/kodini-hub-640.webp 640w, /image/home/hero/kodini-hub-960.webp 960w, /image/home/hero/kodini-hub-1280.webp 1280w',
+  sizes: '(max-width: 600px) calc(100vw - 36px), min(46vw, 640px)',
+  width: 1280,
+  height: 714,
 } as const;
 
 export const TILE_LAYERS: readonly { depth: number; src: string; fine: boolean }[] = Array.from(

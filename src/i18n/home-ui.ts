@@ -54,7 +54,6 @@ export type ModernTab = ModernCat | 'all';
 
 export interface ModernHomeUi {
   eyebrow: string;
-  allTools: string;
   /** Alt-Text des Hero-Bilds (statt Logo-Kachel). */
   heroImageAlt: string;
   searchButton: string;
@@ -150,9 +149,8 @@ export const HOME_UI: Record<Lang, HomeUi> = {
     germanOnly: '',
     modern: {
       eyebrow: 'Online-Tools · Kostenlos · Ohne Registrierung',
-      allTools: 'Alle Tools',
       heroImageAlt:
-        'Schreibtisch mit Wecker, Kamera, Mischpult, Fotos, PDF, Notizbuch und Filmrollen als Sinnbild für die Tools',
+        'KodiniTools-Logo in der Mitte, verbunden mit vier Glasflächen für Audio, Bild, Text und Video',
       searchButton: 'Suchen',
       searchLabel: 'Tools suchen',
       catGroupLabel: 'Werkzeugkategorien',
@@ -249,9 +247,8 @@ export const HOME_UI: Record<Lang, HomeUi> = {
     germanOnly: 'Page in German',
     modern: {
       eyebrow: 'Online tools · Free · No sign-up',
-      allTools: 'All tools',
       heroImageAlt:
-        'Desk with alarm clock, camera, mixer, photos, PDF, notebook and film reels representing the tools',
+        'KodiniTools logo in the centre, connected to four glass panels for audio, image, text and video',
       searchButton: 'Search',
       searchLabel: 'Search tools',
       catGroupLabel: 'Tool categories',

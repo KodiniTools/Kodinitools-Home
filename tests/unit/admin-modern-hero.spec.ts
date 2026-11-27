@@ -47,9 +47,10 @@ describe('modernHeroSection', () => {
     expect(html).toContain('Zeile 1<br>Zeile 2');
     expect(html).toContain('&quot;x&quot;');
     expect(html).toContain('#mhi-f-check');
-    expect(html).toContain('Alle Tools');
+    expect(html).not.toContain('Alle Tools');
     const en = modernHeroSection({ ...base, lang: 'en', title: '', subtitle: '', cta: '' });
-    expect(en).toContain('Get Started');
+    expect(en).not.toContain('Get Started');
+    expect(en).toContain('alt="KodiniTools logo in the centre');
     expect(en).toContain('Free Online Tools for Audio &amp; Images');
     expect(en).not.toContain('mh-lead');
   });
@@ -65,8 +66,9 @@ describe('modernHeroSection', () => {
   it('Hero-Bild statt Kachel (Standard), Kachel nur bei heroImage: false', () => {
     const pic = modernHeroSection(modernHeroData({ ...base, design: {} }));
     expect(pic).toContain('class="mh-hero-pic"');
-    expect(pic).toContain('werkbank-480.webp 480w');
-    expect(pic).toMatch(/alt="Schreibtisch[^"]+"/);
+    expect(pic).toContain('kodini-hub-640.webp 640w');
+    expect(pic).toMatch(/alt="KodiniTools-Logo[^"]+"/);
+    expect(pic).toContain('mh-hero-grid--pic');
     expect(pic).not.toContain('mh-tile-img');
     const tile = modernHeroSection(modernHeroData({ ...base, design: {}, heroImage: false }));
     expect(tile).toContain('mh-tile-img');
@@ -84,6 +86,8 @@ describe('modernHeroSection', () => {
     const doc = modernHeroDoc(modernHeroData({ ...base, design: {} }), 'light');
     expect(doc).toContain('data-theme="light"');
     expect(doc).toContain('<div id="app" data-design="modern"');
-    expect(doc).toContain('<symbol id="mhi-play-solid"');
+    // Sprite enthält die Symbole der Merkmale; die Hero-Knöpfe gibt es nicht mehr.
+    expect(doc).toContain('<symbol id="mhi-');
+    expect(doc).not.toContain('mh-hero-buttons');
   });
 });
