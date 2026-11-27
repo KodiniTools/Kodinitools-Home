@@ -498,6 +498,34 @@ const schemaBreadcrumb = {
       font-size: 0.88rem;
     }
 
+    /* Kurzer Tool-Link direkt nach der Einleitung */
+    .blog-cta-inline {
+      margin: 1.25rem 0 1.75rem;
+    }
+
+    .blog-cta-inline a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 0.6rem 1.3rem;
+      border-radius: 999px;
+      background: var(--primary-color, #014f99);
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-decoration: none;
+    }
+
+    .blog-cta-inline a:hover,
+    .blog-cta-inline a:focus-visible {
+      text-decoration: underline;
+    }
+
+    [data-theme="dark"] .blog-cta-inline a {
+      background: var(--primary-color, #e8a945);
+      color: #091428;
+    }
+
     /* CTA */
     .blog-cta {
       background: linear-gradient(135deg, #014f99 0%, #003971 100%);
