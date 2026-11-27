@@ -599,6 +599,17 @@ describe('Modernes Design (Admin > Layout > Seiten-Layout)', () => {
       expect(blog).toBeGreaterThan(-1);
       expect(gallery).toBeGreaterThan(blog);
       expect(nav.indexOf('/faq/')).toBeGreaterThan(gallery);
+      // Fußzeile: Seiten-Links (Blog, FAQ, Über mich, Spenden …) und Rechtliches.
+      const en = file.startsWith('en/');
+      const footer = /<footer class="mh-footer">[\s\S]*?<\/footer>/.exec(html)?.[0] ?? '';
+      for (const href of en
+        ? ['/en/blog/', '/en/faq/', '/en/about/', '/en/donate/', '/en/legal-notice/']
+        : ['/blog/', '/faq/', '/ueber-mich/', '/spenden/', '/impressum/']) {
+        expect(footer).toContain(`href="${href}"`);
+      }
+      expect(footer).toContain('bildergalerie');
+      expect(footer).toContain('datenschutz');
+      expect(footer).toContain('kontaktformular');
       const cards = [...html.matchAll(/<a href="([^"]+)" class="mh-card-link"/g)];
       // Kein Knopf in einem Link: der Merk-Knopf steht neben dem Karten-Link.
       expect(html).not.toMatch(/<a [^>]*class="mh-card-link"(?:(?!<\/a>)[\s\S])*fav-btn/);

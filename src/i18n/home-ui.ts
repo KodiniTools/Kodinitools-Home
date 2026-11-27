@@ -81,6 +81,9 @@ export interface ModernHomeUi {
     faq: string;
     about: string;
     contact: string;
+    donate: string;
+    /** Beschriftung der Link-Liste in der Fußzeile (Screenreader). */
+    footerLabel: string;
     search: string;
     theme: string;
     language: string;
@@ -160,6 +163,8 @@ export const HOME_UI: Record<Lang, HomeUi> = {
         faq: 'FAQ',
         about: 'Über mich',
         contact: 'Kontakt',
+        donate: 'Spenden',
+        footerLabel: 'Weitere Seiten',
         search: 'Suche öffnen',
         theme: 'Farbschema umschalten',
         language: 'Sprache wechseln',
@@ -238,6 +243,8 @@ export const HOME_UI: Record<Lang, HomeUi> = {
         faq: 'FAQ',
         about: 'About',
         contact: 'Contact',
+        donate: 'Donate',
+        footerLabel: 'More pages',
         search: 'Open search',
         theme: 'Toggle color scheme',
         language: 'Switch language',

@@ -1103,6 +1103,25 @@ body:has(#app[data-design='modern']) {
   font-size: 14px;
 }
 
+#app[data-design='modern'] .mh-footer-nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 28px;
+  margin: 0 0 18px;
+  padding: 0 0 18px;
+  border-bottom: 1px solid var(--md-border);
+  list-style: none;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+#app[data-design='modern'] .mh-footer-nav a {
+  display: inline-block;
+  padding: 6px 2px;
+  color: var(--md-text);
+}
+
 #app[data-design='modern'] .mh-footer-inner {
   display: flex;
   justify-content: space-between;
