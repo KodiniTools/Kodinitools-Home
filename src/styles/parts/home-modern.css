@@ -1096,6 +1096,31 @@ body:has(#app[data-design='modern']) {
 }
 
 /* ---------- Footer ---------- */
+#app[data-design='modern'] .mh-popular {
+  padding: 8px 0 32px;
+  color: var(--md-dim);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+#app[data-design='modern'] .mh-popular h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  color: var(--md-text);
+}
+
+#app[data-design='modern'] .mh-popular p {
+  margin: 0;
+  max-width: 760px;
+}
+
+#app[data-design='modern'] .mh-popular a {
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 #app[data-design='modern'] .mh-footer {
   padding: 26px 0;
   border-top: 1px solid var(--md-border);

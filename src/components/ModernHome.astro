@@ -105,7 +105,23 @@ const cards = tools.map((t) => {
 });
 const catCount = (c: ModernTab) => (c === 'all' ? tools.length : seen[c]);
 const showAllText = (c: ModernTab) =>
-  m.showAll.replace('{n}', String(catCount(c))).replace('{title}', catHead[c].title);
+  c === 'all'
+    ? m.showAllTools.replace('{n}', String(catCount(c)))
+    : m.showAll.replace('{n}', String(catCount(c))).replace('{title}', catHead[c].title);
+/** Absatz „Beliebte Online-Werkzeuge“ als Folge aus Text und Links (Trenner: Komma, „und“). */
+type PopularPart = string | { label: string; href: string };
+const popularParts: PopularPart[] = [
+  `${m.popular.lead} `,
+  ...m.popular.links.flatMap((l, i): PopularPart[] => [
+    i === 0 ? '' : i === m.popular.links.length - 1 ? ` ${m.popular.and} ` : ', ',
+    l,
+  ]),
+  `. ${m.popular.guideText} `,
+  { label: m.popular.guideLink, href: m.popular.guideHref },
+  `. ${m.popular.blogText} `,
+  { label: m.popular.blogLink, href: blogHref },
+  '.',
+];
 const activeCat: ModernCat = CATS.find((c) => catCount(c) > 0) ?? 'audio';
 // Reiter mit Karten, dazu „Alle“ (nur wenn es mehr als einen Reiter gibt).
 const shownCats = CATS.filter((c) => catCount(c) > 0);
@@ -505,6 +521,17 @@ const scriptData = {
     </section>
   </div>
 </main>
+
+{
+  /* Beliebte Tools als Textlinks: reines HTML ohne Skript, unter dem Raster (kein Einfluss auf LCP). */
+}
+<section class="mh-popular" aria-labelledby="mh-popular-title">
+  <div class="mh-shell">
+    <h2 id="mh-popular-title">{m.popular.title}</h2>
+    {/* Ein Ausdruck: Text und Links ohne zusätzliche Leerzeichen vor Komma und Punkt. */}
+    <p>{popularParts.map((p) => (typeof p === 'string' ? p : <a href={p.href}>{p.label}</a>))}</p>
+  </div>
+</section>
 
 {/* Fußzeile: oben die Seiten (wer bis unten scrollt, muss nicht zurück), unten Rechtliches. */}
 <footer class="mh-footer">

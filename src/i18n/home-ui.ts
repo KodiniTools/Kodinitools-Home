@@ -69,6 +69,21 @@ export interface ModernHomeUi {
   allDescription: string;
   /** „Alle 12 Audio-Tools anzeigen“ – {n} = Zahl der Karten, {title} = Titel des Reiters. */
   showAll: string;
+  /** Knopf im Reiter „Alle“ – {n} = Zahl aller Karten (ohne doppeltes „Alle … Alle Tools“). */
+  showAllTools: string;
+  /** Textabsatz unter dem Raster: beliebte Tools als Textlinks, Formatvergleich, Blog. */
+  popular: {
+    title: string;
+    lead: string;
+    links: readonly { label: string; href: string }[];
+    /** Wort vor dem letzten Link („und“ / „and“). */
+    and: string;
+    guideText: string;
+    guideLink: string;
+    guideHref: string;
+    blogText: string;
+    blogLink: string;
+  };
   /** Beschreibung bei aktiver Suche – {q} = Suchbegriff. */
   searchFor: string;
   /** Ansage für Screenreader nach Reiterwechsel oder Suche – {n} = Zahl der Karten. */
@@ -153,6 +168,25 @@ export const HOME_UI: Record<Lang, HomeUi> = {
       allTitle: 'Alle Tools',
       allDescription: 'Alle Werkzeuge auf einen Blick, kostenlos und ohne Registrierung.',
       showAll: 'Alle {n} {title} anzeigen',
+      showAllTools: 'Alle {n} Tools anzeigen',
+      popular: {
+        title: 'Beliebte Online-Werkzeuge',
+        lead: 'Direkt im Browser, ohne Anmeldung:',
+        links: [
+          { label: 'Equalizer online', href: 'https://kodinitools.com/audioequalizer/' },
+          { label: '19-Band-Equalizer', href: 'https://kodinitools.com/equaliser19/' },
+          { label: 'Audio normalisieren', href: 'https://kodinitools.com/audionormalisierer/' },
+          { label: 'Video konvertieren online', href: 'https://kodinitools.com/videokonverter/' },
+          { label: 'Bilder konvertieren', href: 'https://kodinitools.com/bildkonverter/' },
+          { label: 'Fotocollage erstellen', href: 'https://kodinitools.com/collagemaker/' },
+        ],
+        and: 'und',
+        guideText: 'Unsicher, welches Bildformat passt?',
+        guideLink: 'Bildformate im Vergleich',
+        guideHref: '/blog/bildformat-waehlen/',
+        blogText: 'Weitere Anleitungen finden Sie im',
+        blogLink: 'Blog',
+      },
       searchFor: 'Suche nach „{q}“',
       resultCount: '{n} Tools angezeigt',
       nav: {
@@ -233,6 +267,28 @@ export const HOME_UI: Record<Lang, HomeUi> = {
       allTitle: 'All Tools',
       allDescription: 'Every tool at a glance, free and without sign-up.',
       showAll: 'Show all {n} {title}',
+      showAllTools: 'Show all {n} tools',
+      popular: {
+        title: 'Popular online tools',
+        lead: 'Right in your browser, no sign-up:',
+        links: [
+          { label: 'online equalizer', href: 'https://kodinitools.com/audioequalizer/?lang=en' },
+          { label: '19-band equalizer', href: 'https://kodinitools.com/equaliser19/?lang=en' },
+          { label: 'normalize audio', href: 'https://kodinitools.com/audionormalisierer/?lang=en' },
+          {
+            label: 'convert video online',
+            href: 'https://kodinitools.com/videokonverter/?lang=en',
+          },
+          { label: 'convert images', href: 'https://kodinitools.com/bildkonverter/?lang=en' },
+          { label: 'make a photo collage', href: 'https://kodinitools.com/collagemaker/?lang=en' },
+        ],
+        and: 'and',
+        guideText: 'Not sure which image format to use?',
+        guideLink: 'Image formats compared',
+        guideHref: '/en/blog/choose-image-format/',
+        blogText: 'More guides are on the',
+        blogLink: 'blog',
+      },
       searchFor: 'Searching for “{q}”',
       resultCount: '{n} tools shown',
       nav: {

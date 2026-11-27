@@ -230,6 +230,34 @@ describe('sitemap.xml', () => {
     }
   });
 
+  it('llms.txt listet jeden Blog-Artikel (DE/EN) und die Tools mit englischer Fassung', () => {
+    const llms = read('llms.txt');
+    expect(llms.startsWith('# KodiniTools\n')).toBe(true);
+    const articles = pages.filter((f) => /^(en\/)?blog\/[^/]+\/index\.html$/.test(f));
+    expect(articles.length).toBeGreaterThan(0);
+    for (const file of articles) expect(llms, file).toContain(`](${urlOf(file)})`);
+    expect(llms).toContain('](https://kodinitools.com/bildkonverter/)');
+    expect(llms).toContain('](https://kodinitools.com/bildkonverter/?lang=en)');
+  });
+
+  it.each([
+    ['index.html', /Alle \d+ Alle Tools/, '/blog/bildformat-waehlen/'],
+    ['en/index.html', /Show all \d+ All Tools/, '/en/blog/choose-image-format/'],
+  ])(
+    '%s: Knopf im Reiter „Alle“ ohne Doppelung, Textlinks unter dem Raster',
+    (file, doubled, guide) => {
+      const html = read(file);
+      expect(html).not.toMatch(doubled);
+      expect(html).toContain('id="mh-popular-title"');
+      expect(html).toContain(`href="${guide}"`);
+    },
+  );
+
+  it('robots.txt sperrt nur den Admin-Bereich', () => {
+    const robots = read('robots.txt');
+    expect(attr(robots, /^Disallow: (.+)$/gm)).toEqual(['/admin/']);
+  });
+
   it('robots.txt verweist nur auf diese eine Sitemap', () => {
     const robots = read('robots.txt');
     expect(attr(robots, /^Sitemap: (.+)$/gm)).toEqual([`${SITE}/sitemap.xml`]);
