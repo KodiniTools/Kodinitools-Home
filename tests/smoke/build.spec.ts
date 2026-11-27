@@ -604,6 +604,11 @@ describe('Modernes Design (Admin > Layout > Seiten-Layout)', () => {
       }
       // Hero ohne Knöpfe „Jetzt starten“ / „Alle Tools“ (27.11.2026).
       expect(html).not.toContain('mh-hero-buttons');
+      // Reiter scrollen zu den Karten; Deckstreifen hinter der klebenden Suche (27.11.2026).
+      expect(html).toContain('class="mh-search-band"');
+      expect(html).toMatch(
+        /setCat\(b\.getAttribute\('data-cat'\), false\);\s*root\.scrollIntoView\(/,
+      );
       // Keine doppelten IDs (Sprite-Symbole dürfen Bedienelementen nicht die ID nehmen).
       const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]);
       expect(ids.filter((id, i) => ids.indexOf(id) !== i)).toEqual([]);

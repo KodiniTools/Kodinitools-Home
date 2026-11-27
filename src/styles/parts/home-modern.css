@@ -609,7 +609,33 @@ body:has(#app[data-design='modern']) {
 }
 
 /* ---------- Suche ---------- */
-/* Klebt beim Scrollen unter der Kopfleiste: Suche bleibt über den Treffern erreichbar. */
+/* Deckstreifen: klebt direkt unter der Kopfleiste (63px) und reicht 12px unter die Suche.
+   Sichtbar nur, solange die Suche klebt (.is-on per Skript), sieht dann aus wie eine
+   Verlängerung der Kopfleiste und verdeckt die Reiter, die sonst durchscheinen. */
+#app[data-design='modern'] .mh-search-band {
+  position: sticky;
+  top: 63px;
+  z-index: 19;
+  height: 73px;
+  margin: 0 -100vw -73px;
+  border-bottom: 1px solid var(--md-border);
+  /* Deckend: Kopfleisten-Farbe (halbtransparent) über der Seitenfarbe. */
+  background: var(--md-bg);
+  opacity: 0;
+  pointer-events: none;
+}
+
+#app[data-design='modern'] .mh-search-band::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--md-header);
+}
+
+#app[data-design='modern'] .mh-search-band.is-on {
+  opacity: 1;
+}
+
 #app[data-design='modern'] .mh-search {
   position: sticky;
   top: 72px;
@@ -758,9 +784,11 @@ body:has(#app[data-design='modern']) {
 }
 
 /* ---------- Sektion und Karten ---------- */
+/* scroll-margin-top: Kopfleiste (72px) + klebende Suche (52px) + Luft, damit die
+   Überschrift nach dem Sprung (Reiter, Suche absenden) nicht unter der Suche liegt. */
 #app[data-design='modern'] .mh-tools {
   position: relative;
-  scroll-margin-top: 72px;
+  scroll-margin-top: 140px;
 }
 
 #app[data-design='modern'] .mh-anchor {
@@ -1264,6 +1292,15 @@ body:has(#app[data-design='modern']) {
   }
 
   /* 16px im Suchfeld: iOS zoomt beim Antippen sonst hinein. */
+  #app[data-design='modern'] .mh-tools {
+    scroll-margin-top: 134px;
+  }
+
+  #app[data-design='modern'] .mh-search-band {
+    height: 69px;
+    margin-bottom: -69px;
+  }
+
   #app[data-design='modern'] .mh-search {
     top: 68px;
     gap: 10px;
