@@ -423,7 +423,8 @@ describe('PDF-Editor (neues Tool, 23.11.2026)', () => {
 
   it.each(['index.html', 'en/index.html'])('%s zeigt die Toolkarte', (file) => {
     const html = read(file);
-    expect(html).toMatch(/<a[^>]*data-i18n-key="diverseTools\.pdfEditor"/);
+    // Klassisch trägt der Link die Kartendaten, modern der Rahmen um Link und Merk-Knopf.
+    expect(html).toMatch(/<(a|div)[^>]*data-i18n-key="diverseTools\.pdfEditor"/);
     expect(html).toContain('https://kodinitools.com/pdf-editor/');
   });
 });
@@ -565,7 +566,9 @@ describe('Modernes Design (Admin > Layout > Seiten-Layout)', () => {
       expect(blog).toBeGreaterThan(-1);
       expect(gallery).toBeGreaterThan(blog);
       expect(nav.indexOf('/faq/')).toBeGreaterThan(gallery);
-      const cards = [...html.matchAll(/<a href="([^"]+)" class="svg-card-link mh-card/g)];
+      const cards = [...html.matchAll(/<a href="([^"]+)" class="mh-card-link"/g)];
+      // Kein Knopf in einem Link: der Merk-Knopf steht neben dem Karten-Link.
+      expect(html).not.toMatch(/<a [^>]*class="mh-card-link"(?:(?!<\/a>)[\s\S])*fav-btn/);
       expect(cards.length).toBeGreaterThan(10);
       for (const [, href] of cards) expect(href).toMatch(/^https:\/\/kodinitools\.com\//);
     } else {

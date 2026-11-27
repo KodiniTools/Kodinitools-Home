@@ -23,9 +23,9 @@ export const MODERN_VISIBLE = 6;
 
 /** Ausnahmen der Reiter-Zuordnung; sonst entscheidet die Locale-Sektion der Karte. */
 const CAT_BY_KEY: Readonly<Record<string, ModernCat>> = {
-  'diverseTools.videoConverter': 'video',
-  'diverseTools.textEditor': 'text',
-  'diverseTools.pdfEditor': 'text',
+  'diverseTools.videoConverter': 'media',
+  'diverseTools.textEditor': 'media',
+  'diverseTools.pdfEditor': 'media',
   'diverseTools.colorExtractor': 'image',
   // Favicon-Generator (Admin-Karte, Schlüssel historisch „textEditor-kopie“).
   'diverseTools.textEditor-kopie': 'image',

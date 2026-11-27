@@ -67,8 +67,9 @@ export const MODERN_ICONS: Readonly<Record<string, string>> = {
     '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1v-6h3zM3 19a2 2 0 0 0 2 2h1v-6H3z"/>',
   'cat-image':
     '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="9.5" r="1.6"/><path d="m4 18 5-5 3 3 3-4 5 6"/>',
-  'cat-video': '<path d="M6 4v16l14-8z"/>',
-  'cat-text': '<path d="M5 5h14M12 5v15M9 20h6M5 5v2M19 5v2"/>',
+  'cat-media': '<path d="M6 4v16l14-8z"/>',
+  'cat-all':
+    '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
   'f-free': '<path fill="currentColor" stroke="none" d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
   'f-privacy':
     '<path fill="currentColor" stroke="none" d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z"/><path d="m8.5 12 2.5 2.5 4.5-5" style="stroke:var(--md-bg)" stroke-width="2.2"/>',

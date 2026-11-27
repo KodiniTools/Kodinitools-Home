@@ -642,7 +642,11 @@ body:has(#app[data-design='modern']) {
 }
 
 /* ---------- Suche ---------- */
+/* Klebt beim Scrollen unter der Kopfleiste: Suche bleibt über den Treffern erreichbar. */
 #app[data-design='modern'] .mh-search {
+  position: sticky;
+  top: 72px;
+  z-index: 20;
   max-width: 866px;
   height: 52px;
   margin: 16px auto 26px;
@@ -652,7 +656,8 @@ body:has(#app[data-design='modern']) {
   padding: 0 5px 0 20px;
   border: 1px solid var(--md-border-hi);
   border-radius: 999px;
-  background: var(--md-search-bg);
+  /* Deckend über der Seitenfarbe (kein Blur: mobil teuer), damit Karten darunter nicht durchscheinen. */
+  background: linear-gradient(var(--md-search-bg), var(--md-search-bg)), var(--md-bg);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
@@ -701,6 +706,7 @@ body:has(#app[data-design='modern']) {
    (gleicher Einzug wie .mh-hero-grid), so hoch wie die Hero-Buttons. */
 #app[data-design='modern'] .mh-cats {
   display: grid;
+  align-items: stretch;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
   padding-inline: 36px;
@@ -727,6 +733,22 @@ body:has(#app[data-design='modern']) {
 #app[data-design='modern'] .mh-cat svg {
   width: 26px;
   height: 26px;
+}
+
+/* Zahl der Tools im Reiter: zeigt, dass mehr als die ersten sechs Karten da sind. */
+#app[data-design='modern'] .mh-cat-count {
+  min-width: 26px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--md-chip);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+}
+
+#app[data-design='modern'] .mh-cat.is-active .mh-cat-count {
+  background: rgba(255, 255, 255, 0.22);
 }
 
 #app[data-design='modern'] .mh-cat:not(.is-active):hover {
@@ -813,8 +835,8 @@ body:has(#app[data-design='modern']) {
 
 #app[data-design='modern'] .mh-tools[data-active='audio'] .mh-card[data-cat='audio'],
 #app[data-design='modern'] .mh-tools[data-active='image'] .mh-card[data-cat='image'],
-#app[data-design='modern'] .mh-tools[data-active='video'] .mh-card[data-cat='video'],
-#app[data-design='modern'] .mh-tools[data-active='text'] .mh-card[data-cat='text'] {
+#app[data-design='modern'] .mh-tools[data-active='media'] .mh-card[data-cat='media'],
+#app[data-design='modern'] .mh-tools[data-active='all'] .mh-card[data-cat] {
   display: flex;
 }
 
@@ -831,12 +853,9 @@ body:has(#app[data-design='modern']) {
   display: flex;
 }
 
+/* Karte = Rahmen (div) mit Link und daneben dem Merk-Knopf (kein Knopf im Link). */
 #app[data-design='modern'] .mh-card {
   position: relative;
-  min-height: 98px;
-  align-items: center;
-  gap: 22px;
-  padding: 14px 54px 14px 20px;
   border: 1px solid var(--md-border);
   border-radius: 16px;
   background: linear-gradient(180deg, var(--md-panel-hi), var(--md-panel));
@@ -845,6 +864,24 @@ body:has(#app[data-design='modern']) {
     transform 0.25s,
     border-color 0.25s,
     box-shadow 0.25s;
+}
+
+#app[data-design='modern'] .mh-card-link {
+  flex: 1;
+  min-width: 0;
+  min-height: 98px;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 14px 54px 14px 20px;
+  border-radius: inherit;
+  color: inherit;
+  text-decoration: none;
+}
+
+#app[data-design='modern'] .mh-card-link:focus-visible {
+  outline: 2px solid var(--md-cta);
+  outline-offset: 2px;
 }
 
 #app[data-design='modern'] .mh-card:hover {
@@ -998,6 +1035,18 @@ body:has(#app[data-design='modern']) {
 
 #app[data-design='modern'] .mh-card .fav-btn.is-active svg {
   fill: currentColor;
+}
+
+#app[data-design='modern'] .mh-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 #app[data-design='modern'] .mh-noresults {
@@ -1163,6 +1212,7 @@ body:has(#app[data-design='modern']) {
 
   /* 16px im Suchfeld: iOS zoomt beim Antippen sonst hinein. */
   #app[data-design='modern'] .mh-search {
+    top: 68px;
     gap: 10px;
     padding-left: 14px;
   }

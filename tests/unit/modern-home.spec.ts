@@ -42,12 +42,16 @@ describe('splitAccent / stripAccent', () => {
 });
 
 describe('Reiter und Icons', () => {
-  it('ordnet Karten den vier Reitern zu', () => {
+  it('ordnet Karten den drei Reitern zu (dazu „Alle“)', () => {
     expect(modernCatOf('tools.audioConverter')).toBe('audio');
     expect(modernCatOf('imageTools.imageConverter')).toBe('image');
     expect(modernCatOf('diverseTools.colorExtractor')).toBe('image');
-    expect(modernCatOf('diverseTools.videoConverter')).toBe('video');
-    expect(modernCatOf('diverseTools.textEditor')).toBe('text');
+    expect(modernCatOf('diverseTools.videoConverter')).toBe('media');
+    expect(modernCatOf('diverseTools.textEditor')).toBe('media');
+    expect(modernCatOf('diverseTools.pdfEditor')).toBe('media');
+    for (const tab of ['audio', 'image', 'media', 'all']) {
+      expect(MODERN_ICONS).toHaveProperty(`cat-${tab}`);
+    }
   });
   it('jedes Icon existiert im Sprite', () => {
     for (const key of ['tools.audioConverter', 'tools.unbekannt', 'diverseTools.textEditor']) {

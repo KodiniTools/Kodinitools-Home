@@ -10,7 +10,7 @@
  * im HTML (Reiter blenden nur per CSS aus). Die Logo-Kachel ruht immer (keine Animation).
  */
 import type { Lang } from '../i18n/lang';
-import { HOME_UI, type ModernCat } from '../i18n/home-ui';
+import { HOME_UI, type ModernCat, type ModernTab } from '../i18n/home-ui';
 import { IMPRINT_PATH, PRIVACY_URL, CONTACT_URL, GALLERY_URL } from '../i18n/imprint';
 import { ABOUT_PATH } from '../i18n/about';
 import { TOOL_CATALOG, type ToolProcessing } from '../content/toolCatalog';
@@ -55,8 +55,8 @@ const blogHref = lang === 'de' ? '/blog/' : '/en/blog/';
 const faqHref = lang === 'de' ? '/faq/' : '/en/faq/';
 const aboutHref = ABOUT_PATH[lang];
 
-const CATS: ModernCat[] = ['audio', 'image', 'video', 'text'];
-const catHead: Record<ModernCat, { kicker: string; title: string; description: string }> = {
+const CATS: ModernCat[] = ['audio', 'image', 'media'];
+const catHead: Record<ModernTab, { kicker: string; title: string; description: string }> = {
   audio: {
     kicker: m.kicker.audio,
     title: sections.tools.title,
@@ -67,12 +67,12 @@ const catHead: Record<ModernCat, { kicker: string; title: string; description: s
     title: sections.imageTools.title,
     description: sections.imageTools.description,
   },
-  video: { kicker: m.kicker.video, title: m.videoTitle, description: m.videoDescription },
-  text: { kicker: m.kicker.text, title: m.textTitle, description: m.textDescription },
+  media: { kicker: m.kicker.media, title: m.mediaTitle, description: m.mediaDescription },
+  all: { kicker: m.kicker.all, title: m.allTitle, description: m.allDescription },
 };
 
 // Karten je Reiter; ab der 7. Karte eines Reiters „is-extra" (erst mit „Alle … anzeigen" sichtbar).
-const seen: Record<ModernCat, number> = { audio: 0, image: 0, video: 0, text: 0 };
+const seen: Record<ModernCat, number> = { audio: 0, image: 0, media: 0 };
 const cards = tools.map((t) => {
   const cat = modernCatOf(t.i18nKey);
   const idx = seen[cat]++;
@@ -95,9 +95,16 @@ const cards = tools.map((t) => {
     proc,
   };
 });
-const catCount = (c: ModernCat) => seen[c];
-const showAllText = (c: ModernCat) => m.showAll.replace('{title}', catHead[c].title);
+const catCount = (c: ModernTab) => (c === 'all' ? tools.length : seen[c]);
+const showAllText = (c: ModernTab) =>
+  m.showAll.replace('{n}', String(catCount(c))).replace('{title}', catHead[c].title);
 const activeCat: ModernCat = CATS.find((c) => catCount(c) > 0) ?? 'audio';
+// Reiter mit Karten, dazu „Alle“ (nur wenn es mehr als einen Reiter gibt).
+const shownCats = CATS.filter((c) => catCount(c) > 0);
+const TABS: ModernTab[] = shownCats.length > 1 ? [...shownCats, 'all'] : shownCats;
+const TABS_ALL: ModernTab[] = [...CATS, 'all'];
+// Seiten, die es nur auf Deutsch gibt (Datenschutz, Kontakt, Galerie): Hinweis auf der EN-Seite.
+const deOnly = ui.germanOnly ? { hreflang: 'de', title: ui.germanOnly } : {};
 
 const LANG_NAME: Record<Lang, string> = { de: 'Deutsch', en: 'English' };
 const TILE = '/image/home/tile';
@@ -108,8 +115,9 @@ const visibleFeatures = features.filter((f) => !f.hidden);
 // Texte für das kleine Seitenskript (Reiter, Suche, „Alle anzeigen").
 const scriptData = {
   heads: catHead,
-  showAll: Object.fromEntries(CATS.map((c) => [c, showAllText(c)])),
-  counts: Object.fromEntries(CATS.map((c) => [c, catCount(c)])),
+  showAll: Object.fromEntries(TABS_ALL.map((c) => [c, showAllText(c)])),
+  counts: Object.fromEntries(TABS_ALL.map((c) => [c, catCount(c)])),
+  resultCount: m.resultCount,
   searchKicker: m.kicker.search,
   searchTitle: search.resultsTitle,
   searchFor: m.searchFor,
@@ -170,7 +178,7 @@ const scriptData = {
         </button>
         <div class="mh-menu-list">
           {
-            CATS.filter((c) => catCount(c) > 0).map((c) => (
+            TABS.map((c) => (
               <a href="#tools" data-cat-link={c}>
                 {catHead[c].title}
               </a>
@@ -179,16 +187,22 @@ const scriptData = {
         </div>
       </div>
       <a href={blogHref}>{m.nav.blog}</a>
-      <a href={GALLERY_URL}>{m.nav.gallery}</a>
+      <a href={GALLERY_URL} {...deOnly}>{m.nav.gallery}</a>
       <a href={faqHref}>{m.nav.faq}</a>
       <a href={aboutHref}>{m.nav.about}</a>
-      <a href={CONTACT_URL}>{m.nav.contact}</a>
+      <a href={CONTACT_URL} {...deOnly}>{m.nav.contact}</a>
     </nav>
     <div class="mh-actions">
       <button type="button" class="mh-round" id="mh-focus-search" aria-label={m.nav.search}>
         <svg width="20" height="20" aria-hidden="true"><use href="#mhi-search"></use></svg>
       </button>
-      <button type="button" class="mh-switch" id="mh-theme" aria-label={m.nav.theme}>
+      <button
+        type="button"
+        class="mh-switch"
+        id="mh-theme"
+        aria-label={m.nav.theme}
+        aria-pressed="false"
+      >
         <svg class="mh-moon" width="16" height="16" aria-hidden="true"
           ><use href="#mhi-moon"></use></svg
         ><span class="mh-orb" aria-hidden="true"></span>
@@ -255,7 +269,7 @@ const scriptData = {
               >
               <span>{hero.cta || ui.cta}</span>
             </a>
-            <a class="mh-secondary" href="#tools" data-show-all>
+            <a class="mh-secondary" href="#tools" data-cat-link="all">
               <span>{m.allTools}</span>
               <svg width="20" height="20" aria-hidden="true"><use href="#mhi-arrow"></use></svg>
             </a>
@@ -335,17 +349,19 @@ const scriptData = {
 
     <div class="mh-cats" role="group" aria-label={m.catGroupLabel}>
       {
-        CATS.filter((c) => catCount(c) > 0).map((c) => (
+        TABS.map((c) => (
           <button
             type="button"
             class:list={['mh-cat', { 'is-active': c === activeCat }]}
             data-cat={c}
             aria-pressed={c === activeCat ? 'true' : 'false'}
+            aria-controls="tools"
           >
             <svg width="30" height="30" aria-hidden="true">
               <use href={`#mhi-cat-${c}`} />
             </svg>
             <span>{catHead[c].title}</span>
+            <span class="mh-cat-count">{catCount(c)}</span>
           </button>
         ))
       }
@@ -377,8 +393,9 @@ const scriptData = {
       <div class="mh-grid" id="mh-grid">
         {
           cards.map((t) => (
-            <a
-              href={t.link}
+            /* Rahmen trägt die Kartendaten (Favoriten, Admin-Stile); Link und Merk-Knopf liegen
+               nebeneinander darin, damit kein Knopf in einem Link steckt. */
+            <div
               class:list={['svg-card-link', 'mh-card', { 'is-extra': t.extra }]}
               data-cat={t.cat}
               data-title={t.title}
@@ -386,40 +403,56 @@ const scriptData = {
               data-i18n-key={t.i18nKey}
               data-processing={t.proc}
               {...{ [`data-svg-${lang}`]: t.svg }}
-              title={t.description}
             >
-              <span class="mh-icon">
-                {t.svg ? (
-                  <img src={t.svg} alt="" width="38" height="38" loading="lazy" decoding="async" />
-                ) : (
-                  <svg width="38" height="38" aria-hidden="true">
-                    <use href={`#mhi-${t.icon}`} />
-                  </svg>
-                )}
-              </span>
-              <span class="mh-info">
-                <h3 class="tool-card-title">{t.name}</h3>
-                {t.sub && <span class="mh-sub">{t.sub}</span>}
-                <span class="mh-tags">
-                  {t.badge && <span class="tool-card-badge">{t.badge}</span>}
-                  {t.proc && <span class="mh-tag-proc">{ui.procLabel[t.proc]}</span>}
+              <a href={t.link} class="mh-card-link" title={t.description}>
+                <span class="mh-icon">
+                  {t.svg ? (
+                    <img
+                      src={t.svg}
+                      alt=""
+                      width="38"
+                      height="38"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : (
+                    <svg width="38" height="38" aria-hidden="true">
+                      <use href={`#mhi-${t.icon}`} />
+                    </svg>
+                  )}
                 </span>
-              </span>
-              <button type="button" class="fav-btn" aria-label={ui.favAdd} title={ui.favTitle}>
+                <span class="mh-info">
+                  <h3 class="tool-card-title">{t.name}</h3>
+                  {t.sub && <span class="mh-sub">{t.sub}</span>}
+                  <span class="mh-tags">
+                    {t.badge && <span class="tool-card-badge">{t.badge}</span>}
+                    {t.proc && <span class="mh-tag-proc">{ui.procLabel[t.proc]}</span>}
+                  </span>
+                </span>
+                <span class="mh-arrow" aria-hidden="true">
+                  <svg width="18" height="18">
+                    <use href="#mhi-arrow" />
+                  </svg>
+                </span>
+              </a>
+              <button
+                type="button"
+                class="fav-btn"
+                aria-label={`${ui.favTitle}: ${t.name}`}
+                aria-pressed="false"
+                title={ui.favAdd}
+              >
                 <svg width="16" height="16" aria-hidden="true">
                   <use href="#mhi-bookmark" />
                 </svg>
               </button>
-              <span class="mh-arrow" aria-hidden="true">
-                <svg width="18" height="18">
-                  <use href="#mhi-arrow" />
-                </svg>
-              </span>
-            </a>
+            </div>
           ))
         }
-        <p class="mh-noresults" id="mh-noresults" role="status" hidden>{search.noResults}</p>
+        <p class="mh-noresults" id="mh-noresults" hidden>{search.noResults}</p>
       </div>
+      {/* Ansage nach Reiterwechsel/Suche (sichtbar nur für Screenreader). */}
+      <p class="mh-sr-only" id="mh-status" role="status" aria-live="polite"></p>
       <div class="mh-footer-action">
         <button
           type="button"
@@ -439,8 +472,10 @@ const scriptData = {
   <div class="mh-shell mh-footer-inner">
     <span>© {new Date().getFullYear()} KodiniTools · {m.footerTagline}</span>
     <span
-      ><a href={IMPRINT_PATH[lang]}>{m.imprint}</a> · <a href={PRIVACY_URL}>{m.privacy}</a> ·
-      <a href={CONTACT_URL}>{m.nav.contact}</a></span
+      ><a href={IMPRINT_PATH[lang]}>{m.imprint}</a> · <a href={PRIVACY_URL} {...deOnly}
+        >{m.privacy}</a
+      > ·
+      <a href={CONTACT_URL} {...deOnly}>{m.nav.contact}</a></span
     >
   </div>
 </footer>
@@ -466,6 +501,7 @@ const scriptData = {
     const grid = document.getElementById('mh-grid');
     const input = document.getElementById('mh-search');
     const none = document.getElementById('mh-noresults');
+    const status = document.getElementById('mh-status');
     const showAll = document.getElementById('mh-show-all');
     const showAllText = document.getElementById('mh-show-all-text');
     const kicker = document.getElementById('mh-section-kicker');
@@ -474,6 +510,7 @@ const scriptData = {
     const cats = document.querySelectorAll('.mh-cat');
     const cards = grid.querySelectorAll('.mh-card');
     let cat = root.getAttribute('data-active');
+    let announceTimer = 0;
 
     function head(k, t, d) {
       kicker.textContent = k;
@@ -481,9 +518,19 @@ const scriptData = {
       desc.textContent = d;
     }
 
-    function setCat(next, all) {
+    // Screenreader: Zahl der sichtbaren Karten ansagen (verzögert, damit nicht jeder Tastendruck ansagt).
+    function announce(n) {
+      clearTimeout(announceTimer);
+      announceTimer = setTimeout(function () {
+        status.textContent = mh.resultCount.replace('{n}', String(n));
+      }, 400);
+    }
+
+    // „Alle“ zeigt immer jede Karte; die anderen Reiter zuerst sechs (Rest mit „Alle … anzeigen“).
+    function setCat(next, all, quiet) {
       if (!mh.heads[next]) return;
       cat = next;
+      if (cat === 'all') all = true;
       if (input.value) {
         input.value = '';
         root.classList.remove('is-search');
@@ -502,6 +549,7 @@ const scriptData = {
       head(mh.heads[cat].kicker, mh.heads[cat].title, mh.heads[cat].description);
       showAllText.textContent = mh.showAll[cat];
       showAll.hidden = !!all || mh.counts[cat] <= mh.visible;
+      if (!quiet) announce(all ? mh.counts[cat] : Math.min(mh.counts[cat], mh.visible));
     }
 
     cats.forEach(function (b) {
@@ -513,11 +561,6 @@ const scriptData = {
       a.addEventListener('click', function () {
         setCat(a.getAttribute('data-cat-link'), false);
         closeMenu();
-      });
-    });
-    document.querySelectorAll('[data-show-all]').forEach(function (a) {
-      a.addEventListener('click', function () {
-        setCat(cat, true);
       });
     });
     showAll.addEventListener('click', function () {
@@ -547,29 +590,52 @@ const scriptData = {
       none.hidden = hits > 0;
       showAll.hidden = true;
       head(mh.searchKicker, mh.searchTitle, mh.searchFor.replace('{q}', input.value.trim()));
+      announce(hits);
     });
     document.getElementById('mh-search-form').addEventListener('submit', function (e) {
       e.preventDefault();
       root.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
+    // Lupe im Kopf: Suchfeld fokussieren. Die Suche klebt beim Scrollen unter der Kopfleiste,
+    // der Sprung ist also kurz und die Treffer stehen direkt darunter.
     document.getElementById('mh-focus-search').addEventListener('click', function () {
       input.focus({ preventScroll: true });
-      input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      input.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
 
     // Alte Sprungziele aus Links: #image-tools -> Reiter Bild usw.
-    const legacy = { '#audio-tools': 'audio', '#image-tools': 'image', '#diverse-tools': 'video' };
+    const legacy = { '#audio-tools': 'audio', '#image-tools': 'image', '#diverse-tools': 'media' };
     function fromHash() {
-      if (legacy[location.hash]) setCat(legacy[location.hash], false);
+      if (legacy[location.hash]) setCat(legacy[location.hash], false, true);
     }
     fromHash();
     window.addEventListener('hashchange', fromHash);
 
-    // Hell/Dunkel
-    document.getElementById('mh-theme').addEventListener('click', function () {
+    // Merk-Knöpfe: die Favoriten-Island setzt .is-active; Screenreader bekommen den Zustand
+    // über aria-pressed (hier gepflegt, damit das Island-Bundle klein bleibt).
+    new MutationObserver(function (list) {
+      list.forEach(function (rec) {
+        const b = rec.target;
+        if (b.classList.contains('fav-btn')) {
+          b.setAttribute('aria-pressed', b.classList.contains('is-active') ? 'true' : 'false');
+        }
+      });
+    }).observe(grid, { subtree: true, attributes: true, attributeFilter: ['class'] });
+
+    // Hell/Dunkel (aria-pressed = dunkles Schema aktiv)
+    const theme = document.getElementById('mh-theme');
+    function syncTheme() {
+      theme.setAttribute(
+        'aria-pressed',
+        document.documentElement.getAttribute('data-theme') === 'dark' ? 'true' : 'false',
+      );
+    }
+    syncTheme();
+    theme.addEventListener('click', function () {
       const next =
         document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', next);
+      syncTheme();
       try {
         localStorage.setItem('theme', next);
       } catch {
@@ -597,29 +663,36 @@ const scriptData = {
       });
       mn.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
+          e.stopPropagation();
           closeMenu();
           btn.focus();
         }
       });
     });
-    document.addEventListener('click', function () {
-      closeMenu();
-    });
 
-    // Hamburger (bis 1240px)
+    // Hamburger (bis 1240px): schließt per Link, Esc und Klick außerhalb.
     const burger = document.getElementById('mh-burger');
     const links = document.getElementById('mh-navlinks');
-    burger.addEventListener('click', function (e) {
-      e.stopPropagation();
-      const open = links.classList.toggle('is-open');
+    function setBurger(open) {
+      links.classList.toggle('is-open', open);
       burger.setAttribute('aria-expanded', open ? 'true' : 'false');
       burger.setAttribute('aria-label', open ? mh.menuClose : mh.menuOpen);
+    }
+    burger.addEventListener('click', function (e) {
+      e.stopPropagation();
+      setBurger(!links.classList.contains('is-open'));
     });
     links.addEventListener('click', function (e) {
-      if (e.target.closest('a')) {
-        links.classList.remove('is-open');
-        burger.setAttribute('aria-expanded', 'false');
-        burger.setAttribute('aria-label', mh.menuOpen);
+      if (e.target.closest('a')) setBurger(false);
+    });
+    document.addEventListener('click', function (e) {
+      closeMenu();
+      if (links.classList.contains('is-open') && !links.contains(e.target)) setBurger(false);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && links.classList.contains('is-open')) {
+        setBurger(false);
+        burger.focus();
       }
     });
   })();

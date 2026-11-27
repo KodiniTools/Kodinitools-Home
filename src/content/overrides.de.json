@@ -4,7 +4,7 @@
   },
   "hero": {
     "subtitle": "Öffnen Sie ein Tool und legen Sie direkt los:\nDatei auswählen, bearbeiten, herunterladen. Ohne Werbung.",
-    "title": "Kostenlose Online-Werkzeuge für *Bild, Ton, Video und Text*",
+    "title": "Kostenlose Online-Tools für *Bild, Ton, Video und Text*",
     "features": {
       "free": "Sofort startklar",
       "browserBased": "Läuft im Browser",
@@ -19,12 +19,12 @@
     },
     "audioEqualizer": {
       "svg": "",
-      "title": "19-Band EQ Pro\nAufnahme und Export",
+      "title": "19-Band-Equalizer Pro\nAufnahme und Export",
       "badge": "wav webm"
     },
     "musicPlayer": {
       "svg": "",
-      "title": "Musikplayer\nmp3-wav-flac-m4a-ogg",
+      "title": "Musikplayer\nmp3-wav-aac-flac-ogg-m4a",
       "badge": "kein limit"
     },
     "audioVisualizer": {
@@ -37,12 +37,14 @@
       "badge": "MP3-browser-server"
     },
     "interactiveEqualizer": {
-      "svg": ""
+      "svg": "",
+      "title": "15-Band-Equalizer\nGrafisch, in Echtzeit"
     },
     "modernPlayer": {
       "svg": "",
-      "badge": "radio",
-      "title": "Moderner Musikplayer\nkodinitools Radio"
+      "badge": "Radio",
+      "title": "Radio-Player\nkodinitools Radio",
+      "description": "Musikplayer mit kodinitools Radio: schlank und modern, mit allen wichtigen Funktionen. Unterstützt viele Formate."
     },
     "playlistGenerator": {
       "svg": "",
@@ -53,31 +55,38 @@
       "svg": ""
     },
     "audioNormalizer": {
-      "svg": ""
+      "svg": "",
+      "description": "Audio-Lautstärke online kostenlos normalisieren – automatisch LUFS-konform angleichen. Ideal für Podcasts, Hörbücher und Streaming."
     },
     "playlistToWebm": {
       "svg": "",
-      "description": "Bis zu 50 Audio-Tracks in eine MP3 oder WebM-Datei konvertieren",
+      "description": "Bis zu 50 Audio-Tracks in eine MP3- oder WebM-Datei umwandeln.",
       "badge": "server",
       "title": "Wiedergabelisten-Konverter\nmp3-webm"
     },
     "audioCutter": {
       "svg": ""
-    }
+    },
+    "sectionTitle": "Audio-Tools",
+    "sectionDescription": "Audiodateien umwandeln, schneiden, abspielen und aufnehmen. Jede Karte zeigt, ob das Tool im Browser oder auf unserem Server in Deutschland arbeitet."
   },
   "imageTools": {
     "imageConverter": {
       "svg": "",
-      "title": "Bildkonverter\npng-jpeg-webp-pdf-svg-gif-heif"
+      "title": "Bildkonverter\npng-jpeg-webp-pdf-svg-gif-heif",
+      "description": "JPG zu WebP konvertieren online kostenlos – und umgekehrt. Mehrere Bilder auf einmal zwischen JPG, PNG, WebP, AVIF, GIF und BMP umwandeln. DSGVO-konform."
     },
     "batchImageEditor": {
       "svg": "",
       "title": "Bilderserie Bildbearbeitung\npng-jpg-webp-pdf-zip",
-      "badge": "500+"
+      "badge": "500+",
+      "description": "Bildgröße mehrerer Bilder gleichzeitig ändern – 500+ Bilder auf einmal skalieren, umbenennen und als ZIP oder PDF exportieren."
     },
     "photoCollage": {
       "svg": ""
-    }
+    },
+    "sectionTitle": "Bild-Tools",
+    "sectionDescription": "Bilder umwandeln, bearbeiten und gestalten. Jede Karte zeigt, ob das Tool im Browser oder auf unserem Server in Deutschland arbeitet."
   },
   "diverseTools": {
     "colorExtractor": {
@@ -88,7 +97,7 @@
     "videoConverter": {
       "svg": "",
       "badge": "SERVER-5gb max",
-      "title": "Videokonverter\nmp4-webm-avi-mov-ts-flv-mkv"
+      "title": "Videokonverter\nmp4-webm-avi-mov-mkv-flv-wmv-ts"
     },
     "textEditor": {
       "svg": "",
@@ -98,7 +107,7 @@
     "textEditor-kopie": {
       "title": "Favicon-Generator\nico, png, webp, gif, bmp, svg",
       "badge": "browser-favicon",
-      "description": "Feste Formate für alle Plattformen: favicon.ico (16, 32, 48 px), PNG 16 und 32 px, Apple-Touch-Icon 180 px, Android-Icons 192 und 512 px (auch maskable), site.webmanifest, HTML-Code und bei SVG-Quelle favicon.svg. ",
+      "description": "Alle Favicon-Größen auf einmal: favicon.ico, PNG, Apple-Touch- und Android-Icons, site.webmanifest und HTML-Code.",
       "link": "https://kodinitools.com/favicon-tool/",
       "svg": ""
     }
