@@ -6,6 +6,8 @@ import HomeLayout from '../../layouts/HomeLayout.astro';
 import ModernHome, { type ModernTool } from '../ModernHome.astro';
 import homeModernCssRaw from '../../styles/parts/home-modern.css?raw';
 import homeModernMotionCssRaw from '../../styles/parts/home-modern-motion.css?raw';
+import paletteCssRaw from '../../styles/parts/palette.css?raw';
+import { TOOL_CATALOG } from '../../content/toolCatalog';
 import { getContent, getHiddenCards, getHomeLayout, getMedia } from '../../content/content';
 import type { Lang } from '../../i18n/lang';
 
@@ -65,8 +67,19 @@ const search = {
   resultsTitle: page.search.resultsTitle,
   noResults: page.search.noResults,
 };
+// Such-Overlay (Strg/Cmd + K, Admin > Layout > Suche): wie im klassischen Design nur bei
+// aktivem Schalter. Suchbegriffe und Formate je sichtbarer Karte aus dem Tool-Katalog.
+const palette = homeLayout.cmdPalette
+  ? Object.entries(TOOL_CATALOG)
+      .filter(([key]) => !hiddenCards.has(key))
+      .map(([key, entry]) => ({
+        key,
+        keywords: [...entry.keywords[lang]],
+        formats: [...entry.formats],
+      }))
+  : undefined;
 // Kommentare und Einrückung entfernen; die Regeln stehen inline (eine Anfrage weniger).
-const css = (homeModernCssRaw + homeModernMotionCssRaw)
+const css = (homeModernCssRaw + homeModernMotionCssRaw + (palette ? paletteCssRaw : ''))
   .replace(/\/\*[\s\S]*?\*\//g, '')
   .replace(/\s+/g, ' ')
   .trim();
@@ -84,6 +97,7 @@ const css = (homeModernCssRaw + homeModernMotionCssRaw)
       search={search}
       procBadge={homeLayout.toolBadge}
       hiddenKeys={[...hiddenCards]}
+      palette={palette}
     />
   </div>
 </HomeLayout>

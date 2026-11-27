@@ -57,7 +57,8 @@ function readTools(): Tool[] {
       description: card.dataset.description ?? '',
       keywords: entry?.keywords ?? [],
       formats: entry?.formats ?? [],
-      link: card.getAttribute('href') ?? '#',
+      // Modernes Design: Karte = Rahmen, der Link liegt darin (klassisch: Karte = Link).
+      link: (card.querySelector('a') ?? card).getAttribute('href') ?? '#',
       svg: card.getAttribute(`data-svg-${props.lang}`) ?? '',
     });
   });

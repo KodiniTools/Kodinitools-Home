@@ -42,8 +42,17 @@ const buildFiles = allFiles
   .filter((f) => !f.startsWith('fontawesome/') && !f.startsWith('partials/'))
   .sort();
 
-/** Inhaltsseiten = alle index.html-Dateien (ohne 404 und SSI-Partials). */
-const pages = buildFiles.filter((f) => f === 'index.html' || f.endsWith('/index.html'));
+/** Weiterleitungen (redirects in astro.config.ts): kurze Meta-Refresh-Seiten, keine Inhaltsseiten. */
+const REDIRECT_PAGES: Record<string, string> = {
+  'home/index.html': '/',
+  'startseite/index.html': '/',
+  'en/home/index.html': '/en/',
+};
+
+/** Inhaltsseiten = alle index.html-Dateien (ohne 404, SSI-Partials und Weiterleitungen). */
+const pages = buildFiles.filter(
+  (f) => (f === 'index.html' || f.endsWith('/index.html')) && !(f in REDIRECT_PAGES),
+);
 
 /** dist-Pfad → öffentliche URL, z. B. „blog/x/index.html“ → „https://kodinitools.com/blog/x/“. */
 const urlOf = (file: string) => `${SITE}/${file.replace(/index\.html$/, '')}`;
@@ -82,6 +91,17 @@ describe('Build-Ausgabe', () => {
   it('enthält die 404-Seite', () => {
     expect(allFiles).toContain('404.html');
   });
+
+  it.each(Object.entries(REDIRECT_PAGES))(
+    '%s leitet auf %s weiter (noindex, Canonical, nicht in der Sitemap)',
+    (file, target) => {
+      const html = read(file);
+      expect(html).toContain(`http-equiv="refresh" content="0;url=${target}"`);
+      expect(html).toContain('<meta name="robots" content="noindex">');
+      expect(html).toContain(`<link rel="canonical" href="${SITE}${target}">`);
+      expect(read('sitemap.xml')).not.toContain(urlOf(file));
+    },
+  );
 });
 
 describe.each(pages)('Seite %s', (file) => {
@@ -498,8 +518,9 @@ describe('Verarbeitung der Tools (Admin > Layout)', () => {
 
 describe('Such-Overlay Strg+K (Admin > Layout > Suche)', () => {
   // Folgt media.json: aus = nichts im HTML (Standard), an = Schaltfläche, Island und CSS.
+  // Im modernen Design ebenso; dort öffnet die Lupe im Kopf das Overlay.
   const site = (mediaJson as { site?: { cmdPalette?: boolean } }).site;
-  const on = site?.cmdPalette === true && !MODERN;
+  const on = site?.cmdPalette === true;
   it.each(['index.html', 'en/index.html'])('%s entspricht dem Schalter aus media.json', (file) => {
     const html = read(file);
     if (on) {
@@ -508,6 +529,7 @@ describe('Such-Overlay Strg+K (Admin > Layout > Suche)', () => {
       expect(html).toMatch(/component-url="\/_astro\/CommandPalette\.[^"]+\.js"/);
       // Das Overlay selbst lädt erst beim Öffnen: nicht im HTML.
       expect(html).not.toContain('class="cmdk-dialog"');
+      if (MODERN) expect(html).toMatch(/id="mh-focus-search"[^>]*aria-haspopup="dialog"/);
     } else {
       expect(html).not.toContain('cmdk');
       expect(html).not.toContain('CommandPalette');

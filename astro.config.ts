@@ -77,6 +77,14 @@ const EXTRA_SITEMAP_PAGES = [
 // /kodini-color-extractor/app, /kodini-color-extractor/generator, /visualizer/app.
 toolPages.push(...EXTRA_SITEMAP_PAGES);
 
+// Häufig getippte Adressen ohne eigene Seite: statische Weiterleitung (Meta-Refresh mit
+// Canonical) auf die Startseite, nicht in der Sitemap. /home lieferte bisher 404.
+const REDIRECTS: Record<string, string> = {
+  '/home': '/',
+  '/startseite': '/',
+  '/en/home': '/en/',
+};
+
 export default defineConfig({
   site: 'https://kodinitools.com',
   // Standard-Deploy: base '/', Ausgabe nach dist/. Der Admin-Vorschau-Build
@@ -87,12 +95,16 @@ export default defineConfig({
   // CSS direkt ins HTML einbetten: keine render-blockierenden Stylesheet-Requests
   // (PageSpeed: „Anfragen zum Blockieren des Renderings"). Die Seiten-CSS ist klein (~15 KB).
   build: { inlineStylesheets: 'always' },
+  redirects: REDIRECTS,
   integrations: [
     // Eigene Integration: erzeugt EINE flache sitemap.xml statt des von
     // @astrojs/sitemap erzwungenen Paars sitemap-index.xml + sitemap-0.xml.
     // Die Tool-Apps (toolPages) stehen je mit deutscher URL und englischer
     // Fassung (?lang=en) samt hreflang de/en/x-default drin. Siehe single-sitemap.ts.
-    singleSitemap({ extraPages: langAlternatePages(toolPages) }),
+    singleSitemap({
+      extraPages: langAlternatePages(toolPages),
+      exclude: Object.keys(REDIRECTS).map((from) => `${from.replace(/^\//, '')}/`),
+    }),
     // Vue 3 für interaktive Islands (src/islands/), nur dort im Browser geladen.
     vue(),
     // Verkleinerte Fassungen hochgeladener Bilder für srcset (Hero-Banner).

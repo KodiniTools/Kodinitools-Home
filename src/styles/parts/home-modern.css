@@ -701,6 +701,11 @@ body:has(#app[data-design='modern']) {
   background: var(--md-cta-grad-hover);
 }
 
+/* Such-Overlay: die eigene Schaltfläche entfällt, die Lupe im Kopf öffnet es. */
+#app[data-design='modern'] .cmdk-bar {
+  display: none;
+}
+
 /* ---------- Reiter ---------- */
 /* Vier gleich breite Reiter zwischen den Linien des Hero-Textes
    (gleicher Einzug wie .mh-hero-grid), so hoch wie die Hero-Buttons. */
@@ -1163,24 +1168,42 @@ body:has(#app[data-design='modern']) {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  /* Handy: Tools sollen früh sichtbar sein. Die Kachel steht klein wie ein App-Icon über
+     dem Titel statt groß unter den Knöpfen, die Knöpfe stehen nebeneinander. */
+  #app[data-design='modern'] .mh-hero {
+    padding: 16px 0 20px;
+  }
+
+  #app[data-design='modern'] .mh-hero-grid {
+    gap: 4px;
+  }
+
   #app[data-design='modern'] .mh-tile-wrap {
-    justify-items: center;
+    --ts: 84px;
+    order: -1;
+    justify-items: start;
     padding-right: 0;
+    padding-left: 6px;
   }
 
   #app[data-design='modern'] .mh-tile-halo {
     right: auto;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    left: 0;
   }
 
   #app[data-design='modern'] .mh-hero-buttons {
-    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
   }
 
   #app[data-design='modern'] .mh-primary,
   #app[data-design='modern'] .mh-secondary {
+    flex: 1 1 0;
+    min-width: 0;
     justify-content: center;
+    gap: 10px;
+    padding: 0 14px;
+    font-size: 16px;
   }
 
   #app[data-design='modern'] .mh-title {

@@ -24,6 +24,7 @@ import {
   TILE_LAYERS,
 } from '../content/modernHome';
 import FavoritesSection from '../islands/favorites/FavoritesSection.vue';
+import CommandPalette from '../islands/palette/CommandPalette.vue';
 
 export interface ModernTool {
   i18nKey: string;
@@ -43,9 +44,12 @@ interface Props {
   search: { placeholder: string; resultsTitle: string; noResults: string };
   procBadge: boolean;
   hiddenKeys: string[];
+  /** Such-Overlay (Strg/Cmd + K): Suchbegriffe je Karte; ohne Wert kein Overlay. */
+  palette?: { key: string; keywords: string[]; formats: string[] }[];
 }
 
-const { lang, tools, hero, features, sections, search, procBadge, hiddenKeys } = Astro.props;
+const { lang, tools, hero, features, sections, search, procBadge, hiddenKeys, palette } =
+  Astro.props;
 const ui = HOME_UI[lang];
 const m = ui.modern;
 const other: Lang = lang === 'de' ? 'en' : 'de';
@@ -193,7 +197,15 @@ const scriptData = {
       <a href={CONTACT_URL} {...deOnly}>{m.nav.contact}</a>
     </nav>
     <div class="mh-actions">
-      <button type="button" class="mh-round" id="mh-focus-search" aria-label={m.nav.search}>
+      <button
+        type="button"
+        class="mh-round"
+        id="mh-focus-search"
+        aria-label={m.nav.search}
+        aria-haspopup={palette ? 'dialog' : undefined}
+        aria-keyshortcuts={palette ? 'Control+K Meta+K' : undefined}
+        title={palette ? `${m.nav.search} (${ui.palette.keyHint})` : undefined}
+      >
         <svg width="20" height="20" aria-hidden="true"><use href="#mhi-search"></use></svg>
       </button>
       <button
@@ -366,6 +378,13 @@ const scriptData = {
         ))
       }
     </div>
+
+    {
+      /* Such-Overlay: eigene Schaltfläche ausgeblendet, geöffnet wird es über die Lupe im Kopf. */
+      palette && (
+        <CommandPalette client:idle lang={lang} entries={palette} texts={{ ...ui.palette }} />
+      )
+    }
 
     <FavoritesSection
       client:idle
@@ -598,7 +617,14 @@ const scriptData = {
     });
     // Lupe im Kopf: Suchfeld fokussieren. Die Suche klebt beim Scrollen unter der Kopfleiste,
     // der Sprung ist also kurz und die Treffer stehen direkt darunter.
+    // Mit Such-Overlay öffnet die Lupe das Overlay (Strg/Cmd + K). Ist es noch nicht geladen
+    // (Island hydriert erst im Leerlauf) oder abgeschaltet, springt sie zum Suchfeld.
     document.getElementById('mh-focus-search').addEventListener('click', function () {
+      const trigger = document.querySelector('.cmdk-trigger');
+      if (trigger) {
+        trigger.click();
+        if (document.documentElement.classList.contains('cmdk-open')) return;
+      }
       input.focus({ preventScroll: true });
       input.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
