@@ -13,6 +13,7 @@ import type { Lang } from '../i18n/lang';
 import { HOME_UI, type ModernCat, type ModernTab } from '../i18n/home-ui';
 import { IMPRINT_PATH, PRIVACY_URL, CONTACT_URL, GALLERY_URL } from '../i18n/imprint';
 import { ABOUT_PATH } from '../i18n/about';
+import { DONATE_PATH } from '../i18n/donate';
 import { TOOL_CATALOG, type ToolProcessing } from '../content/toolCatalog';
 import {
   modernCatOf,
@@ -505,15 +506,26 @@ const scriptData = {
   </div>
 </main>
 
+{/* Fußzeile: oben die Seiten (wer bis unten scrollt, muss nicht zurück), unten Rechtliches. */}
 <footer class="mh-footer">
-  <div class="mh-shell mh-footer-inner">
-    <span>© {new Date().getFullYear()} KodiniTools · {m.footerTagline}</span>
-    <span
-      ><a href={IMPRINT_PATH[lang]}>{m.imprint}</a> · <a href={PRIVACY_URL} {...deOnly}
-        >{m.privacy}</a
-      > ·
-      <a href={CONTACT_URL} {...deOnly}>{m.nav.contact}</a></span
-    >
+  <div class="mh-shell">
+    <nav class="mh-footer-nav" aria-label={m.nav.footerLabel}>
+      <ul>
+        <li><a href={blogHref}>{m.nav.blog}</a></li>
+        <li><a href={GALLERY_URL} {...deOnly}>{m.nav.gallery}</a></li>
+        <li><a href={faqHref}>{m.nav.faq}</a></li>
+        <li><a href={aboutHref}>{m.nav.about}</a></li>
+        <li><a href={DONATE_PATH[lang]}>{m.nav.donate}</a></li>
+        <li><a href={CONTACT_URL} {...deOnly}>{m.nav.contact}</a></li>
+      </ul>
+    </nav>
+    <div class="mh-footer-inner">
+      <span>© {new Date().getFullYear()} KodiniTools · {m.footerTagline}</span>
+      <span
+        ><a href={IMPRINT_PATH[lang]}>{m.imprint}</a> ·
+        <a href={PRIVACY_URL} {...deOnly}>{m.privacy}</a></span
+      >
+    </div>
   </div>
 </footer>
 
