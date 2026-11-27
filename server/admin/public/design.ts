@@ -27,6 +27,7 @@ import {
   defaultHeroBgSlideshow,
   getHomeLayout,
   getModernDesign,
+  getModernHeroImage,
   navLang,
 } from './model';
 import { heroPreviewMedia, heroPreviewMediaStyle, HERO_PREVIEW_LAYOUT_CSS } from './hero-preview';
@@ -103,6 +104,7 @@ export function modernHeroOf(lang: Lang): ModernHeroData {
     cta: text('hero.cta'),
     features: featureDefs(lang).map((f) => ({ key: f.key, text: featLabel(ov, f) })),
     design: heroDesignOf(lang),
+    heroImage: getModernHeroImage(),
   });
 }
 
@@ -120,6 +122,7 @@ export function heroService(lang: Lang): HeroService {
     features: () => featureDefs(lang),
     homeLayout: getHomeLayout,
     modernDesign: getModernDesign,
+    modernHeroImage: getModernHeroImage,
     resolveUrl: heroImgUrl,
     slideInfo: (val: string) => {
       const info = slideInfo(val);

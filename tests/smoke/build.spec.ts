@@ -581,6 +581,17 @@ describe('Modernes Design (Admin > Layout > Seiten-Layout)', () => {
       for (const id of ['audio-tools', 'image-tools', 'diverse-tools']) {
         expect(html).toContain(`id="${id}"`);
       }
+      // Hero-Bild statt 3D-Kachel (Standard an; aus nur mit site.modernHeroImage === false).
+      const pic = (site as { modernHeroImage?: boolean } | undefined)?.modernHeroImage !== false;
+      if (pic) {
+        expect(html).toMatch(/<img class="mh-hero-pic"[^>]*srcset="[^"]*werkbank-480\.webp 480w/);
+        expect(html).not.toContain('class="mh-tile-img"');
+        for (const w of [480, 720, 1000]) {
+          expect(existsSync(join(DIST, `image/home/hero/werkbank-${w}.webp`))).toBe(true);
+        }
+      } else {
+        expect(html).toContain('class="mh-tile-img"');
+      }
       // Navigation: Blog, Galerie, FAQ in dieser Reihenfolge; jede Karte verlinkt ein Tool.
       const nav = /<nav[^>]*id="mh-navlinks"[\s\S]*?<\/nav>/.exec(html)?.[0] ?? '';
       const blog = nav.indexOf('/blog/');

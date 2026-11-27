@@ -10,6 +10,7 @@ export {
   stripAccent,
   MODERN_ICONS,
   TILE_LAYERS,
+  HERO_PIC,
 } from './modernHomeBase';
 
 /** Modernes Design aktiv? Nur mit Kompakt-Layout UND Schalter (Admin > Layout). */

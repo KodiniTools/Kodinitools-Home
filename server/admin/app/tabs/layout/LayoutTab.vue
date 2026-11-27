@@ -224,8 +224,10 @@ const grid = computed(() => view.value.m.heroMode === 'grid');
 const modern = computed(
   () => view.value.page.homeLayout === 'compact' && view.value.page.modernDesign === true,
 );
-const modernData = computed(
-  () =>
+const modernData = computed(() => {
+  // Neu berechnen, wenn ein Seiten-Schalter (z. B. „Hero-Bild statt 3D-Logo“) wechselt.
+  void view.value.page.modernHeroImage;
+  return (
     service.modernHero?.() ??
     modernHeroData({
       lang: service.lang,
@@ -234,8 +236,9 @@ const modernData = computed(
       cta: '',
       features: [],
       design: {},
-    }),
-);
+    })
+  );
+});
 const layout = computed(() => normLayout(service.layouts, view.value.m.heroLayout));
 const isMosaic = computed(() => layout.value === 'mosaic');
 const cells = computed(() =>

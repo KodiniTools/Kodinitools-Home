@@ -1632,6 +1632,8 @@ export interface SiteConfig {
   workflows: boolean;
   // Modernes Design der Startseite (Navy/Glas, Listenkarten). Wirkt nur im Kompakt-Layout. Standard aus.
   modernDesign: boolean;
+  // Modernes Design: Hero-Bild statt 3D-Logo-Kachel. Standard an.
+  modernHeroImage: boolean;
 }
 export interface SiteSectionSide {
   color: string; // '' = keine Tönung
@@ -1741,6 +1743,7 @@ const SITE_DEFAULTS: SiteConfig = {
   cmdPalette: false,
   workflows: false,
   modernDesign: false,
+  modernHeroImage: true,
 };
 // Erlaubte Bild-URL (interner Pfad oder http(s)), ohne Zeichen, die url("…") brechen.
 const SITE_MEDIA_URL = /^(\/[^\s"'()\\]*|https?:\/\/[^\s"'()\\]+)$/;
@@ -1782,6 +1785,7 @@ export function getHomeLayout(): {
   cmdPalette: boolean;
   workflows: boolean;
   modernDesign: boolean;
+  modernHeroImage: boolean;
 } {
   const site = getSite();
   return {
@@ -1802,6 +1806,7 @@ export function getHomeLayout(): {
     cmdPalette: site.cmdPalette === true,
     workflows: site.workflows === true,
     modernDesign: site.modernDesign === true,
+    modernHeroImage: site.modernHeroImage !== false,
   };
 }
 

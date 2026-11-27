@@ -249,6 +249,7 @@ const modernData = computed(() =>
     cta: slotText('hero.cta'),
     features: view.value.feats.map((f) => ({ key: f.key, text: featLabel(view.value.ov, f) })),
     design: view.value.hd,
+    heroImage: view.value.heroImage,
   }),
 );
 const LANG = service.lang.toUpperCase();

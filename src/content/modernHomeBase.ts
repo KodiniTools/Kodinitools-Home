@@ -95,6 +95,20 @@ export const MODERN_ICONS: Readonly<Record<string, string>> = {
  * und Tablet weglassen (gleiche Dicke mit 10 statt 30 Ebenen, wie im Entwurf).
  * Reihenfolge von hinten nach vorn.
  */
+/**
+ * Hero-Bild statt 3D-Logo-Kachel (Admin › Layout „Hero-Bild statt Logo“). Quadratisch,
+ * drei Breiten; `sizes` folgt der Breite in home-modern.css (.mh-hero-pic: min(100 %, --ts × 1,55),
+ * --ts = clamp(165px, 22vw, 330px)).
+ */
+export const HERO_PIC = {
+  src: '/image/home/hero/werkbank-720.webp',
+  srcset:
+    '/image/home/hero/werkbank-480.webp 480w, /image/home/hero/werkbank-720.webp 720w, /image/home/hero/werkbank-1000.webp 1000w',
+  sizes: '(max-width: 600px) 256px, min(34vw, 512px)',
+  width: 1000,
+  height: 1000,
+} as const;
+
 export const TILE_LAYERS: readonly { depth: number; src: string; fine: boolean }[] = Array.from(
   { length: 30 },
   (_, n) => {

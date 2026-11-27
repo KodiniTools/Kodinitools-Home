@@ -40,6 +40,8 @@ import {
   setWorkflows,
   getModernDesign,
   setModernDesign,
+  getModernHeroImage,
+  setModernHeroImage,
   getBannerStyle,
   getBannerSlides,
   getBannerSlideshow,
@@ -105,6 +107,7 @@ const PAGE_GET = {
   cmdPalette: getCmdPalette,
   workflows: getWorkflows,
   modernDesign: getModernDesign,
+  modernHeroImage: getModernHeroImage,
 };
 const PAGE_SET: Record<keyof typeof PAGE_GET, (v: unknown) => void> = {
   homeLayout: setHomeLayout,
@@ -120,6 +123,7 @@ const PAGE_SET: Record<keyof typeof PAGE_GET, (v: unknown) => void> = {
   cmdPalette: setCmdPalette,
   workflows: setWorkflows,
   modernDesign: setModernDesign,
+  modernHeroImage: setModernHeroImage,
 };
 
 // Medium (Server-URL oder 'staged:<id>') für die Vue-Fassung auflösen.

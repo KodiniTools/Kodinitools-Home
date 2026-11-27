@@ -1114,6 +1114,22 @@ body:has(#app[data-design='modern']) {
   color: var(--md-accent);
 }
 
+/* ---------- Hero-Bild statt Kachel (Admin › Layout „Hero-Bild statt 3D-Logo“) ----------
+   Gleicher Platz wie die Kachel (--ts aus .mh-tile-wrap), quadratisch, ohne Halo/3D. */
+#app[data-design='modern'] .mh-pic-wrap {
+  height: auto;
+  perspective: none;
+}
+
+#app[data-design='modern'] .mh-hero-pic {
+  display: block;
+  width: min(100%, calc(var(--ts) * 1.55));
+  height: auto;
+  aspect-ratio: 1;
+  border-radius: 22px;
+  box-shadow: 0 24px 60px rgba(10, 25, 50, 0.28);
+}
+
 /* ---------- Breakpoints (wie im Entwurf) ---------- */
 @media (max-width: 900px) {
   #app[data-design='modern'] .mh-hero-grid {
@@ -1189,6 +1205,20 @@ body:has(#app[data-design='modern']) {
   #app[data-design='modern'] .mh-tile-halo {
     right: auto;
     left: 0;
+  }
+
+  /* Hero-Bild statt Kachel: flaches Banner über dem Titel statt großem Quadrat darunter. */
+  #app[data-design='modern'] .mh-pic-wrap {
+    padding-left: 0;
+    margin-bottom: 10px;
+  }
+
+  #app[data-design='modern'] .mh-hero-pic {
+    width: 100%;
+    aspect-ratio: 8 / 3;
+    object-fit: cover;
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(10, 25, 50, 0.22);
   }
 
   #app[data-design='modern'] .mh-hero-buttons {

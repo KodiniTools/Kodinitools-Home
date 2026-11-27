@@ -144,6 +144,8 @@ export interface HeroService {
   homeLayout: () => 'classic' | 'compact';
   /** Schalter „Modernes Design“ (Admin › Layout). */
   modernDesign?: () => boolean;
+  /** Schalter „Hero-Bild statt 3D-Logo“ (Admin › Layout, Standard an). */
+  modernHeroImage?: () => boolean;
   /** Vorschau-URL eines Bildes ('staged:<id>' → Objekt-URL), '' ohne Bild. */
   resolveUrl: (val: string) => string;
   slideInfo: (val: string) => { src: string; name: string } | null;
