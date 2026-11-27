@@ -15,7 +15,7 @@
     "audioConverter": {
       "svg": "",
       "title": "Audio-Konverter\nmp3-wav-aac-flac-ogg",
-      "badge": "server"
+      "badge": "Batch"
     },
     "audioEqualizer": {
       "svg": "",
@@ -24,17 +24,17 @@
     },
     "musicPlayer": {
       "svg": "",
-      "title": "Musikplayer\nmp3-wav-aac-flac-ogg-m4a",
+      "title": "Musikplayer\nmp3-wav-flac-m4a-ogg",
       "badge": "kein limit"
     },
     "audioVisualizer": {
       "svg": "",
-      "badge": "50+ Visualizer-browser-server",
+      "badge": "50+ Visualizer",
       "title": "Audio-Visualizer\nmp4-webm"
     },
     "mp3Converter": {
       "svg": "",
-      "badge": "MP3-browser-server"
+      "badge": "MP3"
     },
     "interactiveEqualizer": {
       "svg": "",
@@ -43,13 +43,12 @@
     "modernPlayer": {
       "svg": "",
       "badge": "Radio",
-      "title": "Radio-Player\nkodinitools Radio",
-      "description": "Musikplayer mit kodinitools Radio: schlank und modern, mit allen wichtigen Funktionen. Unterstützt viele Formate."
+      "title": "Radio-Player\nkodinitools Radio"
     },
     "playlistGenerator": {
       "svg": "",
       "title": "Wiedergabelisten-Generator\nm3u-pls-cue-json-txt",
-      "badge": "browser"
+      "badge": "Playlist"
     },
     "alarmTool": {
       "svg": ""
@@ -61,7 +60,7 @@
     "playlistToWebm": {
       "svg": "",
       "description": "Bis zu 50 Audio-Tracks in eine MP3- oder WebM-Datei umwandeln.",
-      "badge": "server",
+      "badge": "50 Tracks",
       "title": "Wiedergabelisten-Konverter\nmp3-webm"
     },
     "audioCutter": {
@@ -92,21 +91,21 @@
     "colorExtractor": {
       "svg": "",
       "title": "Kodini Farbextraktor\nFarbgenerator",
-      "badge": "Farben-browser"
+      "badge": "Farben"
     },
     "videoConverter": {
       "svg": "",
-      "badge": "SERVER-5gb max",
+      "badge": "max. 5 GB",
       "title": "Videokonverter\nmp4-webm-avi-mov-mkv-flv-wmv-ts"
     },
     "textEditor": {
       "svg": "",
       "title": "Texteditor\ntxt-html-md-pdf",
-      "badge": "Text-browser"
+      "badge": "Text"
     },
     "textEditor-kopie": {
       "title": "Favicon-Generator\nico, png, webp, gif, bmp, svg",
-      "badge": "browser-favicon",
+      "badge": "Favicon",
       "description": "Alle Favicon-Größen auf einmal: favicon.ico, PNG, Apple-Touch- und Android-Icons, site.webmanifest und HTML-Code.",
       "link": "https://kodinitools.com/favicon-tool/",
       "svg": ""

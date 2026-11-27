@@ -12,7 +12,7 @@
     "audioConverter": {
       "svg": "",
       "title": "Audio Converter\nmp3-wav-aac-flac-ogg",
-      "badge": "server"
+      "badge": "Batch"
     },
     "audioEqualizer": {
       "svg": "",
@@ -21,18 +21,18 @@
     },
     "musicPlayer": {
       "svg": "",
-      "title": "Music Player\nmp3-wav-aac-flac-ogg-m4a",
+      "title": "Music Player\nmp3-wav-flac-m4a-ogg",
       "badge": "no limit"
     },
     "audioVisualizer": {
       "svg": "",
-      "badge": "50+ Visualizer-browser-server",
+      "badge": "50+ Visualizer",
       "title": "Audio Visualizer\nmp4-webm",
       "description": "Create free music videos for TikTok – stunning MP4 visualizations for TikTok, Instagram Reels and YouTube. No app required."
     },
     "mp3Converter": {
       "svg": "",
-      "badge": "MP3-browser-server"
+      "badge": "MP3"
     },
     "interactiveEqualizer": {
       "svg": "",
@@ -41,13 +41,12 @@
     "modernPlayer": {
       "svg": "",
       "badge": "Radio",
-      "title": "Radio Player\nkodinitools radio",
-      "description": "Music player with kodinitools radio: sleek and modern, with all essential features. Supports many formats."
+      "title": "Radio Player\nkodinitools radio"
     },
     "playlistGenerator": {
       "svg": "",
       "title": "Audio Playlist Generator\nm3u-pls-cue-json-txt",
-      "badge": "Playlist-browser"
+      "badge": "Playlist"
     },
     "alarmTool": {
       "svg": ""
@@ -57,7 +56,7 @@
     },
     "playlistToWebm": {
       "svg": "",
-      "badge": "server",
+      "badge": "50 tracks",
       "title": "Playlist to MP3/WebM Converter\nmp3-webm",
       "description": "Convert up to 50 audio tracks into one MP3 or WebM file."
     },
@@ -86,21 +85,21 @@
     "colorExtractor": {
       "svg": "",
       "title": "Kodini Color Extractor\nColor Generator",
-      "badge": "Colors-browser"
+      "badge": "Colors"
     },
     "videoConverter": {
       "svg": "",
-      "badge": "SERVER-5gb max",
+      "badge": "max. 5 GB",
       "title": "Video Converter\nmp4-webm-avi-mov-mkv-flv-wmv-ts"
     },
     "textEditor": {
       "svg": "",
       "title": "Text Editor\ntxt-html-md-pdf",
-      "badge": "Text-browser"
+      "badge": "Text"
     },
     "textEditor-kopie": {
       "title": "Favicon Generator\nico, png, webp, gif, bmp, svg",
-      "badge": "browser favicon",
+      "badge": "Favicon",
       "description": "All favicon sizes at once: favicon.ico, PNG, Apple Touch and Android icons, site.webmanifest and HTML code.",
       "link": "https://kodinitools.com/favicon-tool/",
       "svg": ""
