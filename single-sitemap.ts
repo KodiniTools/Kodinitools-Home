@@ -96,7 +96,12 @@ function classify(pathname: string): { locale: string; key: string } {
 
 export default function singleSitemap({
   extraPages = [],
-}: { extraPages?: Array<string | SitemapEntry> } = {}): AstroIntegration {
+  exclude = [],
+}: {
+  extraPages?: Array<string | SitemapEntry>;
+  /** Pfade ohne führenden Schrägstrich (z. B. 'home/'), etwa Weiterleitungsseiten. */
+  exclude?: string[];
+} = {}): AstroIntegration {
   let site: string | undefined;
 
   return {
@@ -114,8 +119,9 @@ export default function singleSitemap({
         const origin = site.replace(/\/$/, '');
         const toUrl = (pathname: string) => `${origin}/${pathname}`;
 
-        // 1) Von Astro gebaute Seiten (404 raus), nach key/locale gruppieren.
-        const built = pages.map((p) => p.pathname).filter((pathname) => pathname !== '404/');
+        // 1) Von Astro gebaute Seiten (404 und Weiterleitungen raus), nach key/locale gruppieren.
+        const skip = new Set(['404/', ...exclude]);
+        const built = pages.map((p) => p.pathname).filter((pathname) => !skip.has(pathname));
 
         const groups: Map<string, Map<string, string>> = new Map(); // key -> Map<locale, url>
         for (const pathname of built) {
